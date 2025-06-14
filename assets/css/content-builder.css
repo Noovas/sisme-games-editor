@@ -1,0 +1,1045 @@
+/**
+ * File: /sisme-games-editor/assets/css/content-builder.css
+ * Styles pour le constructeur de contenu et sélecteur d'emoji
+ */
+
+/* === CONSTRUCTEUR DE CONTENU === */
+
+.sisme-content-builder {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px;
+    margin-top: 30px;
+    box-shadow: 
+        0 8px 32px rgba(44, 62, 80, 0.12),
+        0 2px 8px rgba(44, 62, 80, 0.08);
+    overflow: hidden;
+    animation: slideInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border: 1px solid rgba(161, 183, 141, 0.2);
+}
+
+.sisme-builder-header {
+    background: linear-gradient(135deg, var(--theme-palette-color-2) 0%, var(--theme-palette-color-1) 50%, var(--theme-palette-color-7) 100%);
+    padding: 40px 50px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-builder-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: shimmer 8s infinite linear;
+    pointer-events: none;
+}
+
+@keyframes shimmer {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.sisme-builder-title {
+    display: flex;
+    align-items: center;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.sisme-builder-title .dashicons {
+    margin-right: 16px;
+    font-size: 32px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.sisme-builder-subtitle {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 17px;
+    position: relative;
+    z-index: 1;
+    font-weight: 400;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.sisme-builder-container {
+    padding: 0;
+    background: white;
+}
+
+/* === BARRE D'OUTILS === */
+
+.sisme-builder-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 50px;
+    background: linear-gradient(135deg, var(--theme-palette-color-3) 0%, rgba(236, 240, 241, 0.5) 100%);
+    border-bottom: 2px solid rgba(161, 183, 141, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.sisme-add-section-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 28px;
+    background: linear-gradient(135deg, var(--theme-palette-color-1) 0%, var(--theme-palette-color-2) 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 
+        0 4px 16px rgba(161, 183, 141, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-add-section-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
+}
+
+.sisme-add-section-btn:hover::before {
+    left: 100%;
+}
+
+.sisme-add-section-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 8px 24px rgba(161, 183, 141, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.sisme-add-section-btn:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+.sisme-add-section-btn .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.sisme-builder-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.sisme-preview-btn,
+.sisme-save-draft-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: white;
+    border: 2px solid var(--theme-palette-color-5);
+    border-radius: 10px;
+    color: var(--theme-palette-color-6);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.sisme-preview-btn:hover,
+.sisme-save-draft-btn:hover {
+    border-color: var(--theme-palette-color-1);
+    background: rgba(161, 183, 141, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(161, 183, 141, 0.2);
+}
+
+.sisme-preview-btn .dashicons,
+.sisme-save-draft-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* === CONTAINER DES SECTIONS === */
+
+.sisme-sections-container {
+    min-height: 500px;
+    padding: 40px 50px;
+    background: linear-gradient(180deg, rgba(248, 249, 250, 0.5) 0%, white 100%);
+}
+
+/* === ÉTAT VIDE === */
+
+.sisme-empty-state {
+    text-align: center;
+    padding: 80px 40px;
+    color: var(--theme-palette-color-8);
+    background: white;
+    border-radius: 16px;
+    border: 2px dashed var(--theme-palette-color-5);
+    margin: 20px 0;
+    transition: all 0.3s ease;
+}
+
+.sisme-empty-state:hover {
+    border-color: var(--theme-palette-color-1);
+    background: rgba(161, 183, 141, 0.02);
+}
+
+.sisme-empty-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--theme-palette-color-1) 0%, var(--theme-palette-color-2) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 8px 32px rgba(161, 183, 141, 0.3),
+        inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    position: relative;
+}
+
+.sisme-empty-icon::before {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.sisme-empty-icon .dashicons {
+    font-size: 48px;
+    color: white;
+    position: relative;
+    z-index: 1;
+}
+
+.sisme-empty-state h3 {
+    color: var(--theme-palette-color-6);
+    font-size: 26px;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.sisme-empty-state p {
+    font-size: 17px;
+    margin-bottom: 35px;
+    line-height: 1.6;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sisme-add-first-section {
+    padding: 18px 36px;
+    background: linear-gradient(135deg, var(--theme-palette-color-1) 0%, var(--theme-palette-color-2) 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 auto;
+    box-shadow: 
+        0 4px 16px rgba(161, 183, 141, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.sisme-add-first-section:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 
+        0 8px 24px rgba(161, 183, 141, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* === SECTIONS === */
+
+.sisme-section {
+    background: white;
+    border: 2px solid var(--theme-palette-color-3);
+    border-radius: 16px;
+    margin-bottom: 30px;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    animation: slideInUp 0.6s ease-out;
+    box-shadow: 
+        0 4px 16px rgba(44, 62, 80, 0.08),
+        0 1px 4px rgba(44, 62, 80, 0.04);
+    overflow: hidden;
+}
+
+.sisme-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--theme-palette-color-1), var(--theme-palette-color-7));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.sisme-section:hover::before {
+    transform: scaleX(1);
+}
+
+.sisme-section:hover {
+    border-color: var(--theme-palette-color-1);
+    box-shadow: 
+        0 8px 32px rgba(161, 183, 141, 0.2),
+        0 2px 8px rgba(161, 183, 141, 0.1);
+    transform: translateY(-4px);
+}
+
+.sisme-section.dragging {
+    opacity: 0.8;
+    transform: rotate(3deg) scale(1.02);
+    z-index: 1000;
+    box-shadow: 
+        0 16px 48px rgba(44, 62, 80, 0.25),
+        0 4px 16px rgba(44, 62, 80, 0.15);
+}
+
+/* === HEADER DE SECTION === */
+
+.sisme-section-header {
+    display: flex;
+    align-items: center;
+    padding: 20px 25px;
+    background: linear-gradient(135deg, var(--theme-palette-color-3) 0%, rgba(236, 240, 241, 0.7) 100%);
+    border-bottom: 1px solid rgba(161, 183, 141, 0.2);
+    cursor: move;
+    transition: all 0.3s ease;
+}
+
+.sisme-section-header:hover {
+    background: linear-gradient(135deg, rgba(161, 183, 141, 0.1) 0%, var(--theme-palette-color-3) 100%);
+}
+
+.sisme-section-drag {
+    margin-right: 16px;
+    color: var(--theme-palette-color-5);
+    cursor: grab;
+    font-size: 18px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.sisme-section-drag:hover {
+    background: rgba(161, 183, 141, 0.1);
+    color: var(--theme-palette-color-2);
+}
+
+.sisme-section-drag:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+}
+
+.sisme-section-type {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    font-size: 16px;
+}
+
+.sisme-section-type .dashicons {
+    margin-right: 12px;
+    color: var(--theme-palette-color-1);
+    font-size: 18px;
+}
+
+.sisme-section-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.sisme-section-collapse,
+.sisme-section-duplicate,
+.sisme-section-delete {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-section-collapse {
+    background: linear-gradient(135deg, var(--theme-palette-color-5) 0%, var(--theme-palette-color-2) 100%);
+    color: white;
+}
+
+.sisme-section-collapse:hover {
+    transform: scale(1.1) rotate(180deg);
+    box-shadow: 0 4px 12px rgba(156, 172, 160, 0.4);
+}
+
+.sisme-section-duplicate {
+    background: linear-gradient(135deg, var(--theme-palette-color-7) 0%, #bf8f5a 100%);
+    color: white;
+}
+
+.sisme-section-duplicate:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(212, 163, 115, 0.4);
+}
+
+.sisme-section-delete {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+}
+
+.sisme-section-delete:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+}
+
+/* === CONTENU DE SECTION === */
+
+.sisme-section-content {
+    padding: 35px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    background: white;
+}
+
+.sisme-section.collapsed .sisme-section-content {
+    display: none;
+}
+
+.sisme-section.collapsed .sisme-section-collapse .dashicons {
+    transform: rotate(180deg);
+}
+
+/* === SÉLECTEUR D'EMOJI === */
+
+.sisme-title-input-group {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.sisme-emoji-selector {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.sisme-emoji-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, white 0%, #f8f9fa 100%);
+    border: 2px solid var(--theme-palette-color-3);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    height: 100%;
+    min-width: 100px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-emoji-trigger::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(161, 183, 141, 0.1) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+}
+
+.sisme-emoji-trigger:hover::before {
+    transform: translateX(100%);
+}
+
+.sisme-emoji-trigger:hover {
+    border-color: var(--theme-palette-color-1);
+    background: linear-gradient(135deg, rgba(161, 183, 141, 0.05) 0%, #f8f9fa 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(161, 183, 141, 0.2);
+}
+
+.sisme-emoji-trigger.active {
+    border-color: var(--theme-palette-color-1);
+    background: linear-gradient(135deg, rgba(161, 183, 141, 0.1) 0%, rgba(161, 183, 141, 0.05) 100%);
+    box-shadow: 
+        0 4px 16px rgba(161, 183, 141, 0.3),
+        inset 0 2px 4px rgba(161, 183, 141, 0.1);
+}
+
+.sisme-emoji-display {
+    font-size: 24px;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.sisme-emoji-trigger:hover .sisme-emoji-display {
+    transform: scale(1.2) rotate(5deg);
+}
+
+.sisme-emoji-trigger .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.sisme-emoji-trigger:hover .dashicons {
+    opacity: 1;
+    transform: rotate(180deg);
+}
+
+.sisme-section-title-input {
+    flex: 1;
+    padding: 16px 20px;
+    border: 2px solid var(--theme-palette-color-3);
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    background: linear-gradient(135deg, white 0%, #f8f9fa 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.sisme-section-title-input:focus {
+    outline: none;
+    border-color: var(--theme-palette-color-1);
+    background: white;
+    box-shadow: 
+        0 4px 16px rgba(161, 183, 141, 0.2),
+        inset 0 2px 4px rgba(161, 183, 141, 0.05);
+    transform: translateY(-2px);
+}
+
+/* === DROPDOWN D'EMOJIS === */
+
+.sisme-emoji-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    background: white;
+    border: 2px solid var(--theme-palette-color-1);
+    border-radius: 16px;
+    box-shadow: 
+        0 16px 48px rgba(161, 183, 141, 0.25),
+        0 4px 16px rgba(161, 183, 141, 0.15),
+        0 0 0 1px rgba(161, 183, 141, 0.05);
+    z-index: 1000;
+    width: 360px;
+    max-height: 480px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    backdrop-filter: blur(10px);
+}
+
+.sisme-emoji-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+/* === RECHERCHE D'EMOJI === */
+
+.sisme-emoji-search {
+    padding: 20px;
+    border-bottom: 1px solid var(--theme-palette-color-3);
+    background: linear-gradient(135deg, rgba(161, 183, 141, 0.05) 0%, white 100%);
+}
+
+.sisme-emoji-search-input {
+    width: 100%;
+    padding: 12px 16px 12px 44px;
+    border: 2px solid var(--theme-palette-color-3);
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    background: white url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23A1B78D"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>') no-repeat 14px center;
+    background-size: 18px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.sisme-emoji-search-input:focus {
+    border-color: var(--theme-palette-color-1);
+    box-shadow: 
+        0 0 0 3px rgba(161, 183, 141, 0.1),
+        inset 0 2px 4px rgba(161, 183, 141, 0.05);
+}
+
+.sisme-emoji-search-input::placeholder {
+    color: var(--theme-palette-color-5);
+    font-style: italic;
+}
+
+/* === CATÉGORIES D'EMOJIS === */
+
+.sisme-emoji-categories {
+    display: flex;
+    padding: 16px 20px;
+    gap: 12px;
+    background: linear-gradient(135deg, var(--theme-palette-color-3) 0%, rgba(236, 240, 241, 0.5) 100%);
+    border-bottom: 1px solid rgba(161, 183, 141, 0.2);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sisme-emoji-categories::-webkit-scrollbar {
+    display: none;
+}
+
+.sisme-emoji-cat {
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-emoji-cat::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--theme-palette-color-1), var(--theme-palette-color-2));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 12px;
+}
+
+.sisme-emoji-cat:hover,
+.sisme-emoji-cat.active {
+    transform: scale(1.1);
+    box-shadow: 0 4px 16px rgba(161, 183, 141, 0.3);
+}
+
+.sisme-emoji-cat:hover::before,
+.sisme-emoji-cat.active::before {
+    opacity: 1;
+}
+
+.sisme-emoji-cat:hover,
+.sisme-emoji-cat.active {
+    color: white;
+}
+
+/* === GRILLE D'EMOJIS === */
+
+.sisme-emoji-grid {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+    max-height: 240px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--theme-palette-color-5) var(--theme-palette-color-3);
+}
+
+.sisme-emoji-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sisme-emoji-grid::-webkit-scrollbar-track {
+    background: var(--theme-palette-color-3);
+    border-radius: 3px;
+}
+
+.sisme-emoji-grid::-webkit-scrollbar-thumb {
+    background: var(--theme-palette-color-5);
+    border-radius: 3px;
+    transition: background 0.3s ease;
+}
+
+.sisme-emoji-grid::-webkit-scrollbar-thumb:hover {
+    background: var(--theme-palette-color-2);
+}
+
+.sisme-emoji-item {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    user-select: none;
+    position: relative;
+}
+
+.sisme-emoji-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--theme-palette-color-3);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sisme-emoji-item:hover {
+    transform: scale(1.3) rotate(5deg);
+    z-index: 10;
+}
+
+.sisme-emoji-item:hover::before {
+    opacity: 1;
+}
+
+.sisme-emoji-item.selected {
+    animation: emojiPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes emojiPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5) rotate(10deg); }
+    100% { transform: scale(1); }
+}
+
+/* === ACTIONS D'EMOJI === */
+
+.sisme-emoji-actions {
+    padding: 16px 20px;
+    border-top: 1px solid var(--theme-palette-color-3);
+    background: linear-gradient(135deg, rgba(161, 183, 141, 0.05) 0%, white 100%);
+    text-align: center;
+}
+
+.sisme-emoji-remove {
+    background: none;
+    border: none;
+    color: var(--theme-palette-color-8);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.sisme-emoji-remove:hover {
+    color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+    transform: scale(1.05);
+}
+
+/* === ACTIONS FINALES === */
+
+.sisme-builder-final-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 40px 50px;
+    background: linear-gradient(135deg, var(--theme-palette-color-3) 0%, rgba(236, 240, 241, 0.8) 50%, white 100%);
+    border-top: 2px solid rgba(161, 183, 141, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-builder-final-actions::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--theme-palette-color-1), var(--theme-palette-color-7), var(--theme-palette-color-2));
+    animation: rainbow-flow 3s ease-in-out infinite;
+}
+
+@keyframes rainbow-flow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+#back-to-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    background: white;
+    border: 2px solid var(--theme-palette-color-5);
+    border-radius: 12px;
+    color: var(--theme-palette-color-6);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+#back-to-meta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(156, 172, 160, 0.2), transparent);
+    transition: left 0.6s;
+}
+
+#back-to-meta:hover::before {
+    left: 100%;
+}
+
+#back-to-meta:hover {
+    border-color: var(--theme-palette-color-5);
+    background: rgba(156, 172, 160, 0.05);
+    transform: translateY(-2px) translateX(-4px);
+    box-shadow: 0 4px 16px rgba(156, 172, 160, 0.2);
+}
+
+#create-fiche-final {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 32px;
+    background: linear-gradient(135deg, var(--theme-palette-color-1) 0%, var(--theme-palette-color-2) 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 
+        0 4px 16px rgba(161, 183, 141, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+#create-fiche-final::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
+}
+
+#create-fiche-final:hover::before {
+    left: 100%;
+}
+
+#create-fiche-final:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+        0 8px 24px rgba(161, 183, 141, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+#create-fiche-final:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+#create-fiche-final .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 1200px) {
+    .sisme-builder-container,
+    .sisme-sections-container {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+    
+    .sisme-builder-toolbar,
+    .sisme-builder-final-actions {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sisme-builder-header {
+        padding: 25px 20px;
+    }
+    
+    .sisme-builder-title {
+        font-size: 22px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .sisme-builder-subtitle {
+        font-size: 15px;
+    }
+    
+    .sisme-builder-toolbar {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .sisme-builder-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .sisme-sections-container {
+        padding: 20px;
+    }
+    
+    .sisme-section-content {
+        padding: 25px 20px;
+        gap: 25px;
+    }
+    
+    .sisme-title-input-group {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .sisme-emoji-selector {
+        order: 2;
+        align-self: flex-start;
+    }
+    
+    .sisme-section-title-input {
+        order: 1;
+    }
+    
+    .sisme-emoji-dropdown {
+        width: calc(100vw - 40px);
+        max-width: 320px;
+        right: 0;
+        left: auto;
+    }
+    
+    .sisme-emoji-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    
+    .sisme-builder-final-actions {
+        flex-direction: column;
+        gap: 20px;
+        padding: 25px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-empty-icon {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .sisme-empty-icon .dashicons {
+        font-size: 36px;
+    }
+    
+    .sisme-empty-state h3 {
+        font-size: 20px;
+    }
+    
+    .sisme-empty-state p {
+        font-size: 15px;
+    }
+    
+    .sisme-add-first-section {
+        padding: 14px 28px;
+        font-size: 15px;
+    }
+    
+    .sisme-section-header {
+        padding: 16px 20px;
+    }
+    
+    .sisme-section-actions {
+        gap: 6px;
+    }
+    
+    .sisme-section-collapse,
+    .sisme-section-duplicate,
+    .sisme-section-delete {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .sisme-emoji-categories {
+        padding: 12px 16px;
+        gap: 8px;
+    }
+    
+    .sisme-emoji-cat {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+}
