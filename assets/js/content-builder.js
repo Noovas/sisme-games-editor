@@ -217,6 +217,7 @@
         });
     }
 
+
     /**
      * Initialiser le sélecteur d'emoji
      */
@@ -225,7 +226,7 @@
         const $dropdown = $section.find('.sisme-emoji-dropdown');
         const $display = $section.find('.sisme-emoji-display');
 
-        // Toggle dropdown
+        // Toggle dropdown - VERSION SIMPLE
         $trigger.on('click', function(e) {
             e.stopPropagation();
             
@@ -233,6 +234,7 @@
             $('.sisme-emoji-dropdown').not($dropdown).removeClass('show');
             $('.sisme-emoji-trigger').not($trigger).removeClass('active');
             
+            // Simple toggle
             $dropdown.toggleClass('show');
             $trigger.toggleClass('active');
         });

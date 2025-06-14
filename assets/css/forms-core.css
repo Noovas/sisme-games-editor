@@ -1,0 +1,281 @@
+/**
+ * File: /sisme-games-editor/assets/css/forms-core.css
+ * Base CSS simple et solide pour tous les formulaires
+ */
+
+:root {
+    --sisme-green: #A1B78D;
+    --sisme-green-dark: #557A46;
+    --sisme-green-light: #9caca0;
+    --sisme-beige: #D4A373;
+    --sisme-gray-light: #ECF0F1;
+    --sisme-gray-dark: #2C3E50;
+    --sisme-gray-text: #425261;
+    --sisme-white: #ffffff;
+    --sisme-shadow: rgba(44, 62, 80, 0.08);
+    --sisme-radius: 12px;
+    --sisme-transition: all 0.3s ease;
+}
+
+/* === STRUCTURE DE BASE === */
+
+.sisme-container {
+    background: var(--sisme-gray-light);
+    margin: 20px 20px 0 0;
+    border-radius: var(--sisme-radius);
+    box-shadow: 0 4px 20px var(--sisme-shadow);
+    overflow: hidden;
+}
+
+.sisme-header {
+    background: linear-gradient(135deg, var(--sisme-green), var(--sisme-green-dark));
+    padding: 30px 40px;
+    color: var(--sisme-white);
+}
+
+.sisme-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sisme-subtitle {
+    font-size: 16px;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.sisme-content {
+    padding: 40px;
+    background: var(--sisme-white);
+    min-height: 400px;
+}
+
+/* === SECTIONS === */
+
+.sisme-section {
+    background: var(--sisme-white);
+    border: 2px solid var(--sisme-gray-light);
+    border-radius: var(--sisme-radius);
+    margin-bottom: 30px;
+    overflow: hidden;
+    transition: var(--sisme-transition);
+}
+
+.sisme-section:hover {
+    border-color: var(--sisme-green);
+    box-shadow: 0 4px 16px rgba(161, 183, 141, 0.2);
+}
+
+.sisme-section-header {
+    background: var(--sisme-gray-light);
+    padding: 20px 30px;
+    border-bottom: 1px solid rgba(161, 183, 141, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sisme-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--sisme-gray-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sisme-section-body {
+    padding: 30px;
+}
+
+/* === GRILLE SIMPLE === */
+
+.sisme-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.sisme-grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.sisme-grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.sisme-full {
+    grid-column: 1 / -1;
+}
+
+/* === CHAMPS DE BASE === */
+
+.sisme-field {
+    margin-bottom: 20px;
+}
+
+.sisme-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--sisme-gray-dark);
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.sisme-input,
+.sisme-textarea,
+.sisme-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--sisme-gray-light);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: var(--sisme-transition);
+    background: var(--sisme-white);
+    box-sizing: border-box;
+}
+
+.sisme-input:focus,
+.sisme-textarea:focus,
+.sisme-select:focus {
+    outline: none;
+    border-color: var(--sisme-green);
+    box-shadow: 0 0 0 3px rgba(161, 183, 141, 0.1);
+}
+
+.sisme-textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.sisme-input-large {
+    font-size: 18px;
+    font-weight: 600;
+    padding: 16px 20px;
+}
+
+.sisme-description {
+    font-size: 12px;
+    color: var(--sisme-gray-text);
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* === BOUTONS SIMPLES === */
+
+.sisme-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--sisme-green), var(--sisme-green-dark));
+    color: var(--sisme-white);
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--sisme-transition);
+    text-decoration: none;
+}
+
+.sisme-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(161, 183, 141, 0.3);
+    color: var(--sisme-white);
+    text-decoration: none;
+}
+
+.sisme-btn-secondary {
+    background: var(--sisme-white);
+    color: var(--sisme-gray-dark);
+    border: 2px solid var(--sisme-gray-light);
+}
+
+.sisme-btn-secondary:hover {
+    border-color: var(--sisme-green);
+    color: var(--sisme-gray-dark);
+}
+
+.sisme-btn-large {
+    padding: 16px 32px;
+    font-size: 16px;
+}
+
+.sisme-btn-small {
+    padding: 8px 16px;
+    font-size: 12px;
+}
+
+/* === ÉTATS === */
+
+.sisme-error {
+    border-color: #e74c3c !important;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
+}
+
+.sisme-success {
+    border-color: #27ae60 !important;
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1) !important;
+}
+
+/* === ANIMATIONS DE BASE === */
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sisme-animate {
+    animation: slideIn 0.4s ease-out;
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 768px) {
+    .sisme-container {
+        margin: 10px;
+    }
+    
+    .sisme-header {
+        padding: 20px 30px;
+    }
+    
+    .sisme-title {
+        font-size: 24px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .sisme-content {
+        padding: 20px;
+    }
+    
+    .sisme-section-header {
+        padding: 15px 20px;
+    }
+    
+    .sisme-section-body {
+        padding: 20px;
+    }
+    
+    .sisme-grid-2,
+    .sisme-grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
