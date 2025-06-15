@@ -147,9 +147,6 @@ if (empty($category_ids)) {
                             <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id); ?>" class="button button-small">
                                 Voir
                             </a>
-                            <a href="<?php echo get_edit_post_link($post_id); ?>" class="button button-small" style="color: #666;">
-                                WP
-                            </a>
                             <a href="<?php echo get_permalink($post_id); ?>" target="_blank" class="button button-small">
                                 Site
                             </a>

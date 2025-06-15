@@ -43,7 +43,10 @@ class Sisme_Content_Filter {
         // Description mise en avant
         if (has_excerpt()) {
             $enriched_content .= '<div class="sisme-fiche-description">';
+            $enriched_content .= '<h2>Description</h2>';
+            $enriched_content .= '<div class="description-content">';
             $enriched_content .= wpautop(get_the_excerpt());
+            $enriched_content .= '</div>';
             $enriched_content .= '</div>';
         }
         
@@ -58,8 +61,35 @@ class Sisme_Content_Filter {
         // Blocs test/news par défaut
         $enriched_content .= $this->render_default_blocks();
         
-        // Contenu original de l'article (sections étape 2)
-        $enriched_content .= '<div class="sisme-fiche-content">' . $content . '</div>';
+        if (!empty($content)) {
+            $enriched_content .= '<div class="sisme-fiche-presentation">';
+            $enriched_content .= '<h2>Présentation complète du jeu</h2>';
+            $enriched_content .= '<div class="presentation-content">';
+            // Utiliser les sections depuis les métadonnées
+            $sections = get_post_meta($post->ID, '_sisme_sections', true) ?: array();
+            $sections_html = '';
+            foreach ($sections as $section) {
+                if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) {
+                    $sections_html .= '<div class="game-section">';
+                    if (!empty($section['title'])) {
+                        $sections_html .= '<h3>' . esc_html($section['title']) . '</h3>';
+                    }
+                    if (!empty($section['content'])) {
+                        $sections_html .= wpautop($section['content']);
+                    }
+                    if (!empty($section['image_id'])) {
+                        $image = wp_get_attachment_image($section['image_id'], 'large');
+                        if ($image) {
+                            $sections_html .= '<div class="game-section-image">' . $image . '</div>';
+                        }
+                    }
+                    $sections_html .= '</div>';
+                }
+            }
+            $enriched_content .= $sections_html;
+            $enriched_content .= '</div>';
+            $enriched_content .= '</div>';
+        }
         
         // Liens boutiques
         if (!empty($steam_url) || !empty($epic_url)) {
@@ -85,11 +115,11 @@ class Sisme_Content_Filter {
     }
     
     /**
-     * Rendu de la section trailer
+     * Rendu de la section trailer avec structure cohérente
      */
     private function render_trailer_section($trailer_url) {
         $output = '<div class="sisme-fiche-trailer">';
-        $output .= '<h3>Trailer</h3>';
+        $output .= '<h2>Trailer</h2>';
         
         // Convertir l'URL YouTube en embed
         $video_id = '';
@@ -104,7 +134,9 @@ class Sisme_Content_Filter {
             $output .= '<iframe src="https://www.youtube.com/embed/' . esc_attr($video_id) . '" frameborder="0" allowfullscreen></iframe>';
             $output .= '</div>';
         } else {
-            $output .= '<p><a href="' . esc_url($trailer_url) . '" target="_blank">Voir le trailer</a></p>';
+            $output .= '<div class="trailer-link">';
+            $output .= '<a href="' . esc_url($trailer_url) . '" target="_blank">Voir le trailer</a>';
+            $output .= '</div>';
         }
         
         $output .= '</div>';
@@ -116,7 +148,7 @@ class Sisme_Content_Filter {
      */
     private function render_game_info_section($game_modes, $platforms, $release_date, $developers, $editors) {
         $output = '<div class="sisme-fiche-informations">';
-        $output .= '<h3>Informations</h3>';
+        $output .= '<h2>Informations</h2>';
         $output .= '<ul>';
         
         // Genres (catégories)
@@ -261,7 +293,7 @@ class Sisme_Content_Filter {
         $output = '<div class="sisme-fiche-blocks" itemscope itemtype="https://schema.org/ItemList">';
         
         // Titre avec icône - IDENTIQUE aux informations
-        $output .= '<h3 itemprop="name">Test & Actualités</h3>';
+        $output .= '<h2 itemprop="name">Test & Actualités</h2>';
         
         // Meta pour la liste
         $output .= '<meta itemprop="numberOfItems" content="2">';
@@ -479,7 +511,7 @@ class Sisme_Content_Filter {
      */
     private function render_store_links($steam_url, $epic_url) {
         $output = '<div class="sisme-fiche-stores">';
-        $output .= '<h3>Où l\'acheter</h3>';
+        $output .= '<h2>Où l\'acheter</h2>';
         $output .= '<div class="sisme-store-links">';
         
         if (!empty($steam_url)) {

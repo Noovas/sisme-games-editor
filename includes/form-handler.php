@@ -197,7 +197,8 @@ class Sisme_Form_Handler {
             '_sisme_gog_url' => esc_url_raw($_POST['gog_url']),
             '_sisme_main_tag' => intval($_POST['main_tag']),
             '_sisme_test_image_id' => intval($_POST['test_image_id'] ?? 0),
-            '_sisme_news_image_id' => intval($_POST['news_image_id'] ?? 0)
+            '_sisme_news_image_id' => intval($_POST['news_image_id'] ?? 0),
+            '_sisme_sections' => isset($_POST['sections']) ? $_POST['sections'] : array()
         );
         
         foreach ($metadata as $key => $value) {
@@ -320,8 +321,7 @@ class Sisme_Form_Handler {
         }
         
         // Sauvegarder les métadonnées personnalisées
-        $this->save_fiche_metadata($post_id, $step1_data);
-        
+        $this->save_fiche_metadata($post_id, array_merge($step1_data, $step2_data));
         return array(
             'success' => true,
             'post_id' => $post_id,
@@ -417,11 +417,12 @@ class Sisme_Form_Handler {
             '_sisme_epic_url' => $data['epic_url'],
             '_sisme_gog_url' => $data['gog_url'],
             '_sisme_test_image_id' => $data['test_image_id'] ?? 0,
-            '_sisme_news_image_id' => $data['news_image_id'] ?? 0
+            '_sisme_news_image_id' => $data['news_image_id'] ?? 0,
+            '_sisme_sections' => $data['sections'] ?? array()
         );
         
         foreach ($metadata as $key => $value) {
-            if (!empty($value)) {
+            if (!empty($value) || in_array($key, ['_sisme_test_image_id', '_sisme_news_image_id', '_sisme_sections'])) {
                 update_post_meta($post_id, $key, $value);
             }
         }
@@ -433,5 +434,67 @@ class Sisme_Form_Handler {
     public function create_complete_fiche($post_data) {
         // À implémenter selon les besoins futurs
         return array('success' => true, 'post_id' => 0);
+    }
+
+    /**
+     * Parser les sections existantes depuis le contenu WordPress
+     */
+    private function parse_existing_sections($post_content) {
+        $sections = array();
+        
+        if (empty($post_content)) {
+            return $sections;
+        }
+        
+        // Rechercher toutes les sections avec le pattern <div class="game-section">
+        $pattern = '/<div class="game-section">(.*?)<\/div>/s';
+        preg_match_all($pattern, $post_content, $matches);
+        
+        if (!empty($matches[1])) {
+            foreach ($matches[1] as $index => $section_content) {
+                $section = array(
+                    'title' => '',
+                    'content' => '',
+                    'image_id' => 0
+                );
+                
+                // Extraire le titre H3
+                if (preg_match('/<h3>(.*?)<\/h3>/s', $section_content, $title_match)) {
+                    $section['title'] = trim(strip_tags($title_match[1]));
+                    // Supprimer le H3 du contenu pour récupérer le reste
+                    $section_content = preg_replace('/<h3>.*?<\/h3>/s', '', $section_content);
+                }
+                
+                // Extraire l'image
+                if (preg_match('/<div class="game-section-image">(.*?)<\/div>/s', $section_content, $image_match)) {
+                    // Récupérer l'ID de l'image depuis l'attribut wp-image-xxx
+                    if (preg_match('/wp-image-(\d+)/', $image_match[1], $id_match)) {
+                        $section['image_id'] = intval($id_match[1]);
+                    }
+                    // Supprimer la div image du contenu
+                    $section_content = preg_replace('/<div class="game-section-image">.*?<\/div>/s', '', $section_content);
+                }
+                
+                // Le reste est le contenu
+                $section['content'] = trim($section_content);
+                
+                $sections[] = $section;
+            }
+        }
+        
+        return $sections;
+    }
+    
+    /**
+     * Récupérer les sections d'une fiche existante
+     */
+    public function get_existing_fiche_sections($post_id) {
+        $post = get_post($post_id);
+        
+        if (!$post) {
+            return array();
+        }
+        
+        return $this->parse_existing_sections($post->post_content);
     }
 }

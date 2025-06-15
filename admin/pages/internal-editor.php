@@ -33,10 +33,10 @@ $steam_url = get_post_meta($post_id, '_sisme_steam_url', true);
 $epic_url = get_post_meta($post_id, '_sisme_epic_url', true);
 $gog_url = get_post_meta($post_id, '_sisme_gog_url', true);
 $main_tag = get_post_meta($post_id, '_sisme_main_tag', true);
-
-// NOUVELLES MÉTADONNÉES : Images des blocs test/news
 $test_image_id = get_post_meta($post_id, '_sisme_test_image_id', true);
 $news_image_id = get_post_meta($post_id, '_sisme_news_image_id', true);
+$existing_sections = get_post_meta($post_id, '_sisme_sections', true) ?: array();
+
 
 // Récupérer les catégories
 $categories = get_the_category($post_id);
@@ -278,7 +278,7 @@ $featured_image_id = get_post_thumbnail_id($post_id);
                     </tr>
                 </table>
                 
-                <!-- NOUVELLE SECTION : Images des blocs Test/News -->
+                <!-- Images des blocs Test/News -->
                 <h2>Images des blocs Test & Actualités</h2>
                 
                 <table class="form-table">
@@ -354,18 +354,95 @@ $featured_image_id = get_post_thumbnail_id($post_id);
                         </td>
                     </tr>
                 </table>
+                <!-- Édition des sections de contenu -->
+                <h2>Sections de contenu détaillé</h2>
+                
+                <div id="sections-container">
+                    <?php foreach ($existing_sections as $index => $section) : ?>
+                        <?php if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) : ?>
+                            <div class="section-item" data-section="<?php echo $index; ?>" style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 5px; background: #f9f9f9;">
+                                <h3 style="margin-top: 0;">Section <?php echo ($index + 1); ?></h3>
+                                
+                                <table class="form-table">
+                                    <!-- Titre de la section -->
+                                    <tr>
+                                        <th scope="row"><label for="section_<?php echo $index; ?>_title">Titre</label></th>
+                                        <td>
+                                            <input type="text" 
+                                                   id="section_<?php echo $index; ?>_title" 
+                                                   name="sections[<?php echo $index; ?>][title]" 
+                                                   class="regular-text"
+                                                   value="<?php echo esc_attr($section['title']); ?>"
+                                                   placeholder="Titre de la section">
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Contenu de la section -->
+                                    <tr>
+                                        <th scope="row"><label for="section_<?php echo $index; ?>_content">Contenu</label></th>
+                                        <td>
+                                            <textarea id="section_<?php echo $index; ?>_content" 
+                                                      name="sections[<?php echo $index; ?>][content]" 
+                                                      rows="6" 
+                                                      cols="50" 
+                                                      class="large-text"><?php echo esc_textarea($section['content']); ?></textarea>
+                                            <p class="description">Contenu texte de la section</p>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Image de la section -->
+                                    <tr>
+                                        <th scope="row"><label>Image de la section</label></th>
+                                        <td>
+                                            <div id="section-<?php echo $index; ?>-image-preview" style="margin-bottom: 10px;">
+                                                <?php if (!empty($section['image_id'])) : ?>
+                                                    <?php 
+                                                    $section_image = wp_get_attachment_image_src($section['image_id'], 'medium');
+                                                    if ($section_image) : ?>
+                                                        <img src="<?php echo esc_url($section_image[0]); ?>" style="max-width: 300px; height: auto;">
+                                                    <?php endif; ?>
+                                                <?php else : ?>
+                                                    <em>Aucune image sélectionnée</em>
+                                                <?php endif; ?>
+                                            </div>
+                                            <button type="button" class="button select-section-image" data-section="<?php echo $index; ?>">
+                                                <?php echo !empty($section['image_id']) ? 'Changer l\'image' : 'Choisir une image'; ?>
+                                            </button>
+                                            <?php if (!empty($section['image_id'])) : ?>
+                                                <button type="button" class="button remove-section-image" data-section="<?php echo $index; ?>" style="margin-left: 10px;">
+                                                    Supprimer l'image
+                                                </button>
+                                            <?php else : ?>
+                                                <button type="button" class="button remove-section-image" data-section="<?php echo $index; ?>" style="margin-left: 10px; display: none;">
+                                                    Supprimer l'image
+                                                </button>
+                                            <?php endif; ?>
+                                            <input type="hidden" id="section_<?php echo $index; ?>_image_id" name="sections[<?php echo $index; ?>][image_id]" value="<?php echo esc_attr($section['image_id']); ?>">
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <p>
+                                    <button type="button" class="button button-secondary remove-section" data-section="<?php echo $index; ?>">
+                                        Supprimer cette section
+                                    </button>
+                                </p>
+                            </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+                
+                <p>
+                    <button type="button" id="add-new-section" class="button">
+                        + Ajouter une nouvelle section
+                    </button>
+                </p>
             </div>
             
             <!-- Colonne latérale -->
             <div>
                 <h2>Actions</h2>
                 <div style="background: #f1f1f1; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-                    <p><strong>Statut :</strong> <?php echo get_post_status($post_id) === 'publish' ? 'Publié' : 'Brouillon'; ?></p>
-                    <p>
-                        <a href="<?php echo get_edit_post_link($post_id); ?>" class="button" target="_blank">
-                            Éditer dans WordPress
-                        </a>
-                    </p>
                     <p>
                         <a href="<?php echo get_permalink($post_id); ?>" class="button" target="_blank">
                             Voir sur le site
@@ -401,14 +478,6 @@ $featured_image_id = get_post_thumbnail_id($post_id);
             </div>
         </div>
         
-        <h2>Contenu de l'article</h2>
-        <div style="background: #f9f9f9; padding: 20px; border-radius: 5px; margin: 20px 0;">
-            <p><strong>Note :</strong> Pour éditer le contenu détaillé de l'article (sections), utilisez l'éditeur WordPress.</p>
-            <a href="<?php echo get_edit_post_link($post_id); ?>" class="button button-primary" target="_blank">
-                Éditer le contenu dans WordPress
-            </a>
-        </div>
-        
         <p class="submit">
             <input type="submit" value="Enregistrer les modifications" class="button-primary">
             <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id); ?>" class="button">
@@ -422,7 +491,16 @@ $featured_image_id = get_post_thumbnail_id($post_id);
 jQuery(document).ready(function($) {
     var developers = <?php echo json_encode($developers); ?>;
     var editors = <?php echo json_encode($editors); ?>;
-    
+    var sectionCounter = <?php 
+    $actual_count = 0;
+    foreach ($existing_sections as $section) {
+        if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) {
+            $actual_count++;
+        }
+    }
+    echo $actual_count;
+    ?>;
+
     // Sélecteur d'image mise en avant
     $('#select-featured-image').click(function(e) {
         e.preventDefault();
@@ -543,7 +621,105 @@ jQuery(document).ready(function($) {
         editors.splice(index, 1);
         updateEditorsList();
     });
-    
+
+    // Gestion des images des sections
+    $(document).on('click', '.select-section-image', function(e) {
+        e.preventDefault();
+        var button = $(this);
+        var section = button.data('section');
+        
+        var mediaUploader = wp.media({
+            title: 'Sélectionner une image pour cette section',
+            button: { text: 'Utiliser cette image' },
+            multiple: false
+        });
+        
+        mediaUploader.on('select', function() {
+            var attachment = mediaUploader.state().get('selection').first().toJSON();
+            $('#section_' + section + '_image_id').val(attachment.id);
+            $('#section-' + section + '-image-preview').html('<img src="' + attachment.url + '" style="max-width: 300px; height: auto;">');
+            button.text('Changer l\'image');
+            $('.remove-section-image[data-section="' + section + '"]').show();
+        });
+        
+        mediaUploader.open();
+    });
+
+    // Supprimer image de section
+    $(document).on('click', '.remove-section-image', function(e) {
+        e.preventDefault();
+        var section = $(this).data('section');
+        $('#section_' + section + '_image_id').val('');
+        $('#section-' + section + '-image-preview').html('<em>Aucune image sélectionnée</em>');
+        $('.select-section-image[data-section="' + section + '"]').text('Choisir une image');
+        $(this).hide();
+    });
+
+    // Supprimer section
+    $(document).on('click', '.remove-section', function(e) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cette section ?')) {
+            $(this).closest('.section-item').remove();
+        }
+    });
+
+    $('#add-new-section').click(function() {
+        var newSectionHtml = `
+            <div class="section-item" data-section="${sectionCounter}" style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 5px; background: #f9f9f9;">
+                <h3 style="margin-top: 0;">Section ${sectionCounter + 1}</h3>
+                
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><label for="section_${sectionCounter}_title">Titre</label></th>
+                        <td>
+                            <input type="text" 
+                                   id="section_${sectionCounter}_title" 
+                                   name="sections[${sectionCounter}][title]" 
+                                   class="regular-text"
+                                   value=""
+                                   placeholder="Titre de la section">
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th scope="row"><label for="section_${sectionCounter}_content">Contenu</label></th>
+                        <td>
+                            <textarea id="section_${sectionCounter}_content" 
+                                      name="sections[${sectionCounter}][content]" 
+                                      rows="6" 
+                                      cols="50" 
+                                      class="large-text"></textarea>
+                            <p class="description">Contenu texte de la section</p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th scope="row"><label>Image de la section</label></th>
+                        <td>
+                            <div id="section-${sectionCounter}-image-preview" style="margin-bottom: 10px;">
+                                <em>Aucune image sélectionnée</em>
+                            </div>
+                            <button type="button" class="button select-section-image" data-section="${sectionCounter}">
+                                Choisir une image
+                            </button>
+                            <button type="button" class="button remove-section-image" data-section="${sectionCounter}" style="margin-left: 10px; display: none;">
+                                Supprimer l'image
+                            </button>
+                            <input type="hidden" id="section_${sectionCounter}_image_id" name="sections[${sectionCounter}][image_id]" value="">
+                        </td>
+                    </tr>
+                </table>
+                
+                <p>
+                    <button type="button" class="button button-secondary remove-section" data-section="${sectionCounter}">
+                        Supprimer cette section
+                    </button>
+                </p>
+            </div>
+        `;
+        $('#sections-container').append(newSectionHtml);
+        sectionCounter++;
+    });
+
     function updateDevelopersList() {
         var html = '';
         if (developers.length === 0) {
