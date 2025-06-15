@@ -89,6 +89,58 @@ $step1_data = $_SESSION['sisme_form_step1'];
                 </p>
                 <hr>
             </div>
+            
+            <!-- Sections supplémentaires pré-générées -->
+            <?php for ($i = 2; $i <= 10; $i++) : ?>
+            <div class="content-section" data-section="<?php echo $i; ?>" style="display: none;">
+                <h3>Section <?php echo $i; ?></h3>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><label for="section_<?php echo $i; ?>_title">Titre de la section</label></th>
+                        <td>
+                            <input type="text" 
+                                   id="section_<?php echo $i; ?>_title" 
+                                   name="sections[<?php echo $i; ?>][title]" 
+                                   class="regular-text"
+                                   placeholder="Ex: Points forts et faibles">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="section_<?php echo $i; ?>_content">Contenu</label></th>
+                        <td>
+                            <?php 
+                            wp_editor('', 'section_' . $i . '_content', array(
+                                'textarea_name' => 'sections[' . $i . '][content]',
+                                'textarea_rows' => 8,
+                                'media_buttons' => true,
+                                'teeny' => false,
+                                'tinymce' => true
+                            )); 
+                            ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Image de section</th>
+                        <td>
+                            <div id="section-<?php echo $i; ?>-image-preview">
+                                <em>Aucune image sélectionnée</em>
+                            </div>
+                            <button type="button" class="button select-section-image" data-section="<?php echo $i; ?>">
+                                Choisir une image
+                            </button>
+                            <input type="hidden" name="sections[<?php echo $i; ?>][image_id]" id="section_<?php echo $i; ?>_image_id" value="">
+                        </td>
+                    </tr>
+                </table>
+                
+                <p>
+                    <button type="button" class="button remove-section" data-section="<?php echo $i; ?>">
+                        Supprimer cette section
+                    </button>
+                </p>
+                <hr>
+            </div>
+            <?php endfor; ?>
         </div>
         
         <p>
@@ -123,43 +175,37 @@ $step1_data = $_SESSION['sisme_form_step1'];
 <script>
 jQuery(document).ready(function($) {
     var sectionCounter = 1;
+    var maxSections = 10;
     
     // Ajouter une nouvelle section
     $('#add-section').click(function() {
+        if (sectionCounter >= maxSections) {
+            alert('Maximum ' + maxSections + ' sections autorisées');
+            return;
+        }
+        
         sectionCounter++;
+        $('[data-section="' + sectionCounter + '"]').show();
         
-        var sectionHtml = '<div class="content-section" data-section="' + sectionCounter + '">' +
-            '<h3>Section ' + sectionCounter + '</h3>' +
-            '<table class="form-table">' +
-            '<tr>' +
-            '<th scope="row"><label for="section_' + sectionCounter + '_title">Titre de la section</label></th>' +
-            '<td><input type="text" id="section_' + sectionCounter + '_title" name="sections[' + sectionCounter + '][title]" class="regular-text" placeholder="Ex: Points forts et faibles"></td>' +
-            '</tr>' +
-            '<tr>' +
-            '<th scope="row"><label for="section_' + sectionCounter + '_content">Contenu</label></th>' +
-            '<td><textarea id="section_' + sectionCounter + '_content" name="sections[' + sectionCounter + '][content]" rows="8" cols="50" class="large-text"></textarea></td>' +
-            '</tr>' +
-            '<tr>' +
-            '<th scope="row">Image de section</th>' +
-            '<td>' +
-            '<div id="section-' + sectionCounter + '-image-preview"><em>Aucune image sélectionnée</em></div>' +
-            '<button type="button" class="button select-section-image" data-section="' + sectionCounter + '">Choisir une image</button>' +
-            '<input type="hidden" name="sections[' + sectionCounter + '][image_id]" id="section_' + sectionCounter + '_image_id" value="">' +
-            '</td>' +
-            '</tr>' +
-            '</table>' +
-            '<p><button type="button" class="button remove-section" data-section="' + sectionCounter + '">Supprimer cette section</button></p>' +
-            '<hr>' +
-            '</div>';
-        
-        $('#content-sections').append(sectionHtml);
+        // Mettre à jour le texte du bouton si on approche de la limite
+        if (sectionCounter >= maxSections) {
+            $(this).text('Maximum de sections atteint').prop('disabled', true);
+        }
     });
     
     // Supprimer une section
     $(document).on('click', '.remove-section', function() {
         var section = $(this).data('section');
         if (confirm('Êtes-vous sûr de vouloir supprimer cette section ?')) {
-            $('[data-section="' + section + '"]').remove();
+            $('[data-section="' + section + '"]').hide();
+            
+            // Reset des champs de cette section
+            $('[data-section="' + section + '"] input[type="text"]').val('');
+            $('[data-section="' + section + '"] input[type="hidden"]').val('');
+            $('[data-section="' + section + '"] textarea').val('');
+            
+            // Réactiver le bouton d'ajout
+            $('#add-section').text('+ Ajouter une section').prop('disabled', false);
         }
     });
     

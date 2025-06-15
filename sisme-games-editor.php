@@ -42,6 +42,7 @@ class SismeGamesEditor {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'handle_form_submission'));
         add_action('wp_ajax_sisme_create_fiche', array($this, 'ajax_create_fiche'));
+        add_action('wp_ajax_sisme_add_editor', array($this, 'ajax_add_editor'));
         
         // Inclure les fichiers nécessaires
         $this->include_files();
@@ -153,6 +154,29 @@ class SismeGamesEditor {
             wp_send_json_error($result['message']);
         }
     }
+
+    /**
+    * AJAX pour ajouter un éditeur WordPress
+    */
+    public function ajax_add_editor() {
+        check_ajax_referer('sisme_editor', 'nonce');
+        
+        $editor_id = sanitize_text_field($_POST['editor_id']);
+        $section_number = intval($_POST['section_number']);
+        
+        // Capturer la sortie de wp_editor
+        ob_start();
+        wp_editor('', $editor_id, array(
+            'textarea_name' => 'sections[' . $section_number . '][content]',
+            'textarea_rows' => 8,
+            'media_buttons' => true,
+            'teeny' => false,
+            'tinymce' => true
+        ));
+        $editor_html = ob_get_clean();
+        
+        wp_send_json_success($editor_html);
+    }
     
     /**
      * Pages du plugin
@@ -185,3 +209,4 @@ function sisme_games_editor_init() {
     }
 }
 add_action('init', 'sisme_games_editor_init');
+
