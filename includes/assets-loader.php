@@ -1,7 +1,7 @@
 <?php
 /**
  * File: /sisme-games-editor/includes/assets-loader.php
- * Gestion du chargement des assets CSS/JS
+ * Gestion du chargement des assets CSS/JS - Mis à jour avec sections
  */
 
 // Sécurité : Empêcher l'accès direct
@@ -22,7 +22,7 @@ class Sisme_Assets_Loader {
     public function enqueue_frontend_styles() {
         // Vérifier si on est sur une fiche de jeu
         if (is_single() && $this->is_game_fiche()) {
-            // CSS des composants
+            // CSS des composants dans l'ordre d'affichage
             wp_enqueue_style(
                 'sisme-description-styles',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/description.css',
@@ -30,7 +30,6 @@ class Sisme_Assets_Loader {
                 SISME_GAMES_EDITOR_VERSION
             );
             
-            // CSS du trailer
             wp_enqueue_style(
                 'sisme-trailer-styles',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/trailer.css',
@@ -38,7 +37,6 @@ class Sisme_Assets_Loader {
                 SISME_GAMES_EDITOR_VERSION
             );
             
-            // CSS des informations
             wp_enqueue_style(
                 'sisme-informations-styles',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/informations.css',
@@ -46,10 +44,25 @@ class Sisme_Assets_Loader {
                 SISME_GAMES_EDITOR_VERSION
             );
             
-            // CSS des blocs test/news
+            // CSS des sections de contenu personnalisées
+            wp_enqueue_style(
+                'sisme-sections-styles',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/sections.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            
             wp_enqueue_style(
                 'sisme-blocks-styles',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/blocks.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            
+            // CSS des liens boutiques
+            wp_enqueue_style(
+                'sisme-stores-styles',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/stores.css',
                 array(),
                 SISME_GAMES_EDITOR_VERSION
             );

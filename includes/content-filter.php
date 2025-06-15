@@ -36,6 +36,7 @@ class Sisme_Content_Filter {
         $trailer_url = get_post_meta($post_id, '_sisme_trailer_url', true);
         $steam_url = get_post_meta($post_id, '_sisme_steam_url', true);
         $epic_url = get_post_meta($post_id, '_sisme_epic_url', true);
+        $gog_url = get_post_meta($post_id, '_sisme_gog_url', true);
         
         // Construire le contenu enrichi
         $enriched_content = '';
@@ -92,8 +93,8 @@ class Sisme_Content_Filter {
         }
         
         // Liens boutiques
-        if (!empty($steam_url) || !empty($epic_url)) {
-            $enriched_content .= $this->render_store_links($steam_url, $epic_url);
+        if (!empty($steam_url) || !empty($epic_url) || !empty($gog_url)) {
+            $enriched_content .= $this->render_store_links($steam_url, $epic_url, $gog_url);
         }
         
         return $enriched_content;
@@ -509,7 +510,7 @@ class Sisme_Content_Filter {
     /**
      * Rendu des liens boutiques
      */
-    private function render_store_links($steam_url, $epic_url) {
+    private function render_store_links($steam_url, $epic_url, $gog_url = '') {
         $output = '<div class="sisme-fiche-stores">';
         $output .= '<h2>Où l\'acheter</h2>';
         $output .= '<div class="sisme-store-links">';
@@ -523,6 +524,12 @@ class Sisme_Content_Filter {
         if (!empty($epic_url)) {
             $output .= '<a href="' . esc_url($epic_url) . '" target="_blank">';
             $output .= '<img src="https://games.sisme.fr/wp-content/uploads/2025/05/get-on-epic.webp" alt="Disponible sur Epic Games">';
+            $output .= '</a>';
+        }
+        
+        if (!empty($gog_url)) {
+            $output .= '<a href="' . esc_url($gog_url) . '" target="_blank">';
+            $output .= '<img src="https://games.sisme.fr/wp-content/uploads/2025/06/get-on-Gog.webp" alt="Disponible sur GOG">';
             $output .= '</a>';
         }
         

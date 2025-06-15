@@ -1,6 +1,6 @@
 /**
  * File: /sisme-games-editor/assets/css/components/blocks.css
- * Styles pour les blocs test/news des fiches de jeu - Version corrigée
+ * Styles pour les blocs test/news des fiches de jeu - Version corrigée responsive
  */
 
 /* Variables de couleurs */
@@ -336,7 +336,7 @@
     }
 }
 
-/* Tablettes portrait */
+/* Tablettes portrait - PASSAGE EN COLONNE UNIQUE */
 @media (max-width: 768px) {
     .sisme-fiche-blocks {
         margin: 32px auto;
@@ -348,8 +348,10 @@
         margin-bottom: 24px;
     }
     
+    /* CHANGEMENT PRINCIPAL : Une seule colonne sur tablette */
     .sisme-blocks-grid {
-        gap: 20px;
+        grid-template-columns: 1fr;
+        gap: 24px;
     }
     
     .sisme-block-image {
