@@ -1,0 +1,318 @@
+/**
+ * File: /sisme-games-editor/assets/css/components/informations.css
+ * Styles pour la section informations des fiches de jeu - Sisme Games Editor
+ */
+
+/* Variables de couleurs */
+:root {
+    --theme-palette-color-1: #A1B78D;
+    --theme-palette-color-2: #557A46;
+    --theme-palette-color-3: #ECF0F1;
+    --theme-palette-color-4: #ECF0F1;
+    --theme-palette-color-5: #9caca0;
+    --theme-palette-color-6: #2C3E50;
+    --theme-palette-color-7: #D4A373;
+    --theme-palette-color-8: #425261;
+}
+
+/* Section informations principale */
+.sisme-fiche-informations {
+    margin: 48px auto;
+    max-width: 1200px; /* Élargi de 900px à 1200px */
+    padding: 40px 48px; /* Plus d'espace */
+    
+    /* Design sobre et élégant */
+    background: rgba(236, 240, 241, 0.95);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden; /* Pour masquer l'animation qui déborde */
+    
+    /* Bordure subtile */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces et professionnelles */
+    box-shadow: 
+        0 8px 32px rgba(44, 62, 80, 0.08),
+        0 2px 8px rgba(44, 62, 80, 0.04);
+    
+    /* Animation d'apparition */
+    animation: sismeFadeInUp 0.6s ease-out;
+    
+    /* Transition smooth mais discrète */
+    transition: all 0.3s ease;
+}
+
+/* Animation subtile de points en haut */
+.sisme-fiche-informations::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(161, 183, 141, 0.3); /* Vert clair pour la base */
+    border-radius: 2px;
+}
+
+/* Dégradé qui se déplace */
+.sisme-fiche-informations::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(85, 122, 70, 0.95) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    
+    /* Animation fluide de passage */
+    animation: sismeDotsFlow 4s ease-out infinite;
+}
+
+/* Animation parfaitement fluide */
+@keyframes sismeDotsFlow {
+    0% {
+        left: -150px;
+        opacity: 0;
+    }
+    5% {
+        opacity: 1;
+    }
+    95% {
+        opacity: 1;
+    }
+    100% {
+        left: calc(100% + 150px);
+        opacity: 0;
+    }
+}
+
+/* Effet hover discret */
+.sisme-fiche-informations:hover {
+    border-color: rgba(161, 183, 141, 0.4);
+    box-shadow: 
+        0 12px 40px rgba(44, 62, 80, 0.12),
+        0 4px 16px rgba(44, 62, 80, 0.06);
+}
+
+/* Titre de la section - plus sobre */
+.sisme-fiche-informations h3 {
+    font-size: 1.75rem; /* 28px */
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 32px;
+    text-align: left;
+    position: relative;
+    
+    /* Ligne décorative simple */
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--theme-palette-color-1);
+    text-rendering: optimizeLegibility;
+}
+
+/* Icône simple sans animation */
+.sisme-fiche-informations h3::before {
+    content: '🎮';
+    font-size: 0.9em;
+    margin-right: 12px;
+    opacity: 0.8;
+}
+
+/* Disposition en grille 2 colonnes sur desktop - plus large */
+.sisme-fiche-informations ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 48px; /* Plus d'espace entre les colonnes */
+}
+
+/* Items d'information épurés */
+.sisme-fiche-informations li {
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    
+    /* Typography claire */
+    font-size: 1rem; /* 16px */
+    line-height: 1.6;
+    color: var(--theme-palette-color-6);
+    
+    /* Bordure gauche subtile au hover */
+    padding-left: 16px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    
+    /* Animation d'apparition simple */
+    animation: sismeFadeIn 0.5s ease-out both;
+}
+
+/* Décalage léger des animations */
+.sisme-fiche-informations li:nth-child(1) { animation-delay: 0.1s; }
+.sisme-fiche-informations li:nth-child(2) { animation-delay: 0.15s; }
+.sisme-fiche-informations li:nth-child(3) { animation-delay: 0.2s; }
+.sisme-fiche-informations li:nth-child(4) { animation-delay: 0.25s; }
+.sisme-fiche-informations li:nth-child(5) { animation-delay: 0.3s; }
+.sisme-fiche-informations li:nth-child(6) { animation-delay: 0.35s; }
+
+/* Animation simple */
+@keyframes sismeFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Effet hover discret */
+.sisme-fiche-informations li:hover {
+    border-left-color: var(--theme-palette-color-1);
+    background: rgba(161, 183, 141, 0.05);
+    padding-left: 20px;
+}
+
+/* Labels en gras avec couleur subtile - largeur adaptée */
+.sisme-fiche-informations strong {
+    color: var(--theme-palette-color-8);
+    font-weight: 600;
+    margin-right: 12px;
+    display: inline-block;
+    min-width: 140px; /* Plus large pour le nouveau format */
+}
+
+/* Liens élégants */
+.sisme-fiche-informations a {
+    color: var(--theme-palette-color-1);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.sisme-fiche-informations a:hover {
+    color: var(--theme-palette-color-2);
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+
+/* Tablettes */
+@media (max-width: 1024px) {
+    .sisme-fiche-informations {
+        max-width: 95%;
+        padding: 32px 36px;
+    }
+    
+    .sisme-fiche-informations ul {
+        gap: 20px 36px;
+    }
+}
+
+/* Tablettes portrait */
+@media (max-width: 768px) {
+    .sisme-fiche-informations {
+        margin: 32px auto;
+        padding: 24px 20px;
+    }
+    
+    .sisme-fiche-informations ul {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .sisme-fiche-informations h3 {
+        font-size: 1.5rem; /* 24px */
+        margin-bottom: 24px;
+    }
+    
+    .sisme-fiche-informations strong {
+        min-width: auto;
+        display: block;
+        margin-bottom: 4px;
+    }
+}
+
+/* Smartphones */
+@media (max-width: 480px) {
+    .sisme-fiche-informations {
+        margin: 24px auto;
+        padding: 20px 16px;
+        border-radius: 8px;
+    }
+    
+    .sisme-fiche-informations h3 {
+        font-size: 1.375rem; /* 22px */
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+    }
+    
+    .sisme-fiche-informations h3::before {
+        font-size: 0.8em;
+        margin-right: 8px;
+    }
+    
+    .sisme-fiche-informations ul {
+        gap: 12px;
+    }
+    
+    .sisme-fiche-informations li {
+        font-size: 0.938rem; /* 15px */
+        padding-left: 12px;
+    }
+    
+    .sisme-fiche-informations li:hover {
+        padding-left: 16px;
+    }
+}
+
+/* Mode sombre */
+@media (prefers-color-scheme: dark) {
+    .sisme-fiche-informations {
+        background: rgba(66, 82, 97, 0.95);
+        border-color: rgba(161, 183, 141, 0.15);
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.2),
+            0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sisme-fiche-informations:hover {
+        border-color: rgba(161, 183, 141, 0.3);
+    }
+    
+    .sisme-fiche-informations h3 {
+        color: var(--theme-palette-color-3);
+        border-bottom-color: var(--theme-palette-color-1);
+    }
+    
+    .sisme-fiche-informations li {
+        color: var(--theme-palette-color-3);
+    }
+    
+    .sisme-fiche-informations li:hover {
+        background: rgba(161, 183, 141, 0.1);
+    }
+    
+    .sisme-fiche-informations strong {
+        color: var(--theme-palette-color-4);
+    }
+}
+
+/* Animation d'apparition globale */
+@keyframes sismeFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -1,0 +1,546 @@
+/**
+ * File: /sisme-games-editor/assets/css/components/blocks.css
+ * Styles pour les blocs test/news des fiches de jeu - Sisme Games Editor
+ */
+
+/* Variables de couleurs */
+:root {
+    --theme-palette-color-1: #A1B78D;
+    --theme-palette-color-2: #557A46;
+    --theme-palette-color-3: #ECF0F1;
+    --theme-palette-color-4: #ECF0F1;
+    --theme-palette-color-5: #9caca0;
+    --theme-palette-color-6: #2C3E50;
+    --theme-palette-color-7: #D4A373;
+    --theme-palette-color-8: #425261;
+}
+
+/* Container principal des blocs avec titre */
+.sisme-fiche-blocks {
+    margin: 64px auto;
+    max-width: 1200px;
+    padding: 0 20px;
+    
+    /* Animation d'apparition */
+    animation: sismeFadeInUp 0.8s ease-out 0.4s both;
+}
+
+/* Titre de la section - COHÉRENCE avec informations */
+.sisme-blocks-title {
+    font-size: 1.75rem; /* 28px - même que informations */
+    font-weight: 600;
+    color: var(--theme-palette-color-6); /* COULEUR CORRIGÉE */
+    margin: 0 0 32px;
+    text-align: left;
+    position: relative;
+    
+    /* Ligne décorative identique aux informations */
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--theme-palette-color-1);
+    text-rendering: optimizeLegibility;
+}
+
+/* Icône cohérente */
+.sisme-blocks-title::before {
+    content: '🎬';
+    font-size: 0.9em;
+    margin-right: 12px;
+    opacity: 0.8;
+}
+
+/* Grille des blocs */
+.sisme-blocks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+/* Liens des blocs - Mix background + overlay gaming */
+.sisme-block-link {
+    display: block;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    aspect-ratio: 16/9;
+    
+    /* Bordure gaming subtile */
+    border: 2px solid transparent;
+    
+    /* Ombres élégantes */
+    box-shadow: 
+        0 12px 40px rgba(44, 62, 80, 0.15),
+        0 6px 20px rgba(44, 62, 80, 0.1),
+        0 2px 8px rgba(44, 62, 80, 0.05);
+    
+    /* Transition gaming smooth */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+
+/* Background image */
+.sisme-block-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    
+    /* Transition pour effet zoom */
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+/* Overlay gaming semi-transparent */
+.sisme-block-bg::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        rgba(44, 62, 80, 0.85) 0%, 
+        rgba(66, 82, 97, 0.75) 50%,
+        rgba(44, 62, 80, 0.85) 100%);
+    z-index: 2;
+    transition: all 0.4s ease;
+}
+
+/* Contenu du bloc */
+.sisme-block-content {
+    position: relative;
+    padding: 24px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 3;
+}
+
+/* Icône gaming en haut */
+.sisme-block-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+    transition: all 0.3s ease;
+}
+
+/* Titre du bloc */
+.sisme-block-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--theme-palette-color-3);
+    margin: 0 0 12px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    line-height: 1.2;
+    transition: all 0.3s ease;
+}
+
+/* Description du bloc */
+.sisme-block-description {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: rgba(236, 240, 241, 0.9);
+    margin: 0 0 16px;
+    flex-grow: 1;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Meta tags gaming */
+.sisme-block-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.sisme-block-tag {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+    background: rgba(161, 183, 141, 0.2);
+    border: 1px solid rgba(161, 183, 141, 0.4);
+    border-radius: 8px;
+    color: var(--theme-palette-color-1);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(4px);
+}
+
+/* CTA gaming */
+.sisme-block-cta {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--theme-palette-color-1);
+    text-align: right;
+    position: relative;
+    padding-right: 20px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    
+    /* Flèche animée */
+    transition: all 0.3s ease;
+}
+
+.sisme-block-cta::after {
+    content: '→';
+    position: absolute;
+    right: 0;
+    transition: transform 0.3s ease;
+}
+
+/* Effet hover gaming spectaculaire */
+.sisme-block-link:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: var(--theme-palette-color-1);
+    
+    box-shadow: 
+        0 20px 60px rgba(44, 62, 80, 0.25),
+        0 12px 32px rgba(44, 62, 80, 0.18),
+        0 4px 16px rgba(44, 62, 80, 0.12);
+}
+
+/* Hover effects */
+.sisme-block-link:hover .sisme-block-bg {
+    transform: scale(1.05);
+}
+
+.sisme-block-link:hover .sisme-block-bg::after {
+    background: linear-gradient(135deg, 
+        rgba(44, 62, 80, 0.7) 0%, 
+        rgba(66, 82, 97, 0.6) 50%,
+        rgba(44, 62, 80, 0.7) 100%);
+}
+
+.sisme-block-link:hover .sisme-block-cta::after {
+    transform: translateX(5px);
+}
+
+.sisme-block-link:hover .sisme-block-title {
+    color: var(--theme-palette-color-1);
+    text-shadow: 0 0 15px rgba(161, 183, 141, 0.4);
+}
+
+.sisme-block-link:hover .sisme-block-icon {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 12px rgba(161, 183, 141, 0.6));
+}
+
+/* Distinction visuelle entre Test et News */
+.sisme-test-block:hover {
+    border-color: var(--theme-palette-color-2);
+    box-shadow: 
+        0 20px 60px rgba(85, 122, 70, 0.3),
+        0 12px 32px rgba(44, 62, 80, 0.18),
+        0 4px 16px rgba(44, 62, 80, 0.12);
+}
+
+.sisme-news-block:hover {
+    border-color: var(--theme-palette-color-7);
+    box-shadow: 
+        0 20px 60px rgba(212, 163, 115, 0.3),
+        0 12px 32px rgba(44, 62, 80, 0.18),
+        0 4px 16px rgba(44, 62, 80, 0.12);
+}
+
+.sisme-test-block:hover .sisme-block-title {
+    color: var(--theme-palette-color-2);
+    text-shadow: 0 0 15px rgba(85, 122, 70, 0.4);
+}
+
+.sisme-news-block:hover .sisme-block-title {
+    color: var(--theme-palette-color-7);
+    text-shadow: 0 0 15px rgba(212, 163, 115, 0.4);
+}
+
+/* Animation des blocs décalée */
+.sisme-test-block {
+    animation: sismeFadeInLeft 0.8s ease-out 0.2s both;
+}
+
+.sisme-news-block {
+    animation: sismeFadeInRight 0.8s ease-out 0.4s both;
+}
+
+/* Animations directionnelles */
+@keyframes sismeFadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) translateY(0);
+    }
+}
+
+@keyframes sismeFadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) translateY(0);
+    }
+}
+
+/* Effet focus pour accessibilité */
+.sisme-block-link:focus {
+    outline: none;
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 
+        0 16px 48px rgba(44, 62, 80, 0.2),
+        0 6px 20px rgba(44, 62, 80, 0.12),
+        0 0 0 3px rgba(161, 183, 141, 0.4);
+}
+
+/* Images des blocs - Améliorées */
+.sisme-block-link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Important pour le ratio */
+    display: block;
+    border-radius: 17px;
+    
+    /* Transition smooth pour l'effet zoom */
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Filtre subtil pour cohérence */
+    filter: brightness(1.05) contrast(1.02) saturate(1.1);
+    
+    /* Optimisation performance */
+    will-change: transform, filter;
+    backface-visibility: hidden;
+}
+
+/* Effet zoom et filtre au hover */
+.sisme-block-link:hover img {
+    transform: scale(1.08);
+    filter: brightness(1.1) contrast(1.05) saturate(1.15);
+}
+
+/* Overlay gaming moderne */
+.sisme-block-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(161, 183, 141, 0.1) 0%, 
+        rgba(212, 163, 115, 0.15) 50%,
+        rgba(85, 122, 70, 0.1) 100%);
+    border-radius: 17px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 2;
+    
+    /* Effet de particules subtil */
+    background-image: 
+        radial-gradient(circle at 20% 20%, rgba(161, 183, 141, 0.3) 2px, transparent 2px),
+        radial-gradient(circle at 80% 80%, rgba(212, 163, 115, 0.3) 1px, transparent 1px);
+    background-size: 50px 50px, 30px 30px;
+}
+
+.sisme-block-link:hover::before {
+    opacity: 1;
+}
+
+/* Badge gaming dans le coin */
+.sisme-block-link::after {
+    content: '';
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, 
+        var(--theme-palette-color-1) 0%, 
+        var(--theme-palette-color-7) 100%);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0) rotate(180deg);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 3;
+    
+    /* Icône gaming */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/%3E%3C/svg%3E");
+    background-size: 20px 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.sisme-block-link:hover::after {
+    opacity: 0.9;
+    transform: scale(1) rotate(0deg);
+}
+
+/* Animation d'apparition décalée */
+.sisme-block-link:nth-child(1) {
+    animation: sismeFadeInLeft 0.8s ease-out 0.2s both;
+}
+
+.sisme-block-link:nth-child(2) {
+    animation: sismeFadeInRight 0.8s ease-out 0.4s both;
+}
+
+/* Animations directionnelles */
+@keyframes sismeFadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-40px) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) translateY(0);
+    }
+}
+
+@keyframes sismeFadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(40px) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) translateY(0);
+    }
+}
+
+/* Responsive Design */
+
+/* Tablettes */
+@media (max-width: 1024px) {
+    .sisme-fiche-blocks {
+        gap: 24px;
+        padding: 0 16px;
+    }
+}
+
+/* Tablettes portrait */
+@media (max-width: 768px) {
+    .sisme-fiche-blocks {
+        margin: 48px auto;
+        gap: 20px;
+    }
+    
+    .sisme-block-link {
+        border-radius: 12px;
+        
+        /* Réduction des effets sur tablette */
+        box-shadow: 
+            0 6px 24px rgba(44, 62, 80, 0.12),
+            0 3px 12px rgba(44, 62, 80, 0.08),
+            0 0 0 1px rgba(161, 183, 141, 0.08);
+    }
+    
+    .sisme-block-link:hover {
+        transform: translateY(-4px) scale(1.01);
+    }
+    
+    .sisme-block-link img {
+        border-radius: 10px;
+    }
+}
+
+/* Smartphones */
+@media (max-width: 480px) {
+    .sisme-fiche-blocks {
+        margin: 32px auto;
+        grid-template-columns: 1fr; /* Une seule colonne sur mobile */
+        gap: 16px;
+        padding: 0 12px;
+    }
+    
+    .sisme-block-link {
+        border-radius: 10px;
+        
+        /* Simplification des effets sur mobile */
+        box-shadow: 
+            0 4px 16px rgba(44, 62, 80, 0.1),
+            0 2px 8px rgba(44, 62, 80, 0.06);
+        
+        /* Désactiver les transformations hover sur mobile */
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .sisme-block-link:hover {
+        transform: none;
+        box-shadow: 
+            0 6px 20px rgba(44, 62, 80, 0.12),
+            0 3px 10px rgba(44, 62, 80, 0.08);
+    }
+    
+    .sisme-block-link:hover img {
+        transform: none;
+    }
+    
+    .sisme-block-link::after {
+        display: none; /* Pas d'effet glow sur mobile */
+    }
+    
+    .sisme-block-link img {
+        border-radius: 8px;
+    }
+    
+    /* Animations directionnelles simplifiées sur mobile */
+    .sisme-block-link:nth-child(1),
+    .sisme-block-link:nth-child(2) {
+        animation: sismeFadeInUp 0.6s ease-out both;
+    }
+    
+    .sisme-block-link:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+}
+
+/* Mode sombre */
+@media (prefers-color-scheme: dark) {
+    .sisme-block-link {
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.3),
+            0 4px 16px rgba(0, 0, 0, 0.2),
+            0 0 0 1px rgba(161, 183, 141, 0.15);
+    }
+    
+    .sisme-block-link:hover {
+        box-shadow: 
+            0 20px 60px rgba(0, 0, 0, 0.4),
+            0 8px 24px rgba(0, 0, 0, 0.3),
+            0 0 0 1px rgba(161, 183, 141, 0.4);
+    }
+    
+    .sisme-block-link::before {
+        background: linear-gradient(135deg, 
+            rgba(161, 183, 141, 0.2) 0%, 
+            rgba(212, 163, 115, 0.2) 100%);
+    }
+}
+
+/* Animation d'apparition globale */
+@keyframes sismeFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Performance optimizations */
+.sisme-fiche-blocks,
+.sisme-block-link,
+.sisme-block-link img,
+.sisme-block-link::before,
+.sisme-block-link::after {
+    will-change: transform, opacity;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}

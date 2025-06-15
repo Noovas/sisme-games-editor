@@ -1,0 +1,329 @@
+/**
+ * File: /sisme-games-editor/assets/css/components/trailer.css
+ * Styles pour la section trailer des fiches de jeu - Sisme Games Editor
+ */
+
+/* Variables de couleurs */
+:root {
+    --theme-palette-color-1: #A1B78D;
+    --theme-palette-color-2: #557A46;
+    --theme-palette-color-3: #ECF0F1;
+    --theme-palette-color-4: #ECF0F1;
+    --theme-palette-color-5: #9caca0;
+    --theme-palette-color-6: #2C3E50;
+    --theme-palette-color-7: #D4A373;
+    --theme-palette-color-8: #425261;
+}
+
+/* Section trailer principale */
+.sisme-fiche-trailer {
+    margin: 48px auto;
+    max-width: 900px;
+    padding: 0 20px;
+    
+    /* Animation d'apparition */
+    animation: sismeFadeInUp 0.8s ease-out;
+}
+
+/* Titre de la section trailer */
+.sisme-fiche-trailer h3 {
+    font-size: 1.875rem; /* 30px */
+    font-weight: 700;
+    color: var(--theme-palette-color-6); /* Texte sombre lisible */
+    margin: 0 0 24px;
+    text-align: center;
+    position: relative;
+    
+    /* Effet de sous-lignage gaming */
+    padding-bottom: 16px;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Ligne décorative sous le titre */
+.sisme-fiche-trailer h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        var(--theme-palette-color-1) 0%, 
+        var(--theme-palette-color-7) 100%);
+    border-radius: 2px;
+    
+    /* Animation smooth */
+    transition: width 0.3s ease-out;
+}
+
+.sisme-fiche-trailer:hover h3::after {
+    width: 120px;
+}
+
+/* Container vidéo responsive avec design gaming */
+.sisme-video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* Ratio 16:9 */
+    height: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    
+    /* Design gaming avec bordures et ombres */
+    background: var(--theme-palette-color-8);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    
+    /* Double bordure effect */
+    box-shadow: 
+        0 0 0 1px rgba(161, 183, 141, 0.3),
+        0 12px 40px rgba(44, 62, 80, 0.15),
+        0 4px 16px rgba(44, 62, 80, 0.1),
+        inset 0 1px 0 rgba(236, 240, 241, 0.1);
+    
+    /* Transition smooth pour interactions */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Effet de lueur subtile */
+    position: relative;
+}
+
+/* Effet hover sur le container */
+.sisme-video-container:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+        0 0 0 1px rgba(161, 183, 141, 0.5),
+        0 20px 60px rgba(44, 62, 80, 0.2),
+        0 8px 24px rgba(44, 62, 80, 0.15),
+        inset 0 1px 0 rgba(236, 240, 241, 0.15);
+    
+    border-color: rgba(161, 183, 141, 0.4);
+}
+
+/* Effet de lueur gaming autour de la vidéo */
+.sisme-video-container::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 18px;
+    background: linear-gradient(45deg, 
+        var(--theme-palette-color-1), 
+        var(--theme-palette-color-7), 
+        var(--theme-palette-color-1));
+    background-size: 200% 200%;
+    z-index: -1;
+    opacity: 0;
+    
+    animation: sismeGlowPulse 3s ease-in-out infinite;
+    transition: opacity 0.3s ease;
+}
+
+.sisme-video-container:hover::before {
+    opacity: 0.6;
+}
+
+/* Animation de lueur */
+@keyframes sismeGlowPulse {
+    0%, 100% {
+        background-position: 0% 50%;
+        opacity: 0.3;
+    }
+    50% {
+        background-position: 100% 50%;
+        opacity: 0.6;
+    }
+}
+
+/* Iframe YouTube responsive */
+.sisme-video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 14px; /* Légèrement moins que le container */
+    
+    /* Optimisation performance */
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+/* Fallback pour lien direct (si pas YouTube embed) */
+.sisme-fiche-trailer p {
+    text-align: center;
+    margin: 32px 0;
+}
+
+.sisme-fiche-trailer a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 32px;
+    
+    /* Styling gaming du bouton */
+    background: linear-gradient(135deg, 
+        var(--theme-palette-color-1) 0%, 
+        var(--theme-palette-color-2) 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    
+    /* Ombres et transitions */
+    box-shadow: 
+        0 4px 16px rgba(85, 122, 70, 0.3),
+        0 2px 8px rgba(85, 122, 70, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Icône play */
+    position: relative;
+}
+
+.sisme-fiche-trailer a::before {
+    content: '▶';
+    margin-right: 8px;
+    font-size: 0.9em;
+}
+
+.sisme-fiche-trailer a:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 8px 24px rgba(85, 122, 70, 0.4),
+        0 4px 12px rgba(85, 122, 70, 0.3);
+    
+    background: linear-gradient(135deg, 
+        var(--theme-palette-color-2) 0%, 
+        var(--theme-palette-color-1) 100%);
+}
+
+.sisme-fiche-trailer a:active {
+    transform: translateY(0);
+}
+
+/* Responsive Design */
+
+/* Tablettes */
+@media (max-width: 768px) {
+    .sisme-fiche-trailer {
+        margin: 32px auto;
+        padding: 0 16px;
+    }
+    
+    .sisme-fiche-trailer h3 {
+        font-size: 1.625rem; /* 26px */
+        margin-bottom: 20px;
+    }
+    
+    .sisme-video-container {
+        border-radius: 12px;
+        
+        /* Réduction des effets sur tablette */
+        box-shadow: 
+            0 0 0 1px rgba(161, 183, 141, 0.2),
+            0 8px 24px rgba(44, 62, 80, 0.12),
+            0 3px 12px rgba(44, 62, 80, 0.08);
+    }
+    
+    .sisme-video-container:hover {
+        transform: translateY(-2px) scale(1.01);
+    }
+    
+    .sisme-video-container iframe {
+        border-radius: 10px;
+    }
+}
+
+/* Smartphones */
+@media (max-width: 480px) {
+    .sisme-fiche-trailer {
+        margin: 24px auto;
+        padding: 0 12px;
+    }
+    
+    .sisme-fiche-trailer h3 {
+        font-size: 1.375rem; /* 22px */
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+    
+    .sisme-fiche-trailer h3::after {
+        width: 60px;
+        height: 2px;
+    }
+    
+    .sisme-fiche-trailer:hover h3::after {
+        width: 80px;
+    }
+    
+    .sisme-video-container {
+        border-radius: 10px;
+        
+        /* Désactiver hover effects sur mobile */
+        transition: none;
+    }
+    
+    .sisme-video-container:hover {
+        transform: none;
+        box-shadow: 
+            0 0 0 1px rgba(161, 183, 141, 0.2),
+            0 8px 24px rgba(44, 62, 80, 0.12),
+            0 3px 12px rgba(44, 62, 80, 0.08);
+    }
+    
+    .sisme-video-container::before {
+        display: none; /* Pas d'effet glow sur mobile */
+    }
+    
+    .sisme-video-container iframe {
+        border-radius: 8px;
+    }
+    
+    .sisme-fiche-trailer a {
+        padding: 14px 24px;
+        font-size: 1rem;
+        border-radius: 10px;
+    }
+}
+
+/* Animation d'apparition */
+@keyframes sismeFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mode sombre (cohérence future) */
+@media (prefers-color-scheme: dark) {
+    .sisme-fiche-trailer h3 {
+        color: var(--theme-palette-color-3);
+    }
+    
+    .sisme-video-container {
+        background: var(--theme-palette-color-6);
+        box-shadow: 
+            0 0 0 1px rgba(161, 183, 141, 0.4),
+            0 12px 40px rgba(0, 0, 0, 0.3),
+            0 4px 16px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(236, 240, 241, 0.05);
+    }
+}
+
+/* Performance optimizations */
+.sisme-video-container,
+.sisme-video-container::before,
+.sisme-video-container iframe {
+    will-change: transform;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}

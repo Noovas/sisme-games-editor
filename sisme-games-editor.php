@@ -43,38 +43,19 @@ class SismeGamesEditor {
         add_action('admin_init', array($this, 'handle_form_submission'));
         add_action('wp_ajax_sisme_create_fiche', array($this, 'ajax_create_fiche'));
         add_action('wp_ajax_sisme_add_editor', array($this, 'ajax_add_editor'));
-        
-        // Hook pour le template front-end
-        add_filter('single_template', array($this, 'load_fiche_template'));
-        
-        // Inclure les fichiers nécessaires
+
         $this->include_files();
-    }
-    
-    /**
-     * Charger le template pour les fiches de jeu
-     */
-    public function load_fiche_template($single_template) {
-        global $post;
-        
-        // Vérifier si c'est un article avec des métadonnées de fiche de jeu
-        if ($post->post_type === 'post') {
-            $game_modes = get_post_meta($post->ID, '_sisme_game_modes', true);
-            
-            // Si l'article a des métadonnées de jeu, utiliser notre template
-            if (!empty($game_modes)) {
-                $plugin_template = SISME_GAMES_EDITOR_PLUGIN_DIR . 'templates/single-fiche.php';
-                if (file_exists($plugin_template)) {
-                    return $plugin_template;
-                }
-            }
-        }
-        
-        return $single_template;
+
+        new Sisme_Assets_Loader();
+        new Sisme_Content_Filter();
+        new Sisme_SEO_Enhancements();
     }
     
     private function include_files() {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/form-handler.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/assets-loader.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/content-filter.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/seo-enhancements.php';
     }
     
     /**

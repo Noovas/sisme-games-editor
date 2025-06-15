@@ -1,0 +1,164 @@
+/**
+ * File: /sisme-games-editor/assets/css/components/description.css
+ * Styles pour la description des fiches de jeu - Sisme Games Editor
+ */
+
+/* Variables de couleurs */
+:root {
+    --theme-palette-color-1: #A1B78D;
+    --theme-palette-color-2: #557A46;
+    --theme-palette-color-3: #ECF0F1;
+    --theme-palette-color-4: #ECF0F1;
+    --theme-palette-color-5: #9caca0;
+    --theme-palette-color-6: #2C3E50;
+    --theme-palette-color-7: #D4A373;
+    --theme-palette-color-8: #425261;
+}
+
+/* Description principale de la fiche */
+.sisme-fiche-description {
+    max-width: 800px;
+    margin: 0 auto 40px;
+    padding: 24px 32px;
+    
+    /* Fond avec légère transparence pour la lisibilité */
+    background: rgba(236, 240, 241, 0.95); /* color-3 avec transparence */
+    border-radius: 12px;
+    
+    /* Ombre douce et professionnelle */
+    box-shadow: 
+        0 4px 20px rgba(44, 62, 80, 0.1),
+        0 2px 8px rgba(44, 62, 80, 0.05);
+    
+    /* Bordure subtile */
+    border: 1px solid rgba(161, 183, 141, 0.2); /* color-1 avec transparence */
+    
+    /* Transition smooth pour les interactions */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Effet hover subtil sur la description */
+.sisme-fiche-description:hover {
+    box-shadow: 
+        0 8px 30px rgba(44, 62, 80, 0.15),
+        0 4px 12px rgba(44, 62, 80, 0.08);
+    
+    transform: translateY(-2px);
+    border-color: rgba(161, 183, 141, 0.4);
+}
+
+/* Texte de la description */
+.sisme-fiche-description p {
+    color: var(--theme-palette-color-6); /* Texte sombre pour lisibilité */
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.7;
+    margin: 0 0 16px;
+    font-weight: 400;
+    
+    /* Amélioration de la lisibilité */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dernier paragraphe sans marge */
+.sisme-fiche-description p:last-child {
+    margin-bottom: 0;
+}
+
+/* Premier paragraphe avec emphase */
+.sisme-fiche-description p:first-child {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 500;
+    color: var(--theme-palette-color-8); /* Couleur légèrement plus foncée */
+}
+
+/* Responsive Design */
+
+/* Tablettes et petits écrans */
+@media (max-width: 768px) {
+    .sisme-fiche-description {
+        max-width: 95%;
+        margin: 0 auto 32px;
+        padding: 20px 24px;
+        border-radius: 10px;
+    }
+    
+    .sisme-fiche-description p {
+        font-size: 1.063rem; /* 17px */
+        line-height: 1.6;
+    }
+    
+    .sisme-fiche-description p:first-child {
+        font-size: 1.125rem; /* 18px */
+    }
+}
+
+/* Smartphones */
+@media (max-width: 480px) {
+    .sisme-fiche-description {
+        max-width: 100%;
+        margin: 0 auto 24px;
+        padding: 16px 20px;
+        border-radius: 8px;
+        
+        /* Réduction de l'ombre sur mobile */
+        box-shadow: 
+            0 2px 12px rgba(44, 62, 80, 0.08),
+            0 1px 4px rgba(44, 62, 80, 0.04);
+    }
+    
+    .sisme-fiche-description:hover {
+        /* Désactiver l'effet hover sur mobile */
+        transform: none;
+        box-shadow: 
+            0 2px 12px rgba(44, 62, 80, 0.08),
+            0 1px 4px rgba(44, 62, 80, 0.04);
+    }
+    
+    .sisme-fiche-description p {
+        font-size: 1rem; /* 16px */
+        line-height: 1.6;
+        margin: 0 0 12px;
+    }
+    
+    .sisme-fiche-description p:first-child {
+        font-size: 1.063rem; /* 17px */
+    }
+}
+
+/* Mode sombre (optionnel pour cohérence future) */
+@media (prefers-color-scheme: dark) {
+    .sisme-fiche-description {
+        background: rgba(66, 82, 97, 0.95); /* color-8 avec transparence */
+        border-color: rgba(161, 183, 141, 0.15);
+    }
+    
+    .sisme-fiche-description p {
+        color: var(--theme-palette-color-3); /* Texte clair sur fond sombre */
+    }
+    
+    .sisme-fiche-description p:first-child {
+        color: var(--theme-palette-color-4);
+    }
+    
+    .sisme-fiche-description:hover {
+        border-color: rgba(161, 183, 141, 0.3);
+    }
+}
+
+/* Animation d'apparition */
+@keyframes sismeFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sisme-fiche-description {
+    animation: sismeFadeInUp 0.6s ease-out;
+}
