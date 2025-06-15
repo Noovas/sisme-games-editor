@@ -154,7 +154,7 @@ function format_companies_display($companies) {
             <h3>Informations</h3>
             <ul style="list-style: disc; margin-left: 20px; line-height: 1.8;">
                 <?php if (!empty($game_categories)) : ?>
-                    <li><strong>Genre :</strong> 
+                    <li><strong>Genre</strong> : 
                         <?php 
                         $genre_links = array();
                         foreach ($game_categories as $category) {
@@ -167,13 +167,13 @@ function format_companies_display($companies) {
                 <?php endif; ?>
                 
                 <?php if (!empty($game_modes)) : ?>
-                    <li><strong>Mode de jeu :</strong> <?php echo esc_html(implode(', ', $game_modes)); ?></li>
+                    <li><strong>Mode de jeu</strong> : <?php echo esc_html(implode(', ', $game_modes)); ?></li>
                 <?php endif; ?>
                 
-                <li><strong>Date de sortie :</strong> <?php echo format_french_date($release_date); ?></li>
+                <li><strong>Date de sortie</strong> : <?php echo format_french_date($release_date); ?></li>
                 
                 <?php if (!empty($platforms)) : ?>
-                    <li><strong>Plateformes :</strong> 
+                    <li><strong>Plateformes</strong> : 
                         <?php 
                         $platform_names = array(
                             'pc' => 'PC',
@@ -192,11 +192,11 @@ function format_companies_display($companies) {
                 <?php endif; ?>
                 
                 <?php if (!empty($developers)) : ?>
-                    <li><strong>Développeur :</strong> <?php echo format_companies_display($developers); ?></li>
+                    <li><strong>Développeur</strong> : <?php echo format_companies_display($developers); ?></li>
                 <?php endif; ?>
                 
                 <?php if (!empty($editors)) : ?>
-                    <li><strong>Éditeur :</strong> <?php echo format_companies_display($editors); ?></li>
+                    <li><strong>Éditeur</strong> : <?php echo format_companies_display($editors); ?></li>
                 <?php endif; ?>
             </ul>
         </div>
@@ -248,12 +248,12 @@ function format_companies_display($companies) {
             <a href="<?php echo admin_url('admin.php?page=sisme-games-fiches'); ?>" class="button">
                 ← Retour à la liste
             </a>
-            <a href="<?php echo get_edit_post_link($post_id); ?>" class="button button-primary">
+            <a href="<?php echo admin_url('admin.php?page=sisme-games-internal-editor&post_id=' . $post_id); ?>" class="button button-primary">
                 Éditer cette fiche
             </a>
-            <span style="color: #666; margin-left: 20px; font-style: italic;">
-                Fonctionnalités d'édition à venir dans la prochaine étape
-            </span>
+            <a href="<?php echo get_edit_post_link($post_id); ?>" class="button" style="margin-left: 10px;">
+                Éditer dans WordPress
+            </a>
         </p>
     </div>
 </div>

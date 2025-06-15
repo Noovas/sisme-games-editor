@@ -40,8 +40,6 @@ class Sisme_Form_Handler {
         if (empty($_POST['platforms'])) {
             $errors[] = 'Veuillez sélectionner au moins une plateforme';
         }
-
-
         
         if (!empty($errors)) {
             // Afficher les erreurs et revenir au formulaire
@@ -73,6 +71,7 @@ class Sisme_Form_Handler {
             'trailer_url' => esc_url_raw($_POST['trailer_url']),
             'steam_url' => esc_url_raw($_POST['steam_url']),
             'epic_url' => esc_url_raw($_POST['epic_url']),
+            'gog_url' => esc_url_raw($_POST['gog_url']),
             'featured_image_id' => intval($_POST['featured_image_id'])
         );
         
@@ -110,7 +109,7 @@ class Sisme_Form_Handler {
                 echo '<div class="notice notice-success"><p>Fiche de jeu créée avec succès ! <a href="' . get_edit_post_link($result['post_id']) . '">Éditer</a> | <a href="' . get_permalink($result['post_id']) . '">Voir</a></p></div>';
             });
             
-            // Rediriger vers la liste
+            // Rediriger vers la visualisation
             wp_redirect(admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $result['post_id']));
             exit;
         } else {
@@ -118,6 +117,97 @@ class Sisme_Form_Handler {
                 echo '<div class="notice notice-error"><p>' . esc_html($result['message']) . '</p></div>';
             });
         }
+    }
+    
+    /**
+     * Traiter la mise à jour d'une fiche depuis l'éditeur interne
+     */
+    public function handle_fiche_update() {
+        $post_id = intval($_POST['post_id']);
+        
+        if (!$post_id) {
+            wp_die('ID d\'article manquant');
+        }
+        
+        // Validation des données requises
+        $errors = array();
+        
+        if (empty($_POST['game_title'])) {
+            $errors[] = 'Le titre du jeu est requis';
+        }
+        
+        if (empty($_POST['game_description'])) {
+            $errors[] = 'La description du jeu est requise';
+        }
+        
+        if (!empty($errors)) {
+            add_action('admin_notices', function() use ($errors) {
+                echo '<div class="notice notice-error"><ul>';
+                foreach ($errors as $error) {
+                    echo '<li>' . esc_html($error) . '</li>';
+                }
+                echo '</ul></div>';
+            });
+            return;
+        }
+        
+        // Mettre à jour l'article
+        $post_data = array(
+            'ID' => $post_id,
+            'post_title' => sanitize_text_field($_POST['game_title']),
+            'post_excerpt' => sanitize_textarea_field($_POST['game_description'])
+        );
+        
+        $result = wp_update_post($post_data);
+        
+        if (is_wp_error($result)) {
+            add_action('admin_notices', function() use ($result) {
+                echo '<div class="notice notice-error"><p>Erreur lors de la mise à jour : ' . esc_html($result->get_error_message()) . '</p></div>';
+            });
+            return;
+        }
+        
+        // Mettre à jour les catégories
+        if (!empty($_POST['game_categories'])) {
+            wp_set_post_categories($post_id, array_map('intval', $_POST['game_categories']));
+        }
+        
+        // Mettre à jour l'étiquette principale
+        if (!empty($_POST['main_tag'])) {
+            wp_set_post_tags($post_id, array(intval($_POST['main_tag'])));
+        }
+        
+        // Mettre à jour l'image mise en avant
+        if (!empty($_POST['featured_image_id'])) {
+            set_post_thumbnail($post_id, intval($_POST['featured_image_id']));
+        }
+        
+        // Mettre à jour les métadonnées
+        $metadata = array(
+            '_sisme_game_modes' => isset($_POST['game_modes']) ? array_map('sanitize_text_field', $_POST['game_modes']) : array(),
+            '_sisme_platforms' => isset($_POST['platforms']) ? array_map('sanitize_text_field', $_POST['platforms']) : array(),
+            '_sisme_release_date' => sanitize_text_field($_POST['release_date']),
+            '_sisme_developers' => $this->sanitize_developers($_POST['developers'] ?? array()),
+            '_sisme_editors' => $this->sanitize_editors($_POST['editors'] ?? array()),
+            '_sisme_trailer_url' => esc_url_raw($_POST['trailer_url']),
+            '_sisme_steam_url' => esc_url_raw($_POST['steam_url']),
+            '_sisme_epic_url' => esc_url_raw($_POST['epic_url']),
+            '_sisme_gog_url' => esc_url_raw($_POST['gog_url']),
+            '_sisme_main_tag' => intval($_POST['main_tag'])
+        );
+        
+        foreach ($metadata as $key => $value) {
+            update_post_meta($post_id, $key, $value);
+        }
+        
+        // Message de succès
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-success"><p>Fiche mise à jour avec succès !</p></div>';
+        });
+        
+        // Rediriger vers la visualisation
+        wp_redirect(admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id));
+        exit;
     }
     
     /**
@@ -188,7 +278,7 @@ class Sisme_Form_Handler {
      * Créer l'article de fiche de jeu
      */
     private function create_fiche_post($step1_data, $step2_data) {
-        // Construire le contenu de l'article
+        // Construire le contenu de l'article (UNIQUEMENT les sections étape 2)
         $content = $this->build_fiche_content($step1_data, $step2_data);
         
         // Créer l'article WordPress
@@ -236,41 +326,12 @@ class Sisme_Form_Handler {
     }
     
     /**
-     * Construire le contenu HTML de la fiche
+     * Construire le contenu HTML de la fiche (UNIQUEMENT les sections étape 2)
      */
     private function build_fiche_content($step1_data, $step2_data) {
         $content = '';
         
-        // Description principale
-        $content .= '<div class="game-description">';
-        $content .= '<p>' . esc_html($step1_data['game_description']) . '</p>';
-        $content .= '</div>';
-        
-        // Informations du jeu
-        $content .= '<div class="game-info">';
-        $content .= '<h3>Informations</h3>';
-        $content .= '<ul>';
-        
-        if (!empty($step1_data['release_date'])) {
-            $content .= '<li><strong>Date de sortie :</strong> ' . esc_html($step1_data['release_date']) . '</li>';
-        }
-        
-        if (!empty($step1_data['developers'])) {
-            $content .= '<li><strong>Développeur(s) :</strong> ' . $this->format_companies($step1_data['developers']) . '</li>';
-        }
-        
-        if (!empty($step1_data['editors'])) {
-            $content .= '<li><strong>Éditeur(s) :</strong> ' . $this->format_companies($step1_data['editors']) . '</li>';
-        }
-        
-        if (!empty($step1_data['game_modes'])) {
-            $content .= '<li><strong>Mode(s) de jeu :</strong> ' . esc_html(implode(', ', $step1_data['game_modes'])) . '</li>';
-        }
-        
-        $content .= '</ul>';
-        $content .= '</div>';
-        
-        // Sections de contenu personnalisées
+        // UNIQUEMENT les sections de contenu personnalisées (étape 2)
         if (!empty($step2_data['sections'])) {
             foreach ($step2_data['sections'] as $section) {
                 if (!empty($section['title']) || !empty($section['content'])) {
@@ -294,28 +355,6 @@ class Sisme_Form_Handler {
                     $content .= '</div>';
                 }
             }
-        }
-        
-        // Liens
-        $links = array();
-        if (!empty($step1_data['trailer_url'])) {
-            $links[] = '<a href="' . esc_url($step1_data['trailer_url']) . '" target="_blank">Trailer</a>';
-        }
-        if (!empty($step1_data['steam_url'])) {
-            $links[] = '<a href="' . esc_url($step1_data['steam_url']) . '" target="_blank">Steam</a>';
-        }
-        if (!empty($step1_data['epic_url'])) {
-            $links[] = '<a href="' . esc_url($step1_data['epic_url']) . '" target="_blank">Epic Games</a>';
-        }
-        if (!empty($step1_data['gog_url'])) {
-            $links[] = '<a href="' . esc_url($step1_data['gog_url']) . '" target="_blank">GOG</a>';
-        }
-        
-        if (!empty($links)) {
-            $content .= '<div class="game-links">';
-            $content .= '<h3>Liens</h3>';
-            $content .= '<p>' . implode(' | ', $links) . '</p>';
-            $content .= '</div>';
         }
         
         return $content;
@@ -371,7 +410,8 @@ class Sisme_Form_Handler {
             '_sisme_editors' => $data['editors'],
             '_sisme_trailer_url' => $data['trailer_url'],
             '_sisme_steam_url' => $data['steam_url'],
-            '_sisme_epic_url' => $data['epic_url']
+            '_sisme_epic_url' => $data['epic_url'],
+            '_sisme_gog_url' => $data['gog_url']
         );
         
         foreach ($metadata as $key => $value) {
