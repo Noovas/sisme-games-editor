@@ -112,6 +112,15 @@ class SismeGamesEditor {
             'sisme-games-settings',
             array($this, 'settings_page')
         );
+
+        add_submenu_page(
+            null, 
+            'Éditer une fiche',
+            'Éditer une fiche',
+            'manage_options',
+            'sisme-games-edit-fiche',
+            array($this, 'edit_fiche_page')
+        );
     }
     
     /**
@@ -181,6 +190,10 @@ class SismeGamesEditor {
     /**
      * Pages du plugin
      */
+    public function edit_fiche_page() {
+        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-fiche.php';
+    }
+
     public function dashboard_page() {
         include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/dashboard.php';
     }

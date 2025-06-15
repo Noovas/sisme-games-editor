@@ -36,6 +36,12 @@ class Sisme_Form_Handler {
         if (empty($_POST['main_tag'])) {
             $errors[] = 'Veuillez sélectionner une étiquette principale';
         }
+
+        if (empty($_POST['platforms'])) {
+            $errors[] = 'Veuillez sélectionner au moins une plateforme';
+        }
+
+
         
         if (!empty($errors)) {
             // Afficher les erreurs et revenir au formulaire
@@ -59,6 +65,7 @@ class Sisme_Form_Handler {
             'game_description' => sanitize_textarea_field($_POST['game_description']),
             'game_categories' => array_map('intval', $_POST['game_categories']),
             'game_modes' => array_map('sanitize_text_field', $_POST['game_modes']),
+            'platforms' => array_map('sanitize_text_field', $_POST['platforms']),
             'main_tag' => intval($_POST['main_tag']),
             'release_date' => sanitize_text_field($_POST['release_date']),
             'developers' => $this->sanitize_developers($_POST['developers'] ?? array()),
@@ -66,7 +73,6 @@ class Sisme_Form_Handler {
             'trailer_url' => esc_url_raw($_POST['trailer_url']),
             'steam_url' => esc_url_raw($_POST['steam_url']),
             'epic_url' => esc_url_raw($_POST['epic_url']),
-            'gog_url' => esc_url_raw($_POST['gog_url']),
             'featured_image_id' => intval($_POST['featured_image_id'])
         );
         
@@ -105,7 +111,7 @@ class Sisme_Form_Handler {
             });
             
             // Rediriger vers la liste
-            wp_redirect(admin_url('admin.php?page=sisme-games-fiches'));
+            wp_redirect(admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $result['post_id']));
             exit;
         } else {
             add_action('admin_notices', function() use ($result) {
@@ -358,14 +364,14 @@ class Sisme_Form_Handler {
     private function save_fiche_metadata($post_id, $data) {
         $metadata = array(
             '_sisme_game_modes' => $data['game_modes'],
+            '_sisme_platforms' => $data['platforms'],
             '_sisme_main_tag' => $data['main_tag'],
             '_sisme_release_date' => $data['release_date'],
             '_sisme_developers' => $data['developers'],
             '_sisme_editors' => $data['editors'],
             '_sisme_trailer_url' => $data['trailer_url'],
             '_sisme_steam_url' => $data['steam_url'],
-            '_sisme_epic_url' => $data['epic_url'],
-            '_sisme_gog_url' => $data['gog_url']
+            '_sisme_epic_url' => $data['epic_url']
         );
         
         foreach ($metadata as $key => $value) {

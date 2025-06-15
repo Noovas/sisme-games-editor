@@ -128,6 +128,35 @@ foreach ($jeux_categories as $category) {
                 </td>
             </tr>
             
+            <!-- Plateformes -->
+            <tr>
+                <th scope="row">Plateformes *</th>
+                <td>
+                    <fieldset>
+                        <label>
+                            <input type="checkbox" name="platforms[]" value="pc">
+                            PC
+                        </label><br>
+                        <label>
+                            <input type="checkbox" name="platforms[]" value="mac">
+                            Mac
+                        </label><br>
+                        <label>
+                            <input type="checkbox" name="platforms[]" value="xbox">
+                            Xbox
+                        </label><br>
+                        <label>
+                            <input type="checkbox" name="platforms[]" value="playstation">
+                            PlayStation
+                        </label><br>
+                        <label>
+                            <input type="checkbox" name="platforms[]" value="switch">
+                            Nintendo Switch
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
+            
             <!-- Développeurs -->
             <tr>
                 <th scope="row">Développeur(s)</th>
