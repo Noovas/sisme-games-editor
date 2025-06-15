@@ -111,7 +111,7 @@ class Sisme_Form_Handler {
                 echo '<div class="notice notice-success"><p>Fiche de jeu créée avec succès ! <a href="' . get_edit_post_link($result['post_id']) . '">Éditer</a> | <a href="' . get_permalink($result['post_id']) . '">Voir</a></p></div>';
             });
             
-            // Rediriger vers la visualisation
+            // Rediriger vers la page d'édition unifiée au lieu de edit-fiche
             wp_redirect(admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $result['post_id']));
             exit;
         } else {
@@ -210,7 +210,110 @@ class Sisme_Form_Handler {
             echo '<div class="notice notice-success"><p>Fiche mise à jour avec succès !</p></div>';
         });
         
-        // Rediriger vers la visualisation
+        // Rediriger vers la même page d'édition
+        wp_redirect(admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id));
+        exit;
+    }
+
+    /**
+     * Traiter la création d'une fiche depuis l'éditeur unifié
+     */
+    public function handle_fiche_creation() {
+        // Validation des données requises
+        $errors = array();
+        
+        if (empty($_POST['game_title'])) {
+            $errors[] = 'Le titre du jeu est requis';
+        }
+        
+        if (empty($_POST['game_description'])) {
+            $errors[] = 'La description du jeu est requise';
+        }
+        
+        if (empty($_POST['game_categories'])) {
+            $errors[] = 'Veuillez sélectionner au moins une catégorie';
+        }
+        
+        if (empty($_POST['game_modes'])) {
+            $errors[] = 'Veuillez sélectionner au moins un mode de jeu';
+        }
+        
+        if (empty($_POST['platforms'])) {
+            $errors[] = 'Veuillez sélectionner au moins une plateforme';
+        }
+        
+        if (!empty($errors)) {
+            add_action('admin_notices', function() use ($errors) {
+                echo '<div class="notice notice-error"><ul>';
+                foreach ($errors as $error) {
+                    echo '<li>' . esc_html($error) . '</li>';
+                }
+                echo '</ul></div>';
+            });
+            return;
+        }
+        
+        // Créer l'article WordPress
+        $post_data = array(
+            'post_title' => sanitize_text_field($_POST['game_title']),
+            'post_content' => '', // Contenu vide pour l'instant
+            'post_excerpt' => sanitize_textarea_field($_POST['game_description']),
+            'post_status' => 'draft',
+            'post_type' => 'post',
+            'post_author' => get_current_user_id()
+        );
+        
+        $post_id = wp_insert_post($post_data);
+        
+        if (is_wp_error($post_id)) {
+            add_action('admin_notices', function() use ($post_id) {
+                echo '<div class="notice notice-error"><p>Erreur lors de la création : ' . esc_html($post_id->get_error_message()) . '</p></div>';
+            });
+            return;
+        }
+        
+        // Assigner les catégories
+        if (!empty($_POST['game_categories'])) {
+            wp_set_post_categories($post_id, array_map('intval', $_POST['game_categories']));
+        }
+        
+        // Assigner l'étiquette principale
+        if (!empty($_POST['main_tag'])) {
+            wp_set_post_tags($post_id, array(intval($_POST['main_tag'])));
+        }
+        
+        // Assigner l'image mise en avant
+        if (!empty($_POST['featured_image_id'])) {
+            set_post_thumbnail($post_id, intval($_POST['featured_image_id']));
+        }
+        
+        // Sauvegarder les métadonnées personnalisées
+        $metadata = array(
+            '_sisme_game_modes' => isset($_POST['game_modes']) ? array_map('sanitize_text_field', $_POST['game_modes']) : array(),
+            '_sisme_platforms' => isset($_POST['platforms']) ? array_map('sanitize_text_field', $_POST['platforms']) : array(),
+            '_sisme_release_date' => sanitize_text_field($_POST['release_date']),
+            '_sisme_developers' => $this->sanitize_developers($_POST['developers'] ?? array()),
+            '_sisme_editors' => $this->sanitize_editors($_POST['editors'] ?? array()),
+            '_sisme_trailer_url' => esc_url_raw($_POST['trailer_url']),
+            '_sisme_steam_url' => esc_url_raw($_POST['steam_url']),
+            '_sisme_epic_url' => esc_url_raw($_POST['epic_url']),
+            '_sisme_gog_url' => esc_url_raw($_POST['gog_url']),
+            '_sisme_main_tag' => intval($_POST['main_tag']),
+            '_sisme_test_image_id' => intval($_POST['test_image_id'] ?? 0),
+            '_sisme_news_image_id' => intval($_POST['news_image_id'] ?? 0),
+            '_sisme_sections' => isset($_POST['sections']) ? $_POST['sections'] : array()
+        );
+        
+        foreach ($metadata as $key => $value) {
+            update_post_meta($post_id, $key, $value);
+        }
+        
+        // Message de succès
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-success"><p>Fiche créée avec succès !</p></div>';
+        });
+        
+        // Rediriger vers l'édition de la fiche créée
         wp_redirect(admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id));
         exit;
     }

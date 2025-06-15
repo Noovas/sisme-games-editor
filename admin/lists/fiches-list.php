@@ -4,9 +4,57 @@
  * Liste des fiches de jeu
  */
 
-// Sécurité : Empêcher l'accès direct
 if (!defined('ABSPATH')) {
     exit;
+}
+
+// Traitement des actions de publication
+if (isset($_GET['action']) && isset($_GET['post_id'])) {
+    $action = sanitize_text_field($_GET['action']);
+    $post_id = intval($_GET['post_id']);
+    
+    if ($action === 'publish' && wp_verify_nonce($_GET['_wpnonce'], 'publish_post_' . $post_id)) {
+        // Publier l'article
+        $result = wp_update_post(array(
+            'ID' => $post_id,
+            'post_status' => 'publish'
+        ));
+        
+        if (!is_wp_error($result)) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-success is-dismissible"><p>Fiche publiée avec succès !</p></div>';
+            });
+        } else {
+            add_action('admin_notices', function() use ($result) {
+                echo '<div class="notice notice-error is-dismissible"><p>Erreur lors de la publication : ' . esc_html($result->get_error_message()) . '</p></div>';
+            });
+        }
+        
+        // Rediriger pour éviter la double soumission
+        wp_redirect(admin_url('admin.php?page=sisme-games-fiches'));
+        exit;
+        
+    } elseif ($action === 'unpublish' && wp_verify_nonce($_GET['_wpnonce'], 'unpublish_post_' . $post_id)) {
+        // Remettre en brouillon
+        $result = wp_update_post(array(
+            'ID' => $post_id,
+            'post_status' => 'draft'
+        ));
+        
+        if (!is_wp_error($result)) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-success is-dismissible"><p>Fiche remise en brouillon avec succès !</p></div>';
+            });
+        } else {
+            add_action('admin_notices', function() use ($result) {
+                echo '<div class="notice notice-error is-dismissible"><p>Erreur lors de la modification : ' . esc_html($result->get_error_message()) . '</p></div>';
+            });
+        }
+        
+        // Rediriger pour éviter la double soumission
+        wp_redirect(admin_url('admin.php?page=sisme-games-fiches'));
+        exit;
+    }
 }
 
 // Récupération des paramètres
@@ -55,7 +103,7 @@ if (empty($category_ids)) {
 <div class="wrap">
     <h1>
         Fiches de jeu
-        <a href="<?php echo admin_url('admin.php?page=sisme-games-fiches&action=create'); ?>" class="page-title-action">
+        <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche'); ?>" class="page-title-action">
             Ajouter une nouvelle fiche
         </a>
     </h1>
@@ -141,12 +189,26 @@ if (empty($category_ids)) {
                         </td>
                         
                         <td class="actions column-actions">
-                            <a href="<?php echo admin_url('admin.php?page=sisme-games-internal-editor&post_id=' . $post_id); ?>" class="button button-small">
+                            <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id); ?>" class="button button-small">
                                 Modifier
                             </a>
-                            <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id); ?>" class="button button-small">
-                                Voir
-                            </a>
+                            
+                            <?php if ($status === 'draft') : ?>
+                                <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-fiches&action=publish&post_id=' . $post_id), 'publish_post_' . $post_id); ?>" 
+                                   class="button button-small button-primary" 
+                                   onclick="return confirm('Êtes-vous sûr de vouloir publier cette fiche ?')"
+                                   style="background: #00a32a; border-color: #00a32a;">
+                                    📢 Publier
+                                </a>
+                            <?php elseif ($status === 'publish') : ?>
+                                <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-fiches&action=unpublish&post_id=' . $post_id), 'unpublish_post_' . $post_id); ?>" 
+                                   class="button button-small" 
+                                   onclick="return confirm('Êtes-vous sûr de vouloir remettre cette fiche en brouillon ?')"
+                                   style="background: #dba617; border-color: #dba617; color: white;">
+                                    📝 Brouillon
+                                </a>
+                            <?php endif; ?>
+                            
                             <a href="<?php echo get_permalink($post_id); ?>" target="_blank" class="button button-small">
                                 Site
                             </a>
@@ -194,7 +256,7 @@ if (empty($category_ids)) {
                 <p>Créez d'abord des catégories commençant par "jeux-" dans <a href="<?php echo admin_url('edit-tags.php?taxonomy=category'); ?>">Articles > Catégories</a></p>
             <?php else : ?>
                 <p>Commencez par créer votre première fiche de jeu !</p>
-                <a href="<?php echo admin_url('admin.php?page=sisme-games-fiches&action=create'); ?>" class="button button-primary">
+                <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche'); ?>" class="button button-primary">
                     Créer une fiche
                 </a>
             <?php endif; ?>

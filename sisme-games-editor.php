@@ -172,6 +172,9 @@ class SismeGamesEditor {
             }
         } elseif (isset($_POST['sisme_edit_action'])) {
             switch ($_POST['sisme_edit_action']) {
+                case 'create_fiche':
+                    $form_handler->handle_fiche_creation();
+                    break;
                 case 'update_fiche':
                     $form_handler->handle_fiche_update();
                     break;

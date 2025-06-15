@@ -100,7 +100,7 @@ $stats['total'] = $stats['fiches'] + $stats['news'] + $stats['tests'];
             <a href="<?php echo admin_url('admin.php?page=sisme-games-fiches'); ?>" class="button">
                 Gérer les fiches
             </a>
-            <a href="<?php echo admin_url('admin.php?page=sisme-games-fiches&action=create'); ?>" class="button button-primary">
+            <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche'); ?>" class="button button-primary">
                 Nouvelle fiche
             </a>
         </div>
