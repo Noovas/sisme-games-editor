@@ -72,7 +72,9 @@ class Sisme_Form_Handler {
             'steam_url' => esc_url_raw($_POST['steam_url']),
             'epic_url' => esc_url_raw($_POST['epic_url']),
             'gog_url' => esc_url_raw($_POST['gog_url']),
-            'featured_image_id' => intval($_POST['featured_image_id'])
+            'featured_image_id' => intval($_POST['featured_image_id']),
+            'test_image_id' => intval($_POST['test_image_id']),
+            'news_image_id' => intval($_POST['news_image_id'])
         );
         
         // Rediriger vers l'étape 2
@@ -193,7 +195,9 @@ class Sisme_Form_Handler {
             '_sisme_steam_url' => esc_url_raw($_POST['steam_url']),
             '_sisme_epic_url' => esc_url_raw($_POST['epic_url']),
             '_sisme_gog_url' => esc_url_raw($_POST['gog_url']),
-            '_sisme_main_tag' => intval($_POST['main_tag'])
+            '_sisme_main_tag' => intval($_POST['main_tag']),
+            '_sisme_test_image_id' => intval($_POST['test_image_id'] ?? 0),
+            '_sisme_news_image_id' => intval($_POST['news_image_id'] ?? 0)
         );
         
         foreach ($metadata as $key => $value) {
@@ -411,7 +415,9 @@ class Sisme_Form_Handler {
             '_sisme_trailer_url' => $data['trailer_url'],
             '_sisme_steam_url' => $data['steam_url'],
             '_sisme_epic_url' => $data['epic_url'],
-            '_sisme_gog_url' => $data['gog_url']
+            '_sisme_gog_url' => $data['gog_url'],
+            '_sisme_test_image_id' => $data['test_image_id'] ?? 0,
+            '_sisme_news_image_id' => $data['news_image_id'] ?? 0
         );
         
         foreach ($metadata as $key => $value) {

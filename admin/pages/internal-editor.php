@@ -1,7 +1,7 @@
 <?php
 /**
  * File: /sisme-games-editor/admin/pages/internal-editor.php
- * Éditeur interne Sisme Games Editor
+ * Éditeur interne Sisme Games Editor - Mis à jour avec images test/news
  */
 
 // Sécurité : Empêcher l'accès direct
@@ -33,6 +33,10 @@ $steam_url = get_post_meta($post_id, '_sisme_steam_url', true);
 $epic_url = get_post_meta($post_id, '_sisme_epic_url', true);
 $gog_url = get_post_meta($post_id, '_sisme_gog_url', true);
 $main_tag = get_post_meta($post_id, '_sisme_main_tag', true);
+
+// NOUVELLES MÉTADONNÉES : Images des blocs test/news
+$test_image_id = get_post_meta($post_id, '_sisme_test_image_id', true);
+$news_image_id = get_post_meta($post_id, '_sisme_news_image_id', true);
 
 // Récupérer les catégories
 $categories = get_the_category($post_id);
@@ -273,6 +277,83 @@ $featured_image_id = get_post_thumbnail_id($post_id);
                         </td>
                     </tr>
                 </table>
+                
+                <!-- NOUVELLE SECTION : Images des blocs Test/News -->
+                <h2>Images des blocs Test & Actualités</h2>
+                
+                <table class="form-table">
+                    <!-- Image du bloc Test -->
+                    <tr>
+                        <th scope="row"><label>Image du bloc Test</label></th>
+                        <td>
+                            <div id="test-image-preview" style="margin-bottom: 10px;">
+                                <?php if (!empty($test_image_id)) : ?>
+                                    <?php 
+                                    $test_image_data = wp_get_attachment_image_src($test_image_id, 'medium');
+                                    if ($test_image_data) : ?>
+                                        <img src="<?php echo esc_url($test_image_data[0]); ?>" style="max-width: 300px; height: auto;">
+                                        <br><strong>Bloc Test activé !</strong> Le lien sera : <code>https://games.sisme.fr/<?php echo esc_html($post->post_name); ?>-test/</code>
+                                    <?php endif; ?>
+                                <?php else : ?>
+                                    <em>Aucune image sélectionnée - Image par défaut sera utilisée (bloc inactif)</em>
+                                <?php endif; ?>
+                            </div>
+                            <button type="button" id="select-test-image" class="button">
+                                <?php echo !empty($test_image_id) ? 'Changer l\'image du test' : 'Choisir une image pour le test'; ?>
+                            </button>
+                            <?php if (!empty($test_image_id)) : ?>
+                                <button type="button" id="remove-test-image" class="button" style="margin-left: 10px;">
+                                    Supprimer l'image
+                                </button>
+                            <?php else : ?>
+                                <button type="button" id="remove-test-image" class="button" style="margin-left: 10px; display: none;">
+                                    Supprimer l'image
+                                </button>
+                            <?php endif; ?>
+                            <input type="hidden" id="test_image_id" name="test_image_id" value="<?php echo esc_attr($test_image_id); ?>">
+                            <p class="description">
+                                <strong>Important :</strong> Si vous sélectionnez une image, le bloc Test deviendra cliquable et redirigera vers 
+                                <code>https://games.sisme.fr/<?php echo esc_html($post->post_name); ?>-test/</code>
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Image du bloc News -->
+                    <tr>
+                        <th scope="row"><label>Image du bloc News</label></th>
+                        <td>
+                            <div id="news-image-preview" style="margin-bottom: 10px;">
+                                <?php if (!empty($news_image_id)) : ?>
+                                    <?php 
+                                    $news_image_data = wp_get_attachment_image_src($news_image_id, 'medium');
+                                    if ($news_image_data) : ?>
+                                        <img src="<?php echo esc_url($news_image_data[0]); ?>" style="max-width: 300px; height: auto;">
+                                        <br><strong>Bloc News activé !</strong> Le lien sera : <code>https://games.sisme.fr/<?php echo esc_html($post->post_name); ?>-news/</code>
+                                    <?php endif; ?>
+                                <?php else : ?>
+                                    <em>Aucune image sélectionnée - Image par défaut sera utilisée (bloc inactif)</em>
+                                <?php endif; ?>
+                            </div>
+                            <button type="button" id="select-news-image" class="button">
+                                <?php echo !empty($news_image_id) ? 'Changer l\'image des news' : 'Choisir une image pour les news'; ?>
+                            </button>
+                            <?php if (!empty($news_image_id)) : ?>
+                                <button type="button" id="remove-news-image" class="button" style="margin-left: 10px;">
+                                    Supprimer l'image
+                                </button>
+                            <?php else : ?>
+                                <button type="button" id="remove-news-image" class="button" style="margin-left: 10px; display: none;">
+                                    Supprimer l'image
+                                </button>
+                            <?php endif; ?>
+                            <input type="hidden" id="news_image_id" name="news_image_id" value="<?php echo esc_attr($news_image_id); ?>">
+                            <p class="description">
+                                <strong>Important :</strong> Si vous sélectionnez une image, le bloc News deviendra cliquable et redirigera vers 
+                                <code>https://games.sisme.fr/<?php echo esc_html($post->post_name); ?>-news/</code>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
             </div>
             
             <!-- Colonne latérale -->
@@ -342,7 +423,7 @@ jQuery(document).ready(function($) {
     var developers = <?php echo json_encode($developers); ?>;
     var editors = <?php echo json_encode($editors); ?>;
     
-    // Sélecteur d'image
+    // Sélecteur d'image mise en avant
     $('#select-featured-image').click(function(e) {
         e.preventDefault();
         
@@ -362,7 +443,67 @@ jQuery(document).ready(function($) {
         mediaUploader.open();
     });
     
-    // Gestion dynamique développeurs/éditeurs (même code que formulaire création)
+    // Sélecteur d'image pour le bloc Test
+    $('#select-test-image').click(function(e) {
+        e.preventDefault();
+        
+        var mediaUploader = wp.media({
+            title: 'Sélectionner une image pour le bloc Test',
+            button: { text: 'Utiliser cette image' },
+            multiple: false
+        });
+        
+        mediaUploader.on('select', function() {
+            var attachment = mediaUploader.state().get('selection').first().toJSON();
+            $('#test_image_id').val(attachment.id);
+            $('#test-image-preview').html('<img src="' + attachment.url + '" style="max-width: 300px; height: auto;"><br><strong>Bloc Test activé !</strong> Le lien sera : <code>https://games.sisme.fr/<?php echo esc_js($post->post_name); ?>-test/</code>');
+            $('#select-test-image').text('Changer l\'image du test');
+            $('#remove-test-image').show();
+        });
+        
+        mediaUploader.open();
+    });
+    
+    // Supprimer l'image du bloc Test
+    $('#remove-test-image').click(function(e) {
+        e.preventDefault();
+        $('#test_image_id').val('');
+        $('#test-image-preview').html('<em>Aucune image sélectionnée - Image par défaut sera utilisée (bloc inactif)</em>');
+        $('#select-test-image').text('Choisir une image pour le test');
+        $(this).hide();
+    });
+    
+    // Sélecteur d'image pour le bloc News
+    $('#select-news-image').click(function(e) {
+        e.preventDefault();
+        
+        var mediaUploader = wp.media({
+            title: 'Sélectionner une image pour le bloc News',
+            button: { text: 'Utiliser cette image' },
+            multiple: false
+        });
+        
+        mediaUploader.on('select', function() {
+            var attachment = mediaUploader.state().get('selection').first().toJSON();
+            $('#news_image_id').val(attachment.id);
+            $('#news-image-preview').html('<img src="' + attachment.url + '" style="max-width: 300px; height: auto;"><br><strong>Bloc News activé !</strong> Le lien sera : <code>https://games.sisme.fr/<?php echo esc_js($post->post_name); ?>-news/</code>');
+            $('#select-news-image').text('Changer l\'image des news');
+            $('#remove-news-image').show();
+        });
+        
+        mediaUploader.open();
+    });
+    
+    // Supprimer l'image du bloc News
+    $('#remove-news-image').click(function(e) {
+        e.preventDefault();
+        $('#news_image_id').val('');
+        $('#news-image-preview').html('<em>Aucune image sélectionnée - Image par défaut sera utilisée (bloc inactif)</em>');
+        $('#select-news-image').text('Choisir une image pour les news');
+        $(this).hide();
+    });
+    
+    // Gestion dynamique développeurs/éditeurs
     $('#add-developer').click(function() {
         var name = $('#dev_name').val().trim();
         var url = $('#dev_url').val().trim();

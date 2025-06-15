@@ -195,15 +195,16 @@ class Sisme_Content_Filter {
         return $output;
     }
     
+    
     /**
-     * Rendu des blocs par défaut avec SEO amélioré
+     * Rendu des blocs par défaut avec gestion intelligente des liens
      */
     private function render_default_blocks() {
         global $post;
         $game_title = get_the_title();
         $game_slug = $post->post_name;
         
-        // Récupérer les catégories pour les liens
+        // Récupérer les catégories pour le SEO
         $categories = get_the_category();
         $main_category = '';
         foreach ($categories as $category) {
@@ -213,77 +214,261 @@ class Sisme_Content_Filter {
             }
         }
         
-        // URLs optimisées SEO (à adapter selon votre structure)
-        $test_url = home_url("/test-{$game_slug}/");
-        $news_url = home_url("/actualites-{$game_slug}/");
+        // URLs optimisées SEO selon les règles Sisme Games
+        $test_url = 'https://games.sisme.fr/' . $game_slug . '-test/';
+        $news_url = 'https://games.sisme.fr/' . $game_slug . '-news/';
         
-        $output = '<div class="sisme-fiche-blocks">';
+        // Images par défaut (à comparer pour savoir si griser)
+        $default_test_image = 'https://games.sisme.fr/wp-content/uploads/2025/06/Sisme-Games-default-test.webp';
+        $default_news_image = 'https://games.sisme.fr/wp-content/uploads/2025/06/Sisme-Games-default-news.webp';
         
-        // Titre de la section
-        $output .= '<h3 class="sisme-blocks-title">Test & Actualités</h3>';
+        // Récupérer les images personnalisées depuis les métadonnées
+        $test_image_id = get_post_meta($post->ID, '_sisme_test_image_id', true);
+        $news_image_id = get_post_meta($post->ID, '_sisme_news_image_id', true);
         
+        // Déterminer les images à utiliser et si les liens sont actifs
+        $test_image = '';
+        $news_image = '';
+        $test_link_active = false;
+        $news_link_active = false;
+        
+        if (!empty($test_image_id)) {
+            $test_image_data = wp_get_attachment_image_src($test_image_id, 'medium_large');
+            if ($test_image_data) {
+                $test_image = $test_image_data[0];
+                $test_link_active = true;
+            }
+        }
+        
+        if (!empty($news_image_id)) {
+            $news_image_data = wp_get_attachment_image_src($news_image_id, 'medium_large');
+            if ($news_image_data) {
+                $news_image = $news_image_data[0];
+                $news_link_active = true;
+            }
+        }
+        
+        // Fallback vers les images par défaut si aucune image personnalisée
+        if (empty($test_image)) {
+            $test_image = $default_test_image;
+        }
+        
+        if (empty($news_image)) {
+            $news_image = $default_news_image;
+        }
+        
+        // Container principal avec la MÊME structure que les informations
+        $output = '<div class="sisme-fiche-blocks" itemscope itemtype="https://schema.org/ItemList">';
+        
+        // Titre avec icône - IDENTIQUE aux informations
+        $output .= '<h3 itemprop="name">Test & Actualités</h3>';
+        
+        // Meta pour la liste
+        $output .= '<meta itemprop="numberOfItems" content="2">';
+        $output .= '<meta itemprop="description" content="Tests et actualités pour ' . esc_attr($game_title) . '">';
+        
+        // Grille des blocs
         $output .= '<div class="sisme-blocks-grid">';
         
-        // Bloc TEST avec contenu SEO riche et background image
-        $output .= '<a href="' . esc_url($test_url) . '" class="sisme-block-link sisme-test-block" ';
-        $output .= 'itemscope itemtype="https://schema.org/Review" ';
-        $output .= 'title="Test complet et avis détaillé de ' . esc_attr($game_title) . ' - Gameplay, graphismes, verdict">';
+        // ========== BLOC TEST ==========
+        $test_block_class = 'sisme-block sisme-test-block';
+        if (!$test_link_active) {
+            $test_block_class .= ' sisme-block-inactive';
+        }
         
-        // Background image
-        $output .= '<div class="sisme-block-bg" style="background-image: url(\'https://games.sisme.fr/wp-content/uploads/2025/06/Sisme-Games-default-test.webp\');"></div>';
+        $output .= '<div class="' . $test_block_class . '" itemprop="itemListElement" itemscope itemtype="https://schema.org/Review">';
         
+        // Position dans la liste
+        $output .= '<meta itemprop="position" content="1">';
+        
+        // Wrapper du bloc avec ou sans lien
+        if ($test_link_active) {
+            $output .= '<a href="' . esc_url($test_url) . '" class="sisme-block-wrapper" ';
+            $output .= 'title="Lire notre test complet et détaillé de ' . esc_attr($game_title) . ' - Gameplay, graphismes, verdict" ';
+            $output .= 'aria-label="Test complet du jeu ' . esc_attr($game_title) . '">';
+        } else {
+            $output .= '<div class="sisme-block-wrapper sisme-block-disabled" ';
+            $output .= 'title="Test de ' . esc_attr($game_title) . ' bientôt disponible" ';
+            $output .= 'aria-label="Test du jeu ' . esc_attr($game_title) . ' à venir">';
+        }
+        
+        // Image du bloc test
+        $output .= '<div class="sisme-block-image">';
+        $output .= '<img src="' . esc_url($test_image) . '" ';
+        $output .= 'alt="' . ($test_link_active ? 'Test complet de ' . esc_attr($game_title) : 'Test de ' . esc_attr($game_title) . ' bientôt disponible') . '" ';
+        $output .= 'width="400" height="200" ';
+        $output .= 'loading="lazy" ';
+        $output .= 'decoding="async">';
+        $output .= '</div>';
+        
+        // Contenu du bloc test
         $output .= '<div class="sisme-block-content">';
-        $output .= '<div class="sisme-block-icon">🎯</div>';
         $output .= '<h4 class="sisme-block-title" itemprop="name">Test de ' . esc_html($game_title) . '</h4>';
         $output .= '<p class="sisme-block-description" itemprop="description">';
-        $output .= 'Découvrez notre test complet avec analyse détaillée du gameplay, des graphismes, ';
-        $output .= 'de la bande sonore et notre verdict final sur ce jeu ' . esc_html($main_category ?: 'indépendant') . '.';
+        if ($test_link_active) {
+            $output .= 'Découvrez notre test complet avec analyse détaillée du gameplay, des graphismes, ';
+            $output .= 'de la bande sonore et notre verdict final avec note.';
+        } else {
+            $output .= 'Notre test complet de ' . esc_html($game_title) . ' sera bientôt disponible. ';
+            $output .= 'Revenez prochainement pour découvrir notre analyse détaillée.';
+        }
         $output .= '</p>';
+        
+        // Meta tags
         $output .= '<div class="sisme-block-meta">';
-        $output .= '<span class="sisme-block-tag">Test Complet</span>';
-        $output .= '<span class="sisme-block-tag">Avis Gaming</span>';
-        $output .= '<span class="sisme-block-tag">Verdict</span>'; // SUPPRIMÉ "Note &"
+        if ($test_link_active) {
+            $output .= '<span class="sisme-block-tag sisme-tag-active">Test Complet</span>';
+            $output .= '<span class="sisme-block-tag sisme-tag-active">Verdict & Note</span>';
+            $output .= '<span class="sisme-block-tag sisme-tag-active">Analyse Pro</span>';
+        } else {
+            $output .= '<span class="sisme-block-tag sisme-tag-inactive">Bientôt</span>';
+            $output .= '<span class="sisme-block-tag sisme-tag-inactive">Test à venir</span>';
+        }
         $output .= '</div>';
-        $output .= '<div class="sisme-block-cta">Lire le test →</div>';
+        
+        // CTA ou status
+        if ($test_link_active) {
+            $output .= '<span class="sisme-block-cta">Lire le test complet</span>';
+        } else {
+            $output .= '<span class="sisme-block-status">Test en préparation</span>';
+        }
+        
+        $output .= '</div>'; // Fin block-content
+        
+        // Fermer le wrapper (lien ou div)
+        $output .= $test_link_active ? '</a>' : '</div>';
+        
+        // Meta SEO pour le test
+        if ($test_link_active) {
+            $output .= '<meta itemprop="author" content="Sisme Games">';
+            $output .= '<meta itemprop="datePublished" content="' . get_the_date('c') . '">';
+            $output .= '<meta itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">';
+            $output .= '<meta itemprop="ratingValue" content="4.5">';
+            $output .= '<meta itemprop="bestRating" content="5">';
+            $output .= '<meta itemprop="worstRating" content="1">';
+            $output .= '<meta itemprop="url" content="' . esc_url($test_url) . '">';
+        }
+        
+        $output .= '</div>'; // Fin sisme-test-block
+        
+        // ========== BLOC NEWS ==========
+        $news_block_class = 'sisme-block sisme-news-block';
+        if (!$news_link_active) {
+            $news_block_class .= ' sisme-block-inactive';
+        }
+        
+        $output .= '<div class="' . $news_block_class . '" itemprop="itemListElement" itemscope itemtype="https://schema.org/NewsArticle">';
+        
+        // Position dans la liste
+        $output .= '<meta itemprop="position" content="2">';
+        
+        // Wrapper du bloc avec ou sans lien
+        if ($news_link_active) {
+            $output .= '<a href="' . esc_url($news_url) . '" class="sisme-block-wrapper" ';
+            $output .= 'title="Toutes les actualités de ' . esc_attr($game_title) . ' - Patches, DLC, mises à jour, événements" ';
+            $output .= 'aria-label="Actualités du jeu ' . esc_attr($game_title) . '">';
+        } else {
+            $output .= '<div class="sisme-block-wrapper sisme-block-disabled" ';
+            $output .= 'title="Actualités de ' . esc_attr($game_title) . ' bientôt disponibles" ';
+            $output .= 'aria-label="Actualités du jeu ' . esc_attr($game_title) . ' à venir">';
+        }
+        
+        // Image du bloc news
+        $output .= '<div class="sisme-block-image">';
+        $output .= '<img src="' . esc_url($news_image) . '" ';
+        $output .= 'alt="' . ($news_link_active ? 'Actualités et news de ' . esc_attr($game_title) : 'Actualités de ' . esc_attr($game_title) . ' bientôt disponibles') . '" ';
+        $output .= 'width="400" height="200" ';
+        $output .= 'loading="lazy" ';
+        $output .= 'decoding="async">';
         $output .= '</div>';
         
-        $output .= '<meta itemprop="author" content="Sisme Games">';
-        $output .= '<meta itemprop="datePublished" content="' . get_the_date('c') . '">';
-        $output .= '<meta itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">';
-        $output .= '<meta itemprop="ratingValue" content="4.5">';
-        $output .= '<meta itemprop="bestRating" content="5">';
-        $output .= '</a>';
-        
-        // Bloc NEWS avec contenu SEO riche et background image
-        $output .= '<a href="' . esc_url($news_url) . '" class="sisme-block-link sisme-news-block" ';
-        $output .= 'itemscope itemtype="https://schema.org/NewsArticle" ';
-        $output .= 'title="Actualités, mises à jour et news de ' . esc_attr($game_title) . ' - Patches, DLC, événements">';
-        
-        // Background image
-        $output .= '<div class="sisme-block-bg" style="background-image: url(\'https://games.sisme.fr/wp-content/uploads/2025/06/Sisme-Games-default-news.webp\');"></div>';
-        
+        // Contenu du bloc news
         $output .= '<div class="sisme-block-content">';
-        $output .= '<div class="sisme-block-icon">📰</div>';
         $output .= '<h4 class="sisme-block-title" itemprop="headline">News ' . esc_html($game_title) . '</h4>';
         $output .= '<p class="sisme-block-description" itemprop="description">';
-        $output .= 'Suivez toute l\'actualité : patches, mises à jour, DLC, événements spéciaux, ';
-        $output .= 'annonces officielles et dernières nouvelles du développeur.';
+        if ($news_link_active) {
+            $output .= 'Suivez toute l\'actualité : patches, mises à jour, DLC, événements spéciaux, ';
+            $output .= 'annonces officielles et dernières nouvelles du développeur.';
+        } else {
+            $output .= 'Les actualités pour ' . esc_html($game_title) . ' seront bientôt disponibles. ';
+            $output .= 'Patches, DLC et news du développeur à suivre ici.';
+        }
         $output .= '</p>';
+        
+        // Meta tags
         $output .= '<div class="sisme-block-meta">';
-        $output .= '<span class="sisme-block-tag">Actualités</span>';
-        $output .= '<span class="sisme-block-tag">Mises à jour</span>';
-        $output .= '<span class="sisme-block-tag">Patches</span>';
-        $output .= '</div>';
-        $output .= '<div class="sisme-block-cta">Voir les news →</div>';
+        if ($news_link_active) {
+            $output .= '<span class="sisme-block-tag sisme-tag-active">Actualités</span>';
+            $output .= '<span class="sisme-block-tag sisme-tag-active">Patches & DLC</span>';
+            $output .= '<span class="sisme-block-tag sisme-tag-active">Communauté</span>';
+        } else {
+            $output .= '<span class="sisme-block-tag sisme-tag-inactive">Bientôt</span>';
+            $output .= '<span class="sisme-block-tag sisme-tag-inactive">News à venir</span>';
+        }
         $output .= '</div>';
         
-        $output .= '<meta itemprop="author" content="Sisme Games">';
-        $output .= '<meta itemprop="datePublished" content="' . get_the_date('c') . '">';
-        $output .= '<meta itemprop="publisher" itemscope itemtype="https://schema.org/Organization">';
-        $output .= '<meta itemprop="name" content="Sisme Games">';
-        $output .= '</a>';
+        // CTA ou status
+        if ($news_link_active) {
+            $output .= '<span class="sisme-block-cta">Voir toutes les news</span>';
+        } else {
+            $output .= '<span class="sisme-block-status">Actualités en préparation</span>';
+        }
+        
+        $output .= '</div>'; // Fin block-content
+        
+        // Fermer le wrapper (lien ou div)
+        $output .= $news_link_active ? '</a>' : '</div>';
+        
+        // Meta SEO pour les news
+        if ($news_link_active) {
+            $output .= '<meta itemprop="author" content="Sisme Games">';
+            $output .= '<meta itemprop="datePublished" content="' . get_the_date('c') . '">';
+            $output .= '<meta itemprop="publisher" itemscope itemtype="https://schema.org/Organization">';
+            $output .= '<meta itemprop="name" content="Sisme Games">';
+            $output .= '<meta itemprop="url" content="https://games.sisme.fr">';
+            $output .= '<meta itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">';
+            $output .= '<meta itemprop="url" content="' . (get_site_icon_url(512) ?: 'https://games.sisme.fr/logo.png') . '">';
+            $output .= '<meta itemprop="mainEntityOfPage" content="' . esc_url($news_url) . '">';
+        }
+        
+        $output .= '</div>'; // Fin sisme-news-block
         
         $output .= '</div>'; // Fin sisme-blocks-grid
+        
+        // JSON-LD structuré pour la navigation interne
+        $structured_data = array(
+            '@context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            'name' => 'Test et Actualités - ' . $game_title,
+            'description' => 'Tests complets et actualités pour le jeu ' . $game_title,
+            'numberOfItems' => 2,
+            'itemListElement' => array()
+        );
+        
+        if ($test_link_active) {
+            $structured_data['itemListElement'][] = array(
+                '@type' => 'ListItem',
+                'position' => 1,
+                'name' => 'Test de ' . $game_title,
+                'description' => 'Test complet et analyse détaillée du jeu ' . $game_title,
+                'url' => $test_url,
+                'image' => $test_image
+            );
+        }
+        
+        if ($news_link_active) {
+            $structured_data['itemListElement'][] = array(
+                '@type' => 'ListItem',
+                'position' => 2,
+                'name' => 'Actualités ' . $game_title,
+                'description' => 'Toutes les actualités et news pour ' . $game_title,
+                'url' => $news_url,
+                'image' => $news_image
+            );
+        }
+        
+        $output .= '<script type="application/ld+json">' . wp_json_encode($structured_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
+        
         $output .= '</div>'; // Fin sisme-fiche-blocks
         
         return $output;

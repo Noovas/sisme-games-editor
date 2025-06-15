@@ -260,6 +260,54 @@ foreach ($jeux_categories as $category) {
             </tr>
         </table>
         
+        <!-- NOUVELLE SECTION : Images des blocs Test/News -->
+        <h2>Images pour les blocs Test & Actualités</h2>
+        <p>Sélectionnez des images personnalisées pour activer les liens vers les pages test et news. Si aucune image n'est sélectionnée, l'image par défaut sera utilisée et les blocs seront inactifs.</p>
+        
+        <table class="form-table">
+            <!-- Image du bloc Test -->
+            <tr>
+                <th scope="row"><label>Image du bloc Test</label></th>
+                <td>
+                    <div id="test-image-preview" style="margin-bottom: 10px;">
+                        <em>Aucune image sélectionnée - Image par défaut sera utilisée (bloc inactif)</em>
+                    </div>
+                    <button type="button" id="select-test-image" class="button">
+                        Choisir une image pour le test
+                    </button>
+                    <button type="button" id="remove-test-image" class="button" style="margin-left: 10px; display: none;">
+                        Supprimer l'image
+                    </button>
+                    <input type="hidden" id="test_image_id" name="test_image_id" value="">
+                    <p class="description">
+                        <strong>Important :</strong> Si vous sélectionnez une image, le bloc Test deviendra cliquable et redirigera vers 
+                        <code>https://games.sisme.fr/[nom-du-jeu]-test/</code>
+                    </p>
+                </td>
+            </tr>
+            
+            <!-- Image du bloc News -->
+            <tr>
+                <th scope="row"><label>Image du bloc News</label></th>
+                <td>
+                    <div id="news-image-preview" style="margin-bottom: 10px;">
+                        <em>Aucune image sélectionnée - Image par défaut sera utilisée (bloc inactif)</em>
+                    </div>
+                    <button type="button" id="select-news-image" class="button">
+                        Choisir une image pour les news
+                    </button>
+                    <button type="button" id="remove-news-image" class="button" style="margin-left: 10px; display: none;">
+                        Supprimer l'image
+                    </button>
+                    <input type="hidden" id="news_image_id" name="news_image_id" value="">
+                    <p class="description">
+                        <strong>Important :</strong> Si vous sélectionnez une image, le bloc News deviendra cliquable et redirigera vers 
+                        <code>https://games.sisme.fr/[nom-du-jeu]-news/</code>
+                    </p>
+                </td>
+            </tr>
+        </table>
+        
         <p class="submit">
             <a href="<?php echo admin_url('admin.php?page=sisme-games-fiches'); ?>" class="button">
                 Annuler
@@ -274,12 +322,12 @@ jQuery(document).ready(function($) {
     var developers = [];
     var editors = [];
     
-    // Sélecteur d'image media uploader simple
+    // Sélecteur d'image media uploader - Image mise en avant
     $('#select-featured-image').click(function(e) {
         e.preventDefault();
         
         var mediaUploader = wp.media({
-            title: 'Sélectionner une image',
+            title: 'Sélectionner une image mise en avant',
             button: {
                 text: 'Utiliser cette image'
             },
@@ -294,6 +342,70 @@ jQuery(document).ready(function($) {
         });
         
         mediaUploader.open();
+    });
+    
+    // Sélecteur d'image pour le bloc Test
+    $('#select-test-image').click(function(e) {
+        e.preventDefault();
+        
+        var mediaUploader = wp.media({
+            title: 'Sélectionner une image pour le bloc Test',
+            button: {
+                text: 'Utiliser cette image'
+            },
+            multiple: false
+        });
+        
+        mediaUploader.on('select', function() {
+            var attachment = mediaUploader.state().get('selection').first().toJSON();
+            $('#test_image_id').val(attachment.id);
+            $('#test-image-preview').html('<img src="' + attachment.url + '" style="max-width: 300px; height: auto;"><br><strong>Bloc Test activé !</strong> Le lien sera : <code>https://games.sisme.fr/[nom-du-jeu]-test/</code>');
+            $('#select-test-image').text('Changer l\'image du test');
+            $('#remove-test-image').show();
+        });
+        
+        mediaUploader.open();
+    });
+    
+    // Supprimer l'image du bloc Test
+    $('#remove-test-image').click(function(e) {
+        e.preventDefault();
+        $('#test_image_id').val('');
+        $('#test-image-preview').html('<em>Aucune image sélectionnée - Image par défaut sera utilisée (bloc inactif)</em>');
+        $('#select-test-image').text('Choisir une image pour le test');
+        $(this).hide();
+    });
+    
+    // Sélecteur d'image pour le bloc News
+    $('#select-news-image').click(function(e) {
+        e.preventDefault();
+        
+        var mediaUploader = wp.media({
+            title: 'Sélectionner une image pour le bloc News',
+            button: {
+                text: 'Utiliser cette image'
+            },
+            multiple: false
+        });
+        
+        mediaUploader.on('select', function() {
+            var attachment = mediaUploader.state().get('selection').first().toJSON();
+            $('#news_image_id').val(attachment.id);
+            $('#news-image-preview').html('<img src="' + attachment.url + '" style="max-width: 300px; height: auto;"><br><strong>Bloc News activé !</strong> Le lien sera : <code>https://games.sisme.fr/[nom-du-jeu]-news/</code>');
+            $('#select-news-image').text('Changer l\'image des news');
+            $('#remove-news-image').show();
+        });
+        
+        mediaUploader.open();
+    });
+    
+    // Supprimer l'image du bloc News
+    $('#remove-news-image').click(function(e) {
+        e.preventDefault();
+        $('#news_image_id').val('');
+        $('#news-image-preview').html('<em>Aucune image sélectionnée - Image par défaut sera utilisée (bloc inactif)</em>');
+        $('#select-news-image').text('Choisir une image pour les news');
+        $(this).hide();
     });
     
     // Ajouter un développeur
