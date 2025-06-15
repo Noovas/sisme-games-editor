@@ -36,7 +36,6 @@
     display: flex;
     align-items: center;
     font-weight: 600;
-    color: var(--theme-palette-color-6);
     margin-bottom: 8px;
     font-size: 14px;
 }
@@ -51,7 +50,7 @@
 
 .sisme-field-description {
     font-size: 12px;
-    color: var(--theme-palette-color-8);
+    color: var(--theme-palette-color-5);
     margin: 5px 0 0 0;
     font-style: italic;
 }
