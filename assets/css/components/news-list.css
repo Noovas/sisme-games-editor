@@ -15,13 +15,13 @@
     --theme-palette-color-8: #425261;
 }
 
-/* Container principal des news - MÊME STRUCTURE que les fiches */
-.sisme-fiche-news {
+/* Section introduction news - COPIE EXACTE de .sisme-fiche-description */
+.sisme-news-intro {
     margin: 48px auto;
     max-width: 1200px;
     padding: 40px 48px;
     
-    /* Design sobre et élégant - IDENTIQUE aux autres sections */
+    /* Design sobre et élégant - IDENTIQUE aux fiches */
     background: rgba(236, 240, 241, 0.95);
     border-radius: 12px;
     position: relative;
@@ -42,8 +42,8 @@
     transition: all 0.3s ease;
 }
 
-/* Animation subtile de points en haut - IDENTIQUE aux autres sections */
-.sisme-fiche-news::before {
+/* Animation subtile de points en haut - IDENTIQUE aux fiches */
+.sisme-news-intro::before {
     content: '';
     position: absolute;
     top: 0;
@@ -54,8 +54,8 @@
     border-radius: 2px;
 }
 
-/* Dégradé qui se déplace - IDENTIQUE aux autres sections */
-.sisme-fiche-news::after {
+/* Dégradé qui se déplace - IDENTIQUE aux fiches */
+.sisme-news-intro::after {
     content: '';
     position: absolute;
     top: 0;
@@ -77,17 +77,17 @@
     100% { left: calc(100% + 150px); opacity: 0; }
 }
 
-/* Effet hover discret - IDENTIQUE aux autres sections */
-.sisme-fiche-news:hover {
+/* Effet hover discret - IDENTIQUE aux fiches */
+.sisme-news-intro:hover {
     border-color: rgba(161, 183, 141, 0.4);
     box-shadow: 
         0 12px 40px rgba(44, 62, 80, 0.12),
         0 4px 16px rgba(44, 62, 80, 0.06);
 }
 
-/* Titre de la section - IDENTIQUE aux autres sections */
-.sisme-fiche-news h2 {
-    font-size: 1.75rem; /* 28px - MÊME que toutes les autres */
+/* Titre de la section - IDENTIQUE aux fiches */
+.sisme-news-intro h2 {
+    font-size: 1.75rem; /* 28px - MÊME que toutes les fiches */
     font-weight: 600;
     color: var(--theme-palette-color-6);
     margin: 0 0 32px;
@@ -100,7 +100,134 @@
     text-rendering: optimizeLegibility;
 }
 
-/* Icône simple - COHÉRENTE avec les autres sections */
+/* Icône simple - COHÉRENTE avec les fiches */
+.sisme-news-intro h2::before {
+    content: '📰';
+    font-size: 0.9em;
+    margin-right: 12px;
+    opacity: 0.8;
+}
+
+/* Contenu de l'intro */
+.sisme-news-intro .description-content {
+    position: relative;
+    z-index: 1;
+}
+
+.sisme-news-intro p {
+    color: var(--theme-palette-color-6);
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.7;
+    margin: 0 0 20px;
+    font-weight: 400;
+    
+    /* Amélioration de la lisibilité */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.sisme-news-intro p:last-child {
+    margin-bottom: 0;
+}
+
+.sisme-news-intro p:first-child {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 500;
+    color: var(--theme-palette-color-8);
+}
+
+.sisme-news-intro a {
+    color: var(--theme-palette-color-1);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.sisme-news-intro a:hover {
+    color: var(--theme-palette-color-2);
+    text-decoration: underline;
+}
+
+/* Container principal des news - COPIE EXACTE de .sisme-fiche-blocks */
+.sisme-fiche-news {
+    margin: 48px auto;
+    max-width: 1200px;
+    padding: 40px 48px;
+    
+    /* Design sobre et élégant - IDENTIQUE aux fiches */
+    background: rgba(236, 240, 241, 0.95);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    
+    /* Bordure subtile */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces et professionnelles */
+    box-shadow: 
+        0 8px 32px rgba(44, 62, 80, 0.08),
+        0 2px 8px rgba(44, 62, 80, 0.04);
+    
+    /* Animation d'apparition */
+    animation: sismeFadeInUp 0.6s ease-out;
+    
+    /* Transition smooth */
+    transition: all 0.3s ease;
+}
+
+/* Animation subtile de points en haut - IDENTIQUE aux fiches */
+.sisme-fiche-news::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(161, 183, 141, 0.3);
+    border-radius: 2px;
+}
+
+/* Dégradé qui se déplace - IDENTIQUE aux fiches */
+.sisme-fiche-news::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(85, 122, 70, 0.95) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    animation: sismeDotsFlow 4s ease-out infinite;
+}
+
+/* Effet hover discret - IDENTIQUE aux fiches */
+.sisme-fiche-news:hover {
+    border-color: rgba(161, 183, 141, 0.4);
+    box-shadow: 
+        0 12px 40px rgba(44, 62, 80, 0.12),
+        0 4px 16px rgba(44, 62, 80, 0.06);
+}
+
+/* Titre de la section - IDENTIQUE aux fiches */
+.sisme-fiche-news h2 {
+    font-size: 1.75rem; /* 28px - MÊME que toutes les fiches */
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 32px;
+    text-align: left;
+    position: relative;
+    
+    /* Ligne décorative simple - IDENTIQUE */
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--theme-palette-color-1);
+    text-rendering: optimizeLegibility;
+}
+
+/* Icône simple - COHÉRENTE avec les fiches */
 .sisme-fiche-news h2::before {
     content: '📰';
     font-size: 0.9em;
@@ -145,6 +272,13 @@
     animation-delay: 0.6s;
 }
 
+.sisme-news-grid.sisme-single-card {
+    grid-template-columns: 1fr;
+    max-width: 450px;
+    margin: 0 auto;
+    justify-content: center;
+}
+
 /* Section vide quand pas d'articles */
 .sisme-news-empty {
     text-align: center;
@@ -176,41 +310,112 @@
     margin-bottom: 0;
 }
 
-/* Lien vers la fiche parent */
-.sisme-fiche-link {
-    margin: 48px auto 0;
+/* Section découverte du jeu - COPIE EXACTE de .sisme-fiche-stores */
+.sisme-news-discover {
+    margin: 48px auto;
     max-width: 1200px;
-    padding: 32px 48px;
+    padding: 40px 48px;
     
-    /* Design cohérent mais plus discret */
-    background: rgba(161, 183, 141, 0.05);
-    border-radius: 10px;
-    border: 1px solid rgba(161, 183, 141, 0.15);
+    /* Design sobre et élégant - IDENTIQUE aux fiches */
+    background: rgba(236, 240, 241, 0.95);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
     
-    /* Ombre plus légère */
+    /* Bordure subtile */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces et professionnelles */
     box-shadow: 
-        0 4px 16px rgba(44, 62, 80, 0.04),
-        0 2px 8px rgba(44, 62, 80, 0.02);
+        0 8px 32px rgba(44, 62, 80, 0.08),
+        0 2px 8px rgba(44, 62, 80, 0.04);
     
     /* Animation d'apparition */
-    animation: sismeFadeInUp 0.6s ease-out 0.4s both;
+    animation: sismeFadeInUp 0.6s ease-out;
+    
+    /* Transition smooth */
+    transition: all 0.3s ease;
 }
 
-.sisme-fiche-link h3 {
-    font-size: 1.375rem;
-    color: var(--theme-palette-color-6);
-    margin: 0 0 16px;
+/* Animation subtile de points en haut - IDENTIQUE aux fiches */
+.sisme-news-discover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(161, 183, 141, 0.3);
+    border-radius: 2px;
+}
+
+/* Dégradé qui se déplace - IDENTIQUE aux fiches */
+.sisme-news-discover::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(85, 122, 70, 0.95) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    animation: sismeDotsFlow 4s ease-out infinite;
+}
+
+/* Effet hover discret - IDENTIQUE aux fiches */
+.sisme-news-discover:hover {
+    border-color: rgba(161, 183, 141, 0.4);
+    box-shadow: 
+        0 12px 40px rgba(44, 62, 80, 0.12),
+        0 4px 16px rgba(44, 62, 80, 0.06);
+}
+
+/* Titre de la section - IDENTIQUE aux fiches */
+.sisme-news-discover h2 {
+    font-size: 1.75rem; /* 28px - MÊME que toutes les fiches */
     font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 32px;
+    text-align: left;
+    position: relative;
+    
+    /* Ligne décorative simple - IDENTIQUE */
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--theme-palette-color-1);
+    text-rendering: optimizeLegibility;
 }
 
-.sisme-fiche-link p {
-    font-size: 1.063rem;
-    color: var(--theme-palette-color-8);
-    line-height: 1.6;
+/* Icône simple - COHÉRENTE avec les fiches */
+.sisme-news-discover h2::before {
+    content: '💡';
+    font-size: 0.9em;
+    margin-right: 12px;
+    opacity: 0.8;
+}
+
+/* Contenu de la section découverte */
+.sisme-discover-content {
+    position: relative;
+    z-index: 1;
+}
+
+.sisme-discover-content p {
+    color: var(--theme-palette-color-6);
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.7;
     margin: 0;
+    font-weight: 400;
+    
+    /* Amélioration de la lisibilité */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-.sisme-fiche-link a {
+.sisme-discover-content a {
     color: var(--theme-palette-color-1);
     text-decoration: none;
     font-weight: 600;
@@ -218,97 +423,18 @@
     border-bottom: 1px solid transparent;
 }
 
-.sisme-fiche-link a:hover {
+.sisme-discover-content a:hover {
     color: var(--theme-palette-color-2);
     border-bottom-color: var(--theme-palette-color-2);
-}
-
-/* Filtres et tri (pour les futures fonctionnalités) */
-.sisme-news-filters {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 32px;
-    flex-wrap: wrap;
-    gap: 16px;
-    position: relative;
-    z-index: 1;
-}
-
-.sisme-filter-buttons {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.sisme-filter-btn {
-    padding: 8px 16px;
-    border: 1px solid rgba(161, 183, 141, 0.3);
-    background: transparent;
-    color: var(--theme-palette-color-6);
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.sisme-filter-btn:hover,
-.sisme-filter-btn.active {
-    background: var(--theme-palette-color-1);
-    color: white;
-    border-color: var(--theme-palette-color-1);
-}
-
-.sisme-sort-select {
-    padding: 8px 12px;
-    border: 1px solid rgba(161, 183, 141, 0.3);
-    background: white;
-    color: var(--theme-palette-color-6);
-    border-radius: 6px;
-    font-size: 0.875rem;
-    cursor: pointer;
-}
-
-/* Pagination (pour les futures fonctionnalités) */
-.sisme-news-pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 48px;
-    gap: 12px;
-    position: relative;
-    z-index: 1;
-}
-
-.sisme-pagination-btn {
-    padding: 10px 16px;
-    border: 1px solid rgba(161, 183, 141, 0.3);
-    background: white;
-    color: var(--theme-palette-color-6);
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.sisme-pagination-btn:hover,
-.sisme-pagination-btn.current {
-    background: var(--theme-palette-color-1);
-    color: white;
-    border-color: var(--theme-palette-color-1);
-}
-
-.sisme-pagination-btn.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 /* Responsive Design */
 
 /* Tablettes large */
 @media (max-width: 1024px) {
-    .sisme-fiche-news {
+    .sisme-news-intro,
+    .sisme-fiche-news,
+    .sisme-news-discover {
         max-width: 95%;
         padding: 32px 36px;
     }
@@ -317,20 +443,20 @@
         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
         gap: 24px;
     }
-    
-    .sisme-fiche-link {
-        padding: 24px 36px;
-    }
 }
 
 /* Tablettes portrait */
 @media (max-width: 768px) {
-    .sisme-fiche-news {
+    .sisme-news-intro,
+    .sisme-fiche-news,
+    .sisme-news-discover {
         margin: 32px auto;
         padding: 24px 20px;
     }
     
-    .sisme-fiche-news h2 {
+    .sisme-news-intro h2,
+    .sisme-fiche-news h2,
+    .sisme-news-discover h2 {
         font-size: 1.5rem; /* 24px */
         margin-bottom: 24px;
     }
@@ -340,66 +466,48 @@
         gap: 20px;
     }
     
-    .sisme-fiche-link {
-        margin-top: 32px;
-        padding: 20px;
+    .sisme-news-intro p {
+        font-size: 1.063rem; /* 17px */
+        line-height: 1.6;
+        margin: 0 0 16px;
     }
     
-    .sisme-fiche-link h3 {
-        font-size: 1.25rem;
-        margin-bottom: 12px;
+    .sisme-news-intro p:first-child {
+        font-size: 1.125rem; /* 18px */
     }
     
-    .sisme-fiche-link p {
-        font-size: 1rem;
-    }
-    
-    .sisme-news-filters {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-    }
-    
-    .sisme-filter-buttons {
-        justify-content: center;
+    .sisme-discover-content p {
+        font-size: 1.063rem; /* 17px */
     }
 }
 
 /* Smartphones */
 @media (max-width: 480px) {
-    .sisme-fiche-news {
+    .sisme-news-intro,
+    .sisme-fiche-news,
+    .sisme-news-discover {
         margin: 24px auto;
         padding: 20px 16px;
         border-radius: 8px;
     }
     
-    .sisme-fiche-news h2 {
+    .sisme-news-intro h2,
+    .sisme-fiche-news h2,
+    .sisme-news-discover h2 {
         font-size: 1.375rem; /* 22px */
         margin-bottom: 20px;
         padding-bottom: 12px;
     }
     
-    .sisme-fiche-news h2::before {
+    .sisme-news-intro h2::before,
+    .sisme-fiche-news h2::before,
+    .sisme-news-discover h2::before {
         font-size: 0.8em;
         margin-right: 8px;
     }
     
     .sisme-news-grid {
         gap: 16px;
-    }
-    
-    .sisme-fiche-link {
-        margin-top: 24px;
-        padding: 16px;
-        border-radius: 8px;
-    }
-    
-    .sisme-fiche-link h3 {
-        font-size: 1.125rem;
-    }
-    
-    .sisme-fiche-link p {
-        font-size: 0.938rem;
     }
     
     .sisme-news-empty {
@@ -414,25 +522,26 @@
         font-size: 1rem;
     }
     
-    .sisme-filter-btn {
-        font-size: 0.813rem;
-        padding: 6px 12px;
+    .sisme-news-intro p {
+        font-size: 1rem; /* 16px */
+        line-height: 1.6;
+        margin: 0 0 12px;
     }
     
-    .sisme-news-pagination {
-        margin-top: 32px;
-        gap: 8px;
+    .sisme-news-intro p:first-child {
+        font-size: 1.063rem; /* 17px */
     }
     
-    .sisme-pagination-btn {
-        padding: 8px 12px;
-        font-size: 0.875rem;
+    .sisme-discover-content p {
+        font-size: 1rem; /* 16px */
     }
 }
 
 /* Mode sombre */
 @media (prefers-color-scheme: dark) {
-    .sisme-fiche-news {
+    .sisme-news-intro,
+    .sisme-fiche-news,
+    .sisme-news-discover {
         background: rgba(66, 82, 97, 0.95);
         border-color: rgba(161, 183, 141, 0.15);
         box-shadow: 
@@ -440,11 +549,15 @@
             0 2px 8px rgba(0, 0, 0, 0.1);
     }
     
-    .sisme-fiche-news:hover {
+    .sisme-news-intro:hover,
+    .sisme-fiche-news:hover,
+    .sisme-news-discover:hover {
         border-color: rgba(161, 183, 141, 0.3);
     }
     
-    .sisme-fiche-news h2 {
+    .sisme-news-intro h2,
+    .sisme-fiche-news h2,
+    .sisme-news-discover h2 {
         color: var(--theme-palette-color-3);
         border-bottom-color: var(--theme-palette-color-1);
     }
@@ -457,30 +570,13 @@
         color: var(--theme-palette-color-4);
     }
     
-    .sisme-fiche-link {
-        background: rgba(161, 183, 141, 0.08);
-        border-color: rgba(161, 183, 141, 0.12);
-    }
-    
-    .sisme-fiche-link h3 {
+    .sisme-news-intro p,
+    .sisme-discover-content p {
         color: var(--theme-palette-color-3);
     }
     
-    .sisme-fiche-link p {
+    .sisme-news-intro p:first-child {
         color: var(--theme-palette-color-4);
-    }
-    
-    .sisme-filter-btn {
-        background: rgba(44, 62, 80, 0.5);
-        border-color: rgba(161, 183, 141, 0.2);
-        color: var(--theme-palette-color-3);
-    }
-    
-    .sisme-sort-select,
-    .sisme-pagination-btn {
-        background: rgba(44, 62, 80, 0.7);
-        border-color: rgba(161, 183, 141, 0.2);
-        color: var(--theme-palette-color-3);
     }
 }
 
@@ -509,7 +605,9 @@
 
 /* Performance optimizations */
 .sisme-news-grid,
-.sisme-fiche-news {
+.sisme-news-intro,
+.sisme-fiche-news,
+.sisme-news-discover {
     will-change: transform;
     transform-style: preserve-3d;
     backface-visibility: hidden;
@@ -517,7 +615,9 @@
 
 /* Print styles */
 @media print {
-    .sisme-fiche-news {
+    .sisme-news-intro,
+    .sisme-fiche-news,
+    .sisme-news-discover {
         background: white !important;
         box-shadow: none !important;
         border: 1px solid #ccc !important;
@@ -528,16 +628,4 @@
         grid-template-columns: 1fr !important;
         gap: 20px !important;
     }
-    
-    .sisme-news-filters,
-    .sisme-news-pagination {
-        display: none !important;
-    }
-}
-
-.sisme-news-grid.sisme-single-card {
-    grid-template-columns: 1fr;
-    max-width: 450px;        /* Largeur maximale raisonnable */
-    margin: 0 auto;          /* Centrage horizontal */
-    justify-content: center;
 }

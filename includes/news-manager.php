@@ -145,19 +145,21 @@ class Sisme_News_Manager {
         
         $enriched_content .= '</div>'; // .sisme-fiche-news
         
-        // Lien vers la fiche parent (section séparée)
+        // Lien vers la fiche parent avec NOUVELLE classe spécifique news
         if ($parent_fiche_id) {
             $fiche_url = get_permalink($parent_fiche_id);
             $fiche_title = get_the_title($parent_fiche_id);
             
-            $enriched_content .= '<div class="sisme-fiche-link">';
-            $enriched_content .= '<h3>Découvrir le jeu complet</h3>';
-            $enriched_content .= '<p><strong>💡 Nouveau sur ' . esc_html($game_name) . ' ?</strong> ';
+            $enriched_content .= '<div class="sisme-news-discover">';
+            $enriched_content .= '<h2>Découvrir le jeu complet</h2>';
+            $enriched_content .= '<div class="sisme-discover-content">';
+            $enriched_content .= '<p><strong>Nouveau sur ' . esc_html($game_name) . ' ?</strong> ';
             $enriched_content .= 'Consultez d\'abord notre <a href="' . esc_url($fiche_url) . '" ';
             $enriched_content .= 'title="Fiche complète de ' . esc_attr($fiche_title) . ' - Gameplay, caractéristiques et notre avis">';
             $enriched_content .= '<strong>fiche complète du jeu</strong></a> pour découvrir ses principales caractéristiques, ';
             $enriched_content .= 'son gameplay et nos premières impressions.</p>';
-            $enriched_content .= '</div>'; // .sisme-fiche-link
+            $enriched_content .= '</div>'; // .sisme-discover-content
+            $enriched_content .= '</div>'; // .sisme-news-discover
         }
 
         // Liens boutiques (réutilise la structure existante)
@@ -263,10 +265,13 @@ class Sisme_News_Manager {
     }
 
     /**
-     * Générer l'introduction SEO optimisée
+     * Générer l'introduction SEO optimisée avec structure cohérente
      */
     private function render_seo_intro($game_name, $parent_fiche_id) {
+        // Section avec NOUVELLE classe spécifique news
         $intro_html = '<div class="sisme-news-intro">';
+        $intro_html .= '<h2>Toute l\'actualité de ' . esc_html($game_name) . '</h2>';
+        $intro_html .= '<div class="description-content">';
         
         // Récupérer les données de la fiche pour enrichir le SEO
         $game_modes = '';
@@ -317,19 +322,8 @@ class Sisme_News_Manager {
         }
         $intro_html .= 'mérite votre attention, que vous soyez un joueur occasionnel ou un passionné de jeux indépendants.</p>';
         
-        // Lien optimisé vers la fiche
-        if ($parent_fiche_id) {
-            $fiche_url = get_permalink($parent_fiche_id);
-            $fiche_title = get_the_title($parent_fiche_id);
-            
-            $intro_html .= '<p class="sisme-fiche-link"><strong>💡 Nouveau sur ' . esc_html($game_name) . ' ?</strong> ';
-            $intro_html .= 'Consultez d\'abord notre <a href="' . esc_url($fiche_url) . '" ';
-            $intro_html .= 'title="Fiche complète de ' . esc_attr($fiche_title) . ' - Gameplay, caractéristiques et notre avis" ';
-            $intro_html .= 'alt="Guide complet du jeu ' . esc_attr($game_name) . '">';
-            $intro_html .= '<strong>fiche complète du jeu</strong></a> pour découvrir ses principales caractéristiques, son gameplay et nos premières impressions.</p>';
-        }
-        
-        $intro_html .= '</div>';
+        $intro_html .= '</div>'; // .description-content
+        $intro_html .= '</div>'; // .sisme-news-intro
         
         return $intro_html;
     }
