@@ -1,0 +1,524 @@
+/**
+ * File: /sisme-games-editor/assets/css/components/news-cards.css
+ * Styles pour les cartes de news/patch - Structure cohérente avec les fiches
+ */
+
+/* Variables de couleurs */
+:root {
+    --theme-palette-color-1: #A1B78D;
+    --theme-palette-color-2: #557A46;
+    --theme-palette-color-3: #ECF0F1;
+    --theme-palette-color-4: #ECF0F1;
+    --theme-palette-color-5: #9caca0;
+    --theme-palette-color-6: #2C3E50;
+    --theme-palette-color-7: #D4A373;
+    --theme-palette-color-8: #425261;
+}
+
+/* Carte individuelle de news/patch */
+.sisme-news-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    
+    /* Bordure subtile - IDENTIQUE aux autres composants */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces et professionnelles - IDENTIQUE */
+    box-shadow: 
+        0 8px 24px rgba(44, 62, 80, 0.08),
+        0 4px 12px rgba(44, 62, 80, 0.04);
+    
+    /* Transition smooth - IDENTIQUE */
+    transition: all 0.4s ease;
+    
+    /* Animation d'apparition */
+    animation: sismeFadeInUp 0.6s ease-out;
+    
+    /* Hauteur cohérente */
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Effet hover sur la carte - COHÉRENT avec les autres composants */
+.sisme-news-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(161, 183, 141, 0.4);
+    box-shadow: 
+        0 16px 40px rgba(44, 62, 80, 0.12),
+        0 8px 20px rgba(44, 62, 80, 0.08);
+}
+
+/* Lien global sur toute la carte */
+.sisme-card-link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+}
+
+.sisme-card-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Section image avec overlay */
+.sisme-card-image {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    overflow: hidden;
+    
+    /* Dégradé par défaut si pas d'image */
+    background: linear-gradient(135deg, 
+        var(--theme-palette-color-1) 0%, 
+        var(--theme-palette-color-2) 100%);
+}
+
+/* Overlay avec informations sur l'image */
+.sisme-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(44, 62, 80, 0.7) 0%,
+        rgba(44, 62, 80, 0.4) 50%,
+        rgba(161, 183, 141, 0.3) 100%
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px;
+    
+    /* Transition pour l'hover */
+    transition: all 0.3s ease;
+}
+
+/* Effet hover sur l'overlay */
+.sisme-news-card:hover .sisme-card-overlay {
+    background: linear-gradient(
+        135deg,
+        rgba(44, 62, 80, 0.8) 0%,
+        rgba(44, 62, 80, 0.5) 50%,
+        rgba(161, 183, 141, 0.4) 100%
+    );
+}
+
+/* Nom du jeu en haut à gauche */
+.sisme-game-title {
+    font-size: 0.875rem; /* 14px */
+    font-weight: 600;
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    /* Animation d'apparition */
+    animation: sismeFadeIn 0.6s ease-out 0.2s both;
+}
+
+/* Badge du type d'article */
+.sisme-article-badge {
+    font-size: 0.75rem; /* 12px */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    
+    /* Animation d'apparition */
+    animation: sismeFadeIn 0.6s ease-out 0.3s both;
+}
+
+/* Variantes de couleur pour les badges */
+.sisme-badge-news {
+    background: rgba(161, 183, 141, 0.9);
+    color: white;
+    border: 1px solid rgba(161, 183, 141, 0.3);
+}
+
+.sisme-badge-patch {
+    background: rgba(212, 163, 115, 0.9);
+    color: white;
+    border: 1px solid rgba(212, 163, 115, 0.3);
+}
+
+.sisme-badge-test {
+    background: rgba(85, 122, 70, 0.9);
+    color: white;
+    border: 1px solid rgba(85, 122, 70, 0.3);
+}
+
+.sisme-badge-guide {
+    background: rgba(66, 82, 97, 0.9);
+    color: white;
+    border: 1px solid rgba(66, 82, 97, 0.3);
+}
+
+/* Icône de lecture au centre */
+.sisme-read-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    /* Cercle avec backdrop blur */
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    backdrop-filter: blur(10px);
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Transitions */
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.sisme-read-icon .sisme-icon {
+    font-size: 1.5rem;
+    color: white;
+}
+
+/* Effet hover sur l'icône */
+.sisme-news-card:hover .sisme-read-icon {
+    transform: translate(-50%, -50%) scale(1.1);
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    opacity: 1;
+}
+
+/* Contenu textuel de la carte */
+.sisme-card-content {
+    padding: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+}
+
+/* Titre de l'article */
+.sisme-card-title {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 12px;
+    line-height: 1.3;
+    
+    /* Limitation à 2 lignes */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    
+    /* Transition pour l'hover */
+    transition: color 0.3s ease;
+}
+
+.sisme-news-card:hover .sisme-card-title {
+    color: var(--theme-palette-color-2);
+}
+
+/* Extrait de l'article */
+.sisme-card-excerpt {
+    font-size: 0.938rem; /* 15px */
+    line-height: 1.6;
+    color: var(--theme-palette-color-8);
+    margin: 0 0 20px;
+    flex: 1;
+    
+    /* Limitation à 3 lignes */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Métadonnées de la carte */
+.sisme-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(161, 183, 141, 0.2);
+}
+
+/* Éléments des métadonnées */
+.sisme-card-date,
+.sisme-read-time,
+.sisme-patch-version {
+    font-size: 0.75rem; /* 12px */
+    color: var(--theme-palette-color-5);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sisme-card-date {
+    color: var(--theme-palette-color-8);
+    font-weight: 600;
+}
+
+/* Call-to-action en bas */
+.sisme-card-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--theme-palette-color-1);
+    font-weight: 600;
+    font-size: 0.938rem;
+    
+    /* Transition */
+    transition: all 0.3s ease;
+}
+
+.sisme-card-cta .sisme-cta-arrow {
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+}
+
+/* Effet hover sur le CTA */
+.sisme-news-card:hover .sisme-card-cta {
+    color: var(--theme-palette-color-2);
+}
+
+.sisme-news-card:hover .sisme-card-cta .sisme-cta-arrow {
+    transform: translateX(4px);
+}
+
+/* Variantes de couleur pour les cartes selon le type */
+.sisme-card-news {
+    border-left: 4px solid var(--theme-palette-color-1);
+}
+
+.sisme-card-patch {
+    border-left: 4px solid var(--theme-palette-color-7);
+}
+
+.sisme-card-test {
+    border-left: 4px solid var(--theme-palette-color-2);
+}
+
+.sisme-card-guide {
+    border-left: 4px solid var(--theme-palette-color-8);
+}
+
+/* Animations d'apparition */
+@keyframes sismeFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes sismeFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive Design */
+
+/* Tablettes */
+@media (max-width: 1024px) {
+    .sisme-news-card {
+        min-height: 380px;
+    }
+    
+    .sisme-card-content {
+        padding: 20px;
+    }
+    
+    .sisme-card-title {
+        font-size: 1.125rem; /* 18px */
+    }
+}
+
+/* Tablettes portrait */
+@media (max-width: 768px) {
+    .sisme-news-card {
+        min-height: 360px;
+        border-radius: 12px;
+    }
+    
+    .sisme-card-image {
+        height: 180px;
+    }
+    
+    .sisme-card-content {
+        padding: 18px;
+    }
+    
+    .sisme-card-title {
+        font-size: 1.125rem; /* 18px */
+        margin-bottom: 10px;
+    }
+    
+    .sisme-card-excerpt {
+        font-size: 0.875rem; /* 14px */
+        margin-bottom: 16px;
+    }
+    
+    .sisme-read-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .sisme-read-icon .sisme-icon {
+        font-size: 1.25rem;
+    }
+}
+
+/* Smartphones */
+@media (max-width: 480px) {
+    .sisme-news-card {
+        min-height: 340px;
+        border-radius: 10px;
+    }
+    
+    .sisme-card-image {
+        height: 160px;
+    }
+    
+    .sisme-card-overlay {
+        padding: 12px;
+    }
+    
+    .sisme-game-title {
+        font-size: 0.813rem; /* 13px */
+        padding: 4px 10px;
+    }
+    
+    .sisme-article-badge {
+        font-size: 0.688rem; /* 11px */
+        padding: 3px 8px;
+        top: 12px;
+        right: 12px;
+    }
+    
+    .sisme-card-content {
+        padding: 16px;
+    }
+    
+    .sisme-card-title {
+        font-size: 1rem; /* 16px */
+    }
+    
+    .sisme-card-excerpt {
+        font-size: 0.875rem; /* 14px */
+    }
+    
+    .sisme-card-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    
+    .sisme-card-cta {
+        font-size: 0.875rem;
+    }
+    
+    /* Désactiver certains effets hover sur mobile */
+    .sisme-news-card:hover {
+        transform: translateY(-4px);
+    }
+    
+    .sisme-news-card:hover .sisme-read-icon {
+        transform: translate(-50%, -50%) scale(1.05);
+    }
+}
+
+/* Mode sombre */
+@media (prefers-color-scheme: dark) {
+    .sisme-news-card {
+        background: rgba(44, 62, 80, 0.9);
+        border-color: rgba(161, 183, 141, 0.15);
+        box-shadow: 
+            0 8px 24px rgba(0, 0, 0, 0.2),
+            0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sisme-news-card:hover {
+        border-color: rgba(161, 183, 141, 0.3);
+        box-shadow: 
+            0 16px 40px rgba(0, 0, 0, 0.3),
+            0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .sisme-card-title {
+        color: var(--theme-palette-color-3);
+    }
+    
+    .sisme-news-card:hover .sisme-card-title {
+        color: var(--theme-palette-color-1);
+    }
+    
+    .sisme-card-excerpt {
+        color: var(--theme-palette-color-4);
+    }
+    
+    .sisme-card-meta {
+        border-bottom-color: rgba(161, 183, 141, 0.15);
+    }
+}
+
+/* Performance optimizations */
+.sisme-news-card,
+.sisme-card-image,
+.sisme-read-icon {
+    will-change: transform;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}
+
+/* Print styles */
+@media print {
+    .sisme-news-card {
+        background: white !important;
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+        break-inside: avoid;
+        margin-bottom: 20px;
+    }
+    
+    .sisme-card-overlay {
+        background: rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .sisme-read-icon {
+        display: none;
+    }
+}
