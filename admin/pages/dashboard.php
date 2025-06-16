@@ -118,7 +118,9 @@ $stats['total'] = $stats['fiches'] + $stats['news'] + $stats['tests'];
             <a href="<?php echo admin_url('admin.php?page=sisme-games-patch-news'); ?>" class="button">
                 Gérer les news
             </a>
-            <span style="color: #666; font-style: italic;">Bientôt disponible</span>
+            <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-patch-news'); ?>" class="button button-primary">
+                Nouveau
+            </a>
         </div>
         
         <!-- Tests -->
@@ -151,92 +153,5 @@ $stats['total'] = $stats['fiches'] + $stats['news'] + $stats['tests'];
                 Accéder aux réglages
             </a>
         </div>
-    </div>
-    
-    <!-- Articles récents -->
-    <?php
-    $recent_posts = get_posts(array(
-        'numberposts' => 5,
-        'post_status' => array('publish', 'draft'),
-        'meta_query' => array(
-            array(
-                'key' => '_sisme_game_modes',
-                'compare' => 'EXISTS'
-            )
-        )
-    ));
-    ?>
-    
-    <?php if (!empty($recent_posts)) : ?>
-        <h2>Articles gaming récents</h2>
-        <div class="wp-list-table widefat">
-            <table style="width: 100%;">
-                <thead>
-                    <tr style="background: #f1f1f1;">
-                        <th style="padding: 10px; text-align: left;">Titre</th>
-                        <th style="padding: 10px; text-align: left;">Type</th>
-                        <th style="padding: 10px; text-align: left;">Statut</th>
-                        <th style="padding: 10px; text-align: left;">Date</th>
-                        <th style="padding: 10px; text-align: left;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($recent_posts as $post) : 
-                        $categories = get_the_category($post->ID);
-                        $type = 'Autre';
-                        foreach ($categories as $cat) {
-                            if (strpos($cat->slug, 'jeux-') === 0) {
-                                $type = 'Fiche de jeu';
-                                break;
-                            } elseif ($cat->slug === 'news') {
-                                $type = 'News';
-                                break;
-                            } elseif ($cat->slug === 'tests') {
-                                $type = 'Test';
-                                break;
-                            }
-                        }
-                    ?>
-                        <tr>
-                            <td style="padding: 10px;">
-                                <strong><?php echo esc_html($post->post_title); ?></strong>
-                            </td>
-                            <td style="padding: 10px;">
-                                <span style="background: #e1f5fe; padding: 2px 8px; border-radius: 3px; font-size: 12px;">
-                                    <?php echo $type; ?>
-                                </span>
-                            </td>
-                            <td style="padding: 10px;">
-                                <span style="color: <?php echo $post->post_status === 'publish' ? 'green' : 'orange'; ?>;">
-                                    <?php echo $post->post_status === 'publish' ? 'Publié' : 'Brouillon'; ?>
-                                </span>
-                            </td>
-                            <td style="padding: 10px;">
-                                <?php echo date('j M Y', strtotime($post->post_date)); ?>
-                            </td>
-                            <td style="padding: 10px;">
-                                <a href="<?php echo get_edit_post_link($post->ID); ?>" class="button button-small">
-                                    Modifier
-                                </a>
-                                <a href="<?php echo get_permalink($post->ID); ?>" target="_blank" class="button button-small">
-                                    Voir
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    <?php endif; ?>
-    
-    <!-- Aide rapide -->
-    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 5px; margin: 30px 0;">
-        <h3 style="margin-top: 0;">💡 Pour commencer</h3>
-        <ol>
-            <li>Créez des catégories commençant par "jeux-" dans <a href="<?php echo admin_url('edit-tags.php?taxonomy=category'); ?>">Articles > Catégories</a> (ex: "jeux-action", "jeux-rpg")</li>
-            <li>Créez vos premières fiches de jeu avec le formulaire en 2 étapes</li>
-            <li>Les articles seront automatiquement classés selon leurs catégories</li>
-        </ol>
-        <p><strong>Besoin d'aide ?</strong> Consultez la documentation ou contactez le support.</p>
     </div>
 </div>

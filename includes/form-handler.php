@@ -452,8 +452,23 @@ class Sisme_Form_Handler {
             }
         }
     }
+
+    // Page news/patch
     
     public function create_complete_fiche($post_data) {
         return array('success' => true, 'post_id' => 0);
+    }
+
+    public function handle_patch_news_creation() {
+        // Validation des données
+        // Création de l'article
+        // Attribution des catégories patch/news
+        // Sauvegarde des métadonnées
+    }
+
+    public function handle_patch_news_update() {
+        // Mise à jour de l'article existant
+        // Gestion des sections
+        // Actualisation des métadonnées
     }
 }

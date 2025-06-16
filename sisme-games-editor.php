@@ -52,6 +52,8 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/content-filter.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/seo-enhancements.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/news-manager.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/patch-news-handler.php';
+
     }
     
     public function add_admin_menu() {
@@ -127,10 +129,19 @@ class SismeGamesEditor {
             'sisme-games-internal-editor',
             array($this, 'internal_editor_page')
         );
+
+        add_submenu_page(
+            null, 
+            'Éditer un article Patch & News',
+            'Éditer Patch & News',
+            'manage_options',
+            'sisme-games-edit-patch-news',
+            array($this, 'edit_patch_news_page')
+        );
     }
     
     public function handle_form_submission() {
-        if (!isset($_POST['sisme_form_action']) && !isset($_POST['sisme_edit_action'])) {
+        if (!isset($_POST['sisme_form_action']) && !isset($_POST['sisme_edit_action']) && !isset($_POST['sisme_patch_news_action'])) {
             return;
         }
         
@@ -140,6 +151,10 @@ class SismeGamesEditor {
             }
         } elseif (isset($_POST['sisme_edit_action'])) {
             if (!wp_verify_nonce($_POST['sisme_edit_nonce'], 'sisme_edit_form')) {
+                wp_die('Erreur de sécurité');
+            }
+        } elseif (isset($_POST['sisme_patch_news_action'])) {
+            if (!wp_verify_nonce($_POST['sisme_edit_patch_news_nonce'], 'sisme_edit_patch_news_form')) {
                 wp_die('Erreur de sécurité');
             }
         }
@@ -162,6 +177,17 @@ class SismeGamesEditor {
                     break;
                 case 'update_fiche':
                     $form_handler->handle_fiche_update();
+                    break;
+            }
+        } elseif (isset($_POST['sisme_patch_news_action'])) {
+            $patch_news_handler = new Sisme_Patch_News_Handler();
+            
+            switch ($_POST['sisme_patch_news_action']) {
+                case 'create_article':
+                    $patch_news_handler->handle_creation();
+                    break;
+                case 'update_article':
+                    $patch_news_handler->handle_update();
                     break;
             }
         }
@@ -225,6 +251,10 @@ class SismeGamesEditor {
 
     public function internal_editor_page() {
         include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/internal-editor.php';
+    }
+
+    public function edit_patch_news_page() {
+        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-patch-news.php';
     }
 }
 
