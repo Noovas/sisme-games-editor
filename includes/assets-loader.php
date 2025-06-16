@@ -67,8 +67,41 @@ class Sisme_Assets_Loader {
                 SISME_GAMES_EDITOR_VERSION
             );
         }
+
+        // CSS pour les pages news
+        if (is_single() && $this->is_news_page()) {
+            wp_enqueue_style(
+                'sisme-stores-styles',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/stores.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+        }
     }
     
+    /**
+     * Vérifier si l'article actuel est une page news
+     */
+    private function is_news_page() {
+        global $post;
+        
+        if (!$post) {
+            return false;
+        }
+        
+        // Vérification par métadonnée
+        if (get_post_meta($post->ID, '_sisme_is_news_page', true)) {
+            return true;
+        }
+        
+        // Vérification par slug pattern
+        if (preg_match('/-news$/', $post->post_name)) {
+            return true;
+        }
+        
+        return false;
+    }
+
     /**
      * Charger les styles admin
      */
