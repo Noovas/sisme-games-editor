@@ -39,7 +39,7 @@
     /* Hauteur cohérente */
     min-height: 400px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 /* Effet hover sur la carte - COHÉRENT avec les autres composants */
@@ -66,19 +66,16 @@
     color: inherit;
 }
 
-/* Section image avec overlay */
 .sisme-card-image {
-    height: 200px;
+    height: 0;
+    padding-bottom: 48.8%;  /* Ratio de l'image 375/768 */
     background-size: cover;
-    background-position: center;
+    background-position: center center;
     background-repeat: no-repeat;
     position: relative;
     overflow: hidden;
-    
-    /* Dégradé par défaut si pas d'image */
-    background: linear-gradient(135deg, 
-        var(--theme-palette-color-1) 0%, 
-        var(--theme-palette-color-2) 100%);
+    border-radius: 16px 16px 0 0;
+    background-color: var(--theme-palette-color-6);
 }
 
 /* Overlay avec informations sur l'image */
@@ -88,12 +85,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(
-        135deg,
-        rgba(44, 62, 80, 0.7) 0%,
-        rgba(44, 62, 80, 0.4) 50%,
-        rgba(161, 183, 141, 0.3) 100%
-    );
+        background: linear-gradient(135deg, rgba(44, 62, 80, 0.2) 0%, rgba(44, 62, 80, 0.2) 50%, rgba(161, 183, 141, .2) 100%);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -279,7 +271,6 @@
 }
 
 .sisme-card-date {
-    color: var(--theme-palette-color-8);
     font-weight: 600;
 }
 
@@ -521,4 +512,18 @@
     .sisme-read-icon {
         display: none;
     }
+}
+
+/* Supprimer l'espace des paragraphes vides dans les cartes */
+.sisme-news-card p:empty,
+.sisme-card-content p:empty {
+    display: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Supprimer les marges du premier élément dans la carte */
+.sisme-news-card > *:first-child,
+.sisme-card-link > *:first-child {
+    margin-top: 0 !important;
 }

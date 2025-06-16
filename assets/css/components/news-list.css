@@ -534,3 +534,10 @@
         display: none !important;
     }
 }
+
+.sisme-news-grid.sisme-single-card {
+    grid-template-columns: 1fr;
+    max-width: 450px;        /* Largeur maximale raisonnable */
+    margin: 0 auto;          /* Centrage horizontal */
+    justify-content: center;
+}

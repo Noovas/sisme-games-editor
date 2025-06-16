@@ -78,7 +78,7 @@ class Sisme_News_Manager {
     }
     
     /**
-     * Enrichir le contenu des pages news (COMME LES FICHES)
+     * Enrichir le contenu des pages news (STRUCTURE COMPLÈTE AVEC LISTE)
      */
     public function enrich_news_page_content($content) {
         if (is_single()) {
@@ -93,91 +93,171 @@ class Sisme_News_Manager {
         $post_id = $post->ID;
         $game_name = get_post_meta($post_id, '_sisme_game_name', true);
         $parent_fiche_id = get_post_meta($post_id, '_sisme_parent_fiche_id', true);
+        
         if (!$game_name) {
             $game_name = str_replace('-news', '', $post->post_name);
             $game_name = str_replace('-', ' ', $game_name);
             $game_name = ucwords($game_name);
         }
+        
         $enriched_content = '';
 
         // Section d'accroche SEO optimisée
         $enriched_content .= $this->render_seo_intro($game_name, $parent_fiche_id);
-        // Titre de section
-        $enriched_content .= '<h2>Dernières actualités et patches pour ' . esc_html($game_name) . '</h2>';
+        
+        // Container principal avec structure cohérente (COMME LES FICHES)
+        $enriched_content .= '<div class="sisme-fiche-news">';
+        $enriched_content .= '<h2>Dernières actualités et patches</h2>';
 
-        $news_articles = $this->get_game_news_articles($game_name, $post_id);        
+        $news_articles = $this->get_game_news_articles($game_name, $post_id);
+        
         if (!empty($news_articles)) {
-            $enriched_content .= '<div class="sisme-news-grid">';
+            // Déterminer la classe CSS selon le nombre d'articles
+            $grid_class = 'sisme-news-grid';
+            if (count($news_articles) == 1) {
+                $grid_class .= ' sisme-single-card';
+            }
+            
+            // Grille des cartes news
+            $enriched_content .= '<div class="' . $grid_class . '">';
             
             foreach ($news_articles as $article) {
                 $enriched_content .= $this->render_news_card($article, $game_name);
             }
             
-            $enriched_content .= '</div>';
+            $enriched_content .= '</div>'; // .sisme-news-grid
         } else {
+            // Section vide avec message
             $enriched_content .= '<div class="sisme-news-empty">';
+            $enriched_content .= '<div class="sisme-empty-content">';
             $enriched_content .= '<h3>Actualités en préparation</h3>';
-            $enriched_content .= '<p>Les premières actualités pour <strong>' . esc_html($game_name) . '</strong> arriveront bientôt !</p>';
-            $enriched_content .= '</div>';
+            $enriched_content .= '<p>Nous travaillons activement sur le contenu dédié à <strong>' . esc_html($game_name) . '</strong>. ';
+            $enriched_content .= 'Les premières actualités, guides et analyses arriveront très prochainement !</p>';
+            $enriched_content .= '<p>En attendant, n\'hésitez pas à découvrir notre ';
+            if ($parent_fiche_id) {
+                $fiche_url = get_permalink($parent_fiche_id);
+                $enriched_content .= '<a href="' . esc_url($fiche_url) . '"><strong>fiche complète du jeu</strong></a> ';
+            }
+            $enriched_content .= 'pour tout savoir sur ses mécaniques et notre première impression.</p>';
+            $enriched_content .= '</div>'; // .sisme-empty-content
+            $enriched_content .= '</div>'; // .sisme-news-empty
         }
         
-        // Lien vers la fiche parent si elle existe
+        $enriched_content .= '</div>'; // .sisme-fiche-news
+        
+        // Lien vers la fiche parent (section séparée)
         if ($parent_fiche_id) {
             $fiche_url = get_permalink($parent_fiche_id);
+            $fiche_title = get_the_title($parent_fiche_id);
             
             $enriched_content .= '<div class="sisme-fiche-link">';
-            $enriched_content .= '<p><strong>💡 Découvrir le jeu :</strong> ';
-            $enriched_content .= '<a href="' . esc_url($fiche_url) . '">Voir la fiche complète de ' . esc_html($game_name) . '</a></p>';
-            $enriched_content .= '</div>';
+            $enriched_content .= '<h3>Découvrir le jeu complet</h3>';
+            $enriched_content .= '<p><strong>💡 Nouveau sur ' . esc_html($game_name) . ' ?</strong> ';
+            $enriched_content .= 'Consultez d\'abord notre <a href="' . esc_url($fiche_url) . '" ';
+            $enriched_content .= 'title="Fiche complète de ' . esc_attr($fiche_title) . ' - Gameplay, caractéristiques et notre avis">';
+            $enriched_content .= '<strong>fiche complète du jeu</strong></a> pour découvrir ses principales caractéristiques, ';
+            $enriched_content .= 'son gameplay et nos premières impressions.</p>';
+            $enriched_content .= '</div>'; // .sisme-fiche-link
         }
 
-        // Liens boutiques
+        // Liens boutiques (réutilise la structure existante)
         $enriched_content .= $this->render_store_links($parent_fiche_id);
         
         return $enriched_content;
     }
     
     /**
-     * Générer une carte d'article news/patch
+     * Générer une carte d'article news/patch - VERSION COMPLÈTE
      */
     private function render_news_card($article, $game_name) {
         $article_url = get_permalink($article->ID);
         $article_date = get_the_date('j M Y', $article->ID);
         $article_type = $this->get_article_type($article);
-        $article_image = get_the_post_thumbnail_url($article->ID, 'medium');
+        $article_image = get_the_post_thumbnail_url($article->ID, 'medium_large');
         
-        $card_html = '<div class="sisme-news-card sisme-card-' . strtolower($article_type) . '">';
-        
-        // Image de l'article si elle existe
-        if ($article_image) {
-            $card_html .= '<div class="sisme-card-image">';
-            $card_html .= '<img src="' . esc_url($article_image) . '" alt="' . esc_attr($article->post_title) . '">';
-            $card_html .= '</div>';
+        // Image par défaut selon le type si pas d'image
+        if (!$article_image) {
+            switch ($article_type) {
+                case 'PATCH':
+                    $article_image = 'https://games.sisme.fr/wp-content/uploads/2025/06/default-patch.webp';
+                    break;
+                case 'TEST':
+                    $article_image = 'https://games.sisme.fr/wp-content/uploads/2025/06/default-test.webp';
+                    break;
+                default:
+                    $article_image = 'https://games.sisme.fr/wp-content/uploads/2025/06/default-news.webp';
+            }
         }
         
+        // Classes CSS selon le type
+        $card_type_class = 'sisme-card-' . strtolower($article_type);
+        $badge_class = 'sisme-badge-' . strtolower($article_type);
+        
+        $card_html = '<article class="sisme-news-card ' . $card_type_class . '" itemscope itemtype="https://schema.org/Article">';
+        
+        // Lien global sur toute la carte
+        $card_html .= '<a href="' . esc_url($article_url) . '" class="sisme-card-link" ';
+        $card_html .= 'title="' . esc_attr($article->post_title) . ' - ' . esc_attr($article_type) . '" ';
+        $card_html .= 'aria-label="Lire l\'article : ' . esc_attr($article->post_title) . '">';
+        
+        // Section image avec overlay
+        $card_html .= '<div class="sisme-card-image" style="background-image: url(\'' . esc_url($article_image) . '\');">';
+        $card_html .= '<div class="sisme-card-overlay">';
+        
+        // Nom du jeu en haut à gauche
+        $card_html .= '<div class="sisme-game-title">' . esc_html($game_name) . '</div>';
+        
+        // Badge du type d'article en haut à droite
+        $card_html .= '<div class="sisme-article-badge ' . $badge_class . '">' . esc_html($article_type) . '</div>';
+        
+        $card_html .= '</div>'; // .sisme-card-overlay
+        $card_html .= '</div>'; // .sisme-card-image
+        
+        // Contenu textuel
         $card_html .= '<div class="sisme-card-content">';
         
-        // Badge du type d'article
-        $card_html .= '<div class="sisme-card-meta">';
-        $card_html .= '<span class="sisme-article-badge sisme-badge-' . strtolower($article_type) . '">' . esc_html($article_type) . '</span>';
-        $card_html .= '<span class="sisme-card-date">' . esc_html($article_date) . '</span>';
-        $card_html .= '</div>';
-        
         // Titre de l'article
-        $card_html .= '<h3 class="sisme-card-title">';
-        $card_html .= '<a href="' . esc_url($article_url) . '">' . esc_html($article->post_title) . '</a>';
-        $card_html .= '</h3>';
+        $card_html .= '<h4 class="sisme-card-title" itemprop="headline">' . esc_html($article->post_title) . '</h4>';
         
         // Extrait de l'article
         if (!empty($article->post_excerpt)) {
-            $card_html .= '<p class="sisme-card-excerpt">' . esc_html(wp_trim_words($article->post_excerpt, 25)) . '</p>';
+            $card_html .= '<p class="sisme-card-excerpt" itemprop="description">';
+            $card_html .= esc_html(wp_trim_words($article->post_excerpt, 20));
+            $card_html .= '</p>';
+        } else {
+            // Fallback sur le contenu si pas d'extrait
+            $content_excerpt = wp_trim_words(strip_tags($article->post_content), 20);
+            if (!empty($content_excerpt)) {
+                $card_html .= '<p class="sisme-card-excerpt" itemprop="description">';
+                $card_html .= esc_html($content_excerpt);
+                $card_html .= '</p>';
+            }
         }
         
-        // Nom du jeu concerné
-        $card_html .= '<div class="sisme-card-game">🎮 ' . esc_html($game_name) . '</div>';
+        // Métadonnées en bas
+        $card_html .= '<div class="sisme-card-meta">';
+        $card_html .= '<time datetime="' . get_the_date('c', $article->ID) . '" class="sisme-card-date">';
+        $card_html .= '📅 ' . esc_html($article_date);
+        $card_html .= '</time>';
+        $card_html .= '<span class="sisme-read-time">📖 3 min de lecture</span>';
+        $card_html .= '</div>';
+        
+        // Call-to-action
+        $card_html .= '<div class="sisme-card-cta">';
+        $card_html .= '<span>Lire l\'article</span>';
+        $card_html .= '<span class="sisme-cta-arrow">→</span>';
+        $card_html .= '</div>';
         
         $card_html .= '</div>'; // .sisme-card-content
-        $card_html .= '</div>'; // .sisme-news-card
+        
+        // Métadonnées Schema.org
+        $card_html .= '<meta itemprop="author" content="Sisme Games">';
+        $card_html .= '<meta itemprop="datePublished" content="' . get_the_date('c', $article->ID) . '">';
+        $card_html .= '<meta itemprop="url" content="' . esc_url($article_url) . '">';
+        $card_html .= '<meta itemprop="mainEntityOfPage" content="' . esc_url($article_url) . '">';
+        
+        $card_html .= '</a>'; // .sisme-card-link
+        $card_html .= '</article>'; // .sisme-news-card
         
         return $card_html;
     }

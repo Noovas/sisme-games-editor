@@ -1,7 +1,7 @@
 <?php
 /**
  * File: /sisme-games-editor/includes/assets-loader.php
- * Gestion du chargement des assets CSS/JS - Mis à jour avec sections
+ * Gestion du chargement des assets CSS/JS - Mis à jour avec news-cards
  */
 
 // Sécurité : Empêcher l'accès direct
@@ -70,6 +70,23 @@ class Sisme_Assets_Loader {
 
         // CSS pour les pages news
         if (is_single() && $this->is_news_page()) {
+            // CSS de la grille/liste des news (container principal)
+            wp_enqueue_style(
+                'sisme-news-list-styles',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/news-list.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            
+            // CSS des cartes de news/patch individuelles
+            wp_enqueue_style(
+                'sisme-news-cards-styles',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/news-cards.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            
+            // CSS des liens boutiques (réutilisé)
             wp_enqueue_style(
                 'sisme-stores-styles',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/stores.css',
@@ -97,6 +114,14 @@ class Sisme_Assets_Loader {
         // Vérification par slug pattern
         if (preg_match('/-news$/', $post->post_name)) {
             return true;
+        }
+        
+        // Vérification par catégorie
+        $categories = get_the_category($post->ID);
+        foreach ($categories as $category) {
+            if ($category->slug === 'page-news') {
+                return true;
+            }
         }
         
         return false;
