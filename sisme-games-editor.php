@@ -7,22 +7,16 @@
  * Text Domain: sisme-games-editor
  * 
  * File: /sisme-games-editor/sisme-games-editor.php
- * VERSION FONCTIONNELLE PURE - Sans CSS/JS
  */
 
-// Sécurité : Empêcher l'accès direct au fichier
 if (!defined('ABSPATH')) {
     exit;
 }
 
-// Définition des constantes du plugin
 define('SISME_GAMES_EDITOR_VERSION', '1.0.0');
 define('SISME_GAMES_EDITOR_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SISME_GAMES_EDITOR_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-/**
- * Classe principale du plugin Sisme Games Editor
- */
 class SismeGamesEditor {
     
     private static $instance = null;
@@ -49,6 +43,7 @@ class SismeGamesEditor {
         new Sisme_Assets_Loader();
         new Sisme_Content_Filter();
         new Sisme_SEO_Enhancements();
+        new Sisme_News_Manager();
     }
     
     private function include_files() {
@@ -56,13 +51,10 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/assets-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/content-filter.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/seo-enhancements.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/news-manager.php';
     }
     
-    /**
-     * Ajouter le menu admin
-     */
     public function add_admin_menu() {
-        // Page principale
         add_menu_page(
             'Sisme Games Editor',
             'Games Editor',
@@ -73,7 +65,6 @@ class SismeGamesEditor {
             30
         );
         
-        // Sous-pages
         add_submenu_page(
             'sisme-games-editor',
             'Tableau de bord',
@@ -119,7 +110,6 @@ class SismeGamesEditor {
             array($this, 'settings_page')
         );
 
-        // Pages cachées du menu (accès direct uniquement)
         add_submenu_page(
             null, 
             'Éditer une fiche',
@@ -139,15 +129,11 @@ class SismeGamesEditor {
         );
     }
     
-    /**
-     * Gestion de la soumission des formulaires
-     */
     public function handle_form_submission() {
         if (!isset($_POST['sisme_form_action']) && !isset($_POST['sisme_edit_action'])) {
             return;
         }
         
-        // Vérification du nonce selon le type de formulaire
         if (isset($_POST['sisme_form_action'])) {
             if (!wp_verify_nonce($_POST['sisme_nonce'], 'sisme_form')) {
                 wp_die('Erreur de sécurité');
@@ -160,7 +146,6 @@ class SismeGamesEditor {
         
         $form_handler = new Sisme_Form_Handler();
         
-        // Traiter selon l'action
         if (isset($_POST['sisme_form_action'])) {
             switch ($_POST['sisme_form_action']) {
                 case 'create_fiche_step1':
@@ -182,9 +167,6 @@ class SismeGamesEditor {
         }
     }
     
-    /**
-     * AJAX pour création de fiche
-     */
     public function ajax_create_fiche() {
         check_ajax_referer('sisme_form', 'nonce');
         
@@ -198,16 +180,12 @@ class SismeGamesEditor {
         }
     }
 
-    /**
-     * AJAX pour ajouter un éditeur WordPress
-     */
     public function ajax_add_editor() {
         check_ajax_referer('sisme_editor', 'nonce');
         
         $editor_id = sanitize_text_field($_POST['editor_id']);
         $section_number = intval($_POST['section_number']);
         
-        // Capturer la sortie de wp_editor
         ob_start();
         wp_editor('', $editor_id, array(
             'textarea_name' => 'sections[' . $section_number . '][content]',
@@ -221,9 +199,6 @@ class SismeGamesEditor {
         wp_send_json_success($editor_html);
     }
     
-    /**
-     * Pages du plugin
-     */
     public function dashboard_page() {
         include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/dashboard.php';
     }
@@ -253,7 +228,6 @@ class SismeGamesEditor {
     }
 }
 
-// Initialiser le plugin
 function sisme_games_editor_init() {
     SismeGamesEditor::get_instance();
 }
