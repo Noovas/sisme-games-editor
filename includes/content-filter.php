@@ -411,7 +411,7 @@ class Sisme_Content_Filter {
             $test_block_class .= ' sisme-block-inactive';
         }
         
-        $output .= '<div class="' . $test_block_class . '" itemprop="itemListElement" itemscope itemtype="https://schema.org/Review">';
+        $output .= '<div class="' . $test_block_class . '" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">';
         
         // Position dans la liste
         $output .= '<meta itemprop="position" content="1">';
@@ -438,11 +438,11 @@ class Sisme_Content_Filter {
         
         // Contenu du bloc test
         $output .= '<div class="sisme-block-content">';
-        $output .= '<h4 class="sisme-block-title" itemprop="name">Test de ' . esc_html($game_title) . '</h4>';
+        $output .= '<h4 class="sisme-block-title" itemprop="headline">Test de ' . esc_html($game_title) . '</h4>';
         $output .= '<p class="sisme-block-description" itemprop="description">';
         if ($test_link_active) {
             $output .= 'Découvrez notre test complet avec analyse détaillée du gameplay, des graphismes, ';
-            $output .= 'de la bande sonore et notre verdict final avec note.';
+            $output .= 'de la bande sonore et notre verdict final.';
         } else {
             $output .= 'Notre test complet de ' . esc_html($game_title) . ' sera bientôt disponible. ';
             $output .= 'Revenez prochainement pour découvrir notre analyse détaillée.';
@@ -453,7 +453,7 @@ class Sisme_Content_Filter {
         $output .= '<div class="sisme-block-meta">';
         if ($test_link_active) {
             $output .= '<span class="sisme-block-tag sisme-tag-active">Test Complet</span>';
-            $output .= '<span class="sisme-block-tag sisme-tag-active">Verdict & Note</span>';
+            $output .= '<span class="sisme-block-tag sisme-tag-active">Verdict</span>';
             $output .= '<span class="sisme-block-tag sisme-tag-active">Analyse Pro</span>';
         } else {
             $output .= '<span class="sisme-block-tag sisme-tag-inactive">Bientôt</span>';
@@ -477,10 +477,6 @@ class Sisme_Content_Filter {
         if ($test_link_active) {
             $output .= '<meta itemprop="author" content="Sisme Games">';
             $output .= '<meta itemprop="datePublished" content="' . get_the_date('c') . '">';
-            $output .= '<meta itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">';
-            $output .= '<meta itemprop="ratingValue" content="4.5">';
-            $output .= '<meta itemprop="bestRating" content="5">';
-            $output .= '<meta itemprop="worstRating" content="1">';
             $output .= '<meta itemprop="url" content="' . esc_url($test_url) . '">';
         }
         
