@@ -73,13 +73,12 @@ class Sisme_Content_Filter {
         
         // Blocs test/news par défaut
         $enriched_content .= $this->render_default_blocks();
-        
-        if (!empty($content)) {
+        $sections = get_post_meta($post->ID, '_sisme_sections', true) ?: array();
+        if (!empty($sections)) {
             $enriched_content .= '<div class="sisme-fiche-presentation">';
             $enriched_content .= '<h2>Présentation complète du jeu</h2>';
             $enriched_content .= '<div class="presentation-content">';
-            // Utiliser les sections depuis les métadonnées
-            $sections = get_post_meta($post->ID, '_sisme_sections', true) ?: array();
+            
             $sections_html = '';
             foreach ($sections as $section) {
                 if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) {
@@ -99,6 +98,7 @@ class Sisme_Content_Filter {
                     $sections_html .= '</div>';
                 }
             }
+            
             $enriched_content .= $sections_html;
             $enriched_content .= '</div>';
             $enriched_content .= '</div>';
