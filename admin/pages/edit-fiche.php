@@ -136,7 +136,7 @@ $post_url = get_permalink($post_id);
                             <input type="text" 
                                    id="game_title" 
                                    name="game_title" 
-                                   class="regular-text" 
+                                   class="large-text" 
                                    value="<?php echo esc_attr($post->post_title); ?>"
                                    required>
                         </td>
@@ -245,10 +245,10 @@ $post_url = get_permalink($post_id);
                             <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #f9f9f9;">
                                 <h4 style="margin-top: 0;">Ajouter un développeur</h4>
                                 <p>
-                                    <input type="text" id="dev_name" class="regular-text" placeholder="Nom du développeur">
+                                    <input type="text" id="dev_name" class="large-text" placeholder="Nom du développeur">
                                 </p>
                                 <p>
-                                    <input type="url" id="dev_url" class="regular-text" placeholder="Site web (optionnel)">
+                                    <input type="url" id="dev_url" class="large-text" placeholder="Site web (optionnel)">
                                 </p>
                                 <button type="button" id="add-developer" class="button">Ajouter</button>
                             </div>
@@ -266,10 +266,10 @@ $post_url = get_permalink($post_id);
                             <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #f9f9f9;">
                                 <h4 style="margin-top: 0;">Ajouter un éditeur</h4>
                                 <p>
-                                    <input type="text" id="editor_name" class="regular-text" placeholder="Nom de l'éditeur">
+                                    <input type="text" id="editor_name" class="large-text" placeholder="Nom de l'éditeur">
                                 </p>
                                 <p>
-                                    <input type="url" id="editor_url" class="regular-text" placeholder="Site web (optionnel)">
+                                    <input type="url" id="editor_url" class="large-text" placeholder="Site web (optionnel)">
                                 </p>
                                 <button type="button" id="add-editor" class="button">Ajouter</button>
                             </div>
@@ -283,7 +283,7 @@ $post_url = get_permalink($post_id);
                             <input type="url" 
                                    id="trailer_url" 
                                    name="trailer_url" 
-                                   class="regular-text"
+                                   class="large-text"
                                    value="<?php echo esc_attr($trailer_url); ?>"
                                    placeholder="https://www.youtube.com/watch?v=...">
                         </td>
@@ -296,7 +296,7 @@ $post_url = get_permalink($post_id);
                             <input type="url" 
                                    id="steam_url" 
                                    name="steam_url" 
-                                   class="regular-text"
+                                   class="large-text"
                                    value="<?php echo esc_attr($steam_url); ?>"
                                    placeholder="https://store.steampowered.com/app/...">
                         </td>
@@ -309,7 +309,7 @@ $post_url = get_permalink($post_id);
                             <input type="url" 
                                    id="epic_url" 
                                    name="epic_url" 
-                                   class="regular-text"
+                                   class="large-text"
                                    value="<?php echo esc_attr($epic_url); ?>"
                                    placeholder="https://www.epicgames.com/store/...">
                         </td>
@@ -322,7 +322,7 @@ $post_url = get_permalink($post_id);
                             <input type="url" 
                                    id="gog_url" 
                                    name="gog_url" 
-                                   class="regular-text"
+                                   class="large-text"
                                    value="<?php echo esc_attr($gog_url); ?>"
                                    placeholder="https://www.gog.com/game/...">
                         </td>
@@ -350,7 +350,7 @@ $post_url = get_permalink($post_id);
                     <tr>
                         <th scope="row">Étiquette principale</th>
                         <td>
-                            <select name="main_tag" class="regular-text" style="width: 100%;">
+                            <select name="main_tag" class="large-text" style="width: 100%;">
                                 <option value="">Sélectionner...</option>
                                 <?php
                                 $existing_tags = get_tags(array('hide_empty' => false, 'orderby' => 'name', 'order' => 'ASC'));
@@ -446,7 +446,7 @@ $post_url = get_permalink($post_id);
                                             <input type="text" 
                                                    id="section_<?php echo $index; ?>_title" 
                                                    name="sections[<?php echo $index; ?>][title]" 
-                                                   class="regular-text"
+                                                   class="large-text"
                                                    value="<?php echo esc_attr($section['title']); ?>"
                                                    placeholder="Titre de la section">
                                         </td>
@@ -864,7 +864,7 @@ jQuery(document).ready(function($) {
                             <input type="text" 
                                    id="section_${sectionCounter}_title" 
                                    name="sections[${sectionCounter}][title]" 
-                                   class="regular-text"
+                                   class="large-text"
                                    value=""
                                    placeholder="Titre de la section">
                         </td>
