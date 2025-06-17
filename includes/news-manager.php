@@ -432,7 +432,7 @@ class Sisme_News_Manager {
     /**
      * 🎯 Méthode de récupération des articles news - VERSION ROBUSTE
      */
-    public function get_game_news_articles($game_name, $exclude_post_id = 0) {
+        public function get_game_news_articles($game_name, $exclude_post_id = 0) {
         global $post;
         
         // 1. Essayer de récupérer depuis les métadonnées (méthode principale)
@@ -460,52 +460,42 @@ class Sisme_News_Manager {
             return array();
         }
         
-        // 4. Récupérer la catégorie news
+        // 4. CORRECTION : Récupérer les catégories news ET patch
         $news_category = get_category_by_slug('news');
-        if (!$news_category) {
-            error_log("SISME: Catégorie 'news' introuvable");
+        $patch_category = get_category_by_slug('patch');
+        
+        $category_ids = array();
+        if ($news_category) {
+            $category_ids[] = $news_category->term_id;
+        }
+        if ($patch_category) {
+            $category_ids[] = $patch_category->term_id;
+        }
+        
+        if (empty($category_ids)) {
+            error_log("SISME: Aucune catégorie news/patch trouvée");
             return array();
         }
         
-        // 5. Requête robuste avec multiples méthodes
+        // 5. Requête pour récupérer les articles avec tag ET catégories news/patch
         $args = array(
             'post_type' => 'post',
             'post_status' => 'publish',
-            'posts_per_page' => 20,
-            'post__not_in' => array($exclude_post_id),
+            'posts_per_page' => 6, // Limite à 6 articles
             'orderby' => 'date',
             'order' => 'DESC',
-            // Utiliser tax_query pour plus de flexibilité
-            'tax_query' => array(
-                'relation' => 'AND',
-                array(
-                    'taxonomy' => 'category',
-                    'field' => 'term_id',
-                    'terms' => $news_category->term_id
-                ),
-                array(
-                    'taxonomy' => 'post_tag',
-                    'field' => 'term_id',
-                    'terms' => $main_tag_id
-                )
-            )
+            'tag_id' => $main_tag_id,
+            'category__in' => $category_ids,
+            'post__not_in' => array($exclude_post_id) // Exclure la page news actuelle
         );
         
         $query = new WP_Query($args);
         
-        // 6. Fallback si aucun résultat : chercher juste par tag
-        if ($query->found_posts == 0) {
-            $fallback_args = array(
-                'post_type' => 'post',
-                'post_status' => 'publish',
-                'posts_per_page' => 20,
-                'post__not_in' => array($exclude_post_id),
-                'orderby' => 'date',
-                'order' => 'DESC',
-                'tag_id' => $main_tag_id
-            );
-            
-            $query = new WP_Query($fallback_args);
+        // 6. Log pour debug si nécessaire
+        if (empty($query->posts)) {
+            error_log("SISME: Aucun article trouvé pour tag {$main_tag_id} et catégories " . implode(',', $category_ids));
+        } else {
+            error_log("SISME: " . count($query->posts) . " articles trouvés pour {$game_name}");
         }
         
         return $query->posts;
