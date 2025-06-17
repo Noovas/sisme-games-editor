@@ -1,6 +1,6 @@
 /**
  * File: /sisme-games-editor/assets/css/admin/dashboard.css
- * Styles pour le tableau de bord - Cohérent avec le design system du site
+ * Dashboard - CSS cohérent avec les listes
  */
 
 /* Variables de couleurs */
@@ -15,66 +15,10 @@
     --theme-palette-color-8: #425261;
 }
 
-/* Container principal du dashboard */
-.sisme-dashboard-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-/* En-tête du dashboard - Structure cohérente */
-.sisme-dashboard-header {
-    margin: 24px auto 48px;
-    max-width: 1200px;
-    padding: 40px 48px;
-    
-    /* Design sobre et élégant - IDENTIQUE aux autres sections */
-    background: rgba(236, 240, 241, 0.95);
-    border-radius: 12px;
-    position: relative;
-    overflow: hidden;
-    
-    /* Bordure subtile */
-    border: 1px solid rgba(161, 183, 141, 0.2);
-    
-    /* Ombres douces et professionnelles */
-    box-shadow: 
-        0 8px 32px rgba(44, 62, 80, 0.08),
-        0 2px 8px rgba(44, 62, 80, 0.04);
-    
-    /* Animation d'apparition */
-    animation: sismeFadeInUp 0.6s ease-out;
-    
-    /* Transition smooth */
-    transition: all 0.3s ease;
-}
-
-/* Animation subtile de points en haut - IDENTIQUE aux autres sections */
-.sisme-dashboard-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: rgba(161, 183, 141, 0.3);
-    border-radius: 2px;
-}
-
-/* Dégradé qui se déplace - IDENTIQUE aux autres sections */
-.sisme-dashboard-header::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -150px;
-    width: 150px;
-    height: 3px;
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        rgba(85, 122, 70, 0.95) 50%, 
-        transparent 100%);
-    border-radius: 2px;
-    animation: sismeDotsFlow 4s ease-out infinite;
+/* Animations globales */
+@keyframes sismeFadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes sismeDotsFlow {
@@ -84,682 +28,584 @@
     100% { left: calc(100% + 150px); opacity: 0; }
 }
 
-/* Effet hover discret - IDENTIQUE aux autres sections */
-.sisme-dashboard-header:hover {
-    border-color: rgba(161, 183, 141, 0.4);
+/* Container principal - IDENTIQUE aux listes */
+.wrap {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: rgba(236, 240, 241, 0.95);
+    border-radius: 12px;
+    border: 1px solid rgba(161, 183, 141, 0.2);
     box-shadow: 
-        0 12px 40px rgba(44, 62, 80, 0.12),
-        0 4px 16px rgba(44, 62, 80, 0.06);
+        0 8px 32px rgba(44, 62, 80, 0.08),
+        0 2px 8px rgba(44, 62, 80, 0.04);
+    position: relative;
+    overflow: hidden;
+    animation: sismeFadeInUp 0.6s ease-out;
 }
 
-/* Titre principal du dashboard */
-.sisme-dashboard-header h1 {
-    font-size: 2.25rem; /* 36px */
+.wrap::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(161, 183, 141, 0.3);
+    border-radius: 2px;
+}
+
+/* En-tête - IDENTIQUE aux listes */
+.page-header h1 {
+    font-size: 2.5rem;
     font-weight: 600;
     color: var(--theme-palette-color-6);
     margin: 0 0 16px;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-    
-    /* Ligne décorative simple */
-    padding-bottom: 20px;
+    padding-bottom: 16px;
     border-bottom: 2px solid var(--theme-palette-color-1);
-    text-rendering: optimizeLegibility;
-}
-
-/* Icône du titre principal */
-.sisme-dashboard-header h1::before {
-    content: '🎮';
-    font-size: 0.8em;
-    margin-right: 16px;
-    opacity: 0.9;
-}
-
-/* Sous-titre du dashboard */
-.sisme-dashboard-header .dashboard-subtitle {
-    color: var(--theme-palette-color-8);
-    font-size: 1.125rem; /* 18px */
     text-align: center;
-    margin: 20px 0 0;
-    position: relative;
-    z-index: 1;
+}
+
+.page-subtitle {
+    color: var(--theme-palette-color-8);
+    font-size: 1.125rem;
+    text-align: center;
+    margin: 0 0 32px;
     font-weight: 400;
     line-height: 1.6;
 }
 
-/* Section des statistiques - Structure cohérente */
-.sisme-dashboard-stats {
-    margin: 48px auto;
+/* Sections génériques - IDENTIQUE aux listes */
+.stats-section,
+.drafts-section,
+.actions-section,
+.activity-section,
+.links-section {
+    margin: 24px auto;
     max-width: 1200px;
-    padding: 40px 48px;
-    
-    /* Design sobre et élégant - IDENTIQUE aux autres sections */
-    background: rgba(236, 240, 241, 0.95);
-    border-radius: 12px;
-    position: relative;
-    overflow: hidden;
-    
-    /* Bordure subtile */
-    border: 1px solid rgba(161, 183, 141, 0.2);
-    
-    /* Ombres douces et professionnelles */
-    box-shadow: 
-        0 8px 32px rgba(44, 62, 80, 0.08),
-        0 2px 8px rgba(44, 62, 80, 0.04);
-    
-    /* Animation d'apparition */
-    animation: sismeFadeInUp 0.6s ease-out 0.2s both;
-    
-    /* Transition smooth */
-    transition: all 0.3s ease;
-}
-
-/* Animation et effet hover pour les stats */
-.sisme-dashboard-stats::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: rgba(161, 183, 141, 0.3);
-    border-radius: 2px;
-}
-
-.sisme-dashboard-stats::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -150px;
-    width: 150px;
-    height: 3px;
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        rgba(85, 122, 70, 0.95) 50%, 
-        transparent 100%);
-    border-radius: 2px;
-    animation: sismeDotsFlow 4s ease-out infinite 1s;
-}
-
-.sisme-dashboard-stats:hover {
-    border-color: rgba(161, 183, 141, 0.4);
-    box-shadow: 
-        0 12px 40px rgba(44, 62, 80, 0.12),
-        0 4px 16px rgba(44, 62, 80, 0.06);
-}
-
-/* Titre des statistiques */
-.sisme-dashboard-stats h2 {
-    font-size: 1.75rem; /* 28px - MÊME que toutes les sections */
-    font-weight: 600;
-    color: var(--theme-palette-color-6);
-    margin: 0 0 32px;
-    text-align: left;
-    position: relative;
-    
-    /* Ligne décorative simple - IDENTIQUE */
-    padding-bottom: 16px;
-    border-bottom: 2px solid var(--theme-palette-color-1);
-    text-rendering: optimizeLegibility;
-}
-
-.sisme-dashboard-stats h2::before {
-    content: '📊';
-    font-size: 0.9em;
-    margin-right: 12px;
-    opacity: 0.8;
-}
-
-/* Grille des statistiques */
-.sisme-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 24px;
-    position: relative;
-    z-index: 1;
-}
-
-/* Carte de statistique individuelle */
-.sisme-stat-card {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    text-align: center;
-    position: relative;
-    
-    /* Bordure cohérente */
-    border: 1px solid rgba(161, 183, 141, 0.2);
-    
-    /* Ombres douces */
-    box-shadow: 
-        0 4px 16px rgba(44, 62, 80, 0.08),
-        0 2px 8px rgba(44, 62, 80, 0.04);
-    
-    /* Transition smooth */
-    transition: all 0.3s ease;
-    
-    /* Animation décalée */
-    animation: sismeFadeIn 0.6s ease-out both;
-}
-
-.sisme-stat-card:nth-child(1) { animation-delay: 0.1s; }
-.sisme-stat-card:nth-child(2) { animation-delay: 0.2s; }
-.sisme-stat-card:nth-child(3) { animation-delay: 0.3s; }
-.sisme-stat-card:nth-child(4) { animation-delay: 0.4s; }
-
-/* Effet hover sur les cartes de stats */
-.sisme-stat-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(161, 183, 141, 0.4);
-    box-shadow: 
-        0 8px 24px rgba(44, 62, 80, 0.12),
-        0 4px 16px rgba(44, 62, 80, 0.08);
-}
-
-/* Nombre principal de la statistique */
-.sisme-stat-number {
-    font-size: 2.5rem; /* 40px */
-    font-weight: 700;
-    color: var(--theme-palette-color-1);
-    margin: 0 0 8px;
-    line-height: 1;
-}
-
-.sisme-action-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-/* Label de la statistique */
-.sisme-stat-label {
-    font-size: 1rem;
-    color: var(--theme-palette-color-8);
-    font-weight: 500;
-    margin: 0;
-}
-
-/* Variantes de couleur pour les stats */
-.sisme-stat-card.stat-fiches .sisme-stat-number {
-    color: var(--theme-palette-color-1);
-}
-
-.sisme-stat-card.stat-news .sisme-stat-number {
-    color: var(--theme-palette-color-7);
-}
-
-.sisme-stat-card.stat-tests .sisme-stat-number {
-    color: var(--theme-palette-color-2);
-}
-
-.sisme-stat-card.stat-total .sisme-stat-number {
-    color: var(--theme-palette-color-3);
-}
-
-/* Section des actions rapides - Structure cohérente */
-.sisme-dashboard-actions {
-    margin: 48px auto;
-    max-width: 1200px;
-    padding: 40px 48px;
-    
-    /* Design sobre et élégant - IDENTIQUE aux autres sections */
-    background: rgba(236, 240, 241, 0.95);
-    border-radius: 12px;
-    position: relative;
-    overflow: hidden;
-    
-    /* Bordure subtile */
-    border: 1px solid rgba(161, 183, 141, 0.2);
-    
-    /* Ombres douces et professionnelles */
-    box-shadow: 
-        0 8px 32px rgba(44, 62, 80, 0.08),
-        0 2px 8px rgba(44, 62, 80, 0.04);
-    
-    /* Animation d'apparition */
-    animation: sismeFadeInUp 0.6s ease-out 0.4s both;
-    
-    /* Transition smooth */
-    transition: all 0.3s ease;
-}
-
-/* Animation et effet hover pour les actions */
-.sisme-dashboard-actions::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: rgba(161, 183, 141, 0.3);
-    border-radius: 2px;
-}
-
-.sisme-dashboard-actions::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -150px;
-    width: 150px;
-    height: 3px;
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        rgba(85, 122, 70, 0.95) 50%, 
-        transparent 100%);
-    border-radius: 2px;
-    animation: sismeDotsFlow 4s ease-out infinite 2s;
-}
-
-.sisme-dashboard-actions:hover {
-    border-color: rgba(161, 183, 141, 0.4);
-    box-shadow: 
-        0 12px 40px rgba(44, 62, 80, 0.12),
-        0 4px 16px rgba(44, 62, 80, 0.06);
-}
-
-/* Titre des actions */
-.sisme-dashboard-actions h2 {
-    font-size: 1.75rem; /* 28px - MÊME que toutes les sections */
-    font-weight: 600;
-    color: var(--theme-palette-color-6);
-    margin: 0 0 32px;
-    text-align: left;
-    position: relative;
-    
-    /* Ligne décorative simple - IDENTIQUE */
-    padding-bottom: 16px;
-    border-bottom: 2px solid var(--theme-palette-color-1);
-    text-rendering: optimizeLegibility;
-}
-
-.sisme-dashboard-actions h2::before {
-    content: '⚡';
-    font-size: 0.9em;
-    margin-right: 12px;
-    opacity: 0.8;
-}
-
-/* Grille des actions rapides */
-.sisme-actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 32px;
-    position: relative;
-    z-index: 1;
-}
-
-/* Carte d'action individuelle */
-.sisme-action-card {
+    padding: 32px 40px;
     background: white;
     border-radius: 16px;
-    padding: 32px;
-    position: relative;
-    
-    /* Bordure cohérente */
     border: 1px solid rgba(161, 183, 141, 0.2);
-    
-    /* Ombres douces */
     box-shadow: 
         0 8px 24px rgba(44, 62, 80, 0.08),
         0 4px 12px rgba(44, 62, 80, 0.04);
-    
-    /* Transition smooth */
-    transition: all 0.4s ease;
-    
-    /* Animation décalée */
-    animation: sismeFadeIn 0.6s ease-out both;
+    transition: all 0.3s ease;
 }
 
-.sisme-action-card:nth-child(1) { animation-delay: 0.2s; }
-.sisme-action-card:nth-child(2) { animation-delay: 0.3s; }
-.sisme-action-card:nth-child(3) { animation-delay: 0.4s; }
-.sisme-action-card:nth-child(4) { animation-delay: 0.5s; }
-
-/* Effet hover sur les cartes d'action */
-.sisme-action-card:hover {
-    transform: translateY(-8px);
-    border-color: rgba(161, 183, 141, 0.4);
-    box-shadow: 
-        0 16px 40px rgba(44, 62, 80, 0.12),
-        0 8px 20px rgba(44, 62, 80, 0.08);
+.stats-section {
+    animation: sismeFadeInUp 0.6s ease-out 0.2s both;
 }
 
-/* En-tête de la carte d'action */
-.sisme-action-header {
+.drafts-section {
+    animation: sismeFadeInUp 0.6s ease-out 0.3s both;
+    background: rgba(255, 248, 240, 0.95);
+    border-color: rgba(255, 193, 7, 0.3);
+}
+
+.actions-section {
+    animation: sismeFadeInUp 0.6s ease-out 0.4s both;
+}
+
+.activity-section {
+    animation: sismeFadeInUp 0.6s ease-out 0.5s both;
+}
+
+.links-section {
+    animation: sismeFadeInUp 0.6s ease-out 0.6s both;
+    background: rgba(248, 250, 252, 0.95);
+}
+
+/* Titres de sections - IDENTIQUE aux listes */
+.stats-section h3,
+.drafts-section h3,
+.actions-section h3,
+.activity-section h3,
+.links-section h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--theme-palette-color-1);
+}
+
+/* Grilles de statistiques - IDENTIQUE aux listes */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 24px;
+}
+
+/* Cartes de statistiques - IDENTIQUE aux listes */
+.stat-card {
+    text-align: center;
+    padding: 24px 16px;
+    background: rgba(161, 183, 141, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(161, 183, 141, 0.15);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(161, 183, 141, 0.3);
+    box-shadow: 0 8px 20px rgba(44, 62, 80, 0.1);
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--theme-palette-color-1);
+    margin-bottom: 8px;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--theme-palette-color-8);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 500;
+}
+
+/* Variantes de couleurs pour les stats */
+.stat-total .stat-number {
+    color: var(--theme-palette-color-6);
+}
+
+.stat-fiches .stat-number {
+    color: var(--theme-palette-color-1);
+}
+
+.stat-news .stat-number {
+    color: var(--theme-palette-color-7);
+}
+
+.stat-tests .stat-number {
+    color: var(--theme-palette-color-2);
+}
+
+/* Stats de brouillons - couleurs différentes */
+.draft-total .stat-number {
+    color: #fd7e14;
+}
+
+.draft-fiches .stat-number {
+    color: #fd7e14;
+}
+
+.draft-news .stat-number {
+    color: #fd7e14;
+}
+
+.draft-tests .stat-number {
+    color: #fd7e14;
+}
+
+/* Grille des actions */
+.actions-grid {
+    display: flex;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    flex-direction: column;
+}
+
+/* Cartes d'action */
+.action-card {
+    background: rgba(249, 250, 251, 0.8);
+    border-radius: 16px;
+    padding: 28px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(161, 183, 141, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(161, 183, 141, 0.3);
+    box-shadow: 0 8px 24px rgba(44, 62, 80, 0.1);
+}
+
+.action-header {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
-.sisme-action-icon {
+.action-icon {
     font-size: 2rem;
-    margin-right: 16px;
-    opacity: 0.9;
+    margin-right: 12px;
+    opacity: 0.8;
 }
 
-.sisme-action-title {
-    font-size: 1.5rem; /* 24px */
+.action-title {
+    font-size: 1.25rem;
     font-weight: 600;
     color: var(--theme-palette-color-6);
     margin: 0;
 }
 
-/* Description de l'action */
-.sisme-action-description {
+.action-description {
     color: var(--theme-palette-color-8);
-    font-size: 1rem;
+    font-size: 0.95rem;
     line-height: 1.6;
-    margin: 0 0 24px;
+    margin: 0 0 20px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 /* Boutons d'action */
-.sisme-action-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.sisme-btn {
-    padding: 12px 20px;
-    border-radius: 8px;
+.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
     text-decoration: none;
-    font-weight: 600;
-    font-size: 0.938rem;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
+    white-space: nowrap;
+    border: 1px solid;
 }
 
-.sisme-btn-primary {
-    background: linear-gradient(135deg, 
-        var(--theme-palette-color-1) 0%, 
-        var(--theme-palette-color-2) 100%);
+.btn-primary {
+    background: var(--theme-palette-color-1);
     color: white;
-    box-shadow: 
-        0 4px 16px rgba(85, 122, 70, 0.2),
-        0 2px 8px rgba(85, 122, 70, 0.1);
+    border-color: var(--theme-palette-color-1);
 }
 
-.sisme-btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 
-        0 6px 20px rgba(85, 122, 70, 0.3),
-        0 3px 12px rgba(85, 122, 70, 0.15);
-    text-decoration: none;
-    color: white;
-}
-
-.sisme-btn-secondary {
-    background: rgba(161, 183, 141, 0.1);
-    color: var(--theme-palette-color-2);
-    border: 1px solid rgba(161, 183, 141, 0.3);
-}
-
-.sisme-btn-secondary:hover {
-    background: rgba(161, 183, 141, 0.2);
-    border-color: rgba(161, 183, 141, 0.5);
+.btn-primary:hover {
+    background: var(--theme-palette-color-2);
+    border-color: var(--theme-palette-color-2);
     transform: translateY(-1px);
-    text-decoration: none;
-    color: var(--theme-palette-color-2);
+    box-shadow: 0 2px 8px rgba(161, 183, 141, 0.3);
+    color: white;
 }
 
-/* Variantes de couleur pour les cartes d'action */
-.sisme-action-card.card-fiches {
+.btn-secondary {
+    background: rgba(161, 183, 141, 0.1);
+    color: var(--theme-palette-color-1);
+    border-color: var(--theme-palette-color-1);
+}
+
+.btn-secondary:hover {
+    background: var(--theme-palette-color-1);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(161, 183, 141, 0.3);
+}
+
+/* Variantes de cartes d'action */
+.card-fiches {
     border-left: 4px solid var(--theme-palette-color-1);
 }
 
-.sisme-action-card.card-news {
+.card-news {
     border-left: 4px solid var(--theme-palette-color-7);
 }
 
-.sisme-action-card.card-tests {
+.card-tests {
     border-left: 4px solid var(--theme-palette-color-2);
 }
 
-.sisme-action-card.card-settings {
+.card-settings {
     border-left: 4px solid var(--theme-palette-color-8);
 }
 
-/* Responsive Design */
-
-/* Tablettes */
-@media (max-width: 1024px) {
-    .sisme-dashboard-header,
-    .sisme-dashboard-stats,
-    .sisme-dashboard-actions {
-        max-width: 95%;
-        padding: 32px 36px;
-    }
-    
-    .sisme-stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 20px;
-    }
-    
-    .sisme-actions-grid {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 24px;
-    }
+/* Activité récente */
+.activity-list {
+    margin: 0 -8px;
 }
 
-/* Tablettes portrait */
-@media (max-width: 768px) {
-    .sisme-dashboard-container {
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 8px;
+    border-bottom: 1px solid rgba(161, 183, 141, 0.1);
+    transition: all 0.2s ease;
+}
+
+.activity-item:hover {
+    background: rgba(161, 183, 141, 0.03);
+    border-radius: 8px;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    font-size: 1.5rem;
+    margin-right: 16px;
+    opacity: 0.8;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.activity-main {
+    flex: 1;
+}
+
+.activity-title {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.activity-title a {
+    color: var(--theme-palette-color-6);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.activity-title a:hover {
+    color: var(--theme-palette-color-1);
+}
+
+.activity-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.activity-type {
+    background: rgba(161, 183, 141, 0.1);
+    color: var(--theme-palette-color-2);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.activity-status {
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.status-published {
+    background: rgba(46, 184, 92, 0.1);
+    color: #1e7e34;
+}
+
+.status-draft {
+    background: rgba(255, 193, 7, 0.1);
+    color: #856404;
+}
+
+.activity-date {
+    color: var(--theme-palette-color-5);
+    font-size: 0.75rem;
+}
+
+.activity-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.activity-btn {
+    padding: 4px 8px;
+    border: 1px solid rgba(161, 183, 141, 0.3);
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.7rem;
+    color: var(--theme-palette-color-1);
+    background: rgba(161, 183, 141, 0.05);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.activity-btn:hover {
+    background: var(--theme-palette-color-1);
+    color: white;
+    border-color: var(--theme-palette-color-1);
+}
+
+.activity-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(161, 183, 141, 0.1);
+}
+
+/* Liens utiles */
+.links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 32px;
+}
+
+.link-group h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(161, 183, 141, 0.2);
+}
+
+.link-group ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.link-group li {
+    margin-bottom: 8px;
+}
+
+.link-group a {
+    color: var(--theme-palette-color-1);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.link-group a:hover {
+    color: var(--theme-palette-color-2);
+    transform: translateX(2px);
+}
+
+/* Design responsive */
+@media (max-width: 1024px) {
+    .wrap {
+        max-width: 95%;
         padding: 16px;
     }
     
-    .sisme-dashboard-header,
-    .sisme-dashboard-stats,
-    .sisme-dashboard-actions {
-        margin: 32px auto;
+    .stats-section,
+    .drafts-section,
+    .actions-section,
+    .activity-section,
+    .links-section {
         padding: 24px 20px;
     }
     
-    .sisme-dashboard-header h1 {
-        font-size: 1.875rem; /* 30px */
-        margin-bottom: 12px;
-        padding-bottom: 16px;
-    }
-    
-    .sisme-dashboard-header .dashboard-subtitle {
-        font-size: 1rem;
-    }
-    
-    .sisme-dashboard-stats h2,
-    .sisme-dashboard-actions h2 {
-        font-size: 1.5rem; /* 24px */
-        margin-bottom: 24px;
-    }
-    
-    .sisme-stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         gap: 16px;
     }
     
-    .sisme-actions-grid {
-        grid-template-columns: 1fr;
+    .actions-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 20px;
-    }
-    
-    .sisme-stat-card {
-        padding: 20px;
-    }
-    
-    .sisme-stat-number {
-        font-size: 2rem;
-    }
-    
-    .sisme-action-card {
-        padding: 24px;
-    }
-    
-    .sisme-action-title {
-        font-size: 1.25rem;
-    }
-    
-    .sisme-action-buttons {
-        flex-direction: column;
     }
 }
 
-/* Smartphones */
-@media (max-width: 480px) {
-    .sisme-dashboard-header,
-    .sisme-dashboard-stats,
-    .sisme-dashboard-actions {
-        margin: 24px auto;
-        padding: 20px 16px;
-        border-radius: 8px;
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 2rem;
     }
     
-    .sisme-dashboard-header h1 {
-        font-size: 1.625rem; /* 26px */
-        padding-bottom: 12px;
+    .page-subtitle {
+        font-size: 1rem;
     }
     
-    .sisme-dashboard-header h1::before {
-        font-size: 0.7em;
-        margin-right: 12px;
-    }
-    
-    .sisme-dashboard-stats h2,
-    .sisme-dashboard-actions h2 {
-        font-size: 1.375rem; /* 22px */
-        margin-bottom: 20px;
-        padding-bottom: 12px;
-    }
-    
-    .sisme-dashboard-stats h2::before,
-    .sisme-dashboard-actions h2::before {
-        font-size: 0.8em;
-        margin-right: 8px;
-    }
-    
-    .sisme-stats-grid {
+    .stats-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
     }
     
-    .sisme-stat-card {
-        padding: 16px;
+    .actions-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
     }
     
-    .sisme-stat-number {
-        font-size: 1.75rem;
-    }
-    
-    .sisme-stat-label {
-        font-size: 0.875rem;
-    }
-    
-    .sisme-action-card {
+    .action-card {
         padding: 20px;
     }
     
-    .sisme-action-header {
-        margin-bottom: 16px;
+    .action-buttons {
+        flex-direction: column;
+        gap: 6px;
     }
     
-    .sisme-action-icon {
+    .btn {
+        justify-content: center;
+    }
+    
+    .activity-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .activity-actions {
+        justify-content: center;
+    }
+    
+    .links-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .wrap {
+        padding: 12px;
+    }
+    
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+    
+    .stats-section,
+    .drafts-section,
+    .actions-section,
+    .activity-section,
+    .links-section {
+        padding: 16px;
+    }
+    
+    .stat-card {
+        padding: 16px 12px;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .action-card {
+        padding: 16px;
+    }
+    
+    .action-icon {
         font-size: 1.5rem;
-        margin-right: 12px;
     }
     
-    .sisme-action-title {
-        font-size: 1.125rem;
+    .activity-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
     }
     
-    .sisme-action-description {
-        font-size: 0.938rem;
-        margin-bottom: 20px;
+    .activity-icon {
+        align-self: flex-start;
+        margin: 0 0 8px 0;
     }
-    
-    .sisme-btn {
-        padding: 10px 16px;
-        font-size: 0.875rem;
-    }
-}
-
-/* Mode sombre */
-@media (prefers-color-scheme: dark) {
-    .sisme-dashboard-header,
-    .sisme-dashboard-stats,
-    .sisme-dashboard-actions {
-        background: rgba(66, 82, 97, 0.95);
-        border-color: rgba(161, 183, 141, 0.15);
-        box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.2),
-            0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    .sisme-dashboard-header:hover,
-    .sisme-dashboard-stats:hover,
-    .sisme-dashboard-actions:hover {
-        border-color: rgba(161, 183, 141, 0.3);
-    }
-    
-    .sisme-dashboard-header h1,
-    .sisme-dashboard-stats h2,
-    .sisme-dashboard-actions h2 {
-        color: var(--theme-palette-color-3);
-        border-bottom-color: var(--theme-palette-color-1);
-    }
-    
-    .sisme-dashboard-header .dashboard-subtitle {
-        color: var(--theme-palette-color-4);
-    }
-    
-    .sisme-stat-card,
-    .sisme-action-card {
-        background: rgba(44, 62, 80, 0.9);
-        border-color: rgba(161, 183, 141, 0.15);
-    }
-    
-    .sisme-stat-label,
-    .sisme-action-title {
-        color: var(--theme-palette-color-3);
-    }
-    
-    .sisme-action-description {
-        color: var(--theme-palette-color-4);
-    }
-}
-
-/* Animations */
-@keyframes sismeFadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes sismeFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Performance optimizations */
-.sisme-dashboard-header,
-.sisme-dashboard-stats,
-.sisme-dashboard-actions,
-.sisme-stat-card,
-.sisme-action-card {
-    will-change: transform;
-    transform-style: preserve-3d;
-    backface-visibility: hidden;
 }
