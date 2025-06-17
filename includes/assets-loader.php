@@ -181,18 +181,55 @@ class Sisme_Assets_Loader {
     public function enqueue_admin_styles($hook) {
         // Vérifier si on est sur les pages du plugin
         if (strpos($hook, 'sisme-games') !== false) {
-            wp_enqueue_style(
-                'sisme-admin-styles',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/admin.css',
-                array(),
-                SISME_GAMES_EDITOR_VERSION
-            );
             
             // CSS spécifique pour le dashboard
             if ($hook === 'toplevel_page_sisme-games-editor') {
                 wp_enqueue_style(
                     'sisme-dashboard-styles',
                     SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/dashboard.css',
+                    array(),
+                    SISME_GAMES_EDITOR_VERSION
+                );
+            }
+            
+            // CSS spécifique pour la liste des patch/news
+            //if ($hook === 'sisme-games-editor_page_sisme-games-patch-news') {
+                wp_enqueue_style(
+                    'sisme-patch-news-list-styles',
+                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/patch-news-list.css',
+                    array(),
+                    SISME_GAMES_EDITOR_VERSION
+                );
+            //}
+            
+            // CSS spécifique pour la liste des fiches
+            if ($hook === 'sisme-games-editor_page_sisme-games-fiches') {
+                wp_enqueue_style(
+                    'sisme-fiches-list-styles',
+                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/fiches-list.css',
+                    array(),
+                    SISME_GAMES_EDITOR_VERSION
+                );
+            }
+            
+            // CSS spécifique pour les pages d'édition
+            if (in_array($hook, array(
+                'sisme-games-editor_page_sisme-games-edit-fiche',
+                'sisme-games-editor_page_sisme-games-edit-patch-news'
+            ))) {
+                wp_enqueue_style(
+                    'sisme-edit-forms-styles',
+                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/edit-forms.css',
+                    array(),
+                    SISME_GAMES_EDITOR_VERSION
+                );
+            }
+            
+            // CSS spécifique pour les réglages
+            if ($hook === 'sisme-games-editor_page_sisme-games-settings') {
+                wp_enqueue_style(
+                    'sisme-settings-styles',
+                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/settings.css',
                     array(),
                     SISME_GAMES_EDITOR_VERSION
                 );
