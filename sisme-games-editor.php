@@ -37,6 +37,7 @@ class SismeGamesEditor {
         add_action('admin_init', array($this, 'handle_form_submission'));
         add_action('wp_ajax_sisme_create_fiche', array($this, 'ajax_create_fiche'));
         add_action('wp_ajax_sisme_add_editor', array($this, 'ajax_add_editor'));
+        add_action('wp_ajax_sisme_load_more_articles', array($this, 'ajax_load_more_articles'));
 
         $this->include_files();
 
@@ -44,6 +45,7 @@ class SismeGamesEditor {
         new Sisme_Content_Filter();
         new Sisme_SEO_Enhancements();
         new Sisme_News_Manager();
+
     }
     
     private function include_files() {
@@ -74,6 +76,15 @@ class SismeGamesEditor {
             'manage_options',
             'sisme-games-editor',
             array($this, 'dashboard_page')
+        );
+
+        add_submenu_page(
+            'sisme-games-editor',
+            'Tous les articles',
+            'Tous les articles',
+            'manage_options',
+            'sisme-games-all-articles',
+            array($this, 'all_articles_page')
         );
         
         add_submenu_page(
@@ -138,6 +149,8 @@ class SismeGamesEditor {
             'sisme-games-edit-patch-news',
             array($this, 'edit_patch_news_page')
         );
+
+
     }
     
     public function handle_form_submission() {
@@ -255,6 +268,232 @@ class SismeGamesEditor {
 
     public function edit_patch_news_page() {
         include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-patch-news.php';
+    }
+
+    public function all_articles_page() {
+        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/all-articles.php';
+    }
+
+    public function ajax_load_more_articles() {
+        // Vérification de sécurité
+        if (!wp_verify_nonce($_POST['nonce'], 'sisme_load_more')) {
+            wp_die('Erreur de sécurité');
+        }
+        
+        $page_num = intval($_POST['page_num']);
+        $search = sanitize_text_field($_POST['search']);
+        $filter_type = sanitize_text_field($_POST['filter_type']);
+        $filter_status = sanitize_text_field($_POST['filter_status']);
+        
+        // Fonction utilitaire pour récupérer les catégories Sisme
+        $sisme_categories = $this->get_sisme_categories_for_ajax();
+        
+        // Configuration de la requête
+        $args = array(
+            'post_type' => 'post',
+            'post_status' => array('publish', 'draft', 'private'),
+            'posts_per_page' => 10,
+            'paged' => $page_num,
+            'category__in' => $sisme_categories,
+            'orderby' => 'date',
+            'order' => 'DESC'
+        );
+        
+        // Appliquer les filtres
+        if (!empty($search)) {
+            $args['s'] = $search;
+        }
+        
+        if (!empty($filter_type)) {
+            switch ($filter_type) {
+                case 'fiches':
+                    $fiches_categories = array();
+                    foreach (get_categories(array('hide_empty' => false)) as $category) {
+                        if (strpos($category->slug, 'jeux-') === 0) {
+                            $fiches_categories[] = $category->term_id;
+                        }
+                    }
+                    if (!empty($fiches_categories)) {
+                        $args['category__in'] = $fiches_categories;
+                    }
+                    break;
+                case 'news':
+                    $news_cat = get_category_by_slug('news');
+                    if ($news_cat) {
+                        $args['cat'] = $news_cat->term_id;
+                    }
+                    break;
+                case 'patch':
+                    $patch_cat = get_category_by_slug('patch');
+                    if ($patch_cat) {
+                        $args['cat'] = $patch_cat->term_id;
+                    }
+                    break;
+                case 'tests':
+                    $tests_cat = get_category_by_slug('tests');
+                    if ($tests_cat) {
+                        $args['cat'] = $tests_cat->term_id;
+                    }
+                    break;
+            }
+        }
+        
+        if (!empty($filter_status)) {
+            $args['post_status'] = array($filter_status);
+        }
+        
+        $articles_query = new WP_Query($args);
+        
+        if (!$articles_query->have_posts()) {
+            wp_send_json_error('Aucun article trouvé');
+        }
+        
+        // Générer le HTML des articles
+        ob_start();
+        
+        while ($articles_query->have_posts()) : 
+            $articles_query->the_post(); 
+            $post_id = get_the_ID();
+            $status = get_post_status();
+            $article_info = $this->get_article_type_info_for_ajax($post_id);
+            
+            $status_labels = array(
+                'publish' => 'Publié',
+                'draft' => 'Brouillon',
+                'private' => 'Privé'
+            );
+            ?>
+            <!-- Article avec image à gauche -->
+            <div class="article-item">
+                <!-- Image à gauche -->
+                <div class="article-image">
+                    <?php if (has_post_thumbnail()) : ?>
+                        <?php echo get_the_post_thumbnail($post_id, 'medium', array('class' => 'article-thumb')); ?>
+                    <?php else : ?>
+                        <div class="no-image"><?php echo $article_info['icon']; ?></div>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- Contenu à droite -->
+                <div class="article-content">
+                    <!-- Ligne de données -->
+                    <div class="article-data">
+                        <div class="data-col title-col">
+                            <h4 class="article-title">
+                                <a href="<?php echo $article_info['edit_url']; ?>">
+                                    <?php the_title(); ?>
+                                </a>
+                            </h4>
+                        </div>
+                        
+                        <div class="data-col type-col">
+                            <span class="type-badge <?php echo $article_info['type']; ?>-badge">
+                                <?php echo $article_info['icon']; ?> <?php echo $article_info['label']; ?>
+                            </span>
+                        </div>
+                        
+                        <div class="data-col status-col">
+                            <span class="status-badge status-<?php echo $status; ?>">
+                                <?php echo isset($status_labels[$status]) ? $status_labels[$status] : ucfirst($status); ?>
+                            </span>
+                        </div>
+                        
+                        <div class="data-col date-col">
+                            <div class="date-info">
+                                <span class="date"><?php echo get_the_date('j M Y'); ?></span>
+                                <span class="time"><?php echo get_the_date('H:i'); ?></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Ligne d'actions -->
+                    <div class="article-actions">
+                        <a href="<?php echo $article_info['edit_url']; ?>" 
+                           class="action-btn edit-btn">✏️ Modifier</a>
+                        
+                        <?php if ($status === 'publish') : ?>
+                            <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-all-articles&action=unpublish&post_id=' . $post_id), 'unpublish_post_' . $post_id); ?>" 
+                               class="action-btn draft-btn">📝 Brouillon</a>
+                        <?php else : ?>
+                            <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-all-articles&action=publish&post_id=' . $post_id), 'publish_post_' . $post_id); ?>" 
+                               class="action-btn publish-btn">✅ Publier</a>
+                        <?php endif; ?>
+                        
+                        <a href="<?php echo get_permalink($post_id); ?>" 
+                           target="_blank" 
+                           class="action-btn view-btn">👁️ Voir</a>
+                        
+                        <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-all-articles&action=delete&post_id=' . $post_id), 'delete_post_' . $post_id); ?>" 
+                           onclick="return confirm('Supprimer cet article ?');"
+                           class="action-btn delete-btn">🗑️ Supprimer</a>
+                    </div>
+                </div>
+            </div>
+            <?php
+        endwhile;
+        
+        $html = ob_get_clean();
+        wp_reset_postdata();
+        
+        wp_send_json_success(array('html' => $html));
+    }
+    
+    // Méthodes utilitaires pour l'AJAX
+    private function get_sisme_categories_for_ajax() {
+        $all_categories = get_categories(array('hide_empty' => false));
+        $sisme_categories = array();
+        
+        foreach ($all_categories as $category) {
+            if (strpos($category->slug, 'jeux-') === 0 || 
+                in_array($category->slug, array('news', 'patch', 'tests'))) {
+                $sisme_categories[] = $category->term_id;
+            }
+        }
+        
+        return $sisme_categories;
+    }
+    
+    private function get_article_type_info_for_ajax($post_id) {
+        $categories = get_the_category($post_id);
+        
+        foreach ($categories as $category) {
+            if (strpos($category->slug, 'jeux-') === 0) {
+                return array(
+                    'type' => 'fiche',
+                    'icon' => '🎮',
+                    'label' => 'Fiche',
+                    'edit_url' => admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id)
+                );
+            } elseif ($category->slug === 'news') {
+                return array(
+                    'type' => 'news',
+                    'icon' => '📰',
+                    'label' => 'News',
+                    'edit_url' => admin_url('admin.php?page=sisme-games-edit-patch-news&post_id=' . $post_id)
+                );
+            } elseif ($category->slug === 'patch') {
+                return array(
+                    'type' => 'patch',
+                    'icon' => '🔧',
+                    'label' => 'Patch',
+                    'edit_url' => admin_url('admin.php?page=sisme-games-edit-patch-news&post_id=' . $post_id)
+                );
+            } elseif ($category->slug === 'tests') {
+                return array(
+                    'type' => 'tests',
+                    'icon' => '⭐',
+                    'label' => 'Test',
+                    'edit_url' => admin_url('admin.php?page=sisme-games-tests&post_id=' . $post_id)
+                );
+            }
+        }
+        
+        return array(
+            'type' => 'other',
+            'icon' => '📄',
+            'label' => 'Article',
+            'edit_url' => get_edit_post_link($post_id)
+        );
     }
 }
 

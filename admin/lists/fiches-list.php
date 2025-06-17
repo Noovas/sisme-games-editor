@@ -177,7 +177,6 @@ if (empty($category_ids)) {
                 <div class="header-image">Image</div>
                 <div class="header-content">
                     <div class="header-col title-col">Titre</div>
-                    <div class="header-col category-col">Catégorie</div>
                     <div class="header-col platforms-col">Plateformes</div>
                     <div class="header-col status-col">Statut</div>
                     <div class="header-col date-col">Date</div>
@@ -198,17 +197,6 @@ if (empty($category_ids)) {
                     'draft' => 'Brouillon',
                     'private' => 'Privé'
                 );
-                
-                // Première catégorie (principale)
-                $main_category = '';
-                if ($categories) {
-                    foreach ($categories as $category) {
-                        if (strpos($category->slug, 'jeux-') === 0) {
-                            $main_category = str_replace('jeux-', '', $category->name);
-                            break;
-                        }
-                    }
-                }
             ?>
                 <!-- Article avec image à gauche -->
                 <div class="article-item">
@@ -233,38 +221,31 @@ if (empty($category_ids)) {
                                 </h4>
                             </div>
                             
-                            <div class="data-col category-col">
-                                <?php if ($main_category) : ?>
-                                    <span class="category-badge">
-                                        <?php echo esc_html($main_category); ?>
-                                    </span>
-                                <?php else : ?>
-                                    <span class="no-category">—</span>
-                                <?php endif; ?>
-                            </div>
-                            
                             <div class="data-col platforms-col">
                                 <?php if (!empty($platforms) && is_array($platforms)) : ?>
                                     <div class="platforms-list">
-                                        <?php foreach (array_slice($platforms, 0, 3) as $platform) : ?>
-                                            <span class="platform-icon" title="<?php echo esc_attr($platform); ?>">
-                                                <?php 
-                                                $icons = array(
-                                                    'windows' => '🖥️',
-                                                    'mac' => '🍎',
-                                                    'linux' => '🐧',
-                                                    'steam' => '🎮',
-                                                    'switch' => '🎲',
-                                                    'playstation' => '🎮',
-                                                    'xbox' => '🎮'
-                                                );
-                                                echo isset($icons[strtolower($platform)]) ? $icons[strtolower($platform)] : '💻';
-                                                ?>
-                                            </span>
-                                        <?php endforeach; ?>
-                                        <?php if (count($platforms) > 3) : ?>
-                                            <span class="platform-more">+<?php echo count($platforms) - 3; ?></span>
-                                        <?php endif; ?>
+                                        <?php 
+                                        $has_pc = false;
+                                        $has_console = false;
+                                        
+                                        // Vérifier quels types sont présents
+                                        foreach ($platforms as $platform) {
+                                            $platform_lower = strtolower($platform);
+                                            
+                                            if (in_array($platform_lower, array('windows', 'mac', 'linux', 'steam', 'pc'))) {
+                                                $has_pc = true;
+                                            } elseif (in_array($platform_lower, array('switch', 'playstation', 'xbox', 'ps4', 'ps5', 'nintendo'))) {
+                                                $has_console = true;
+                                            }
+                                        }
+                                        
+                                        // Afficher une seule icône (priorité PC > Console)
+                                        if ($has_pc) {
+                                            echo '<span class="platform-icon" title="PC">🖥️</span>';
+                                        } elseif ($has_console) {
+                                            echo '<span class="platform-icon" title="Console">🎮</span>';
+                                        }
+                                        ?>
                                     </div>
                                 <?php else : ?>
                                     <span class="no-platforms">—</span>

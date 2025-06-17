@@ -343,7 +343,7 @@ $recent_activity = new WP_Query(array(
         </div>
         
         <div class="activity-footer">
-            <a href="<?php echo admin_url('edit.php'); ?>" class="btn btn-secondary">
+            <a href="<?php echo admin_url('admin.php?page=sisme-games-all-articles'); ?>">
                 📋 Voir tous les articles
             </a>
         </div>
@@ -357,7 +357,7 @@ $recent_activity = new WP_Query(array(
             <div class="link-group">
                 <h5>WordPress</h5>
                 <ul>
-                    <li><a href="<?php echo admin_url('edit.php'); ?>">📄 Tous les articles</a></li>
+                    <li><a href="<?php echo admin_url('admin.php?page=sisme-games-all-articles'); ?>">📄 Tous les articles</a></li>
                     <li><a href="<?php echo admin_url('edit-tags.php?taxonomy=category'); ?>">🏷️ Catégories</a></li>
                     <li><a href="<?php echo admin_url('edit-tags.php?taxonomy=post_tag'); ?>">🏷️ Étiquettes</a></li>
                     <li><a href="<?php echo admin_url('upload.php'); ?>">📸 Médiathèque</a></li>

@@ -183,24 +183,32 @@ class Sisme_Assets_Loader {
         if (strpos($hook, 'sisme-games') !== false) {
             
             // CSS spécifique pour le dashboard
-            if ($hook === 'toplevel_page_sisme-games-editor') {
-                wp_enqueue_style(
-                    'sisme-dashboard-styles',
-                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/dashboard.css',
-                    array(),
-                    SISME_GAMES_EDITOR_VERSION
-                );
-            }
+            wp_enqueue_style(
+                'sisme-dashboard-styles',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/dashboard.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
             
             // CSS spécifique pour la liste des patch/news
-            //if ($hook === 'sisme-games-editor_page_sisme-games-patch-news') {
-                wp_enqueue_style(
-                    'sisme-patch-news-list-styles',
-                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/patch-news-list.css',
-                    array(),
-                    SISME_GAMES_EDITOR_VERSION
-                );
-            //}
+            wp_enqueue_style(
+                'sisme-patch-news-list-styles',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/patch-news-list.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+
+            // CSS spécifique pour la page tous les articles
+            wp_enqueue_style(
+                'sisme-all-articles-styles',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/all-articles.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            wp_localize_script('jquery', 'sismeAjax', array(
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('sisme_load_more')
+            ));
             
             // CSS spécifique pour la liste des fiches
             if ($hook === 'sisme-games-editor_page_sisme-games-fiches') {
