@@ -55,6 +55,8 @@ if (!$is_creation_mode) {
 
 // Récupérer l'image mise en avant
 $featured_image_id = get_post_thumbnail_id($post_id);
+$fiche_block_image_id = get_post_meta($post_id, '_sisme_fiche_block_image_id', true);
+$news_block_image_id = get_post_meta($post_id, '_sisme_news_block_image_id', true);
 
 $post_url = $is_creation_mode ? '#' : get_permalink($post_id);
 ?>
@@ -231,6 +233,56 @@ $post_url = $is_creation_mode ? '#' : get_permalink($post_id);
                         </td>
                     </tr>
                 </table>
+
+                <!-- Image bloc "Fiche du jeu" -->
+                <tr>
+                    <th scope="row">Image "Découvrir le jeu"</th>
+                    <td>
+                        <input type="hidden" id="fiche_block_image_id" name="fiche_block_image_id" value="<?php echo $fiche_block_image_id; ?>">
+                        <div id="fiche-block-image-preview" style="margin-bottom: 10px;">
+                            <?php if ($fiche_block_image_id) : ?>
+                                <?php echo wp_get_attachment_image($fiche_block_image_id, 'medium', false, array('style' => 'max-width: 250px; height: auto; border-radius: 4px; border: 2px solid #A1B78D;')); ?>
+                            <?php else : ?>
+                                <em>Aucune image sélectionnée - Bloc inactif</em>
+                            <?php endif; ?>
+                        </div>
+                        <button type="button" id="select-fiche-block-image" class="button">
+                            <?php echo $fiche_block_image_id ? 'Changer l\'image pour la fiche' : 'Choisir une image pour la fiche'; ?>
+                        </button>
+                        <?php if ($fiche_block_image_id) : ?>
+                            <button type="button" id="remove-fiche-block-image" class="button" style="margin-left: 8px;">Supprimer</button>
+                        <?php endif; ?>
+                        <p class="description">
+                            Image pour le bloc redirigeant vers la <strong>fiche principale du jeu</strong>
+                            <br><em>Conseil : Image représentative du jeu (logo, artwork, capture)</em>
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Image bloc "Page de news" -->
+                <tr>
+                    <th scope="row">Image "Suivre l'actualité"</th>
+                    <td>
+                        <input type="hidden" id="news_block_image_id" name="news_block_image_id" value="<?php echo $news_block_image_id; ?>">
+                        <div id="news-block-image-preview" style="margin-bottom: 10px;">
+                            <?php if ($news_block_image_id) : ?>
+                                <?php echo wp_get_attachment_image($news_block_image_id, 'medium', false, array('style' => 'max-width: 250px; height: auto; border-radius: 4px; border: 2px solid #D4A373;')); ?>
+                            <?php else : ?>
+                                <em>Aucune image sélectionnée - Bloc inactif</em>
+                            <?php endif; ?>
+                        </div>
+                        <button type="button" id="select-news-block-image" class="button">
+                            <?php echo $news_block_image_id ? 'Changer l\'image pour les news' : 'Choisir une image pour les news'; ?>
+                        </button>
+                        <?php if ($news_block_image_id) : ?>
+                            <button type="button" id="remove-news-block-image" class="button" style="margin-left: 8px;">Supprimer</button>
+                        <?php endif; ?>
+                        <p class="description">
+                            Image pour le bloc redirigeant vers la <strong>page news du jeu</strong>
+                            <br><em>Conseil : Image dynamique liée aux actualités (icône news, badge "actu")</em>
+                        </p>
+                    </td>
+                </tr>
                 
                 <!-- Sections de contenu -->
                 <h2>Contenu de l'article</h2>
@@ -435,6 +487,68 @@ jQuery(document).ready(function($) {
         });
         
         mediaUploader.open();
+    });
+
+    // Gestion de la médiathèque pour l'image bloc "Fiche du jeu"
+    $('#select-fiche-block-image').click(function(e) {
+        e.preventDefault();
+        
+        var mediaUploader = wp.media({
+            title: 'Choisir une image pour le bloc "Découvrir le jeu"',
+            button: { text: 'Utiliser cette image' },
+            multiple: false,
+            library: { type: 'image' }
+        });
+        
+        mediaUploader.on('select', function() {
+            var attachment = mediaUploader.state().get('selection').first().toJSON();
+            $('#fiche_block_image_id').val(attachment.id);
+            $('#fiche-block-image-preview').html('<img src="' + attachment.sizes.medium.url + '" style="max-width: 250px; height: auto; border-radius: 4px; border: 2px solid #A1B78D;">');
+            $('#select-fiche-block-image').text('Changer l\'image pour la fiche');
+            $('#remove-fiche-block-image').show();
+        });
+        
+        mediaUploader.open();
+    });
+
+    // Supprimer l'image bloc "Fiche du jeu"
+    $('#remove-fiche-block-image').click(function(e) {
+        e.preventDefault();
+        $('#fiche_block_image_id').val('');
+        $('#fiche-block-image-preview').html('<em>Aucune image sélectionnée - Bloc inactif</em>');
+        $('#select-fiche-block-image').text('Choisir une image pour la fiche');
+        $(this).hide();
+    });
+
+    // Gestion de la médiathèque pour l'image bloc "Page de news"
+    $('#select-news-block-image').click(function(e) {
+        e.preventDefault();
+        
+        var mediaUploader = wp.media({
+            title: 'Choisir une image pour le bloc "Suivre l\'actualité"',
+            button: { text: 'Utiliser cette image' },
+            multiple: false,
+            library: { type: 'image' }
+        });
+        
+        mediaUploader.on('select', function() {
+            var attachment = mediaUploader.state().get('selection').first().toJSON();
+            $('#news_block_image_id').val(attachment.id);
+            $('#news-block-image-preview').html('<img src="' + attachment.sizes.medium.url + '" style="max-width: 250px; height: auto; border-radius: 4px; border: 2px solid #D4A373;">');
+            $('#select-news-block-image').text('Changer l\'image pour les news');
+            $('#remove-news-block-image').show();
+        });
+        
+        mediaUploader.open();
+    });
+
+    // Supprimer l'image bloc "Page de news"
+    $('#remove-news-block-image').click(function(e) {
+        e.preventDefault();
+        $('#news_block_image_id').val('');
+        $('#news-block-image-preview').html('<em>Aucune image sélectionnée - Bloc inactif</em>');
+        $('#select-news-block-image').text('Choisir une image pour les news');
+        $(this).hide();
     });
     
     // Gestion des images des sections

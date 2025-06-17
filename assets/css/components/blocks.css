@@ -102,18 +102,23 @@
     text-align: left;
     position: relative;
     
-    /* Ligne décorative simple - IDENTIQUE */
+    /* Ligne décorative simple */
     padding-bottom: 16px;
     border-bottom: 2px solid var(--theme-palette-color-1);
     text-rendering: optimizeLegibility;
 }
 
-/* Icône simple - IDENTIQUE aux informations */
+/* Icône simple */
 .sisme-fiche-blocks h2::before {
     content: '🎬';
     font-size: 0.9em;
     margin-right: 12px;
     opacity: 0.8;
+}
+
+/* Icône simple */
+.sisme-lien-connexe-title::before {
+    content: '🔗' !important;
 }
 
 /* Grille des blocs - Simple et claire */
@@ -141,7 +146,6 @@
 
 /* Effet hover sur le bloc */
 .sisme-block:hover {
-    transform: translateY(-4px);
     border-color: rgba(161, 183, 141, 0.4);
     box-shadow: 
         0 8px 24px rgba(44, 62, 80, 0.12),
@@ -455,5 +459,118 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* ========================================
+   BLOCS CROISÉS PATCH/NEWS 
+======================================== */
+
+/* Container des blocs croisés patch/news - Même structure que sisme-fiche-blocks */
+.sisme-patch-news-blocks {
+    margin: 48px auto;
+    max-width: 1200px;
+    padding: 40px 48px;
+    
+    /* Design IDENTIQUE aux sections existantes */
+    background: rgba(66, 82, 97, 0.95);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    
+    /* Bordure subtile IDENTIQUE */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces et professionnelles */
+    box-shadow: 
+        0 8px 32px rgba(44, 62, 80, 0.08),
+        0 2px 8px rgba(44, 62, 80, 0.04);
+    
+    /* Animation d'apparition */
+    animation: sismeFadeInUp 0.6s ease-out;
+    
+    /* Transition smooth */
+    transition: all 0.3s ease;
+    
+    /* Grille directe - pas de titre séparé */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+/* Animation de points en haut */
+.sisme-patch-news-blocks::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(212, 163, 115, 0.3); /* Orange pour patch/news */
+    border-radius: 2px;
+}
+
+/* Dégradé qui se déplace */
+.sisme-patch-news-blocks::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(212, 163, 115, 0.95) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    animation: sismeDotsFlow 4s ease-out infinite;
+}
+
+/* Effet hover */
+.sisme-patch-news-blocks:hover {
+    border-color: rgba(212, 163, 115, 0.4);
+    box-shadow: 
+        0 12px 40px rgba(44, 62, 80, 0.12),
+        0 4px 16px rgba(44, 62, 80, 0.06);
+}
+
+/* Liens des blocs - reset des styles de lien */
+.sisme-patch-news-blocks .sisme-block-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.sisme-patch-news-blocks .sisme-block-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Styles spécifiques pour les blocs fiche/news dans patch-news */
+.sisme-patch-news-blocks .sisme-fiche-block {
+    border-left: 4px solid var(--theme-palette-color-1); /* Vert pour fiche */
+}
+
+.sisme-patch-news-blocks .sisme-news-block {
+    border-left: 4px solid var(--theme-palette-color-7); /* Orange pour news */
+}
+
+/* Responsive pour les blocs croisés */
+@media (max-width: 768px) {
+    .sisme-patch-news-blocks {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        margin: 32px auto;
+        padding: 24px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-patch-news-blocks {
+        margin: 24px auto;
+        padding: 20px 16px;
+        gap: 16px;
     }
 }

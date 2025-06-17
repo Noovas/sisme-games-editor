@@ -19,13 +19,25 @@ class Sisme_Content_Filter {
      * Enrichir le contenu des fiches de jeu
      */
     public function enrich_game_fiche_content($content) {
-        // Vérifier si on est sur un article single et que c'est une fiche de jeu
-        if (!is_single() || !$this->is_game_fiche()) {
+
+        // Vérifier si on est sur un article single
+        if (!is_single()) {
             return $content;
         }
-        
+
         global $post;
-        $post_id = $post->ID;
+
+        // Si c'est un article patch/news avec blocs croisés, ajouter les blocs
+        if (has_category(array('patch', 'news'))) {
+            return $content . $this->generate_cross_navigation_blocks($post->ID);
+        }
+
+        // Si ce n'est pas une fiche de jeu, on arrête ici
+        if (!$this->is_game_fiche()) {
+            return $content;
+        }
+
+        $post_id = $post->ID;   
         
         // Récupérer les métadonnées
         $game_modes = get_post_meta($post_id, '_sisme_game_modes', true) ?: array();
@@ -113,6 +125,96 @@ class Sisme_Content_Filter {
         // Vérifier si l'article a des métadonnées de jeu
         $game_modes = get_post_meta($post->ID, '_sisme_game_modes', true);
         return !empty($game_modes);
+    }
+
+    /**
+     * Générer les blocs de navigation croisée pour patch/news
+     */
+    private function generate_cross_navigation_blocks($post_id) {
+        // Récupérer les images des blocs
+        $fiche_image_id = get_post_meta($post_id, '_sisme_fiche_block_image_id', true);
+        $news_image_id = get_post_meta($post_id, '_sisme_news_block_image_id', true);
+        
+        // Les deux images doivent être définies
+        if (empty($fiche_image_id) || empty($news_image_id)) {
+            return '';
+        }
+        
+        // Récupérer l'étiquette du jeu pour les liens
+        $game_tags = wp_get_post_tags($post_id);
+        if (empty($game_tags)) {
+            return '';
+        }
+        
+        $game_slug = $game_tags[0]->slug;
+        $game_name = $game_tags[0]->name;
+        
+        // Générer les URLs des liens
+        $fiche_url = home_url('/' . $game_slug . '/');
+        $news_url = home_url('/' . $game_slug . '-news/');
+        
+        return $this->render_cross_blocks_html($fiche_image_id, $news_image_id, $fiche_url, $news_url, $game_name);
+    }
+
+    /**
+     * Générer le HTML des blocs croisés
+     */
+    private function render_cross_blocks_html($fiche_image_id, $news_image_id, $fiche_url, $news_url, $game_name) {
+        $output = '';
+        
+        // Container principal avec la MÊME structure que les fiches de jeu
+        $output .= '<div class="sisme-fiche-blocks" itemscope itemtype="https://schema.org/ItemList">';
+        
+        // Titre avec icône - IDENTIQUE aux autres sections
+        $output .= '<h2 class="sisme-lien-connexe-title" itemprop="name">Liens connexes</h2>';
+        
+        // Meta pour la liste
+        $output .= '<meta itemprop="numberOfItems" content="2">';
+        $output .= '<meta itemprop="description" content="Liens vers la fiche et actualités de ' . esc_attr($game_name) . '">';
+        
+        // Grille des blocs
+        $output .= '<div class="sisme-blocks-grid">';
+        
+        // Bloc "Découvrir le jeu"
+        $output .= '<div class="sisme-block sisme-fiche-block">';
+        $output .= '<a href="' . esc_url($fiche_url) . '" class="sisme-block-wrapper">';
+        $output .= '<div class="sisme-block-image">';
+        $output .= wp_get_attachment_image($fiche_image_id, 'full', false, array('alt' => 'Découvrir ' . esc_attr($game_name)));
+        $output .= '</div>';
+        $output .= '<div class="sisme-block-content">';
+        $output .= '<h4 class="sisme-block-title">Découvrir ' . esc_html($game_name) . '</h4>';
+        $output .= '<p class="sisme-block-description">Consultez la fiche complète du jeu avec toutes les informations, captures d\'écran et détails techniques.</p>';
+        $output .= '<div class="sisme-block-meta">';
+        $output .= '<span class="sisme-block-tag sisme-tag-active">Fiche Complète</span>';
+        $output .= '<span class="sisme-block-tag sisme-tag-active">Infos & Médias</span>';
+        $output .= '</div>';
+        $output .= '<span class="sisme-block-cta">Voir la fiche du jeu</span>';
+        $output .= '</div>';
+        $output .= '</a>';
+        $output .= '</div>';
+        
+        // Bloc "Suivre l'actualité"  
+        $output .= '<div class="sisme-block sisme-news-block">';
+        $output .= '<a href="' . esc_url($news_url) . '" class="sisme-block-wrapper">';
+        $output .= '<div class="sisme-block-image">';
+        $output .= wp_get_attachment_image($news_image_id, 'full', false, array('alt' => 'Actualités ' . esc_attr($game_name)));
+        $output .= '</div>';
+        $output .= '<div class="sisme-block-content">';
+        $output .= '<h4 class="sisme-block-title">Suivre l\'actualité</h4>';
+        $output .= '<p class="sisme-block-description">Retrouvez toutes les news, mises à jour et annonces concernant ' . esc_html($game_name) . '.</p>';
+        $output .= '<div class="sisme-block-meta">';
+        $output .= '<span class="sisme-block-tag sisme-tag-active">News & Patch</span>';
+        $output .= '<span class="sisme-block-tag sisme-tag-active">Actualités</span>';
+        $output .= '</div>';
+        $output .= '<span class="sisme-block-cta">Toutes les actualités</span>';
+        $output .= '</div>';
+        $output .= '</a>';
+        $output .= '</div>';
+        
+        $output .= '</div>'; // Fin sisme-blocks-grid
+        $output .= '</div>'; // Fin sisme-fiche-blocks
+        
+        return $output;
     }
     
     /**

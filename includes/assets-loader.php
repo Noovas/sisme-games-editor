@@ -80,6 +80,16 @@ class Sisme_Assets_Loader {
             );
         }
 
+        // CSS pour les articles patch/news avec blocs croisés
+        if (is_single() && (has_category('patch') || has_category('news'))) {
+            wp_enqueue_style(
+                'sisme-blocks-styles',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/blocks.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+        }
+
         // CSS pour les pages news
         if (is_single() && $this->is_news_page()) {
             // CSS de la grille/liste des news (container principal)

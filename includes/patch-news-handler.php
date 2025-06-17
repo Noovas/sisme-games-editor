@@ -98,6 +98,10 @@ class Sisme_Patch_News_Handler {
             delete_post_thumbnail($post_id);
         }
 
+        // Mettre à jour les images des blocs croisés
+        update_post_meta($post_id, '_sisme_fiche_block_image_id', $sanitized_data['fiche_block_image_id']);
+        update_post_meta($post_id, '_sisme_news_block_image_id', $sanitized_data['news_block_image_id']);
+
         // Mettre à jour l'étiquette du jeu
         if (!empty($sanitized_data['game_tag'])) {
             wp_set_post_tags($post_id, array($sanitized_data['game_tag']));
@@ -198,6 +202,8 @@ class Sisme_Patch_News_Handler {
             'description' => $this->sanitize_html_content($data['article_description'] ?? ''),
             'custom_date' => sanitize_text_field($data['custom_date'] ?? ''),
             'featured_image_id' => intval($data['featured_image_id'] ?? 0),
+            'fiche_block_image_id' => !empty($data['fiche_block_image_id']) ? intval($data['fiche_block_image_id']) : 0,
+            'news_block_image_id' => !empty($data['news_block_image_id']) ? intval($data['news_block_image_id']) : 0,
             'sections' => $this->sanitize_sections($data['sections'] ?? array())
         );
     }
@@ -370,7 +376,6 @@ class Sisme_Patch_News_Handler {
      */
     private function save_metadata($post_id, $data) {
         // DEBUG : voir ce qui arrive
-        error_log('SISME DEBUG - Sections reçues: ' . print_r($data['sections'], true));
         
         // Type d'article
         update_post_meta($post_id, '_sisme_article_type', $data['article_type']);
@@ -390,10 +395,13 @@ class Sisme_Patch_News_Handler {
         
         // DEBUG : voir ce qui est sauvé
         $saved = get_post_meta($post_id, '_sisme_article_sections', true);
-        error_log('SISME DEBUG - Sections sauvées: ' . print_r($saved, true));
         
         // Marquer comme article Patch & News
         update_post_meta($post_id, '_sisme_is_patch_news', true);
+
+        // Sauvegarder les images des blocs croisés
+        update_post_meta($post_id, '_sisme_fiche_block_image_id', $data['fiche_block_image_id']);
+        update_post_meta($post_id, '_sisme_news_block_image_id', $data['news_block_image_id']);
     }
     
     /**
