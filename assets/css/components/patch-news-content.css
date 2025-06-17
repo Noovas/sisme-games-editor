@@ -1,0 +1,688 @@
+/**
+ * File: /sisme-games-editor/assets/css/components/patch-news-content.css
+ * Styles pour les pages patch/news - Structure IDENTIQUE aux fiches de jeu
+ */
+
+/* Variables de couleurs */
+:root {
+    --theme-palette-color-1: #A1B78D;
+    --theme-palette-color-2: #557A46;
+    --theme-palette-color-3: #ECF0F1;
+    --theme-palette-color-4: #ECF0F1;
+    --theme-palette-color-5: #9caca0;
+    --theme-palette-color-6: #2C3E50;
+    --theme-palette-color-7: #D4A373;
+    --theme-palette-color-8: #425261;
+}
+
+/* Description des articles patch/news - COPIE EXACTE de .sisme-fiche-description */
+.patch-news-description {
+    margin: 48px auto;
+    max-width: 1200px;
+    padding: 40px 48px;
+    
+    /* Design sobre et élégant - IDENTIQUE aux fiches */
+    background: rgba(236, 240, 241, 0.95);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    
+    /* Bordure subtile */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces et professionnelles */
+    box-shadow: 
+        0 8px 32px rgba(44, 62, 80, 0.08),
+        0 2px 8px rgba(44, 62, 80, 0.04);
+    
+    /* Animation d'apparition */
+    animation: sismeFadeInUp 0.6s ease-out;
+    
+    /* Transition smooth */
+    transition: all 0.3s ease;
+}
+
+/* Titre de la description patch/news - IDENTIQUE aux fiches */
+.patch-news-description h2 {
+    font-size: 1.75rem; /* 28px - MÊME que fiches */
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 32px;
+    text-align: left;
+    position: relative;
+    
+    /* Ligne décorative simple - IDENTIQUE */
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--theme-palette-color-1);
+    text-rendering: optimizeLegibility;
+}
+
+/* Icône pour la description patch/news */
+.patch-news-description h2::before {
+    content: '📋';
+    font-size: 0.9em;
+    margin-right: 12px;
+    opacity: 0.8;
+}
+
+/* Contenu de la description */
+.patch-news-description .description-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Animation subtile de points en haut - IDENTIQUE aux fiches */
+.patch-news-description::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(161, 183, 141, 0.3);
+    border-radius: 2px;
+}
+
+/* Dégradé qui se déplace - IDENTIQUE aux fiches */
+.patch-news-description::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(85, 122, 70, 0.95) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    animation: sismeDotsFlow 4s ease-out infinite;
+}
+
+@keyframes sismeDotsFlow {
+    0% { left: -150px; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { left: calc(100% + 150px); opacity: 0; }
+}
+
+/* Effet hover discret - IDENTIQUE aux fiches */
+.patch-news-description:hover {
+    border-color: rgba(161, 183, 141, 0.4);
+    box-shadow: 
+        0 12px 40px rgba(44, 62, 80, 0.12),
+        0 4px 16px rgba(44, 62, 80, 0.06);
+}
+
+/* Texte de la description patch/news */
+.patch-news-description p {
+    color: var(--theme-palette-color-6);
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.7;
+    margin: 0 0 20px;
+    font-weight: 400;
+    position: relative;
+    
+    /* Amélioration de la lisibilité */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dernier paragraphe sans marge */
+.patch-news-description p:last-child {
+    margin-bottom: 0;
+}
+
+/* Premier paragraphe avec emphase */
+.patch-news-description p:first-child {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 500;
+    color: var(--theme-palette-color-8);
+}
+
+/* Container principal des sections patch/news - IDENTIQUE à .sisme-fiche-presentation */
+.patch-news-sections-container {
+    margin: 48px auto;
+    max-width: 1200px;
+    padding: 40px 48px;
+    
+    /* Design sobre et élégant - IDENTIQUE aux fiches */
+    background: rgba(236, 240, 241, 0.95);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    
+    /* Bordure subtile */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces et professionnelles */
+    box-shadow: 
+        0 8px 32px rgba(44, 62, 80, 0.08),
+        0 2px 8px rgba(44, 62, 80, 0.04);
+    
+    /* Animation d'apparition */
+    animation: sismeFadeInUp 0.6s ease-out;
+    
+    /* Transition smooth */
+    transition: all 0.3s ease;
+}
+
+/* Animation subtile de points en haut - IDENTIQUE aux fiches */
+.patch-news-sections-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(161, 183, 141, 0.3);
+    border-radius: 2px;
+}
+
+/* Dégradé qui se déplace - IDENTIQUE aux fiches */
+.patch-news-sections-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(85, 122, 70, 0.95) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    animation: sismeDotsFlow 4s ease-out infinite;
+}
+
+/* Effet hover discret - IDENTIQUE aux fiches */
+.patch-news-sections-container:hover {
+    border-color: rgba(161, 183, 141, 0.4);
+    box-shadow: 
+        0 12px 40px rgba(44, 62, 80, 0.12),
+        0 4px 16px rgba(44, 62, 80, 0.06);
+}
+
+/* Titre principal des sections - IDENTIQUE aux fiches */
+.patch-news-sections-container h2 {
+    font-size: 1.75rem; /* 28px - MÊME que fiches */
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 32px;
+    text-align: left;
+    position: relative;
+    
+    /* Ligne décorative simple - IDENTIQUE */
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--theme-palette-color-1);
+    text-rendering: optimizeLegibility;
+}
+
+/* Icône pour les sections patch/news */
+.patch-news-sections-container h2::before {
+    content: '📰';
+    font-size: 0.9em;
+    margin-right: 12px;
+    opacity: 0.8;
+}
+
+/* Icône variante pour les patches */
+.patch-news-sections-container.type-patch h2::before {
+    content: '🔧';
+}
+
+/* Container des sections personnalisées */
+.patch-news-sections-container .sections-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Sections individuelles des articles patch/news - PLUS de conteneur individuel */
+.patch-news-section {
+    margin-bottom: 48px;
+    position: relative;
+    
+    /* Animation d'apparition décalée */
+    animation: sismeFadeIn 0.6s ease-out both;
+}
+
+/* Dernière section sans marge */
+.patch-news-section:last-child {
+    margin-bottom: 0;
+}
+
+/* Titres des sections patch/news (H3) - IDENTIQUE aux fiches */
+.patch-news-section h3 {
+    font-size: 1.5rem; /* 24px */
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 24px;
+    position: relative;
+    
+    /* Ligne décorative discrète */
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(161, 183, 141, 0.3);
+    text-rendering: optimizeLegibility;
+}
+
+/* Icône subtile pour les H3 patch/news */
+.patch-news-section h3::before {
+    content: '▶';
+    font-size: 0.7em;
+    color: var(--theme-palette-color-1);
+    margin-right: 8px;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.patch-news-section:hover h3::before {
+    color: var(--theme-palette-color-2);
+    transform: translateX(2px);
+}
+
+/* Contenu texte des sections patch/news */
+.patch-news-section p {
+    color: var(--theme-palette-color-6);
+    font-size: 1.063rem; /* 17px */
+    line-height: 1.7;
+    margin: 0 0 16px;
+    font-weight: 400;
+    
+    /* Amélioration de la lisibilité */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dernier paragraphe de section sans marge */
+.patch-news-section p:last-of-type {
+    margin-bottom: 0;
+}
+
+/* Premier paragraphe de section avec emphase légère */
+.patch-news-section p:first-of-type {
+    font-size: 1.125rem; /* 18px */
+    font-weight: 500;
+    color: var(--theme-palette-color-8);
+}
+
+/* Listes dans les sections patch/news */
+.patch-news-section ul,
+.patch-news-section ol {
+    margin: 16px 0;
+    padding-left: 24px;
+    color: var(--theme-palette-color-6);
+    font-size: 1.063rem;
+    line-height: 1.6;
+}
+
+.patch-news-section li {
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.patch-news-section li::marker {
+    color: var(--theme-palette-color-1);
+}
+
+/* Liens dans les sections patch/news */
+.patch-news-section a {
+    color: var(--theme-palette-color-1);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    border-bottom: 1px solid transparent;
+}
+
+.patch-news-section a:hover {
+    color: var(--theme-palette-color-2);
+    border-bottom-color: var(--theme-palette-color-2);
+}
+
+/* Images des sections patch/news */
+.patch-news-image-wrapper {
+    margin: 32px 0;
+    text-align: center;
+    position: relative;
+}
+
+.patch-news-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    
+    /* Design cohérent avec les fiches */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces */
+    box-shadow: 
+        0 8px 24px rgba(44, 62, 80, 0.08),
+        0 4px 12px rgba(44, 62, 80, 0.04);
+    
+    /* Transition smooth */
+    transition: all 0.3s ease;
+    
+    /* Optimisation performance */
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+/* Effet hover sur les images patch/news */
+.patch-news-image:hover {
+    transform: translateY(-4px);
+    border-color: rgba(161, 183, 141, 0.4);
+    box-shadow: 
+        0 12px 32px rgba(44, 62, 80, 0.12),
+        0 6px 16px rgba(44, 62, 80, 0.08);
+}
+
+/* Citations dans les sections patch/news */
+.patch-news-section blockquote {
+    margin: 24px 0;
+    padding: 20px 24px;
+    background: rgba(161, 183, 141, 0.08);
+    border-left: 4px solid var(--theme-palette-color-1);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: var(--theme-palette-color-8);
+    position: relative;
+}
+
+.patch-news-section blockquote::before {
+    content: '"';
+    font-size: 3em;
+    color: var(--theme-palette-color-1);
+    position: absolute;
+    top: -8px;
+    left: 8px;
+    opacity: 0.3;
+    font-family: serif;
+}
+
+/* Code dans les sections patch/news */
+.patch-news-section code {
+    background: rgba(161, 183, 141, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: var(--theme-palette-color-2);
+}
+
+.patch-news-section pre {
+    background: rgba(44, 62, 80, 0.05);
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 16px 0;
+    border: 1px solid rgba(161, 183, 141, 0.2);
+}
+
+.patch-news-section pre code {
+    background: none;
+    padding: 0;
+    color: var(--theme-palette-color-6);
+}
+
+/* Variantes pour type d'article */
+.patch-news-section.type-patch::before {
+    background: rgba(212, 163, 115, 0.3); /* Orange pour patch */
+}
+
+.patch-news-section.type-patch::after {
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(212, 163, 115, 0.95) 50%, 
+        transparent 100%);
+}
+
+.patch-news-section.type-news::before {
+    background: rgba(161, 183, 141, 0.3); /* Vert pour news */
+}
+
+.patch-news-section.type-news::after {
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(85, 122, 70, 0.95) 50%, 
+        transparent 100%);
+}
+
+/* Responsive Design */
+
+/* Tablettes */
+@media (max-width: 1024px) {
+    .patch-news-description,
+    .patch-news-sections-container {
+        max-width: 95%;
+        padding: 32px 36px;
+    }
+    
+    .patch-news-section {
+        margin-bottom: 40px;
+    }
+}
+
+/* Tablettes portrait */
+@media (max-width: 768px) {
+    .patch-news-description,
+    .patch-news-sections-container {
+        margin: 32px auto;
+        padding: 24px 20px;
+    }
+    
+    .patch-news-description h2,
+    .patch-news-sections-container h2 {
+        font-size: 1.5rem; /* 24px */
+        margin-bottom: 24px;
+    }
+    
+    .patch-news-section {
+        margin-bottom: 32px;
+    }
+    
+    .patch-news-section h3 {
+        font-size: 1.375rem; /* 22px */
+        margin-bottom: 20px;
+    }
+    
+    .patch-news-description p,
+    .patch-news-section p {
+        font-size: 1rem; /* 16px */
+        line-height: 1.6;
+        margin-bottom: 12px;
+    }
+    
+    .patch-news-description p:first-child,
+    .patch-news-section p:first-of-type {
+        font-size: 1.063rem; /* 17px */
+    }
+    
+    .patch-news-image-wrapper {
+        margin: 24px 0;
+    }
+}
+
+/* Smartphones */
+@media (max-width: 480px) {
+    .patch-news-description,
+    .patch-news-sections-container {
+        margin: 24px auto;
+        padding: 20px 16px;
+        border-radius: 8px;
+    }
+    
+    .patch-news-description h2,
+    .patch-news-sections-container h2 {
+        font-size: 1.375rem; /* 22px */
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+    }
+    
+    .patch-news-description h2::before,
+    .patch-news-sections-container h2::before {
+        font-size: 0.8em;
+        margin-right: 8px;
+    }
+    
+    .patch-news-section {
+        margin-bottom: 28px;
+    }
+    
+    .patch-news-section h3 {
+        font-size: 1.25rem; /* 20px */
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+    }
+    
+    .patch-news-section h3::before {
+        font-size: 0.6em;
+        margin-right: 6px;
+    }
+    
+    .patch-news-description p,
+    .patch-news-section p {
+        font-size: 0.938rem; /* 15px */
+        line-height: 1.6;
+        margin-bottom: 12px;
+    }
+    
+    .patch-news-description p:first-child,
+    .patch-news-section p:first-of-type {
+        font-size: 1rem; /* 16px */
+    }
+    
+    .patch-news-section ul,
+    .patch-news-section ol {
+        font-size: 0.938rem;
+        padding-left: 20px;
+    }
+    
+    .patch-news-image-wrapper {
+        margin: 20px 0;
+    }
+    
+    .patch-news-image {
+        border-radius: 8px;
+        
+        /* Désactiver hover sur mobile */
+        transition: none;
+    }
+    
+    .patch-news-image:hover {
+        transform: none;
+        box-shadow: 
+            0 8px 24px rgba(44, 62, 80, 0.08),
+            0 4px 12px rgba(44, 62, 80, 0.04);
+    }
+    
+    .patch-news-section blockquote {
+        padding: 12px 16px;
+        margin: 16px 0;
+        border-radius: 0 6px 6px 0;
+    }
+    
+    .patch-news-section blockquote::before {
+        font-size: 2.5em;
+        top: -6px;
+        left: 6px;
+    }
+}
+
+/* Mode sombre */
+@media (prefers-color-scheme: dark) {
+    .patch-news-description,
+    .patch-news-sections-container {
+        background: rgba(66, 82, 97, 0.95);
+        border-color: rgba(161, 183, 141, 0.15);
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.2),
+            0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .patch-news-description:hover,
+    .patch-news-sections-container:hover {
+        border-color: rgba(161, 183, 141, 0.3);
+    }
+    
+    .patch-news-description h2,
+    .patch-news-sections-container h2,
+    .patch-news-section h3 {
+        color: var(--theme-palette-color-3);
+        border-bottom-color: rgba(161, 183, 141, 0.2);
+    }
+    
+    .patch-news-description p,
+    .patch-news-section p {
+        color: var(--theme-palette-color-3);
+    }
+    
+    .patch-news-description p:first-child,
+    .patch-news-section p:first-of-type {
+        color: var(--theme-palette-color-4);
+    }
+    
+    .patch-news-section ul,
+    .patch-news-section ol {
+        color: var(--theme-palette-color-3);
+    }
+    
+    .patch-news-image {
+        border-color: rgba(161, 183, 141, 0.15);
+        box-shadow: 
+            0 8px 24px rgba(0, 0, 0, 0.2),
+            0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .patch-news-section blockquote {
+        background: rgba(161, 183, 141, 0.12);
+        color: var(--theme-palette-color-3);
+    }
+    
+    .patch-news-section pre {
+        background: rgba(44, 62, 80, 0.3);
+        border-color: rgba(161, 183, 141, 0.15);
+    }
+    
+    .patch-news-section code {
+        background: rgba(161, 183, 141, 0.15);
+        color: var(--theme-palette-color-1);
+    }
+}
+
+/* Animation d'apparition globale */
+@keyframes sismeFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Performance optimizations */
+.patch-news-description,
+.patch-news-section,
+.patch-news-image {
+    will-change: transform;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}
+
+/* Print styles */
+@media print {
+    .patch-news-description,
+    .patch-news-section {
+        background: white !important;
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+        break-inside: avoid;
+    }
+    
+    .patch-news-image {
+        max-height: 300px;
+        object-fit: contain;
+    }
+}

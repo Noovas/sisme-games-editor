@@ -1,0 +1,764 @@
+/**
+ * File: /sisme-games-editor/assets/css/admin/dashboard.css
+ * Styles pour le tableau de bord - Cohérent avec le design system du site
+ */
+
+/* Variables de couleurs */
+:root {
+    --theme-palette-color-1: #A1B78D;
+    --theme-palette-color-2: #557A46;
+    --theme-palette-color-3: #ECF0F1;
+    --theme-palette-color-4: #ECF0F1;
+    --theme-palette-color-5: #9caca0;
+    --theme-palette-color-6: #2C3E50;
+    --theme-palette-color-7: #D4A373;
+    --theme-palette-color-8: #425261;
+}
+
+/* Container principal du dashboard */
+.sisme-dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* En-tête du dashboard - Structure cohérente */
+.sisme-dashboard-header {
+    margin: 24px auto 48px;
+    max-width: 1200px;
+    padding: 40px 48px;
+    
+    /* Design sobre et élégant - IDENTIQUE aux autres sections */
+    background: rgba(236, 240, 241, 0.95);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    
+    /* Bordure subtile */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces et professionnelles */
+    box-shadow: 
+        0 8px 32px rgba(44, 62, 80, 0.08),
+        0 2px 8px rgba(44, 62, 80, 0.04);
+    
+    /* Animation d'apparition */
+    animation: sismeFadeInUp 0.6s ease-out;
+    
+    /* Transition smooth */
+    transition: all 0.3s ease;
+}
+
+/* Animation subtile de points en haut - IDENTIQUE aux autres sections */
+.sisme-dashboard-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(161, 183, 141, 0.3);
+    border-radius: 2px;
+}
+
+/* Dégradé qui se déplace - IDENTIQUE aux autres sections */
+.sisme-dashboard-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(85, 122, 70, 0.95) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    animation: sismeDotsFlow 4s ease-out infinite;
+}
+
+@keyframes sismeDotsFlow {
+    0% { left: -150px; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { left: calc(100% + 150px); opacity: 0; }
+}
+
+/* Effet hover discret - IDENTIQUE aux autres sections */
+.sisme-dashboard-header:hover {
+    border-color: rgba(161, 183, 141, 0.4);
+    box-shadow: 
+        0 12px 40px rgba(44, 62, 80, 0.12),
+        0 4px 16px rgba(44, 62, 80, 0.06);
+}
+
+/* Titre principal du dashboard */
+.sisme-dashboard-header h1 {
+    font-size: 2.25rem; /* 36px */
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 16px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    
+    /* Ligne décorative simple */
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--theme-palette-color-1);
+    text-rendering: optimizeLegibility;
+}
+
+/* Icône du titre principal */
+.sisme-dashboard-header h1::before {
+    content: '🎮';
+    font-size: 0.8em;
+    margin-right: 16px;
+    opacity: 0.9;
+}
+
+/* Sous-titre du dashboard */
+.sisme-dashboard-header .dashboard-subtitle {
+    color: var(--theme-palette-color-8);
+    font-size: 1.125rem; /* 18px */
+    text-align: center;
+    margin: 20px 0 0;
+    position: relative;
+    z-index: 1;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+/* Section des statistiques - Structure cohérente */
+.sisme-dashboard-stats {
+    margin: 48px auto;
+    max-width: 1200px;
+    padding: 40px 48px;
+    
+    /* Design sobre et élégant - IDENTIQUE aux autres sections */
+    background: rgba(236, 240, 241, 0.95);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    
+    /* Bordure subtile */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces et professionnelles */
+    box-shadow: 
+        0 8px 32px rgba(44, 62, 80, 0.08),
+        0 2px 8px rgba(44, 62, 80, 0.04);
+    
+    /* Animation d'apparition */
+    animation: sismeFadeInUp 0.6s ease-out 0.2s both;
+    
+    /* Transition smooth */
+    transition: all 0.3s ease;
+}
+
+/* Animation et effet hover pour les stats */
+.sisme-dashboard-stats::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(161, 183, 141, 0.3);
+    border-radius: 2px;
+}
+
+.sisme-dashboard-stats::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(85, 122, 70, 0.95) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    animation: sismeDotsFlow 4s ease-out infinite 1s;
+}
+
+.sisme-dashboard-stats:hover {
+    border-color: rgba(161, 183, 141, 0.4);
+    box-shadow: 
+        0 12px 40px rgba(44, 62, 80, 0.12),
+        0 4px 16px rgba(44, 62, 80, 0.06);
+}
+
+/* Titre des statistiques */
+.sisme-dashboard-stats h2 {
+    font-size: 1.75rem; /* 28px - MÊME que toutes les sections */
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 32px;
+    text-align: left;
+    position: relative;
+    
+    /* Ligne décorative simple - IDENTIQUE */
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--theme-palette-color-1);
+    text-rendering: optimizeLegibility;
+}
+
+.sisme-dashboard-stats h2::before {
+    content: '📊';
+    font-size: 0.9em;
+    margin-right: 12px;
+    opacity: 0.8;
+}
+
+/* Grille des statistiques */
+.sisme-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Carte de statistique individuelle */
+.sisme-stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    position: relative;
+    
+    /* Bordure cohérente */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces */
+    box-shadow: 
+        0 4px 16px rgba(44, 62, 80, 0.08),
+        0 2px 8px rgba(44, 62, 80, 0.04);
+    
+    /* Transition smooth */
+    transition: all 0.3s ease;
+    
+    /* Animation décalée */
+    animation: sismeFadeIn 0.6s ease-out both;
+}
+
+.sisme-stat-card:nth-child(1) { animation-delay: 0.1s; }
+.sisme-stat-card:nth-child(2) { animation-delay: 0.2s; }
+.sisme-stat-card:nth-child(3) { animation-delay: 0.3s; }
+.sisme-stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Effet hover sur les cartes de stats */
+.sisme-stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(161, 183, 141, 0.4);
+    box-shadow: 
+        0 8px 24px rgba(44, 62, 80, 0.12),
+        0 4px 16px rgba(44, 62, 80, 0.08);
+}
+
+/* Nombre principal de la statistique */
+.sisme-stat-number {
+    font-size: 2.5rem; /* 40px */
+    font-weight: 700;
+    color: var(--theme-palette-color-1);
+    margin: 0 0 8px;
+    line-height: 1;
+}
+
+.sisme-action-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Label de la statistique */
+.sisme-stat-label {
+    font-size: 1rem;
+    color: var(--theme-palette-color-8);
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Variantes de couleur pour les stats */
+.sisme-stat-card.stat-fiches .sisme-stat-number {
+    color: var(--theme-palette-color-1);
+}
+
+.sisme-stat-card.stat-news .sisme-stat-number {
+    color: var(--theme-palette-color-7);
+}
+
+.sisme-stat-card.stat-tests .sisme-stat-number {
+    color: var(--theme-palette-color-2);
+}
+
+.sisme-stat-card.stat-total .sisme-stat-number {
+    color: var(--theme-palette-color-3);
+}
+
+/* Section des actions rapides - Structure cohérente */
+.sisme-dashboard-actions {
+    margin: 48px auto;
+    max-width: 1200px;
+    padding: 40px 48px;
+    
+    /* Design sobre et élégant - IDENTIQUE aux autres sections */
+    background: rgba(236, 240, 241, 0.95);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    
+    /* Bordure subtile */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces et professionnelles */
+    box-shadow: 
+        0 8px 32px rgba(44, 62, 80, 0.08),
+        0 2px 8px rgba(44, 62, 80, 0.04);
+    
+    /* Animation d'apparition */
+    animation: sismeFadeInUp 0.6s ease-out 0.4s both;
+    
+    /* Transition smooth */
+    transition: all 0.3s ease;
+}
+
+/* Animation et effet hover pour les actions */
+.sisme-dashboard-actions::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(161, 183, 141, 0.3);
+    border-radius: 2px;
+}
+
+.sisme-dashboard-actions::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(85, 122, 70, 0.95) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    animation: sismeDotsFlow 4s ease-out infinite 2s;
+}
+
+.sisme-dashboard-actions:hover {
+    border-color: rgba(161, 183, 141, 0.4);
+    box-shadow: 
+        0 12px 40px rgba(44, 62, 80, 0.12),
+        0 4px 16px rgba(44, 62, 80, 0.06);
+}
+
+/* Titre des actions */
+.sisme-dashboard-actions h2 {
+    font-size: 1.75rem; /* 28px - MÊME que toutes les sections */
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 32px;
+    text-align: left;
+    position: relative;
+    
+    /* Ligne décorative simple - IDENTIQUE */
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--theme-palette-color-1);
+    text-rendering: optimizeLegibility;
+}
+
+.sisme-dashboard-actions h2::before {
+    content: '⚡';
+    font-size: 0.9em;
+    margin-right: 12px;
+    opacity: 0.8;
+}
+
+/* Grille des actions rapides */
+.sisme-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Carte d'action individuelle */
+.sisme-action-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    position: relative;
+    
+    /* Bordure cohérente */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Ombres douces */
+    box-shadow: 
+        0 8px 24px rgba(44, 62, 80, 0.08),
+        0 4px 12px rgba(44, 62, 80, 0.04);
+    
+    /* Transition smooth */
+    transition: all 0.4s ease;
+    
+    /* Animation décalée */
+    animation: sismeFadeIn 0.6s ease-out both;
+}
+
+.sisme-action-card:nth-child(1) { animation-delay: 0.2s; }
+.sisme-action-card:nth-child(2) { animation-delay: 0.3s; }
+.sisme-action-card:nth-child(3) { animation-delay: 0.4s; }
+.sisme-action-card:nth-child(4) { animation-delay: 0.5s; }
+
+/* Effet hover sur les cartes d'action */
+.sisme-action-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(161, 183, 141, 0.4);
+    box-shadow: 
+        0 16px 40px rgba(44, 62, 80, 0.12),
+        0 8px 20px rgba(44, 62, 80, 0.08);
+}
+
+/* En-tête de la carte d'action */
+.sisme-action-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.sisme-action-icon {
+    font-size: 2rem;
+    margin-right: 16px;
+    opacity: 0.9;
+}
+
+.sisme-action-title {
+    font-size: 1.5rem; /* 24px */
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0;
+}
+
+/* Description de l'action */
+.sisme-action-description {
+    color: var(--theme-palette-color-8);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0 0 24px;
+}
+
+/* Boutons d'action */
+.sisme-action-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.sisme-btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.938rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sisme-btn-primary {
+    background: linear-gradient(135deg, 
+        var(--theme-palette-color-1) 0%, 
+        var(--theme-palette-color-2) 100%);
+    color: white;
+    box-shadow: 
+        0 4px 16px rgba(85, 122, 70, 0.2),
+        0 2px 8px rgba(85, 122, 70, 0.1);
+}
+
+.sisme-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 6px 20px rgba(85, 122, 70, 0.3),
+        0 3px 12px rgba(85, 122, 70, 0.15);
+    text-decoration: none;
+    color: white;
+}
+
+.sisme-btn-secondary {
+    background: rgba(161, 183, 141, 0.1);
+    color: var(--theme-palette-color-2);
+    border: 1px solid rgba(161, 183, 141, 0.3);
+}
+
+.sisme-btn-secondary:hover {
+    background: rgba(161, 183, 141, 0.2);
+    border-color: rgba(161, 183, 141, 0.5);
+    transform: translateY(-1px);
+    text-decoration: none;
+    color: var(--theme-palette-color-2);
+}
+
+/* Variantes de couleur pour les cartes d'action */
+.sisme-action-card.card-fiches {
+    border-left: 4px solid var(--theme-palette-color-1);
+}
+
+.sisme-action-card.card-news {
+    border-left: 4px solid var(--theme-palette-color-7);
+}
+
+.sisme-action-card.card-tests {
+    border-left: 4px solid var(--theme-palette-color-2);
+}
+
+.sisme-action-card.card-settings {
+    border-left: 4px solid var(--theme-palette-color-8);
+}
+
+/* Responsive Design */
+
+/* Tablettes */
+@media (max-width: 1024px) {
+    .sisme-dashboard-header,
+    .sisme-dashboard-stats,
+    .sisme-dashboard-actions {
+        max-width: 95%;
+        padding: 32px 36px;
+    }
+    
+    .sisme-stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+    }
+    
+    .sisme-actions-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+    }
+}
+
+/* Tablettes portrait */
+@media (max-width: 768px) {
+    .sisme-dashboard-container {
+        padding: 16px;
+    }
+    
+    .sisme-dashboard-header,
+    .sisme-dashboard-stats,
+    .sisme-dashboard-actions {
+        margin: 32px auto;
+        padding: 24px 20px;
+    }
+    
+    .sisme-dashboard-header h1 {
+        font-size: 1.875rem; /* 30px */
+        margin-bottom: 12px;
+        padding-bottom: 16px;
+    }
+    
+    .sisme-dashboard-header .dashboard-subtitle {
+        font-size: 1rem;
+    }
+    
+    .sisme-dashboard-stats h2,
+    .sisme-dashboard-actions h2 {
+        font-size: 1.5rem; /* 24px */
+        margin-bottom: 24px;
+    }
+    
+    .sisme-stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 16px;
+    }
+    
+    .sisme-actions-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .sisme-stat-card {
+        padding: 20px;
+    }
+    
+    .sisme-stat-number {
+        font-size: 2rem;
+    }
+    
+    .sisme-action-card {
+        padding: 24px;
+    }
+    
+    .sisme-action-title {
+        font-size: 1.25rem;
+    }
+    
+    .sisme-action-buttons {
+        flex-direction: column;
+    }
+}
+
+/* Smartphones */
+@media (max-width: 480px) {
+    .sisme-dashboard-header,
+    .sisme-dashboard-stats,
+    .sisme-dashboard-actions {
+        margin: 24px auto;
+        padding: 20px 16px;
+        border-radius: 8px;
+    }
+    
+    .sisme-dashboard-header h1 {
+        font-size: 1.625rem; /* 26px */
+        padding-bottom: 12px;
+    }
+    
+    .sisme-dashboard-header h1::before {
+        font-size: 0.7em;
+        margin-right: 12px;
+    }
+    
+    .sisme-dashboard-stats h2,
+    .sisme-dashboard-actions h2 {
+        font-size: 1.375rem; /* 22px */
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+    }
+    
+    .sisme-dashboard-stats h2::before,
+    .sisme-dashboard-actions h2::before {
+        font-size: 0.8em;
+        margin-right: 8px;
+    }
+    
+    .sisme-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .sisme-stat-card {
+        padding: 16px;
+    }
+    
+    .sisme-stat-number {
+        font-size: 1.75rem;
+    }
+    
+    .sisme-stat-label {
+        font-size: 0.875rem;
+    }
+    
+    .sisme-action-card {
+        padding: 20px;
+    }
+    
+    .sisme-action-header {
+        margin-bottom: 16px;
+    }
+    
+    .sisme-action-icon {
+        font-size: 1.5rem;
+        margin-right: 12px;
+    }
+    
+    .sisme-action-title {
+        font-size: 1.125rem;
+    }
+    
+    .sisme-action-description {
+        font-size: 0.938rem;
+        margin-bottom: 20px;
+    }
+    
+    .sisme-btn {
+        padding: 10px 16px;
+        font-size: 0.875rem;
+    }
+}
+
+/* Mode sombre */
+@media (prefers-color-scheme: dark) {
+    .sisme-dashboard-header,
+    .sisme-dashboard-stats,
+    .sisme-dashboard-actions {
+        background: rgba(66, 82, 97, 0.95);
+        border-color: rgba(161, 183, 141, 0.15);
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.2),
+            0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sisme-dashboard-header:hover,
+    .sisme-dashboard-stats:hover,
+    .sisme-dashboard-actions:hover {
+        border-color: rgba(161, 183, 141, 0.3);
+    }
+    
+    .sisme-dashboard-header h1,
+    .sisme-dashboard-stats h2,
+    .sisme-dashboard-actions h2 {
+        color: var(--theme-palette-color-3);
+        border-bottom-color: var(--theme-palette-color-1);
+    }
+    
+    .sisme-dashboard-header .dashboard-subtitle {
+        color: var(--theme-palette-color-4);
+    }
+    
+    .sisme-stat-card,
+    .sisme-action-card {
+        background: rgba(44, 62, 80, 0.9);
+        border-color: rgba(161, 183, 141, 0.15);
+    }
+    
+    .sisme-stat-label,
+    .sisme-action-title {
+        color: var(--theme-palette-color-3);
+    }
+    
+    .sisme-action-description {
+        color: var(--theme-palette-color-4);
+    }
+}
+
+/* Animations */
+@keyframes sismeFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes sismeFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Performance optimizations */
+.sisme-dashboard-header,
+.sisme-dashboard-stats,
+.sisme-dashboard-actions,
+.sisme-stat-card,
+.sisme-action-card {
+    will-change: transform;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}

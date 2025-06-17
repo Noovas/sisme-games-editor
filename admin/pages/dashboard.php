@@ -1,7 +1,7 @@
 <?php
 /**
  * File: /sisme-games-editor/admin/pages/dashboard.php
- * Page Tableau de bord - Version fonctionnelle simple
+ * Page Tableau de bord - Version cohérente avec le design system
  */
 
 // Sécurité : Empêcher l'accès direct
@@ -51,107 +51,123 @@ $stats = array(
 $stats['total'] = $stats['fiches'] + $stats['news'] + $stats['tests'];
 ?>
 
-<div class="wrap">
-    <h1>Sisme Games Editor</h1>
-    <p>Tableau de bord - Créez rapidement vos contenus gaming</p>
-    
-    <!-- Statistiques -->
-    <div style="display: flex; gap: 20px; margin: 30px 0;">
-        <div style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 5px; text-align: center; min-width: 150px;">
-            <h3 style="margin: 0; font-size: 32px; color: #0073aa;"><?php echo $stats['fiches']; ?></h3>
-            <p style="margin: 5px 0 0 0;">Fiches de jeu</p>
-        </div>
-        <div style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 5px; text-align: center; min-width: 150px;">
-            <h3 style="margin: 0; font-size: 32px; color: #0073aa;"><?php echo $stats['news']; ?></h3>
-            <p style="margin: 5px 0 0 0;">Patch & News</p>
-        </div>
-        <div style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 5px; text-align: center; min-width: 150px;">
-            <h3 style="margin: 0; font-size: 32px; color: #0073aa;"><?php echo $stats['tests']; ?></h3>
-            <p style="margin: 5px 0 0 0;">Tests</p>
-        </div>
-        <div style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 5px; text-align: center; min-width: 150px;">
-            <h3 style="margin: 0; font-size: 32px; color: #666;"><?php echo $stats['total']; ?></h3>
-            <p style="margin: 5px 0 0 0;">Total articles</p>
-        </div>
-    </div>
-    
-    <!-- Introduction -->
-    <div style="background: #f1f1f1; padding: 20px; border-left: 4px solid #0073aa; margin: 20px 0;">
-        <h2>Bienvenue dans votre éditeur gaming !</h2>
-        <p>
-            Créez facilement et rapidement vos fiches de jeux, articles de patch & news, et tests détaillés pour games.sisme.fr. 
-            Chaque type de contenu dispose de son propre template optimisé pour vous faire gagner du temps.
+<div class="sisme-dashboard-container">
+    <!-- En-tête du dashboard -->
+    <div class="sisme-dashboard-header">
+        <h1>Sisme Games Editor</h1>
+        <p class="dashboard-subtitle">
+            Créez rapidement et facilement vos contenus gaming avec des templates optimisés pour une expérience professionnelle et cohérente.
         </p>
     </div>
     
-    <!-- Actions rapides -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0;">
-        
-        <!-- Fiches de jeu -->
-        <div style="background: white; padding: 25px; border: 1px solid #ddd; border-radius: 5px;">
-            <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                <span class="dashicons dashicons-media-document" style="font-size: 24px; color: #0073aa; margin-right: 10px;"></span>
-                <h3 style="margin: 0;">Fiches de jeu</h3>
+    <!-- Section statistiques -->
+    <div class="sisme-dashboard-stats">
+        <h2>Aperçu de votre contenu</h2>
+        <div class="sisme-stats-grid">
+            <div class="sisme-stat-card stat-fiches">
+                <div class="sisme-stat-number"><?php echo $stats['fiches']; ?></div>
+                <div class="sisme-stat-label">Fiches de jeu</div>
             </div>
-            <p style="color: #666; margin-bottom: 20px;">
-                Créez des fiches détaillées pour présenter les jeux : informations principales, captures d'écran, 
-                caractéristiques techniques et description complète.
-            </p>
-            <a href="<?php echo admin_url('admin.php?page=sisme-games-fiches'); ?>" class="button">
-                Gérer les fiches
-            </a>
-            <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche'); ?>" class="button button-primary">
-                Nouvelle fiche
-            </a>
+            <div class="sisme-stat-card stat-news">
+                <div class="sisme-stat-number"><?php echo $stats['news']; ?></div>
+                <div class="sisme-stat-label">Patch & News</div>
+            </div>
+            <div class="sisme-stat-card stat-tests">
+                <div class="sisme-stat-number"><?php echo $stats['tests']; ?></div>
+                <div class="sisme-stat-label">Tests</div>
+            </div>
+            <div class="sisme-stat-card stat-total">
+                <div class="sisme-stat-number"><?php echo $stats['total']; ?></div>
+                <div class="sisme-stat-label">Total articles</div>
+            </div>
         </div>
-        
-        <!-- Patch & News -->
-        <div style="background: white; padding: 25px; border: 1px solid #ddd; border-radius: 5px;">
-            <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                <span class="dashicons dashicons-megaphone" style="font-size: 24px; color: #0073aa; margin-right: 10px;"></span>
-                <h3 style="margin: 0;">Patch & News</h3>
+    </div>
+    
+    <!-- Section actions rapides -->
+    <div class="sisme-dashboard-actions">
+        <h2>Actions rapides</h2>
+        <div class="sisme-actions-grid">
+            
+            <!-- Fiches de jeu -->
+            <div class="sisme-action-card card-fiches">
+                <div class="sisme-action-header">
+                    <div class="sisme-action-icon">📄</div>
+                    <h3 class="sisme-action-title">Fiches de jeu</h3>
+                </div>
+                <p class="sisme-action-description">
+                    Créez des fiches détaillées pour présenter les jeux : informations principales, captures d'écran, 
+                    caractéristiques techniques et description complète avec sections personnalisées.
+                </p>
+                <div class="sisme-action-buttons">
+                    <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche'); ?>" class="sisme-btn sisme-btn-primary">
+                        ✨ Nouvelle fiche
+                    </a>
+                    <a href="<?php echo admin_url('admin.php?page=sisme-games-fiches'); ?>" class="sisme-btn sisme-btn-secondary">
+                        📋 Gérer les fiches
+                    </a>
+                </div>
             </div>
-            <p style="color: #666; margin-bottom: 20px;">
-                Rédigez rapidement des articles sur les dernières mises à jour, patches et actualités 
-                du monde du gaming avec un template adapté.
-            </p>
-            <a href="<?php echo admin_url('admin.php?page=sisme-games-patch-news'); ?>" class="button">
-                Gérer les news
-            </a>
-            <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-patch-news'); ?>" class="button button-primary">
-                Nouveau
-            </a>
-        </div>
-        
-        <!-- Tests -->
-        <div style="background: white; padding: 25px; border: 1px solid #ddd; border-radius: 5px;">
-            <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                <span class="dashicons dashicons-star-filled" style="font-size: 24px; color: #0073aa; margin-right: 10px;"></span>
-                <h3 style="margin: 0;">Tests</h3>
+            
+            <!-- Patch & News -->
+            <div class="sisme-action-card card-news">
+                <div class="sisme-action-header">
+                    <div class="sisme-action-icon">📰</div>
+                    <h3 class="sisme-action-title">Patch & News</h3>
+                </div>
+                <p class="sisme-action-description">
+                    Rédigez rapidement des articles sur les dernières mises à jour, patches et actualités 
+                    du monde du gaming avec un template adapté et des sections structurées.
+                </p>
+                <div class="sisme-action-buttons">
+                    <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-patch-news'); ?>" class="sisme-btn sisme-btn-primary">
+                        ⚡ Nouveau patch/news
+                    </a>
+                    <a href="<?php echo admin_url('admin.php?page=sisme-games-patch-news'); ?>" class="sisme-btn sisme-btn-secondary">
+                        📊 Gérer les articles
+                    </a>
+                </div>
             </div>
-            <p style="color: #666; margin-bottom: 20px;">
-                Créez des tests complets avec système de notation, points forts/faibles, 
-                et analyse détaillée pour guider vos lecteurs.
-            </p>
-            <a href="<?php echo admin_url('admin.php?page=sisme-games-tests'); ?>" class="button">
-                Gérer les tests
-            </a>
-            <span style="color: #666; font-style: italic;">Bientôt disponible</span>
-        </div>
-        
-        <!-- Réglages -->
-        <div style="background: white; padding: 25px; border: 1px solid #ddd; border-radius: 5px;">
-            <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                <span class="dashicons dashicons-admin-settings" style="font-size: 24px; color: #0073aa; margin-right: 10px;"></span>
-                <h3 style="margin: 0;">Réglages</h3>
+            
+            <!-- Tests -->
+            <div class="sisme-action-card card-tests">
+                <div class="sisme-action-header">
+                    <div class="sisme-action-icon">⭐</div>
+                    <h3 class="sisme-action-title">Tests</h3>
+                </div>
+                <p class="sisme-action-description">
+                    Créez des tests complets avec analyse détaillée, points forts/faibles, 
+                    et verdict final pour guider vos lecteurs dans leurs choix gaming.
+                </p>
+                <div class="sisme-action-buttons">
+                    <span class="sisme-btn sisme-btn-secondary" style="opacity: 0.6; cursor: not-allowed;">
+                        🚧 Bientôt disponible
+                    </span>
+                    <a href="<?php echo admin_url('admin.php?page=sisme-games-tests'); ?>" class="sisme-btn sisme-btn-secondary">
+                        👀 Voir la page
+                    </a>
+                </div>
             </div>
-            <p style="color: #666; margin-bottom: 20px;">
-                Configurez les paramètres du plugin, personnalisez les templates 
-                et ajustez les options selon vos besoins.
-            </p>
-            <a href="<?php echo admin_url('admin.php?page=sisme-games-settings'); ?>" class="button">
-                Accéder aux réglages
-            </a>
+            
+            <!-- Réglages -->
+            <div class="sisme-action-card card-settings">
+                <div class="sisme-action-header">
+                    <div class="sisme-action-icon">⚙️</div>
+                    <h3 class="sisme-action-title">Configuration</h3>
+                </div>
+                <p class="sisme-action-description">
+                    Configurez les paramètres du plugin, personnalisez les templates, 
+                    ajustez les options SEO et optimisez votre workflow selon vos besoins.
+                </p>
+                <div class="sisme-action-buttons">
+                    <a href="<?php echo admin_url('admin.php?page=sisme-games-settings'); ?>" class="sisme-btn sisme-btn-primary">
+                        🔧 Réglages
+                    </a>
+                    <a href="<?php echo admin_url('edit-tags.php?taxonomy=category'); ?>" class="sisme-btn sisme-btn-secondary">
+                        🏷️ Catégories
+                    </a>
+                </div>
+            </div>
+            
         </div>
     </div>
 </div>

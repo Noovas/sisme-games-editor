@@ -31,7 +31,9 @@ if (!$is_creation_mode) {
 // Récupérer les métadonnées existantes
 $article_type = '';
 $custom_date = '';
+$current_game_tag = '';
 $existing_sections = array();
+$is_just_created = isset($_GET['created']) && $_GET['created'] == '1';
 
 if (!$is_creation_mode) {
     // Déterminer le type via les catégories
@@ -47,6 +49,7 @@ if (!$is_creation_mode) {
     }
     
     $custom_date = get_post_meta($post_id, '_sisme_custom_date', true) ?: get_the_date('Y-m-d', $post_id);
+    $current_game_tag = get_post_meta($post_id, '_sisme_game_tag', true);
     $existing_sections = get_post_meta($post_id, '_sisme_article_sections', true) ?: array();
 }
 
@@ -176,7 +179,37 @@ $post_url = $is_creation_mode ? '#' : get_permalink($post_id);
                             </p>
                         </td>
                     </tr>
-                    
+                    <!-- Étiquette du jeu -->
+                    <tr>
+                        <th scope="row"><label for="game_tag">Jeu associé *</label></th>
+                        <td>
+                            <?php
+                                // Utiliser la métadonnée sauvegardée
+                                $current_tag_id = $current_game_tag;
+                            ?>
+                            <select name="game_tag" id="game_tag" class="regular-text" style="width: 100%;" required>
+                                <option value="">Sélectionner un jeu...</option>
+                                <?php
+                                $existing_tags = get_tags(array(
+                                    'hide_empty' => false, 
+                                    'orderby' => 'name', 
+                                    'order' => 'ASC',
+                                    'number' => 200
+                                ));
+                                usort($existing_tags, function($a, $b) {
+                                    return strcasecmp($a->name, $b->name);
+                                });
+                                foreach ($existing_tags as $tag) {
+                                    $selected = selected($current_tag_id, $tag->term_id, false);
+                                    echo '<option value="' . esc_attr($tag->term_id) . '"' . $selected . '>' . esc_html($tag->name) . '</option>';
+                                }
+                                ?>
+                            </select>
+                            <p class="description">
+                                <strong>Obligatoire :</strong> Sélectionnez le jeu concerné par cet article.
+                            </p>
+                        </td>
+                    </tr>
                     <!-- Image mise en avant -->
                     <tr>
                         <th scope="row">Image mise en avant</th>
@@ -327,10 +360,19 @@ $post_url = $is_creation_mode ? '#' : get_permalink($post_id);
                 </div>
                 
                 <iframe id="article-preview" 
-                        src="<?php echo esc_url($post_url); ?>" 
+                        src="<?php echo $is_just_created ? '#' : esc_url($post_url); ?>" 
                         style="width: 100%; height: 75vh; border: 1px solid #ccc; border-radius: 4px;"
                         frameborder="0">
                 </iframe>
+
+                <?php if ($is_just_created) : ?>
+                <script>
+                // Charger l'iframe après 3 secondes si c'est une création récente
+                setTimeout(function() {
+                    $('#article-preview').attr('src', '<?php echo esc_url($post_url); ?>');
+                }, 3000);
+                </script>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
@@ -507,11 +549,18 @@ jQuery(document).ready(function($) {
         var isFormSubmit = $(this).attr('id') === 'save-and-refresh';
         
         if (isFormSubmit) {
+            // Pour la sauvegarde, attendre plus longtemps
             setTimeout(function() {
                 refreshIframe();
-            }, 1000);
+            }, 2000); // 2 secondes au lieu de 1
         } else {
-            refreshIframe();
+            // Pour l'actualisation simple, vérifier d'abord que l'article existe
+            var currentUrl = $('#article-preview').attr('src');
+            if (currentUrl && currentUrl !== '#') {
+                refreshIframe();
+            } else {
+                alert('Article pas encore créé. Sauvegardez d\'abord.');
+            }
         }
     });
     
@@ -519,14 +568,34 @@ jQuery(document).ready(function($) {
         var iframe = $('#article-preview');
         if (iframe.length) {
             var currentSrc = iframe.attr('src');
-            var separator = currentSrc.indexOf('?') > -1 ? '&' : '?';
-            var newSrc = currentSrc.split('?')[0] + separator + 'preview_refresh=' + Date.now();
-            iframe.attr('src', newSrc);
             
+            // Vérifier que l'URL n'est pas '#' (mode création)
+            if (currentSrc === '#' || currentSrc.includes('#')) {
+                console.log('Article pas encore créé, refresh ignoré');
+                return;
+            }
+            
+            // Ajouter un timestamp pour forcer le refresh
+            var separator = currentSrc.indexOf('?') > -1 ? '&' : '?';
+            var baseUrl = currentSrc.split('?')[0]; // Enlever les paramètres existants
+            var newSrc = baseUrl + separator + 'preview_refresh=' + Date.now();
+            
+            // Feedback visuel
             $('#refresh-preview, #refresh-preview-only').text('🔄 Actualisation...');
-            setTimeout(function() {
-                $('#refresh-preview, #refresh-preview-only').text('🔄 Actualiser');
-            }, 1500);
+            
+            // Gérer les erreurs de chargement
+            iframe.off('load error').on('load', function() {
+                setTimeout(function() {
+                    $('#refresh-preview, #refresh-preview-only').text('🔄 Actualiser');
+                }, 500);
+            }).on('error', function() {
+                $('#refresh-preview, #refresh-preview-only').text('❌ Erreur');
+                setTimeout(function() {
+                    $('#refresh-preview, #refresh-preview-only').text('🔄 Actualiser');
+                }, 2000);
+            });
+            
+            iframe.attr('src', newSrc);
         }
     }
     

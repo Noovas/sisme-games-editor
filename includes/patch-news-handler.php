@@ -38,6 +38,11 @@ class Sisme_Patch_News_Handler {
         
         // Assigner la catégorie appropriée
         $this->assign_category($post_id, $sanitized_data['article_type']);
+
+        // Assigner l'étiquette du jeu
+        if (!empty($sanitized_data['game_tag'])) {
+            wp_set_post_tags($post_id, array($sanitized_data['game_tag']));
+        }
         
         // Assigner l'image mise en avant
         if (!empty($sanitized_data['featured_image_id'])) {
@@ -50,7 +55,7 @@ class Sisme_Patch_News_Handler {
         });
         
         // Rediriger vers l'édition
-        wp_redirect(admin_url('admin.php?page=sisme-games-edit-patch-news&post_id=' . $post_id));
+        wp_redirect(admin_url('admin.php?page=sisme-games-edit-patch-news&post_id=' . $post_id . '&created=1'));
         exit;
     }
     
@@ -92,6 +97,11 @@ class Sisme_Patch_News_Handler {
         } else {
             delete_post_thumbnail($post_id);
         }
+
+        // Mettre à jour l'étiquette du jeu
+        if (!empty($sanitized_data['game_tag'])) {
+            wp_set_post_tags($post_id, array($sanitized_data['game_tag']));
+        }
         
         // Message de succès
         add_action('admin_notices', function() {
@@ -109,9 +119,21 @@ class Sisme_Patch_News_Handler {
     private function validate_form_data($data) {
         $errors = array();
         
+        $post_id = isset($data['post_id']) ? intval($data['post_id']) : 0;
+        
         // Type d'article obligatoire
-        if (empty($data['article_type']) || !in_array($data['article_type'], array('patch', 'news'))) {
-            $errors[] = 'Le type d\'article est requis (patch ou news)';
+        if ($post_id === 0) {
+            // Mode création : type obligatoire
+            if (empty($data['article_type']) || !in_array($data['article_type'], array('patch', 'news'))) {
+                $errors[] = 'Le type d\'article est requis (patch ou news)';
+            }
+        } else {
+            // Mode édition : vérifier que l'article existe
+            $post = get_post($post_id);
+            if (!$post) {
+                $errors[] = 'Article introuvable';
+            }
+            // Le type sera récupéré dans sanitize_form_data(), pas besoin de vérifier ici
         }
         
         // Titre obligatoire
@@ -128,6 +150,11 @@ class Sisme_Patch_News_Handler {
         if (!empty($data['custom_date']) && !$this->is_valid_date($data['custom_date'])) {
             $errors[] = 'La date de publication n\'est pas valide';
         }
+
+        // Étiquette du jeu obligatoire
+        if (empty($data['game_tag'])) {
+            $errors[] = 'Veuillez sélectionner le jeu associé à cet article';
+        }
         
         return $errors;
     }
@@ -136,12 +163,41 @@ class Sisme_Patch_News_Handler {
      * Sanitiser les données du formulaire
      */
     private function sanitize_form_data($data) {
+        // Gérer le type selon le mode
+        $article_type = '';
+        
+        // Récupérer l'ID du post s'il existe
+        $post_id = isset($data['post_id']) ? intval($data['post_id']) : 0;
+        
+        if ($post_id > 0) {
+            // Mode édition : récupérer depuis les métadonnées
+            $article_type = get_post_meta($post_id, '_sisme_article_type', true);
+            
+            // Si pas trouvé dans les métadonnées, essayer via les catégories
+            if (empty($article_type)) {
+                $categories = get_the_category($post_id);
+                foreach ($categories as $category) {
+                    if ($category->slug === 'patch') {
+                        $article_type = 'patch';
+                        break;
+                    } elseif ($category->slug === 'news') {
+                        $article_type = 'news';
+                        break;
+                    }
+                }
+            }
+        } else {
+            // Mode création : prendre depuis le formulaire
+            $article_type = sanitize_text_field($data['article_type'] ?? '');
+        }
+
         return array(
-            'article_type' => sanitize_text_field($data['article_type']),
-            'title' => sanitize_text_field($data['article_title']),
-            'description' => $this->sanitize_html_content($data['article_description']),
-            'custom_date' => sanitize_text_field($data['custom_date']),
-            'featured_image_id' => intval($data['featured_image_id']),
+            'article_type' => $article_type,
+            'game_tag' => intval($data['game_tag'] ?? 0),
+            'title' => sanitize_text_field($data['article_title'] ?? ''),
+            'description' => $this->sanitize_html_content($data['article_description'] ?? ''),
+            'custom_date' => sanitize_text_field($data['custom_date'] ?? ''),
+            'featured_image_id' => intval($data['featured_image_id'] ?? 0),
             'sections' => $this->sanitize_sections($data['sections'] ?? array())
         );
     }
@@ -164,10 +220,8 @@ class Sisme_Patch_News_Handler {
                     'image_id' => intval($section['image_id'] ?? 0)
                 );
                 
-                // Garder seulement les sections avec du contenu
-                if (!empty($clean_section['title']) || !empty($clean_section['content']) || !empty($clean_section['image_id'])) {
-                    $clean_sections[] = $clean_section;
-                }
+                // Garder TOUTES les sections, même vides (pour préserver les indices)
+                $clean_sections[] = $clean_section;
             }
         }
         
@@ -182,13 +236,15 @@ class Sisme_Patch_News_Handler {
             return '';
         }
         
-        // Balises autorisées : em, strong, ul, ol, li
+        // Balises autorisées : em, strong, ul, ol, li, p, br
         $allowed_tags = array(
             'em' => array(),
             'strong' => array(),
             'ul' => array(),
             'ol' => array(),
-            'li' => array()
+            'li' => array(),
+            'p' => array(),
+            'br' => array()
         );
         
         return wp_kses(trim($content), $allowed_tags);
@@ -238,36 +294,72 @@ class Sisme_Patch_News_Handler {
     private function build_content_from_sections($sections, $description) {
         $content = '';
         
-        // Ajouter la description en introduction
+        // Ajouter la description avec titre et structure cohérente
         if (!empty($description)) {
-            $content .= '<div class="patch-news-description">' . wpautop($description) . '</div>' . "\n\n";
+            $content .= '<div class="patch-news-description">' . "\n";
+            $content .= '<h2>Description</h2>' . "\n";
+            $content .= '<div class="description-content">' . "\n";
+            $content .= wpautop($description) . "\n";
+            $content .= '</div>' . "\n";
+            $content .= '</div>' . "\n\n";
         }
         
-        // Ajouter les sections
-        foreach ($sections as $section) {
-            if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) {
-                $content .= '<div class="patch-news-section">' . "\n";
-                
-                // Titre de section
-                if (!empty($section['title'])) {
-                    $content .= '<h3>' . $section['title'] . '</h3>' . "\n";
+        // Ajouter les sections dans un conteneur global
+        if (!empty($sections)) {
+            // Déterminer le type d'article pour l'icône
+            $article_type = 'news'; // Par défaut
+            if (isset($_POST['article_type'])) {
+                $article_type = $_POST['article_type'];
+            } elseif (isset($_POST['post_id'])) {
+                $stored_type = get_post_meta($_POST['post_id'], '_sisme_article_type', true);
+                if ($stored_type) {
+                    $article_type = $stored_type;
                 }
-                
-                // Contenu de section
-                if (!empty($section['content'])) {
-                    $content .= wpautop($section['content']) . "\n";
-                }
-                
-                // Image de section
-                if (!empty($section['image_id'])) {
-                    $image = wp_get_attachment_image($section['image_id'], 'large', false, array('class' => 'patch-news-image'));
-                    if ($image) {
-                        $content .= '<div class="patch-news-image-wrapper">' . $image . '</div>' . "\n";
-                    }
-                }
-                
-                $content .= '</div>' . "\n\n";
             }
+            
+            $content .= '<div class="patch-news-sections-container type-' . esc_attr($article_type) . '">' . "\n";
+            
+            // Titre selon le type
+            if ($article_type === 'patch') {
+                $content .= '<h2>Détails du patch</h2>' . "\n";
+            } else {
+                $content .= '<h2>Détails de l\'actualité</h2>' . "\n";
+            }
+            
+            $content .= '<div class="sections-content">' . "\n";
+            
+            // Ajouter chaque section
+            foreach ($sections as $section) {
+                // Vérifier s'il y a vraiment du contenu à afficher
+                $has_content = !empty($section['title']) || !empty($section['content']) || !empty($section['image_id']);
+                
+                if ($has_content) {
+                    $content .= '<div class="patch-news-section">' . "\n";
+                    
+                    // Titre de section
+                    if (!empty($section['title'])) {
+                        $content .= '<h3>' . $section['title'] . '</h3>' . "\n";
+                    }
+                    
+                    // Contenu de section
+                    if (!empty($section['content'])) {
+                        $content .= wpautop($section['content']) . "\n";
+                    }
+                    
+                    // Image de section
+                    if (!empty($section['image_id'])) {
+                        $image = wp_get_attachment_image($section['image_id'], 'large', false, array('class' => 'patch-news-image'));
+                        if ($image) {
+                            $content .= '<div class="patch-news-image-wrapper">' . $image . '</div>' . "\n";
+                        }
+                    }
+                    
+                    $content .= '</div>' . "\n\n";
+                }
+            }
+            
+            $content .= '</div>' . "\n"; // Fin sections-content
+            $content .= '</div>' . "\n\n"; // Fin patch-news-sections-container
         }
         
         return $content;
@@ -277,6 +369,9 @@ class Sisme_Patch_News_Handler {
      * Sauvegarder les métadonnées spécifiques
      */
     private function save_metadata($post_id, $data) {
+        // DEBUG : voir ce qui arrive
+        error_log('SISME DEBUG - Sections reçues: ' . print_r($data['sections'], true));
+        
         // Type d'article
         update_post_meta($post_id, '_sisme_article_type', $data['article_type']);
         
@@ -285,8 +380,17 @@ class Sisme_Patch_News_Handler {
             update_post_meta($post_id, '_sisme_custom_date', $data['custom_date']);
         }
         
+        // Étiquette du jeu associé
+        if (!empty($data['game_tag'])) {
+            update_post_meta($post_id, '_sisme_game_tag', $data['game_tag']);
+        }
+        
         // Sections personnalisées
         update_post_meta($post_id, '_sisme_article_sections', $data['sections']);
+        
+        // DEBUG : voir ce qui est sauvé
+        $saved = get_post_meta($post_id, '_sisme_article_sections', true);
+        error_log('SISME DEBUG - Sections sauvées: ' . print_r($saved, true));
         
         // Marquer comme article Patch & News
         update_post_meta($post_id, '_sisme_is_patch_news', true);

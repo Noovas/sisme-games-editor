@@ -9,6 +9,46 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Traitement des actions de publication/suppression
+if (isset($_GET['action']) && isset($_GET['post_id'])) {
+    $action = sanitize_text_field($_GET['action']);
+    $post_id = intval($_GET['post_id']);
+    
+    if ($action === 'publish' && wp_verify_nonce($_GET['_wpnonce'], 'publish_post_' . $post_id)) {
+        $result = wp_update_post(array('ID' => $post_id, 'post_status' => 'publish'));
+        
+        if (!is_wp_error($result)) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-success is-dismissible"><p>Article publié avec succès !</p></div>';
+            });
+        }
+        wp_redirect(admin_url('admin.php?page=sisme-games-patch-news'));
+        exit;
+        
+    } elseif ($action === 'unpublish' && wp_verify_nonce($_GET['_wpnonce'], 'unpublish_post_' . $post_id)) {
+        $result = wp_update_post(array('ID' => $post_id, 'post_status' => 'draft'));
+        
+        if (!is_wp_error($result)) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-success is-dismissible"><p>Article remis en brouillon !</p></div>';
+            });
+        }
+        wp_redirect(admin_url('admin.php?page=sisme-games-patch-news'));
+        exit;
+        
+    } elseif ($action === 'delete' && wp_verify_nonce($_GET['_wpnonce'], 'delete_post_' . $post_id)) {
+        $result = wp_delete_post($post_id, true);
+        
+        if ($result) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-success is-dismissible"><p>Article supprimé !</p></div>';
+            });
+        }
+        wp_redirect(admin_url('admin.php?page=sisme-games-patch-news'));
+        exit;
+    }
+}
+
 // Fonction pour compter les articles news/patch
 function count_news_patch_articles() {
     $news_category = get_category_by_slug('news');
@@ -51,7 +91,7 @@ if (empty($category_ids)) {
     $args = array(
         'post_type' => 'post',
         'post_status' => array('publish', 'draft', 'private'),
-        'posts_per_page' => 20,
+        'posts_per_page' => -1,
         'paged' => max(1, get_query_var('paged')),
         'category__in' => $category_ids,
         'orderby' => 'date',
@@ -183,15 +223,21 @@ if (empty($category_ids)) {
                                 Modifier
                             </a>
                             
-                            <!-- Boutons Publier/Brouillon (grisés) -->
+                            <!-- Boutons fonctionnels -->
                             <?php if ($status === 'draft') : ?>
-                                <span class="button button-small" style="background: #ddd; color: #999; cursor: not-allowed; margin-left: 5px;" title="Fonctionnalité bientôt disponible">
+                                <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-patch-news&action=publish&post_id=' . $post_id), 'publish_post_' . $post_id); ?>" 
+                                   class="button button-small button-primary" 
+                                   onclick="return confirm('Publier cet article ?')"
+                                   style="background: #00a32a; border-color: #00a32a; margin-left: 5px;">
                                     📢 Publier
-                                </span>
+                                </a>
                             <?php elseif ($status === 'publish') : ?>
-                                <span class="button button-small" style="background: #ddd; color: #999; cursor: not-allowed; margin-left: 5px;" title="Fonctionnalité bientôt disponible">
+                                <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-patch-news&action=unpublish&post_id=' . $post_id), 'unpublish_post_' . $post_id); ?>" 
+                                   class="button button-small" 
+                                   onclick="return confirm('Remettre en brouillon ?')"
+                                   style="background: #dba617; border-color: #dba617; color: white; margin-left: 5px;">
                                     📝 Brouillon
-                                </span>
+                                </a>
                             <?php endif; ?>
                             
                             <!-- Bouton Site (fonctionnel) -->
@@ -199,10 +245,13 @@ if (empty($category_ids)) {
                                 Site
                             </a>
                             
-                            <!-- Bouton Supprimer (grisé) -->
-                            <span class="button button-small" style="background: #ddd; color: #999; cursor: not-allowed; margin-left: 5px;" title="Fonctionnalité bientôt disponible">
-                                Supprimer
-                            </span>
+                            <!-- Bouton Supprimer (fonctionnel) -->
+                            <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-patch-news&action=delete&post_id=' . $post_id), 'delete_post_' . $post_id); ?>" 
+                               onclick="return confirm('⚠️ Supprimer définitivement cet article ?')" 
+                               class="button button-small" 
+                               style="color: #a00; border-color: #a00; margin-left: 5px;">
+                                🗑️ Supprimer
+                            </a>
                         </td>
                     </tr>
                 <?php endwhile; ?>

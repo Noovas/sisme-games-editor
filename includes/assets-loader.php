@@ -15,6 +15,8 @@ class Sisme_Assets_Loader {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_styles'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
     }
+
+    
     
     /**
      * Charger les styles front-end
@@ -68,6 +70,16 @@ class Sisme_Assets_Loader {
             );
         }
 
+        // CSS pour les contenus patch/news
+        if (is_single() && $this->is_patch_news_content()) {
+            wp_enqueue_style(
+                'sisme-patch-news-content-styles',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/patch-news-content.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+        }
+
         // CSS pour les pages news
         if (is_single() && $this->is_news_page()) {
             // CSS de la grille/liste des news (container principal)
@@ -94,6 +106,32 @@ class Sisme_Assets_Loader {
                 SISME_GAMES_EDITOR_VERSION
             );
         }
+    }
+
+    /**
+     * Vérifier si l'article actuel est un contenu patch/news
+     */
+    private function is_patch_news_content() {
+        global $post;
+        
+        if (!$post) {
+            return false;
+        }
+        
+        // Vérification par métadonnée
+        if (get_post_meta($post->ID, '_sisme_is_patch_news', true)) {
+            return true;
+        }
+        
+        // Vérification par catégorie
+        $categories = get_the_category($post->ID);
+        foreach ($categories as $category) {
+            if (in_array($category->slug, array('patch', 'news'))) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     /**
@@ -139,6 +177,16 @@ class Sisme_Assets_Loader {
                 array(),
                 SISME_GAMES_EDITOR_VERSION
             );
+            
+            // CSS spécifique pour le dashboard
+            if ($hook === 'toplevel_page_sisme-games-editor') {
+                wp_enqueue_style(
+                    'sisme-dashboard-styles',
+                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/dashboard.css',
+                    array(),
+                    SISME_GAMES_EDITOR_VERSION
+                );
+            }
         }
     }
     
