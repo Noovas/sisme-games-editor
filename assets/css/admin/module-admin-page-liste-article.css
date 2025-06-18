@@ -1,0 +1,323 @@
+/**
+ * File: /sisme-games-editor/assets/css/admin/module-admin-page-liste-article.css
+ * CSS pour le module de liste d'articles par catégorie
+ */
+
+/* Structure principale */
+.sisme-article-list-module {
+    margin-bottom: 30px;
+}
+
+/* Liste d'articles */
+.sisme-article-list-module .articles-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Compteur de résultats de filtrage */
+.sisme-article-list-module .filtered-results-count {
+    background: #f5f5f5;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: var(--theme-palette-color-6, #2C3E50);
+}
+
+.sisme-article-list-module .filtered-results-count p {
+    margin: 0;
+}
+
+.sisme-article-list-module .article-item {
+    display: flex;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.sisme-article-list-module .article-item:hover {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+/* Image de l'article */
+.sisme-article-list-module .article-image {
+    height: 100px;
+    flex-shrink: 0;
+    background-color: #f5f5f5;
+    position: relative;
+}
+
+.sisme-article-list-module .article-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sisme-article-list-module .no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: var(--theme-palette-color-1, #A1B78D);
+    color: white;
+    font-size: 24px;
+}
+
+/* Contenu de l'article */
+.sisme-article-list-module .article-content {
+    flex: 1;
+    padding: 12px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sisme-article-list-module .article-data {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.sisme-article-list-module .title-col {
+    flex: 1;
+}
+
+.sisme-article-list-module .article-title {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    line-height: 1.3;
+}
+
+.sisme-article-list-module .article-title a {
+    color: var(--theme-palette-color-6, #2C3E50);
+    text-decoration: none;
+}
+
+.sisme-article-list-module .article-title a:hover {
+    color: var(--theme-palette-color-2, #557A46);
+}
+
+.sisme-article-list-module .article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: #666;
+}
+
+.sisme-article-list-module .article-type {
+    background: var(--theme-palette-color-3, #ECF0F1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.sisme-article-list-module .meta-tag {
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.sisme-article-list-module .status-col {
+    white-space: nowrap;
+    text-align: right;
+}
+
+.sisme-article-list-module .status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.sisme-article-list-module .status-publish {
+    background-color: rgba(46, 184, 92, 0.15);
+    color: #1e7e34;
+}
+
+.sisme-article-list-module .status-draft {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #856404;
+}
+
+.sisme-article-list-module .status-private {
+    background-color: rgba(108, 117, 125, 0.15);
+    color: #495057;
+}
+
+.sisme-article-list-module .date-col {
+    white-space: nowrap;
+    text-align: right;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Actions */
+.sisme-article-list-module .article-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.sisme-article-list-module .action-btn {
+    padding: 4px 8px;
+    border: 1px solid;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.sisme-article-list-module .edit-btn {
+    background: var(--theme-palette-color-1, #A1B78D);
+    color: white;
+    border-color: var(--theme-palette-color-1, #A1B78D);
+}
+
+.sisme-article-list-module .edit-btn:hover {
+    background: var(--theme-palette-color-2, #557A46);
+    border-color: var(--theme-palette-color-2, #557A46);
+}
+
+.sisme-article-list-module .publish-btn {
+    background: rgba(46, 184, 92, 0.1);
+    color: #1e7e34;
+    border-color: rgba(46, 184, 92, 0.3);
+}
+
+.sisme-article-list-module .publish-btn:hover {
+    background: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.sisme-article-list-module .draft-btn {
+    background: rgba(255, 193, 7, 0.1);
+    color: #856404;
+    border-color: rgba(255, 193, 7, 0.3);
+}
+
+.sisme-article-list-module .draft-btn:hover {
+    background: #ffc107;
+    color: #212529;
+    border-color: #ffc107;
+}
+
+.sisme-article-list-module .view-btn {
+    background: rgba(161, 183, 141, 0.1);
+    color: var(--theme-palette-color-1, #A1B78D);
+    border-color: rgba(161, 183, 141, 0.3);
+}
+
+.sisme-article-list-module .view-btn:hover {
+    background: var(--theme-palette-color-1, #A1B78D);
+    color: white;
+    border-color: var(--theme-palette-color-1, #A1B78D);
+}
+
+.sisme-article-list-module .delete-btn {
+    background: rgba(220, 53, 69, 0.1);
+    color: #721c24;
+    border-color: rgba(220, 53, 69, 0.3);
+}
+
+.sisme-article-list-module .delete-btn:hover {
+    background: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+/* État vide */
+.sisme-article-list-module .empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.sisme-article-list-module .empty-icon {
+    font-size: 40px;
+    margin-bottom: 15px;
+    color: var(--theme-palette-color-5, #9caca0);
+}
+
+.sisme-article-list-module .empty-state h3 {
+    margin: 0 0 10px 0;
+    color: var(--theme-palette-color-6, #2C3E50);
+}
+
+.sisme-article-list-module .empty-state p {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+/* Indicateurs de chargement */
+.sisme-article-list-module .infinite-scroll-loader {
+    margin: 20px auto;
+    text-align: center;
+    padding: 15px;
+    background: rgba(161, 183, 141, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(161, 183, 141, 0.15);
+}
+
+.sisme-article-list-module .loader-spinner {
+    font-size: 24px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 8px;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.sisme-article-list-module .infinite-scroll-loader p {
+    color: var(--theme-palette-color-8, #425261);
+    font-size: 13px;
+    margin: 0;
+}
+
+.sisme-article-list-module .infinite-scroll-end {
+    margin: 20px auto;
+    text-align: center;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    color: #666;
+    font-size: 13px;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .sisme-article-list-module .article-data {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .sisme-article-list-module .status-col,
+    .sisme-article-list-module .date-col {
+        text-align: left;
+    }
+    
+    .sisme-article-list-module .article-actions {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+}

@@ -10,8 +10,9 @@ if (!defined('ABSPATH')) {
 }
 
 // Inclure le wrapper admin
-require_once plugin_dir_path(__FILE__) . '../../includes/admin-page-wrapper.php';
-require_once plugin_dir_path(__FILE__) . '../../includes/admin-page-statistiques.php';
+require_once plugin_dir_path(__FILE__) . '../../includes/module-admin-page-liste-article.php';
+require_once plugin_dir_path(__FILE__) . '../../includes/module-admin-page-statistiques.php';
+require_once plugin_dir_path(__FILE__) . '../../includes/module-admin-page-wrapper.php';
 
 // Créer la page avec le wrapper
 $page = new Sisme_Admin_Page_Wrapper(
@@ -25,8 +26,20 @@ $page = new Sisme_Admin_Page_Wrapper(
 
 
 $page->render_start();
+
     $stats = new Sisme_Stats_Module('🧪 Statistiques Tests');
     $stats->add_stat('tests', 'Tests publiés', '✅');
     $stats->add_stat('drafts_tests', 'Tests en cours', '📝');
     $stats->render();
+
+    // Créer une liste de tous les contenus Sisme avec toutes les options de filtre
+    $all_list = new Sisme_Article_List_Module('all', 20, [
+        'search' => true,
+        'status' => true,
+        'categories' => true,
+        'tags' => true,
+        'author' => true
+    ]);
+    $all_list->render();
+
 $page->render_end();

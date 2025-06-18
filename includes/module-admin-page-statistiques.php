@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/includes/admin-page-statistiques.php
+ * File: /sisme-games-editor/includes/module-admin-page-statistiques.php
  * Module: Statistiques Sisme Games Editor
  * 
  * Ce module centralise le calcul et l'affichage des statistiques du plugin.

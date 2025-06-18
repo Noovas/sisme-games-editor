@@ -180,21 +180,31 @@ class Sisme_Assets_Loader {
      */
     public function enqueue_admin_styles($hook) {
         if (strpos($hook, 'sisme-games') !== false) {
-
             // DEBUT AJOUT DES MODULES 
             wp_enqueue_style(
-                'sisme-admin-wrapper',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/sisme-admin-wrapper.css',
+                'module-admin-page-wrapper',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/module-admin-page-wrapper.css',
                 array(),
                 SISME_GAMES_EDITOR_VERSION
             );
             wp_enqueue_style(
-                'sisme-admin-statistiques',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/sisme-admin-statistiques.css',
+                'module-admin-page-statistiques',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/module-admin-page-statistiques.css',
                 array(),
                 SISME_GAMES_EDITOR_VERSION
             );
-            // CSS de la page de Tests
+            wp_enqueue_style(
+                'module-admin-page-liste-article',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/module-admin-page-liste-article.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            wp_enqueue_style(
+                'module-admin-page-filtre-article',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/module-admin-page-filtre-article.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );            
             if ($hook === 'sisme-games-editor_page_sisme-games-tests') {}
             // FIN AJOUT DES MODULES 
 

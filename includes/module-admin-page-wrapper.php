@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/includes/admin-page-wrapper.php
+ * File: /sisme-games-editor/includes/module-admin-page-wrapper.php
  * Module: Wrapper Page Admin - Sisme Games Editor
  * 
  * Ce module fournit une structure réutilisable pour créer des pages d'administration
@@ -34,7 +34,6 @@ class Sisme_Admin_Page_Wrapper {
     private $is_html_icon;
     private $back_url;
     private $back_text;
-    private static $css_loaded = false;
     
     /**
      * Constructeur
@@ -46,6 +45,7 @@ class Sisme_Admin_Page_Wrapper {
      * @param string $back_text Texte du bouton retour (optionnel)
      * @param bool $is_html_icon Si true, $icon est traité comme du HTML, sinon comme une classe dashicon ou identifiant d'icône
      */
+
     public function __construct($title, $subtitle = '', $icon = 'dashboard', $back_url = '', $back_text = 'Retour', $is_html_icon = false) {
         $this->title = $title;
         $this->subtitle = $subtitle;
@@ -53,75 +53,6 @@ class Sisme_Admin_Page_Wrapper {
         $this->is_html_icon = $is_html_icon;
         $this->back_url = $back_url;
         $this->back_text = $back_text;
-        
-        // Enregistrer le CSS uniquement une fois
-        if (!self::$css_loaded) {
-            add_action('admin_enqueue_scripts', array($this, 'enqueue_styles'));
-            self::$css_loaded = true;
-        }
-    }
-    
-    /**
-     * Enregistre et charge les styles CSS
-     */
-    public function enqueue_styles() {
-        // Vérifier si nous sommes dans l'admin et sur une page du plugin
-        if (!is_admin()) {
-            return;
-        }
-        
-        // Construire le chemin vers le fichier CSS
-        $css_file_path = plugin_dir_path(__FILE__) . '../assets/css/admin/sisme-admin-wrapper.css';
-        $css_file_url = plugin_dir_url(__FILE__) . '../assets/css/admin/sisme-admin-wrapper.css';
-        
-        // Si le fichier n'existe pas dans le dossier relatif, essayer avec SISME_GAMES_EDITOR_PLUGIN_URL
-        if (!file_exists($css_file_path) && defined('SISME_GAMES_EDITOR_PLUGIN_URL')) {
-            $css_file_url = SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/sisme-admin-wrapper.css';
-            $css_file_path = SISME_GAMES_EDITOR_PLUGIN_PATH . 'assets/css/admin/sisme-admin-wrapper.css';
-        }
-        
-        // Vérifier si le fichier CSS existe
-        if (file_exists($css_file_path)) {
-            // Enregistrer et charger le CSS avec la version basée sur la modification du fichier
-            wp_enqueue_style(
-                'sisme-admin-wrapper',
-                $css_file_url,
-                array(),
-                filemtime($css_file_path)
-            );
-        } else {
-            // Si le fichier n'existe pas, utiliser les styles de base en inline
-            add_action('admin_head', array($this, 'output_fallback_styles'));
-        }
-    }
-    
-    /**
-     * Styles CSS de fallback si le fichier externe n'est pas trouvé
-     */
-    public function output_fallback_styles() {
-        ?>
-        <style>
-        /* Styles de fallback pour Sisme Admin Wrapper */
-        .sisme-admin-wrap { margin: 20px 0; }
-        .sisme-admin-container {
-            max-width: 1200px; margin: 20px auto; padding: 20px;
-            background: rgba(236, 240, 241, 0.95); border-radius: 12px;
-            border: 1px solid rgba(161, 183, 141, 0.2);
-            box-shadow: 0 8px 32px rgba(44, 62, 80, 0.08), 0 2px 8px rgba(44, 62, 80, 0.04);
-        }
-        .sisme-admin-header { margin-bottom: 32px; padding-bottom: 20px; border-bottom: 2px solid #A1B78D; }
-        .sisme-admin-title {
-            font-size: 2rem !important; font-weight: 600 !important; color: #2C3E50 !important;
-            margin: 0 0 16px !important; display: flex !important; align-items: center !important;
-        }
-        .sisme-admin-title .dashicons { margin-right: 12px; font-size: 32px; color: #A1B78D; }
-        .sisme-admin-content {
-            background: white; padding: 32px 40px; border-radius: 12px;
-            border: 1px solid rgba(161, 183, 141, 0.15);
-            box-shadow: 0 4px 16px rgba(44, 62, 80, 0.06), 0 2px 4px rgba(44, 62, 80, 0.02);
-        }
-        </style>
-        <?php
     }
     
     /**

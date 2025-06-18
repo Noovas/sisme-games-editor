@@ -1,0 +1,185 @@
+/**
+ * File: /sisme-games-editor/assets/css/admin/module-admin-page-filtre-article.css
+ * CSS pour le module de filtre d'articles
+ */
+
+/* Structure principale */
+.sisme-article-filter-module {
+    margin-bottom: 25px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Conteneur de filtres */
+.sisme-article-filter-module .filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+/* Élément de filtre */
+.sisme-article-filter-module .filter-item {
+    flex: 1;
+    min-width: 180px;
+    position: relative;
+}
+
+/* Champ de recherche */
+.sisme-article-filter-module .filter-search {
+    position: relative;
+    flex: 2;
+    min-width: 250px;
+}
+
+.sisme-article-filter-module .filter-search input[type="text"] {
+    width: 100%;
+    padding: 8px 35px 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.sisme-article-filter-module .search-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* Sélecteurs */
+.sisme-article-filter-module .filter-select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Plage de dates */
+.sisme-article-filter-module .filter-date-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sisme-article-filter-module .date-picker {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    min-width: 100px;
+}
+
+.sisme-article-filter-module .date-separator {
+    color: #666;
+}
+
+/* Actions de filtre */
+.sisme-article-filter-module .filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sisme-article-filter-module .filter-button {
+    padding: 8px 16px;
+    background: var(--theme-palette-color-2, #557A46);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sisme-article-filter-module .filter-button:hover {
+    background: var(--theme-palette-color-1, #A1B78D);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.sisme-article-filter-module .reset-filters {
+    color: #666;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 5px 10px;
+    background: #eee;
+    border-radius: 4px;
+}
+
+.sisme-article-filter-module .reset-filters:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+/* Filtres actifs */
+.sisme-article-filter-module .active-filters {
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.sisme-article-filter-module .active-filters-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+    margin-right: 8px;
+}
+
+.sisme-article-filter-module .active-filter {
+    display: inline-flex;
+    align-items: center;
+    background: var(--theme-palette-color-3, #ECF0F1);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--theme-palette-color-6, #2C3E50);
+}
+
+.sisme-article-filter-module .remove-filter {
+    margin-left: 6px;
+    color: #666;
+    font-weight: bold;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.sisme-article-filter-module .remove-filter:hover {
+    color: #dc3545;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .sisme-article-filter-module .filter-container {
+        flex-direction: column;
+    }
+    
+    .sisme-article-filter-module .filter-item {
+        width: 100%;
+    }
+    
+    .sisme-article-filter-module .filter-date-range {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .sisme-article-filter-module .date-separator {
+        display: none;
+    }
+}
