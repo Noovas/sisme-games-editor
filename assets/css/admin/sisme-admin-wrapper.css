@@ -1,0 +1,277 @@
+/**
+ * File: /sisme-games-editor/assets/css/admin/sisme-admin-wrapper.css
+ */
+
+/* Variables de couleurs - Cohérentes avec le projet */
+:root {
+    --theme-palette-color-1: #A1B78D;
+    --theme-palette-color-2: #557A46;
+    --theme-palette-color-3: #ECF0F1;
+    --theme-palette-color-4: #ECF0F1;
+    --theme-palette-color-5: #9caca0;
+    --theme-palette-color-6: #2C3E50;
+    --theme-palette-color-7: #D4A373;
+    --theme-palette-color-8: #425261;
+}
+
+/* Animation de fade in - IDENTIQUE aux autres pages */
+@keyframes sismeFadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Container principal du wrapper */
+.sisme-admin-wrap {
+    margin: 20px 0;
+}
+
+.sisme-admin-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: rgba(236, 240, 241, 0.95);
+    border-radius: 12px;
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    box-shadow: 
+        0 8px 32px rgba(44, 62, 80, 0.08),
+        0 2px 8px rgba(44, 62, 80, 0.04);
+    position: relative;
+    overflow: hidden;
+    animation: sismeFadeInUp 0.6s ease-out;
+}
+
+/* Barre décorative en haut - IDENTIQUE aux autres pages */
+.sisme-admin-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(161, 183, 141, 0.3);
+    border-radius: 2px;
+}
+
+/* En-tête du wrapper */
+.sisme-admin-header {
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--theme-palette-color-1);
+}
+
+/* Titre principal - Style cohérent avec les autres pages */
+.sisme-admin-title {
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+    color: var(--theme-palette-color-6) !important;
+    margin: 0 0 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    line-height: 1.2 !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+}
+
+/* Icônes dans le titre */
+.sisme-admin-title .dashicons {
+    margin-right: 12px;
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--theme-palette-color-1);
+    flex-shrink: 0;
+}
+
+/* Émojis dans le titre */
+.sisme-admin-title span[style*="font-size"] {
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+/* Sous-titre */
+.sisme-admin-subtitle {
+    font-size: 1.1rem !important;
+    color: var(--theme-palette-color-8) !important;
+    margin: 8px 0 0 !important;
+    font-weight: 400 !important;
+    opacity: 0.8;
+    line-height: 1.4 !important;
+}
+
+/* Bouton de retour */
+.sisme-admin-back {
+    display: inline-flex !important;
+    align-items: center !important;
+    text-decoration: none !important;
+    color: var(--theme-palette-color-1) !important;
+    font-size: 0.95rem !important;
+    margin-top: 16px !important;
+    padding: 8px 16px !important;
+    border: 1px solid rgba(161, 183, 141, 0.3) !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+    background: rgba(161, 183, 141, 0.05) !important;
+    font-weight: 500 !important;
+}
+
+.sisme-admin-back:hover {
+    background: rgba(161, 183, 141, 0.1) !important;
+    border-color: rgba(161, 183, 141, 0.5) !important;
+    color: var(--theme-palette-color-2) !important;
+    transform: translateX(-2px) !important;
+    box-shadow: 0 2px 8px rgba(161, 183, 141, 0.2) !important;
+}
+
+.sisme-admin-back .dashicons {
+    margin-right: 6px;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Zone de contenu principal */
+.sisme-admin-content {
+    background: white;
+    padding: 32px 40px;
+    border-radius: 12px;
+    border: 1px solid rgba(161, 183, 141, 0.15);
+    box-shadow: 
+        0 4px 16px rgba(44, 62, 80, 0.06),
+        0 2px 4px rgba(44, 62, 80, 0.02);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Effet hover subtil sur le contenu */
+.sisme-admin-content:hover {
+    border-color: rgba(161, 183, 141, 0.25);
+    box-shadow: 
+        0 6px 20px rgba(44, 62, 80, 0.08),
+        0 3px 6px rgba(44, 62, 80, 0.03);
+}
+
+/* Classes utilitaires pour les icônes d'état dans le contenu */
+.sisme-admin-content .status-success {
+    color: #28a745;
+}
+
+.sisme-admin-content .status-warning {
+    color: #ffc107;
+}
+
+.sisme-admin-content .status-error {
+    color: #dc3545;
+}
+
+.sisme-admin-content .status-info {
+    color: var(--theme-palette-color-1);
+}
+
+/* Messages de notification dans le wrapper */
+.sisme-admin-notice {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid;
+    font-size: 0.95rem;
+}
+
+.sisme-admin-notice.notice-success {
+    background: rgba(40, 167, 69, 0.1);
+    border-left-color: #28a745;
+    color: #155724;
+}
+
+.sisme-admin-notice.notice-warning {
+    background: rgba(255, 193, 7, 0.1);
+    border-left-color: #ffc107;
+    color: #856404;
+}
+
+.sisme-admin-notice.notice-error {
+    background: rgba(220, 53, 69, 0.1);
+    border-left-color: #dc3545;
+    color: #721c24;
+}
+
+.sisme-admin-notice.notice-info {
+    background: rgba(161, 183, 141, 0.1);
+    border-left-color: var(--theme-palette-color-1);
+    color: var(--theme-palette-color-6);
+}
+
+/* Design responsive */
+@media (max-width: 1024px) {
+    .sisme-admin-container {
+        max-width: 95%;
+        padding: 16px;
+    }
+    
+    .sisme-admin-content {
+        padding: 24px 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sisme-admin-title {
+        font-size: 1.75rem !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+    
+    .sisme-admin-title .dashicons,
+    .sisme-admin-title span[style*="font-size"] {
+        margin: 0 8px 0 0 !important;
+        align-self: flex-start;
+    }
+    
+    .sisme-admin-subtitle {
+        font-size: 1rem !important;
+        margin-top: 4px !important;
+    }
+    
+    .sisme-admin-content {
+        padding: 20px 16px;
+    }
+    
+    .sisme-admin-back {
+        margin-top: 12px !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-admin-container {
+        padding: 12px;
+        margin: 12px auto;
+    }
+    
+    .sisme-admin-title {
+        font-size: 1.5rem !important;
+    }
+    
+    .sisme-admin-title .dashicons {
+        font-size: 24px !important;
+        width: 24px !important;
+        height: 24px !important;
+    }
+    
+    .sisme-admin-title span[style*="font-size"] {
+        font-size: 24px !important;
+    }
+    
+    .sisme-admin-content {
+        padding: 16px 12px;
+    }
+    
+    .sisme-admin-header {
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+    }
+    
+    .sisme-admin-back {
+        padding: 6px 12px !important;
+        font-size: 0.85rem !important;
+    }
+}

@@ -76,7 +76,6 @@
 }
 
 /* Sections génériques - IDENTIQUE aux listes */
-.stats-section,
 .drafts-section,
 .actions-section,
 .activity-section,
@@ -91,10 +90,6 @@
         0 8px 24px rgba(44, 62, 80, 0.08),
         0 4px 12px rgba(44, 62, 80, 0.04);
     transition: all 0.3s ease;
-}
-
-.stats-section {
-    animation: sismeFadeInUp 0.6s ease-out 0.2s both;
 }
 
 .drafts-section {
@@ -117,7 +112,6 @@
 }
 
 /* Titres de sections - IDENTIQUE aux listes */
-.stats-section h3,
 .drafts-section h3,
 .actions-section h3,
 .activity-section h3,
@@ -128,80 +122,6 @@
     margin: 0 0 24px;
     padding-bottom: 12px;
     border-bottom: 2px solid var(--theme-palette-color-1);
-}
-
-/* Grilles de statistiques - IDENTIQUE aux listes */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 24px;
-}
-
-/* Cartes de statistiques - IDENTIQUE aux listes */
-.stat-card {
-    text-align: center;
-    padding: 24px 16px;
-    background: rgba(161, 183, 141, 0.05);
-    border-radius: 12px;
-    border: 1px solid rgba(161, 183, 141, 0.15);
-    transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(161, 183, 141, 0.3);
-    box-shadow: 0 8px 20px rgba(44, 62, 80, 0.1);
-}
-
-.stat-number {
-    display: block;
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--theme-palette-color-1);
-    margin-bottom: 8px;
-    line-height: 1;
-}
-
-.stat-label {
-    font-size: 0.9rem;
-    color: var(--theme-palette-color-8);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    font-weight: 500;
-}
-
-/* Variantes de couleurs pour les stats */
-.stat-total .stat-number {
-    color: var(--theme-palette-color-6);
-}
-
-.stat-fiches .stat-number {
-    color: var(--theme-palette-color-1);
-}
-
-.stat-news .stat-number {
-    color: var(--theme-palette-color-7);
-}
-
-.stat-tests .stat-number {
-    color: var(--theme-palette-color-2);
-}
-
-/* Stats de brouillons - couleurs différentes */
-.draft-total .stat-number {
-    color: #fd7e14;
-}
-
-.draft-fiches .stat-number {
-    color: #fd7e14;
-}
-
-.draft-news .stat-number {
-    color: #fd7e14;
-}
-
-.draft-tests .stat-number {
-    color: #fd7e14;
 }
 
 /* Grille des actions */
@@ -497,18 +417,11 @@
         max-width: 95%;
         padding: 16px;
     }
-    
-    .stats-section,
     .drafts-section,
     .actions-section,
     .activity-section,
     .links-section {
         padding: 24px 20px;
-    }
-    
-    .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 16px;
     }
     
     .actions-grid {
@@ -524,11 +437,6 @@
     
     .page-subtitle {
         font-size: 1rem;
-    }
-    
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
     }
     
     .actions-grid {
@@ -573,23 +481,13 @@
     .page-header h1 {
         font-size: 1.75rem;
     }
-    
-    .stats-section,
     .drafts-section,
     .actions-section,
     .activity-section,
     .links-section {
         padding: 16px;
     }
-    
-    .stat-card {
-        padding: 16px 12px;
-    }
-    
-    .stat-number {
-        font-size: 2rem;
-    }
-    
+
     .action-card {
         padding: 16px;
     }

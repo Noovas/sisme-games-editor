@@ -1,0 +1,71 @@
+/**
+ * File: /sisme-games-editor/assets/css/admin/sisme-admin-statistiques.css
+ */
+
+/* Section statistiques */
+.stats-section {
+    margin: 24px auto;
+    max-width: 1200px;
+    padding: 32px 40px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    box-shadow: 
+        0 8px 24px rgba(44, 62, 80, 0.08),
+        0 4px 12px rgba(44, 62, 80, 0.04);
+    animation: sismeFadeInUp 0.6s ease-out 0.2s both;
+}
+
+.stats-section h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--theme-palette-color-6);
+    margin: 0 0 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--theme-palette-color-1);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 24px;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 20px 16px;
+    background: rgba(161, 183, 141, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(161, 183, 141, 0.15);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(161, 183, 141, 0.3);
+    box-shadow: 0 8px 20px rgba(44, 62, 80, 0.1);
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--theme-palette-color-1);
+    margin-bottom: 6px;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--theme-palette-color-8);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 16px;
+    }
+}

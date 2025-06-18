@@ -179,9 +179,26 @@ class Sisme_Assets_Loader {
      * Charger les styles admin
      */
     public function enqueue_admin_styles($hook) {
-        // Vérifier si on est sur les pages du plugin
         if (strpos($hook, 'sisme-games') !== false) {
-            
+
+            // DEBUT AJOUT DES MODULES 
+            wp_enqueue_style(
+                'sisme-admin-wrapper',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/sisme-admin-wrapper.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            wp_enqueue_style(
+                'sisme-admin-statistiques',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/sisme-admin-statistiques.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            // CSS de la page de Tests
+            if ($hook === 'sisme-games-editor_page_sisme-games-tests') {}
+            // FIN AJOUT DES MODULES 
+
+
             // CSS spécifique pour le dashboard
             wp_enqueue_style(
                 'sisme-dashboard-styles',
