@@ -206,6 +206,8 @@ class Sisme_Assets_Loader {
                 SISME_GAMES_EDITOR_VERSION
             );            
             if ($hook === 'sisme-games-editor_page_sisme-games-tests') {}
+            if ($hook === 'admin_page_sisme-games-edit-test') {}
+
             // FIN AJOUT DES MODULES 
 
 

@@ -150,6 +150,15 @@ class SismeGamesEditor {
             array($this, 'edit_patch_news_page')
         );
 
+        add_submenu_page(
+            null,
+            'Édition de Test',
+            'Édition de Test',
+            'manage_options',
+            'sisme-games-edit-test',
+            array($this, 'edit_test_page')
+        );
+
 
     }
     
@@ -272,6 +281,10 @@ class SismeGamesEditor {
 
     public function all_articles_page() {
         include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/all-articles.php';
+    }
+
+    public function edit_test_page() {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-test.php';
     }
 
     public function ajax_load_more_articles() {

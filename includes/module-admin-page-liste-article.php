@@ -44,7 +44,7 @@ class Sisme_Article_List_Module {
      * @param int $items_per_page Nombre d'articles par chargement
      * @param array|bool $filter_options Options de filtrage (array) ou activation/désactivation (bool)
      */
-    public function __construct($category_slugs, $items_per_page = 20, $filter_options = false) {
+    public function __construct($category_slugs, $items_per_page = -1, $filter_options = false) {
         // Accepter soit une chaîne soit un tableau de slugs
         if (is_array($category_slugs)) {
             $this->category_slugs = $category_slugs;
@@ -404,11 +404,9 @@ class Sisme_Article_List_Module {
         // Récupérer les articles pour la première page
         $articles_query = $this->get_articles();
         $max_pages = $articles_query->max_num_pages;
-        
+
         // ID unique pour ce module
         $container_id = $this->module_id . '-container';
-        $loader_id = $this->module_id . '-loader';
-        $end_id = $this->module_id . '-end';
         ?>
         
         <div class="sisme-article-list-module" id="<?php echo esc_attr($this->module_id); ?>">
@@ -433,18 +431,6 @@ class Sisme_Article_List_Module {
                     <?php $this->render_articles_list($articles_query); ?>
                 </div>
                 
-                <!-- Indicateur de chargement et scroll infini -->
-                <?php if ($max_pages > 1) : ?>
-                    <div class="infinite-scroll-loader" id="<?php echo esc_attr($loader_id); ?>" style="display: none;">
-                        <div class="loader-spinner">🔄</div>
-                        <p>Chargement des articles suivants...</p>
-                    </div>
-                    
-                    <div class="infinite-scroll-end" id="<?php echo esc_attr($end_id); ?>" style="display: none;">
-                        <p>📋 Tous les articles ont été chargés</p>
-                    </div>
-                <?php endif; ?>
-                
             <?php else : ?>
                 
                 <!-- État vide -->
@@ -461,102 +447,6 @@ class Sisme_Article_List_Module {
                 
             <?php endif; ?>
         </div>
-        
-        <?php if ($articles_query->have_posts() && $max_pages > 1) : ?>
-        <!-- JavaScript pour le scroll infini -->
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Variables pour ce module spécifique
-            let currentPage = 1;
-            const maxPages = <?php echo intval($max_pages); ?>;
-            let loading = false;
-            const moduleId = '<?php echo esc_js($this->module_id); ?>';
-            const container = document.getElementById('<?php echo esc_js($container_id); ?>');
-            const loader = document.getElementById('<?php echo esc_js($loader_id); ?>');
-            const endIndicator = document.getElementById('<?php echo esc_js($end_id); ?>');
-            
-            function loadMoreArticles() {
-                if (loading || currentPage >= maxPages) return;
-                
-                loading = true;
-                currentPage++;
-                loader.style.display = 'block';
-                
-                // Construire les paramètres
-                const params = new URLSearchParams({
-                    action: 'sisme_load_more_' + moduleId,
-                    page_num: currentPage,
-                    nonce: '<?php echo wp_create_nonce('sisme_load_more_' . $this->module_id); ?>'
-                });
-                
-                // Appel AJAX
-                const ajaxUrl = '<?php echo admin_url('admin-ajax.php'); ?>';
-                
-                fetch(ajaxUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: params
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.data.html) {
-                        container.insertAdjacentHTML('beforeend', data.data.html);
-                    }
-                    
-                    loader.style.display = 'none';
-                    loading = false;
-                    
-                    // Si on a atteint la fin
-                    if (currentPage >= maxPages) {
-                        endIndicator.style.display = 'block';
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur de chargement:', error);
-                    loader.style.display = 'none';
-                    loading = false;
-                });
-            }
-            
-            // Observer d'intersection pour détecter quand le module est visible
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        // Le module est visible, on active le scroll infini
-                        window.addEventListener('scroll', handleScroll);
-                    } else {
-                        // Le module n'est plus visible, on désactive le scroll infini
-                        window.removeEventListener('scroll', handleScroll);
-                    }
-                });
-            });
-            
-            // Observer le module
-            observer.observe(document.getElementById(moduleId));
-            
-            // Fonction de détection du scroll
-            function handleScroll() {
-                if (loading || currentPage >= maxPages) return;
-                
-                const moduleRect = document.getElementById(moduleId).getBoundingClientRect();
-                const isModuleVisible = moduleRect.top < window.innerHeight && moduleRect.bottom > 0;
-                
-                if (!isModuleVisible) return;
-                
-                const scrollPosition = window.innerHeight + window.scrollY;
-                const documentHeight = document.documentElement.offsetHeight;
-                
-                // Charger quand on est à 200px du bas
-                if (scrollPosition >= documentHeight - 200) {
-                    loadMoreArticles();
-                }
-            }
-        });
-        </script>
-        <?php endif; ?>
-        
         <?php
         wp_reset_postdata();
     }

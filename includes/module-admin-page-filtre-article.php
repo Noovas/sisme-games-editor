@@ -244,7 +244,7 @@ class Sisme_Article_Filter_Module {
                     <?php if ($this->options['tags']) : ?>
                         <div class="filter-item filter-tag">
                             <select name="tag" class="filter-select">
-                                <option value="">Toutes les étiquettes</option>
+                                <option value="">Tous les jeux</option>
                                 <?php 
                                 $tags = get_tags(['hide_empty' => false]);
                                 foreach ($tags as $tag) {
@@ -365,7 +365,7 @@ class Sisme_Article_Filter_Module {
             $tag_name = $tag ? $tag->name : $this->filter_values['tag'];
             
             $active_filters[] = sprintf(
-                '<span class="active-filter">Étiquette: %s <a href="%s" class="remove-filter">×</a></span>',
+                '<span class="active-filter">Jeux: %s <a href="%s" class="remove-filter">×</a></span>',
                 esc_html($tag_name),
                 esc_url($this->get_filtered_url(['tag' => '']))
             );

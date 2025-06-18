@@ -23,22 +23,21 @@ $page = new Sisme_Admin_Page_Wrapper(
     'Retour au tableau de bord'
 );
 
-
-
 $page->render_start();
-
+    ?><a href="<?php echo admin_url('admin.php?page=sisme-games-edit-test'); ?>" class="sisme-admin-create">Créer un article</a><?php
     $stats = new Sisme_Stats_Module('🧪 Statistiques Tests');
     $stats->add_stat('tests', 'Tests publiés', '✅');
     $stats->add_stat('drafts_tests', 'Tests en cours', '📝');
     $stats->render();
 
+
     // Créer une liste de tous les contenus Sisme avec toutes les options de filtre
-    $all_list = new Sisme_Article_List_Module('all', 20, [
+    $all_list = new Sisme_Article_List_Module('tests', -1, [
         'search' => true,
         'status' => true,
-        'categories' => true,
+        'categories' => false,
         'tags' => true,
-        'author' => true
+        'author' => false
     ]);
     $all_list->render();
 
