@@ -45,27 +45,45 @@ $form_options = [
 if ($is_edit_mode) {
     // Récupérer les métadonnées existantes
     $existing_description = get_term_meta($tag_id, 'game_description', true);
+    $existing_cover_main = get_term_meta($tag_id, 'cover_main', true);
+    $existing_cover_news = get_term_meta($tag_id, 'cover_news', true);
+    $existing_cover_patch = get_term_meta($tag_id, 'cover_patch', true);
+    $existing_cover_test = get_term_meta($tag_id, 'cover_test', true);
     
     // Simuler une soumission pour pré-remplir le formulaire
     if (empty($_POST)) {
         $_POST['game_name'] = $tag_id;
         $_POST['description'] = $existing_description;
-        $_POST['_wpnonce'] = wp_create_nonce('sisme_form_action'); // Nonce factice pour éviter les erreurs
+        $_POST['cover_main'] = $existing_cover_main;
+        $_POST['cover_news'] = $existing_cover_news;
+        $_POST['cover_patch'] = $existing_cover_patch;
+        $_POST['cover_test'] = $existing_cover_test;
+        $_POST['_wpnonce'] = wp_create_nonce('sisme_form_action');
     }
 }
 
-$form = new Sisme_Game_Form_Module(['game_name', 'description'], $form_options);
+$form = new Sisme_Game_Form_Module(['game_name', 'description', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
 
-if ($form->is_submitted() && !empty($_POST['submit'])) { // Ajouter la condition submit pour éviter le pré-remplissage
+
+if ($form->is_submitted() && !empty($_POST['submit'])) {
     $data = $form->get_submitted_data();
     
     if (!empty($data['game_name'])) {
-        // Sauvegarder la description dans term_meta
-        if (!empty($data['description'])) {
-            update_term_meta($data['game_name'], 'game_description', $data['description']);
+        // Sauvegarder toutes les données automatiquement
+        foreach ($data as $key => $value) {
+            if ($key !== 'game_name') {
+                // Mapper les noms de variables vers les clés meta
+                $meta_key = $key;
+                if ($key === 'description') {
+                    $meta_key = 'game_description';
+                }
+                
+                // Sauvegarder même si vide (pour pouvoir supprimer)
+                update_term_meta($data['game_name'], $meta_key, $value);
+            }
         }
         
-        // Mettre à jour la date de dernière modification
+        // Date de mise à jour
         update_term_meta($data['game_name'], 'last_update', current_time('mysql'));
         
         $form->display_success('Données du jeu sauvegardées avec succès !');

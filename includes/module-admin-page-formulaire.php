@@ -62,6 +62,30 @@ class Sisme_Game_Form_Module {
             'output_var' => 'description',
             'allowed_tags' => ['strong', 'em', 'br'],
             'rows' => 6
+        ],
+        'cover_main' => [
+            'label' => 'Cover principale',
+            'description' => 'Image principale du jeu (médiathèque WordPress).',
+            'required' => false,
+            'output_var' => 'cover_main'
+        ],
+        'cover_news' => [
+            'label' => 'Cover news',
+            'description' => 'Image pour les articles news du jeu.',
+            'required' => false,
+            'output_var' => 'cover_news'
+        ],
+        'cover_patch' => [
+            'label' => 'Cover patch',
+            'description' => 'Image pour les articles patch du jeu.',
+            'required' => false,
+            'output_var' => 'cover_patch'
+        ],
+        'cover_test' => [
+            'label' => 'Cover test',
+            'description' => 'Image pour les articles test du jeu.',
+            'required' => false,
+            'output_var' => 'cover_test'
         ]
     ];
     
@@ -157,12 +181,99 @@ class Sisme_Game_Form_Module {
                     $allowed_html[$tag] = [];
                 }
                 return wp_kses($value, $allowed_html);
+
+            case 'cover_main':
+            case 'cover_news':
+            case 'cover_patch':
+            case 'cover_test':
+                return intval($value);
                 
             default:
                 return sanitize_text_field($value);
         }
     }
     
+    /**
+     * Afficher un composant cover (sélecteur d'image)
+     */
+    private function render_cover_component($component_name) {
+        $component = $this->components[$component_name];
+        $value = isset($this->form_data[$component['output_var']]) ? $this->form_data[$component['output_var']] : '';
+        $field_id = $this->module_id . '_' . $component_name;
+        $required_attr = $component['required'] ? 'required' : '';
+        $required_label = $component['required'] ? ' *' : '';
+        
+        // Récupérer l'image actuelle si elle existe
+        $current_image_url = '';
+        $current_image_title = '';
+        if (!empty($value)) {
+            $image = wp_get_attachment_image_src($value, 'thumbnail');
+            if ($image) {
+                $current_image_url = $image[0];
+                $current_image_title = get_the_title($value);
+            }
+        }
+        ?>
+        <tr>
+            <th scope="row">
+                <label for="<?php echo esc_attr($field_id); ?>">
+                    <?php echo esc_html($component['label'] . $required_label); ?>
+                </label>
+            </th>
+            <td>
+                <div class="sisme-media-component">
+                    <!-- Champ caché pour stocker l'ID -->
+                    <input type="hidden" 
+                           id="<?php echo esc_attr($field_id); ?>" 
+                           name="<?php echo esc_attr($component['output_var']); ?>" 
+                           value="<?php echo esc_attr($value); ?>"
+                           <?php echo $required_attr; ?>>
+                    
+                    <!-- Aperçu de l'image -->
+                    <div class="media-preview" style="margin-bottom: 10px;">
+                        <?php if (!empty($current_image_url)): ?>
+                            <div class="current-image" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                                <img src="<?php echo esc_url($current_image_url); ?>" 
+                                     style="max-width: 80px; max-height: 80px; border-radius: 4px;">
+                                <div>
+                                    <strong><?php echo esc_html($current_image_title); ?></strong>
+                                    <div style="font-size: 12px; color: #666;">ID: <?php echo $value; ?></div>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="no-image" style="padding: 20px; background: #f0f0f0; border-radius: 4px; text-align: center; color: #666;">
+                                Aucune image sélectionnée
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="media-actions" style="display: flex; gap: 10px;">
+                        <button type="button" 
+                                class="button button-secondary sisme-select-media-btn"
+                                data-field-id="<?php echo esc_attr($field_id); ?>"
+                                data-component="<?php echo esc_attr($component_name); ?>">
+                            🖼️ <?php echo !empty($value) ? 'Changer l\'image' : 'Sélectionner une image'; ?>
+                        </button>
+                        
+                        <?php if (!empty($value)): ?>
+                            <button type="button" 
+                                    class="button sisme-remove-media-btn"
+                                    data-field-id="<?php echo esc_attr($field_id); ?>"
+                                    data-component="<?php echo esc_attr($component_name); ?>">
+                                🗑️ Supprimer
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                
+                <p class="description">
+                    <?php echo esc_html($component['description']); ?>
+                </p>
+            </td>
+        </tr>
+        <?php
+    }
     
     /**
      * Obtenir les données soumises du formulaire
@@ -311,6 +422,13 @@ class Sisme_Game_Form_Module {
                 
             case 'description':
                 $this->render_description_component();
+                break;
+
+            case 'cover_main':
+            case 'cover_news':
+            case 'cover_patch':
+            case 'cover_test':
+                $this->render_cover_component($component_name);
                 break;
                 
             default:
@@ -529,6 +647,65 @@ class Sisme_Game_Form_Module {
                         button.text('+').prop('disabled', false);
                     }
                 });
+            });
+            // JavaScript pour la sélection d'images
+            wp.media.frames.selectMedia = wp.media({
+                title: 'Sélectionner une image',
+                multiple: false,
+                library: { type: 'image' }
+            });
+
+            wp.media.frames.selectMedia.on('select', function() {
+                var attachment = wp.media.frames.selectMedia.state().get('selection').first().toJSON();
+                var fieldId = jQuery('.sisme-select-media-btn.active').data('field-id');
+                
+                if (fieldId && attachment.id) {
+                    // Mettre à jour le champ caché
+                    jQuery('#' + fieldId).val(attachment.id);
+                    
+                    // Mettre à jour l'aperçu sans recharger
+                    var preview = jQuery('#' + fieldId).closest('.sisme-media-component').find('.media-preview');
+                    var newPreview = '<div class="current-image" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f9f9f9; border-radius: 4px;">' +
+                                    '<img src="' + attachment.sizes.thumbnail.url + '" style="max-width: 80px; max-height: 80px; border-radius: 4px;">' +
+                                    '<div><strong>' + attachment.title + '</strong><div style="font-size: 12px; color: #666;">ID: ' + attachment.id + '</div></div></div>';
+                    
+                    preview.html(newPreview);
+                    
+                    // Mettre à jour les boutons
+                    var button = jQuery('.sisme-select-media-btn.active');
+                    button.text('🖼️ Changer l\'image');
+                    
+                    // Ajouter le bouton supprimer si pas présent
+                    if (!button.siblings('.sisme-remove-media-btn').length) {
+                        button.after('<button type="button" class="button sisme-remove-media-btn" data-field-id="' + fieldId + '">🗑️ Supprimer</button>');
+                    }
+                }
+                
+                jQuery('.sisme-select-media-btn').removeClass('active');
+            });
+
+            // Gestion des boutons de sélection
+            $(document).on('click', '.sisme-select-media-btn', function(e) {
+                e.preventDefault();
+                
+                // Marquer ce bouton comme actif
+                $('.sisme-select-media-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                // Ouvrir la médiathèque
+                wp.media.frames.selectMedia.open();
+            });
+
+            // Gestion des boutons de suppression
+            $(document).on('click', '.sisme-remove-media-btn', function(e) {
+                e.preventDefault();
+                
+                var fieldId = $(this).data('field-id');
+                
+                if (confirm('Supprimer cette image ?')) {
+                    $('#' + fieldId).val('');
+                    location.reload();
+                }
             });
         });
         </script>

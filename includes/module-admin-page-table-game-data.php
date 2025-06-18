@@ -262,6 +262,53 @@ class Sisme_Game_Data_Table_Module {
                 </td>
             <?php endforeach; ?>
         </tr>
+        
+        <!-- Ligne supplémentaire pour les covers -->
+        <tr style="background: #f9f9f9;">
+            <td colspan="<?php echo count($this->options['columns']); ?>" style="padding: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <strong style="color: #666;">Covers :</strong>
+                    
+                    <div style="display: flex; flex: 1; justify-content: flex-start; align-items: center; margin-left: 20px; gap: 20px;">
+
+                        <?php
+                        $covers = ['cover_main', 'cover_news', 'cover_patch', 'cover_test'];
+                        $cover_labels = [
+                            'cover_main' => 'Principale',
+                            'cover_news' => 'News', 
+                            'cover_patch' => 'Patch',
+                            'cover_test' => 'Test'
+                        ];
+                        
+                        foreach ($covers as $cover_type) {
+                            $cover_id = isset($game_data['meta_data'][$cover_type]) ? $game_data['meta_data'][$cover_type] : '';
+                            ?>
+                            <div style="text-align: center; flex: 1;">
+                                <div style="font-size: 11px; color: #666; margin-bottom: 5px; font-weight: 500;">
+                                    <?php echo $cover_labels[$cover_type]; ?>
+                                </div>
+                                <?php if (!empty($cover_id)): ?>
+                                    <?php
+                                    $image = wp_get_attachment_image_src($cover_id, 'large');
+                                    if ($image):
+                                    ?>
+                                        <img src="<?php echo esc_url($image[0]); ?>" 
+                         style="gap: 15px; max-width: 100%; height: auto; border-radius: 6px; border: 2px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
+                         title="<?php echo esc_attr(get_the_title($cover_id)); ?>">
+                                    <?php else: ?>
+                                        <div style="width: 50px; height: 50px; background: #e0e0e0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #999; margin: 0 auto;">❌</div>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <div style="width: 50px; height: 50px; background: #f8f8f8; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #ccc; border: 2px dashed #ddd; margin: 0 auto;">📷</div>
+                                <?php endif; ?>
+                            </div>
+                            <?php
+                        }
+                        ?>
+                    </div>
+                </div>
+            </td>
+        </tr>
         <?php
     }
     
