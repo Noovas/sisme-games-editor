@@ -30,6 +30,7 @@ if (!$is_creation_mode) {
 
 // Inclure le wrapper admin
 require_once plugin_dir_path(__FILE__) . '../../includes/module-admin-page-wrapper.php';
+require_once plugin_dir_path(__FILE__) . '../../includes/module-admin-page-formulaire.php';
 
 // Créer la page avec le wrapper
 $page = new Sisme_Admin_Page_Wrapper(
@@ -42,4 +43,5 @@ $page = new Sisme_Admin_Page_Wrapper(
 
 
 $page->render_start();
+
 $page->render_end();

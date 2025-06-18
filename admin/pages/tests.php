@@ -14,6 +14,7 @@ require_once plugin_dir_path(__FILE__) . '../../includes/module-admin-page-liste
 require_once plugin_dir_path(__FILE__) . '../../includes/module-admin-page-statistiques.php';
 require_once plugin_dir_path(__FILE__) . '../../includes/module-admin-page-wrapper.php';
 
+
 // Créer la page avec le wrapper
 $page = new Sisme_Admin_Page_Wrapper(
     'Tests',
