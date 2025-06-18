@@ -40,8 +40,13 @@ $page = new Sisme_Admin_Page_Wrapper(
     admin_url('admin.php?page=sisme-games-tests'),
     'Retour à la liste des tests'
 );
-
+$form = new Sisme_Game_Form_Module(['game_name', 'description']);
+if ($form->is_submitted()) {
+    $data = $form->get_submitted_data();
+    $form->display_success('Données enregistrées avec succès !');
+}
 
 $page->render_start();
-
+    $form->render();
+    $form->render_javascript();
 $page->render_end();

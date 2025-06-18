@@ -76,6 +76,24 @@ function count_drafts_by_category_prefix($prefix) {
 }
 
 // Récupérer les statistiques
+
+$game_data_stats = array();
+$all_tags = get_terms(['taxonomy' => 'post_tag', 'hide_empty' => false]);
+$tags_with_data = 0;
+if (!is_wp_error($all_tags)) {
+    foreach ($all_tags as $tag) {
+        $meta = get_term_meta($tag->term_id);
+        if (!empty($meta)) {
+            $tags_with_data++;
+        }
+    }
+}
+
+$game_data_stats = array(
+    'total_tags' => is_wp_error($all_tags) ? 0 : count($all_tags),
+    'tags_with_data' => $tags_with_data
+);
+
 $stats = array(
     'fiches' => count_posts_by_category_prefix('jeux-'),
     'news' => count_posts_by_category_prefix('news'),
@@ -124,7 +142,16 @@ $recent_activity = new WP_Query(array(
             Créez rapidement vos contenus gaming avec des templates optimisés pour une expérience professionnelle et cohérente.
         </p>
     </div>
-    
+    <!-- Statistique Game Data -->
+    <div class="stat-card">
+        <div class="stat-icon">🎮</div>
+        <div class="stat-content">
+            <h4><?php echo $game_data_stats['tags_with_data']; ?> / <?php echo $game_data_stats['total_tags']; ?></h4>
+            <p>Jeux avec données</p>
+            <a href="<?php echo admin_url('admin.php?page=sisme-games-game-data'); ?>">Gérer →</a>
+        </div>
+    </div>
+
     <!-- Section statistiques principales -->
     <div class="stats-section">
         <h3>📊 Aperçu de votre contenu</h3>
@@ -183,6 +210,24 @@ $recent_activity = new WP_Query(array(
     <div class="actions-section">
         <h3>⚡ Actions rapides</h3>
         <div class="actions-grid">
+
+            <!-- Nouvelle action pour Game Data -->
+            <div class="action-card">
+                <div class="action-header">
+                    <h4>🎮 Game Data</h4>
+                </div>
+                <div class="action-content">
+                    <p>Gérez les données des jeux (étiquettes) et leurs métadonnées.</p>
+                    <div class="action-buttons">
+                        <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-game-data'); ?>" class="button button-primary">
+                            ➕ Créer un jeu
+                        </a>
+                        <a href="<?php echo admin_url('admin.php?page=sisme-games-game-data'); ?>" class="button">
+                            📊 Voir tous les jeux
+                        </a>
+                    </div>
+                </div>
+            </div>
             
             <!-- Fiches de jeu -->
             <div class="action-card card-fiches">
@@ -354,6 +399,14 @@ $recent_activity = new WP_Query(array(
     <div class="links-section">
         <h3>🔗 Liens utiles</h3>
         <div class="links-grid">
+            <div class="link-group">
+                <h5>Game Data</h5>
+                <ul>
+                    <li><a href="<?php echo admin_url('admin.php?page=sisme-games-game-data'); ?>">📊 Tous les jeux</a></li>
+                    <li><a href="<?php echo admin_url('admin.php?page=sisme-games-edit-game-data'); ?>">➕ Créer un jeu</a></li>
+                    <li><a href="<?php echo admin_url('edit-tags.php?taxonomy=post_tag'); ?>">🏷️ Étiquettes WordPress</a></li>
+                </ul>
+            </div>
             <div class="link-group">
                 <h5>WordPress</h5>
                 <ul>

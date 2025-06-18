@@ -38,6 +38,7 @@ class SismeGamesEditor {
         add_action('wp_ajax_sisme_create_fiche', array($this, 'ajax_create_fiche'));
         add_action('wp_ajax_sisme_add_editor', array($this, 'ajax_add_editor'));
         add_action('wp_ajax_sisme_load_more_articles', array($this, 'ajax_load_more_articles'));
+        add_action('wp_ajax_sisme_create_tag', array($this, 'handle_ajax_create_tag'));
 
         $this->include_files();
 
@@ -45,6 +46,7 @@ class SismeGamesEditor {
         new Sisme_Content_Filter();
         new Sisme_SEO_Enhancements();
         new Sisme_News_Manager();
+        //new Sisme_Game_Form_Module();
 
     }
     
@@ -55,7 +57,38 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/seo-enhancements.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/news-manager.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/patch-news-handler.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-table-game-data.php';
 
+    }
+
+    public function handle_ajax_create_tag() {
+        if (!wp_verify_nonce($_POST['nonce'], 'sisme_create_tag')) {
+            wp_die('Sécurité : nonce invalide');
+        }
+        
+        $tag_name = sanitize_text_field($_POST['tag_name']);
+        if (empty($tag_name)) {
+            wp_send_json_error('Nom du tag requis');
+        }
+        
+        $existing_tag = get_term_by('name', $tag_name, 'post_tag');
+        if ($existing_tag) {
+            wp_send_json_success(array(
+                'term_id' => $existing_tag->term_id,
+                'name' => $existing_tag->name
+            ));
+        }
+        
+        $new_tag = wp_insert_term($tag_name, 'post_tag');
+        if (is_wp_error($new_tag)) {
+            wp_send_json_error('Erreur : ' . $new_tag->get_error_message());
+        }
+        
+        $tag_info = get_term($new_tag['term_id'], 'post_tag');
+        wp_send_json_success(array(
+            'term_id' => $tag_info->term_id,
+            'name' => $tag_info->name
+        ));
     }
     
     public function add_admin_menu() {
@@ -124,6 +157,15 @@ class SismeGamesEditor {
         );
 
         add_submenu_page(
+            'sisme-games-editor',
+            'Game Data',
+            'Game Data',
+            'manage_options',
+            'sisme-games-game-data',
+            array($this, 'game_data_page')
+        );
+
+        add_submenu_page(
             null, 
             'Éditer une fiche',
             'Éditer une fiche',
@@ -157,6 +199,15 @@ class SismeGamesEditor {
             'manage_options',
             'sisme-games-edit-test',
             array($this, 'edit_test_page')
+        );
+
+        add_submenu_page(
+            null,
+            'Éditer Game Data',
+            'Éditer Game Data',
+            'manage_options',
+            'sisme-games-edit-game-data',
+            array($this, 'edit_game_data_page')
         );
 
 
@@ -285,6 +336,14 @@ class SismeGamesEditor {
 
     public function edit_test_page() {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-test.php';
+    }
+
+    public function game_data_page() {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/game-data.php';
+    }
+
+    public function edit_game_data_page() {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-game-data.php';
     }
 
     public function ajax_load_more_articles() {
