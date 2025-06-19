@@ -265,8 +265,9 @@ class Sisme_Game_Form_Module {
             case 'cover_patch':
             case 'cover_test':
                 return intval($value);
+
             case 'game_platforms':
-                return is_array($value) ? array_map('intval', $value) : [];
+                return is_array($value) ? array_map('sanitize_text_field', $value) : [];
                 
             case 'release_date':
                 return sanitize_text_field($value);
@@ -1009,7 +1010,6 @@ class Sisme_Game_Form_Module {
                 break;
                 
             default:
-                // Pour les composants non reconnus, afficher un message d'erreur
                 ?>
                 <tr>
                     <td colspan="2">
