@@ -60,15 +60,28 @@ class Sisme_Article_Filter_Module {
      * - tags: Filtre par étiquettes
      * - author: Filtre par auteur
      */
-    public function __construct($options = []) {
-        // Définir les options par défaut
-        $default_options = [
-            'search' => true,
-            'status' => false,
-            'categories' => false,
-            'tags' => false,
-            'author' => false
-        ];
+    private $mode = 'articles';
+    public function __construct($options = [], $mode = 'articles') {
+        $this->mode = $mode; // 'articles' ou 'game_data'
+        
+        if ($mode === 'game_data') {
+            $default_options = [
+                'search' => true,
+                'genres' => true,      // Filtrer par genres de jeux
+                'platforms' => false,   // Filtrer par plateformes  
+                'developers' => true,  // Filtrer par développeurs
+                'has_data' => false,    // Jeux avec/sans données
+                'has_articles' => false // Jeux avec/sans articles
+            ];
+        } else {
+            $default_options = [
+                'search' => true,
+                'status' => false,
+                'categories' => false,
+                'tags' => false,
+                'author' => false
+            ];
+        } // <- Fermer le else ici
         
         // Fusionner avec les options fournies
         $this->options = wp_parse_args($options, $default_options);
@@ -86,6 +99,26 @@ class Sisme_Article_Filter_Module {
             self::$css_loaded = true;
         }
     }
+
+    public function get_game_data_filter_args() {
+        if ($this->mode !== 'game_data') {
+            return [];
+        }
+        
+        $args = [];
+        
+        if (!empty($this->filter_values['search'])) {
+            $args['search'] = $this->filter_values['search'];
+        }
+        
+        if (!empty($this->filter_values['genres'])) {
+            $args['genres'] = $this->filter_values['genres'];
+        }
+        
+        // etc...
+        return $args;
+    }
+
     
     /**
      * Enregistre et charge les styles CSS
@@ -192,110 +225,121 @@ class Sisme_Article_Filter_Module {
     public function render() {
         $reset_url = remove_query_arg(array_keys($this->filter_values));
         ?>
-        <div class="sisme-article-filter-module" id="<?php echo esc_attr($this->module_id); ?>">
-            <form method="get" action="">
-                <?php 
-                // Préserver les paramètres non liés au filtrage
-                foreach ($_GET as $key => $value) {
-                    if (!in_array($key, array_keys($this->filter_values)) && $key !== 'paged') {
-                        echo '<input type="hidden" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '">';
+        <div class="sisme-card sisme-mb-lg">
+            <div class="sisme-card__header">
+                <h3 class="sisme-heading-4">🔍 Filtres</h3>
+            </div>
+            <div class="sisme-card__body">
+                <form method="get" action="" class="sisme-filter-form">
+                    <?php 
+                    // Préserver les paramètres
+                    foreach ($_GET as $key => $value) {
+                        if (!in_array($key, array_keys($this->filter_values)) && $key !== 'paged') {
+                            echo '<input type="hidden" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '">';
+                        }
                     }
-                }
-                ?>
-                
-                <div class="filter-container">
-                    <?php if ($this->options['search']) : ?>
-                        <div class="filter-item filter-search">
-                            <input type="text" name="s" value="<?php echo esc_attr($this->filter_values['search']); ?>" placeholder="Rechercher...">
-                            <button type="submit" class="search-button">🔍</button>
-                        </div>
-                    <?php endif; ?>
+                    ?>
                     
-                    <?php if ($this->options['status']) : ?>
-                        <div class="filter-item filter-status">
-                            <select name="status" class="filter-select">
-                                <option value="">Tous les statuts</option>
-                                <option value="publish" <?php selected($this->filter_values['status'], 'publish'); ?>>Publiés</option>
-                                <option value="draft" <?php selected($this->filter_values['status'], 'draft'); ?>>Brouillons</option>
-                                <option value="private" <?php selected($this->filter_values['status'], 'private'); ?>>Privés</option>
-                            </select>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <?php if ($this->options['categories']) : ?>
-                        <div class="filter-item filter-category">
-                            <select name="category" class="filter-select">
-                                <option value="">Toutes les catégories</option>
-                                <?php 
-                                $categories = get_categories(['hide_empty' => false]);
-                                foreach ($categories as $category) {
-                                    printf(
-                                        '<option value="%s" %s>%s</option>',
-                                        esc_attr($category->slug),
-                                        selected($this->filter_values['category'], $category->slug, false),
-                                        esc_html($category->name)
-                                    );
-                                }
-                                ?>
-                            </select>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <?php if ($this->options['tags']) : ?>
-                        <div class="filter-item filter-tag">
-                            <select name="tag" class="filter-select">
-                                <option value="">Tous les jeux</option>
-                                <?php 
-                                $tags = get_tags(['hide_empty' => false]);
-                                foreach ($tags as $tag) {
-                                    printf(
-                                        '<option value="%s" %s>%s</option>',
-                                        esc_attr($tag->slug),
-                                        selected($this->filter_values['tag'], $tag->slug, false),
-                                        esc_html($tag->name)
-                                    );
-                                }
-                                ?>
-                            </select>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <?php if ($this->options['author']) : ?>
-                        <div class="filter-item filter-author">
-                            <select name="author" class="filter-select">
-                                <option value="">Tous les auteurs</option>
-                                <?php 
-                                // Utiliser 'capability' au lieu de 'who' (déprécié depuis WP 5.9)
-                                $authors = get_users(['capability' => 'edit_posts']);
-                                foreach ($authors as $author) {
-                                    printf(
-                                        '<option value="%d" %s>%s</option>',
-                                        esc_attr($author->ID),
-                                        selected($this->filter_values['author'], $author->ID, false),
-                                        esc_html($author->display_name)
-                                    );
-                                }
-                                ?>
-                            </select>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <div class="filter-actions">
-                        <button type="submit" class="filter-button">Filtrer</button>
-                        
-                        <?php if ($this->has_active_filters()) : ?>
-                            <a href="<?php echo esc_url($reset_url); ?>" class="reset-filters">Réinitialiser</a>
+                    <div class="sisme-flex sisme-flex-wrap sisme-gap-md sisme-mb-md">
+                        <?php if ($this->options['search']) : ?>
+                            <div class="sisme-filter-item">
+                                <div class="sisme-flex sisme-gap-xs">
+                                    <input type="text" name="s" 
+                                           value="<?php echo esc_attr($this->filter_values['search']); ?>" 
+                                           placeholder="Rechercher..." 
+                                           class="sisme-form-input">
+                                    <button type="submit" class="sisme-btn sisme-btn--secondary">🔍</button>
+                                </div>
+                            </div>
                         <?php endif; ?>
+                        
+                        <?php if ($this->options['status']) : ?>
+                            <div class="sisme-filter-item">
+                                <select name="status" class="sisme-form-input">
+                                    <option value="">Tous les statuts</option>
+                                    <option value="publish" <?php selected($this->filter_values['status'], 'publish'); ?>>Publiés</option>
+                                    <option value="draft" <?php selected($this->filter_values['status'], 'draft'); ?>>Brouillons</option>
+                                    <option value="private" <?php selected($this->filter_values['status'], 'private'); ?>>Privés</option>
+                                </select>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($this->options['categories']) : ?>
+                            <div class="sisme-filter-item">
+                                <select name="category" class="sisme-form-input">
+                                    <option value="">Toutes les catégories</option>
+                                    <?php 
+                                    $categories = get_categories(['hide_empty' => false]);
+                                    foreach ($categories as $category) {
+                                        printf(
+                                            '<option value="%s" %s>%s</option>',
+                                            esc_attr($category->slug),
+                                            selected($this->filter_values['category'], $category->slug, false),
+                                            esc_html($category->name)
+                                        );
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($this->options['tags']) : ?>
+                            <div class="sisme-filter-item">
+                                <select name="tag" class="sisme-form-input">
+                                    <option value="">Tous les jeux</option>
+                                    <?php 
+                                    $tags = get_tags(['hide_empty' => false]);
+                                    foreach ($tags as $tag) {
+                                        printf(
+                                            '<option value="%s" %s>%s</option>',
+                                            esc_attr($tag->slug),
+                                            selected($this->filter_values['tag'], $tag->slug, false),
+                                            esc_html($tag->name)
+                                        );
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($this->options['author']) : ?>
+                            <div class="sisme-filter-item">
+                                <select name="author" class="sisme-form-input">
+                                    <option value="">Tous les auteurs</option>
+                                    <?php 
+                                    $authors = get_users(['capability' => 'edit_posts']);
+                                    foreach ($authors as $author) {
+                                        printf(
+                                            '<option value="%d" %s>%s</option>',
+                                            esc_attr($author->ID),
+                                            selected($this->filter_values['author'], $author->ID, false),
+                                            esc_html($author->display_name)
+                                        );
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <div class="sisme-filter-actions sisme-flex sisme-gap-sm">
+                            <button type="submit" class="sisme-btn sisme-btn--primary">Filtrer</button>
+                            <?php if ($this->has_active_filters()) : ?>
+                                <a href="<?php echo esc_url($reset_url); ?>" 
+                                   class="sisme-btn sisme-btn--secondary">Réinitialiser</a>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                </div>
-                
-                <?php if ($this->has_active_filters()) : ?>
-                    <div class="active-filters">
-                        <span class="active-filters-label">Filtres actifs:</span>
-                        <?php echo $this->render_active_filters(); ?>
-                    </div>
-                <?php endif; ?>
-            </form>
+                    
+                    <?php if ($this->has_active_filters()) : ?>
+                        <div class="sisme-active-filters">
+                            <span class="sisme-text-sm sisme-text-muted sisme-mr-sm">Filtres actifs:</span>
+                            <div class="sisme-flex sisme-flex-wrap sisme-gap-xs">
+                                <?php echo $this->render_active_filters(); ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </form>
+            </div>
         </div>
         <?php
     }
@@ -325,7 +369,7 @@ class Sisme_Article_Filter_Module {
         // Recherche
         if (!empty($this->filter_values['search'])) {
             $active_filters[] = sprintf(
-                '<span class="active-filter">Recherche: %s <a href="%s" class="remove-filter">×</a></span>',
+                '<span class="sisme-tag sisme-tag--filter">Recherche: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
                 esc_html($this->filter_values['search']),
                 esc_url($this->get_filtered_url(['s' => '']))
             );
@@ -341,7 +385,7 @@ class Sisme_Article_Filter_Module {
             $status_label = isset($status_labels[$this->filter_values['status']]) ? $status_labels[$this->filter_values['status']] : $this->filter_values['status'];
             
             $active_filters[] = sprintf(
-                '<span class="active-filter">Statut: %s <a href="%s" class="remove-filter">×</a></span>',
+                '<span class="sisme-tag sisme-tag--filter">Statut: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
                 esc_html($status_label),
                 esc_url($this->get_filtered_url(['status' => '']))
             );
@@ -353,7 +397,7 @@ class Sisme_Article_Filter_Module {
             $category_name = $category ? $category->name : $this->filter_values['category'];
             
             $active_filters[] = sprintf(
-                '<span class="active-filter">Catégorie: %s <a href="%s" class="remove-filter">×</a></span>',
+                '<span class="sisme-tag sisme-tag--filter">Catégorie: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
                 esc_html($category_name),
                 esc_url($this->get_filtered_url(['category' => '']))
             );
@@ -365,7 +409,7 @@ class Sisme_Article_Filter_Module {
             $tag_name = $tag ? $tag->name : $this->filter_values['tag'];
             
             $active_filters[] = sprintf(
-                '<span class="active-filter">Jeux: %s <a href="%s" class="remove-filter">×</a></span>',
+                '<span class="sisme-tag sisme-tag--filter">Jeux: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
                 esc_html($tag_name),
                 esc_url($this->get_filtered_url(['tag' => '']))
             );
@@ -377,7 +421,7 @@ class Sisme_Article_Filter_Module {
             $author_name = $author ? $author->display_name : 'ID: ' . $this->filter_values['author'];
             
             $active_filters[] = sprintf(
-                '<span class="active-filter">Auteur: %s <a href="%s" class="remove-filter">×</a></span>',
+                '<span class="sisme-tag sisme-tag--filter">Auteur: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
                 esc_html($author_name),
                 esc_url($this->get_filtered_url(['author' => '']))
             );

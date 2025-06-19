@@ -28,6 +28,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once plugin_dir_path(__FILE__) . 'module-admin-page-filtre-article.php';
+
 class Sisme_Game_Data_Table_Module {
     
     private $options = [];
@@ -56,6 +58,13 @@ class Sisme_Game_Data_Table_Module {
         
         // Traiter les options
         $this->process_options($options);
+
+        // Créer le module de filtre
+        $this->filter_module = new Sisme_Article_Filter_Module([
+            'search' => true,
+            'genres' => true,
+            'platforms' => true
+        ], 'game_data');
         
         // Traiter la pagination
         $this->process_pagination();
@@ -95,6 +104,9 @@ class Sisme_Game_Data_Table_Module {
     private function load_games_data() {
         // Récupérer le terme de recherche si présent
         $search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
+
+        // Récupérer les arguments de filtre
+        $filter_args = $this->filter_module->get_game_data_filter_args();
         
         // Arguments de base pour récupérer les étiquettes
         $args = [
@@ -700,7 +712,7 @@ class Sisme_Game_Data_Table_Module {
         <div class="sisme-game-data-table-module" id="<?php echo esc_attr($this->module_id); ?>">
             
             <?php if ($this->options['show_search']): ?>
-                <?php $this->render_search_form(); ?>
+                <?php $this->filter_module->render(); ?>
             <?php endif; ?>
             
             <?php if (empty($this->games_data)): ?>
