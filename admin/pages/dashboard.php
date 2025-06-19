@@ -132,297 +132,377 @@ $recent_activity = new WP_Query(array(
 ));
 ?>
 
-<div class="wrap">
-    <!-- En-tête -->
-    <div class="page-header">
-        <h1>
-            🎮 Sisme Games Editor
+<div class="sisme-admin-page">
+    <header class="sisme-admin-header">
+        <h1 class="sisme-admin-title">
+            <span class="sisme-admin-title-icon">🏠</span>
+            Tableau de bord Sisme Games
         </h1>
-        <p class="page-subtitle">
-            Créez rapidement vos contenus gaming avec des templates optimisés pour une expérience professionnelle et cohérente.
+        <p class="sisme-admin-subtitle">
+            Vue d'ensemble du système de gestion de contenu Gaming
         </p>
-    </div>
-    <!-- Statistique Game Data -->
-    <div class="stat-card">
-        <div class="stat-icon">🎮</div>
-        <div class="stat-content">
-            <h4><?php echo $game_data_stats['tags_with_data']; ?> / <?php echo $game_data_stats['total_tags']; ?></h4>
-            <p>Jeux avec données</p>
-            <a href="<?php echo admin_url('admin.php?page=sisme-games-game-data'); ?>">Gérer →</a>
-        </div>
-    </div>
+    </header>
 
-    <!-- Section statistiques principales -->
-    <div class="stats-section">
-        <h3>📊 Aperçu de votre contenu</h3>
-        <div class="stats-grid">
-            <div class="stat-card stat-total">
-                <span class="stat-number"><?php echo $stats['total']; ?></span>
-                <span class="stat-label">Total articles</span>
+    <div class="sisme-admin-layout">
+        <!-- Statistique Game Data principale -->
+        <div class="sisme-card sisme-card--primary sisme-mb-lg">
+            <div class="sisme-card__header">
+                <h2 class="sisme-heading-3">🎮 Game Data Overview</h2>
             </div>
-            <div class="stat-card stat-fiches">
-                <span class="stat-number"><?php echo $stats['fiches']; ?></span>
-                <span class="stat-label">Fiches de jeu</span>
-            </div>
-            <div class="stat-card stat-news">
-                <span class="stat-number"><?php echo $stats['news'] + $stats['patch']; ?></span>
-                <span class="stat-label">Patch & News</span>
-            </div>
-            <div class="stat-card stat-tests">
-                <span class="stat-number"><?php echo $stats['tests']; ?></span>
-                <span class="stat-label">Tests</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Section brouillons (si il y en a) -->
-    <?php if ($drafts['total'] > 0) : ?>
-    <div class="drafts-section">
-        <h3>📝 Brouillons en attente</h3>
-        <div class="stats-grid">
-            <div class="stat-card draft-total">
-                <span class="stat-number"><?php echo $drafts['total']; ?></span>
-                <span class="stat-label">Total brouillons</span>
-            </div>
-            <?php if ($drafts['fiches'] > 0) : ?>
-            <div class="stat-card draft-fiches">
-                <span class="stat-number"><?php echo $drafts['fiches']; ?></span>
-                <span class="stat-label">Fiches</span>
-            </div>
-            <?php endif; ?>
-            <?php if ($drafts['news'] + $drafts['patch'] > 0) : ?>
-            <div class="stat-card draft-news">
-                <span class="stat-number"><?php echo $drafts['news'] + $drafts['patch']; ?></span>
-                <span class="stat-label">Patch & News</span>
-            </div>
-            <?php endif; ?>
-            <?php if ($drafts['tests'] > 0) : ?>
-            <div class="stat-card draft-tests">
-                <span class="stat-number"><?php echo $drafts['tests']; ?></span>
-                <span class="stat-label">Tests</span>
-            </div>
-            <?php endif; ?>
-        </div>
-    </div>
-    <?php endif; ?>
-    
-    <!-- Section actions rapides -->
-    <div class="actions-section">
-        <h3>⚡ Actions rapides</h3>
-        <div class="actions-grid">
-
-            <!-- Nouvelle action pour Game Data -->
-            <div class="action-card">
-                <div class="action-header">
-                    <h4>🎮 Game Data</h4>
-                </div>
-                <div class="action-content">
-                    <p>Gérez les données des jeux (étiquettes) et leurs métadonnées.</p>
-                    <div class="action-buttons">
-                        <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-game-data'); ?>" class="button button-primary">
-                            ➕ Créer un jeu
-                        </a>
-                        <a href="<?php echo admin_url('admin.php?page=sisme-games-game-data'); ?>" class="button">
-                            📊 Voir tous les jeux
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Fiches de jeu -->
-            <div class="action-card card-fiches">
-                <div class="action-header">
-                    <div class="action-icon">🎮</div>
-                    <h4 class="action-title">Fiches de jeu</h4>
-                </div>
-                <p class="action-description">
-                    Créez des fiches détaillées pour présenter les jeux : informations principales, captures d'écran, 
-                    caractéristiques techniques et description complète avec sections personnalisées.
-                </p>
-                <div class="action-buttons">
-                    <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche'); ?>" class="btn btn-primary">
-                        ✨ Nouvelle fiche
-                    </a>
-                    <a href="<?php echo admin_url('admin.php?page=sisme-games-fiches'); ?>" class="btn btn-secondary">
-                        📋 Gérer les fiches
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Patch & News -->
-            <div class="action-card card-news">
-                <div class="action-header">
-                    <div class="action-icon">📰</div>
-                    <h4 class="action-title">Patch & News</h4>
-                </div>
-                <p class="action-description">
-                    Rédigez rapidement des articles sur les dernières mises à jour, patches et actualités 
-                    du monde du gaming avec un template adapté et des sections structurées.
-                </p>
-                <div class="action-buttons">
-                    <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-patch-news'); ?>" class="btn btn-primary">
-                        ✨ Nouveau patch/news
-                    </a>
-                    <a href="<?php echo admin_url('admin.php?page=sisme-games-patch-news'); ?>" class="btn btn-secondary">
-                        📋 Gérer les articles
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Tests -->
-            <div class="action-card card-tests">
-                <div class="action-header">
-                    <div class="action-icon">⭐</div>
-                    <h4 class="action-title">Tests</h4>
-                </div>
-                <p class="action-description">
-                    Créez des tests complets avec analyse détaillée, points forts/faibles, et verdict 
-                    final pour guider vos lecteurs dans leurs choix gaming.
-                </p>
-                <div class="action-buttons">
-                    <a href="<?php echo admin_url('admin.php?page=sisme-games-tests'); ?>" class="btn btn-primary">
-                        ✨ Nouveau test
-                    </a>
-                    <a href="<?php echo admin_url('admin.php?page=sisme-games-tests'); ?>" class="btn btn-secondary">
-                        📋 Voir la page
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Configuration -->
-            <div class="action-card card-settings">
-                <div class="action-header">
-                    <div class="action-icon">⚙️</div>
-                    <h4 class="action-title">Configuration</h4>
-                </div>
-                <p class="action-description">
-                    Configurez les paramètres SEO, les templates par défaut et les options d'affichage 
-                    pour optimiser votre workflow et vos contenus.
-                </p>
-                <div class="action-buttons">
-                    <a href="<?php echo admin_url('admin.php?page=sisme-games-settings'); ?>" class="btn btn-primary">
-                        ⚙️ Réglages
-                    </a>
-                    <a href="<?php echo admin_url('edit-tags.php?taxonomy=category'); ?>" class="btn btn-secondary">
-                        🏷️ Catégories
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Section activité récente -->
-    <?php if ($recent_activity->have_posts()) : ?>
-    <div class="activity-section">
-        <h3>🕒 Activité récente</h3>
-        <div class="activity-list">
-            <?php while ($recent_activity->have_posts()) : $recent_activity->the_post(); 
-                $post_id = get_the_ID();
-                $post_type = 'Article';
-                $post_icon = '📄';
-                
-                // Déterminer le type d'article
-                $categories = get_the_category($post_id);
-                foreach ($categories as $category) {
-                    if (strpos($category->slug, 'jeux-') === 0) {
-                        $post_type = 'Fiche de jeu';
-                        $post_icon = '🎮';
-                        break;
-                    } elseif ($category->slug === 'news') {
-                        $post_type = 'News';
-                        $post_icon = '📰';
-                        break;
-                    } elseif ($category->slug === 'patch') {
-                        $post_type = 'Patch';
-                        $post_icon = '🔧';
-                        break;
-                    } elseif ($category->slug === 'tests') {
-                        $post_type = 'Test';
-                        $post_icon = '⭐';
-                        break;
-                    }
-                }
-                
-                $status = get_post_status();
-                $status_label = $status === 'publish' ? 'Publié' : 'Brouillon';
-                $status_class = $status === 'publish' ? 'published' : 'draft';
-            ?>
-            <div class="activity-item">
-                <div class="activity-icon"><?php echo $post_icon; ?></div>
-                <div class="activity-content">
-                    <div class="activity-main">
-                        <h5 class="activity-title">
-                            <a href="<?php 
-                                if (strpos($post_type, 'Fiche') !== false) {
-                                    echo admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id);
-                                } elseif (in_array($post_type, array('News', 'Patch'))) {
-                                    echo admin_url('admin.php?page=sisme-games-edit-patch-news&post_id=' . $post_id);
-                                } else {
-                                    echo get_edit_post_link($post_id);
-                                }
-                            ?>">
-                                <?php the_title(); ?>
-                            </a>
-                        </h5>
-                        <div class="activity-meta">
-                            <span class="activity-type"><?php echo $post_type; ?></span>
-                            <span class="activity-status status-<?php echo $status_class; ?>"><?php echo $status_label; ?></span>
-                            <span class="activity-date"><?php echo human_time_diff(get_the_modified_time('U'), current_time('U')) . ' ago'; ?></span>
+            <div class="sisme-card__body">
+                <div class="sisme-flex sisme-flex-between sisme-flex-center">
+                    <div class="sisme-flex sisme-flex-center">
+                        <div class="sisme-text-4xl sisme-mr-md">🎮</div>
+                        <div>
+                            <div class="sisme-heading-2 sisme-mb-0">
+                                <?php echo $game_data_stats['tags_with_data']; ?> / <?php echo $game_data_stats['total_tags']; ?>
+                            </div>
+                            <p class="sisme-text-muted sisme-mb-0">Jeux avec données</p>
                         </div>
                     </div>
-                    <div class="activity-actions">
-                        <a href="<?php 
-                            if (strpos($post_type, 'Fiche') !== false) {
-                                echo admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id);
-                            } elseif (in_array($post_type, array('News', 'Patch'))) {
-                                echo admin_url('admin.php?page=sisme-games-edit-patch-news&post_id=' . $post_id);
-                            } else {
-                                echo get_edit_post_link($post_id);
-                            }
-                        ?>" class="activity-btn">✏️ Modifier</a>
-                        <a href="<?php echo get_permalink($post_id); ?>" target="_blank" class="activity-btn">👁️ Voir</a>
+                    <a href="<?php echo admin_url('admin.php?page=sisme-games-game-data'); ?>" 
+                       class="sisme-btn sisme-btn--primary">
+                        Gérer →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section statistiques principales -->
+        <div class="sisme-card sisme-mb-lg">
+            <div class="sisme-card__header">
+                <h2 class="sisme-heading-3">📊 Aperçu de votre contenu</h2>
+            </div>
+            <div class="sisme-card__body">
+                <div class="sisme-grid sisme-grid-4">
+                    <div class="sisme-card sisme-card--secondary">
+                        <div class="sisme-card__body sisme-text-center">
+                            <div class="sisme-text-4xl sisme-color-primary sisme-mb-sm">
+                                <?php echo $stats['total']; ?>
+                            </div>
+                            <div class="sisme-text-sm sisme-text-muted">Total articles</div>
+                        </div>
+                    </div>
+                    <div class="sisme-card sisme-card--secondary">
+                        <div class="sisme-card__body sisme-text-center">
+                            <div class="sisme-text-4xl sisme-color-primary sisme-mb-sm">
+                                <?php echo $stats['fiches']; ?>
+                            </div>
+                            <div class="sisme-text-sm sisme-text-muted">Fiches de jeu</div>
+                        </div>
+                    </div>
+                    <div class="sisme-card sisme-card--secondary">
+                        <div class="sisme-card__body sisme-text-center">
+                            <div class="sisme-text-4xl sisme-color-primary sisme-mb-sm">
+                                <?php echo $stats['news'] + $stats['patch']; ?>
+                            </div>
+                            <div class="sisme-text-sm sisme-text-muted">Patch & News</div>
+                        </div>
+                    </div>
+                    <div class="sisme-card sisme-card--secondary">
+                        <div class="sisme-card__body sisme-text-center">
+                            <div class="sisme-text-4xl sisme-color-primary sisme-mb-sm">
+                                <?php echo $stats['tests']; ?>
+                            </div>
+                            <div class="sisme-text-sm sisme-text-muted">Tests</div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <?php endwhile; ?>
         </div>
         
-        <div class="activity-footer">
-            <a href="<?php echo admin_url('admin.php?page=sisme-games-all-articles'); ?>">
-                📋 Voir tous les articles
-            </a>
+        <!-- Section brouillons (si il y en a) -->
+        <?php if ($drafts['total'] > 0) : ?>
+        <div class="sisme-card sisme-mb-lg">
+            <div class="sisme-card__header">
+                <h2 class="sisme-heading-3">📝 Brouillons en attente</h2>
+            </div>
+            <div class="sisme-card__body">
+                <div class="sisme-grid sisme-grid-4">
+                    <div class="sisme-card sisme-card--warning">
+                        <div class="sisme-card__body sisme-text-center">
+                            <div class="sisme-text-4xl sisme-color-warning sisme-mb-sm">
+                                <?php echo $drafts['total']; ?>
+                            </div>
+                            <div class="sisme-text-sm sisme-text-muted">Total brouillons</div>
+                        </div>
+                    </div>
+                    <?php if ($drafts['fiches'] > 0) : ?>
+                    <div class="sisme-card sisme-card--warning">
+                        <div class="sisme-card__body sisme-text-center">
+                            <div class="sisme-text-4xl sisme-color-warning sisme-mb-sm">
+                                <?php echo $drafts['fiches']; ?>
+                            </div>
+                            <div class="sisme-text-sm sisme-text-muted">Fiches</div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($drafts['news'] + $drafts['patch'] > 0) : ?>
+                    <div class="sisme-card sisme-card--warning">
+                        <div class="sisme-card__body sisme-text-center">
+                            <div class="sisme-text-4xl sisme-color-warning sisme-mb-sm">
+                                <?php echo $drafts['news'] + $drafts['patch']; ?>
+                            </div>
+                            <div class="sisme-text-sm sisme-text-muted">Patch & News</div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($drafts['tests'] > 0) : ?>
+                    <div class="sisme-card sisme-card--warning">
+                        <div class="sisme-card__body sisme-text-center">
+                            <div class="sisme-text-4xl sisme-color-warning sisme-mb-sm">
+                                <?php echo $drafts['tests']; ?>
+                            </div>
+                            <div class="sisme-text-sm sisme-text-muted">Tests</div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
-    </div>
-    <?php endif; ?>
-    
-    <!-- Section liens utiles -->
-    <div class="links-section">
-        <h3>🔗 Liens utiles</h3>
-        <div class="links-grid">
-            <div class="link-group">
-                <h5>Game Data</h5>
-                <ul>
-                    <li><a href="<?php echo admin_url('admin.php?page=sisme-games-game-data'); ?>">📊 Tous les jeux</a></li>
-                    <li><a href="<?php echo admin_url('admin.php?page=sisme-games-edit-game-data'); ?>">➕ Créer un jeu</a></li>
-                    <li><a href="<?php echo admin_url('edit-tags.php?taxonomy=post_tag'); ?>">🏷️ Étiquettes WordPress</a></li>
-                </ul>
+        <?php endif; ?>
+        
+        <!-- Section actions rapides -->
+        <div class="sisme-card sisme-mb-lg">
+            <div class="sisme-card__header">
+                <h2 class="sisme-heading-3">⚡ Actions rapides</h2>
             </div>
-            <div class="link-group">
-                <h5>WordPress</h5>
-                <ul>
-                    <li><a href="<?php echo admin_url('admin.php?page=sisme-games-all-articles'); ?>">📄 Tous les articles</a></li>
-                    <li><a href="<?php echo admin_url('edit-tags.php?taxonomy=category'); ?>">🏷️ Catégories</a></li>
-                    <li><a href="<?php echo admin_url('edit-tags.php?taxonomy=post_tag'); ?>">🏷️ Étiquettes</a></li>
-                    <li><a href="<?php echo admin_url('upload.php'); ?>">📸 Médiathèque</a></li>
-                </ul>
+            <div class="sisme-card__body">
+                <div class="sisme-grid sisme-grid-2">
+                    <!-- Game Data -->
+                    <div class="sisme-card sisme-card--highlight">
+                        <div class="sisme-card__header">
+                            <h3 class="sisme-heading-4">🎮 Game Data</h3>
+                        </div>
+                        <div class="sisme-card__body">
+                            <p class="sisme-text sisme-mb-md">
+                                Gérez les données des jeux (étiquettes) et leurs métadonnées.
+                            </p>
+                            <div class="sisme-flex sisme-flex-wrap sisme-gap-sm sisme-flex-center">
+                                <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-game-data'); ?>" 
+                                   class="sisme-btn sisme-btn--primary">➕
+                                </a>
+                                <a href="<?php echo admin_url('admin.php?page=sisme-games-game-data'); ?>" 
+                                   class="sisme-btn sisme-btn--secondary">📊
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fiches de jeu -->
+                    <div class="sisme-card sisme-card--highlight">
+                        <div class="sisme-card__header">
+                            <h3 class="sisme-heading-4">🎮 Fiches de jeu</h3>
+                        </div>
+                        <div class="sisme-card__body">
+                            <p class="sisme-text sisme-mb-md">
+                                Créez des fiches détaillées pour présenter les jeux : informations principales, 
+                                captures d'écran, caractéristiques techniques et description complète.
+                            </p>
+                            <div class="sisme-flex sisme-flex-wrap sisme-gap-sm sisme-flex-center">
+                                <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche'); ?>" 
+                                   class="sisme-btn sisme-btn--primary">➕
+                                </a>
+                                <a href="<?php echo admin_url('admin.php?page=sisme-games-fiches'); ?>" 
+                                   class="sisme-btn sisme-btn--secondary">📋
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Patch & News -->
+                    <div class="sisme-card sisme-card--highlight">
+                        <div class="sisme-card__header">
+                            <h3 class="sisme-heading-4">📰 Patch & News</h3>
+                        </div>
+                        <div class="sisme-card__body">
+                            <p class="sisme-text sisme-mb-md">
+                                Rédigez rapidement des articles sur les dernières mises à jour, patches 
+                                et actualités du monde du gaming.
+                            </p>
+                            <div class="sisme-flex sisme-flex-wrap sisme-gap-sm sisme-flex-center">
+                                <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-patch-news'); ?>" 
+                                   class="sisme-btn sisme-btn--primary">➕
+                                </a>
+                                <a href="<?php echo admin_url('admin.php?page=sisme-games-patch-news'); ?>" 
+                                   class="sisme-btn sisme-btn--secondary">📋
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tests -->
+                    <div class="sisme-card sisme-card--highlight">
+                        <div class="sisme-card__header">
+                            <h3 class="sisme-heading-4">⭐ Tests</h3>
+                        </div>
+                        <div class="sisme-card__body">
+                            <p class="sisme-text sisme-mb-md">
+                                Créez des tests complets avec analyse détaillée, points forts/faibles, 
+                                et verdict final pour guider vos lecteurs.
+                            </p>
+                            <div class="sisme-flex sisme-flex-wrap sisme-gap-sm sisme-flex-center">
+                                <a href="<?php echo admin_url('admin.php?page=sisme-games-tests'); ?>" 
+                                   class="sisme-btn sisme-btn--primary">➕
+                                </a>
+                                <a href="<?php echo admin_url('admin.php?page=sisme-games-tests'); ?>" 
+                                   class="sisme-btn sisme-btn--secondary">📋
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Configuration -->
+                    <div class="sisme-card sisme-card--highlight">
+                        <div class="sisme-card__header">
+                            <h3 class="sisme-heading-4">⚙️ Configuration</h3>
+                        </div>
+                        <div class="sisme-card__body">
+                            <p class="sisme-text sisme-mb-md">
+                                Configurez les paramètres SEO, les templates par défaut et les options 
+                                d'affichage pour optimiser votre workflow.
+                            </p>
+                            <div class="sisme-flex sisme-flex-wrap sisme-gap-sm sisme-flex-center">
+                                <a href="<?php echo admin_url('admin.php?page=sisme-games-settings'); ?>" 
+                                   class="sisme-btn sisme-btn--primary">⚙️
+                                </a>
+                                <a href="<?php echo admin_url('edit-tags.php?taxonomy=category'); ?>" 
+                                   class="sisme-btn sisme-btn--secondary">🏷️
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="link-group">
-                <h5>Sisme Games</h5>
-                <ul>
-                    <li><a href="https://games.sisme.fr" target="_blank">🌐 Site games.sisme.fr</a></li>
-                    <li><a href="https://sisme.fr" target="_blank">🌐 Site principal</a></li>
-                    <li><a href="<?php echo admin_url('admin.php?page=sisme-games-settings'); ?>">⚙️ Réglages du plugin</a></li>
-                </ul>
+        </div>
+        
+        <!-- Section activité récente -->
+        <?php if ($recent_activity->have_posts()) : ?>
+        <div class="sisme-card sisme-mb-lg">
+            <div class="sisme-card__header">
+                <h2 class="sisme-heading-3">🕒 Activité récente</h2>
+            </div>
+            <div class="sisme-card__body">
+                <div class="sisme-activity-list">
+                    <?php while ($recent_activity->have_posts()) : $recent_activity->the_post(); 
+                        $post_id = get_the_ID();
+                        $post_type = 'Article';
+                        $post_icon = '📄';
+                        
+                        // Déterminer le type d'article
+                        $categories = get_the_category($post_id);
+                        foreach ($categories as $category) {
+                            if (strpos($category->slug, 'jeux-') === 0) {
+                                $post_type = 'Fiche de jeu';
+                                $post_icon = '🎮';
+                                break;
+                            } elseif ($category->slug === 'news') {
+                                $post_type = 'News';
+                                $post_icon = '📰';
+                                break;
+                            } elseif ($category->slug === 'patch') {
+                                $post_type = 'Patch';
+                                $post_icon = '🔧';
+                                break;
+                            } elseif ($category->slug === 'tests') {
+                                $post_type = 'Test';
+                                $post_icon = '⭐';
+                                break;
+                            }
+                        }
+                        
+                        $status = get_post_status();
+                        $status_label = $status === 'publish' ? 'Publié' : 'Brouillon';
+                        $status_class = $status === 'publish' ? 'published' : 'draft';
+                    ?>
+                    <div class="sisme-activity-item">
+                        <div class="sisme-flex sisme-flex-center sisme-gap-md">
+                            <div class="sisme-activity-icon"><?php echo $post_icon; ?></div>
+                            <div class="sisme-flex-1">
+                                <h4 class="sisme-heading-4 sisme-mb-xs">
+                                    <a href="<?php 
+                                        if (strpos($post_type, 'Fiche') !== false) {
+                                            echo admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id);
+                                        } elseif (in_array($post_type, array('News', 'Patch'))) {
+                                            echo admin_url('admin.php?page=sisme-games-edit-patch-news&post_id=' . $post_id);
+                                        } else {
+                                            echo get_edit_post_link($post_id);
+                                        }
+                                    ?>" class="sisme-link">
+                                        <?php the_title(); ?>
+                                    </a>
+                                </h4>
+                                <div class="sisme-flex sisme-flex-center sisme-gap-sm sisme-text-sm sisme-text-muted">
+                                    <span class="sisme-tag sisme-tag--type"><?php echo $post_type; ?></span>
+                                    <span class="sisme-tag sisme-tag--status sisme-tag--status-<?php echo $status_class; ?>">
+                                        <?php echo $status_label; ?>
+                                    </span>
+                                    <span><?php echo human_time_diff(get_the_modified_time('U'), current_time('U')) . ' ago'; ?></span>
+                                </div>
+                            </div>
+                            <div class="sisme-flex sisme-gap-xs">
+                                <a href="<?php 
+                                    if (strpos($post_type, 'Fiche') !== false) {
+                                        echo admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id);
+                                    } elseif (in_array($post_type, array('News', 'Patch'))) {
+                                        echo admin_url('admin.php?page=sisme-games-edit-patch-news&post_id=' . $post_id);
+                                    } else {
+                                        echo get_edit_post_link($post_id);
+                                    }
+                                ?>" class="sisme-btn sisme-btn--sm sisme-btn--secondary">✏️
+                                </a>
+                                <a href="<?php echo get_permalink($post_id); ?>" target="_blank" 
+                                   class="sisme-btn sisme-btn--sm sisme-btn--secondary">👁️
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endwhile; ?>
+                </div>
+                
+                <div class="sisme-text-center sisme-mt-md">
+                    <a href="<?php echo admin_url('admin.php?page=sisme-games-all-articles'); ?>" 
+                       class="sisme-btn sisme-btn--secondary">
+                        📋 Voir tous les articles
+                    </a>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Section liens utiles -->
+        <div class="sisme-card">
+            <div class="sisme-card__header">
+                <h2 class="sisme-heading-3">🔗 Liens utiles</h2>
+            </div>
+            <div class="sisme-card__body">
+                <div class="sisme-grid sisme-grid-3">
+                    <div class="sisme-links-group">
+                        <h4 class="sisme-heading-4 sisme-mb-sm">Game Data</h4>
+                        <ul class="sisme-links-list">
+                            <li><a href="<?php echo admin_url('admin.php?page=sisme-games-game-data'); ?>" class="sisme-link">📊 Tous les jeux</a></li>
+                            <li><a href="<?php echo admin_url('admin.php?page=sisme-games-edit-game-data'); ?>" class="sisme-link">➕ Créer un jeu</a></li>
+                            <li><a href="<?php echo admin_url('edit-tags.php?taxonomy=post_tag'); ?>" class="sisme-link">🏷️ Étiquettes WordPress</a></li>
+                        </ul>
+                    </div>
+                    <div class="sisme-links-group">
+                        <h4 class="sisme-heading-4 sisme-mb-sm">WordPress</h4>
+                        <ul class="sisme-links-list">
+                            <li><a href="<?php echo admin_url('admin.php?page=sisme-games-all-articles'); ?>" class="sisme-link">📄 Tous les articles</a></li>
+                            <li><a href="<?php echo admin_url('edit-tags.php?taxonomy=category'); ?>" class="sisme-link">🏷️ Catégories</a></li>
+                            <li><a href="<?php echo admin_url('edit-tags.php?taxonomy=post_tag'); ?>" class="sisme-link">🏷️ Étiquettes</a></li>
+                            <li><a href="<?php echo admin_url('upload.php'); ?>" class="sisme-link">📸 Médiathèque</a></li>
+                        </ul>
+                    </div>
+                    <div class="sisme-links-group">
+                        <h4 class="sisme-heading-4 sisme-mb-sm">Sisme Games</h4>
+                        <ul class="sisme-links-list">
+                            <li><a href="https://games.sisme.fr" target="_blank" class="sisme-link">🌐 Site games.sisme.fr</a></li>
+                            <li><a href="https://sisme.fr" target="_blank" class="sisme-link">🌐 Site principal</a></li>
+                            <li><a href="<?php echo admin_url('admin.php?page=sisme-games-settings'); ?>" class="sisme-link">⚙️ Réglages du plugin</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -108,6 +108,8 @@
 
 /* Header de card */
 .sisme-card__header {
+    display: flex;
+    justify-content: center;
     padding: var(--sisme-space-xl) var(--sisme-space-xl) var(--sisme-space-lg);
     border-bottom: 1px solid var(--sisme-border-subtle);
     position: relative;
