@@ -178,6 +178,10 @@ class Sisme_Game_Data_Table_Module {
                     case 'game_genres':
                         $game_data['meta_data']['game_genres'] = maybe_unserialize($value);
                         break;
+
+                    case 'game_modes':
+                        $game_data['meta_data']['game_modes'] = maybe_unserialize($value);
+                        break;
                         
                     default:
                         // Stocker les autres métadonnées
@@ -276,32 +280,66 @@ class Sisme_Game_Data_Table_Module {
             <?php endforeach; ?>
         </tr>
 
-        <!-- Ligne des genres -->
+        <!-- Ligne des genres ET modes -->
         <tr class="sisme-game-data-genres-row">
             <td colspan="<?php echo count($this->options['columns']); ?>" class="sisme-game-data-genres-cell">
-                <div class="sisme-game-data-genres-container">
-                    <strong class="sisme-game-data-genres-label">Genres :</strong>
+                <div class="sisme-game-data-genres-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     
-                    <div class="sisme-game-data-genres-list">
-                        <?php 
-                        $genres = isset($game_data['meta_data']['game_genres']) ? $game_data['meta_data']['game_genres'] : array();
-                        if (!empty($genres) && is_array($genres)):
-                            foreach ($genres as $genre_id):
-                                $genre = get_category($genre_id);
-                                if ($genre && !is_wp_error($genre)):
-                                    $genre_name = str_replace('jeux-', '', $genre->name ?? '');
-                        ?>
-                            <span class="sisme-genre-tag">
-                                <?php echo esc_html($genre_name); ?>
-                            </span>
-                        <?php 
-                                endif;
-                            endforeach;
-                        else:
-                        ?>
-                            <span class="sisme-no-genres">Aucun genre défini</span>
-                        <?php endif; ?>
+                    <!-- Colonne Genres -->
+                    <div class="sisme-genres-column">
+                        <strong class="sisme-game-data-genres-label" style="color: #666; display: block; margin-bottom: 8px;">Genres :</strong>
+                        <div class="sisme-game-data-genres-list" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <?php 
+                            $genres = isset($game_data['meta_data']['game_genres']) ? $game_data['meta_data']['game_genres'] : array();
+                            if (!empty($genres) && is_array($genres)):
+                                foreach ($genres as $genre_id):
+                                    $genre = get_category($genre_id);
+                                    if ($genre && !is_wp_error($genre)):
+                                        $genre_name = str_replace('jeux-', '', $genre->name ?? '');
+                            ?>
+                                <span class="sisme-genre-tag" style="background: var(--theme-palette-color-1); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">
+                                    <?php echo esc_html($genre_name); ?>
+                                </span>
+                            <?php 
+                                    endif;
+                                endforeach;
+                            else:
+                            ?>
+                                <span class="sisme-no-genres" style="color: #999; font-style: italic; font-size: 12px;">Aucun genre défini</span>
+                            <?php endif; ?>
+                        </div>
                     </div>
+                    
+                    <!-- Colonne Modes -->
+                    <div class="sisme-modes-column">
+                        <strong class="sisme-game-data-modes-label" style="color: #666; display: block; margin-bottom: 8px;">Modes :</strong>
+                        <div class="sisme-game-data-modes-list" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <?php 
+                            $modes = isset($game_data['meta_data']['game_modes']) ? $game_data['meta_data']['game_modes'] : array();
+                            $mode_labels = [
+                                'solo' => 'Solo',
+                                'multijoueur' => 'Multijoueur',
+                                'cooperatif' => 'Coopératif', 
+                                'competitif' => 'Compétitif'
+                            ];
+                            
+                            if (!empty($modes) && is_array($modes)):
+                                foreach ($modes as $mode_key):
+                                    if (isset($mode_labels[$mode_key])):
+                            ?>
+                                <span class="sisme-mode-tag" style="background: var(--theme-palette-color-7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">
+                                    <?php echo esc_html($mode_labels[$mode_key]); ?>
+                                </span>
+                            <?php 
+                                    endif;
+                                endforeach;
+                            else:
+                            ?>
+                                <span class="sisme-no-modes" style="color: #999; font-style: italic; font-size: 12px;">Aucun mode défini</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
                 </div>
             </td>
         </tr>

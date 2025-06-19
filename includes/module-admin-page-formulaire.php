@@ -71,6 +71,13 @@ class Sisme_Game_Form_Module {
             'parent_category' => 'jeux',
             'exclude_modes' => ['jeux-solo', 'jeux-multijoueur', 'jeux-cooperatif', 'jeux-competitif']
         ],
+        'game_modes' => [
+            'label' => 'Modes de jeu',
+            'description' => 'Sélectionnez les modes de jeu disponibles.',
+            'required' => false,
+            'output_var' => 'game_modes',
+            'available_modes' => ['solo', 'multijoueur', 'cooperatif', 'competitif']
+        ],
         'cover_main' => [
             'label' => 'Cover principale',
             'description' => 'Image principale du jeu (médiathèque WordPress).',
@@ -175,6 +182,13 @@ class Sisme_Game_Form_Module {
             $this->form_data['game_genres'] = array_map('intval', $_POST['game_genres']);
         } else {
             $this->form_data['game_genres'] = array();
+        }
+
+        // Traitement spécial pour game_modes (tableau de clés)
+        if (isset($_POST['game_modes']) && is_array($_POST['game_modes'])) {
+            $this->form_data['game_modes'] = array_map('sanitize_text_field', $_POST['game_modes']);
+        } else {
+            $this->form_data['game_modes'] = array();
         }
     }
     
@@ -325,7 +339,74 @@ class Sisme_Game_Form_Module {
         
         return $genres;
     }
-    
+
+    /**
+     * Afficher le composant modes de jeu
+     */
+    private function render_game_modes_component() {
+        $component = $this->components['game_modes'];
+        $value = isset($this->form_data['game_modes']) ? $this->form_data['game_modes'] : array();
+        $field_id = $this->module_id . '_game_modes';
+        $required_attr = $component['required'] ? 'required' : '';
+        $required_label = $component['required'] ? ' *' : '';
+        
+        // Modes de jeu fixes
+        $available_modes = [
+            'solo' => 'Solo',
+            'multijoueur' => 'Multijoueur', 
+            'cooperatif' => 'Coopératif',
+            'competitif' => 'Compétitif'
+        ];
+        ?>
+        <tr>
+            <th scope="row">
+                <label for="<?php echo esc_attr($field_id); ?>">
+                    <?php echo esc_html($component['label'] . $required_label); ?>
+                </label>
+            </th>
+            <td>
+                <div class="sisme-game-modes-component">
+                    
+                    <!-- Liste des modes sélectionnés - EN PREMIER -->
+                    <div class="sisme-selected-modes" style="margin-bottom: 15px;">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Modes sélectionnés :</label>
+                        <div class="sisme-selected-modes-list" id="<?php echo esc_attr($field_id . '_selected'); ?>" 
+                             style="min-height: 40px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                            <?php if (empty($value)): ?>
+                                <span class="no-modes-selected" style="color: #666; font-style: italic;">Aucun mode sélectionné</span>
+                            <?php else: ?>
+                                <?php foreach ($value as $mode_key): ?>
+                                    <?php if (isset($available_modes[$mode_key])): ?>
+                                        <span class="selected-mode-tag" data-mode-key="<?php echo esc_attr($mode_key); ?>" 
+                                              style="display: inline-block; background: var(--theme-palette-color-7); color: white; padding: 4px 8px; margin: 2px; border-radius: 3px; font-size: 12px;">
+                                            <?php echo esc_html($available_modes[$mode_key]); ?>
+                                            <span class="remove-mode" style="margin-left: 5px; cursor: pointer; font-weight: bold;">&times;</span>
+                                            <input type="hidden" name="game_modes[]" value="<?php echo esc_attr($mode_key); ?>">
+                                        </span>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Modes disponibles pour sélection -->
+                    <div class="sisme-mode-options">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Modes disponibles :</label>
+                        <div class="sisme-modes-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border: 1px solid #ddd; border-radius: 4px; padding: 12px;">
+                            <?php foreach ($available_modes as $mode_key => $mode_label): ?>
+                                <div class="mode-option" data-mode-key="<?php echo esc_attr($mode_key); ?>" 
+                                     style="padding: 8px 12px; background: #fff; border-radius: 3px; cursor: pointer; border: 1px solid #e0e0e0; text-align: center; transition: all 0.2s;">
+                                    <strong><?php echo esc_html($mode_label); ?></strong>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <?php
+    }
+
     /**
      * Afficher un composant cover (sélecteur d'image)
      */
@@ -561,6 +642,10 @@ class Sisme_Game_Form_Module {
                 $this->render_game_genres_component();
                 break;
 
+            case 'game_modes':
+                $this->render_game_modes_component();
+                break;
+
             case 'cover_main':
             case 'cover_news':
             case 'cover_patch':
@@ -697,7 +782,28 @@ class Sisme_Game_Form_Module {
                         }
                     }
                     break;
-                    
+
+                case 'game_modes':
+                    if (!empty($value)) {
+                        // Vérifier que c'est un tableau
+                        if (!is_array($value)) {
+                            $errors[$output_var] = 'Format de données invalide pour les modes.';
+                            break;
+                        }
+                        
+                        // Modes valides
+                        $valid_modes = ['solo', 'multijoueur', 'cooperatif', 'competitif'];
+                        
+                        // Vérifier que chaque mode est valide
+                        foreach ($value as $mode) {
+                            if (!in_array($mode, $valid_modes)) {
+                                $errors[$output_var] = 'Un ou plusieurs modes sélectionnés sont invalides.';
+                                break 2; // Sortir des deux boucles
+                            }
+                        }
+                    }
+                    break;
+
                 case 'description':
                     // Pas de validation spéciale pour la description
                     break;
@@ -993,6 +1099,62 @@ class Sisme_Game_Form_Module {
                 
                 suggestionsList.prepend(suggestionItem);
             }
+
+            // === GESTION DES MODES DE JEU ===
+            // Sélection d'un mode depuis les options disponibles
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.mode-option', function(e) {
+                e.preventDefault();
+                
+                var modeKey = $(this).data('mode-key');
+                var modeLabel = $(this).find('strong').text();
+                var container = $(this).closest('.sisme-game-modes-component');
+                
+                // Vérifier si déjà sélectionné
+                if (container.find('.selected-mode-tag[data-mode-key="' + modeKey + '"]').length > 0) {
+                    alert('Ce mode est déjà sélectionné.');
+                    return;
+                }
+                
+                addModeToSelection(container, modeKey, modeLabel);
+                
+                // Effet visuel sur le bouton cliqué
+                $(this).css('background-color', '#e7f3e7');
+                setTimeout(function() {
+                    $(this).css('background-color', '#fff');
+                }.bind(this), 300);
+            });
+
+            // Suppression d'un mode sélectionné
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.remove-mode', function(e) {
+                e.preventDefault();
+                $(this).closest('.selected-mode-tag').remove();
+                
+                // Vérifier s'il reste des modes sélectionnés
+                var container = $(this).closest('.sisme-game-modes-component');
+                var selectedList = container.find('.sisme-selected-modes-list');
+                if (selectedList.find('.selected-mode-tag').length === 0) {
+                    selectedList.html('<span class="no-modes-selected" style="color: #666; font-style: italic;">Aucun mode sélectionné</span>');
+                }
+            });
+
+            // Fonction pour ajouter un mode à la sélection
+            function addModeToSelection(container, modeKey, modeLabel) {
+                var selectedList = container.find('.sisme-selected-modes-list');
+                
+                // Supprimer le message "aucun mode sélectionné"
+                selectedList.find('.no-modes-selected').remove();
+                
+                // Créer le tag de mode sélectionné
+                var modeTag = $('<span class="selected-mode-tag" data-mode-key="' + modeKey + '" ' +
+                               'style="display: inline-block; background: var(--theme-palette-color-7); color: white; padding: 4px 8px; margin: 2px; border-radius: 3px; font-size: 12px;">' +
+                               modeLabel +
+                               '<span class="remove-mode" style="margin-left: 5px; cursor: pointer; font-weight: bold;">&times;</span>' +
+                               '<input type="hidden" name="game_modes[]" value="' + modeKey + '">' +
+                               '</span>');
+                
+                selectedList.append(modeTag);
+            }
+
         });
         </script>
         <?php
