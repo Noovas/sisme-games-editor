@@ -135,7 +135,7 @@ class Sisme_Game_Data_Table_Module {
     }
     
     /**
-     * Traiter les données d'une étiquette
+     * Traiter les données d'une étiquette (d'un jeu)
      */
     private function process_tag_data($tag) {
         $game_data = [
@@ -187,7 +187,19 @@ class Sisme_Game_Data_Table_Module {
                     case 'game_publishers':
                         $game_data['meta_data']['game_publishers'] = maybe_unserialize($value);
                         break;
+
+                    case 'game_platforms':
+                        $game_data['meta_data']['game_platforms'] = maybe_unserialize($value);
+                        break;
                         
+                    case 'release_date':
+                        $game_data['meta_data']['release_date'] = $value;
+                        break;
+                        
+                    case 'external_links':
+                        $game_data['meta_data']['external_links'] = maybe_unserialize($value);
+                        break;
+                                            
                     default:
                         // Stocker les autres métadonnées
                         $game_data['meta_data'][$meta_key] = $value;
@@ -475,7 +487,89 @@ class Sisme_Game_Data_Table_Module {
                 </div>
             </td>
         </tr>
-        
+        <!-- Plateformes, date de sortie et liens externes -->
+        <tr style="background: #f4f4f4;">
+            <td colspan="<?php echo count($this->options['columns']); ?>" style="padding: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 30px;">
+                    
+                    <!-- Plateformes -->
+                    <div style="flex: 1;">
+                        <strong style="color: #666;">Plateformes :</strong>
+                        <?php 
+                        $platforms = isset($game_data['meta_data']['game_platforms']) ? $game_data['meta_data']['game_platforms'] : [];
+                        if (!empty($platforms)) {
+                            $platform_groups = [
+                                'Mobile' => ['ios', 'android'],
+                                'Console' => ['xbox', 'playstation', 'switch'], 
+                                'PC' => ['pc', 'web', 'mac', 'windows']
+                            ];
+                            
+                            $displayed_groups = [];
+                            $platform_details = [];
+                            
+                            foreach ($platform_groups as $group => $group_platforms) {
+                                $group_matches = array_intersect($platforms, $group_platforms);
+                                if (!empty($group_matches)) {
+                                    $displayed_groups[] = $group;
+                                    $platform_details[$group] = $group_matches;
+                                }
+                            }
+                            
+                            if (!empty($displayed_groups)) {
+                                foreach ($displayed_groups as $group) {
+                                    $details = implode(', ', array_map('ucfirst', $platform_details[$group]));
+                                    echo '<span style="background: #e1f5fe; padding: 4px 8px; border-radius: 4px; margin-right: 8px; cursor: help;" title="' . esc_attr($details) . '">';
+                                    echo esc_html($group);
+                                    echo '</span>';
+                                }
+                            }
+                        } else {
+                            echo '<span style="color: #999;">Non spécifiées</span>';
+                        }
+                        ?>
+                    </div>
+                    
+                    <!-- Date de sortie -->
+                    <div style="flex: 1;">
+                        <strong style="color: #666;">Date de sortie :</strong>
+                        <?php 
+                        $release_date = isset($game_data['meta_data']['release_date']) ? $game_data['meta_data']['release_date'] : '';
+                        if (!empty($release_date)) {
+                            $formatted_date = date_i18n('j F Y', strtotime($release_date));
+                            echo '<span style="background: #fff3e0; padding: 4px 8px; border-radius: 4px;">' . esc_html($formatted_date) . '</span>';
+                        } else {
+                            echo '<span style="color: #999;">Non spécifiée</span>';
+                        }
+                        ?>
+                    </div>
+                    
+                    <!-- Liens externes -->
+                    <div style="flex: 1;">
+                        <strong style="color: #666;">Liens de vente :</strong>
+                        <?php 
+                        $external_links = isset($game_data['meta_data']['external_links']) ? $game_data['meta_data']['external_links'] : [];
+                        if (!empty($external_links)) {
+                            $link_labels = ['steam' => 'Steam', 'epic' => 'Epic', 'gog' => 'GOG'];
+                            $link_count = 0;
+                            foreach ($external_links as $platform => $url) {
+                                if (!empty($url)) {
+                                    $label = isset($link_labels[$platform]) ? $link_labels[$platform] : ucfirst($platform);
+                                    echo '<a href="' . esc_url($url) . '" target="_blank" style="background: #e8f5e8; padding: 4px 8px; border-radius: 4px; margin-right: 8px; text-decoration: none; color: #2e7d32;">' . esc_html($label) . '</a>';
+                                    $link_count++;
+                                }
+                            }
+                            if ($link_count === 0) {
+                                echo '<span style="color: #999;">Aucun lien</span>';
+                            }
+                        } else {
+                            echo '<span style="color: #999;">Aucun lien</span>';
+                        }
+                        ?>
+                    </div>
+                    
+                </div>
+            </td>
+        </tr>
         <!-- Ligne des covers -->
         <tr class="sisme-game-data-covers-row">
             <td colspan="2" class="sisme-game-data-covers-cell">

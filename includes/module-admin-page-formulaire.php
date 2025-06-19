@@ -117,6 +117,24 @@ class Sisme_Game_Form_Module {
             'description' => 'Image pour les articles test du jeu.',
             'required' => false,
             'output_var' => 'cover_test'
+        ],
+        'game_platforms' => [
+            'label' => 'Plateformes',
+            'description' => 'Sélectionnez les plateformes sur lesquelles le jeu est disponible.',
+            'required' => false,
+            'output_var' => 'game_platforms'
+        ],
+        'release_date' => [
+            'label' => 'Date de sortie',
+            'description' => 'Date de sortie du jeu.',
+            'required' => false,
+            'output_var' => 'release_date'
+        ],
+        'external_links' => [
+            'label' => 'Liens de vente',
+            'description' => 'Liens vers les plateformes de vente du jeu.',
+            'required' => false,
+            'output_var' => 'external_links'
         ]
     ];
     
@@ -247,6 +265,23 @@ class Sisme_Game_Form_Module {
             case 'cover_patch':
             case 'cover_test':
                 return intval($value);
+            case 'game_platforms':
+                return is_array($value) ? array_map('intval', $value) : [];
+                
+            case 'release_date':
+                return sanitize_text_field($value);
+                
+            case 'external_links':
+                if (is_array($value)) {
+                    $sanitized = [];
+                    foreach ($value as $platform => $url) {
+                        if (!empty($url)) {
+                            $sanitized[sanitize_key($platform)] = esc_url_raw($url);
+                        }
+                    }
+                    return $sanitized;
+                }
+                return [];
                 
             default:
                 return sanitize_text_field($value);
@@ -664,6 +699,131 @@ class Sisme_Game_Form_Module {
         </tr>
         <?php
     }
+
+    /**
+     * Afficher le composant plateformes
+     */
+    private function render_game_platforms_component() {
+        $component = $this->components['game_platforms'];
+        $value = isset($this->form_data['game_platforms']) ? $this->form_data['game_platforms'] : [];
+        $field_id = $this->module_id . '_game_platforms';
+        $required_attr = $component['required'] ? 'required' : '';
+        $required_label = $component['required'] ? ' *' : '';
+        
+        // Structure hiérarchique des plateformes
+        $platforms = [
+            'Mobile' => [
+                'ios' => 'iOS',
+                'android' => 'Android'
+            ],
+            'Console' => [
+                'xbox' => 'Xbox',
+                'playstation' => 'PlayStation',
+                'switch' => 'Switch'
+            ],
+            'PC' => [
+                'pc' => 'PC',
+                'web' => 'Web',
+                'mac' => 'Mac',
+                'windows' => 'Windows'
+            ]
+        ];
+        ?>
+        <tr>
+            <th scope="row">
+                <label><?php echo esc_html($component['label'] . $required_label); ?></label>
+            </th>
+            <td>
+                <div class="sisme-platforms-selector">
+                    <?php foreach ($platforms as $category => $category_platforms): ?>
+                        <div class="platform-category">
+                            <h4><?php echo esc_html($category); ?></h4>
+                            <?php foreach ($category_platforms as $platform_key => $platform_name): ?>
+                                <label class="platform-option">
+                                    <input type="checkbox" 
+                                           name="game_platforms[]" 
+                                           value="<?php echo esc_attr($platform_key); ?>"
+                                           <?php checked(in_array($platform_key, $value)); ?>>
+                                    <?php echo esc_html($platform_name); ?>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <p class="description"><?php echo esc_html($component['description']); ?></p>
+            </td>
+        </tr>
+        <?php
+    }
+
+    /**
+     * Afficher le composant date de sortie
+     */
+    private function render_release_date_component() {
+        $component = $this->components['release_date'];
+        $value = isset($this->form_data['release_date']) ? $this->form_data['release_date'] : '';
+        $field_id = $this->module_id . '_release_date';
+        $required_attr = $component['required'] ? 'required' : '';
+        $required_label = $component['required'] ? ' *' : '';
+        ?>
+        <tr>
+            <th scope="row">
+                <label for="<?php echo esc_attr($field_id); ?>">
+                    <?php echo esc_html($component['label'] . $required_label); ?>
+                </label>
+            </th>
+            <td>
+                <input type="date" 
+                       id="<?php echo esc_attr($field_id); ?>" 
+                       name="release_date" 
+                       value="<?php echo esc_attr($value); ?>"
+                       class="regular-text"
+                       <?php echo $required_attr; ?>>
+                <p class="description"><?php echo esc_html($component['description']); ?></p>
+            </td>
+        </tr>
+        <?php
+    }
+
+    /**
+     * Afficher le composant liens externes
+     */
+    private function render_external_links_component() {
+        $component = $this->components['external_links'];
+        $value = isset($this->form_data['external_links']) ? $this->form_data['external_links'] : [];
+        $required_label = $component['required'] ? ' *' : '';
+        
+        $platforms = [
+            'steam' => 'Steam',
+            'epic' => 'Epic Games',
+            'gog' => 'GOG'
+        ];
+        ?>
+        <tr>
+            <th scope="row">
+                <label><?php echo esc_html($component['label'] . $required_label); ?></label>
+            </th>
+            <td>
+                <div class="sisme-external-links">
+                    <?php foreach ($platforms as $platform_key => $platform_name): ?>
+                        <div class="link-field">
+                            <label for="<?php echo esc_attr($this->module_id . '_' . $platform_key); ?>">
+                                <?php echo esc_html($platform_name); ?>
+                            </label>
+                            <input type="url" 
+                                   id="<?php echo esc_attr($this->module_id . '_' . $platform_key); ?>" 
+                                   name="external_links[<?php echo esc_attr($platform_key); ?>]" 
+                                   value="<?php echo esc_attr($value[$platform_key] ?? ''); ?>"
+                                   placeholder="https://..."
+                                   class="regular-text">
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <p class="description"><?php echo esc_html($component['description']); ?></p>
+            </td>
+        </tr>
+        <?php
+    }
     
     /**
      * Obtenir les données soumises du formulaire
@@ -836,6 +996,18 @@ class Sisme_Game_Form_Module {
             case 'cover_test':
                 $this->render_cover_component($component_name);
                 break;
+
+            case 'game_platforms':
+                $this->render_game_platforms_component();
+                break;
+                
+            case 'release_date':
+                $this->render_release_date_component();
+                break;
+                
+            case 'external_links':
+                $this->render_external_links_component();
+                break;
                 
             default:
                 // Pour les composants non reconnus, afficher un message d'erreur
@@ -946,6 +1118,29 @@ class Sisme_Game_Form_Module {
                 case 'game_name':
                     if (!empty($value) && !is_numeric($value)) {
                         $errors[$output_var] = 'ID de tag invalide.';
+                    }
+                    break;
+
+                case 'game_platforms':
+                    if (!empty($value) && !is_array($value)) {
+                        $errors[$output_var] = 'Format de plateformes invalide.';
+                    }
+                    break;
+                    
+                case 'release_date':
+                    if (!empty($value) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+                        $errors[$output_var] = 'Format de date invalide (YYYY-MM-DD attendu).';
+                    }
+                    break;
+                    
+                case 'external_links':
+                    if (!empty($value) && is_array($value)) {
+                        foreach ($value as $platform => $url) {
+                            if (!empty($url) && !filter_var($url, FILTER_VALIDATE_URL)) {
+                                $errors[$output_var] = sprintf('URL invalide pour %s.', $platform);
+                                break;
+                            }
+                        }
                     }
                     break;
 

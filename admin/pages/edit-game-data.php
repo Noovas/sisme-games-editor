@@ -53,6 +53,9 @@ if ($is_edit_mode) {
     $existing_cover_news = get_term_meta($tag_id, 'cover_news', true);
     $existing_cover_patch = get_term_meta($tag_id, 'cover_patch', true);
     $existing_cover_test = get_term_meta($tag_id, 'cover_test', true);
+    $existing_platforms = get_term_meta($tag_id, 'game_platforms', true);
+    $existing_release_date = get_term_meta($tag_id, 'release_date', true);
+    $existing_external_links = get_term_meta($tag_id, 'external_links', true);
     
     // Simuler une soumission pour pré-remplir le formulaire
     if (empty($_POST)) {
@@ -66,11 +69,14 @@ if ($is_edit_mode) {
         $_POST['cover_news'] = $existing_cover_news;
         $_POST['cover_patch'] = $existing_cover_patch;
         $_POST['cover_test'] = $existing_cover_test;
+        $_POST['game_platforms'] = $existing_platforms ?: [];
+        $_POST['release_date'] = $existing_release_date;
+        $_POST['external_links'] = $existing_external_links ?: [];
         $_POST['_wpnonce'] = wp_create_nonce('sisme_form_action');
     }
 }
 
-$form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
+$form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'game_platforms', 'release_date', 'external_links', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
 
 
 if ($form->is_submitted() && !empty($_POST['submit'])) {
