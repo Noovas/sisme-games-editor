@@ -1,0 +1,644 @@
+/**
+ * File: /sisme-games-editor/assets/css/layouts/admin.css
+ * Layouts Admin - Structure des pages Sisme Games Editor
+ * 
+ * Dépendances: tokens/design-tokens.css, base/base.css, components/*.css
+ * Intégration: Toutes les pages admin (dashboard, game-data, formulaires, etc.)
+ */
+
+/* ========================================
+   🏗️ STRUCTURE PRINCIPALE ADMIN
+======================================== */
+
+/* Container global WordPress admin */
+.sisme-admin-wrap {
+    margin: var(--sisme-space-lg) 0;
+    padding: 0;
+}
+
+/* Page wrapper principal */
+.sisme-admin-page {
+    max-width: var(--sisme-width-content);
+    margin: 0 auto;
+    padding: var(--sisme-space-lg);
+    position: relative;
+}
+
+/* Header de page */
+.sisme-admin-header {
+    margin-bottom: var(--sisme-space-2xl);
+    position: relative;
+}
+
+.sisme-admin-title {
+    font-size: var(--sisme-text-4xl);
+    font-weight: var(--sisme-font-bold);
+    color: var(--sisme-color-text);
+    margin: 0 0 var(--sisme-space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-md);
+    line-height: var(--sisme-leading-tight);
+}
+
+.sisme-admin-title-icon {
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+
+.sisme-admin-subtitle {
+    font-size: var(--sisme-text-lg);
+    color: var(--sisme-color-text-secondary);
+    margin: 0 0 var(--sisme-space-lg);
+    line-height: var(--sisme-leading-normal);
+    font-weight: var(--sisme-font-normal);
+}
+
+/* Ligne décorative sous le titre */
+.sisme-admin-header::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        var(--sisme-color-primary) 0%, 
+        var(--sisme-color-primary-dark) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    margin-top: var(--sisme-space-lg);
+}
+
+/* Actions dans le header */
+.sisme-admin-header-actions {
+    display: flex;
+    gap: var(--sisme-space-md);
+    align-items: center;
+    margin-top: var(--sisme-space-lg);
+    flex-wrap: wrap;
+}
+
+/* Header avec title et actions alignées */
+.sisme-admin-header--flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-lg);
+}
+
+.sisme-admin-header--flex .sisme-admin-header-actions {
+    margin-top: 0;
+}
+
+/* ========================================
+   📱 LAYOUTS RESPONSIVE
+======================================== */
+
+/* Layout principal */
+.sisme-admin-layout {
+    display: grid;
+    gap: var(--sisme-space-xl);
+    grid-template-columns: 1fr;
+    animation: sisme-fade-in-up var(--sisme-duration-slower) var(--sisme-ease-out);
+}
+
+/* Layout deux colonnes */
+.sisme-admin-layout--two-columns {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sisme-space-2xl);
+}
+
+/* Layout trois colonnes */
+.sisme-admin-layout--three-columns {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sisme-space-xl);
+}
+
+/* Layout avec sidebar */
+.sisme-admin-layout--sidebar {
+    grid-template-columns: 300px 1fr;
+    gap: var(--sisme-space-2xl);
+}
+
+/* Layout formulaire centré */
+.sisme-admin-layout--form {
+    max-width: var(--sisme-width-form);
+    margin: 0 auto;
+}
+
+/* ========================================
+   📊 DASHBOARD SPÉCIALISÉ
+======================================== */
+
+.sisme-dashboard {
+    display: grid;
+    gap: var(--sisme-space-xl);
+}
+
+/* Grille de stats dashboard */
+.sisme-dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--sisme-space-lg);
+    margin-bottom: var(--sisme-space-2xl);
+}
+
+/* Section dashboard */
+.sisme-dashboard-section {
+    margin-bottom: var(--sisme-space-2xl);
+}
+
+.sisme-dashboard-section:last-child {
+    margin-bottom: 0;
+}
+
+.sisme-dashboard-section-title {
+    font-size: var(--sisme-text-2xl);
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-color-text);
+    margin: 0 0 var(--sisme-space-lg);
+    padding-bottom: var(--sisme-space-sm);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-sm);
+}
+
+.sisme-dashboard-section-title::before {
+    content: attr(data-icon);
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+
+/* ========================================
+   📝 LAYOUT FORMULAIRES
+======================================== */
+
+.sisme-form-layout {
+    display: grid;
+    gap: var(--sisme-space-2xl);
+}
+
+/* Formulaire avec preview (split-screen) */
+.sisme-form-layout--split {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sisme-space-2xl);
+    min-height: 80vh;
+}
+
+.sisme-form-panel {
+    background: white;
+    border-radius: var(--sisme-radius-lg);
+    border: 1px solid var(--sisme-border-subtle);
+    box-shadow: var(--sisme-shadow-md);
+    overflow: hidden;
+}
+
+.sisme-form-panel-header {
+    padding: var(--sisme-space-lg) var(--sisme-space-xl);
+    background: var(--sisme-color-background);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-form-panel-title {
+    font-size: var(--sisme-text-lg);
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-color-text);
+    margin: 0;
+}
+
+.sisme-form-panel-body {
+    padding: var(--sisme-space-xl);
+    height: calc(80vh - 80px);
+    overflow-y: auto;
+}
+
+/* Contrôles du split */
+.sisme-split-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--sisme-space-sm);
+    margin-bottom: var(--sisme-space-lg);
+    padding: var(--sisme-space-md);
+    background: white;
+    border-radius: var(--sisme-radius-lg);
+    border: 1px solid var(--sisme-border-subtle);
+    box-shadow: var(--sisme-shadow-sm);
+}
+
+.sisme-split-controls-label {
+    font-size: var(--sisme-text-sm);
+    color: var(--sisme-color-text-secondary);
+    margin-right: var(--sisme-space-sm);
+}
+
+.sisme-split-btn {
+    @extend .sisme-btn;
+    @extend .sisme-btn--sm;
+    @extend .sisme-btn--ghost;
+}
+
+.sisme-split-btn.active {
+    @extend .sisme-btn--primary;
+}
+
+/* ========================================
+   📋 LAYOUT LISTES/TABLEAUX
+======================================== */
+
+.sisme-list-layout {
+    display: grid;
+    gap: var(--sisme-space-xl);
+}
+
+/* Contrôles au-dessus de la liste */
+.sisme-list-controls {
+    display: grid;
+    gap: var(--sisme-space-md);
+}
+
+/* Filtres et recherche */
+.sisme-list-filters {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--sisme-space-md);
+    flex-wrap: wrap;
+}
+
+.sisme-list-search {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    align-items: center;
+    flex: 1;
+    max-width: 400px;
+}
+
+.sisme-list-actions {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    align-items: center;
+}
+
+/* Conteneur du tableau principal */
+.sisme-list-table {
+    /* Utilisera .sisme-card et .sisme-table des composants */
+}
+
+/* Pagination et informations */
+.sisme-list-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--sisme-space-md);
+    flex-wrap: wrap;
+}
+
+.sisme-list-info {
+    font-size: var(--sisme-text-sm);
+    color: var(--sisme-color-text-secondary);
+}
+
+/* ========================================
+   🎮 LAYOUT GAME DATA SPÉCIALISÉ
+======================================== */
+
+.sisme-game-data-layout {
+    display: grid;
+    gap: var(--sisme-space-xl);
+}
+
+/* En-tête Game Data avec stats */
+.sisme-game-data-header {
+    @extend .sisme-admin-header;
+}
+
+/* Stats Game Data */
+.sisme-game-data-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--sisme-space-lg);
+    margin-bottom: var(--sisme-space-2xl);
+}
+
+/* Card de statistique Game Data */
+.sisme-game-stat-card {
+    @extend .sisme-stat-card;
+    background: linear-gradient(135deg, 
+        rgba(161, 183, 141, 0.1) 0%, 
+        rgba(161, 183, 141, 0.05) 100%);
+    border-color: rgba(161, 183, 141, 0.2);
+}
+
+.sisme-game-stat-card:hover {
+    border-color: var(--sisme-color-primary);
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   🔄 LAYOUT ÉTATS SPÉCIAUX
+======================================== */
+
+/* Page de chargement */
+.sisme-admin-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: var(--sisme-space-lg);
+}
+
+.sisme-admin-loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--sisme-border-subtle);
+    border-top-color: var(--sisme-color-primary);
+    border-radius: 50%;
+    animation: sisme-spin 1s linear infinite;
+}
+
+.sisme-admin-loading-text {
+    font-size: var(--sisme-text-lg);
+    color: var(--sisme-color-text-secondary);
+}
+
+/* Page d'erreur */
+.sisme-admin-error {
+    text-align: center;
+    padding: var(--sisme-space-3xl);
+    color: var(--sisme-color-error);
+}
+
+.sisme-admin-error h2 {
+    font-size: var(--sisme-text-3xl);
+    margin: 0 0 var(--sisme-space-md);
+    color: var(--sisme-color-error);
+}
+
+.sisme-admin-error p {
+    font-size: var(--sisme-text-lg);
+    margin: 0 0 var(--sisme-space-lg);
+    color: var(--sisme-color-text-secondary);
+    line-height: var(--sisme-leading-normal);
+}
+
+/* Page vide */
+.sisme-admin-empty {
+    text-align: center;
+    padding: var(--sisme-space-3xl);
+    color: var(--sisme-color-muted);
+}
+
+.sisme-admin-empty h3 {
+    font-size: var(--sisme-text-2xl);
+    margin: 0 0 var(--sisme-space-md);
+    color: var(--sisme-color-text-secondary);
+}
+
+.sisme-admin-empty p {
+    font-size: var(--sisme-text-base);
+    margin: 0 0 var(--sisme-space-xl);
+    line-height: var(--sisme-leading-normal);
+}
+
+/* ========================================
+   📱 RESPONSIVE LAYOUTS
+======================================== */
+
+/* Tablettes */
+@media (max-width: 1024px) {
+    .sisme-admin-page {
+        padding: var(--sisme-space-md);
+    }
+    
+    .sisme-admin-layout--two-columns,
+    .sisme-admin-layout--three-columns,
+    .sisme-admin-layout--sidebar {
+        grid-template-columns: 1fr;
+        gap: var(--sisme-space-lg);
+    }
+    
+    .sisme-form-layout--split {
+        grid-template-columns: 1fr;
+        min-height: auto;
+    }
+    
+    .sisme-form-panel-body {
+        height: auto;
+        max-height: 60vh;
+    }
+    
+    .sisme-dashboard-stats {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: var(--sisme-space-md);
+    }
+    
+    .sisme-game-data-stats {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+}
+
+/* Mobiles */
+@media (max-width: 768px) {
+    .sisme-admin-page {
+        padding: var(--sisme-space-sm);
+    }
+    
+    .sisme-admin-title {
+        font-size: var(--sisme-text-3xl);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--sisme-space-sm);
+    }
+    
+    .sisme-admin-subtitle {
+        font-size: var(--sisme-text-base);
+    }
+    
+    .sisme-admin-header--flex {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .sisme-admin-header-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .sisme-admin-layout {
+        gap: var(--sisme-space-lg);
+    }
+    
+    .sisme-list-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .sisme-list-search {
+        max-width: none;
+    }
+    
+    .sisme-list-footer {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .sisme-split-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .sisme-dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .sisme-game-data-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--sisme-space-sm);
+    }
+    
+    .sisme-dashboard-section-title {
+        font-size: var(--sisme-text-xl);
+    }
+}
+
+/* Très petits mobiles */
+@media (max-width: 480px) {
+    .sisme-admin-page {
+        padding: var(--sisme-space-xs);
+    }
+    
+    .sisme-admin-title {
+        font-size: var(--sisme-text-2xl);
+    }
+    
+    .sisme-admin-header-actions .sisme-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .sisme-form-panel-header,
+    .sisme-form-panel-body {
+        padding: var(--sisme-space-md);
+    }
+    
+    .sisme-game-data-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .sisme-split-controls {
+        padding: var(--sisme-space-sm);
+    }
+    
+    .sisme-split-controls-label {
+        display: none;
+    }
+}
+
+/* ========================================
+   🌙 DARK MODE LAYOUTS
+======================================== */
+
+.sisme-dark .sisme-admin-page {
+    background: var(--sisme-color-dark);
+    color: #ffffff;
+}
+
+.sisme-dark .sisme-admin-title {
+    color: #ffffff;
+}
+
+.sisme-dark .sisme-admin-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.sisme-dark .sisme-form-panel {
+    background: var(--sisme-color-slate);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sisme-dark .sisme-form-panel-header {
+    background: var(--sisme-color-slate-dark);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sisme-dark .sisme-split-controls {
+    background: var(--sisme-color-slate);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
+   🔧 UTILITAIRES LAYOUTS
+======================================== */
+
+/* Espacement entre sections */
+.sisme-section + .sisme-section {
+    margin-top: var(--sisme-space-2xl);
+}
+
+/* Centrage de contenu */
+.sisme-center-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Grille flexible */
+.sisme-grid-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--sisme-space-lg);
+}
+
+/* Conteneur pleine largeur */
+.sisme-full-width {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+}
+
+/* Scroll horizontal pour tables */
+.sisme-scroll-x {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sisme-color-primary) var(--sisme-color-background);
+}
+
+.sisme-scroll-x::-webkit-scrollbar {
+    height: 8px;
+}
+
+.sisme-scroll-x::-webkit-scrollbar-track {
+    background: var(--sisme-color-background);
+    border-radius: 4px;
+}
+
+.sisme-scroll-x::-webkit-scrollbar-thumb {
+    background: var(--sisme-color-primary);
+    border-radius: 4px;
+}
+
+.sisme-scroll-x::-webkit-scrollbar-thumb:hover {
+    background: var(--sisme-color-primary-dark);
+}
+
+/* Sticky header */
+.sisme-sticky-header {
+    position: sticky;
+    top: 32px; /* WordPress admin bar */
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+    margin-bottom: var(--sisme-space-lg);
+    padding: var(--sisme-space-md) 0;
+}
+
+.sisme-dark .sisme-sticky-header {
+    background: rgba(45, 55, 72, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+}

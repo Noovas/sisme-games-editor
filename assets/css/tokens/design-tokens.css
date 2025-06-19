@@ -1,0 +1,279 @@
+/**
+ * File: /sisme-games-editor/assets/css/tokens/design-tokens.css
+ * Design System - Tokens centralisés pour Sisme Games Editor
+ * 
+ * Architecture: Backend cohérent avec Frontend
+ */
+
+/* ========================================
+   🎨 PALETTE DE COULEURS PRINCIPALE
+======================================== */
+:root {
+    /* Couleurs principales du thème - EXISTANTES */
+    --sisme-color-primary: #A1B78D;        /* Vert principal - actions/success */
+    --sisme-color-primary-dark: #557A46;   /* Vert foncé - hover/active */
+    --sisme-color-secondary: #D4A373;      /* Beige/orange - accents */
+    
+    /* Couleurs neutres - EXISTANTES */
+    --sisme-color-background: #ECF0F1;     /* Arrière-plan clair */
+    --sisme-color-surface: #ECF0F1;        /* Surface des conteneurs */
+    --sisme-color-muted: #9caca0;          /* Texte/éléments atténués */
+    --sisme-color-text: #2C3E50;           /* Texte principal */
+    --sisme-color-text-secondary: #425261; /* Texte secondaire */
+    
+    /* NOUVELLES couleurs dérivées pour cohérence Frontend/Backend */
+    --sisme-color-dark: #1a1a1a;           /* Fond sombre (comme frontend) */
+    --sisme-color-slate: #2d3748;          /* Slate moderne */
+    --sisme-color-slate-light: #4a5568;    /* Slate clair */
+    --sisme-color-slate-dark: #1a202c;     /* Slate très sombre */
+    
+    /* États et feedback */
+    --sisme-color-success: var(--sisme-color-primary);
+    --sisme-color-warning: #f6ad55;
+    --sisme-color-error: #e53e3e;
+    --sisme-color-info: #3182ce;
+    
+    /* Transparences utilitaires */
+    --sisme-bg-overlay: rgba(236, 240, 241, 0.95);
+    --sisme-bg-overlay-dark: rgba(45, 55, 72, 0.95);
+    --sisme-border-subtle: rgba(161, 183, 141, 0.2);
+    --sisme-border-strong: rgba(161, 183, 141, 0.8);
+}
+
+/* ========================================
+   📏 ESPACEMENT & TAILLES
+======================================== */
+:root {
+    /* Espacement harmonieux basé sur 8px */
+    --sisme-space-xs: 4px;     /* 0.25rem */
+    --sisme-space-sm: 8px;     /* 0.5rem */
+    --sisme-space-md: 16px;    /* 1rem */
+    --sisme-space-lg: 24px;    /* 1.5rem */
+    --sisme-space-xl: 32px;    /* 2rem */
+    --sisme-space-2xl: 48px;   /* 3rem */
+    --sisme-space-3xl: 64px;   /* 4rem */
+    
+    /* Rayons de bordure cohérents */
+    --sisme-radius-sm: 4px;
+    --sisme-radius-md: 8px;
+    --sisme-radius-lg: 12px;
+    --sisme-radius-xl: 16px;
+    
+    /* Largeurs maximum */
+    --sisme-width-content: 1200px;  /* Largeur max contenus */
+    --sisme-width-text: 900px;      /* Largeur max texte */
+    --sisme-width-form: 800px;      /* Largeur max formulaires */
+}
+
+/* ========================================
+   ✍️ TYPOGRAPHIE
+======================================== */
+:root {
+    /* Tailles de police harmonieuses */
+    --sisme-text-xs: 0.75rem;    /* 12px */
+    --sisme-text-sm: 0.875rem;   /* 14px */
+    --sisme-text-base: 1rem;     /* 16px */
+    --sisme-text-lg: 1.125rem;   /* 18px */
+    --sisme-text-xl: 1.25rem;    /* 20px */
+    --sisme-text-2xl: 1.5rem;    /* 24px */
+    --sisme-text-3xl: 1.875rem;  /* 30px */
+    --sisme-text-4xl: 2.25rem;   /* 36px */
+    
+    /* Graisses de police */
+    --sisme-font-normal: 400;
+    --sisme-font-medium: 500;
+    --sisme-font-semibold: 600;
+    --sisme-font-bold: 700;
+    
+    /* Hauteurs de ligne */
+    --sisme-leading-tight: 1.2;
+    --sisme-leading-normal: 1.6;
+    --sisme-leading-relaxed: 1.8;
+}
+
+/* ========================================
+   🔳 OMBRES & ÉLÉVATIONS
+======================================== */
+:root {
+    /* Ombres subtiles et professionnelles */
+    --sisme-shadow-sm: 0 2px 4px rgba(44, 62, 80, 0.04);
+    --sisme-shadow-md: 0 4px 12px rgba(44, 62, 80, 0.06), 
+                       0 2px 8px rgba(44, 62, 80, 0.04);
+    --sisme-shadow-lg: 0 8px 24px rgba(44, 62, 80, 0.08), 
+                       0 4px 12px rgba(44, 62, 80, 0.04);
+    --sisme-shadow-xl: 0 12px 40px rgba(44, 62, 80, 0.12), 
+                       0 4px 16px rgba(44, 62, 80, 0.06);
+    
+    /* Ombres pour les éléments interactifs */
+    --sisme-shadow-hover: 0 4px 12px rgba(161, 183, 141, 0.3);
+    --sisme-shadow-focus: 0 0 0 2px rgba(161, 183, 141, 0.2);
+}
+
+/* ========================================
+   🎯 TRANSITIONS & ANIMATIONS
+======================================== */
+:root {
+    /* Durées standards */
+    --sisme-duration-fast: 0.15s;
+    --sisme-duration-normal: 0.2s;
+    --sisme-duration-slow: 0.3s;
+    --sisme-duration-slower: 0.6s;
+    
+    /* Easing functions */
+    --sisme-ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --sisme-ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --sisme-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Transitions communes */
+    --sisme-transition-all: all var(--sisme-duration-normal) var(--sisme-ease-out);
+    --sisme-transition-colors: color var(--sisme-duration-normal) var(--sisme-ease-out),
+                               background-color var(--sisme-duration-normal) var(--sisme-ease-out),
+                               border-color var(--sisme-duration-normal) var(--sisme-ease-out);
+}
+
+/* ========================================
+   📱 BREAKPOINTS RESPONSIVES
+======================================== */
+:root {
+    --sisme-bp-xs: 480px;   /* Très petits mobiles */
+    --sisme-bp-sm: 640px;   /* Mobiles */
+    --sisme-bp-md: 768px;   /* Tablettes portrait */
+    --sisme-bp-lg: 1024px;  /* Tablettes paysage */
+    --sisme-bp-xl: 1280px;  /* Desktop */
+    --sisme-bp-2xl: 1536px; /* Large desktop */
+}
+
+/* ========================================
+   🎨 ANIMATIONS COMMUNES
+======================================== */
+@keyframes sisme-fade-in-up {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes sisme-dots-flow {
+    0% { left: -150px; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { left: calc(100% + 150px); opacity: 0; }
+}
+
+@keyframes sisme-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes sisme-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   🔧 UTILITAIRES DE BASE
+======================================== */
+
+/* Reset box-sizing pour tous les éléments */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Classes utilitaires communes */
+.sisme-visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.sisme-clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* ========================================
+   📦 COMPOSANTS DE BASE - PLACEHOLDERS
+======================================== */
+
+/* Placeholder pour les futurs composants */
+%sisme-card {
+    background: var(--sisme-bg-overlay);
+    border-radius: var(--sisme-radius-lg);
+    border: 1px solid var(--sisme-border-subtle);
+    box-shadow: var(--sisme-shadow-lg);
+    position: relative;
+    overflow: hidden;
+    transition: var(--sisme-transition-all);
+}
+
+%sisme-card-header {
+    position: relative;
+    overflow: hidden;
+}
+
+%sisme-card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--sisme-border-subtle);
+    border-radius: 2px;
+}
+
+%sisme-card-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--sisme-color-primary-dark) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    animation: sisme-dots-flow 4s ease-out infinite;
+}
+
+/* ========================================
+   🎯 COHÉRENCE BACKEND/FRONTEND
+======================================== */
+
+/* Adaptation pour les rôles avec accès backend */
+.sisme-admin-context {
+    /* Garde le design clair par défaut */
+    color-scheme: light;
+}
+
+.sisme-admin-context.sisme-dark-mode {
+    /* Option pour basculer vers le mode sombre du frontend */
+    background: var(--sisme-color-dark);
+    color: #ffffff;
+    color-scheme: dark;
+}
+
+/* Variables spéciales pour la cohérence */
+.sisme-admin-context {
+    --sisme-surface-color: var(--sisme-color-background);
+    --sisme-text-color: var(--sisme-color-text);
+    --sisme-border-color: var(--sisme-border-subtle);
+}
+
+.sisme-admin-context.sisme-dark-mode {
+    --sisme-surface-color: var(--sisme-color-slate);
+    --sisme-text-color: #ffffff;
+    --sisme-border-color: rgba(255, 255, 255, 0.1);
+}

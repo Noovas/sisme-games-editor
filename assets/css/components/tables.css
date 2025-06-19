@@ -1,0 +1,655 @@
+/**
+ * File: /sisme-games-editor/assets/css/components/tables.css
+ * Composants Tables - Admin Sisme Games Editor
+ * 
+ * Dépendances: tokens/design-tokens.css, base/base.css
+ * Intégration: module-admin-page-table-game-data.php
+ */
+
+/* ========================================
+   📊 TABLE DE BASE
+======================================== */
+
+.sisme-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: var(--sisme-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--sisme-shadow-sm);
+    border: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-table th,
+.sisme-table td {
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    text-align: left;
+    border-bottom: 1px solid var(--sisme-border-subtle);
+    vertical-align: top;
+}
+
+.sisme-table thead th {
+    background: var(--sisme-color-background);
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-color-text);
+    font-size: var(--sisme-text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--sisme-color-primary);
+    position: relative;
+}
+
+.sisme-table tbody tr {
+    transition: var(--sisme-transition-colors);
+}
+
+.sisme-table tbody tr:hover {
+    background: rgba(161, 183, 141, 0.05);
+}
+
+.sisme-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ========================================
+   🎮 TABLE GAME DATA SPÉCIALISÉE
+======================================== */
+
+/* Table principale pour Game Data */
+.sisme-game-data-table {
+    @extend .sisme-table;
+}
+
+/* En-tête spécialisé Game Data */
+.sisme-game-data-table thead th {
+    background: linear-gradient(135deg, 
+        var(--sisme-color-background) 0%, 
+        rgba(161, 183, 141, 0.1) 100%);
+}
+
+/* Ligne principale de données */
+.sisme-game-data-table .game-data-row {
+    border-bottom: 2px solid var(--sisme-color-primary);
+}
+
+.sisme-game-data-table .game-data-row td {
+    font-weight: var(--sisme-font-medium);
+    padding: var(--sisme-space-lg);
+}
+
+/* Lignes secondaires (genres/modes, dev/editeurs, covers, plateformes) */
+.sisme-game-data-table .game-data-subrow {
+    background: #f9f9f9;
+    border-bottom: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-game-data-table .game-data-subrow:last-of-type {
+    border-bottom: 3px solid var(--sisme-color-primary);
+}
+
+.sisme-game-data-table .game-data-subrow td {
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    font-size: var(--sisme-text-sm);
+}
+
+/* Ligne d'informations (genres, modes, développeurs) */
+.sisme-game-data-table .game-info-row {
+    background: rgba(161, 183, 141, 0.05);
+}
+
+/* Ligne des covers */
+.sisme-game-data-table .game-covers-row {
+    background: rgba(236, 240, 241, 0.8);
+}
+
+/* Ligne des plateformes et liens */
+.sisme-game-data-table .game-platforms-row {
+    background: rgba(212, 163, 115, 0.05);
+}
+
+/* ========================================
+   🏷️ COLONNES SPÉCIALISÉES
+======================================== */
+
+/* Colonne nom du jeu */
+.sisme-table .column-name {
+    min-width: 200px;
+    font-weight: var(--sisme-font-medium);
+}
+
+.sisme-table .column-name strong {
+    color: var(--sisme-color-text);
+    font-size: var(--sisme-text-lg);
+    display: block;
+    margin-bottom: var(--sisme-space-xs);
+}
+
+.sisme-table .column-name .game-meta {
+    font-size: var(--sisme-text-xs);
+    color: var(--sisme-color-muted);
+    font-weight: var(--sisme-font-normal);
+}
+
+/* Colonne description */
+.sisme-table .column-description {
+    max-width: 300px;
+    line-height: var(--sisme-leading-normal);
+}
+
+/* Colonne compteur d'articles */
+.sisme-table .column-articles_count {
+    text-align: center;
+    min-width: 100px;
+}
+
+.sisme-table .column-articles_count .articles-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    background: var(--sisme-color-primary);
+    color: white;
+    border-radius: 50%;
+    font-weight: var(--sisme-font-semibold);
+    font-size: var(--sisme-text-sm);
+}
+
+.sisme-table .column-articles_count .articles-count--zero {
+    background: var(--sisme-color-muted);
+}
+
+/* Colonne dernière mise à jour */
+.sisme-table .column-last_update {
+    min-width: 140px;
+    font-family: monospace;
+    font-size: var(--sisme-text-sm);
+    color: var(--sisme-color-text-secondary);
+}
+
+/* Colonne actions */
+.sisme-table .column-actions {
+    min-width: 180px;
+    text-align: right;
+}
+
+/* ========================================
+   🎨 ÉLÉMENTS VISUELS GAME DATA
+======================================== */
+
+/* Tags/badges pour genres, modes, etc. */
+.sisme-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-xl);
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 2px;
+    transition: var(--sisme-transition-colors);
+}
+
+/* Tags pour genres */
+.sisme-tag--genre {
+    background: rgba(161, 183, 141, 0.2);
+    color: var(--sisme-color-primary-dark);
+    border: 1px solid rgba(161, 183, 141, 0.3);
+}
+
+.sisme-tag--genre:hover {
+    background: rgba(161, 183, 141, 0.3);
+    border-color: var(--sisme-color-primary);
+}
+
+/* Tags pour modes */
+.sisme-tag--mode {
+    background: rgba(212, 163, 115, 0.2);
+    color: #b8894a;
+    border: 1px solid rgba(212, 163, 115, 0.3);
+}
+
+.sisme-tag--mode:hover {
+    background: rgba(212, 163, 115, 0.3);
+    border-color: var(--sisme-color-secondary);
+}
+
+/* Tags pour plateformes */
+.sisme-tag--platform {
+    background: rgba(49, 130, 206, 0.1);
+    color: var(--sisme-color-info);
+    border: 1px solid rgba(49, 130, 206, 0.2);
+    cursor: help;
+}
+
+.sisme-tag--platform:hover {
+    background: rgba(49, 130, 206, 0.2);
+    border-color: var(--sisme-color-info);
+}
+
+/* Liens externes stylisés */
+.sisme-external-link {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    background: rgba(34, 139, 34, 0.1);
+    color: #228b22;
+    border: 1px solid rgba(34, 139, 34, 0.2);
+    border-radius: var(--sisme-radius-md);
+    text-decoration: none;
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-medium);
+    margin-right: var(--sisme-space-xs);
+    transition: var(--sisme-transition-colors);
+}
+
+.sisme-external-link:hover {
+    background: rgba(34, 139, 34, 0.2);
+    border-color: #228b22;
+    color: #1e6b1e;
+    text-decoration: none;
+}
+
+/* ========================================
+   🖼️ AFFICHAGE DES COVERS
+======================================== */
+
+.sisme-covers-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--sisme-space-lg);
+    flex-wrap: wrap;
+}
+
+.sisme-cover-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+    flex: 1;
+    min-width: 80px;
+}
+
+.sisme-cover-label {
+    font-size: var(--sisme-text-xs);
+    color: var(--sisme-color-muted);
+    font-weight: var(--sisme-font-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sisme-cover-preview {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--sisme-radius-md);
+    object-fit: cover;
+    border: 2px solid var(--sisme-border-subtle);
+    transition: var(--sisme-transition-all);
+    box-shadow: var(--sisme-shadow-sm);
+}
+
+.sisme-cover-preview:hover {
+    transform: scale(1.1);
+    border-color: var(--sisme-color-primary);
+    box-shadow: var(--sisme-shadow-md);
+}
+
+.sisme-cover-placeholder {
+    width: 50px;
+    height: 50px;
+    background: var(--sisme-color-background);
+    border: 2px dashed var(--sisme-border-subtle);
+    border-radius: var(--sisme-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--sisme-color-muted);
+}
+
+.sisme-cover-error {
+    width: 50px;
+    height: 50px;
+    background: rgba(229, 62, 62, 0.1);
+    border: 2px solid rgba(229, 62, 62, 0.3);
+    border-radius: var(--sisme-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--sisme-color-error);
+}
+
+/* ========================================
+   🔍 RECHERCHE ET FILTRES
+======================================== */
+
+.sisme-table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--sisme-space-md);
+    margin-bottom: var(--sisme-space-lg);
+    padding: var(--sisme-space-lg);
+    background: white;
+    border-radius: var(--sisme-radius-lg);
+    border: 1px solid var(--sisme-border-subtle);
+    box-shadow: var(--sisme-shadow-sm);
+}
+
+.sisme-search-form {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    align-items: center;
+    flex: 1;
+    max-width: 400px;
+}
+
+.sisme-table-actions {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    align-items: center;
+}
+
+/* ========================================
+   📄 PAGINATION
+======================================== */
+
+.sisme-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+    margin-top: var(--sisme-space-lg);
+    padding: var(--sisme-space-lg);
+}
+
+.sisme-pagination .sisme-btn {
+    min-width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.sisme-pagination .sisme-btn--current {
+    background: var(--sisme-color-primary);
+    color: white;
+    border-color: var(--sisme-color-primary);
+}
+
+.sisme-pagination .sisme-btn--current:hover {
+    background: var(--sisme-color-primary-dark);
+    transform: none;
+}
+
+/* ========================================
+   📊 ÉTATS DE TABLE
+======================================== */
+
+/* Table vide */
+.sisme-table-empty {
+    text-align: center;
+    padding: var(--sisme-space-3xl);
+    color: var(--sisme-color-muted);
+}
+
+.sisme-table-empty h3 {
+    margin: 0 0 var(--sisme-space-sm);
+    color: var(--sisme-color-text-secondary);
+    font-weight: var(--sisme-font-medium);
+}
+
+.sisme-table-empty p {
+    margin: 0 0 var(--sisme-space-lg);
+    line-height: var(--sisme-leading-normal);
+}
+
+/* Table en chargement */
+.sisme-table-loading {
+    position: relative;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.sisme-table-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    margin: -16px 0 0 -16px;
+    border: 3px solid var(--sisme-color-primary);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: sisme-spin 0.8s linear infinite;
+}
+
+/* ========================================
+   📱 RESPONSIVE TABLES
+======================================== */
+
+/* Tablettes */
+@media (max-width: 1024px) {
+    .sisme-table th,
+    .sisme-table td {
+        padding: var(--sisme-space-sm) var(--sisme-space-md);
+    }
+    
+    .sisme-covers-display {
+        gap: var(--sisme-space-md);
+    }
+    
+    .sisme-cover-item {
+        min-width: 60px;
+    }
+    
+    .sisme-cover-preview,
+    .sisme-cover-placeholder,
+    .sisme-cover-error {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Mobiles */
+@media (max-width: 768px) {
+    .sisme-table-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--sisme-space-md);
+    }
+    
+    .sisme-search-form {
+        max-width: none;
+    }
+    
+    .sisme-table-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    /* Table responsive - mode cards */
+    .sisme-table-responsive {
+        display: none;
+    }
+    
+    .sisme-table-cards {
+        display: grid;
+        gap: var(--sisme-space-md);
+        grid-template-columns: 1fr;
+    }
+    
+    .sisme-game-card {
+        background: white;
+        border-radius: var(--sisme-radius-lg);
+        border: 1px solid var(--sisme-border-subtle);
+        padding: var(--sisme-space-lg);
+        box-shadow: var(--sisme-shadow-sm);
+    }
+    
+    .sisme-game-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--sisme-space-md);
+    }
+    
+    .sisme-game-card-title {
+        font-weight: var(--sisme-font-semibold);
+        color: var(--sisme-color-text);
+        margin: 0;
+    }
+    
+    .sisme-game-card-meta {
+        font-size: var(--sisme-text-xs);
+        color: var(--sisme-color-muted);
+        margin-top: var(--sisme-space-xs);
+    }
+    
+    .sisme-game-card-content {
+        display: grid;
+        gap: var(--sisme-space-sm);
+    }
+    
+    .sisme-game-card-section {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sisme-space-xs);
+    }
+    
+    .sisme-game-card-label {
+        font-size: var(--sisme-text-xs);
+        font-weight: var(--sisme-font-semibold);
+        color: var(--sisme-color-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .sisme-pagination {
+        flex-wrap: wrap;
+        gap: var(--sisme-space-xs);
+    }
+    
+    .sisme-pagination .sisme-btn {
+        min-width: 36px;
+        height: 36px;
+    }
+}
+
+/* Très petits mobiles */
+@media (max-width: 480px) {
+    .sisme-table th,
+    .sisme-table td {
+        padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    }
+    
+    .sisme-game-card {
+        padding: var(--sisme-space-md);
+    }
+    
+    .sisme-covers-display {
+        justify-content: center;
+        gap: var(--sisme-space-sm);
+    }
+    
+    .sisme-cover-preview,
+    .sisme-cover-placeholder,
+    .sisme-cover-error {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .sisme-tag {
+        font-size: 10px;
+        padding: 2px var(--sisme-space-xs);
+    }
+}
+
+/* ========================================
+   🌙 DARK MODE SUPPORT
+======================================== */
+
+.sisme-dark .sisme-table {
+    background: var(--sisme-color-slate);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.sisme-dark .sisme-table thead th {
+    background: var(--sisme-color-slate-dark);
+    color: #ffffff;
+}
+
+.sisme-dark .sisme-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sisme-dark .sisme-game-data-table .game-data-subrow {
+    background: var(--sisme-color-slate-light);
+}
+
+.sisme-dark .sisme-table-controls {
+    background: var(--sisme-color-slate);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sisme-dark .sisme-game-card {
+    background: var(--sisme-color-slate);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
+   🔧 UTILITAIRES TABLES
+======================================== */
+
+/* Tri de colonnes */
+.sisme-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: calc(var(--sisme-space-lg) + 20px);
+}
+
+.sisme-table th.sortable::after {
+    content: '↕️';
+    position: absolute;
+    right: var(--sisme-space-sm);
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.5;
+    font-size: 12px;
+}
+
+.sisme-table th.sortable:hover::after {
+    opacity: 0.8;
+}
+
+.sisme-table th.sortable.sorted-asc::after {
+    content: '↑';
+    opacity: 1;
+    color: var(--sisme-color-primary);
+}
+
+.sisme-table th.sortable.sorted-desc::after {
+    content: '↓';
+    opacity: 1;
+    color: var(--sisme-color-primary);
+}
+
+/* Sélection de lignes */
+.sisme-table .row-selector {
+    width: 40px;
+    text-align: center;
+}
+
+.sisme-table .row-selected {
+    background: rgba(161, 183, 141, 0.1);
+}
+
+.sisme-table .row-selected:hover {
+    background: rgba(161, 183, 141, 0.15);
+}

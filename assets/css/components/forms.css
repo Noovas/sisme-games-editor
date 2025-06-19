@@ -1,0 +1,628 @@
+/**
+ * File: /sisme-games-editor/assets/css/components/forms.css
+ * Composants Forms - Admin Sisme Games Editor
+ * 
+ * Dépendances: tokens/design-tokens.css, base/base.css
+ * Intégration: module-admin-page-formulaire.php
+ */
+
+/* ========================================
+   📝 FORM DE BASE
+======================================== */
+
+.sisme-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-lg);
+    max-width: 100%;
+}
+
+/* Table de formulaire (WordPress style mais amélioré) */
+.sisme-form-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: transparent;
+}
+
+.sisme-form-table th,
+.sisme-form-table td {
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    vertical-align: top;
+    border-bottom: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-form-table th {
+    width: 180px;
+    text-align: left;
+    font-weight: var(--sisme-font-medium);
+    color: var(--sisme-color-text);
+    background: rgba(161, 183, 141, 0.05);
+}
+
+.sisme-form-table td {
+    background: white;
+}
+
+/* Dernière ligne sans bordure */
+.sisme-form-table tr:last-child th,
+.sisme-form-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* ========================================
+   🎯 GROUPES DE CHAMPS
+======================================== */
+
+.sisme-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-xs);
+    margin-bottom: var(--sisme-space-lg);
+}
+
+.sisme-form-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Groupe horizontal */
+.sisme-form-group--horizontal {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--sisme-space-md);
+}
+
+.sisme-form-group--horizontal .sisme-form-label {
+    margin-bottom: 0;
+    min-width: 120px;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   🏷️ LABELS
+======================================== */
+
+.sisme-form-label {
+    font-size: var(--sisme-text-sm);
+    font-weight: var(--sisme-font-medium);
+    color: var(--sisme-color-text);
+    margin-bottom: var(--sisme-space-xs);
+    line-height: var(--sisme-leading-normal);
+}
+
+.sisme-form-label--required::after {
+    content: ' *';
+    color: var(--sisme-color-error);
+    font-weight: var(--sisme-font-normal);
+}
+
+/* Label inline */
+.sisme-form-label--inline {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+/* ========================================
+   📋 CHAMPS DE BASE
+======================================== */
+
+.sisme-form-input,
+.sisme-form-textarea,
+.sisme-form-select {
+    /* Apparence */
+    width: 100%;
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    border: 1px solid var(--sisme-border-subtle);
+    border-radius: var(--sisme-radius-md);
+    background: white;
+    
+    /* Typographie */
+    font-family: inherit;
+    font-size: var(--sisme-text-base);
+    line-height: var(--sisme-leading-normal);
+    color: var(--sisme-color-text);
+    
+    /* Interactions */
+    transition: var(--sisme-transition-colors);
+    outline: none;
+}
+
+/* États des champs */
+.sisme-form-input:focus,
+.sisme-form-textarea:focus,
+.sisme-form-select:focus {
+    border-color: var(--sisme-color-primary);
+    box-shadow: var(--sisme-shadow-focus);
+}
+
+.sisme-form-input:disabled,
+.sisme-form-textarea:disabled,
+.sisme-form-select:disabled {
+    background: var(--sisme-color-background);
+    color: var(--sisme-color-muted);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.sisme-form-input::placeholder,
+.sisme-form-textarea::placeholder {
+    color: var(--sisme-color-muted);
+    opacity: 1;
+}
+
+/* ========================================
+   📐 TAILLES DE CHAMPS
+======================================== */
+
+.sisme-form-input--sm,
+.sisme-form-select--sm {
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    font-size: var(--sisme-text-sm);
+}
+
+.sisme-form-input--lg,
+.sisme-form-select--lg {
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    font-size: var(--sisme-text-lg);
+}
+
+/* Largeurs */
+.sisme-form-input--full { width: 100%; }
+.sisme-form-input--auto { width: auto; }
+.sisme-form-input--xs { width: 80px; }
+.sisme-form-input--sm { width: 120px; }
+.sisme-form-input--md { width: 200px; }
+.sisme-form-input--lg { width: 300px; }
+
+/* ========================================
+   📄 TEXTAREA SPÉCIALISÉE
+======================================== */
+
+.sisme-form-textarea {
+    min-height: 100px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.sisme-form-textarea--sm {
+    min-height: 80px;
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    font-size: var(--sisme-text-sm);
+}
+
+.sisme-form-textarea--lg {
+    min-height: 150px;
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    font-size: var(--sisme-text-lg);
+}
+
+/* Textarea riche (utilisée dans ton module) */
+.sisme-rich-textarea {
+    @extend .sisme-form-textarea;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.6;
+}
+
+/* ========================================
+   🔽 SELECT AMÉLIORÉ
+======================================== */
+
+.sisme-form-select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right var(--sisme-space-sm) center;
+    background-size: 16px;
+    padding-right: var(--sisme-space-2xl);
+    cursor: pointer;
+}
+
+.sisme-form-select:focus {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A1B78D' stroke-width='2'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+/* ========================================
+   ☑️ CHECKBOXES & RADIOS
+======================================== */
+
+.sisme-form-checkbox,
+.sisme-form-radio {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--sisme-border-subtle);
+    background: white;
+    cursor: pointer;
+    transition: var(--sisme-transition-colors);
+    flex-shrink: 0;
+}
+
+.sisme-form-checkbox {
+    border-radius: var(--sisme-radius-sm);
+}
+
+.sisme-form-radio {
+    border-radius: 50%;
+}
+
+/* États checked */
+.sisme-form-checkbox:checked,
+.sisme-form-radio:checked {
+    background: var(--sisme-color-primary);
+    border-color: var(--sisme-color-primary);
+}
+
+.sisme-form-checkbox:checked {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3e%3cpolyline points='20,6 9,17 4,12'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 12px;
+}
+
+.sisme-form-radio:checked {
+    background-image: radial-gradient(circle, white 30%, transparent 30%);
+}
+
+/* Focus */
+.sisme-form-checkbox:focus,
+.sisme-form-radio:focus {
+    outline: none;
+    box-shadow: var(--sisme-shadow-focus);
+}
+
+/* ========================================
+   📦 COMPOSANTS SPÉCIALISÉS GAME DATA
+======================================== */
+
+/* Sélecteur de plateformes (pour ton composant game_platforms) */
+.sisme-platforms-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--sisme-space-lg);
+    margin-top: var(--sisme-space-sm);
+}
+
+.platform-category {
+    background: rgba(236, 240, 241, 0.5);
+    padding: var(--sisme-space-md);
+    border-radius: var(--sisme-radius-md);
+    border: 1px solid var(--sisme-border-subtle);
+    transition: var(--sisme-transition-all);
+}
+
+.platform-category:hover {
+    border-color: var(--sisme-color-primary);
+    background: rgba(161, 183, 141, 0.1);
+}
+
+.platform-category h4 {
+    margin: 0 0 var(--sisme-space-sm) 0;
+    color: var(--sisme-color-text);
+    font-size: var(--sisme-text-sm);
+    font-weight: var(--sisme-font-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--sisme-border-subtle);
+    padding-bottom: var(--sisme-space-xs);
+}
+
+.platform-option {
+    @extend .sisme-form-label--inline;
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-sm);
+    transition: var(--sisme-transition-colors);
+    margin-bottom: var(--sisme-space-xs);
+}
+
+.platform-option:hover {
+    background: rgba(161, 183, 141, 0.1);
+}
+
+.platform-option:last-child {
+    margin-bottom: 0;
+}
+
+.platform-option input[type="checkbox"] {
+    @extend .sisme-form-checkbox;
+    margin-right: var(--sisme-space-xs);
+    margin-top: 0;
+}
+
+/* Liens externes (pour ton composant external_links) */
+.sisme-external-links {
+    display: grid;
+    gap: var(--sisme-space-md);
+    margin-top: var(--sisme-space-sm);
+}
+
+.link-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-xs);
+}
+
+.link-field label {
+    @extend .sisme-form-label;
+    font-weight: var(--sisme-font-semibold);
+    text-transform: uppercase;
+    font-size: var(--sisme-text-xs);
+    letter-spacing: 0.5px;
+    color: var(--sisme-color-text);
+}
+
+.link-field input[type="url"] {
+    @extend .sisme-form-input;
+}
+
+.link-field input[type="url"]:not(:placeholder-shown) {
+    background: rgba(161, 183, 141, 0.05);
+    border-color: var(--sisme-color-primary);
+}
+
+/* ========================================
+   📅 CHAMPS DE DATE
+======================================== */
+
+.sisme-form-date {
+    @extend .sisme-form-input;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3e%3crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3e%3c/rect%3e%3cline x1='16' y1='2' x2='16' y2='6'%3e%3c/line%3e%3cline x1='8' y1='2' x2='8' y2='6'%3e%3c/line%3e%3cline x1='3' y1='10' x2='21' y2='10'%3e%3c/line%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right var(--sisme-space-sm) center;
+    background-size: 18px;
+    cursor: pointer;
+}
+
+.sisme-form-date:focus {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A1B78D' stroke-width='2'%3e%3crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3e%3c/rect%3e%3cline x1='16' y1='2' x2='16' y2='6'%3e%3c/line%3e%3cline x1='8' y1='2' x2='8' y2='6'%3e%3c/line%3e%3cline x1='3' y1='10' x2='21' y2='10'%3e%3c/line%3e%3c/svg%3e");
+}
+
+/* ========================================
+   📷 SÉLECTEUR DE MÉDIA
+======================================== */
+
+.sisme-media-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sisme-space-md);
+    padding: var(--sisme-space-lg);
+    border: 2px dashed var(--sisme-border-subtle);
+    border-radius: var(--sisme-radius-lg);
+    background: rgba(236, 240, 241, 0.3);
+    transition: var(--sisme-transition-colors);
+    cursor: pointer;
+}
+
+.sisme-media-selector:hover {
+    border-color: var(--sisme-color-primary);
+    background: rgba(161, 183, 141, 0.1);
+}
+
+.sisme-media-selector--has-image {
+    border-style: solid;
+    background: white;
+    padding: var(--sisme-space-md);
+}
+
+.sisme-media-preview {
+    max-width: 200px;
+    max-height: 150px;
+    border-radius: var(--sisme-radius-md);
+    box-shadow: var(--sisme-shadow-md);
+}
+
+.sisme-media-buttons {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* ========================================
+   💬 DESCRIPTIONS D'AIDE
+======================================== */
+
+.sisme-form-description {
+    font-size: var(--sisme-text-sm);
+    color: var(--sisme-color-muted);
+    line-height: var(--sisme-leading-normal);
+    margin-top: var(--sisme-space-xs);
+}
+
+.sisme-form-description strong {
+    color: var(--sisme-color-text-secondary);
+    font-weight: var(--sisme-font-medium);
+}
+
+/* Description avec icône */
+.sisme-form-description--tip {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sisme-space-xs);
+}
+
+.sisme-form-description--tip::before {
+    content: '💡';
+    font-size: 0.9em;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* ========================================
+   ⚠️ VALIDATION & ERREURS
+======================================== */
+
+.sisme-form-group--error .sisme-form-input,
+.sisme-form-group--error .sisme-form-textarea,
+.sisme-form-group--error .sisme-form-select {
+    border-color: var(--sisme-color-error);
+    background: rgba(229, 62, 62, 0.05);
+}
+
+.sisme-form-group--error .sisme-form-label {
+    color: var(--sisme-color-error);
+}
+
+.sisme-form-error {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+    color: var(--sisme-color-error);
+    font-size: var(--sisme-text-sm);
+    margin-top: var(--sisme-space-xs);
+}
+
+.sisme-form-error::before {
+    content: '⚠️';
+    font-size: 0.9em;
+    flex-shrink: 0;
+}
+
+/* Success state */
+.sisme-form-group--success .sisme-form-input,
+.sisme-form-group--success .sisme-form-textarea,
+.sisme-form-group--success .sisme-form-select {
+    border-color: var(--sisme-color-success);
+    background: rgba(161, 183, 141, 0.05);
+}
+
+/* ========================================
+   🎯 ACTIONS DE FORMULAIRE
+======================================== */
+
+.sisme-form-actions {
+    display: flex;
+    gap: var(--sisme-space-md);
+    align-items: center;
+    justify-content: flex-end;
+    padding-top: var(--sisme-space-lg);
+    border-top: 1px solid var(--sisme-border-subtle);
+    margin-top: var(--sisme-space-lg);
+}
+
+.sisme-form-actions--left {
+    justify-content: flex-start;
+}
+
+.sisme-form-actions--center {
+    justify-content: center;
+}
+
+.sisme-form-actions--between {
+    justify-content: space-between;
+}
+
+/* ========================================
+   📱 RESPONSIVE FORMS
+======================================== */
+
+@media (max-width: 768px) {
+    .sisme-form-table th,
+    .sisme-form-table td {
+        padding: var(--sisme-space-sm);
+    }
+    
+    .sisme-form-table th {
+        width: 120px;
+        font-size: var(--sisme-text-sm);
+    }
+    
+    .sisme-platforms-selector {
+        grid-template-columns: 1fr;
+        gap: var(--sisme-space-md);
+    }
+    
+    .sisme-form-group--horizontal {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .sisme-form-group--horizontal .sisme-form-label {
+        min-width: auto;
+    }
+    
+    .sisme-form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .sisme-form-actions .sisme-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-form-table {
+        display: block;
+    }
+    
+    .sisme-form-table tr {
+        display: block;
+        border: 1px solid var(--sisme-border-subtle);
+        border-radius: var(--sisme-radius-md);
+        margin-bottom: var(--sisme-space-md);
+        overflow: hidden;
+    }
+    
+    .sisme-form-table th,
+    .sisme-form-table td {
+        display: block;
+        width: 100%;
+        border: none;
+        padding: var(--sisme-space-sm);
+    }
+    
+    .sisme-form-table th {
+        background: var(--sisme-color-background);
+        border-bottom: 1px solid var(--sisme-border-subtle);
+        margin-bottom: 0;
+    }
+    
+    .sisme-media-selector {
+        padding: var(--sisme-space-md);
+    }
+    
+    .sisme-media-buttons {
+        flex-direction: column;
+    }
+}
+
+/* ========================================
+   🌙 DARK MODE SUPPORT
+======================================== */
+
+.sisme-dark .sisme-form-input,
+.sisme-dark .sisme-form-textarea,
+.sisme-dark .sisme-form-select {
+    background: var(--sisme-color-slate-light);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.sisme-dark .sisme-form-input:focus,
+.sisme-dark .sisme-form-textarea:focus,
+.sisme-dark .sisme-form-select:focus {
+    border-color: var(--sisme-color-primary);
+    background: var(--sisme-color-slate);
+}
+
+.sisme-dark .sisme-form-table th {
+    background: var(--sisme-color-slate-dark);
+    color: #ffffff;
+}
+
+.sisme-dark .sisme-form-table td {
+    background: var(--sisme-color-slate);
+}
+
+.sisme-dark .platform-category {
+    background: var(--sisme-color-slate-light);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sisme-dark .sisme-media-selector {
+    background: var(--sisme-color-slate-light);
+    border-color: rgba(255, 255, 255, 0.2);
+}

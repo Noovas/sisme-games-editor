@@ -1,0 +1,483 @@
+/**
+ * File: /sisme-games-editor/assets/css/components/buttons.css
+ * Composants Buttons - Admin Sisme Games Editor
+ * 
+ * Dépendances: tokens/design-tokens.css, base/base.css
+ */
+
+/* ========================================
+   🔘 BOUTON DE BASE
+======================================== */
+
+.sisme-btn {
+    /* Reset */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sisme-space-xs);
+    
+    /* Typographie */
+    font-family: inherit;
+    font-size: var(--sisme-text-sm);
+    font-weight: var(--sisme-font-medium);
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    
+    /* Layout */
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    border-radius: var(--sisme-radius-md);
+    border: 1px solid transparent;
+    
+    /* Interactions */
+    cursor: pointer;
+    user-select: none;
+    transition: var(--sisme-transition-all);
+    
+    /* Performance */
+    will-change: transform, box-shadow;
+    backface-visibility: hidden;
+    
+    /* États par défaut */
+    background: var(--sisme-color-background);
+    color: var(--sisme-color-text);
+    border-color: var(--sisme-border-subtle);
+}
+
+/* États d'interaction */
+.sisme-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--sisme-shadow-hover);
+    border-color: var(--sisme-color-primary);
+}
+
+.sisme-btn:focus {
+    outline: none;
+    box-shadow: var(--sisme-shadow-focus);
+}
+
+.sisme-btn:active {
+    transform: translateY(0);
+    transition-duration: var(--sisme-duration-fast);
+}
+
+.sisme-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ========================================
+   🎨 VARIANTES DE COULEUR
+======================================== */
+
+/* Bouton primary */
+.sisme-btn--primary {
+    background: var(--sisme-color-primary);
+    color: white;
+    border-color: var(--sisme-color-primary);
+}
+
+.sisme-btn--primary:hover {
+    background: var(--sisme-color-primary-dark);
+    border-color: var(--sisme-color-primary-dark);
+    color: white;
+}
+
+.sisme-btn--primary:focus {
+    box-shadow: 0 0 0 3px rgba(161, 183, 141, 0.3);
+}
+
+/* Bouton secondary */
+.sisme-btn--secondary {
+    background: var(--sisme-color-secondary);
+    color: white;
+    border-color: var(--sisme-color-secondary);
+}
+
+.sisme-btn--secondary:hover {
+    background: #c49463;
+    border-color: #c49463;
+    color: white;
+}
+
+/* Bouton outline */
+.sisme-btn--outline {
+    background: transparent;
+    color: var(--sisme-color-primary);
+    border-color: var(--sisme-color-primary);
+}
+
+.sisme-btn--outline:hover {
+    background: var(--sisme-color-primary);
+    color: white;
+}
+
+/* Bouton ghost */
+.sisme-btn--ghost {
+    background: transparent;
+    color: var(--sisme-color-text);
+    border-color: transparent;
+}
+
+.sisme-btn--ghost:hover {
+    background: var(--sisme-color-background);
+    border-color: var(--sisme-border-subtle);
+}
+
+/* Boutons d'état */
+.sisme-btn--success {
+    background: var(--sisme-color-success);
+    color: white;
+    border-color: var(--sisme-color-success);
+}
+
+.sisme-btn--warning {
+    background: var(--sisme-color-warning);
+    color: white;
+    border-color: var(--sisme-color-warning);
+}
+
+.sisme-btn--error {
+    background: var(--sisme-color-error);
+    color: white;
+    border-color: var(--sisme-color-error);
+}
+
+.sisme-btn--info {
+    background: var(--sisme-color-info);
+    color: white;
+    border-color: var(--sisme-color-info);
+}
+
+/* ========================================
+   📏 TAILLES DE BOUTONS
+======================================== */
+
+/* Très petit */
+.sisme-btn--xs {
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    font-size: var(--sisme-text-xs);
+    border-radius: var(--sisme-radius-sm);
+}
+
+/* Petit */
+.sisme-btn--sm {
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    font-size: var(--sisme-text-sm);
+}
+
+/* Normal (par défaut) */
+.sisme-btn--md {
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    font-size: var(--sisme-text-base);
+}
+
+/* Grand */
+.sisme-btn--lg {
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    font-size: var(--sisme-text-lg);
+    border-radius: var(--sisme-radius-lg);
+}
+
+/* Très grand */
+.sisme-btn--xl {
+    padding: var(--sisme-space-lg) var(--sisme-space-xl);
+    font-size: var(--sisme-text-xl);
+    border-radius: var(--sisme-radius-lg);
+}
+
+/* ========================================
+   🔧 MODIFICATEURS DE FORME
+======================================== */
+
+/* Bouton pleine largeur */
+.sisme-btn--full {
+    width: 100%;
+}
+
+/* Bouton carré */
+.sisme-btn--square {
+    aspect-ratio: 1;
+    padding: var(--sisme-space-sm);
+}
+
+/* Bouton circulaire */
+.sisme-btn--circle {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    padding: var(--sisme-space-sm);
+}
+
+/* Bouton avec bordures arrondies */
+.sisme-btn--rounded {
+    border-radius: var(--sisme-radius-xl);
+}
+
+/* ========================================
+   🎯 BOUTONS SPÉCIALISÉS ADMIN
+======================================== */
+
+/* Bouton d'action principale */
+.sisme-btn--action {
+    @extend .sisme-btn--primary;
+    @extend .sisme-btn--lg;
+    font-weight: var(--sisme-font-semibold);
+    box-shadow: var(--sisme-shadow-md);
+}
+
+.sisme-btn--action:hover {
+    box-shadow: var(--sisme-shadow-lg);
+}
+
+/* Bouton de navigation/retour */
+.sisme-btn--nav {
+    @extend .sisme-btn--ghost;
+    color: var(--sisme-color-text-secondary);
+    font-size: var(--sisme-text-sm);
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+}
+
+.sisme-btn--nav:hover {
+    color: var(--sisme-color-primary);
+    background: rgba(161, 183, 141, 0.1);
+}
+
+/* Bouton destructif */
+.sisme-btn--destructive {
+    @extend .sisme-btn--error;
+}
+
+.sisme-btn--destructive:hover {
+    background: #c53030;
+    border-color: #c53030;
+}
+
+/* Bouton avec icône uniquement */
+.sisme-btn--icon-only {
+    padding: var(--sisme-space-sm);
+    aspect-ratio: 1;
+}
+
+.sisme-btn--icon-only.sisme-btn--sm {
+    padding: var(--sisme-space-xs);
+}
+
+.sisme-btn--icon-only.sisme-btn--lg {
+    padding: var(--sisme-space-md);
+}
+
+/* ========================================
+   🎭 GROUPES DE BOUTONS
+======================================== */
+
+/* Groupe horizontal */
+.sisme-btn-group {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+}
+
+.sisme-btn-group .sisme-btn {
+    margin: 0;
+}
+
+/* Groupe collé */
+.sisme-btn-group--attached {
+    gap: 0;
+}
+
+.sisme-btn-group--attached .sisme-btn {
+    border-radius: 0;
+    border-right-width: 0;
+}
+
+.sisme-btn-group--attached .sisme-btn:first-child {
+    border-top-left-radius: var(--sisme-radius-md);
+    border-bottom-left-radius: var(--sisme-radius-md);
+}
+
+.sisme-btn-group--attached .sisme-btn:last-child {
+    border-top-right-radius: var(--sisme-radius-md);
+    border-bottom-right-radius: var(--sisme-radius-md);
+    border-right-width: 1px;
+}
+
+/* Groupe vertical */
+.sisme-btn-group--vertical {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.sisme-btn-group--vertical.sisme-btn-group--attached {
+    gap: 0;
+}
+
+.sisme-btn-group--vertical.sisme-btn-group--attached .sisme-btn {
+    border-radius: 0;
+    border-bottom-width: 0;
+    border-right-width: 1px;
+}
+
+.sisme-btn-group--vertical.sisme-btn-group--attached .sisme-btn:first-child {
+    border-top-left-radius: var(--sisme-radius-md);
+    border-top-right-radius: var(--sisme-radius-md);
+    border-bottom-left-radius: 0;
+}
+
+.sisme-btn-group--vertical.sisme-btn-group--attached .sisme-btn:last-child {
+    border-bottom-left-radius: var(--sisme-radius-md);
+    border-bottom-right-radius: var(--sisme-radius-md);
+    border-top-right-radius: 0;
+    border-bottom-width: 1px;
+}
+
+/* ========================================
+   ⚡ BOUTONS AVEC ICÔNES
+======================================== */
+
+.sisme-btn__icon {
+    font-size: 1em;
+    line-height: 1;
+}
+
+/* Icône à gauche */
+.sisme-btn__icon--left {
+    margin-right: var(--sisme-space-xs);
+    margin-left: calc(var(--sisme-space-xs) * -0.5);
+}
+
+/* Icône à droite */
+.sisme-btn__icon--right {
+    margin-left: var(--sisme-space-xs);
+    margin-right: calc(var(--sisme-space-xs) * -0.5);
+}
+
+/* ========================================
+   ⏳ ÉTATS DE CHARGEMENT
+======================================== */
+
+.sisme-btn--loading {
+    position: relative;
+    color: transparent;
+    cursor: wait;
+}
+
+.sisme-btn--loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1em;
+    height: 1em;
+    margin: -0.5em 0 0 -0.5em;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: sisme-spin 0.8s linear infinite;
+}
+
+.sisme-btn--loading:hover {
+    transform: none;
+}
+
+/* ========================================
+   📱 RESPONSIVE BUTTONS
+======================================== */
+
+@media (max-width: 768px) {
+    /* Réduire la taille par défaut sur mobile */
+    .sisme-btn {
+        font-size: var(--sisme-text-xs);
+        padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    }
+    
+    .sisme-btn--lg {
+        font-size: var(--sisme-text-base);
+        padding: var(--sisme-space-sm) var(--sisme-space-md);
+    }
+    
+    .sisme-btn--xl {
+        font-size: var(--sisme-text-lg);
+        padding: var(--sisme-space-md) var(--sisme-space-lg);
+    }
+    
+    /* Groupes de boutons en colonne sur mobile */
+    .sisme-btn-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--sisme-space-xs);
+    }
+    
+    .sisme-btn-group .sisme-btn {
+        width: 100%;
+    }
+}
+
+/* ========================================
+   🌙 DARK MODE SUPPORT
+======================================== */
+
+.sisme-dark .sisme-btn {
+    background: var(--sisme-color-slate-light);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sisme-dark .sisme-btn:hover {
+    border-color: var(--sisme-color-primary);
+    box-shadow: 0 4px 12px rgba(161, 183, 141, 0.2);
+}
+
+.sisme-dark .sisme-btn--ghost {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.sisme-dark .sisme-btn--ghost:hover {
+    background: var(--sisme-color-slate-light);
+    color: #ffffff;
+}
+
+/* ========================================
+   🔧 UTILITAIRES BOUTONS
+======================================== */
+
+/* Espacement entre boutons */
+.sisme-btn + .sisme-btn {
+    margin-left: var(--sisme-space-sm);
+}
+
+/* Supprimer les marges dans les groupes */
+.sisme-btn-group .sisme-btn + .sisme-btn,
+.sisme-btn-group--vertical .sisme-btn + .sisme-btn {
+    margin-left: 0;
+}
+
+/* Bouton flottant (pour les actions rapides) */
+.sisme-btn--floating {
+    position: fixed;
+    bottom: var(--sisme-space-xl);
+    right: var(--sisme-space-xl);
+    z-index: 1000;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    box-shadow: var(--sisme-shadow-xl);
+}
+
+.sisme-btn--floating:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(44, 62, 80, 0.2);
+}
+
+@media (max-width: 768px) {
+    .sisme-btn--floating {
+        bottom: var(--sisme-space-lg);
+        right: var(--sisme-space-lg);
+        width: 48px;
+        height: 48px;
+    }
+}

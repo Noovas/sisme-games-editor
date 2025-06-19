@@ -179,98 +179,14 @@ class Sisme_Assets_Loader {
      * Charger les styles admin
      */
     public function enqueue_admin_styles($hook) {
+        // Charger uniquement sur les pages de ton plugin
         if (strpos($hook, 'sisme-games') !== false) {
-            // DEBUT AJOUT DES MODULES 
             wp_enqueue_style(
-                'module-admin-page-wrapper',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/module-admin-page-wrapper.css',
+                'sisme-admin',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin.css',
                 array(),
                 SISME_GAMES_EDITOR_VERSION
             );
-            wp_enqueue_style(
-                'module-admin-page-statistiques',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/module-admin-page-statistiques.css',
-                array(),
-                SISME_GAMES_EDITOR_VERSION
-            );
-            wp_enqueue_style(
-                'module-admin-page-liste-article',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/module-admin-page-liste-article.css',
-                array(),
-                SISME_GAMES_EDITOR_VERSION
-            );
-            wp_enqueue_style(
-                'module-admin-page-filtre-article',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/module-admin-page-filtre-article.css',
-                array(),
-                SISME_GAMES_EDITOR_VERSION
-            );            
-            if ($hook === 'sisme-games-editor_page_sisme-games-tests') {}
-            if ($hook === 'admin_page_sisme-games-edit-test') {}
-
-            // FIN AJOUT DES MODULES 
-
-
-            // CSS spécifique pour le dashboard
-            wp_enqueue_style(
-                'sisme-dashboard-styles',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/dashboard.css',
-                array(),
-                SISME_GAMES_EDITOR_VERSION
-            );
-            
-            // CSS spécifique pour la liste des patch/news
-            wp_enqueue_style(
-                'sisme-patch-news-list-styles',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/patch-news-list.css',
-                array(),
-                SISME_GAMES_EDITOR_VERSION
-            );
-
-            // CSS spécifique pour la page tous les articles
-            wp_enqueue_style(
-                'sisme-all-articles-styles',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/all-articles.css',
-                array(),
-                SISME_GAMES_EDITOR_VERSION
-            );
-            wp_localize_script('jquery', 'sismeAjax', array(
-                'ajaxurl' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('sisme_load_more')
-            ));
-            
-            // CSS spécifique pour la liste des fiches
-            if ($hook === 'sisme-games-editor_page_sisme-games-fiches') {
-                wp_enqueue_style(
-                    'sisme-fiches-list-styles',
-                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/fiches-list.css',
-                    array(),
-                    SISME_GAMES_EDITOR_VERSION
-                );
-            }
-            
-            // CSS spécifique pour les pages d'édition
-            if (in_array($hook, array(
-                'sisme-games-editor_page_sisme-games-edit-fiche',
-                'sisme-games-editor_page_sisme-games-edit-patch-news'
-            ))) {
-                wp_enqueue_style(
-                    'sisme-edit-forms-styles',
-                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/edit-forms.css',
-                    array(),
-                    SISME_GAMES_EDITOR_VERSION
-                );
-            }
-            
-            // CSS spécifique pour les réglages
-            if ($hook === 'sisme-games-editor_page_sisme-games-settings') {
-                wp_enqueue_style(
-                    'sisme-settings-styles',
-                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin/settings.css',
-                    array(),
-                    SISME_GAMES_EDITOR_VERSION
-                );
-            }
         }
     }
     
