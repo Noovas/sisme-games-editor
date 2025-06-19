@@ -389,12 +389,56 @@ class Sisme_Game_Data_Table_Module {
             </td>
         </tr>
 
+        <!-- Ligne des covers -->
+        <tr class="sisme-game-data-covers-row">
+            <td colspan="2" class="sisme-game-data-covers-cell">
+                <div class="sisme-game-data-covers-container">                    
+                    <div class="sisme-game-data-covers-list">
+                        <?php
+                        $covers = ['cover_main', 'cover_news', 'cover_patch', 'cover_test'];
+                        $cover_labels = [
+                            'cover_main' => 'Principale',
+                            'cover_news' => 'News', 
+                            'cover_patch' => 'Patch',
+                            'cover_test' => 'Test'
+                        ];
+                        
+                        foreach ($covers as $cover_type) {
+                            $cover_id = isset($game_data['meta_data'][$cover_type]) ? $game_data['meta_data'][$cover_type] : '';
+                            ?>
+                            <div class="sisme-cover-item sisme-cover-<?php echo esc_attr($cover_type); ?>">
+                                <div class="sisme-cover-label">
+                                    <?php echo $cover_labels[$cover_type]; ?>
+                                </div>
+                                <?php if (!empty($cover_id)): ?>
+                                    <?php
+                                    $image = wp_get_attachment_image_src($cover_id, 'large');
+                                    if ($image):
+                                    ?>
+                                        <img src="<?php echo esc_url($image[0]); ?>" 
+                                             class="sisme-cover-image sisme-cover-image-valid"
+                                             title="<?php echo esc_attr(get_the_title($cover_id)); ?>"
+                                             alt="<?php echo esc_attr($cover_labels[$cover_type]); ?>">
+                                    <?php else: ?>
+                                        <div class="sisme-cover-placeholder sisme-cover-error">❌</div>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <div class="sisme-cover-placeholder sisme-cover-empty">📷</div>
+                                <?php endif; ?>
+                            </div>
+                            <?php
+                        }
+                        ?>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
         <!-- Description (si elle existe) -->
         <?php if (!empty($game_data['description'])): ?>
         <tr class="sisme-game-data-description-row">
             <td colspan="2" class="sisme-game-data-description-cell">
                 <div class="sisme-game-description-container">
-                    <strong class="sisme-game-description-label">Description :</strong>
                     <div class="sisme-game-description-content">
                         <?php echo esc_html($game_data['description']); ?>
                     </div>
@@ -410,7 +454,6 @@ class Sisme_Game_Data_Table_Module {
                     
                     <!-- Genres -->
                     <div class="sisme-game-info-section">
-                        <span class="sisme-game-info-label">Genres :</span>
                         <div class="sisme-tags-list">
                         <?php 
                         $genres = isset($game_data['meta_data']['game_genres']) ? $game_data['meta_data']['game_genres'] : [];
@@ -431,7 +474,6 @@ class Sisme_Game_Data_Table_Module {
                     
                     <!-- Modes -->
                     <div class="sisme-game-info-section">
-                        <span class="sisme-game-info-label">Modes :</span>
                         <div class="sisme-tags-list">
                         <?php 
                         $modes = isset($game_data['meta_data']['game_modes']) ? $game_data['meta_data']['game_modes'] : [];
@@ -457,7 +499,6 @@ class Sisme_Game_Data_Table_Module {
                     
                     <!-- Développeurs -->
                     <div class="sisme-game-info-section">
-                        <span class="sisme-game-info-label">Développeurs :</span>
                         <div class="sisme-tags-list">
                         <?php 
                         $developers = isset($game_data['meta_data']['game_developers']) ? $game_data['meta_data']['game_developers'] : [];
@@ -482,7 +523,6 @@ class Sisme_Game_Data_Table_Module {
 
                     <!-- Éditeurs -->
                     <div class="sisme-game-info-section">
-                        <span class="sisme-game-info-label">Éditeurs :</span>
                         <div class="sisme-tags-list">
                         <?php 
                         $publishers = isset($game_data['meta_data']['game_publishers']) ? $game_data['meta_data']['game_publishers'] : [];
@@ -516,7 +556,6 @@ class Sisme_Game_Data_Table_Module {
                     
                     <!-- Plateformes -->
                     <div class="sisme-game-info-section">
-                        <span class="sisme-game-info-label">Plateformes :</span>
                         <div class="sisme-tags-list">
                         <?php 
                         $platforms = isset($game_data['meta_data']['game_platforms']) ? $game_data['meta_data']['game_platforms'] : [];
@@ -556,7 +595,6 @@ class Sisme_Game_Data_Table_Module {
                     
                     <!-- Date de sortie -->
                     <div class="sisme-game-info-section">
-                        <span class="sisme-game-info-label">Date de sortie :</span>
                         <?php 
                         $release_date = isset($game_data['meta_data']['release_date']) ? $game_data['meta_data']['release_date'] : '';
                         if (!empty($release_date)) {
@@ -577,7 +615,6 @@ class Sisme_Game_Data_Table_Module {
                     
                     <!-- Liens externes -->
                     <div class="sisme-game-info-section">
-                        <span class="sisme-game-info-label">Liens de vente :</span>
                         <div class="sisme-external-links-images">
                         <?php 
                         $external_links = isset($game_data['meta_data']['external_links']) ? $game_data['meta_data']['external_links'] : [];
@@ -619,52 +656,7 @@ class Sisme_Game_Data_Table_Module {
             </td>
         </tr>
 
-        <!-- Ligne des covers -->
-        <tr class="sisme-game-data-covers-row">
-            <td colspan="2" class="sisme-game-data-covers-cell">
-                <div class="sisme-game-data-covers-container">
-                    <strong class="sisme-game-data-covers-label">Covers :</strong>
-                    
-                    <div class="sisme-game-data-covers-list">
-                        <?php
-                        $covers = ['cover_main', 'cover_news', 'cover_patch', 'cover_test'];
-                        $cover_labels = [
-                            'cover_main' => 'Principale',
-                            'cover_news' => 'News', 
-                            'cover_patch' => 'Patch',
-                            'cover_test' => 'Test'
-                        ];
-                        
-                        foreach ($covers as $cover_type) {
-                            $cover_id = isset($game_data['meta_data'][$cover_type]) ? $game_data['meta_data'][$cover_type] : '';
-                            ?>
-                            <div class="sisme-cover-item sisme-cover-<?php echo esc_attr($cover_type); ?>">
-                                <div class="sisme-cover-label">
-                                    <?php echo $cover_labels[$cover_type]; ?>
-                                </div>
-                                <?php if (!empty($cover_id)): ?>
-                                    <?php
-                                    $image = wp_get_attachment_image_src($cover_id, 'large');
-                                    if ($image):
-                                    ?>
-                                        <img src="<?php echo esc_url($image[0]); ?>" 
-                                             class="sisme-cover-image sisme-cover-image-valid"
-                                             title="<?php echo esc_attr(get_the_title($cover_id)); ?>"
-                                             alt="<?php echo esc_attr($cover_labels[$cover_type]); ?>">
-                                    <?php else: ?>
-                                        <div class="sisme-cover-placeholder sisme-cover-error">❌</div>
-                                    <?php endif; ?>
-                                <?php else: ?>
-                                    <div class="sisme-cover-placeholder sisme-cover-empty">📷</div>
-                                <?php endif; ?>
-                            </div>
-                            <?php
-                        }
-                        ?>
-                    </div>
-                </div>
-            </td>
-        </tr>
+        
         <?php
     }
 
