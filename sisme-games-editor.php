@@ -40,6 +40,7 @@ class SismeGamesEditor {
         add_action('wp_ajax_sisme_load_more_articles', array($this, 'ajax_load_more_articles'));
         add_action('wp_ajax_sisme_create_tag', array($this, 'handle_ajax_create_tag'));
         add_action('wp_ajax_sisme_create_category', array($this, 'handle_ajax_create_category'));
+        add_action('wp_ajax_sisme_create_entity', array($this, 'handle_ajax_create_entity'));
 
         $this->include_files();
 
@@ -552,8 +553,8 @@ class SismeGamesEditor {
             ));
         }
         
-        // Trouver la catégorie parent "Jeux" - CORRECTION ICI AUSSI
-        $parent_category = get_category_by_slug('jeux-video'); // CORRECTION
+        // Trouver la catégorie parent "Jeux" 
+        $parent_category = get_category_by_slug('jeux-video');
         if (!$parent_category) {
             $parent_category = get_term_by('name', 'Jeux', 'category');
         }
@@ -586,6 +587,71 @@ class SismeGamesEditor {
             'term_id' => $category_info->term_id,
             'name' => $category_info->name,
             'slug' => $category_info->slug,
+            'existed' => false
+        ));
+    }
+
+    /**
+     * Handler AJAX pour créer des entités (développeurs/éditeurs)
+     */
+    public function handle_ajax_create_entity() {
+        // Vérification de sécurité
+        if (!wp_verify_nonce($_POST['nonce'], 'sisme_create_entity')) {
+            wp_die('Sécurité : nonce invalide');
+        }
+        
+        $entity_name = sanitize_text_field($_POST['entity_name']);
+        $entity_website = sanitize_url($_POST['entity_website']);
+        
+        if (empty($entity_name)) {
+            wp_send_json_error('Nom de l\'entité requis');
+        }
+        
+        // Normaliser le nom pour créer le slug
+        $slug = sanitize_title($entity_name);
+        
+        // Vérifier si l'entité existe déjà par slug
+        $existing_entity = get_category_by_slug($slug);
+        if ($existing_entity) {
+            wp_send_json_success(array(
+                'term_id' => $existing_entity->term_id,
+                'name' => $existing_entity->name,
+                'slug' => $existing_entity->slug,
+                'website' => get_term_meta($existing_entity->term_id, 'entity_website', true),
+                'existed' => true
+            ));
+        }
+        
+        // Trouver la catégorie parent "editeurs-developpeurs"
+        $parent_category = get_category_by_slug('editeurs-developpeurs');
+        if (!$parent_category) {
+            wp_send_json_error('Catégorie parent "editeurs-developpeurs" introuvable');
+        }
+        
+        // Créer la nouvelle entité
+        $new_entity = wp_insert_category(array(
+            'cat_name' => $entity_name,
+            'category_nicename' => $slug,
+            'category_parent' => $parent_category->term_id,
+            'category_description' => 'Développeur/Éditeur : ' . $entity_name
+        ));
+        
+        if (is_wp_error($new_entity)) {
+            wp_send_json_error('Erreur : ' . $new_entity->get_error_message());
+        }
+        
+        // Sauvegarder le lien web si fourni
+        if (!empty($entity_website)) {
+            update_term_meta($new_entity, 'entity_website', $entity_website);
+        }
+        
+        // Récupérer les informations de l'entité créée
+        $entity_info = get_category($new_entity);
+        wp_send_json_success(array(
+            'term_id' => $entity_info->term_id,
+            'name' => $entity_info->name,
+            'slug' => $entity_info->slug,
+            'website' => $entity_website,
             'existed' => false
         ));
     }

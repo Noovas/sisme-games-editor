@@ -46,6 +46,8 @@ if ($is_edit_mode) {
     // Récupérer les métadonnées existantes
     $existing_game_genres = get_term_meta($tag_id, 'game_genres', true) ?: array();
     $existing_game_modes = get_term_meta($tag_id, 'game_modes', true) ?: array();
+    $existing_game_developers = get_term_meta($tag_id, 'game_developers', true) ?: array();
+    $existing_game_publishers = get_term_meta($tag_id, 'game_publishers', true) ?: array();
     $existing_description = get_term_meta($tag_id, 'game_description', true);
     $existing_cover_main = get_term_meta($tag_id, 'cover_main', true);
     $existing_cover_news = get_term_meta($tag_id, 'cover_news', true);
@@ -57,6 +59,8 @@ if ($is_edit_mode) {
         $_POST['game_name'] = $tag_id;
         $_POST['game_genres'] = $existing_game_genres;
         $_POST['game_modes'] = $existing_game_modes;
+        $_POST['game_developers'] = $existing_game_developers;
+        $_POST['game_publishers'] = $existing_game_publishers;
         $_POST['description'] = $existing_description;
         $_POST['cover_main'] = $existing_cover_main;
         $_POST['cover_news'] = $existing_cover_news;
@@ -66,7 +70,7 @@ if ($is_edit_mode) {
     }
 }
 
-$form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'description', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
+$form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
 
 
 if ($form->is_submitted() && !empty($_POST['submit'])) {

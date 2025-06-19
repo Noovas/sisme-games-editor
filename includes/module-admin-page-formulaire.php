@@ -78,6 +78,22 @@ class Sisme_Game_Form_Module {
             'output_var' => 'game_modes',
             'available_modes' => ['solo', 'multijoueur', 'cooperatif', 'competitif']
         ],
+        'game_developers' => [
+            'label' => 'Développeurs',
+            'description' => 'Recherchez ou créez des développeurs.',
+            'required' => false,
+            'output_var' => 'game_developers',
+            'parent_category' => 'editeurs-developpeurs',
+            'entity_type' => 'developer'
+        ],
+        'game_publishers' => [
+            'label' => 'Éditeurs',
+            'description' => 'Recherchez ou créez des éditeurs.',
+            'required' => false,
+            'output_var' => 'game_publishers',
+            'parent_category' => 'editeurs-developpeurs',
+            'entity_type' => 'publisher'
+        ],
         'cover_main' => [
             'label' => 'Cover principale',
             'description' => 'Image principale du jeu (médiathèque WordPress).',
@@ -190,6 +206,21 @@ class Sisme_Game_Form_Module {
         } else {
             $this->form_data['game_modes'] = array();
         }
+
+        // Traitement des développeurs
+        if (isset($_POST['game_developers']) && is_array($_POST['game_developers'])) {
+            $this->form_data['game_developers'] = array_map('intval', $_POST['game_developers']);
+        } else {
+            $this->form_data['game_developers'] = array();
+        }
+
+        // Traitement des éditeurs
+        if (isset($_POST['game_publishers']) && is_array($_POST['game_publishers'])) {
+            $this->form_data['game_publishers'] = array_map('intval', $_POST['game_publishers']);
+        } else {
+            $this->form_data['game_publishers'] = array();
+        }
+
     }
     
     /**
@@ -220,6 +251,151 @@ class Sisme_Game_Form_Module {
             default:
                 return sanitize_text_field($value);
         }
+    }
+
+    /**
+     * Méthode générique pour afficher un composant entité
+     */
+    private function render_entity_component($component_name) {
+        $component = $this->components[$component_name];
+        $value = isset($this->form_data[$component['output_var']]) ? $this->form_data[$component['output_var']] : array();
+        $field_id = $this->module_id . '_' . $component_name;
+        $required_attr = $component['required'] ? 'required' : '';
+        $required_label = $component['required'] ? ' *' : '';
+        
+        // Récupérer les entités existantes
+        $entities = $this->get_existing_entities();
+        ?>
+        <tr class="sisme-entity-component-row">
+            <th scope="row">
+                <label for="<?php echo esc_attr($field_id); ?>" class="sisme-entity-label">
+                    <?php echo esc_html($component['label'] . $required_label); ?>
+                </label>
+            </th>
+            <td class="sisme-entity-component-cell">
+                <div class="sisme-entity-component sisme-entity-<?php echo esc_attr($component['entity_type']); ?>">
+                    
+                    <!-- Liste des entités sélectionnées -->
+                    <div class="sisme-selected-entities">
+                        <label class="sisme-selected-entities-label"><?php echo esc_html($component['label']); ?> sélectionnés :</label>
+                        <div class="sisme-selected-entities-list" id="<?php echo esc_attr($field_id . '_selected'); ?>">
+                            <?php if (empty($value)): ?>
+                                <span class="sisme-no-entities-selected">Aucun <?php echo esc_html(strtolower($component['label'])); ?> sélectionné</span>
+                            <?php else: ?>
+                                <?php foreach ($value as $entity_id): ?>
+                                    <?php $entity = get_category($entity_id); ?>
+                                    <?php if ($entity): ?>
+                                        <?php
+                                        $entity_website = get_term_meta($entity_id, 'entity_website', true);
+                                        ?>
+                                        <span class="sisme-selected-entity-tag" data-entity-id="<?php echo esc_attr($entity_id); ?>">
+                                            <?php if (!empty($entity_website)): ?>
+                                                <a href="<?php echo esc_url($entity_website); ?>" 
+                                                   target="_blank" 
+                                                   class="sisme-entity-link"
+                                                   title="Site web de <?php echo esc_attr($entity->name); ?>"
+                                                   alt="<?php echo esc_attr($entity->name); ?>">
+                                                    <?php echo esc_html($entity->name); ?>
+                                                </a>
+                                            <?php else: ?>
+                                                <span class="sisme-entity-name"><?php echo esc_html($entity->name); ?></span>
+                                            <?php endif; ?>
+                                            <span class="sisme-remove-entity">&times;</span>
+                                            <input type="hidden" name="<?php echo esc_attr($component['output_var']); ?>[]" value="<?php echo esc_attr($entity_id); ?>">
+                                        </span>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Recherche/Création d'entités -->
+                    <div class="sisme-entity-search-section">
+                        <div class="sisme-entity-search-controls">
+                            <input type="text" 
+                                   id="<?php echo esc_attr($field_id . '_search'); ?>"
+                                   class="sisme-entity-search-input" 
+                                   placeholder="Rechercher ou créer <?php echo esc_html(strtolower($component['label'])); ?>...">
+                            <input type="url" 
+                                   id="<?php echo esc_attr($field_id . '_website'); ?>"
+                                   class="sisme-entity-website-input" 
+                                   placeholder="Site web (optionnel)">
+                            <button type="button" 
+                                    class="button button-secondary sisme-create-entity-btn"
+                                    data-entity-type="<?php echo esc_attr($component['entity_type']); ?>">
+                                + Créer
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Suggestions d'entités existantes -->
+                    <div class="sisme-entity-suggestions">
+                        <label class="sisme-entity-suggestions-label"><?php echo esc_html($component['label']); ?> disponibles :</label>
+                        <div class="sisme-entity-suggestions-list">
+                            <?php if (empty($entities)): ?>
+                                <p class="sisme-no-entities-available">Aucun <?php echo esc_html(strtolower($component['label'])); ?> disponible. Créez le premier !</p>
+                            <?php else: ?>
+                                <?php foreach ($entities as $entity): ?>
+                                    <?php
+                                    $entity_website = get_term_meta($entity->term_id, 'entity_website', true);
+                                    ?>
+                                    <div class="sisme-entity-suggestion-item" data-entity-id="<?php echo esc_attr($entity->term_id); ?>">
+                                        <div class="sisme-entity-suggestion-content">
+                                            <strong class="sisme-entity-suggestion-name"><?php echo esc_html($entity->name); ?></strong>
+                                            <?php if (!empty($entity_website)): ?>
+                                                <div class="sisme-entity-suggestion-website">
+                                                    <a href="<?php echo esc_url($entity_website); ?>" 
+                                                       target="_blank" 
+                                                       class="sisme-entity-website-link"
+                                                       title="Site web de <?php echo esc_attr($entity->name); ?>">
+                                                        <?php echo esc_html($entity_website); ?>
+                                                    </a>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <?php
+    }
+
+    /**
+     * Récupérer les entités existantes (enfants de editeurs-developpeurs)
+     */
+    private function get_existing_entities() {
+        $parent_category = get_category_by_slug('editeurs-developpeurs');
+        if (!$parent_category) {
+            error_log('ERREUR: Catégorie parent "editeurs-developpeurs" introuvable');
+            return array();
+        }
+        
+        $entities = get_categories(array(
+            'parent' => $parent_category->term_id,
+            'hide_empty' => false,
+            'orderby' => 'name',
+            'order' => 'ASC'
+        ));
+        
+        return $entities;
+    }
+
+    /**
+     * Afficher le composant développeurs
+     */
+    private function render_game_developers_component() {
+        $this->render_entity_component('game_developers');
+    }
+
+    /**
+     * Afficher le composant éditeurs
+     */
+    private function render_game_publishers_component() {
+        $this->render_entity_component('game_publishers');
     }
 
     /**
@@ -646,6 +822,14 @@ class Sisme_Game_Form_Module {
                 $this->render_game_modes_component();
                 break;
 
+            case 'game_developers':
+                $this->render_game_developers_component();
+                break;
+                
+            case 'game_publishers':
+                $this->render_game_publishers_component();
+                break;
+
             case 'cover_main':
             case 'cover_news':
             case 'cover_patch':
@@ -799,6 +983,23 @@ class Sisme_Game_Form_Module {
                             if (!in_array($mode, $valid_modes)) {
                                 $errors[$output_var] = 'Un ou plusieurs modes sélectionnés sont invalides.';
                                 break 2; // Sortir des deux boucles
+                            }
+                        }
+                    }
+                    break;
+
+                case 'game_developers':
+                case 'game_publishers':
+                    if (!empty($value)) {
+                        if (!is_array($value)) {
+                            $errors[$output_var] = 'Format de données invalide pour les entités.';
+                            break;
+                        }
+                        
+                        foreach ($value as $entity_id) {
+                            if (!is_numeric($entity_id) || !get_category($entity_id)) {
+                                $errors[$output_var] = 'Une ou plusieurs entités sélectionnées sont invalides.';
+                                break 2;
                             }
                         }
                     }
@@ -1153,6 +1354,160 @@ class Sisme_Game_Form_Module {
                                '</span>');
                 
                 selectedList.append(modeTag);
+            }
+
+            // === GESTION DES ENTITÉS (DÉVELOPPEURS/ÉDITEURS) ===
+            // Création d'une nouvelle entité
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.sisme-create-entity-btn', function(e) {
+                e.preventDefault();
+                
+                var button = $(this);
+                var container = button.closest('.sisme-entity-component');
+                var nameInput = container.find('.sisme-entity-search-input');
+                var websiteInput = container.find('.sisme-entity-website-input');
+                var entityName = nameInput.val().trim();
+                var entityWebsite = websiteInput.val().trim();
+                var entityType = button.data('entity-type');
+                
+                if (!entityName) {
+                    alert('Veuillez saisir un nom d\'entité.');
+                    return;
+                }
+                
+                // Validation URL basique
+                if (entityWebsite && !entityWebsite.match(/^https?:\/\/.+/)) {
+                    alert('L\'URL doit commencer par http:// ou https://');
+                    return;
+                }
+                
+                button.prop('disabled', true).text('Création...');
+                
+                $.ajax({
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    type: 'POST',
+                    data: {
+                        action: 'sisme_create_entity',
+                        entity_name: entityName,
+                        entity_website: entityWebsite,
+                        nonce: '<?php echo wp_create_nonce('sisme_create_entity'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Ajouter l'entité à la sélection
+                            addEntityToSelection(container, response.data.term_id, response.data.name, response.data.website);
+                            
+                            // Ajouter à la liste des suggestions si c'est une nouvelle entité
+                            if (!response.data.existed) {
+                                addEntityToSuggestions(container, response.data);
+                            }
+                            
+                            nameInput.val('');
+                            websiteInput.val('');
+                            button.text(response.data.existed ? 'Existait déjà !' : 'Créé !');
+                            setTimeout(function() {
+                                button.text('+ Créer').prop('disabled', false);
+                            }, 1500);
+                        } else {
+                            alert('Erreur: ' + (response.data || 'Problème inconnu'));
+                            button.text('+ Créer').prop('disabled', false);
+                        }
+                    },
+                    error: function() {
+                        alert('Erreur AJAX');
+                        button.text('+ Créer').prop('disabled', false);
+                    }
+                });
+            });
+
+            // Sélection d'une entité depuis les suggestions
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.sisme-entity-suggestion-item', function(e) {
+                e.preventDefault();
+                
+                var entityId = $(this).data('entity-id');
+                var entityName = $(this).find('.sisme-entity-suggestion-name').text();
+                var entityWebsite = $(this).find('.sisme-entity-website-link').attr('href') || '';
+                var container = $(this).closest('.sisme-entity-component');
+                
+                // Vérifier si déjà sélectionné
+                if (container.find('.sisme-selected-entity-tag[data-entity-id="' + entityId + '"]').length > 0) {
+                    alert('Cette entité est déjà sélectionnée.');
+                    return;
+                }
+                
+                addEntityToSelection(container, entityId, entityName, entityWebsite);
+            });
+
+            // Suppression d'une entité sélectionnée
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.sisme-remove-entity', function(e) {
+                e.preventDefault();
+                $(this).closest('.sisme-selected-entity-tag').remove();
+                
+                // Vérifier s'il reste des entités sélectionnées
+                var container = $(this).closest('.sisme-entity-component');
+                var selectedList = container.find('.sisme-selected-entities-list');
+                if (selectedList.find('.sisme-selected-entity-tag').length === 0) {
+                    var entityType = container.hasClass('sisme-entity-developer') ? 'développeur' : 'éditeur';
+                    selectedList.html('<span class="sisme-no-entities-selected">Aucun ' + entityType + ' sélectionné</span>');
+                }
+            });
+
+            // Recherche en temps réel dans les suggestions
+            $('#<?php echo esc_js($this->module_id); ?>').on('keyup', '.sisme-entity-search-input', function() {
+                var searchTerm = $(this).val().toLowerCase();
+                var container = $(this).closest('.sisme-entity-component');
+                var suggestions = container.find('.sisme-entity-suggestion-item');
+                
+                suggestions.each(function() {
+                    var entityName = $(this).find('.sisme-entity-suggestion-name').text().toLowerCase();
+                    if (entityName.includes(searchTerm)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            // Fonction pour ajouter une entité à la sélection
+            function addEntityToSelection(container, entityId, entityName, entityWebsite) {
+                var selectedList = container.find('.sisme-selected-entities-list');
+                var outputVar = container.hasClass('sisme-entity-developer') ? 'game_developers' : 'game_publishers';
+                
+                // Supprimer le message "aucune entité sélectionnée"
+                selectedList.find('.sisme-no-entities-selected').remove();
+                
+                // Créer le tag d'entité sélectionnée
+                var entityTag = $('<span class="sisme-selected-entity-tag" data-entity-id="' + entityId + '"></span>');
+                
+                if (entityWebsite) {
+                    entityTag.append('<a href="' + entityWebsite + '" target="_blank" class="sisme-entity-link" title="Site web de ' + entityName + '" alt="' + entityName + '">' + entityName + '</a>');
+                } else {
+                    entityTag.append('<span class="sisme-entity-name">' + entityName + '</span>');
+                }
+                
+                entityTag.append('<span class="sisme-remove-entity">&times;</span>');
+                entityTag.append('<input type="hidden" name="' + outputVar + '[]" value="' + entityId + '">');
+                
+                selectedList.append(entityTag);
+            }
+
+            // Fonction pour ajouter une entité aux suggestions
+            function addEntityToSuggestions(container, entityData) {
+                var suggestionsList = container.find('.sisme-entity-suggestions-list');
+                
+                // Supprimer le message "aucune entité disponible" s'il existe
+                suggestionsList.find('.sisme-no-entities-available').remove();
+                
+                var suggestionItem = $('<div class="sisme-entity-suggestion-item" data-entity-id="' + entityData.term_id + '"></div>');
+                var suggestionContent = $('<div class="sisme-entity-suggestion-content"></div>');
+                
+                suggestionContent.append('<strong class="sisme-entity-suggestion-name">' + entityData.name + '</strong>');
+                
+                if (entityData.website) {
+                    suggestionContent.append('<div class="sisme-entity-suggestion-website"><a href="' + entityData.website + '" target="_blank" class="sisme-entity-website-link" title="Site web de ' + entityData.name + '">' + entityData.website + '</a></div>');
+                }
+                
+                suggestionItem.append(suggestionContent);
+                suggestionsList.prepend(suggestionItem);
             }
 
         });
