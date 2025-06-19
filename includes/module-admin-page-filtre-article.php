@@ -48,19 +48,14 @@ class Sisme_Article_Filter_Module {
     private $module_id;
     private static $instance_counter = 0;
     private static $css_loaded = false;
+    private $mode = 'articles';
     
     /**
      * Constructeur
      * 
      * @param array $options Options de filtrage à activer
-     * Options disponibles:
-     * - search: Recherche par mot-clé (titre, contenu)
-     * - status: Filtre par statut (publié, brouillon, privé)
-     * - categories: Filtre par catégories
-     * - tags: Filtre par étiquettes
-     * - author: Filtre par auteur
+     * @param string $mode Mode de fonctionnement ('articles' ou 'game_data')
      */
-    private $mode = 'articles';
     public function __construct($options = [], $mode = 'articles') {
         $this->mode = $mode; // 'articles' ou 'game_data'
         
@@ -81,7 +76,7 @@ class Sisme_Article_Filter_Module {
                 'tags' => false,
                 'author' => false
             ];
-        } // <- Fermer le else ici
+        }
         
         // Fusionner avec les options fournies
         $this->options = wp_parse_args($options, $default_options);
@@ -100,6 +95,9 @@ class Sisme_Article_Filter_Module {
         }
     }
 
+    /**
+     * Retourne les arguments de filtrage pour Game Data
+     */
     public function get_game_data_filter_args() {
         if ($this->mode !== 'game_data') {
             return [];
@@ -107,22 +105,28 @@ class Sisme_Article_Filter_Module {
         
         $args = [];
         
+        // Recherche par nom de jeu (terme d'étiquette)
         if (!empty($this->filter_values['search'])) {
             $args['search'] = $this->filter_values['search'];
         }
 
+        // Filtrer par genre
         if (!empty($this->filter_values['genres'])) {
             $args['genres'] = $this->filter_values['genres'];
         }
 
+        // Filtrer par développeur
         if (!empty($this->filter_values['developers'])) {
             $args['developers'] = $this->filter_values['developers'];
         }
         
-        // etc...
+        // Filtrer par plateforme
+        if (!empty($this->filter_values['platforms'])) {
+            $args['platforms'] = $this->filter_values['platforms'];
+        }
+        
         return $args;
     }
-
     
     /**
      * Enregistre et charge les styles CSS
@@ -153,8 +157,9 @@ class Sisme_Article_Filter_Module {
             'status' => isset($_GET['status']) && $_GET['status'] !== '' ? sanitize_text_field($_GET['status']) : '',
             'category' => isset($_GET['category']) && $_GET['category'] !== '' ? sanitize_text_field($_GET['category']) : '',
             'tag' => isset($_GET['tag']) && $_GET['tag'] !== '' ? sanitize_text_field($_GET['tag']) : '',
-            'genres' => isset($_GET['genres']) && $_GET['genres'] !== '' ? sanitize_text_field($_GET['genres']) : '',
-            'developers' => isset($_GET['developers']) && $_GET['developers'] !== '' ? sanitize_text_field($_GET['developers']) : '',
+            'genres' => isset($_GET['genres']) && $_GET['genres'] !== '' ? intval($_GET['genres']) : 0,
+            'developers' => isset($_GET['developers']) && $_GET['developers'] !== '' ? intval($_GET['developers']) : 0,
+            'platforms' => isset($_GET['platforms']) && $_GET['platforms'] !== '' ? sanitize_text_field($_GET['platforms']) : '',
             'author' => isset($_GET['author']) && $_GET['author'] !== '' ? intval($_GET['author']) : 0
         ];
     }
@@ -226,179 +231,384 @@ class Sisme_Article_Filter_Module {
     }
     
     /**
-     * Affiche le formulaire de filtrage
+     * Affiche l'interface de filtrage
      */
     public function render() {
-        $reset_url = remove_query_arg(array_keys($this->filter_values));
+        if ($this->mode === 'game_data') {
+            $this->render_game_data_filters();
+            return;
+        }
+        
+        // Mode articles (code existant)
         ?>
-        <div class="sisme-card sisme-mb-lg">
-            <div class="sisme-card__header">
-                <h3 class="sisme-heading-4">🔍 Filtres</h3>
-            </div>
-            <div class="sisme-card__body">
-                <form method="get" action="" class="sisme-filter-form">
-                    <?php 
-                    // Préserver les paramètres
-                    foreach ($_GET as $key => $value) {
-                        if (!in_array($key, array_keys($this->filter_values)) && $key !== 'paged') {
-                            echo '<input type="hidden" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '">';
-                        }
-                    }
-                    ?>
-                    
-                    <div class="sisme-flex sisme-flex-wrap sisme-gap-md sisme-mb-md">
-                        <?php if ($this->options['search']) : ?>
-                            <div class="sisme-filter-item">
-                                <div class="sisme-flex sisme-gap-xs">
-                                    <input type="text" name="s" 
+        <div class="sisme-filter-form" id="<?php echo esc_attr($this->module_id); ?>">
+            <div class="sisme-card sisme-mb-md">
+                <div class="sisme-card__body">
+                    <form method="get" class="sisme-flex sisme-flex-wrap sisme-gap-md sisme-align-items-end">
+                        
+                        <!-- Conserver les paramètres de page existants -->
+                        <?php foreach ($_GET as $key => $value): ?>
+                            <?php if (!in_array($key, ['s', 'status', 'category', 'tag', 'author', 'paged'])): ?>
+                                <input type="hidden" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($value); ?>">
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                        
+                        <div class="sisme-form-group">
+                            <!-- Recherche -->
+                            <?php if ($this->options['search']): ?>
+                                <div class="sisme-flex sisme-gap-sm">
+                                    <label for="search-<?php echo $this->module_id; ?>" class="sisme-label">
+                                        🔍 Rechercher
+                                    </label>
+                                    <input type="text" 
+                                           id="search-<?php echo $this->module_id; ?>" 
+                                           name="s" 
                                            value="<?php echo esc_attr($this->filter_values['search']); ?>" 
-                                           placeholder="Rechercher..." 
+                                           placeholder="Titre, contenu..."
                                            class="sisme-form-input">
-                                    <button type="submit" class="sisme-btn sisme-btn--secondary">🔍</button>
                                 </div>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($this->options['status']) : ?>
-                            <div class="sisme-filter-item">
-                                <select name="status" class="sisme-form-input">
-                                    <option value="">Tous les statuts</option>
-                                    <option value="publish" <?php selected($this->filter_values['status'], 'publish'); ?>>Publiés</option>
-                                    <option value="draft" <?php selected($this->filter_values['status'], 'draft'); ?>>Brouillons</option>
-                                    <option value="private" <?php selected($this->filter_values['status'], 'private'); ?>>Privés</option>
-                                </select>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($this->options['categories']) : ?>
-                            <div class="sisme-filter-item">
-                                <select name="category" class="sisme-form-input">
-                                    <option value="">Toutes les catégories</option>
-                                    <?php 
-                                    $categories = get_categories(['hide_empty' => false]);
-                                    foreach ($categories as $category) {
-                                        printf(
-                                            '<option value="%s" %s>%s</option>',
-                                            esc_attr($category->slug),
-                                            selected($this->filter_values['category'], $category->slug, false),
-                                            esc_html($category->name)
-                                        );
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($this->options['tags']) : ?>
-                            <div class="sisme-filter-item">
-                                <select name="tag" class="sisme-form-input">
-                                    <option value="">Tous les jeux</option>
-                                    <?php 
-                                    $tags = get_tags(['hide_empty' => false]);
-                                    foreach ($tags as $tag) {
-                                        printf(
-                                            '<option value="%s" %s>%s</option>',
-                                            esc_attr($tag->slug),
-                                            selected($this->filter_values['tag'], $tag->slug, false),
-                                            esc_html($tag->name)
-                                        );
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($this->options['author']) : ?>
-                            <div class="sisme-filter-item">
-                                <select name="author" class="sisme-form-input">
-                                    <option value="">Tous les auteurs</option>
-                                    <?php 
-                                    $authors = get_users(['capability' => 'edit_posts']);
-                                    foreach ($authors as $author) {
-                                        printf(
-                                            '<option value="%d" %s>%s</option>',
-                                            esc_attr($author->ID),
-                                            selected($this->filter_values['author'], $author->ID, false),
-                                            esc_html($author->display_name)
-                                        );
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if ($this->mode === 'game_data' && $this->options['genres']) : ?>
-                            <div class="sisme-filter-item">
-                                <select name="genres" class="sisme-form-input">
-                                    <option value="">Tous les genres</option>
-                                    <?php 
-                                    $all_categories = get_categories(['hide_empty' => false]);
-                                    foreach ($all_categories as $category) {
-                                        if (strpos($category->slug, 'jeux-') === 0) {
-                                            $genre_name = str_replace('jeux-', '', $category->name);
+                            <?php endif; ?>
+                            
+                            <!-- Statut -->
+                            <?php if ($this->options['status']): ?>
+                                <div class="sisme-flex sisme-gap-sm">
+                                    <label for="status-<?php echo $this->module_id; ?>" class="sisme-label">
+                                        📋 Statut
+                                    </label>
+                                    <select id="status-<?php echo $this->module_id; ?>" name="status" class="sisme-form-select">
+                                        <option value="">Tous les statuts</option>
+                                        <option value="publish" <?php selected($this->filter_values['status'], 'publish'); ?>>Publié</option>
+                                        <option value="draft" <?php selected($this->filter_values['status'], 'draft'); ?>>Brouillon</option>
+                                        <option value="private" <?php selected($this->filter_values['status'], 'private'); ?>>Privé</option>
+                                    </select>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <!-- Catégorie -->
+                            <?php if ($this->options['categories']): ?>
+                                <div class="sisme-flex sisme-gap-sm">
+                                    <label for="category-<?php echo $this->module_id; ?>" class="sisme-label">
+                                        📁 Catégorie
+                                    </label>
+                                    <select id="category-<?php echo $this->module_id; ?>" name="category" class="sisme-form-select">
+                                        <option value="">Toutes les catégories</option>
+                                        <?php
+                                        $categories = get_categories(array('hide_empty' => false));
+                                        foreach ($categories as $category) {
                                             printf(
-                                                '<option value="%s" %s>%s</option>',
-                                                esc_attr($category->term_id),
-                                                selected($this->filter_values['genres'], $category->term_id, false),
-                                                esc_html($genre_name)
+                                                '<option value="%s" %s>%s (%d)</option>',
+                                                $category->slug,
+                                                selected($this->filter_values['category'], $category->slug, false),
+                                                $category->name,
+                                                $category->count
                                             );
                                         }
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if ($this->mode === 'game_data' && $this->options['developers']) : ?>
-                            <div class="sisme-filter-item">
-                                <select name="developers" class="sisme-form-input">
-                                    <option value="">Tous les développeurs</option>
-                                    <?php 
-                                    $dev_parent = null;
-                                    $all_categories = get_categories(['hide_empty' => false]);
-                                    foreach ($all_categories as $cat) {
-                                        if ($cat->slug === 'editeurs-developpeurs') {
-                                            $dev_parent = $cat;
-                                            break;
-                                        }
-                                    }
-                                    if ($dev_parent) {
-                                        $developers = get_categories(['child_of' => $dev_parent->term_id, 'hide_empty' => false]);
-                                        foreach ($developers as $dev) {
+                                        ?>
+                                    </select>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <!-- Étiquettes -->
+                            <?php if ($this->options['tags']): ?>
+                                <div class="sisme-flex sisme-gap-sm">
+                                    <label for="tag-<?php echo $this->module_id; ?>" class="sisme-label">
+                                        🏷️ Étiquette
+                                    </label>
+                                    <select id="tag-<?php echo $this->module_id; ?>" name="tag" class="sisme-form-select">
+                                        <option value="">Toutes les étiquettes</option>
+                                        <?php
+                                        $tags = get_tags(array('hide_empty' => false, 'orderby' => 'name'));
+                                        foreach ($tags as $tag) {
                                             printf(
-                                                '<option value="%s" %s>%s</option>',
-                                                esc_attr($dev->term_id),
-                                                selected($this->filter_values['developers'], $dev->term_id, false),
-                                                esc_html($dev->name)
+                                                '<option value="%s" %s>%s (%d)</option>',
+                                                $tag->slug,
+                                                selected($this->filter_values['tag'], $tag->slug, false),
+                                                $tag->name,
+                                                $tag->count
                                             );
                                         }
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                        <?php endif; ?>
+                                        ?>
+                                    </select>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <!-- Auteur -->
+                            <?php if ($this->options['author']): ?>
+                                <div class="sisme-flex sisme-gap-sm">
+                                    <label for="author-<?php echo $this->module_id; ?>" class="sisme-label">
+                                        👤 Auteur
+                                    </label>
+                                    <select id="author-<?php echo $this->module_id; ?>" name="author" class="sisme-form-select">
+                                        <option value="">Tous les auteurs</option>
+                                        <?php
+                                        $authors = get_users(array('who' => 'authors'));
+                                        foreach ($authors as $author) {
+                                            printf(
+                                                '<option value="%d" %s>%s</option>',
+                                                $author->ID,
+                                                selected($this->filter_values['author'], $author->ID, false),
+                                                $author->display_name
+                                            );
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                         
-                        <div class="sisme-filter-actions sisme-flex sisme-gap-sm">
-                            <button type="submit" class="sisme-btn sisme-btn--primary">Filtrer</button>
-                            <?php if ($this->has_active_filters()) : ?>
-                                <a href="<?php echo esc_url($reset_url); ?>" 
+                        <div class="sisme-flex sisme-gap-sm sisme-align-items-center">
+                            <button type="submit" class="sisme-btn sisme-btn--primary">
+                                Filtrer
+                            </button>
+                            
+                            <?php if ($this->has_active_filters()): ?>
+                                <a href="<?php echo esc_url($this->get_filtered_url(['s' => '', 'status' => '', 'category' => '', 'tag' => '', 'author' => '', 'paged' => ''])); ?>" 
                                    class="sisme-btn sisme-btn--secondary">Réinitialiser</a>
                             <?php endif; ?>
                         </div>
-                    </div>
-                    
-                    <?php if ($this->has_active_filters()) : ?>
-                        <div class="sisme-active-filters">
-                            <span class="sisme-text-sm sisme-text-muted sisme-mr-sm">Filtres actifs:</span>
-                            <div class="sisme-flex sisme-flex-wrap sisme-gap-xs">
-                                <?php echo $this->render_active_filters(); ?>
+                        
+                        <?php if ($this->has_active_filters()): ?>
+                            <div class="sisme-active-filters">
+                                <span class="sisme-text-sm sisme-text-muted sisme-mr-sm">Filtres actifs:</span>
+                                <div class="sisme-flex sisme-flex-wrap sisme-gap-xs">
+                                    <?php echo $this->render_active_filters(); ?>
+                                </div>
                             </div>
-                        </div>
-                    <?php endif; ?>
-                </form>
+                        <?php endif; ?>
+                    </form>
+                </div>
             </div>
         </div>
         <?php
+    }
+
+    /**
+     * Affiche l'interface de filtrage spécifique aux Game Data
+     */
+    private function render_game_data_filters() {
+        ?>
+        <div class="sisme-filter-form game-data-filters">
+            <div class="sisme-card sisme-mb-md">
+                <div class="sisme-card__body">
+                    
+                    <!-- Formulaire centré avec juste la recherche -->
+                    <form method="get" class="sisme-simple-search-form">
+                        
+                        <!-- Conserver les paramètres de page existants -->
+                        <?php foreach ($_GET as $key => $value): ?>
+                            <?php if (!in_array($key, ['s', 'paged'])): ?>
+                                <input type="hidden" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($value); ?>">
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                        
+                        <div class="sisme-search-container">
+                            <div class="sisme-search-icon">🔍</div>
+                            <input type="text" 
+                                   name="s" 
+                                   value="<?php echo esc_attr($this->filter_values['search']); ?>" 
+                                   placeholder="Rechercher un jeu par son nom..."
+                                   class="sisme-search-input">
+                            
+                            <?php if (!empty($this->filter_values['search'])): ?>
+                                <a href="<?php echo esc_url($this->get_filtered_url(['s' => '', 'paged' => ''])); ?>" 
+                                   class="sisme-search-clear" title="Effacer la recherche">&times;</a>
+                            <?php endif; ?>
+                            
+                            <button type="submit" class="sisme-search-btn">
+                                Rechercher
+                            </button>
+                        </div>
+                        
+                    </form>
+                    
+                    <?php if (!empty($this->filter_values['search'])): ?>
+                        <div class="sisme-search-result">
+                            <span class="sisme-search-result-text">
+                                Recherche : <strong><?php echo esc_html($this->filter_values['search']); ?></strong>
+                            </span>
+                        </div>
+                    <?php endif; ?>
+                    
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Génère les options de genres pour AJAX (format différent)
+     */
+    private function render_game_genres_options_ajax() {
+        $genres = get_categories(array(
+            'hide_empty' => false,
+            'parent' => $this->get_parent_category_id('jeux-video'),
+            'orderby' => 'name'
+        ));
+        
+        $output = '';
+        foreach ($genres as $genre) {
+            $output .= sprintf(
+                '<div class="suggestion-item" data-genre-id="%d" style="padding: 6px 10px; margin: 2px 0; background: #fff; border-radius: 3px; cursor: pointer; border: 1px solid #e0e0e0;">%s (%d jeux)</div>',
+                $genre->term_id,
+                esc_html(str_replace('jeux-', '', $genre->name)),
+                $genre->count
+            );
+        }
+        
+        return $output;
+    }
+
+    /**
+     * Génère les options de développeurs pour AJAX (format différent)
+     */
+    private function render_game_developers_options_ajax() {
+        $developers = get_categories(array(
+            'hide_empty' => false,
+            'parent' => $this->get_parent_category_id('editeurs-developpeurs'),
+            'orderby' => 'name'
+        ));
+        
+        $output = '';
+        foreach ($developers as $developer) {
+            $output .= sprintf(
+                '<div class="suggestion-item" data-developer-id="%d" style="padding: 6px 10px; margin: 2px 0; background: #fff; border-radius: 3px; cursor: pointer; border: 1px solid #e0e0e0;">%s</div>',
+                $developer->term_id,
+                esc_html($developer->name)
+            );
+        }
+        
+        return $output;
+    }
+
+    /**
+     * Génère les options de select pour les genres de jeux
+     */
+    private function render_game_genres_options() {
+        $genres = get_categories(array(
+            'hide_empty' => false,
+            'parent' => $this->get_parent_category_id('jeux-video'),
+            'orderby' => 'name'
+        ));
+        
+        $output = '';
+        foreach ($genres as $genre) {
+            $selected = selected($this->filter_values['genres'] ?? '', $genre->term_id, false);
+            $output .= sprintf(
+                '<option value="%d" %s>%s (%d jeux)</option>',
+                $genre->term_id,
+                $selected,
+                esc_html($genre->name),
+                $genre->count
+            );
+        }
+        
+        return $output;
+    }
+
+    /**
+     * Génère les options de select pour les développeurs
+     */
+    private function render_game_developers_options() {
+        $developers = get_categories(array(
+            'hide_empty' => false,
+            'parent' => $this->get_parent_category_id('editeurs-developpeurs'),
+            'orderby' => 'name'
+        ));
+        
+        $output = '';
+        foreach ($developers as $developer) {
+            $selected = selected($this->filter_values['developers'] ?? '', $developer->term_id, false);
+            $output .= sprintf(
+                '<option value="%d" %s>%s</option>',
+                $developer->term_id,
+                $selected,
+                esc_html($developer->name)
+            );
+        }
+        
+        return $output;
+    }
+
+    /**
+     * Obtient l'ID de la catégorie parent par nom
+     */
+    private function get_parent_category_id($parent_name) {
+        $parent = get_category_by_slug(sanitize_title($parent_name));
+        if (!$parent) {
+            // Essayer par nom si le slug ne fonctionne pas
+            $parents = get_categories(array(
+                'name' => $parent_name,
+                'hide_empty' => false,
+                'number' => 1
+            ));
+            if (!empty($parents)) {
+                $parent = $parents[0];
+            }
+        }
+        
+        return $parent ? $parent->term_id : 0;
+    }
+
+    /**
+     * Affiche les filtres actifs pour Game Data
+     */
+    private function render_active_game_data_filters() {
+        $active_filters = [];
+        
+        // Recherche
+        if (!empty($this->filter_values['search'])) {
+            $active_filters[] = sprintf(
+                '<span class="sisme-tag sisme-tag--filter">Recherche: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
+                esc_html($this->filter_values['search']),
+                esc_url($this->get_filtered_url(['s' => '']))
+            );
+        }
+        
+        // Genre
+        if (!empty($this->filter_values['genres'])) {
+            $genre = get_category($this->filter_values['genres']);
+            $genre_name = $genre ? $genre->name : 'Genre #' . $this->filter_values['genres'];
+            
+            $active_filters[] = sprintf(
+                '<span class="sisme-tag sisme-tag--filter">Genre: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
+                esc_html($genre_name),
+                esc_url($this->get_filtered_url(['genres' => '']))
+            );
+        }
+        
+        // Développeur
+        if (!empty($this->filter_values['developers'])) {
+            $developer = get_category($this->filter_values['developers']);
+            $developer_name = $developer ? $developer->name : 'Dev/Éditeur #' . $this->filter_values['developers'];
+            
+            $active_filters[] = sprintf(
+                '<span class="sisme-tag sisme-tag--filter">Dev/Éditeur: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
+                esc_html($developer_name),
+                esc_url($this->get_filtered_url(['developers' => '']))
+            );
+        }
+        
+        // Plateforme
+        if (!empty($this->filter_values['platforms'])) {
+            $platform_labels = [
+                'pc' => 'PC',
+                'ios' => 'iOS', 
+                'android' => 'Android',
+                'xbox' => 'Xbox',
+                'playstation' => 'PlayStation',
+                'switch' => 'Nintendo Switch'
+            ];
+            
+            $platform_name = $platform_labels[$this->filter_values['platforms']] ?? $this->filter_values['platforms'];
+            
+            $active_filters[] = sprintf(
+                '<span class="sisme-tag sisme-tag--filter">Plateforme: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
+                esc_html($platform_name),
+                esc_url($this->get_filtered_url(['platforms' => '']))
+            );
+        }
+        
+        return implode(' ', $active_filters);
     }
     
     /**
@@ -466,7 +676,7 @@ class Sisme_Article_Filter_Module {
             $tag_name = $tag ? $tag->name : $this->filter_values['tag'];
             
             $active_filters[] = sprintf(
-                '<span class="sisme-tag sisme-tag--filter">Jeux: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
+                '<span class="sisme-tag sisme-tag--filter">Étiquette: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
                 esc_html($tag_name),
                 esc_url($this->get_filtered_url(['tag' => '']))
             );
@@ -474,8 +684,8 @@ class Sisme_Article_Filter_Module {
         
         // Auteur
         if (!empty($this->filter_values['author'])) {
-            $author = get_user_by('id', $this->filter_values['author']);
-            $author_name = $author ? $author->display_name : 'ID: ' . $this->filter_values['author'];
+            $author = get_userdata($this->filter_values['author']);
+            $author_name = $author ? $author->display_name : 'Auteur #' . $this->filter_values['author'];
             
             $active_filters[] = sprintf(
                 '<span class="sisme-tag sisme-tag--filter">Auteur: %s <a href="%s" class="sisme-tag__remove">×</a></span>',

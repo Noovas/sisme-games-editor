@@ -44,6 +44,9 @@
 /* Tables - affichage des données Game Data */
 @import 'components/tables.css';
 
+/* Filters - affichage des champs de filtrage */
+@import 'components/filters.css';
+
 /* ========================================
    📐 4. LAYOUTS
    Structure et mise en page des écrans

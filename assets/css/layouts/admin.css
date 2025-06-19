@@ -30,6 +30,12 @@
     position: relative;
 }
 
+.sisme-card-game-data__header {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 .sisme-admin-title {
     font-size: var(--sisme-text-4xl);
     font-weight: var(--sisme-font-bold);

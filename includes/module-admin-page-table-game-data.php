@@ -102,27 +102,19 @@ class Sisme_Game_Data_Table_Module {
      * Charger les données des jeux depuis les étiquettes et term_meta
      */
     private function load_games_data() {
-        // Récupérer le terme de recherche si présent
-        $search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
-
         // Récupérer les arguments de filtre
         $filter_args = $this->filter_module->get_game_data_filter_args();
         
-        // Arguments de base pour récupérer les étiquettes
+        // Arguments de base pour récupérer TOUTES les étiquettes d'abord
         $args = [
             'taxonomy' => 'post_tag',
             'hide_empty' => false,
             'orderby' => 'name',
             'order' => 'ASC',
-            'number' => 0, // Récupérer tous pour pouvoir filtrer
+            'number' => 0, // Récupérer tous
         ];
         
-        // Ajouter la recherche si présente
-        if (!empty($filter_args['search'])) {
-            $args['search'] = $filter_args['search'];
-        }
-        
-        // Récupérer toutes les étiquettes
+        // Récupérer TOUTES les étiquettes (pas de filtre search ici)
         $all_tags = get_terms($args);
         
         if (is_wp_error($all_tags)) {
@@ -140,25 +132,64 @@ class Sisme_Game_Data_Table_Module {
             }
         }
 
-        // Appliquer les filtres de Game Data
+        // MAINTENANT appliquer les filtres en PHP
+        
+        // Filtrer par recherche de nom (en PHP, pas avec get_terms)
+        if (!empty($filter_args['search'])) {
+            $search_term = strtolower($filter_args['search']);
+            $processed_data = array_filter($processed_data, function($game) use ($search_term) {
+                return strpos(strtolower($game['name']), $search_term) !== false;
+            });
+        }
+
+        // Filtrer par genre
         if (!empty($filter_args['genres'])) {
             $processed_data = array_filter($processed_data, function($game) use ($filter_args) {
-                $genres = isset($game['meta_data']['game_genres']) ? $game['meta_data']['game_genres'] : [];
+                $genres = isset($game['meta_data']['game_genres']) && is_array($game['meta_data']['game_genres']) 
+                    ? $game['meta_data']['game_genres'] : [];
                 return in_array($filter_args['genres'], $genres);
             });
         }
 
+        // Filtrer par développeur/éditeur
         if (!empty($filter_args['developers'])) {
             $processed_data = array_filter($processed_data, function($game) use ($filter_args) {
-                $developers = isset($game['meta_data']['game_developers']) ? $game['meta_data']['game_developers'] : [];
-                return in_array($filter_args['developers'], $developers);
+                // Récupérer les développeurs
+                $developers = isset($game['meta_data']['game_developers']) && is_array($game['meta_data']['game_developers']) 
+                    ? $game['meta_data']['game_developers'] : [];
+                
+                // Récupérer les éditeurs  
+                $publishers = isset($game['meta_data']['game_publishers']) && is_array($game['meta_data']['game_publishers']) 
+                    ? $game['meta_data']['game_publishers'] : [];
+                
+                // Fusionner développeurs et éditeurs
+                $all_entities = array_merge($developers, $publishers);
+                
+                // Chercher dans les deux
+                return in_array($filter_args['developers'], $all_entities);
             });
         }
 
-        // Calculer la pagination
+        // Filtrer par plateforme
+        if (!empty($filter_args['platforms'])) {
+            $processed_data = array_filter($processed_data, function($game) use ($filter_args) {
+                $platforms = isset($game['meta_data']['game_platforms']) && is_array($game['meta_data']['game_platforms']) 
+                    ? $game['meta_data']['game_platforms'] : [];
+                return in_array($filter_args['platforms'], $platforms);
+            });
+        }
+
+        // Calculer la pagination APRÈS tous les filtres
         $this->total_items = count($processed_data);
-        $offset = ($this->current_page - 1) * $this->per_page;
-        $this->games_data = array_slice($processed_data, $offset, $this->per_page);
+        
+        // Appliquer la pagination seulement si on en a besoin
+        if ($this->per_page > 0) {
+            $offset = ($this->current_page - 1) * $this->per_page;
+            $this->games_data = array_slice($processed_data, $offset, $this->per_page);
+        } else {
+            // Pas de pagination (per_page = -1)
+            $this->games_data = $processed_data;
+        }
     }
     
     /**

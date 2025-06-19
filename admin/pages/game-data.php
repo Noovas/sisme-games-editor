@@ -77,7 +77,7 @@ $page->render_start();
 
 <!-- Tableau Game Data -->
 <div class="sisme-card">
-    <div class="sisme-card__header">
+    <div class="sisme-card__header sisme-card-game-data__header">
         <h2 class="sisme-heading-3">🎮 Gestion des jeux</h2>
         <div class="sisme-card__header-actions">
             <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-game-data'); ?>" 
