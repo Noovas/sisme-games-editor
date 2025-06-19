@@ -39,6 +39,7 @@ class SismeGamesEditor {
         add_action('wp_ajax_sisme_add_editor', array($this, 'ajax_add_editor'));
         add_action('wp_ajax_sisme_load_more_articles', array($this, 'ajax_load_more_articles'));
         add_action('wp_ajax_sisme_create_tag', array($this, 'handle_ajax_create_tag'));
+        add_action('wp_ajax_sisme_create_category', array($this, 'handle_ajax_create_category'));
 
         $this->include_files();
 
@@ -523,6 +524,70 @@ class SismeGamesEditor {
         }
         
         return $sisme_categories;
+    }
+
+    //Handler AJAX pour créer des catégories de genre de jeu
+    public function handle_ajax_create_category() {
+        // Vérification de sécurité
+        if (!wp_verify_nonce($_POST['nonce'], 'sisme_create_category')) {
+            wp_die('Sécurité : nonce invalide');
+        }
+        
+        $category_name = sanitize_text_field($_POST['category_name']);
+        if (empty($category_name)) {
+            wp_send_json_error('Nom de la catégorie requis');
+        }
+        
+        // Normaliser le nom pour créer le slug
+        $slug = 'jeux-' . sanitize_title($category_name);
+        
+        // Vérifier si la catégorie existe déjà par slug
+        $existing_category = get_category_by_slug($slug);
+        if ($existing_category) {
+            wp_send_json_success(array(
+                'term_id' => $existing_category->term_id,
+                'name' => $existing_category->name,
+                'slug' => $existing_category->slug,
+                'existed' => true
+            ));
+        }
+        
+        // Trouver la catégorie parent "Jeux" - CORRECTION ICI AUSSI
+        $parent_category = get_category_by_slug('jeux-video'); // CORRECTION
+        if (!$parent_category) {
+            $parent_category = get_term_by('name', 'Jeux', 'category');
+        }
+        
+        if (!$parent_category) {
+            wp_send_json_error('Catégorie parent "Jeux" introuvable (slug testé: jeux-video)');
+        }
+        
+        // Vérifier que ce n'est pas un mode de jeu (exclusion)
+        $excluded_slugs = ['jeux-solo', 'jeux-multijoueur', 'jeux-cooperatif', 'jeux-competitif'];
+        if (in_array($slug, $excluded_slugs)) {
+            wp_send_json_error('Cette catégorie est réservée aux modes de jeu');
+        }
+        
+        // Créer la nouvelle catégorie
+        $new_category = wp_insert_category(array(
+            'cat_name' => $category_name,
+            'category_nicename' => $slug,
+            'category_parent' => $parent_category->term_id,
+            'category_description' => 'Genre de jeu : ' . $category_name
+        ));
+        
+        if (is_wp_error($new_category)) {
+            wp_send_json_error('Erreur : ' . $new_category->get_error_message());
+        }
+        
+        // Récupérer les informations de la catégorie créée
+        $category_info = get_category($new_category);
+        wp_send_json_success(array(
+            'term_id' => $category_info->term_id,
+            'name' => $category_info->name,
+            'slug' => $category_info->slug,
+            'existed' => false
+        ));
     }
     
     private function get_article_type_info_for_ajax($post_id) {

@@ -325,7 +325,7 @@ class Sisme_Article_List_Module {
                                         // sauf si nous avons 'all' comme filtre, auquel cas nous affichons les catégories qui ne sont pas des catégories Sisme
                                         if (
                                             (!in_array('all', $this->category_slugs) && !in_array($category->slug, $this->category_slugs)) ||
-                                            (in_array('all', $this->category_slugs) && !in_array($category->slug, array('news', 'patch', 'tests')) && strpos($category->slug, 'jeux-') !== 0)
+                                            (in_array('all', $this->category_slugs) && !in_array($category->slug, array('news', 'patch', 'tests')) && strpos($category->slug ?? '', 'jeux-') !== 0)
                                         ) {
                                             echo '<span class="meta-tag">' . esc_html($category->name) . '</span>';
                                         }

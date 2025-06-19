@@ -258,7 +258,7 @@ class Sisme_Content_Filter {
         $categories = get_the_category();
         $game_categories = array();
         foreach ($categories as $category) {
-            if (strpos($category->slug, 'jeux-') === 0) {
+            if (strpos($category->slug ?? '', 'jeux-') === 0) {
                 $game_categories[] = $category;
             }
         }
@@ -268,7 +268,7 @@ class Sisme_Content_Filter {
             $genre_links = array();
             foreach ($game_categories as $category) {
                 $genre_links[] = '<a href="' . get_category_link($category->term_id) . '">' . 
-                               esc_html(str_replace('jeux-', '', $category->name)) . '</a>';
+                               esc_html(str_replace('jeux-', '', $category->name ?? '')) . '</a>';
             }
             $output .= implode(', ', $genre_links);
             $output .= '</li>';
@@ -343,8 +343,8 @@ class Sisme_Content_Filter {
         $categories = get_the_category();
         $main_category = '';
         foreach ($categories as $category) {
-            if (strpos($category->slug, 'jeux-') === 0) {
-                $main_category = str_replace('jeux-', '', $category->slug);
+            if (strpos($category->slug ?? '', 'jeux-') === 0) {
+                $main_category = str_replace('jeux-', '', $category->slug ?? '');
                 break;
             }
         }

@@ -536,8 +536,8 @@ class Sisme_News_Manager {
             if (!empty($cats)) {
                 $cat_names = array();
                 foreach ($cats as $cat) {
-                    if (strpos($cat->slug, 'jeux-') === 0) {
-                        $cat_names[] = str_replace('jeux-', '', $cat->name);
+                    if (strpos($cat->slug ?? '', 'jeux-') === 0) {
+                        $cat_names[] = str_replace('jeux-', '', $cat->name ?? '');
                     }
                 }
                 $categories = implode(', ', $cat_names);

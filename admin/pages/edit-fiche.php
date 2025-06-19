@@ -163,8 +163,8 @@ $post_url = get_permalink($post_id);
                                 <?php 
                                 // Trier les catégories par ordre alphabétique
                                 usort($available_jeux_categories, function($a, $b) {
-                                    $nameA = str_replace('jeux-', '', $a->name);
-                                    $nameB = str_replace('jeux-', '', $b->name);
+                                    $nameA = str_replace('jeux-', '', $a->name ?? '');
+                                    $nameB = str_replace('jeux-', '', $b->name ?? '');
                                     return strcasecmp($nameA, $nameB);
                                 });
                                 
@@ -175,7 +175,7 @@ $post_url = get_permalink($post_id);
                                                value="<?php echo $category->term_id; ?>"
                                                <?php checked(in_array($category->term_id, $selected_categories)); ?>
                                                style="margin-right: 8px;">
-                                        <?php echo esc_html(str_replace('jeux-', '', $category->name)); ?>
+                                        <?php echo esc_html(str_replace('jeux-', '', $category->name ?? '')); ?>
                                     </label>
                                 <?php endforeach; ?>
                             </fieldset>

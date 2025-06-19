@@ -158,16 +158,29 @@ class Sisme_Game_Data_Table_Module {
         foreach ($all_meta as $meta_key => $meta_values) {
             if (is_array($meta_values) && count($meta_values) > 0) {
                 $value = $meta_values[0];
-                
                 switch ($meta_key) {
                     case 'game_description':
                     case 'description':
                         $game_data['description'] = wp_trim_words($value, 15);
                         break;
+                        
                     case 'last_update':
                         $game_data['last_update'] = $value;
                         break;
+                        
+                    case 'cover_main':
+                    case 'cover_news':
+                    case 'cover_patch':
+                    case 'cover_test':
+                        $game_data['meta_data'][$meta_key] = $value;
+                        break;
+                        
+                    case 'game_genres':
+                        $game_data['meta_data']['game_genres'] = maybe_unserialize($value);
+                        break;
+                        
                     default:
+                        // Stocker les autres métadonnées
                         $game_data['meta_data'][$meta_key] = $value;
                         break;
                 }
@@ -198,8 +211,8 @@ class Sisme_Game_Data_Table_Module {
     private function render_search_form() {
         $search_value = isset($_GET['s']) ? esc_attr($_GET['s']) : '';
         ?>
-        <div class="search-form-container" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <form method="get" style="display: flex; gap: 10px;">
+        <div class="sisme-search-form-container">
+            <form method="get" class="sisme-search-form">
                 <?php
                 // Préserver les paramètres existants
                 foreach ($_GET as $key => $value) {
@@ -212,19 +225,19 @@ class Sisme_Game_Data_Table_Module {
                        name="s" 
                        value="<?php echo $search_value; ?>" 
                        placeholder="Rechercher un jeu..."
-                       class="regular-text">
-                <button type="submit" class="button">🔍 Rechercher</button>
+                       class="sisme-search-input regular-text">
+                <button type="submit" class="button sisme-search-btn">🔍 Rechercher</button>
                 <?php if (!empty($search_value)): ?>
-                    <a href="<?php echo remove_query_arg(['s', 'paged']); ?>" class="button">✖️ Effacer</a>
+                    <a href="<?php echo remove_query_arg(['s', 'paged']); ?>" class="button sisme-search-clear">✖️ Effacer</a>
                 <?php endif; ?>
             </form>
             
             <?php if ($this->options['show_add_button']): ?>
-                <div style="display: flex; gap: 10px;">
-                    <a href="<?php echo $this->options['edit_url']; ?>" class="button button-primary">
+                <div class="sisme-search-actions">
+                    <a href="<?php echo $this->options['edit_url']; ?>" class="button button-primary sisme-add-game-btn">
                         ➕ Créer un nouveau jeu
                     </a>
-                    <a href="<?php echo admin_url('edit-tags.php?taxonomy=post_tag'); ?>" class="button">
+                    <a href="<?php echo admin_url('edit-tags.php?taxonomy=post_tag'); ?>" class="button sisme-manage-tags-btn">
                         🏷️ Gérer les étiquettes
                     </a>
                 </div>
@@ -232,16 +245,16 @@ class Sisme_Game_Data_Table_Module {
         </div>
         <?php
     }
-    
+
     /**
      * Afficher l'en-tête du tableau
      */
     private function render_table_header() {
         ?>
-        <thead>
-            <tr>
+        <thead class="sisme-table-header">
+            <tr class="sisme-table-header-row">
                 <?php foreach ($this->options['columns'] as $column_key => $column_label): ?>
-                    <th class="column-<?php echo esc_attr($column_key); ?>">
+                    <th class="column-<?php echo esc_attr($column_key); ?> sisme-table-header-cell">
                         <?php echo esc_html($column_label); ?>
                     </th>
                 <?php endforeach; ?>
@@ -249,28 +262,57 @@ class Sisme_Game_Data_Table_Module {
         </thead>
         <?php
     }
-    
+
     /**
      * Afficher une ligne du tableau
      */
     private function render_table_row($game_data) {
         ?>
-        <tr>
+        <tr class="sisme-game-data-row">
             <?php foreach (array_keys($this->options['columns']) as $column_key): ?>
-                <td class="column-<?php echo esc_attr($column_key); ?>">
+                <td class="column-<?php echo esc_attr($column_key); ?> sisme-table-cell">
                     <?php $this->render_column_content($column_key, $game_data); ?>
                 </td>
             <?php endforeach; ?>
         </tr>
+
+        <!-- Ligne des genres -->
+        <tr class="sisme-game-data-genres-row">
+            <td colspan="<?php echo count($this->options['columns']); ?>" class="sisme-game-data-genres-cell">
+                <div class="sisme-game-data-genres-container">
+                    <strong class="sisme-game-data-genres-label">Genres :</strong>
+                    
+                    <div class="sisme-game-data-genres-list">
+                        <?php 
+                        $genres = isset($game_data['meta_data']['game_genres']) ? $game_data['meta_data']['game_genres'] : array();
+                        if (!empty($genres) && is_array($genres)):
+                            foreach ($genres as $genre_id):
+                                $genre = get_category($genre_id);
+                                if ($genre && !is_wp_error($genre)):
+                                    $genre_name = str_replace('jeux-', '', $genre->name ?? '');
+                        ?>
+                            <span class="sisme-genre-tag">
+                                <?php echo esc_html($genre_name); ?>
+                            </span>
+                        <?php 
+                                endif;
+                            endforeach;
+                        else:
+                        ?>
+                            <span class="sisme-no-genres">Aucun genre défini</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </td>
+        </tr>
         
         <!-- Ligne supplémentaire pour les covers -->
-        <tr style="background: #f9f9f9;">
-            <td colspan="<?php echo count($this->options['columns']); ?>" style="padding: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <strong style="color: #666;">Covers :</strong>
+        <tr class="sisme-game-data-covers-row">
+            <td colspan="<?php echo count($this->options['columns']); ?>" class="sisme-game-data-covers-cell">
+                <div class="sisme-game-data-covers-container">
+                    <strong class="sisme-game-data-covers-label">Covers :</strong>
                     
-                    <div style="display: flex; flex: 1; justify-content: flex-start; align-items: center; margin-left: 20px; gap: 20px;">
-
+                    <div class="sisme-game-data-covers-list">
                         <?php
                         $covers = ['cover_main', 'cover_news', 'cover_patch', 'cover_test'];
                         $cover_labels = [
@@ -283,8 +325,8 @@ class Sisme_Game_Data_Table_Module {
                         foreach ($covers as $cover_type) {
                             $cover_id = isset($game_data['meta_data'][$cover_type]) ? $game_data['meta_data'][$cover_type] : '';
                             ?>
-                            <div style="text-align: center; flex: 1;">
-                                <div style="font-size: 11px; color: #666; margin-bottom: 5px; font-weight: 500;">
+                            <div class="sisme-cover-item sisme-cover-<?php echo esc_attr($cover_type); ?>">
+                                <div class="sisme-cover-label">
                                     <?php echo $cover_labels[$cover_type]; ?>
                                 </div>
                                 <?php if (!empty($cover_id)): ?>
@@ -293,13 +335,14 @@ class Sisme_Game_Data_Table_Module {
                                     if ($image):
                                     ?>
                                         <img src="<?php echo esc_url($image[0]); ?>" 
-                         style="gap: 15px; max-width: 100%; height: auto; border-radius: 6px; border: 2px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
-                         title="<?php echo esc_attr(get_the_title($cover_id)); ?>">
+                                             class="sisme-cover-image sisme-cover-image-valid"
+                                             title="<?php echo esc_attr(get_the_title($cover_id)); ?>"
+                                             alt="<?php echo esc_attr($cover_labels[$cover_type]); ?>">
                                     <?php else: ?>
-                                        <div style="width: 50px; height: 50px; background: #e0e0e0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #999; margin: 0 auto;">❌</div>
+                                        <div class="sisme-cover-placeholder sisme-cover-error">❌</div>
                                     <?php endif; ?>
                                 <?php else: ?>
-                                    <div style="width: 50px; height: 50px; background: #f8f8f8; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #ccc; border: 2px dashed #ddd; margin: 0 auto;">📷</div>
+                                    <div class="sisme-cover-placeholder sisme-cover-empty">📷</div>
                                 <?php endif; ?>
                             </div>
                             <?php
@@ -311,7 +354,7 @@ class Sisme_Game_Data_Table_Module {
         </tr>
         <?php
     }
-    
+
     /**
      * Afficher le contenu d'une colonne
      */
@@ -319,80 +362,100 @@ class Sisme_Game_Data_Table_Module {
         switch ($column_key) {
             case 'name':
                 ?>
-                <strong><?php echo esc_html($game_data['name']); ?></strong>
-                <div style="font-size: 12px; color: #666;">
-                    ID: <?php echo $game_data['id']; ?> | Slug: <?php echo esc_html($game_data['slug']); ?>
+                <div class="sisme-game-name-content">
+                    <strong class="sisme-game-name"><?php echo esc_html($game_data['name']); ?></strong>
+                    <div class="sisme-game-meta">
+                        ID: <?php echo $game_data['id']; ?> | Slug: <?php echo esc_html($game_data['slug']); ?>
+                    </div>
                 </div>
                 <?php
                 break;
                 
             case 'description':
-                if (!empty($game_data['description'])) {
-                    echo '<div style="max-width: 300px;">' . esc_html($game_data['description']) . '</div>';
-                } else {
-                    echo '<em style="color: #999;">Aucune description</em>';
-                }
+                ?>
+                <div class="sisme-game-description-content">
+                    <?php if (!empty($game_data['description'])): ?>
+                        <div class="sisme-game-description"><?php echo esc_html($game_data['description']); ?></div>
+                    <?php else: ?>
+                        <em class="sisme-no-description">Aucune description</em>
+                    <?php endif; ?>
+                </div>
+                <?php
                 break;
                 
             case 'articles_count':
-                if ($game_data['articles_count'] > 0) {
-                    ?>
-                    <span class="articles-count" style="background: #e7f3e7; padding: 3px 8px; border-radius: 12px; font-size: 12px;">
-                        📄 <?php echo $game_data['articles_count']; ?> article<?php echo $game_data['articles_count'] > 1 ? 's' : ''; ?>
-                    </span>
-                    <?php
-                } else {
-                    echo '<span style="color: #999;">Aucun article</span>';
-                }
+                ?>
+                <div class="sisme-articles-count-content">
+                    <?php if ($game_data['articles_count'] > 0): ?>
+                        <span class="sisme-articles-count sisme-articles-count-has-articles">
+                            📄 <?php echo $game_data['articles_count']; ?> article<?php echo $game_data['articles_count'] > 1 ? 's' : ''; ?>
+                        </span>
+                    <?php else: ?>
+                        <span class="sisme-articles-count sisme-articles-count-no-articles">Aucun article</span>
+                    <?php endif; ?>
+                </div>
+                <?php
                 break;
                 
             case 'last_update':
-                if (!empty($game_data['last_update'])) {
-                    $date = date_create($game_data['last_update']);
-                    if ($date) {
-                        echo '<span style="font-size: 12px;">' . date_format($date, 'd/m/Y H:i') . '</span>';
-                    } else {
-                        echo '<span style="color: #999;">-</span>';
-                    }
-                } else {
-                    echo '<span style="color: #999;">Jamais</span>';
-                }
+                ?>
+                <div class="sisme-last-update-content">
+                    <?php if (!empty($game_data['last_update'])): ?>
+                        <?php
+                        $date = date_create($game_data['last_update']);
+                        if ($date):
+                        ?>
+                            <span class="sisme-last-update sisme-last-update-valid">
+                                <?php echo date_format($date, 'd/m/Y H:i'); ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="sisme-last-update sisme-last-update-invalid">-</span>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <span class="sisme-last-update sisme-last-update-never">Jamais</span>
+                    <?php endif; ?>
+                </div>
+                <?php
                 break;
                 
             case 'actions':
                 if ($this->options['show_actions']) {
                     ?>
-                    <div style="display: flex; gap: 5px;">
+                    <div class="sisme-game-actions">
                         <a href="<?php echo add_query_arg('tag_id', $game_data['id'], $this->options['edit_url']); ?>" 
-                           class="button button-small">✏️</a>
+                           class="button button-small sisme-action-edit" 
+                           title="Modifier">✏️</a>
                         
                         <?php if ($game_data['articles_count'] > 0): ?>
                             <a href="<?php echo admin_url('admin.php?page=sisme-games-all-articles&s=' . urlencode($game_data['name'])); ?>" 
-                               class="button button-small" 
+                               class="button button-small sisme-action-view-articles" 
                                title="Voir les articles de ce jeu">📄</a>
                         <?php endif; ?>
                         
                         <button type="button" 
-                                class="button button-small delete-game-data" 
+                                class="button button-small sisme-action-delete delete-game-data" 
                                 data-game-id="<?php echo $game_data['id']; ?>"
                                 data-game-name="<?php echo esc_attr($game_data['name']); ?>"
-                                style="background-color: #f8d7da;">🗑️</button>
+                                title="Supprimer">🗑️</button>
                     </div>
                     <?php
                 }
                 break;
                 
             default:
-                // Pour les colonnes personnalisées, vérifier dans les meta_data
-                if (isset($game_data['meta_data'][$column_key])) {
-                    echo esc_html($game_data['meta_data'][$column_key]);
-                } else {
-                    echo '<span style="color: #999;">-</span>';
-                }
+                ?>
+                <div class="sisme-custom-column-content">
+                    <?php if (isset($game_data['meta_data'][$column_key])): ?>
+                        <span class="sisme-custom-column-value"><?php echo esc_html($game_data['meta_data'][$column_key]); ?></span>
+                    <?php else: ?>
+                        <span class="sisme-custom-column-empty">-</span>
+                    <?php endif; ?>
+                </div>
+                <?php
                 break;
         }
     }
-    
+
     /**
      * Afficher la pagination
      */
@@ -405,35 +468,35 @@ class Sisme_Game_Data_Table_Module {
         $current_page = $this->current_page;
         
         ?>
-        <div class="pagination-wrapper" style="margin-top: 20px; text-align: center;">
-            <div class="pagination-info" style="margin-bottom: 10px; color: #666;">
+        <div class="sisme-pagination-wrapper">
+            <div class="sisme-pagination-info">
                 Affichage de <?php echo (($current_page - 1) * $this->per_page) + 1; ?> à 
                 <?php echo min($current_page * $this->per_page, $this->total_items); ?> 
                 sur <?php echo $this->total_items; ?> jeu<?php echo $this->total_items > 1 ? 'x' : ''; ?>
             </div>
             
             <?php if ($total_pages > 1): ?>
-                <div class="pagination-links">
+                <div class="sisme-pagination-links">
                     <?php
                     $base_url = remove_query_arg('paged');
                     
                     // Bouton précédent
                     if ($current_page > 1) {
-                        echo '<a href="' . add_query_arg('paged', $current_page - 1, $base_url) . '" class="button">‹ Précédent</a> ';
+                        echo '<a href="' . add_query_arg('paged', $current_page - 1, $base_url) . '" class="button sisme-pagination-prev">‹ Précédent</a> ';
                     }
                     
                     // Numéros de pages
                     for ($i = max(1, $current_page - 2); $i <= min($total_pages, $current_page + 2); $i++) {
                         if ($i == $current_page) {
-                            echo '<span class="button button-primary" style="margin: 0 2px;">' . $i . '</span> ';
+                            echo '<span class="button button-primary sisme-pagination-current">' . $i . '</span> ';
                         } else {
-                            echo '<a href="' . add_query_arg('paged', $i, $base_url) . '" class="button" style="margin: 0 2px;">' . $i . '</a> ';
+                            echo '<a href="' . add_query_arg('paged', $i, $base_url) . '" class="button sisme-pagination-page">' . $i . '</a> ';
                         }
                     }
                     
                     // Bouton suivant
                     if ($current_page < $total_pages) {
-                        echo '<a href="' . add_query_arg('paged', $current_page + 1, $base_url) . '" class="button">Suivant ›</a>';
+                        echo '<a href="' . add_query_arg('paged', $current_page + 1, $base_url) . '" class="button sisme-pagination-next">Suivant ›</a>';
                     }
                     ?>
                 </div>
@@ -441,7 +504,7 @@ class Sisme_Game_Data_Table_Module {
         </div>
         <?php
     }
-    
+
     /**
      * Afficher le JavaScript pour les actions
      */
@@ -465,37 +528,37 @@ class Sisme_Game_Data_Table_Module {
         </script>
         <?php
     }
-    
+
     /**
      * Afficher le tableau complet
      */
     public function render() {
         ?>
-        <div class="game-data-table-module" id="<?php echo esc_attr($this->module_id); ?>">
+        <div class="sisme-game-data-table-module" id="<?php echo esc_attr($this->module_id); ?>">
             
             <?php if ($this->options['show_search']): ?>
                 <?php $this->render_search_form(); ?>
             <?php endif; ?>
             
             <?php if (empty($this->games_data)): ?>
-                <div class="no-data-message" style="text-align: center; padding: 40px; background: #f9f9f9; border-radius: 8px; margin: 20px 0;">
-                    <h3 style="margin: 0 0 10px; color: #666;">🎮 Aucun jeu trouvé</h3>
+                <div class="sisme-no-data-message">
+                    <h3 class="sisme-no-data-title">🎮 Aucun jeu trouvé</h3>
                     <?php if (isset($_GET['s']) && !empty($_GET['s'])): ?>
-                        <p>Aucun résultat pour "<?php echo esc_html($_GET['s']); ?>"</p>
-                        <a href="<?php echo remove_query_arg(['s', 'paged']); ?>" class="button">Voir tous les jeux</a>
+                        <p class="sisme-no-data-search">Aucun résultat pour "<?php echo esc_html($_GET['s']); ?>"</p>
+                        <a href="<?php echo remove_query_arg(['s', 'paged']); ?>" class="button sisme-no-data-clear">Voir tous les jeux</a>
                     <?php else: ?>
-                        <p>Commencez par créer des étiquettes de jeux ou ajouter des données.</p>
-                        <a href="<?php echo $this->options['edit_url']; ?>" class="button button-primary">
+                        <p class="sisme-no-data-empty">Commencez par créer des étiquettes de jeux ou ajouter des données.</p>
+                        <a href="<?php echo $this->options['edit_url']; ?>" class="button button-primary sisme-no-data-add">
                             ➕ Ajouter un jeu
                         </a>
                     <?php endif; ?>
                 </div>
             <?php else: ?>
                 
-                <table class="wp-list-table widefat fixed striped" style="margin-top: 10px;">
+                <table class="wp-list-table widefat fixed striped sisme-game-data-table">
                     <?php $this->render_table_header(); ?>
                     
-                    <tbody>
+                    <tbody class="sisme-table-body">
                         <?php foreach ($this->games_data as $game_data): ?>
                             <?php $this->render_table_row($game_data); ?>
                         <?php endforeach; ?>

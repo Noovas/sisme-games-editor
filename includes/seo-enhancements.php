@@ -249,8 +249,8 @@ class Sisme_SEO_Enhancements {
         $categories = get_the_category();
         $game_genres = array();
         foreach ($categories as $category) {
-            if (strpos($category->slug, 'jeux-') === 0) {
-                $game_genres[] = str_replace('jeux-', '', $category->name);
+            if (strpos($category->slug ?? '', 'jeux-') === 0) {
+                $game_genres[] = str_replace('jeux-', '', $category->name ?? '');
             }
         }
         if (!empty($game_genres)) {
@@ -373,8 +373,8 @@ class Sisme_SEO_Enhancements {
             $keywords = array('jeu indépendant', 'indie game', 'gaming');
             
             foreach ($categories as $category) {
-                if (strpos($category->slug, 'jeux-') === 0) {
-                    $keywords[] = str_replace('jeux-', '', $category->name);
+                if (strpos($category->slug ?? '', 'jeux-') === 0) {
+                    $keywords[] = str_replace('jeux-', '', $category->name ?? '');
                 }
             }
             
@@ -564,8 +564,8 @@ class Sisme_SEO_Enhancements {
             
             if (!empty($cats)) {
                 foreach ($cats as $cat) {
-                    if (strpos($cat->slug, 'jeux-') === 0) {
-                        $categories[] = str_replace('jeux-', '', $cat->name);
+                    if (strpos($cat->slug ?? '', 'jeux-') === 0) {
+                        $categories[] = str_replace('jeux-', '', $cat->name ?? '');
                     }
                 }
             }

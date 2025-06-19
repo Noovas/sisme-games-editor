@@ -63,6 +63,14 @@ class Sisme_Game_Form_Module {
             'allowed_tags' => ['strong', 'em', 'br'],
             'rows' => 6
         ],
+        'game_genres' => [
+            'label' => 'Genres du jeu',
+            'description' => 'Recherchez des genres existants ou créez-en de nouveaux.',
+            'required' => false,
+            'output_var' => 'game_genres',
+            'parent_category' => 'jeux',
+            'exclude_modes' => ['jeux-solo', 'jeux-multijoueur', 'jeux-cooperatif', 'jeux-competitif']
+        ],
         'cover_main' => [
             'label' => 'Cover principale',
             'description' => 'Image principale du jeu (médiathèque WordPress).',
@@ -161,6 +169,13 @@ class Sisme_Game_Form_Module {
                 );
             }
         }
+
+        // Traitement spécial pour game_genres (tableau d'IDs)
+        if (isset($_POST['game_genres']) && is_array($_POST['game_genres'])) {
+            $this->form_data['game_genres'] = array_map('intval', $_POST['game_genres']);
+        } else {
+            $this->form_data['game_genres'] = array();
+        }
     }
     
     /**
@@ -191,6 +206,124 @@ class Sisme_Game_Form_Module {
             default:
                 return sanitize_text_field($value);
         }
+    }
+
+    /**
+     * Afficher le composant genres de jeu
+     */
+    private function render_game_genres_component() {
+        $component = $this->components['game_genres'];
+        $value = isset($this->form_data['game_genres']) ? $this->form_data['game_genres'] : array();
+        $field_id = $this->module_id . '_game_genres';
+        $required_attr = $component['required'] ? 'required' : '';
+        $required_label = $component['required'] ? ' *' : '';
+        
+        // Récupérer les genres existants (catégories enfants de "Jeux" sauf les modes)
+        $genres = $this->get_existing_genres();
+        ?>
+        <tr>
+            <th scope="row">
+                <label for="<?php echo esc_attr($field_id); ?>">
+                    <?php echo esc_html($component['label'] . $required_label); ?>
+                </label>
+            </th>
+            <td>
+                <div class="sisme-game-genres-component">
+                    
+                    <!-- Liste des genres sélectionnés - EN PREMIER -->
+                    <div class="sisme-selected-genres" style="margin-bottom: 15px;">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Genres sélectionnés :</label>
+                        <div class="sisme-selected-genres-list" id="<?php echo esc_attr($field_id . '_selected'); ?>" 
+                             style="min-height: 40px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                            <?php if (empty($value)): ?>
+                                <span class="no-genres-selected" style="color: #666; font-style: italic;">Aucun genre sélectionné</span>
+                            <?php else: ?>
+                                <?php foreach ($value as $genre_id): ?>
+                                    <?php $genre = get_category($genre_id); ?>
+                                    <?php if ($genre): ?>
+                                        <span class="selected-genre-tag" data-genre-id="<?php echo esc_attr($genre_id); ?>" 
+                                              style="display: inline-block; background: var(--theme-palette-color-1); color: white; padding: 4px 8px; margin: 2px; border-radius: 3px; font-size: 12px;">
+                                            <?php echo esc_html(str_replace('jeux-', '', $genre->name ?? '')); ?>
+                                            <span class="remove-genre" style="margin-left: 5px; cursor: pointer; font-weight: bold;">&times;</span>
+                                            <input type="hidden" name="game_genres[]" value="<?php echo esc_attr($genre_id); ?>">
+                                        </span>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Champ de recherche/création -->
+                    <div class="sisme-genre-search" style="margin-bottom: 15px;">
+                        <input type="text" 
+                               id="<?php echo esc_attr($field_id . '_search'); ?>"
+                               class="sisme-genre-search-input regular-text" 
+                               placeholder="Rechercher ou créer un genre..."
+                               style="width: 70%; margin-right: 10px;">
+                        <button type="button" 
+                                class="button button-secondary sisme-create-genre-btn"
+                                title="Créer le genre">
+                            + Créer
+                        </button>
+                    </div>
+                    
+                    <!-- Suggestions de genres existants -->
+                    <div class="sisme-genre-suggestions">
+                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Genres disponibles :</label>
+                        <div class="sisme-suggestions-list" style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; padding: 8px;">
+                            <?php if (empty($genres)): ?>
+                                <p style="margin: 0; color: #666; font-style: italic;">Aucun genre disponible. Créez le premier !</p>
+                            <?php else: ?>
+                                <?php foreach ($genres as $genre): ?>
+                                    <div class="suggestion-item" data-genre-id="<?php echo esc_attr($genre->term_id); ?>" 
+                                         style="padding: 6px 10px; margin: 2px 0; background: #fff; border-radius: 3px; cursor: pointer; border: 1px solid #e0e0e0;">
+                                        <strong><?php echo esc_html(str_replace('jeux-', '', $genre->name ?? '')); ?></strong>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <?php
+    }
+
+    /**
+     * Récupérer les genres existants
+     */
+    private function get_existing_genres() {
+        // Chercher la catégorie parent "Jeux" avec le bon slug ou nom
+        $parent_category = get_category_by_slug('jeux-video'); // CORRECTION ICI
+        
+        if (!$parent_category) {
+            // Essayer par nom si le slug ne fonctionne pas
+            $parent_category = get_term_by('name', 'Jeux', 'category');
+        }
+        
+        if (!$parent_category) {
+            error_log('ERREUR: Catégorie parent "Jeux" introuvable. Slugs testés: jeux-video, nom: Jeux');
+            return array();
+        }
+        
+        $excluded_slugs = ['jeux-solo', 'jeux-multijoueur', 'jeux-cooperatif', 'jeux-competitif'];
+        
+        $categories = get_categories(array(
+            'parent' => $parent_category->term_id,
+            'hide_empty' => false,
+            'orderby' => 'name',
+            'order' => 'ASC'
+        ));
+        
+        // Filtrer les modes de jeu
+        $genres = array();
+        foreach ($categories as $category) {
+            if (!in_array($category->slug, $excluded_slugs)) {
+                $genres[] = $category;
+            }
+        }
+        
+        return $genres;
     }
     
     /**
@@ -424,6 +557,10 @@ class Sisme_Game_Form_Module {
                 $this->render_description_component();
                 break;
 
+            case 'game_genres':
+                $this->render_game_genres_component();
+                break;
+
             case 'cover_main':
             case 'cover_news':
             case 'cover_patch':
@@ -540,6 +677,24 @@ class Sisme_Game_Form_Module {
                 case 'game_name':
                     if (!empty($value) && !is_numeric($value)) {
                         $errors[$output_var] = 'ID de tag invalide.';
+                    }
+                    break;
+
+                case 'game_genres':
+                    if (!empty($value)) {
+                        // Vérifier que c'est un tableau
+                        if (!is_array($value)) {
+                            $errors[$output_var] = 'Format de données invalide pour les genres.';
+                            break;
+                        }
+                        
+                        // Vérifier que chaque ID de genre est valide
+                        foreach ($value as $genre_id) {
+                            if (!is_numeric($genre_id) || !get_category($genre_id)) {
+                                $errors[$output_var] = 'Un ou plusieurs genres sélectionnés sont invalides.';
+                                break 2; // Sortir des deux boucles
+                            }
+                        }
                     }
                     break;
                     
@@ -707,6 +862,137 @@ class Sisme_Game_Form_Module {
                     location.reload();
                 }
             });
+
+            // === GESTION DES GENRES DE JEU ===
+            // Création d'un nouveau genre
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.sisme-create-genre-btn', function(e) {
+                e.preventDefault();
+                
+                var button = $(this);
+                var container = button.closest('.sisme-game-genres-component');
+                var input = container.find('.sisme-genre-search-input');
+                var genreName = input.val().trim();
+                
+                if (!genreName) {
+                    alert('Veuillez saisir un nom de genre.');
+                    return;
+                }
+                
+                button.prop('disabled', true).text('Création...');
+                
+                $.ajax({
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    type: 'POST',
+                    data: {
+                        action: 'sisme_create_category',
+                        category_name: genreName,
+                        nonce: '<?php echo wp_create_nonce('sisme_create_category'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Ajouter le genre à la sélection
+                            addGenreToSelection(container, response.data.term_id, response.data.name.replace('jeux-', ''));
+                            
+                            // Ajouter à la liste des suggestions si c'est un nouveau genre
+                            if (!response.data.existed) {
+                                addGenreToSuggestions(container, response.data);
+                            }
+                            
+                            input.val('');
+                            button.text(response.data.existed ? 'Existait déjà !' : 'Créé !');
+                            setTimeout(function() {
+                                button.text('+ Créer').prop('disabled', false);
+                            }, 1500);
+                        } else {
+                            alert('Erreur: ' + (response.data || 'Problème inconnu'));
+                            button.text('+ Créer').prop('disabled', false);
+                        }
+                    },
+                    error: function() {
+                        alert('Erreur AJAX');
+                        button.text('+ Créer').prop('disabled', false);
+                    }
+                });
+            });
+
+            // Sélection d'un genre depuis les suggestions
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.suggestion-item', function(e) {
+                e.preventDefault();
+                
+                var genreId = $(this).data('genre-id');
+                var genreName = $(this).find('strong').text();
+                var container = $(this).closest('.sisme-game-genres-component');
+                
+                // Vérifier si déjà sélectionné
+                if (container.find('.selected-genre-tag[data-genre-id="' + genreId + '"]').length > 0) {
+                    alert('Ce genre est déjà sélectionné.');
+                    return;
+                }
+                
+                addGenreToSelection(container, genreId, genreName);
+            });
+
+            // Suppression d'un genre sélectionné
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.remove-genre', function(e) {
+                e.preventDefault();
+                $(this).closest('.selected-genre-tag').remove();
+                
+                // Vérifier s'il reste des genres sélectionnés
+                var container = $(this).closest('.sisme-game-genres-component');
+                var selectedList = container.find('.sisme-selected-genres-list');
+                if (selectedList.find('.selected-genre-tag').length === 0) {
+                    selectedList.html('<span class="no-genres-selected" style="color: #666; font-style: italic;">Aucun genre sélectionné</span>');
+                }
+            });
+
+            // Recherche en temps réel dans les suggestions
+            $('#<?php echo esc_js($this->module_id); ?>').on('keyup', '.sisme-genre-search-input', function() {
+                var searchTerm = $(this).val().toLowerCase();
+                var container = $(this).closest('.sisme-game-genres-component');
+                var suggestions = container.find('.suggestion-item');
+                
+                suggestions.each(function() {
+                    var genreName = $(this).find('strong').text().toLowerCase();
+                    if (genreName.includes(searchTerm)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            // Fonction pour ajouter un genre à la sélection
+            function addGenreToSelection(container, genreId, genreName) {
+                var selectedList = container.find('.sisme-selected-genres-list');
+                
+                // Supprimer le message "aucun genre sélectionné"
+                selectedList.find('.no-genres-selected').remove();
+                
+                // Créer le tag de genre sélectionné
+                var genreTag = $('<span class="selected-genre-tag" data-genre-id="' + genreId + '" ' +
+                                'style="display: inline-block; background: var(--theme-palette-color-1); color: white; padding: 4px 8px; margin: 2px; border-radius: 3px; font-size: 12px;">' +
+                                genreName +
+                                '<span class="remove-genre" style="margin-left: 5px; cursor: pointer; font-weight: bold;">&times;</span>' +
+                                '<input type="hidden" name="game_genres[]" value="' + genreId + '">' +
+                                '</span>');
+                
+                selectedList.append(genreTag);
+            }
+
+            // Fonction pour ajouter un genre aux suggestions
+            function addGenreToSuggestions(container, genreData) {
+                var suggestionsList = container.find('.sisme-suggestions-list');
+                
+                // Supprimer le message "aucun genre disponible" s'il existe
+                suggestionsList.find('p').remove();
+                
+                var suggestionItem = $('<div class="suggestion-item" data-genre-id="' + genreData.term_id + '" ' +
+                                      'style="padding: 6px 10px; margin: 2px 0; background: #fff; border-radius: 3px; cursor: pointer; border: 1px solid #e0e0e0;">' +
+                                      '<strong>' + genreData.name.replace('jeux-', '') + '</strong>' +
+                                      '</div>');
+                
+                suggestionsList.prepend(suggestionItem);
+            }
         });
         </script>
         <?php

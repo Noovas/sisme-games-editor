@@ -44,6 +44,7 @@ $form_options = [
 // Pré-remplir les données si en mode édition
 if ($is_edit_mode) {
     // Récupérer les métadonnées existantes
+    $existing_game_genres = get_term_meta($tag_id, 'game_genres', true) ?: array();
     $existing_description = get_term_meta($tag_id, 'game_description', true);
     $existing_cover_main = get_term_meta($tag_id, 'cover_main', true);
     $existing_cover_news = get_term_meta($tag_id, 'cover_news', true);
@@ -53,6 +54,7 @@ if ($is_edit_mode) {
     // Simuler une soumission pour pré-remplir le formulaire
     if (empty($_POST)) {
         $_POST['game_name'] = $tag_id;
+        $_POST['game_genres'] = $existing_game_genres;
         $_POST['description'] = $existing_description;
         $_POST['cover_main'] = $existing_cover_main;
         $_POST['cover_news'] = $existing_cover_news;
@@ -62,7 +64,7 @@ if ($is_edit_mode) {
     }
 }
 
-$form = new Sisme_Game_Form_Module(['game_name', 'description', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
+$form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'description', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
 
 
 if ($form->is_submitted() && !empty($_POST['submit'])) {
