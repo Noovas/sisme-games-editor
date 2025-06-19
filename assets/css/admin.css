@@ -83,6 +83,11 @@
     box-shadow: var(--sisme-shadow-hover) !important;
 }
 
+/* Masquer le footer WordPress */
+#wpfooter {
+    display: none;
+}
+
 /* ========================================
    🎯 6. PRINT STYLES (bonus)
 ======================================== */

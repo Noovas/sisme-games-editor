@@ -21,6 +21,10 @@
     animation: sisme-fade-in-up var(--sisme-duration-slower) var(--sisme-ease-out);
 }
 
+.sisme-card--secondary {
+    border: 1px solid var(--sisme-color-primary-swap) !important;
+}
+
 /* Barre décorative en haut de chaque card */
 .sisme-card::before {
     content: '';
@@ -49,11 +53,31 @@
     animation: sisme-dots-flow 4s ease-out infinite;
 }
 
+
+.sisme-card--secondary::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--sisme-color-primary-dark-swap) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    animation: sisme-dots-flow 4s ease-out infinite;
+}
+
 /* Effet hover sur les cards */
 .sisme-card:hover {
     border-color: var(--sisme-border-strong);
     box-shadow: var(--sisme-shadow-xl);
     transform: translateY(-2px);
+}
+
+.sisme-card--secondary:hover {
+    border-color: var(--sisme-color-primary-swap) !important; 
 }
 
 /* ========================================
@@ -78,12 +102,8 @@
     background: var(--sisme-color-primary);
 }
 
-.sisme-card--secondary {
-    border-color: var(--sisme-color-secondary);
-}
-
 .sisme-card--secondary::before {
-    background: var(--sisme-color-secondary);
+    background: var(--sisme-color-primary-swap);
 }
 
 /* Card d'erreur/warning */

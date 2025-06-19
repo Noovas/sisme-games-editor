@@ -9,19 +9,24 @@
    🎨 PALETTE DE COULEURS PRINCIPALE
 ======================================== */
 :root {
-    /* Couleurs principales du thème - EXISTANTES */
+    /* Couleurs principales du thème */
     --sisme-color-primary: #A1B78D;        /* Vert principal - actions/success */
     --sisme-color-primary-dark: #557A46;   /* Vert foncé - hover/active */
     --sisme-color-secondary: #D4A373;      /* Beige/orange - accents */
+
+    /* Couleurs primaire swap du thème (juste pour avoir une variante) */
+    --sisme-color-primary-swap: #95a8c8; /* Clair */
+    --sisme-color-primary-dark-swap: #1a202c; /* Foncé */  
+    --sisme-color-secondary-swap: #4a5568; /* */
     
-    /* Couleurs neutres - EXISTANTES */
+    /* Couleurs neutres */
     --sisme-color-background: #ECF0F1;     /* Arrière-plan clair */
     --sisme-color-surface: #ECF0F1;        /* Surface des conteneurs */
     --sisme-color-muted: #9caca0;          /* Texte/éléments atténués */
     --sisme-color-text: #2C3E50;           /* Texte principal */
     --sisme-color-text-secondary: #425261; /* Texte secondaire */
     
-    /* NOUVELLES couleurs dérivées pour cohérence Frontend/Backend */
+    /* Couleurs dérivées pour cohérence Frontend/Backend */
     --sisme-color-dark: #1a1a1a;           /* Fond sombre (comme frontend) */
     --sisme-color-slate: #2d3748;          /* Slate moderne */
     --sisme-color-slate-light: #4a5568;    /* Slate clair */

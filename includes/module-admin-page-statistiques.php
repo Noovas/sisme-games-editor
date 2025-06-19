@@ -268,29 +268,38 @@ class Sisme_Stats_Module {
         $all_stats = $this->calculate_all_stats();
         
         ?>
-        <div class="stats-section">
-            <h3><?php echo esc_html($this->title); ?></h3>
-            <?php if (!empty($this->subtitle)) : ?>
-                <p class="stats-subtitle"><?php echo esc_html($this->subtitle); ?></p>
-            <?php endif; ?>
-            
-            <div class="stats-grid">
+        <div class="sisme-card sisme-mb-lg">
+            <div class="sisme-card__header">
+                <h2 class="sisme-heading-3"><?php echo esc_html($this->title); ?></h2>
+                <?php if (!empty($this->subtitle)) : ?>
+                    <p class="sisme-text-muted sisme-mb-0"><?php echo esc_html($this->subtitle); ?></p>
+                <?php endif; ?>
+            </div>
+            <div class="sisme-card__body">
+                <div class="sisme-grid sisme-grid-4">
                 <?php foreach ($this->stats_to_display as $stat_config) : ?>
                     <?php
                     $type = $stat_config['type'];
                     $value = isset($all_stats[$type]) ? $all_stats[$type] : 0;
                     $css_class = $this->get_stat_css_class($type, $stat_config['color']);
                     ?>
-                    <div class="stat-card <?php echo esc_attr($css_class); ?>">
-                        <?php if (!empty($stat_config['icon'])) : ?>
-                            <div class="stat-icon"><?php echo $stat_config['icon']; ?></div>
-                        <?php endif; ?>
-                        <span class="stat-number"><?php echo number_format($value); ?></span>
-                        <span class="stat-label"><?php echo esc_html($stat_config['label']); ?></span>
+                    <div class="sisme-card sisme-card--secondary">
+                        <div class="sisme-card__body sisme-text-center">
+                            <?php if (!empty($stat_config['icon'])) : ?>
+                                <div class="sisme-text-4xl sisme-mb-sm"><?php echo $stat_config['icon']; ?></div>
+                            <?php endif; ?>
+                            <div class="sisme-text-4xl sisme-color-primary sisme-mb-sm">
+                                <?php echo number_format($value); ?>
+                            </div>
+                            <div class="sisme-text-sm sisme-text-muted">
+                                <?php echo esc_html($stat_config['label']); ?>
+                            </div>
+                        </div>
                     </div>
                 <?php endforeach; ?>
-            </div>
-        </div>
+                </div><!-- .sisme-grid -->
+            </div><!-- .sisme-card__body -->
+        </div><!-- .sisme-card -->
         <?php
     }
     
@@ -305,19 +314,24 @@ class Sisme_Stats_Module {
         $all_stats = $this->calculate_all_stats();
         
         ?>
-        <div class="stats-grid">
+        <div class="sisme-grid sisme-grid-4">
             <?php foreach ($this->stats_to_display as $stat_config) : ?>
                 <?php
                 $type = $stat_config['type'];
                 $value = isset($all_stats[$type]) ? $all_stats[$type] : 0;
-                $css_class = $this->get_stat_css_class($type, $stat_config['color']);
                 ?>
-                <div class="stat-card <?php echo esc_attr($css_class); ?>">
-                    <?php if (!empty($stat_config['icon'])) : ?>
-                        <div class="stat-icon"><?php echo $stat_config['icon']; ?></div>
-                    <?php endif; ?>
-                    <span class="stat-number"><?php echo number_format($value); ?></span>
-                    <span class="stat-label"><?php echo esc_html($stat_config['label']); ?></span>
+                <div class="sisme-card sisme-card--secondary">
+                    <div class="sisme-card__body sisme-text-center">
+                        <?php if (!empty($stat_config['icon'])) : ?>
+                            <div class="sisme-text-4xl sisme-mb-sm"><?php echo $stat_config['icon']; ?></div>
+                        <?php endif; ?>
+                        <div class="sisme-text-4xl sisme-color-primary sisme-mb-sm">
+                            <?php echo number_format($value); ?>
+                        </div>
+                        <div class="sisme-text-sm sisme-text-muted">
+                            <?php echo esc_html($stat_config['label']); ?>
+                        </div>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>

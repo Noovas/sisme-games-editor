@@ -118,7 +118,7 @@ class Sisme_Admin_Page_Wrapper {
      * @param string $type Type de notice (success, warning, error, info)
      */
     public function add_notice($message, $type = 'info') {
-        echo '<div class="sisme-admin-notice notice-' . esc_attr($type) . '">';
+        echo '<div class="sisme-notice sisme-notice--' . esc_attr($type) . '">';
         echo esc_html($message);
         echo '</div>';
     }
@@ -128,30 +128,29 @@ class Sisme_Admin_Page_Wrapper {
      */
     public function render_start() {
         ?>
-        <div class="sisme-admin-wrap">
-            <div class="sisme-admin-container">
-                <div class="sisme-admin-header">
-                    <h1 class="sisme-admin-title">
-                        <?php if ($this->is_html_icon) : ?>
-                            <?php echo $this->icon; ?>
-                        <?php elseif (strpos($this->icon, 'dashicons-') === 0) : ?>
-                            <span class="dashicons <?php echo esc_attr($this->icon); ?>"></span>
-                        <?php else : ?>
-                            <?php echo $this->get_predefined_icon($this->icon); ?>
-                        <?php endif; ?>
-                        <?php echo esc_html($this->title); ?>
-                    </h1>
-                    <?php if (!empty($this->subtitle)) : ?>
-                        <p class="sisme-admin-subtitle"><?php echo esc_html($this->subtitle); ?></p>
+        <div class="sisme-admin-page">
+            <header class="sisme-admin-header">
+                <h1 class="sisme-admin-title">
+                    <?php if ($this->is_html_icon) : ?>
+                        <span class="sisme-admin-title-icon"><?php echo $this->icon; ?></span>
+                    <?php elseif (strpos($this->icon, 'dashicons-') === 0) : ?>
+                        <span class="sisme-admin-title-icon dashicons <?php echo esc_attr($this->icon); ?>"></span>
+                    <?php else : ?>
+                        <span class="sisme-admin-title-icon"><?php echo $this->get_predefined_icon($this->icon); ?></span>
                     <?php endif; ?>
-                    <?php if (!empty($this->back_url)) : ?>
-                        <a href="<?php echo esc_url($this->back_url); ?>" class="sisme-admin-back">
-                            <span class="dashicons dashicons-arrow-left-alt"></span>
-                            <?php echo esc_html($this->back_text); ?>
-                        </a>
-                    <?php endif; ?>
-                </div>
-                <div class="sisme-admin-content">
+                    <?php echo esc_html($this->title); ?>
+                </h1>
+                <?php if (!empty($this->subtitle)) : ?>
+                    <p class="sisme-admin-subtitle"><?php echo esc_html($this->subtitle); ?></p>
+                <?php endif; ?>
+                <?php if (!empty($this->back_url)) : ?>
+                    <a href="<?php echo esc_url($this->back_url); ?>" class="sisme-btn sisme-btn--secondary">
+                        <span class="dashicons dashicons-arrow-left-alt"></span>
+                        <?php echo esc_html($this->back_text); ?>
+                    </a>
+                <?php endif; ?>
+            </header>
+            <div class="sisme-admin-layout">
         <?php
     }
     
