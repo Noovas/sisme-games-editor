@@ -722,7 +722,6 @@ class Sisme_Game_Form_Module {
                 'switch' => 'Switch'
             ],
             'PC' => [
-                'pc' => 'PC',
                 'web' => 'Web',
                 'mac' => 'Mac',
                 'windows' => 'Windows'
