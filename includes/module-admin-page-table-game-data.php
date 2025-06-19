@@ -408,58 +408,41 @@ class Sisme_Game_Data_Table_Module {
             <td colspan="2" class="sisme-game-data-genres-cell">
                 <div class="sisme-game-data-genres-container">
                     
-                    <!-- Colonne Genres -->
-                    <div class="sisme-genres-column">
-                        <strong class="sisme-game-data-genres-label">Genres :</strong>
-                        <div class="sisme-game-data-genres-list">
-                            <?php 
-                            $genres = isset($game_data['meta_data']['game_genres']) ? $game_data['meta_data']['game_genres'] : array();
-                            if (!empty($genres) && is_array($genres)):
-                                foreach ($genres as $genre_id):
-                                    $genre = get_category($genre_id);
-                                    if ($genre && !is_wp_error($genre)):
-                                        $genre_name = str_replace('jeux-', '', $genre->name ?? '');
-                            ?>
-                                <span class="sisme-genre-tag">
-                                    <?php echo esc_html($genre_name); ?>
-                                </span>
-                            <?php 
-                                    endif;
-                                endforeach;
-                            else:
-                            ?>
-                                <span class="sisme-no-genres">Aucun genre défini</span>
-                            <?php endif; ?>
+                    <!-- Genres -->
+                    <div class="sisme-game-info-section">
+                        <span class="sisme-game-info-label">Genres :</span>
+                        <div class="sisme-tags-list">
+                        <?php 
+                        $genres = isset($game_data['meta_data']['game_genres']) ? $game_data['meta_data']['game_genres'] : [];
+                        if (!empty($genres) && is_array($genres)) {
+                            foreach ($genres as $genre_id) {
+                                $genre = get_category($genre_id);
+                                if ($genre) {
+                                    $genre_name = str_replace('jeux-', '', $genre->name);
+                                    echo '<span class="sisme-tag sisme-tag--genre">' . esc_html(ucfirst($genre_name)) . '</span>';
+                                }
+                            }
+                        } else {
+                            echo '<span class="sisme-data-empty">Non spécifiés</span>';
+                        }
+                        ?>
                         </div>
                     </div>
                     
-                    <!-- Colonne Modes -->
-                    <div class="sisme-modes-column">
-                        <strong class="sisme-game-data-modes-label">Modes :</strong>
-                        <div class="sisme-game-data-modes-list">
-                            <?php 
-                            $modes = isset($game_data['meta_data']['game_modes']) ? $game_data['meta_data']['game_modes'] : array();
-                            $mode_labels = [
-                                'solo' => 'Solo',
-                                'multijoueur' => 'Multijoueur',
-                                'cooperatif' => 'Coopératif', 
-                                'competitif' => 'Compétitif'
-                            ];
-                            
-                            if (!empty($modes) && is_array($modes)):
-                                foreach ($modes as $mode_key):
-                                    if (isset($mode_labels[$mode_key])):
-                            ?>
-                                <span class="sisme-mode-tag">
-                                    <?php echo esc_html($mode_labels[$mode_key]); ?>
-                                </span>
-                            <?php 
-                                    endif;
-                                endforeach;
-                            else:
-                            ?>
-                                <span class="sisme-no-modes">Aucun mode défini</span>
-                            <?php endif; ?>
+                    <!-- Modes -->
+                    <div class="sisme-game-info-section">
+                        <span class="sisme-game-info-label">Modes :</span>
+                        <div class="sisme-tags-list">
+                        <?php 
+                        $modes = isset($game_data['meta_data']['game_modes']) ? $game_data['meta_data']['game_modes'] : [];
+                        if (!empty($modes) && is_array($modes)) {
+                            foreach ($modes as $mode) {
+                                echo '<span class="sisme-tag sisme-tag--mode">' . esc_html(ucfirst($mode)) . '</span>';
+                            }
+                        } else {
+                            echo '<span class="sisme-data-empty">Non spécifiés</span>';
+                        }
+                        ?>
                         </div>
                     </div>
                     
@@ -472,87 +455,69 @@ class Sisme_Game_Data_Table_Module {
             <td colspan="2" class="sisme-game-data-entities-cell">
                 <div class="sisme-game-data-entities-container">
                     
-                    <!-- Colonne Développeurs -->
-                    <div class="sisme-developers-column">
-                        <strong class="sisme-game-data-developers-label">Développeurs :</strong>
-                        <div class="sisme-game-data-developers-list">
-                            <?php 
-                            $developers = isset($game_data['meta_data']['game_developers']) ? $game_data['meta_data']['game_developers'] : array();
-                            if (!empty($developers) && is_array($developers)):
-                                foreach ($developers as $developer_id):
-                                    $developer = get_category($developer_id);
-                                    if ($developer && !is_wp_error($developer)):
-                                        $developer_website = get_term_meta($developer_id, 'entity_website', true);
-                            ?>
-                                <span class="sisme-developer-tag">
-                                    <?php if (!empty($developer_website)): ?>
-                                        <a href="<?php echo esc_url($developer_website); ?>" 
-                                           target="_blank" 
-                                           class="sisme-developer-link"
-                                           title="Site web de <?php echo esc_attr($developer->name); ?>"
-                                           alt="<?php echo esc_attr($developer->name); ?>">
-                                            <?php echo esc_html($developer->name); ?>
-                                        </a>
-                                    <?php else: ?>
-                                        <span class="sisme-developer-name"><?php echo esc_html($developer->name); ?></span>
-                                    <?php endif; ?>
-                                </span>
-                            <?php 
-                                    endif;
-                                endforeach;
-                            else:
-                            ?>
-                                <span class="sisme-no-developers">Aucun développeur défini</span>
-                            <?php endif; ?>
+                    <!-- Développeurs -->
+                    <div class="sisme-game-info-section">
+                        <span class="sisme-game-info-label">Développeurs :</span>
+                        <div class="sisme-tags-list">
+                        <?php 
+                        $developers = isset($game_data['meta_data']['game_developers']) ? $game_data['meta_data']['game_developers'] : [];
+                        if (!empty($developers) && is_array($developers)) {
+                            foreach ($developers as $dev_id) {
+                                $developer = get_category($dev_id);
+                                if ($developer) {
+                                    $entity_website = get_term_meta($dev_id, 'entity_website', true);
+                                    if (!empty($entity_website)) {
+                                        echo '<a href="' . esc_url($entity_website) . '" target="_blank" class="sisme-tag sisme-tag--entity">' . esc_html($developer->name) . '</a>';
+                                    } else {
+                                        echo '<span class="sisme-tag sisme-tag--entity">' . esc_html($developer->name) . '</span>';
+                                    }
+                                }
+                            }
+                        } else {
+                            echo '<span class="sisme-data-empty">Non spécifiés</span>';
+                        }
+                        ?>
                         </div>
                     </div>
-                    
-                    <!-- Colonne Éditeurs -->
-                    <div class="sisme-publishers-column">
-                        <strong class="sisme-game-data-publishers-label">Éditeurs :</strong>
-                        <div class="sisme-game-data-publishers-list">
-                            <?php 
-                            $publishers = isset($game_data['meta_data']['game_publishers']) ? $game_data['meta_data']['game_publishers'] : array();
-                            if (!empty($publishers) && is_array($publishers)):
-                                foreach ($publishers as $publisher_id):
-                                    $publisher = get_category($publisher_id);
-                                    if ($publisher && !is_wp_error($publisher)):
-                                        $publisher_website = get_term_meta($publisher_id, 'entity_website', true);
-                            ?>
-                                <span class="sisme-publisher-tag">
-                                    <?php if (!empty($publisher_website)): ?>
-                                        <a href="<?php echo esc_url($publisher_website); ?>" 
-                                           target="_blank" 
-                                           class="sisme-publisher-link"
-                                           title="Site web de <?php echo esc_attr($publisher->name); ?>"
-                                           alt="<?php echo esc_attr($publisher->name); ?>">
-                                            <?php echo esc_html($publisher->name); ?>
-                                        </a>
-                                    <?php else: ?>
-                                        <span class="sisme-publisher-name"><?php echo esc_html($publisher->name); ?></span>
-                                    <?php endif; ?>
-                                </span>
-                            <?php 
-                                    endif;
-                                endforeach;
-                            else:
-                            ?>
-                                <span class="sisme-no-publishers">Aucun éditeur défini</span>
-                            <?php endif; ?>
+
+                    <!-- Éditeurs -->
+                    <div class="sisme-game-info-section">
+                        <span class="sisme-game-info-label">Éditeurs :</span>
+                        <div class="sisme-tags-list">
+                        <?php 
+                        $publishers = isset($game_data['meta_data']['game_publishers']) ? $game_data['meta_data']['game_publishers'] : [];
+                        if (!empty($publishers) && is_array($publishers)) {
+                            foreach ($publishers as $pub_id) {
+                                $publisher = get_category($pub_id);
+                                if ($publisher) {
+                                    $entity_website = get_term_meta($pub_id, 'entity_website', true);
+                                    if (!empty($entity_website)) {
+                                        echo '<a href="' . esc_url($entity_website) . '" target="_blank" class="sisme-tag sisme-tag--entity">' . esc_html($publisher->name) . '</a>';
+                                    } else {
+                                        echo '<span class="sisme-tag sisme-tag--entity">' . esc_html($publisher->name) . '</span>';
+                                    }
+                                }
+                            }
+                        } else {
+                            echo '<span class="sisme-data-empty">Non spécifiés</span>';
+                        }
+                        ?>
                         </div>
                     </div>
                     
                 </div>
             </td>
         </tr>
+        
         <!-- Plateformes, date de sortie et liens externes -->
-        <tr style="background: #f4f4f4;">
-            <td colspan="<?php echo count($this->options['columns']); ?>" style="padding: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 30px;">
+        <tr class="sisme-game-platforms-row">
+            <td colspan="2" class="sisme-game-platforms-cell">
+                <div class="sisme-game-platforms-container">
                     
                     <!-- Plateformes -->
-                    <div style="flex: 1;">
-                        <strong style="color: #666;">Plateformes :</strong>
+                    <div class="sisme-game-info-section">
+                        <span class="sisme-game-info-label">Plateformes :</span>
+                        <div class="sisme-tags-list">
                         <?php 
                         $platforms = isset($game_data['meta_data']['game_platforms']) ? $game_data['meta_data']['game_platforms'] : [];
                         if (!empty($platforms)) {
@@ -576,58 +541,84 @@ class Sisme_Game_Data_Table_Module {
                             if (!empty($displayed_groups)) {
                                 foreach ($displayed_groups as $group) {
                                     $details = implode(', ', array_map('ucfirst', $platform_details[$group]));
-                                    echo '<span style="background: #e1f5fe; padding: 4px 8px; border-radius: 4px; margin-right: 8px; cursor: help;" title="' . esc_attr($details) . '">';
+                                    $group_class = 'sisme-platform-group--' . strtolower($group);
+                                    echo '<span class="sisme-platform-group ' . $group_class . '" title="' . esc_attr($details) . '">';
                                     echo esc_html($group);
                                     echo '</span>';
                                 }
                             }
                         } else {
-                            echo '<span style="color: #999;">Non spécifiées</span>';
+                            echo '<span class="sisme-data-empty">Non spécifiées</span>';
                         }
                         ?>
+                        </div>
                     </div>
                     
                     <!-- Date de sortie -->
-                    <div style="flex: 1;">
-                        <strong style="color: #666;">Date de sortie :</strong>
+                    <div class="sisme-game-info-section">
+                        <span class="sisme-game-info-label">Date de sortie :</span>
                         <?php 
                         $release_date = isset($game_data['meta_data']['release_date']) ? $game_data['meta_data']['release_date'] : '';
                         if (!empty($release_date)) {
                             $formatted_date = date_i18n('j F Y', strtotime($release_date));
-                            echo '<span style="background: #fff3e0; padding: 4px 8px; border-radius: 4px;">' . esc_html($formatted_date) . '</span>';
+                            $today = date('Y-m-d');
+                            $date_class = 'sisme-release-date';
+                            if ($release_date > $today) {
+                                $date_class .= ' sisme-release-date--future';
+                            } elseif ($release_date < $today) {
+                                $date_class .= ' sisme-release-date--past';
+                            }
+                            echo '<span class="' . $date_class . '">' . esc_html($formatted_date) . '</span>';
                         } else {
-                            echo '<span style="color: #999;">Non spécifiée</span>';
+                            echo '<span class="sisme-data-empty">Non spécifiée</span>';
                         }
                         ?>
                     </div>
                     
                     <!-- Liens externes -->
-                    <div style="flex: 1;">
-                        <strong style="color: #666;">Liens de vente :</strong>
+                    <div class="sisme-game-info-section">
+                        <span class="sisme-game-info-label">Liens de vente :</span>
+                        <div class="sisme-external-links-images">
                         <?php 
                         $external_links = isset($game_data['meta_data']['external_links']) ? $game_data['meta_data']['external_links'] : [];
-                        if (!empty($external_links)) {
-                            $link_labels = ['steam' => 'Steam', 'epic' => 'Epic', 'gog' => 'GOG'];
-                            $link_count = 0;
+                        $has_links = false;
+                        
+                        if (is_array($external_links)) {
                             foreach ($external_links as $platform => $url) {
                                 if (!empty($url)) {
-                                    $label = isset($link_labels[$platform]) ? $link_labels[$platform] : ucfirst($platform);
-                                    echo '<a href="' . esc_url($url) . '" target="_blank" style="background: #e8f5e8; padding: 4px 8px; border-radius: 4px; margin-right: 8px; text-decoration: none; color: #2e7d32;">' . esc_html($label) . '</a>';
-                                    $link_count++;
+                                    $has_links = true;
+                                    echo '<a href="' . esc_url($url) . '" target="_blank" class="sisme-external-link-image">';
+                                    
+                                    switch ($platform) {
+                                        case 'steam':
+                                            echo '<img src="https://games.sisme.fr/wp-content/uploads/2025/04/GetItOnSteam.webp" alt="Disponible sur Steam">';
+                                            break;
+                                        case 'epic':
+                                            echo '<img src="https://games.sisme.fr/wp-content/uploads/2025/05/get-on-epic.webp" alt="Disponible sur Epic Games">';
+                                            break;
+                                        case 'gog':
+                                            echo '<img src="https://games.sisme.fr/wp-content/uploads/2025/06/get-on-Gog.webp" alt="Disponible sur GOG">';
+                                            break;
+                                        default:
+                                            echo '<span class="sisme-external-link sisme-external-link--' . esc_attr($platform) . '">' . esc_html(ucfirst($platform)) . '</span>';
+                                            break;
+                                    }
+                                    echo '</a>';
                                 }
                             }
-                            if ($link_count === 0) {
-                                echo '<span style="color: #999;">Aucun lien</span>';
-                            }
-                        } else {
-                            echo '<span style="color: #999;">Aucun lien</span>';
+                        }
+                        
+                        if (!$has_links) {
+                            echo '<span class="sisme-data-empty">Aucun lien</span>';
                         }
                         ?>
+                        </div>
                     </div>
                     
                 </div>
             </td>
         </tr>
+
         <!-- Ligne des covers -->
         <tr class="sisme-game-data-covers-row">
             <td colspan="2" class="sisme-game-data-covers-cell">

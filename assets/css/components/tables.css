@@ -1,13 +1,23 @@
 /**
- * File: /sisme-games-editor/assets/css/components/tables.css
- * Composants Tables - Admin Sisme Games Editor
+ * File: /sisme-games-editor/assets/css/components/tables.css (MISE À JOUR)
+ * CSS complet pour module-admin-page-table-game-data
  * 
- * Dépendances: tokens/design-tokens.css, base/base.css
- * Intégration: module-admin-page-table-game-data.php
+ * STRUCTURE HTML DU MODULE:
+ * .sisme-game-data-table-module
+ *   ├── .sisme-search-form-container (filtre/recherche)
+ *   ├── .sisme-no-data-message (état vide)
+ *   └── table.sisme-game-data-table
+ *       ├── thead.sisme-table-header
+ *       └── tbody.sisme-table-body
+ *           ├── tr.sisme-game-data-main-row (ligne principale)
+ *           ├── tr.sisme-game-info-row (genres/modes/plateformes)
+ *           ├── tr.sisme-game-entities-row (dev/éditeurs)
+ *           ├── tr.sisme-game-covers-row (covers)
+ *           └── tr.sisme-game-separator (séparateur)
  */
 
 /* ========================================
-   📊 TABLE DE BASE
+   📊 TABLE DE BASE (existant - conservé)
 ======================================== */
 
 .sisme-table {
@@ -53,203 +63,421 @@
 }
 
 /* ========================================
-   🎮 TABLE GAME DATA SPÉCIALISÉE
+   🎮 MODULE GAME DATA TABLE - CONTENEUR PRINCIPAL
 ======================================== */
 
-/* Table principale pour Game Data */
-.sisme-game-data-table {
-    @extend .sisme-table;
-}
-
-/* En-tête spécialisé Game Data */
-.sisme-game-data-table thead th {
-    background: linear-gradient(135deg, 
-        var(--sisme-color-background) 0%, 
-        rgba(161, 183, 141, 0.1) 100%);
-}
-
-/* Ligne principale de données */
-.sisme-game-data-table .game-data-row {
-    border-bottom: 2px solid var(--sisme-color-primary);
-}
-
-.sisme-game-data-table .game-data-row td {
-    font-weight: var(--sisme-font-medium);
-    padding: var(--sisme-space-lg);
-}
-
-/* Lignes secondaires (genres/modes, dev/editeurs, covers, plateformes) */
-.sisme-game-data-table .game-data-subrow {
-    background: #f9f9f9;
-    border-bottom: 1px solid var(--sisme-border-subtle);
-}
-
-.sisme-game-data-table .game-data-subrow:last-of-type {
-    border-bottom: 3px solid var(--sisme-color-primary);
-}
-
-.sisme-game-data-table .game-data-subrow td {
-    padding: var(--sisme-space-md) var(--sisme-space-lg);
-    font-size: var(--sisme-text-sm);
-}
-
-/* Ligne d'informations (genres, modes, développeurs) */
-.sisme-game-data-table .game-info-row {
-    background: rgba(161, 183, 141, 0.05);
-}
-
-/* Ligne des covers */
-.sisme-game-data-table .game-covers-row {
-    background: rgba(236, 240, 241, 0.8);
-}
-
-/* Ligne des plateformes et liens */
-.sisme-game-data-table .game-platforms-row {
-    background: rgba(212, 163, 115, 0.05);
+.sisme-game-data-table-module {
+    background: white;
+    border-radius: var(--sisme-radius-lg);
+    box-shadow: var(--sisme-shadow-sm);
+    overflow: hidden;
+    margin-bottom: var(--sisme-space-lg);
 }
 
 /* ========================================
-   🏷️ COLONNES SPÉCIALISÉES
+   🔍 FORMULAIRE DE RECHERCHE/FILTRE
 ======================================== */
 
-/* Colonne nom du jeu */
-.sisme-table .column-name {
-    min-width: 200px;
-    font-weight: var(--sisme-font-medium);
-}
-
-.sisme-table .column-name strong {
-    color: var(--sisme-color-text);
-    font-size: var(--sisme-text-lg);
-    display: block;
-    margin-bottom: var(--sisme-space-xs);
-}
-
-.sisme-table .column-name .game-meta {
-    font-size: var(--sisme-text-xs);
-    color: var(--sisme-color-muted);
-    font-weight: var(--sisme-font-normal);
-}
-
-/* Colonne description */
-.sisme-table .column-description {
-    max-width: 300px;
-    line-height: var(--sisme-leading-normal);
-}
-
-/* Colonne compteur d'articles */
-.sisme-table .column-articles_count {
-    text-align: center;
-    min-width: 100px;
-}
-
-.sisme-table .column-articles_count .articles-count {
-    display: inline-flex;
+.sisme-search-form-container {
+    background: linear-gradient(135deg, 
+        var(--sisme-color-background) 0%, 
+        rgba(161, 183, 141, 0.08) 100%);
+    padding: var(--sisme-space-lg);
+    border-bottom: 2px solid var(--sisme-color-primary);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-md);
     align-items: center;
-    justify-content: center;
-    min-width: 32px;
-    height: 32px;
+    justify-content: space-between;
+}
+
+.sisme-search-form {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    align-items: center;
+    flex: 1;
+    min-width: 300px;
+}
+
+.sisme-search-input {
+    flex: 1;
+    min-width: 200px;
+    max-width: 400px;
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    border: 1px solid var(--sisme-border-subtle);
+    border-radius: var(--sisme-radius-md);
+    font-size: var(--sisme-text-sm);
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-search-input:focus {
+    outline: none;
+    border-color: var(--sisme-color-primary);
+    box-shadow: 0 0 0 3px rgba(161, 183, 141, 0.1);
+}
+
+.sisme-search-btn,
+.sisme-search-clear {
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    border-radius: var(--sisme-radius-md);
+    font-size: var(--sisme-text-sm);
+    text-decoration: none;
+    transition: var(--sisme-transition-all);
+    white-space: nowrap;
+}
+
+.sisme-search-btn {
     background: var(--sisme-color-primary);
     color: white;
-    border-radius: 50%;
-    font-weight: var(--sisme-font-semibold);
-    font-size: var(--sisme-text-sm);
+    border: 1px solid var(--sisme-color-primary);
 }
 
-.sisme-table .column-articles_count .articles-count--zero {
-    background: var(--sisme-color-muted);
+.sisme-search-btn:hover {
+    background: var(--sisme-color-primary-dark);
+    border-color: var(--sisme-color-primary-dark);
 }
 
-/* Colonne dernière mise à jour */
-.sisme-table .column-last_update {
-    min-width: 140px;
-    font-family: monospace;
+.sisme-search-clear {
+    background: #e53e3e;
+    color: white;
+    border: 1px solid #e53e3e;
+}
+
+.sisme-search-clear:hover {
+    background: #c53030;
+    border-color: #c53030;
+    color: white;
+}
+
+.sisme-search-actions {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    align-items: center;
+}
+
+.sisme-add-game-btn {
+    background: var(--sisme-color-primary) !important;
+    border-color: var(--sisme-color-primary) !important;
+    color: white !important;
+    text-decoration: none;
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-add-game-btn:hover {
+    background: var(--sisme-color-primary-dark) !important;
+    border-color: var(--sisme-color-primary-dark) !important;
+    color: white !important;
+}
+
+.sisme-manage-tags-btn {
+    background: var(--sisme-color-secondary) !important;
+    border-color: var(--sisme-color-secondary) !important;
+    color: white !important;
+    text-decoration: none;
+}
+
+.sisme-manage-tags-btn:hover {
+    background: #bc8f53 !important;
+    border-color: #bc8f53 !important;
+    color: white !important;
+}
+
+/* ========================================
+   🎮 TABLE GAME DATA SPÉCIALISÉE
+======================================== */
+
+.sisme-game-data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    margin: 0;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+}
+
+.sisme-game-data-table .sisme-table-header {
+    display: none; /* Pas d'en-tête visible pour ce design */
+}
+
+/* ========================================
+   📄 LIGNE PRINCIPALE DU JEU
+======================================== */
+
+.sisme-game-data-main-row {
+    background: white;
+    border-bottom: 3px solid var(--sisme-color-primary);
+    transition: var(--sisme-transition-colors);
+}
+
+.sisme-game-data-main-row:hover {
+    background: rgba(161, 183, 141, 0.03);
+}
+
+.sisme-game-header-cell {
+    padding: var(--sisme-space-lg) var(--sisme-space-xl);
+    vertical-align: middle;
+    border-bottom: none;
+}
+
+.sisme-game-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-sm);
+}
+
+.sisme-game-title {
+    font-size: var(--sisme-text-xl);
+    font-weight: var(--sisme-font-bold);
+    color: var(--sisme-color-text);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.sisme-game-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-md);
+    align-items: center;
     font-size: var(--sisme-text-sm);
     color: var(--sisme-color-text-secondary);
 }
 
-/* Colonne actions */
-.sisme-table .column-actions {
-    min-width: 180px;
-    text-align: right;
+.sisme-game-id,
+.sisme-game-slug {
+    font-family: var(--sisme-font-mono);
+    background: rgba(161, 183, 141, 0.1);
+    padding: 2px var(--sisme-space-xs);
+    border-radius: var(--sisme-radius-sm);
+    font-size: var(--sisme-text-xs);
+}
+
+.sisme-articles-count-badge {
+    background: var(--sisme-color-primary);
+    color: white;
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-full);
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-medium);
+}
+
+.sisme-no-articles {
+    color: #9ca3af;
+    font-style: italic;
+    font-size: var(--sisme-text-xs);
 }
 
 /* ========================================
-   🎨 ÉLÉMENTS VISUELS GAME DATA
+   🎯 COLONNE ACTIONS
 ======================================== */
 
-/* Tags/badges pour genres, modes, etc. */
+.sisme-game-actions-cell {
+    padding: var(--sisme-space-lg);
+    vertical-align: middle;
+    text-align: right;
+    width: 200px;
+    border-bottom: none;
+}
+
+.sisme-game-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-sm);
+    align-items: flex-end;
+}
+
+.sisme-game-actions-primary {
+    display: flex;
+    gap: var(--sisme-space-xs);
+}
+
+.sisme-game-actions-secondary {
+    display: flex;
+    gap: var(--sisme-space-xs);
+    font-size: var(--sisme-text-sm);
+}
+
+.sisme-btn-edit,
+.sisme-btn-articles,
+.sisme-btn-delete {
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-md);
+    font-size: var(--sisme-text-sm);
+    text-decoration: none;
+    font-weight: var(--sisme-font-medium);
+    transition: var(--sisme-transition-all);
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.sisme-btn-edit {
+    background: var(--sisme-color-primary);
+    color: white;
+    border-color: var(--sisme-color-primary);
+}
+
+.sisme-btn-edit:hover {
+    background: var(--sisme-color-primary-dark);
+    border-color: var(--sisme-color-primary-dark);
+    color: white;
+}
+
+.sisme-btn-articles {
+    background: var(--sisme-color-secondary);
+    color: white;
+    border-color: var(--sisme-color-secondary);
+}
+
+.sisme-btn-articles:hover {
+    background: #bc8f53;
+    border-color: #bc8f53;
+    color: white;
+}
+
+.sisme-btn-delete {
+    background: #fee;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+.sisme-btn-delete:hover {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+}
+
+/* ========================================
+   📊 LIGNES SECONDAIRES (QUADRUPLE LIGNE)
+======================================== */
+
+/* Ligne 2: Informations générales (genres, modes, plateformes) */
+.sisme-game-info-row {
+    background: rgba(161, 183, 141, 0.05);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-game-info-row td {
+    padding: var(--sisme-space-md) var(--sisme-space-xl);
+    border-bottom: none;
+}
+
+.sisme-game-info-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-lg);
+    align-items: flex-start;
+}
+
+.sisme-game-info-section {
+    min-width: 120px;
+}
+
+.sisme-game-info-label {
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-color-text);
+    font-size: var(--sisme-text-sm);
+    margin-bottom: var(--sisme-space-xs);
+    display: block;
+}
+
+/* Ligne 3: Entités (développeurs, éditeurs) */
+.sisme-game-entities-row {
+    background: rgba(212, 163, 115, 0.05);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-game-entities-row td {
+    padding: var(--sisme-space-md) var(--sisme-space-xl);
+    border-bottom: none;
+}
+
+.sisme-game-entities-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-lg);
+    align-items: flex-start;
+}
+
+/* Ligne 4: Covers et liens externes */
+.sisme-game-covers-row {
+    background: rgba(236, 240, 241, 0.8);
+    border-bottom: 2px solid var(--sisme-color-primary);
+}
+
+.sisme-game-covers-row td {
+    padding: var(--sisme-space-md) var(--sisme-space-xl);
+    border-bottom: none;
+}
+
+.sisme-game-covers-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-lg);
+    align-items: flex-start;
+}
+
+/* ========================================
+   🏷️ COMPOSANTS TAGS ET BADGES
+======================================== */
+
+.sisme-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-xs);
+    margin: 0;
+}
+
 .sisme-tag {
     display: inline-flex;
     align-items: center;
     padding: var(--sisme-space-xs) var(--sisme-space-sm);
-    border-radius: var(--sisme-radius-xl);
+    border-radius: var(--sisme-radius-full);
     font-size: var(--sisme-text-xs);
     font-weight: var(--sisme-font-medium);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 2px;
+    text-decoration: none;
     transition: var(--sisme-transition-colors);
 }
 
-/* Tags pour genres */
 .sisme-tag--genre {
-    background: rgba(161, 183, 141, 0.2);
-    color: var(--sisme-color-primary-dark);
-    border: 1px solid rgba(161, 183, 141, 0.3);
+    background: var(--sisme-color-primary);
+    color: white;
 }
 
 .sisme-tag--genre:hover {
-    background: rgba(161, 183, 141, 0.3);
-    border-color: var(--sisme-color-primary);
+    background: var(--sisme-color-primary-dark);
+    color: white;
 }
 
-/* Tags pour modes */
-.sisme-tag--mode {
-    background: rgba(212, 163, 115, 0.2);
-    color: #b8894a;
-    border: 1px solid rgba(212, 163, 115, 0.3);
-}
-
-.sisme-tag--mode:hover {
-    background: rgba(212, 163, 115, 0.3);
-    border-color: var(--sisme-color-secondary);
-}
-
-/* Tags pour plateformes */
 .sisme-tag--platform {
-    background: rgba(49, 130, 206, 0.1);
-    color: var(--sisme-color-info);
-    border: 1px solid rgba(49, 130, 206, 0.2);
-    cursor: help;
+    background: var(--sisme-color-secondary);
+    color: white;
 }
 
 .sisme-tag--platform:hover {
-    background: rgba(49, 130, 206, 0.2);
-    border-color: var(--sisme-color-info);
+    background: #bc8f53;
+    color: white;
 }
 
-/* Liens externes stylisés */
-.sisme-external-link {
-    display: inline-flex;
-    align-items: center;
-    padding: var(--sisme-space-xs) var(--sisme-space-sm);
-    background: rgba(34, 139, 34, 0.1);
-    color: #228b22;
-    border: 1px solid rgba(34, 139, 34, 0.2);
-    border-radius: var(--sisme-radius-md);
-    text-decoration: none;
-    font-size: var(--sisme-text-xs);
-    font-weight: var(--sisme-font-medium);
-    margin-right: var(--sisme-space-xs);
-    transition: var(--sisme-transition-colors);
+.sisme-tag--mode {
+    background: #3182ce;
+    color: white;
 }
 
-.sisme-external-link:hover {
-    background: rgba(34, 139, 34, 0.2);
-    border-color: #228b22;
-    color: #1e6b1e;
-    text-decoration: none;
+.sisme-tag--mode:hover {
+    background: #2c5282;
+    color: white;
+}
+
+.sisme-tag--entity {
+    background: #6b46c1;
+    color: white;
+}
+
+.sisme-tag--entity:hover {
+    background: #553c9a;
+    color: white;
 }
 
 /* ========================================
@@ -258,106 +486,518 @@
 
 .sisme-covers-display {
     display: flex;
-    justify-content: space-between;
+    gap: var(--sisme-space-sm);
     align-items: center;
-    gap: var(--sisme-space-lg);
     flex-wrap: wrap;
 }
 
-.sisme-cover-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--sisme-space-xs);
-    flex: 1;
-    min-width: 80px;
-}
-
-.sisme-cover-label {
-    font-size: var(--sisme-text-xs);
-    color: var(--sisme-color-muted);
-    font-weight: var(--sisme-font-medium);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
 .sisme-cover-preview {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: var(--sisme-radius-md);
-    object-fit: cover;
+    overflow: hidden;
     border: 2px solid var(--sisme-border-subtle);
+    position: relative;
     transition: var(--sisme-transition-all);
-    box-shadow: var(--sisme-shadow-sm);
 }
 
 .sisme-cover-preview:hover {
     transform: scale(1.1);
-    border-color: var(--sisme-color-primary);
     box-shadow: var(--sisme-shadow-md);
+    z-index: 10;
+}
+
+.sisme-cover-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .sisme-cover-placeholder {
-    width: 50px;
-    height: 50px;
-    background: var(--sisme-color-background);
-    border: 2px dashed var(--sisme-border-subtle);
+    width: 40px;
+    height: 40px;
     border-radius: var(--sisme-radius-md);
+    background: #f3f4f6;
+    border: 2px dashed #d1d5db;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    color: var(--sisme-color-muted);
+    color: #9ca3af;
 }
 
 .sisme-cover-error {
-    width: 50px;
-    height: 50px;
-    background: rgba(229, 62, 62, 0.1);
-    border: 2px solid rgba(229, 62, 62, 0.3);
+    width: 40px;
+    height: 40px;
     border-radius: var(--sisme-radius-md);
+    background: #fef2f2;
+    border: 2px solid #fecaca;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    color: var(--sisme-color-error);
+    font-size: 16px;
+    color: #dc2626;
 }
 
 /* ========================================
-   🔍 RECHERCHE ET FILTRES
+   🔗 LIENS EXTERNES AVEC IMAGES (style module actuel)
 ======================================== */
 
-.sisme-table-controls {
+.sisme-external-links-images {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--sisme-space-md);
-    margin-bottom: var(--sisme-space-lg);
-    padding: var(--sisme-space-lg);
-    background: white;
-    border-radius: var(--sisme-radius-lg);
-    border: 1px solid var(--sisme-border-subtle);
+    gap: var(--sisme-space-sm);
+    flex-wrap: wrap;
+}
+
+.sisme-external-link-image {
+    display: inline-block;
+    transition: var(--sisme-transition-all);
+    border-radius: var(--sisme-radius-sm);
+    overflow: hidden;
     box-shadow: var(--sisme-shadow-sm);
 }
 
-.sisme-search-form {
-    display: flex;
-    gap: var(--sisme-space-sm);
-    align-items: center;
-    flex: 1;
-    max-width: 400px;
+.sisme-external-link-image:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sisme-shadow-md);
 }
 
-.sisme-table-actions {
+.sisme-external-link-image img {
+    height: 24px;
+    width: auto;
+    display: block;
+    border-radius: var(--sisme-radius-sm);
+}
+
+/* Fallback pour liens texte */
+.sisme-external-links {
     display: flex;
-    gap: var(--sisme-space-sm);
+    gap: var(--sisme-space-xs);
+    flex-wrap: wrap;
+}
+
+.sisme-external-link {
+    display: inline-flex;
     align-items: center;
+    gap: var(--sisme-space-xs);
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-md);
+    text-decoration: none;
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-medium);
+    transition: var(--sisme-transition-all);
+    border: 1px solid transparent;
+}
+
+.sisme-external-link--steam {
+    background: #1b2838;
+    color: white;
+    border-color: #1b2838;
+}
+
+.sisme-external-link--steam:hover {
+    background: #171a23;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.sisme-external-link--epic {
+    background: #0078f2;
+    color: white;
+    border-color: #0078f2;
+}
+
+.sisme-external-link--epic:hover {
+    background: #005bb5;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.sisme-external-link--gog {
+    background: #86328a;
+    color: white;
+    border-color: #86328a;
+}
+
+.sisme-external-link--gog:hover {
+    background: #6d2870;
+    color: white;
+    transform: translateY(-1px);
 }
 
 /* ========================================
-   📄 PAGINATION
+   🚫 ÉTAT VIDE
 ======================================== */
 
+.sisme-no-data-message {
+    text-align: center;
+    padding: var(--sisme-space-2xl);
+    background: white;
+}
+
+.sisme-no-data-title {
+    font-size: var(--sisme-text-2xl);
+    font-weight: var(--sisme-font-bold);
+    color: var(--sisme-color-text);
+    margin: 0 0 var(--sisme-space-md) 0;
+}
+
+.sisme-no-data-search,
+.sisme-no-data-empty {
+    font-size: var(--sisme-text-base);
+    color: var(--sisme-color-text-secondary);
+    margin: 0 0 var(--sisme-space-lg) 0;
+    line-height: 1.5;
+}
+
+.sisme-no-data-clear,
+.sisme-no-data-add {
+    margin: 0 var(--sisme-space-xs);
+}
+
+/* ========================================
+   ↔️ SÉPARATEUR ENTRE JEUX
+======================================== */
+
+.sisme-game-separator {
+    height: var(--sisme-space-lg);
+    background: transparent;
+}
+
+.sisme-game-separator-cell {
+    padding: 0;
+    border: none;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(161, 183, 141, 0.2) 50%, 
+        transparent 100%);
+    height: 2px;
+}
+
+/* ========================================
+   📱 RESPONSIVE DESIGN
+======================================== */
+
+@media (max-width: 768px) {
+    .sisme-search-form-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--sisme-space-md);
+    }
+    
+    .sisme-search-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .sisme-search-actions {
+        justify-content: center;
+    }
+    
+    .sisme-game-header-cell,
+    .sisme-game-actions-cell {
+        padding: var(--sisme-space-md);
+    }
+    
+    .sisme-game-actions {
+        align-items: stretch;
+    }
+    
+    .sisme-game-actions-primary,
+    .sisme-game-actions-secondary {
+        justify-content: space-between;
+    }
+    
+    .sisme-game-info-content,
+    .sisme-game-entities-content,
+    .sisme-game-covers-content {
+        flex-direction: column;
+        gap: var(--sisme-space-md);
+    }
+    
+    .sisme-covers-display {
+        justify-content: center;
+        gap: var(--sisme-space-sm);
+    }
+    
+    .sisme-cover-preview,
+    .sisme-cover-placeholder,
+    .sisme-cover-error {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .sisme-tag {
+        font-size: 10px;
+        padding: 2px var(--sisme-space-xs);
+    }
+}
+
+/* ========================================
+   🌙 DARK MODE SUPPORT
+======================================== */
+
+.sisme-dark .sisme-game-data-table-module {
+    background: var(--sisme-color-slate);
+}
+
+.sisme-dark .sisme-search-form-container {
+    background: linear-gradient(135deg, 
+        var(--sisme-color-slate-dark) 0%, 
+        rgba(161, 183, 141, 0.1) 100%);
+    border-bottom-color: var(--sisme-color-primary);
+}
+
+.sisme-dark .sisme-game-data-table {
+    background: var(--sisme-color-slate);
+    color: #ffffff;
+}
+
+.sisme-dark .sisme-game-data-main-row {
+    background: var(--sisme-color-slate);
+}
+
+.sisme-dark .sisme-game-data-main-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sisme-dark .sisme-game-info-row {
+    background: rgba(161, 183, 141, 0.1);
+}
+
+.sisme-dark .sisme-game-entities-row {
+    background: rgba(212, 163, 115, 0.1);
+}
+
+.sisme-dark .sisme-game-covers-row {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sisme-dark .sisme-game-title {
+    color: #ffffff;
+}
+
+.sisme-dark .sisme-game-meta {
+    color: #a0aec0;
+}
+
+.sisme-dark .sisme-game-info-label {
+    color: #ffffff;
+}
+
+.sisme-dark .sisme-no-data-message {
+    background: var(--sisme-color-slate);
+}
+
+.sisme-dark .sisme-no-data-title {
+    color: #ffffff;
+}
+
+.sisme-dark .sisme-no-data-search,
+.sisme-dark .sisme-no-data-empty {
+    color: #a0aec0;
+}
+
+/* ========================================
+   🎯 GROUPES DE PLATEFORMES (logique du module)
+======================================== */
+
+.sisme-platform-group {
+    display: inline-flex;
+    align-items: center;
+    background: #e1f5fe;
+    color: #0277bd;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-right: 8px;
+    cursor: help;
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-medium);
+    transition: var(--sisme-transition-colors);
+}
+
+.sisme-platform-group:hover {
+    background: #b3e5fc;
+    color: #01579b;
+    transform: translateY(-1px);
+}
+
+.sisme-platform-group--mobile {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.sisme-platform-group--mobile:hover {
+    background: #c8e6c9;
+    color: #1b5e20;
+}
+
+.sisme-platform-group--console {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.sisme-platform-group--console:hover {
+    background: #ffe0b2;
+    color: #e65100;
+}
+
+.sisme-platform-group--pc {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.sisme-platform-group--pc:hover {
+    background: #e1bee7;
+    color: #4a148c;
+}
+
+/* ========================================
+   📅 DATE DE SORTIE STYLÉE
+======================================== */
+
+.sisme-release-date {
+    display: inline-flex;
+    align-items: center;
+    background: #fff3e0;
+    color: #ef6c00;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-medium);
+    border: 1px solid rgba(239, 108, 0, 0.2);
+}
+
+.sisme-release-date--future {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border-color: rgba(46, 125, 50, 0.2);
+}
+
+.sisme-release-date--past {
+    background: #fafafa;
+    color: #616161;
+    border-color: rgba(97, 97, 97, 0.2);
+}
+
+/* ========================================
+   🔄 STYLES POUR LES DONNÉES VIDES
+======================================== */
+
+.sisme-data-empty {
+    color: #999;
+    font-style: italic;
+    font-size: var(--sisme-text-sm);
+}
+
+.sisme-no-platforms,
+.sisme-no-release-date,
+.sisme-no-external-links,
+.sisme-no-covers {
+    color: #999;
+    font-style: italic;
+}
+
+/* ========================================
+   📊 LIGNES DE DONNÉES INLINE (style actuel du module)
+======================================== */
+
+.sisme-game-data-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-lg);
+    align-items: flex-start;
+}
+
+.sisme-game-data-inline > div {
+    flex: 1;
+    min-width: 120px;
+}
+
+.sisme-game-data-inline strong {
+    color: #666;
+    display: block;
+    margin-bottom: var(--sisme-space-xs);
+    font-size: var(--sisme-text-sm);
+}
+
+/* ========================================
+   🔧 UTILITAIRES TABLES AVANCÉS
+======================================== */
+
+/* Loading state */
+.sisme-table-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.sisme-table-loading::after {
+    content: '⏳ Chargement...';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: var(--sisme-space-md);
+    border-radius: var(--sisme-radius-md);
+    box-shadow: var(--sisme-shadow-lg);
+    font-weight: var(--sisme-font-medium);
+    z-index: 100;
+}
+
+/* ========================================
+   📄 PAGINATION (intégrée au module)
+======================================== */
+
+.sisme-table-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--sisme-space-lg);
+    background: rgba(161, 183, 141, 0.05);
+    border-top: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-pagination-info {
+    font-size: var(--sisme-text-sm);
+    color: var(--sisme-color-text-secondary);
+}
+
+.sisme-pagination-links {
+    display: flex;
+    gap: var(--sisme-space-xs);
+}
+
+.sisme-pagination-links a,
+.sisme-pagination-links span {
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-md);
+    text-decoration: none;
+    font-size: var(--sisme-text-sm);
+    border: 1px solid transparent;
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-pagination-links a {
+    background: white;
+    color: var(--sisme-color-text);
+    border-color: var(--sisme-border-subtle);
+}
+
+.sisme-pagination-links a:hover {
+    background: var(--sisme-color-primary);
+    color: white;
+    border-color: var(--sisme-color-primary);
+}
+
+.sisme-pagination-links .current {
+    background: var(--sisme-color-primary);
+    color: white;
+    border-color: var(--sisme-color-primary);
+}
+
+/* Pagination simple (WordPress style) */
 .sisme-pagination {
     display: flex;
     justify-content: center;
@@ -386,60 +1026,336 @@
 }
 
 /* ========================================
-   📊 ÉTATS DE TABLE
+   🎯 STATISTIQUES TABLE (en-tête)
 ======================================== */
 
-/* Table vide */
-.sisme-table-empty {
-    text-align: center;
-    padding: var(--sisme-space-3xl);
-    color: var(--sisme-color-muted);
+.sisme-table-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    background: linear-gradient(135deg, 
+        var(--sisme-color-background) 0%, 
+        rgba(161, 183, 141, 0.08) 100%);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+    font-size: var(--sisme-text-sm);
+    color: var(--sisme-color-text-secondary);
 }
 
-.sisme-table-empty h3 {
-    margin: 0 0 var(--sisme-space-sm);
-    color: var(--sisme-color-text-secondary);
+.sisme-table-count {
     font-weight: var(--sisme-font-medium);
 }
 
-.sisme-table-empty p {
-    margin: 0 0 var(--sisme-space-lg);
-    line-height: var(--sisme-leading-normal);
-}
-
-/* Table en chargement */
-.sisme-table-loading {
-    position: relative;
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-.sisme-table-loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 32px;
-    height: 32px;
-    margin: -16px 0 0 -16px;
-    border: 3px solid var(--sisme-color-primary);
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: sisme-spin 0.8s linear infinite;
+.sisme-table-stats-actions {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    align-items: center;
 }
 
 /* ========================================
-   📱 RESPONSIVE TABLES
+   🔄 ANIMATIONS POUR FEEDBACK UTILISATEUR
 ======================================== */
 
-/* Tablettes */
-@media (max-width: 1024px) {
-    .sisme-table th,
-    .sisme-table td {
-        padding: var(--sisme-space-sm) var(--sisme-space-md);
+@keyframes sisme-row-highlight {
+    0% { background: rgba(161, 183, 141, 0.3); }
+    100% { background: transparent; }
+}
+
+.sisme-row-updated {
+    animation: sisme-row-highlight 2s ease-out;
+}
+
+@keyframes sisme-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Animation de chargement smooth */
+@keyframes sisme-fade-in {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.sisme-game-data-main-row {
+    animation: sisme-fade-in 0.3s ease-out;
+}
+
+/* ========================================
+   🎨 OPTIMISATIONS PERFORMANCE ET ACCESSIBILITÉ
+======================================== */
+
+.sisme-game-data-table * {
+    box-sizing: border-box;
+}
+
+.sisme-game-data-table img {
+    max-width: none; /* Éviter les overrides WordPress */
+}
+
+.sisme-game-data-table a {
+    outline-offset: 2px;
+}
+
+.sisme-game-data-table button:focus,
+.sisme-game-data-table a:focus {
+    outline: 2px solid var(--sisme-color-primary);
+    outline-offset: 2px;
+}
+
+/* Amélioration contraste pour accessibilité */
+.sisme-game-data-table .sisme-btn:focus-visible {
+    box-shadow: 0 0 0 3px rgba(161, 183, 141, 0.4);
+}
+
+/* Préférence motion réduite */
+@media (prefers-reduced-motion: reduce) {
+    .sisme-game-data-table *,
+    .sisme-game-data-table *::before,
+    .sisme-game-data-table *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Ligne de description */
+.sisme-game-data-description-row {
+    background: rgba(161, 183, 141, 0.03);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-game-data-description-cell {
+    padding: var(--sisme-space-md) var(--sisme-space-xl);
+}
+
+.sisme-game-description-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-xs);
+}
+
+.sisme-game-description-label {
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-color-text);
+    font-size: var(--sisme-text-sm);
+}
+
+.sisme-game-description-content {
+    color: var(--sisme-color-text-secondary);
+    line-height: var(--sisme-leading-normal);
+    font-size: var(--sisme-text-sm);
+}
+
+/* Ligne des genres et modes */
+.sisme-game-data-genres-row {
+    background: rgba(161, 183, 141, 0.05);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-game-data-genres-cell {
+    padding: var(--sisme-space-md) var(--sisme-space-xl);
+}
+
+.sisme-game-data-genres-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-lg);
+    align-items: flex-start;
+}
+
+/* Ligne des entités (développeurs/éditeurs) */
+.sisme-game-data-entities-row {
+    background: rgba(212, 163, 115, 0.05);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-game-data-entities-cell {
+    padding: var(--sisme-space-md) var(--sisme-space-xl);
+}
+
+.sisme-game-data-entities-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-lg);
+    align-items: flex-start;
+}
+
+/* Ligne des plateformes */
+.sisme-game-platforms-row {
+    background: rgba(236, 240, 241, 0.8);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-game-platforms-cell {
+    padding: var(--sisme-space-md) var(--sisme-space-xl);
+}
+
+.sisme-game-platforms-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-lg);
+    align-items: flex-start;
+}
+
+/* Ligne des covers */
+.sisme-game-data-covers-row {
+    background: rgba(236, 240, 241, 0.6);
+    border-bottom: 3px solid var(--sisme-color-primary);
+}
+
+.sisme-game-data-covers-cell {
+    padding: var(--sisme-space-md) var(--sisme-space-xl);
+}
+
+.sisme-game-data-covers-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-md);
+}
+
+.sisme-game-data-covers-label {
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-color-text);
+    font-size: var(--sisme-text-sm);
+}
+
+.sisme-game-data-covers-list {
+    display: flex;
+    gap: var(--sisme-space-lg);
+    flex-wrap: wrap;
+}
+
+.sisme-cover-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+    min-width: 80px;
+}
+
+.sisme-cover-label {
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-medium);
+    color: var(--sisme-color-text-secondary);
+    text-align: center;
+}
+
+.sisme-cover-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--sisme-radius-md);
+    border: 2px solid var(--sisme-border-subtle);
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-cover-image:hover {
+    transform: scale(1.1);
+    box-shadow: var(--sisme-shadow-md);
+}
+
+.sisme-cover-placeholder {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--sisme-radius-md);
+    font-size: 24px;
+}
+
+.sisme-cover-empty {
+    background: #f3f4f6;
+    border: 2px dashed #d1d5db;
+    color: #9ca3af;
+}
+
+.sisme-cover-error {
+    background: #fef2f2;
+    border: 2px solid #fecaca;
+    color: #dc2626;
+}
+
+/* Badges supplémentaires */
+.sisme-no-articles-badge {
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-full);
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-medium);
+}
+
+.sisme-last-update-badge {
+    background: rgba(161, 183, 141, 0.1);
+    color: var(--sisme-color-primary-dark);
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-full);
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-medium);
+    font-family: var(--sisme-font-mono);
+}
+
+/* Actions stylisées */
+.sisme-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 14px;
+    transition: var(--sisme-transition-all);
+    border: 1px solid transparent;
+    margin: 0 2px;
+}
+
+.sisme-action-edit {
+    background: var(--sisme-color-primary);
+    color: white;
+}
+
+.sisme-action-edit:hover {
+    background: var(--sisme-color-primary-dark);
+    transform: scale(1.1);
+}
+
+.sisme-action-view-articles {
+    background: var(--sisme-color-secondary);
+    color: white;
+}
+
+.sisme-action-view-articles:hover {
+    background: #bc8f53;
+    transform: scale(1.1);
+}
+
+.sisme-action-delete {
+    background: #fee;
+    color: #dc2626;
+    border-color: #fecaca;
+    cursor: pointer;
+}
+
+.sisme-action-delete:hover {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+    transform: scale(1.1);
+}
+
+/* Responsive pour les nouvelles lignes */
+@media (max-width: 768px) {
+    .sisme-game-data-genres-container,
+    .sisme-game-data-entities-container,
+    .sisme-game-platforms-container {
+        flex-direction: column;
+        gap: var(--sisme-space-md);
     }
     
-    .sisme-covers-display {
+    .sisme-game-data-covers-list {
+        justify-content: center;
         gap: var(--sisme-space-md);
     }
     
@@ -447,209 +1363,9 @@
         min-width: 60px;
     }
     
-    .sisme-cover-preview,
-    .sisme-cover-placeholder,
-    .sisme-cover-error {
-        width: 40px;
-        height: 40px;
+    .sisme-cover-image,
+    .sisme-cover-placeholder {
+        width: 50px;
+        height: 50px;
     }
-}
-
-/* Mobiles */
-@media (max-width: 768px) {
-    .sisme-table-controls {
-        flex-direction: column;
-        align-items: stretch;
-        gap: var(--sisme-space-md);
-    }
-    
-    .sisme-search-form {
-        max-width: none;
-    }
-    
-    .sisme-table-actions {
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-    
-    /* Table responsive - mode cards */
-    .sisme-table-responsive {
-        display: none;
-    }
-    
-    .sisme-table-cards {
-        display: grid;
-        gap: var(--sisme-space-md);
-        grid-template-columns: 1fr;
-    }
-    
-    .sisme-game-card {
-        background: white;
-        border-radius: var(--sisme-radius-lg);
-        border: 1px solid var(--sisme-border-subtle);
-        padding: var(--sisme-space-lg);
-        box-shadow: var(--sisme-shadow-sm);
-    }
-    
-    .sisme-game-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: var(--sisme-space-md);
-    }
-    
-    .sisme-game-card-title {
-        font-weight: var(--sisme-font-semibold);
-        color: var(--sisme-color-text);
-        margin: 0;
-    }
-    
-    .sisme-game-card-meta {
-        font-size: var(--sisme-text-xs);
-        color: var(--sisme-color-muted);
-        margin-top: var(--sisme-space-xs);
-    }
-    
-    .sisme-game-card-content {
-        display: grid;
-        gap: var(--sisme-space-sm);
-    }
-    
-    .sisme-game-card-section {
-        display: flex;
-        flex-direction: column;
-        gap: var(--sisme-space-xs);
-    }
-    
-    .sisme-game-card-label {
-        font-size: var(--sisme-text-xs);
-        font-weight: var(--sisme-font-semibold);
-        color: var(--sisme-color-text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .sisme-pagination {
-        flex-wrap: wrap;
-        gap: var(--sisme-space-xs);
-    }
-    
-    .sisme-pagination .sisme-btn {
-        min-width: 36px;
-        height: 36px;
-    }
-}
-
-/* Très petits mobiles */
-@media (max-width: 480px) {
-    .sisme-table th,
-    .sisme-table td {
-        padding: var(--sisme-space-xs) var(--sisme-space-sm);
-    }
-    
-    .sisme-game-card {
-        padding: var(--sisme-space-md);
-    }
-    
-    .sisme-covers-display {
-        justify-content: center;
-        gap: var(--sisme-space-sm);
-    }
-    
-    .sisme-cover-preview,
-    .sisme-cover-placeholder,
-    .sisme-cover-error {
-        width: 32px;
-        height: 32px;
-    }
-    
-    .sisme-tag {
-        font-size: 10px;
-        padding: 2px var(--sisme-space-xs);
-    }
-}
-
-/* ========================================
-   🌙 DARK MODE SUPPORT
-======================================== */
-
-.sisme-dark .sisme-table {
-    background: var(--sisme-color-slate);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-}
-
-.sisme-dark .sisme-table thead th {
-    background: var(--sisme-color-slate-dark);
-    color: #ffffff;
-}
-
-.sisme-dark .sisme-table tbody tr:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.sisme-dark .sisme-game-data-table .game-data-subrow {
-    background: var(--sisme-color-slate-light);
-}
-
-.sisme-dark .sisme-table-controls {
-    background: var(--sisme-color-slate);
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-.sisme-dark .sisme-game-card {
-    background: var(--sisme-color-slate);
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* ========================================
-   🔧 UTILITAIRES TABLES
-======================================== */
-
-/* Tri de colonnes */
-.sisme-table th.sortable {
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-    padding-right: calc(var(--sisme-space-lg) + 20px);
-}
-
-.sisme-table th.sortable::after {
-    content: '↕️';
-    position: absolute;
-    right: var(--sisme-space-sm);
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0.5;
-    font-size: 12px;
-}
-
-.sisme-table th.sortable:hover::after {
-    opacity: 0.8;
-}
-
-.sisme-table th.sortable.sorted-asc::after {
-    content: '↑';
-    opacity: 1;
-    color: var(--sisme-color-primary);
-}
-
-.sisme-table th.sortable.sorted-desc::after {
-    content: '↓';
-    opacity: 1;
-    color: var(--sisme-color-primary);
-}
-
-/* Sélection de lignes */
-.sisme-table .row-selector {
-    width: 40px;
-    text-align: center;
-}
-
-.sisme-table .row-selected {
-    background: rgba(161, 183, 141, 0.1);
-}
-
-.sisme-table .row-selected:hover {
-    background: rgba(161, 183, 141, 0.15);
 }
