@@ -110,9 +110,13 @@ class Sisme_Article_Filter_Module {
         if (!empty($this->filter_values['search'])) {
             $args['search'] = $this->filter_values['search'];
         }
-        
+
         if (!empty($this->filter_values['genres'])) {
             $args['genres'] = $this->filter_values['genres'];
+        }
+
+        if (!empty($this->filter_values['developers'])) {
+            $args['developers'] = $this->filter_values['developers'];
         }
         
         // etc...
@@ -149,6 +153,8 @@ class Sisme_Article_Filter_Module {
             'status' => isset($_GET['status']) && $_GET['status'] !== '' ? sanitize_text_field($_GET['status']) : '',
             'category' => isset($_GET['category']) && $_GET['category'] !== '' ? sanitize_text_field($_GET['category']) : '',
             'tag' => isset($_GET['tag']) && $_GET['tag'] !== '' ? sanitize_text_field($_GET['tag']) : '',
+            'genres' => isset($_GET['genres']) && $_GET['genres'] !== '' ? sanitize_text_field($_GET['genres']) : '',
+            'developers' => isset($_GET['developers']) && $_GET['developers'] !== '' ? sanitize_text_field($_GET['developers']) : '',
             'author' => isset($_GET['author']) && $_GET['author'] !== '' ? intval($_GET['author']) : 0
         ];
     }
@@ -315,6 +321,57 @@ class Sisme_Article_Filter_Module {
                                             selected($this->filter_values['author'], $author->ID, false),
                                             esc_html($author->display_name)
                                         );
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($this->mode === 'game_data' && $this->options['genres']) : ?>
+                            <div class="sisme-filter-item">
+                                <select name="genres" class="sisme-form-input">
+                                    <option value="">Tous les genres</option>
+                                    <?php 
+                                    $all_categories = get_categories(['hide_empty' => false]);
+                                    foreach ($all_categories as $category) {
+                                        if (strpos($category->slug, 'jeux-') === 0) {
+                                            $genre_name = str_replace('jeux-', '', $category->name);
+                                            printf(
+                                                '<option value="%s" %s>%s</option>',
+                                                esc_attr($category->term_id),
+                                                selected($this->filter_values['genres'], $category->term_id, false),
+                                                esc_html($genre_name)
+                                            );
+                                        }
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($this->mode === 'game_data' && $this->options['developers']) : ?>
+                            <div class="sisme-filter-item">
+                                <select name="developers" class="sisme-form-input">
+                                    <option value="">Tous les développeurs</option>
+                                    <?php 
+                                    $dev_parent = null;
+                                    $all_categories = get_categories(['hide_empty' => false]);
+                                    foreach ($all_categories as $cat) {
+                                        if ($cat->slug === 'editeurs-developpeurs') {
+                                            $dev_parent = $cat;
+                                            break;
+                                        }
+                                    }
+                                    if ($dev_parent) {
+                                        $developers = get_categories(['child_of' => $dev_parent->term_id, 'hide_empty' => false]);
+                                        foreach ($developers as $dev) {
+                                            printf(
+                                                '<option value="%s" %s>%s</option>',
+                                                esc_attr($dev->term_id),
+                                                selected($this->filter_values['developers'], $dev->term_id, false),
+                                                esc_html($dev->name)
+                                            );
+                                        }
                                     }
                                     ?>
                                 </select>

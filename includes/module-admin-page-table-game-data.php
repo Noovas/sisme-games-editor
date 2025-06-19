@@ -118,8 +118,8 @@ class Sisme_Game_Data_Table_Module {
         ];
         
         // Ajouter la recherche si présente
-        if (!empty($search)) {
-            $args['search'] = $search;
+        if (!empty($filter_args['search'])) {
+            $args['search'] = $filter_args['search'];
         }
         
         // Récupérer toutes les étiquettes
@@ -139,7 +139,22 @@ class Sisme_Game_Data_Table_Module {
                 $processed_data[] = $game_data;
             }
         }
-        
+
+        // Appliquer les filtres de Game Data
+        if (!empty($filter_args['genres'])) {
+            $processed_data = array_filter($processed_data, function($game) use ($filter_args) {
+                $genres = isset($game['meta_data']['game_genres']) ? $game['meta_data']['game_genres'] : [];
+                return in_array($filter_args['genres'], $genres);
+            });
+        }
+
+        if (!empty($filter_args['developers'])) {
+            $processed_data = array_filter($processed_data, function($game) use ($filter_args) {
+                $developers = isset($game['meta_data']['game_developers']) ? $game['meta_data']['game_developers'] : [];
+                return in_array($filter_args['developers'], $developers);
+            });
+        }
+
         // Calculer la pagination
         $this->total_items = count($processed_data);
         $offset = ($this->current_page - 1) * $this->per_page;
