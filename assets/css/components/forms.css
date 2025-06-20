@@ -889,3 +889,89 @@
     transform: translateY(-1px);
     box-shadow: var(--sisme-shadow-md);
 }
+
+/* ========================================
+   🎮 COMPOSANT MODES (SÉLECTION FIXE)
+======================================== */
+
+/* Zone des modes sélectionnés - hérite des classes communes */
+.sisme-selected-modes-display {
+    @extend .sisme-selected-display-base;
+}
+
+/* Grille des modes disponibles */
+.sisme-modes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--sisme-space-md);
+    margin-top: var(--sisme-space-xs);
+}
+
+/* Card de mode disponible */
+.sisme-mode-option-card {
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    background: white;
+    border: 2px solid var(--sisme-border-subtle);
+    border-radius: var(--sisme-radius-lg);
+    cursor: pointer;
+    text-align: center;
+    transition: var(--sisme-transition-all);
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-mode-option-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--sisme-color-muted);
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-mode-option-card:hover {
+    border-color: var(--sisme-color-primary);
+    background: rgba(161, 183, 141, 0.05);
+    transform: translateY(-2px);
+    box-shadow: var(--sisme-shadow-md);
+}
+
+.sisme-mode-option-card:hover::before {
+    background: var(--sisme-color-primary);
+}
+
+.sisme-mode-option-card:active {
+    transform: translateY(0);
+    background: rgba(161, 183, 141, 0.1);
+}
+
+.sisme-mode-option-card strong {
+    color: var(--sisme-color-text);
+    font-weight: var(--sisme-font-semibold);
+    font-size: var(--sisme-text-sm);
+}
+
+/* Tag de mode sélectionné */
+.sisme-tag--mode {
+    background: linear-gradient(135deg, var(--sisme-color-primary-swap) 0%, var(--sisme-color-primary-dark-swap) 100%);
+    color: white;
+    font-weight: var(--sisme-font-medium);
+    font-size: var(--sisme-text-sm);
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-md);
+    border: 1px solid var(--sisme-color-primary-dark-swap);
+    box-shadow: var(--sisme-shadow-sm);
+}
+
+.sisme-tag--mode::before {
+    content: '⚡';
+    margin-right: var(--sisme-space-xs);
+    font-size: 0.8em;
+}
+
+.sisme-tag--mode:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--sisme-shadow-md);
+}
