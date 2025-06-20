@@ -36,6 +36,7 @@
     --sisme-color-success: var(--sisme-color-primary);
     --sisme-color-warning: #f6ad55;
     --sisme-color-error: #e53e3e;
+    --sisme-color-error-fade: #e53e3e3b;
     --sisme-color-info: #3182ce;
     
     /* Transparences utilitaires */

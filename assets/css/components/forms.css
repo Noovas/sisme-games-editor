@@ -1550,3 +1550,343 @@
         gap: var(--sisme-space-sm);
     }
 }
+
+/* ========================================
+   🎮 PAGE EDIT FICHE JEU
+======================================== */
+
+/* Grid des informations du jeu */
+.sisme-game-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.sisme-game-info-image {
+    display: flex;
+    justify-content: center;
+}
+
+.sisme-game-cover-image {
+    width: 100%;
+    height: auto;
+    border-radius: var(--sisme-radius-lg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 300px;
+}
+
+.sisme-game-cover-placeholder {
+    background: var(--sisme-color-background);
+    padding: 3rem;
+    text-align: center;
+    border-radius: var(--sisme-radius-lg);
+    color: var(--sisme-color-text-secondary);
+    font-size: var(--sisme-text-lg);
+    border: 2px dashed var(--sisme-border-subtle);
+}
+
+/* Table des informations du jeu */
+.sisme-game-info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sisme-game-info-label {
+    padding: var(--sisme-space-sm) 0;
+    border-bottom: 1px solid var(--sisme-border-subtle);
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-color-text);
+    width: 30%;
+    vertical-align: top;
+}
+
+.sisme-game-info-value {
+    padding: var(--sisme-space-sm) 0;
+    border-bottom: 1px solid var(--sisme-border-subtle);
+    color: var(--sisme-color-text-secondary);
+}
+
+/* ========================================
+   📝 FORMULAIRE FICHE
+======================================== */
+
+.sisme-fiche-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-xl);
+}
+
+/* Conteneur des sections */
+.sisme-sections-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-lg);
+}
+
+/* Item de section individuelle */
+.sisme-section-item {
+    border: 1px solid var(--sisme-border-subtle);
+    border-radius: var(--sisme-radius-lg);
+    background: rgba(161, 183, 141, 0.02);
+    overflow: hidden;
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-section-item:hover {
+    border-color: var(--sisme-color-primary);
+    box-shadow: 0 2px 8px rgba(161, 183, 141, 0.1);
+}
+
+/* Header de section */
+.sisme-section-header {
+    background: var(--sisme-color-primary);
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-section-title {
+    margin: 0;
+    color: white;
+    font-size: var(--sisme-text-lg);
+    font-weight: var(--sisme-font-semibold);
+}
+
+/* Body de section */
+.sisme-section-item .sisme-form-table {
+    margin: 0;
+    padding: var(--sisme-space-lg);
+}
+
+.sisme-section-item .sisme-form-table th,
+.sisme-section-item .sisme-form-table td {
+    padding: var(--sisme-space-md) 0;
+    border-bottom: 1px solid var(--sisme-border-subtle);
+}
+
+.sisme-section-item .sisme-form-table tr:last-child th,
+.sisme-section-item .sisme-form-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Textarea spécifique aux sections */
+.sisme-section-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Container d'image de section */
+.sisme-section-image-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-md);
+}
+
+.sisme-section-image-preview {
+    padding: var(--sisme-space-md);
+    border: 2px dashed var(--sisme-border-subtle);
+    border-radius: var(--sisme-radius-md);
+    text-align: center;
+    background: var(--sisme-color-background);
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sisme-section-image-preview .sisme-section-image {
+    max-width: 200px;
+    height: auto;
+    border-radius: var(--sisme-radius-sm);
+}
+
+.sisme-no-image-text {
+    color: var(--sisme-color-text-secondary);
+    font-style: italic;
+}
+
+.sisme-section-image-actions {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Footer de section */
+.sisme-section-footer {
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    border-top: 1px solid var(--sisme-border-subtle);
+    background: rgba(161, 183, 141, 0.05);
+}
+
+/* Container du bouton ajouter section */
+.sisme-add-section-container {
+    text-align: center;
+    padding: var(--sisme-space-xl);
+    border: 2px dashed var(--sisme-color-primary);
+    border-radius: var(--sisme-radius-lg);
+    background: rgba(161, 183, 141, 0.02);
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-add-section-container:hover {
+    background: rgba(161, 183, 141, 0.05);
+    border-color: var(--sisme-color-primary-dark);
+}
+
+/* Actions du formulaire */
+.sisme-form-actions {
+    display: flex;
+    gap: var(--sisme-space-md);
+    align-items: center;
+    flex-wrap: wrap;
+    padding: var(--sisme-space-lg);
+    border-top: 1px solid var(--sisme-border-subtle);
+    background: var(--sisme-color-background);
+    border-radius: 0 0 var(--sisme-radius-lg) var(--sisme-radius-lg);
+    margin-top: var(--sisme-space-xl);
+}
+
+/* ========================================
+   📱 RESPONSIVE DESIGN
+======================================== */
+
+/* Tablettes */
+@media (max-width: 1024px) {
+    .sisme-game-info-grid {
+        grid-template-columns: 1fr;
+        gap: var(--sisme-space-lg);
+    }
+    
+    .sisme-game-info-image {
+        order: 2;
+    }
+    
+    .sisme-game-info-details {
+        order: 1;
+    }
+}
+
+/* Mobiles */
+@media (max-width: 768px) {
+    .sisme-game-info-grid {
+        gap: var(--sisme-space-md);
+    }
+    
+    .sisme-section-item .sisme-form-table {
+        padding: var(--sisme-space-md);
+    }
+    
+    .sisme-section-header {
+        padding: var(--sisme-space-sm) var(--sisme-space-md);
+    }
+    
+    .sisme-section-title {
+        font-size: var(--sisme-text-base);
+    }
+    
+    .sisme-form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .sisme-form-actions .sisme-btn {
+        text-align: center;
+    }
+    
+    .sisme-section-image-actions {
+        flex-direction: column;
+    }
+    
+    .sisme-add-section-container {
+        padding: var(--sisme-space-lg);
+    }
+}
+
+/* Petits mobiles */
+@media (max-width: 480px) {
+    .sisme-game-info-label,
+    .sisme-game-info-value {
+        display: block;
+        padding: var(--sisme-space-xs) 0;
+    }
+    
+    .sisme-game-info-label {
+        font-weight: var(--sisme-font-bold);
+        border-bottom: none;
+        margin-bottom: var(--sisme-space-xs);
+    }
+    
+    .sisme-game-info-value {
+        margin-bottom: var(--sisme-space-md);
+        border-bottom: 1px solid var(--sisme-border-subtle);
+        padding-bottom: var(--sisme-space-sm);
+    }
+}
+
+/* ========================================
+   🎨 ANIMATIONS ET TRANSITIONS
+======================================== */
+
+.sisme-section-item {
+    animation: sismeSectionFadeIn 0.3s ease-out;
+}
+
+@keyframes sismeSectionFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animation de suppression */
+.sisme-section-item.removing {
+    animation: sismeSectionFadeOut 0.3s ease-out forwards;
+}
+
+@keyframes sismeSectionFadeOut {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 500px;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+/* ========================================
+   🔧 UTILITAIRES SPÉCIFIQUES
+======================================== */
+
+/* Messages de feedback dans le contexte */
+.sisme-fiche-form .notice {
+    margin: 0 0 var(--sisme-space-lg) 0;
+    border-left: 4px solid var(--sisme-color-primary);
+}
+
+/* Amélioration du focus pour l'accessibilité */
+.sisme-section-item:focus-within {
+    border-color: var(--sisme-color-primary);
+    box-shadow: 0 0 0 2px rgba(161, 183, 141, 0.2);
+}
+
+/* État de chargement pour les images */
+.sisme-section-image-preview.loading {
+    background: linear-gradient(90deg, var(--sisme-color-background) 25%, rgba(161, 183, 141, 0.1) 50%, var(--sisme-color-background) 75%);
+    background-size: 200% 100%;
+    animation: sismeImageLoading 1.5s infinite;
+}
+
+@keyframes sismeImageLoading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

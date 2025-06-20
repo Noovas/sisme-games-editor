@@ -9,6 +9,16 @@
    🔘 BOUTON DE BASE
 ======================================== */
 
+.sisme-btn--delete {
+    background-color: var(--sisme-color-error-fade) !important;
+    border: solid 1px var(--sisme-color-error-fade) !important;
+}
+
+.sisme-btn--delete:hover {
+    background-color: var(--sisme-color-error) !important;
+    border: solid 1px var(--sisme-color-error) !important;
+}
+
 .sisme-btn {
     /* Reset */
     display: inline-flex;
