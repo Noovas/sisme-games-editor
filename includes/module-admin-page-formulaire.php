@@ -1074,15 +1074,16 @@ class Sisme_Game_Form_Module {
                     <!-- Liste des suggestions -->
                     <div class="sisme-game-suggestions">
                         <label class="sisme-form-label">Jeux disponibles :</label>
-                        <div class="sisme-suggestions-container">
+                        <div class="sisme-suggestions-list">
                             <?php foreach ($tags as $tag): ?>
-                                <div class="sisme-suggestion-item" 
+                                <div class="suggestion-item" 
                                      data-game-id="<?php echo esc_attr($tag->term_id); ?>" 
-                                     data-game-name="<?php echo esc_attr($tag->name); ?>">
-                                    <div class="sisme-suggestion-content">
-                                        <strong class="sisme-suggestion-name"><?php echo esc_html($tag->name); ?></strong>
-                                        <span class="sisme-suggestion-count"><?php echo $tag->count; ?> article(s)</span>
+                                     data-game-name="<?php echo esc_attr($tag->name); ?>"
+                                     style="padding: 8px 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <strong><?php echo esc_html($tag->name); ?></strong>
                                     </div>
+                                    <span style="color: #999; font-size: 11px;"><?php echo $tag->count; ?> article(s)</span>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -1989,10 +1990,9 @@ class Sisme_Game_Form_Module {
             function selectGame(container, gameId, gameName) {
                 var selectedDisplay = container.find('.sisme-selected-game-display');
                 
-                var gameTag = $('<span class="selected-game-tag" data-game-id="' + gameId + '" ' +
-                               'style="display: inline-block; background: var(--theme-palette-color-1); color: white; padding: 6px 12px; margin: 2px; border-radius: 4px; font-size: 14px; font-weight: bold;">' +
+                var gameTag = $('<span class="sisme-tag sisme-tag--selected sisme-tag--game" data-game-id="' + gameId + '">' +
                                gameName +
-                               '<span class="remove-game" style="margin-left: 8px; cursor: pointer; font-weight: bold;">&times;</span>' +
+                               '<span class="sisme-tag__remove remove-game" title="Retirer ce jeu">&times;</span>' +
                                '<input type="hidden" name="game_name" value="' + gameId + '">' +
                                '</span>');
                 

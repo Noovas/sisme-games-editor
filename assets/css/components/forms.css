@@ -83,11 +83,12 @@
 ======================================== */
 
 .sisme-form-label {
-    font-size: var(--sisme-text-sm);
+    font-size: var(--sisme-text-xl);
     font-weight: var(--sisme-font-medium);
     color: var(--sisme-color-text);
-    margin-bottom: var(--sisme-space-xs);
+    margin-bottom: var(--sisme-space-md); 
     line-height: var(--sisme-leading-normal);
+    display: block; 
 }
 
 .sisme-form-label--required::after {
@@ -101,8 +102,14 @@
     display: inline-flex;
     align-items: center;
     gap: var(--sisme-space-xs);
-    margin-bottom: 0;
+    margin-bottom: var(--sisme-space-sm); 
     cursor: pointer;
+}
+
+/* Espacement spécifique pour les composants game data */
+.sisme-game-name-component .sisme-form-label,
+.sisme-game-suggestions .sisme-form-label {
+    margin-bottom: var(--sisme-space-md);
 }
 
 /* ========================================
@@ -682,6 +689,7 @@
 /* Zone de sélection unique */
 .sisme-selected-game-display {
     min-height: 50px;
+    padding: var(--sisme-space-sm);
     border: 2px dashed var(--sisme-border-subtle);
     border-radius: var(--sisme-radius-lg);
     background: var(--sisme-color-background);
@@ -690,6 +698,7 @@
     align-items: center;
     flex-wrap: wrap;
     gap: var(--sisme-space-xs);
+    margin-bottom: var(--sisme-space-xl);
 }
 
 .sisme-selected-game-display:hover {
@@ -753,7 +762,8 @@
     display: flex;
     gap: var(--sisme-space-md);
     align-items: center;
-    margin-bottom: var(--sisme-space-lg);
+    margin-bottom: var(--sisme-space-xl);
+    padding: var(--sisme-space-sm) 0; 
 }
 
 .sisme-game-search-input {
@@ -763,25 +773,7 @@
 
 /* Conteneur des suggestions */
 .sisme-game-suggestions {
-    margin-top: var(--sisme-space-md);
-}
-
-.sisme-suggestions-container {
-    max-height: 200px;
-    overflow-y: auto;
-    border: 1px solid var(--sisme-border-subtle);
-    border-radius: var(--sisme-radius-lg);
-    background: white;
-    margin-top: var(--sisme-space-xs);
-}
-
-/* Items de suggestion */
-.sisme-suggestion-item {
-    padding: var(--sisme-space-md);
-    border-bottom: 1px solid var(--sisme-border-subtle);
-    cursor: pointer;
-    transition: var(--sisme-transition-colors);
-    position: relative;
+    margin-top: var(--sisme-space-lg);
 }
 
 .sisme-suggestion-item:last-child {
@@ -806,6 +798,55 @@
 }
 
 .sisme-suggestion-count {
+    color: var(--sisme-color-muted);
+    font-size: var(--sisme-text-sm);
+    background: var(--sisme-color-background);
+    padding: 2px var(--sisme-space-xs);
+    border-radius: var(--sisme-radius-sm);
+}
+
+/* Liste des suggestions */
+.sisme-suggestions-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--sisme-border-subtle);
+    border-radius: var(--sisme-radius-lg);
+    background: white;
+    margin-top: var(--sisme-space-xs);
+}
+
+/* Items de suggestion */
+.suggestion-item {
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+    cursor: pointer;
+    transition: var(--sisme-transition-colors);
+    position: relative;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background: rgba(161, 183, 141, 0.1);
+    border-left: 4px solid var(--sisme-color-primary);
+    padding-left: calc(var(--sisme-space-md) - 4px);
+}
+
+/* Contenu des suggestions */
+.suggestion-item div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.suggestion-item strong {
+    color: var(--sisme-color-text);
+    font-weight: var(--sisme-font-medium);
+}
+
+.suggestion-item span {
     color: var(--sisme-color-muted);
     font-size: var(--sisme-text-sm);
     background: var(--sisme-color-background);
