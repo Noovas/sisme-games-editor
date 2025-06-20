@@ -373,12 +373,31 @@ class Sisme_Game_Data_Table_Module {
                     <a href="<?php echo add_query_arg('tag_id', $game_data['id'], $this->options['edit_url']); ?>" 
                        class="sisme-action-btn sisme-action-edit" 
                        title="Modifier les données du jeu">✏️</a>
-                    
-                    <!-- NOUVEAU: Bouton de création de fiche -->
-                    <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche-jeu&tag_id=' . $game_data['id']); ?>" 
-                       class="sisme-action-btn sisme-action-fiche" 
-                       title="Créer/Modifier la fiche du jeu">📝</a>
-                    
+
+                    <?php
+                        // Vérifier si le jeu a des sections (présentation)
+                        $has_presentation = $this->game_has_presentation($game_data['id']);
+                        $fiche_url = admin_url('admin.php?page=sisme-games-edit-fiche-jeu&tag_id=' . $game_data['id']);
+
+                        // Classes et textes conditionnels
+                        if ($has_presentation) {
+                            $btn_class = 'sisme-action-btn sisme-action-fiche sisme-has-presentation';
+                            $btn_title = 'Modifier';
+                            $btn_icon = '📝'; // Icône verte/remplie
+                        } else {
+                            $btn_class = 'sisme-action-btn sisme-action-fiche sisme-no-presentation';
+                            $btn_title = 'Créer';
+                            $btn_icon = '📄'; // Icône vide/grise
+                        }
+                        ?>
+
+                        <a href="<?php echo esc_url($fiche_url); ?>" 
+                           class="<?php echo esc_attr($btn_class); ?>"
+                           title="<?php echo esc_attr($btn_title); ?>" 
+                           aria-label="<?php echo esc_attr($btn_title); ?>">
+                            <?php echo $btn_icon; ?>
+                        </a>
+                                            
                     <?php if ($game_data['articles_count'] > 0): ?>
                         <a href="<?php echo admin_url('admin.php?page=sisme-games-all-articles&s=' . urlencode($game_data['name'])); ?>" 
                            class="sisme-action-btn sisme-action-view-articles" 
@@ -825,5 +844,26 @@ class Sisme_Game_Data_Table_Module {
         }
         
         return $stats;
+    }
+
+    /**
+     * Vérifier si un jeu a des sections de présentation
+     * UNIQUEMENT dans le nouveau format (term_meta.game_sections)
+     */
+    private function game_has_presentation($tag_id) {
+        // Vérifier UNIQUEMENT dans term_meta (nouveau format)
+        $game_sections = get_term_meta($tag_id, 'game_sections', true);
+        
+        if (!empty($game_sections) && is_array($game_sections)) {
+            // Vérifier qu'il y a au moins une section avec du contenu
+            foreach ($game_sections as $section) {
+                if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) {
+                    return true;
+                }
+            }
+        }
+        
+        // Pas de vérification de l'ancien format - uniquement nouveau format
+        return false;
     }
 }

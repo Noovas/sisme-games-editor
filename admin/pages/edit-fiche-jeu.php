@@ -134,16 +134,6 @@ $page_wrapper->render_start();
                         </td>
                     </tr>
                 </table>
-                
-                <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 6px;">
-                    <small style="color: #666;">
-                        ℹ️ Ces informations proviennent des <strong>Game Data</strong>. 
-                        Pour les modifier, utilisez la 
-                        <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-game-data&tag_id=' . $tag_id); ?>">
-                            page d'édition du jeu
-                        </a>.
-                    </small>
-                </div>
             </div>
         </div>
     </div>
@@ -152,18 +142,9 @@ $page_wrapper->render_start();
 <!-- Formulaire de présentation complète -->
 <div class="sisme-card">
     <div class="sisme-card__header">
-        <h2>📝 Présentation complète du jeu</h2>
-        <p>Ajoutez des sections personnalisées pour structurer le contenu détaillé de votre fiche.</p>
-        
-        <?php if (!$is_edit_mode && !empty($existing_sections)): ?>
-            <div style="background: #d1ecf1; padding: 1rem; border-radius: 6px; margin-top: 1rem;">
-                <strong>ℹ️ Sections du jeu chargées</strong><br>
-                <small><?php echo count($existing_sections); ?> section(s) trouvée(s) dans Game Data</small>
-            </div>
-        <?php endif; ?>
+        <h2>📝 Présentation complète du jeu</h2>        
     </div>
     <div class="sisme-card__body">
-        
         <form method="post" action="">
             <?php wp_nonce_field('sisme_fiche_jeu_form', 'sisme_fiche_jeu_nonce'); ?>
             <input type="hidden" name="sisme_fiche_jeu_action" value="<?php echo $is_edit_mode ? 'update_fiche' : 'create_fiche'; ?>">

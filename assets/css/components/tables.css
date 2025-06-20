@@ -1373,3 +1373,182 @@ td.sisme-game-actions-cell {
 .sisme-game-description-content {
     text-align: center;
 }
+
+/**
+ * AJOUT: assets/css/components/tables.css
+ * Styles pour l'indicateur de présentation des fiches
+ */
+
+/* ========================================
+   📝 INDICATEUR DE PRÉSENTATION FICHE
+======================================== */
+
+/* Bouton fiche avec présentation (vert/actif) */
+.sisme-action-fiche.sisme-has-presentation {
+    background: #22c55e !important; /* Vert moderne */
+    color: white !important;
+    border-color: #22c55e !important;
+    box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2);
+    position: relative;
+}
+
+.sisme-action-fiche.sisme-has-presentation:hover {
+    background: #16a34a !important; /* Vert plus foncé au survol */
+    border-color: #16a34a !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
+}
+
+.sisme-action-fiche.sisme-has-presentation:focus {
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
+}
+
+/* Badge "PRÊT" sur le bouton vert */
+.sisme-action-fiche.sisme-has-presentation::after {
+    content: 'PRÊT';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #16a34a;
+    color: white;
+    font-size: 8px;
+    font-weight: 600;
+    padding: 2px 4px;
+    border-radius: 4px;
+    line-height: 1;
+    border: 1px solid white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Bouton fiche sans présentation (gris/inactif) */
+.sisme-action-fiche.sisme-no-presentation {
+    background: #f3f4f6 !important; /* Gris clair */
+    color: #6b7280 !important; /* Gris foncé */
+    border-color: #d1d5db !important;
+    position: relative;
+}
+
+.sisme-action-fiche.sisme-no-presentation:hover {
+    background: #e5e7eb !important; /* Gris un peu plus foncé */
+    border-color: #9ca3af !important;
+    color: #374151 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sisme-action-fiche.sisme-no-presentation:focus {
+    box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.3);
+}
+
+/* Badge "CRÉER" sur le bouton gris */
+.sisme-action-fiche.sisme-no-presentation::after {
+    content: 'CRÉER';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #f59e0b; /* Orange pour attirer l'attention */
+    color: white;
+    font-size: 8px;
+    font-weight: 600;
+    padding: 2px 4px;
+    border-radius: 4px;
+    line-height: 1;
+    border: 1px solid white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation subtile pour attirer l'attention sur les fiches à créer */
+.sisme-action-fiche.sisme-no-presentation {
+    animation: sismeGentlePulse 3s ease-in-out infinite;
+}
+
+@keyframes sismeGentlePulse {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.8; 
+        transform: scale(0.98);
+    }
+}
+
+/* ========================================
+   📊 ÉTATS RESPONSIVES
+======================================== */
+
+/* Sur mobile, masquer les badges texte mais garder les couleurs */
+@media (max-width: 768px) {
+    .sisme-action-fiche::after {
+        display: none;
+    }
+    
+    /* Compensation en rendant les icônes plus expressives */
+    .sisme-action-fiche.sisme-has-presentation {
+        font-size: 18px;
+    }
+    
+    .sisme-action-fiche.sisme-no-presentation {
+        font-size: 16px;
+        opacity: 0.7;
+    }
+}
+
+/* ========================================
+   🎯 ACCESSIBILITÉ & CONTRASTE
+======================================== */
+
+/* Mode sombre - ajustements */
+.sisme-dark .sisme-action-fiche.sisme-has-presentation {
+    background: #15803d !important;
+    border-color: #15803d !important;
+}
+
+.sisme-dark .sisme-action-fiche.sisme-no-presentation {
+    background: #374151 !important;
+    color: #9ca3af !important;
+    border-color: #4b5563 !important;
+}
+
+/* Focus amélioré pour l'accessibilité */
+.sisme-action-fiche:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+}
+
+/* Indication claire au survol */
+.sisme-action-fiche {
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+/* ========================================
+   💡 TOOLTIP INFORMATIF
+======================================== */
+
+/* Ajout d'un tooltip au survol pour clarifier l'état */
+.sisme-action-fiche[title] {
+    position: relative;
+}
+
+.sisme-action-fiche[title]:hover::before {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 4px;
+    max-width: 200px;
+    text-align: center;
+}
+
+.sisme-action-fiche[title]:hover::after {
+    display: none;
+}
