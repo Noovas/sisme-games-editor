@@ -674,3 +674,29 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ========================================
+   ☑️ Création Jeu
+======================================== */
+
+.sisme-create-tag-controls {
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+select#game-form-1_game_name:focus {
+    border: solid 1px var(--sisme-color-primary);
+    box-shadow: none;
+    color: var(--sisme-color-dark);
+}
+
+select#game-form-1_game_name {
+    margin-bottom: 20px;
+    border: solid 1px var(--sisme-color-primary);
+}
+
+select#game-form-1_game_name:hover {
+    color: var(--sisme-color-dark);
+}

@@ -1032,49 +1032,49 @@ class Sisme_Game_Form_Module {
         $field_id = $this->module_id . '_game_name';
         $tags = $this->get_existing_tags();
         ?>
-        <tr>
-            <th scope="row">
-                <label for="<?php echo esc_attr($field_id); ?>">
+        <tr class="sisme-form-row">
+            <th scope="row" class="sisme-form-label-cell">
+                <label for="<?php echo esc_attr($field_id); ?>" class="sisme-form-label sisme-form-label--required">
                     <?php echo esc_html($component['label']); ?> *
                 </label>
             </th>
-            <td>
-                <div class="sisme-game-name-component">
-                    <!-- Sélecteur de tags existants -->
-                    <select id="<?php echo esc_attr($field_id); ?>" 
-                            name="game_name" 
-                            class="regular-text sisme-tag-select" 
-                            style="width: 100%; margin-bottom: 10px;"
-                            required>
-                        <option value="">Sélectionner un jeu existant...</option>
-                        <?php foreach ($tags as $tag): ?>
-                            <option value="<?php echo esc_attr($tag->term_id); ?>" 
-                                    <?php selected($value, $tag->term_id); ?>>
-                                <?php echo esc_html($tag->name); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    
-                    <!-- Section de création de nouveau tag -->
-                    <div class="sisme-create-tag-section" style="display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 12px; background: #f9f9f9; border-radius: 4px; border: 1px solid #ddd;">
-                        <label for="<?php echo esc_attr($field_id . '_new_tag'); ?>" style="margin: 0; font-weight: 500; color: #555;">Ou créer un nouveau jeu :</label>
-                        <input type="text" 
-                           id="<?php echo esc_attr($field_id . '_new_tag'); ?>"
-                           name="new_tag_input"
-                           class="sisme-new-tag-input regular-text" 
-                           placeholder="Nom du nouveau jeu..."
-                           style="flex: 1;">
-                        <button type="button" 
-                                class="button button-secondary sisme-create-tag-btn"
-                                title="Créer le tag">
-                            +
-                        </button>
+            <td class="sisme-form-field-cell">
+                <div class="sisme-form-group">
+                    <div class="sisme-game-name-component">
+                        <!-- Sélecteur de tags existants -->
+                        <select id="<?php echo esc_attr($field_id); ?>" 
+                                name="game_name" 
+                                class="sisme-form-select sisme-form-select--lg sisme-tag-select" 
+                                required>
+                            <option value="">Sélectionner un jeu existant...</option>
+                            <?php foreach ($tags as $tag): ?>
+                                <option value="<?php echo esc_attr($tag->term_id); ?>" 
+                                        <?php selected($value, $tag->term_id); ?>>
+                                    <?php echo esc_html($tag->name); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        
+                        <!-- Section de création de nouveau tag -->
+                        <div class="sisme-create-tag-section">
+                            <label for="<?php echo esc_attr($field_id . '_new_tag'); ?>" class="sisme-form-label sisme-form-label--inline">
+                                Ou créer un nouveau jeu :
+                            </label>
+                            <div class="sisme-create-tag-controls">
+                                <input type="text" 
+                                   id="<?php echo esc_attr($field_id . '_new_tag'); ?>"
+                                   name="new_tag_input"
+                                   class="sisme-form-input sisme-new-tag-input" 
+                                   placeholder="Nom du nouveau jeu...">
+                                <button type="button" 
+                                        class="sisme-btn sisme-btn--secondary sisme-create-tag-btn"
+                                        title="Créer le tag">
+                                    ➕
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <p class="description">
-                    <?php echo esc_html($component['description']); ?>
-                </p>
             </td>
         </tr>
         <?php
