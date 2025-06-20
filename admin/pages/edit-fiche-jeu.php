@@ -53,6 +53,92 @@ if ($is_edit_mode) {
         wp_die('Article non trouvé ou type invalide.');
     }
     $existing_sections = get_post_meta($post_id, '_sisme_game_sections', true) ?: array();
+} else {
+    // En mode création : essayer de récupérer des sections existantes via l'étiquette
+    $existing_sections = get_game_sections_for_editing($tag_id);
+}
+
+/**
+ * Récupérer les sections existantes d'un jeu via son étiquette
+ */
+function get_existing_game_sections_by_tag($tag_id) {
+    $tag = get_term($tag_id, 'post_tag');
+    if (!$tag || is_wp_error($tag)) {
+        return array();
+    }
+    
+    // Rechercher les articles ayant cette étiquette avec des sections
+    $args = array(
+        'post_type' => 'post',
+        'post_status' => array('publish', 'draft'),
+        'posts_per_page' => -1,
+        'tag_id' => $tag_id,
+        'meta_query' => array(
+            'relation' => 'OR',
+            array(
+                'key' => '_sisme_sections',
+                'compare' => 'EXISTS'
+            ),
+            array(
+                'key' => '_sisme_game_sections', 
+                'compare' => 'EXISTS'
+            )
+        )
+    );
+    
+    $posts = get_posts($args);
+    $all_sections = array();
+    
+    foreach ($posts as $post) {
+        // Essayer d'abord _sisme_sections (ancien système)
+        $sections = get_post_meta($post->ID, '_sisme_sections', true);
+        if (empty($sections)) {
+            // Puis _sisme_game_sections (nouveau système)
+            $sections = get_post_meta($post->ID, '_sisme_game_sections', true);
+        }
+        
+        if (!empty($sections) && is_array($sections)) {
+            foreach ($sections as $section) {
+                if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) {
+                    $section['source_post_id'] = $post->ID;
+                    $section['source_post_title'] = $post->post_title;
+                    $all_sections[] = $section;
+                }
+            }
+        }
+    }
+    
+    return $all_sections;
+}
+
+/**
+ * Récupérer les sections pour l'édition (term_meta ou posts existants)
+ */
+function get_game_sections_for_editing($tag_id) {
+    // D'abord essayer term_meta
+    $sections = get_term_meta($tag_id, 'game_sections', true);
+    
+    if (!empty($sections) && is_array($sections)) {
+        return $sections;
+    }
+    
+    // Sinon, récupérer depuis les posts existants
+    $existing_sections = get_existing_game_sections_by_tag($tag_id);
+    
+    if (!empty($existing_sections)) {
+        // Nettoyer et retourner
+        $clean_sections = array();
+        foreach ($existing_sections as $section) {
+            $clean_sections[] = array(
+                'title' => $section['title'] ?? '',
+                'content' => $section['content'] ?? '',
+                'image_id' => $section['image_id'] ?? 0
+            );
+        }
+        return $clean_sections;
+    }
+    
+    return array();
 }
 
 // Configuration de la page
@@ -151,6 +237,28 @@ $page_wrapper->render_start();
     <div class="sisme-card__header">
         <h2>📝 Présentation complète du jeu</h2>
         <p>Ajoutez des sections personnalisées pour structurer le contenu détaillé de votre fiche.</p>
+        
+        <?php 
+        // Afficher des informations sur les sections existantes trouvées
+        if (!$is_edit_mode && !empty($existing_sections)): 
+            $sources = array();
+            foreach ($existing_sections as $section) {
+                if (!empty($section['source_post_title'])) {
+                    $sources[] = $section['source_post_title'];
+                }
+            }
+            $unique_sources = array_unique($sources);
+        ?>
+            <div style="background: #d1ecf1; padding: 1rem; border-radius: 6px; margin-top: 1rem;">
+                <strong>ℹ️ Sections existantes détectées</strong><br>
+                <small>
+                    <?php echo count($existing_sections); ?> section(s) trouvée(s) 
+                    <?php if (!empty($unique_sources)): ?>
+                        depuis : <?php echo esc_html(implode(', ', $unique_sources)); ?>
+                    <?php endif; ?>
+                </small>
+            </div>
+        <?php endif; ?>
     </div>
     <div class="sisme-card__body">
         
