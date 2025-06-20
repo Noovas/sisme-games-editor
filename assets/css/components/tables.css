@@ -1552,3 +1552,88 @@ td.sisme-game-actions-cell {
 .sisme-action-fiche[title]:hover::after {
     display: none;
 }
+
+/* ========================================
+   🎬 ICÔNE YOUTUBE ET LIENS EXTERNES
+======================================== */
+
+.sisme-external-link--youtube {
+    background: #FF0000 !important;
+    border: 2px solid #FF0000;
+}
+
+.sisme-external-link--youtube:hover {
+    background: #CC0000 !important;
+    border-color: #CC0000;
+    transform: scale(1.1);
+}
+
+.sisme-external-link--youtube .sisme-store-logo {
+    filter: brightness(0) invert(1); /* Rendre l'icône blanche */
+}
+
+.sisme-external-links-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Amélioration des icônes de liens externes */
+.sisme-external-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    border: 2px solid transparent;
+}
+
+.sisme-external-link--steam {
+    background: #1b2838;
+    border-color: #1b2838;
+}
+
+.sisme-external-link--steam:hover {
+    background: #2a475e;
+    border-color: #2a475e;
+    transform: scale(1.1);
+}
+
+.sisme-external-link--epic_games {
+    background: #313131;
+    border-color: #313131;
+}
+
+.sisme-external-link--epic_games:hover {
+    background: #404040;
+    border-color: #404040;
+    transform: scale(1.1);
+}
+
+.sisme-external-link--gog {
+    background: #9f4f96;
+    border-color: #9f4f96;
+}
+
+.sisme-external-link--gog:hover {
+    background: #b55fa6;
+    border-color: #b55fa6;
+    transform: scale(1.1);
+}
+
+.sisme-store-logo {
+    width: 20px;
+    height: auto;
+}
+
+.sisme-store-text {
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+}

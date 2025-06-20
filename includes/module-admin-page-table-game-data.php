@@ -641,34 +641,52 @@ class Sisme_Game_Data_Table_Module {
                     <div class="sisme-game-info-section">
                         <div class="sisme-external-links-images">
                         <?php 
-                        $external_links = isset($game_data['meta_data']['external_links']) ? $game_data['meta_data']['external_links'] : [];
+                        // Vérifier s'il y a un trailer_link (YouTube)
+                        $trailer_link = isset($game_data['meta_data']['trailer_link']) ? $game_data['meta_data']['trailer_link'] : '';
                         $has_links = false;
                         
-                        if (is_array($external_links)) {
+                        if (!empty($trailer_link)) {
+                            echo '<a href="' . esc_url($trailer_link) . '" target="_blank" class="sisme-external-link sisme-external-link--youtube" title="Voir la bande-annonce">';
+                            echo '<img src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-YT.webp" alt="YouTube" class="sisme-store-logo">';
+                            echo '</a>';
+                            $has_links = true;
+                        }
+                        
+                        // Liens existants (Steam, Epic, GOG)
+                        $external_links = isset($game_data['meta_data']['external_links']) ? $game_data['meta_data']['external_links'] : [];
+                        if (!empty($external_links) && is_array($external_links)) {
                             foreach ($external_links as $platform => $url) {
                                 if (!empty($url)) {
-                                    $has_links = true;
-                                    echo '<a href="' . esc_url($url) . '" target="_blank" class="sisme-external-link-image">';
+                                    $platform_name = ucfirst($platform);
+                                    if ($platform === 'epic_games') {
+                                        $platform_name = 'Epic Games';
+                                    }
                                     
+                                    echo '<a href="' . esc_url($url) . '" target="_blank" class="sisme-external-link sisme-external-link--' . esc_attr($platform) . '" title="Acheter sur ' . esc_attr($platform_name) . '">';
+                                    
+                                    // Icônes selon la plateforme
                                     switch ($platform) {
                                         case 'steam':
-                                            echo '<img src="https://games.sisme.fr/wp-content/uploads/2025/04/GetItOnSteam.webp" alt="Disponible sur Steam">';
+                                            echo '<img class="sisme-store-logo" src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-STEAM.webp" alt="Disponible sur Steam">';
                                             break;
-                                        case 'epic':
-                                            echo '<img src="https://games.sisme.fr/wp-content/uploads/2025/05/get-on-epic.webp" alt="Disponible sur Epic Games">';
+                                        case 'epic_games':
+                                            echo '<img class="sisme-store-logo" src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-EPIC.webp" alt="Disponible sur Epic Games">';
                                             break;
                                         case 'gog':
-                                            echo '<img src="https://games.sisme.fr/wp-content/uploads/2025/06/get-on-Gog.webp" alt="Disponible sur GOG">';
+                                            echo '<img class="sisme-store-logo" src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-GOG.webp" alt="Disponible sur GOG">';
                                             break;
                                         default:
-                                            echo '<span class="sisme-external-link sisme-external-link--' . esc_attr($platform) . '">' . esc_html(ucfirst($platform)) . '</span>';
+                                            echo '<span class="sisme-store-text">' . esc_html($platform_name) . '</span>';
                                             break;
                                     }
+                                    
                                     echo '</a>';
+                                    $has_links = true;
                                 }
                             }
                         }
                         
+                        // Message si aucun lien
                         if (!$has_links) {
                             echo '<span class="sisme-data-empty">Aucun lien</span>';
                         }
