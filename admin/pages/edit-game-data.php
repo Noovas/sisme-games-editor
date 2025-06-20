@@ -43,7 +43,7 @@ $form_was_submitted = false;
 // Traitement du formulaire AVANT de créer l'instance
 if (!empty($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme_form_action')) {
     // Créer temporairement le formulaire pour traiter les données
-    $temp_form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'game_platforms', 'release_date', 'external_links', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
+    $temp_form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'game_platforms', 'release_date', 'trailer_link', 'external_links', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
     $data = $temp_form->get_submitted_data();
     
     if (!empty($data['game_name'])) {
@@ -87,6 +87,7 @@ if ($is_edit_mode) {
     $existing_platforms = get_term_meta($tag_id, 'game_platforms', true);
     $existing_release_date = get_term_meta($tag_id, 'release_date', true);
     $existing_external_links = get_term_meta($tag_id, 'external_links', true);
+    $existing_trailer_link = get_term_meta($tag_id, 'trailer_link', true);
     
     // Simuler une soumission pour pré-remplir le formulaire
     $_POST['game_name'] = $tag_id;
@@ -106,24 +107,14 @@ if ($is_edit_mode) {
         'epic_games' => '',
         'gog' => ''
     ];
+    $_POST['trailer_link'] = $existing_trailer_link ?: '';
 }
 
 // Créer le formulaire avec tous les composants disponibles
-$form = new Sisme_Game_Form_Module([
-    'game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 
-    'description', 'game_platforms', 'release_date', 'external_links',
-    'cover_main', 'cover_news', 'cover_patch', 'cover_test'
-]);
+$form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'game_platforms', 'release_date', 'trailer_link', 'external_links', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
 
 $page->render_start();
 ?>
-
-<!-- Message de succès -->
-<?php if ($form_was_submitted && !empty($success_message)) : ?>
-    <div class="sisme-notice sisme-notice--success">
-        ✅ <?php echo esc_html($success_message); ?>
-    </div>
-<?php endif; ?>
 
 <!-- Message de succès -->
 <?php if ($form_was_submitted && !empty($success_message)) : ?>

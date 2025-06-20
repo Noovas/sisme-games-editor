@@ -55,6 +55,12 @@ class Sisme_Game_Form_Module {
             'required' => true,
             'output_var' => 'game_name'
         ],
+        'trailer_link' => [
+            'label' => 'Trailer',
+            'description' => '',
+            'required' => false,
+            'output_var' => 'trailer_link'
+        ],
         'description' => [
             'label' => 'Description du jeu',
             'description' => '',
@@ -239,6 +245,13 @@ class Sisme_Game_Form_Module {
             $this->form_data['game_publishers'] = array();
         }
 
+        // Traitement du trailer_link
+        if (isset($_POST['trailer_link'])) {
+            $this->form_data['trailer_link'] = sanitize_text_field($_POST['trailer_link']);
+        } else {
+            $this->form_data['trailer_link'] = '';
+        }
+
     }
     
     /**
@@ -276,6 +289,9 @@ class Sisme_Game_Form_Module {
                 
             case 'release_date':
                 return sanitize_text_field($value);
+
+            case 'trailer_link':
+                return esc_url_raw($value);
                 
             case 'external_links':
                 if (is_array($value)) {
@@ -418,7 +434,6 @@ class Sisme_Game_Form_Module {
         
         return $entities;
     }
-
     /**
      * Afficher le composant développeurs avec interface moderne
      */
@@ -931,6 +946,40 @@ class Sisme_Game_Form_Module {
     }
 
     /**
+     * Afficher le composant lien trailer
+     */
+    private function render_trailer_link_component() {
+        $component = $this->components['trailer_link'];
+        $value = isset($this->form_data['trailer_link']) ? $this->form_data['trailer_link'] : '';
+        $field_id = $this->module_id . '_trailer_link';
+        $required_attr = $component['required'] ? 'required' : '';
+        $required_label = $component['required'] ? ' *' : '';
+        ?>
+        <tr>
+            <td>
+                <div class="sisme-trailer-link-component sisme-flex-row-center-gap">
+                    <span class="sisme-platform-icon">
+                        <span class="sisme-store-icon">
+                            <img src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-YT.webp" alt="Youtube logo" class="sisme-store-logo">
+                        </span>
+                    </span>
+                    <input type="url" 
+                           id="<?php echo esc_attr($field_id); ?>" 
+                           name="trailer_link" 
+                           value="<?php echo esc_attr($value); ?>"
+                           placeholder="https://www.youtube.com/watch?v=..."
+                           class="sisme-form-input sisme-form-input--url"
+                           <?php echo $required_attr; ?>>
+                    <?php if (!empty($component['description'])): ?>
+                        <p class="sisme-form-description"><?php echo esc_html($component['description']); ?></p>
+                    <?php endif; ?>
+                </div>
+            </td>
+        </tr>
+        <?php
+    }
+
+    /**
      * Afficher le composant liens externes
      */
     private function render_external_links_component() {
@@ -969,6 +1018,7 @@ class Sisme_Game_Form_Module {
                                                 🔗
                                             <?php endif; ?>
                                         </span>
+                                    </span>
                                 </label>
                                 <input type="url" 
                                        id="<?php echo esc_attr($this->module_id . '_' . $platform_key); ?>" 
@@ -1150,6 +1200,10 @@ class Sisme_Game_Form_Module {
                 
             case 'description':
                 $this->render_description_component();
+                break;
+
+            case 'trailer_link':
+                $this->render_trailer_link_component();
                 break;
 
             case 'game_genres':

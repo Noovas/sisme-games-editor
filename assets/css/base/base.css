@@ -223,6 +223,13 @@ table {
     flex: 1;
 }
 
+.sisme-flex-row-center-gap {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    flex-direction: row;
+}
+
 /* ========================================
    🎨 UTILITAIRES VISUELS
 ======================================== */
