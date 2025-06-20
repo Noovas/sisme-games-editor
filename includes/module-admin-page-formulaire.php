@@ -308,20 +308,15 @@ class Sisme_Game_Form_Module {
         $entities = $this->get_existing_entities();
         ?>
         <tr class="sisme-entity-component-row">
-            <th scope="row">
-                <label for="<?php echo esc_attr($field_id); ?>" class="sisme-entity-label">
-                    <?php echo esc_html($component['label'] . $required_label); ?>
-                </label>
-            </th>
             <td class="sisme-entity-component-cell">
                 <div class="sisme-entity-component sisme-entity-<?php echo esc_attr($component['entity_type']); ?>">
                     
                     <!-- Liste des entités sélectionnées -->
                     <div class="sisme-selected-entities">
-                        <label class="sisme-selected-entities-label"><?php echo esc_html($component['label']); ?> sélectionnés :</label>
+                        <label class="sisme-selected-entities-label"><?php echo esc_html($component['label']); ?></label>
                         <div class="sisme-selected-entities-list" id="<?php echo esc_attr($field_id . '_selected'); ?>">
                             <?php if (empty($value)): ?>
-                                <span class="sisme-no-entities-selected">Aucun <?php echo esc_html(strtolower($component['label'])); ?> sélectionné</span>
+                                <span class="sisme-no-entities-selected">Aucun <?php echo esc_html(strtolower($component['label'])); ?></span>
                             <?php else: ?>
                                 <?php foreach ($value as $entity_id): ?>
                                     <?php $entity = get_category($entity_id); ?>
@@ -371,7 +366,6 @@ class Sisme_Game_Form_Module {
                     
                     <!-- Suggestions d'entités existantes -->
                     <div class="sisme-entity-suggestions">
-                        <label class="sisme-entity-suggestions-label"><?php echo esc_html($component['label']); ?> disponibles :</label>
                         <div class="sisme-entity-suggestions-list">
                             <?php if (empty($entities)): ?>
                                 <p class="sisme-no-entities-available">Aucun <?php echo esc_html(strtolower($component['label'])); ?> disponible. Créez le premier !</p>
@@ -492,17 +486,13 @@ class Sisme_Game_Form_Module {
         $entity_type_plural = $component['entity_type'] === 'developer' ? 'développeurs' : 'Éditeurs';
         ?>
         <tr>
-            <th scope="row">
-                <label for="<?php echo esc_attr($field_id); ?>">
-                    <?php echo esc_html($component['label'] . $required_label); ?>
-                </label>
-            </th>
+            
             
             <td>
                 <div class="sisme-game-entities-component">
                     <!-- Entités sélectionnées -->
                     <div class="sisme-selected-entities">
-                        <label class="sisme-form-label"><?php echo ucfirst($entity_type_plural); ?> sélectionné(s) :</label>
+                        <label class="sisme-form-label"><?php echo ucfirst($entity_type_plural); ?></label>
                         <div class="sisme-selected-entities-display sisme-selected-display-base sisme-tags-list" id="<?php echo esc_attr($field_id . '_selected'); ?>">
                             <?php if (empty($value)): ?>
                                 <span class="sisme-no-selection">Aucun <?php echo $entity_type; ?> sélectionné</span>
@@ -547,7 +537,6 @@ class Sisme_Game_Form_Module {
                     
                     <!-- Liste des suggestions -->
                     <div class="sisme-entity-suggestions sisme-suggestions-parent-base">
-                        <label class="sisme-form-label"><?php echo ucfirst($entity_type_plural); ?> disponibles :</label>
                         <div class="sisme-entity-suggestions-list sisme-suggestions-container-base">
                             <?php foreach ($entities as $entity): ?>
                                 <?php 
@@ -590,17 +579,13 @@ class Sisme_Game_Form_Module {
         $genres = $this->get_existing_genres();
         ?>
         <tr>
-            <th scope="row">
-                <label for="<?php echo esc_attr($field_id); ?>">
-                    <?php echo esc_html($component['label'] . $required_label); ?>
-                </label>
-            </th>
+            
             <td>
                 <div class="sisme-game-genres-component">
                     
                     <!-- Genres sélectionnés -->
                     <div class="sisme-selected-genres">
-                        <label class="sisme-form-label">Genres sélectionnés :</label>
+                        <label class="sisme-form-label">Genres</label>
                         <div class="sisme-selected-genres-display sisme-selected-display-base sisme-tags-list" id="<?php echo esc_attr($field_id . '_selected'); ?>">
                             <?php if (empty($value)): ?>
                                 <span class="sisme-no-selection">Aucun genre sélectionné</span>
@@ -633,7 +618,6 @@ class Sisme_Game_Form_Module {
                     
                     <!-- Liste des suggestions -->
                     <div class="sisme-genre-suggestions sisme-suggestions-parent-base">
-                        <label class="sisme-form-label">Genres disponibles :</label>
                         <div class="sisme-genre-suggestions-list sisme-suggestions-container-base">
                             <?php foreach ($genres as $genre): ?>
                                 <div class="suggestion-item" 
@@ -710,17 +694,13 @@ class Sisme_Game_Form_Module {
         ];
         ?>
         <tr>
-            <th scope="row">
-                <label for="<?php echo esc_attr($field_id); ?>">
-                    <?php echo esc_html($component['label'] . $required_label); ?>
-                </label>
-            </th>
+            
             <td>
                 <div class="sisme-game-modes-component">
                     
                     <!-- Modes sélectionnés -->
                     <div class="sisme-selected-modes">
-                        <label class="sisme-form-label">Modes sélectionnés :</label>
+                        <label class="sisme-form-label">Modes</label>
                         <div class="sisme-selected-modes-display sisme-selected-display-base sisme-tags-list" id="<?php echo esc_attr($field_id . '_selected'); ?>">
                             <?php if (empty($value)): ?>
                                 <span class="sisme-no-selection">Aucun mode sélectionné</span>
@@ -740,7 +720,6 @@ class Sisme_Game_Form_Module {
                     
                     <!-- Modes disponibles pour sélection -->
                     <div class="sisme-mode-options sisme-suggestions-parent-base">
-                        <label class="sisme-form-label">Modes disponibles :</label>
                         <div class="sisme-modes-grid">
                             <?php foreach ($available_modes as $mode_key => $mode_label): ?>
                                 <div class="mode-option sisme-mode-option-card" data-mode-key="<?php echo esc_attr($mode_key); ?>">
@@ -769,9 +748,6 @@ class Sisme_Game_Form_Module {
         ];
         ?>
         <tr>
-            <th scope="row">
-                <label>Covers du jeu</label>
-            </th>
             <td>
                 <div class="sisme-covers-component">
                     <div class="sisme-covers-grid">
@@ -801,15 +777,16 @@ class Sisme_Game_Form_Module {
                                     <?php endif; ?>
                                     
                                     <div class="sisme-media-buttons">
-                                        <button type="button" class="sisme-btn sisme-btn--secondary sisme-btn--sm sisme-select-media" 
+                                        <button type="button" class="sisme-btn sisme-btn--secondary sisme-btn--sm sisme-select-media-btn" 
                                                 data-field-id="<?php echo esc_attr($field_id); ?>">
                                             <?php echo !empty($value) ? 'Modifier' : 'Sélectionner'; ?>
                                         </button>
                                         <?php if (!empty($value)): ?>
-                                            <button type="button" class="sisme-button-no-margin sisme-btn sisme-btn--secondary sisme-btn--sm sisme-remove-media"
-                                                    data-field-id="<?php echo esc_attr($field_id); ?>">
-                                                Supprimer
-                                            </button>
+                                            <button type="button" class="sisme-button-no-margin sisme-btn sisme-btn--secondary sisme-btn--sm sisme-remove-media-btn"
+                                                data-field-id="<?php echo esc_attr($field_id); ?>"
+                                                onclick="event.preventDefault(); return false;">
+                                            Supprimer
+                                        </button>
                                         <?php endif; ?>
                                     </div>
                                     
@@ -856,15 +833,12 @@ class Sisme_Game_Form_Module {
         ];
         ?>
         <tr>
-            <th scope="row">
-                <label><?php echo esc_html($component['label'] . $required_label); ?></label>
-            </th>
             <td>
                 <div class="sisme-game-platforms-component">
                     
                     <!-- Plateformes sélectionnées -->
                     <div class="sisme-selected-platforms">
-                        <label class="sisme-form-label">Plateformes sélectionnées :</label>
+                        <label class="sisme-form-label">Plateformes</label>
                         <div class="sisme-selected-platforms-display sisme-selected-display-base sisme-tags-list" id="<?php echo esc_attr($field_id . '_selected'); ?>">
                             <?php if (empty($value)): ?>
                                 <span class="sisme-no-selection">Aucune plateforme sélectionnée</span>
@@ -938,11 +912,7 @@ class Sisme_Game_Form_Module {
         $required_label = $component['required'] ? ' *' : '';
         ?>
         <tr>
-            <th scope="row">
-                <label for="<?php echo esc_attr($field_id); ?>">
-                    <?php echo esc_html($component['label'] . $required_label); ?>
-                </label>
-            </th>
+            
             <td>
                 <div class="sisme-date-component">
                     <input type="date" 
@@ -975,9 +945,6 @@ class Sisme_Game_Form_Module {
         ];
         ?>
         <tr>
-            <th scope="row">
-                <label><?php echo esc_html($component['label'] . $required_label); ?></label>
-            </th>
             <td>
                 <div class="sisme-external-links-component">
                     <div class="sisme-external-links-grid">
@@ -1073,17 +1040,12 @@ class Sisme_Game_Form_Module {
         $tags = $this->get_existing_tags();
         ?>
         <tr class="sisme-form-row">
-            <th scope="row" class="sisme-form-label-cell">
-                <label for="<?php echo esc_attr($field_id); ?>" class="sisme-form-label sisme-form-label--required">
-                    <?php echo esc_html($component['label']); ?> *
-                </label>
-            </th>
             <td class="sisme-form-field-cell">
                 <div class="sisme-game-name-component">
                     
                     <!-- Jeu sélectionné -->
                     <div class="sisme-selected-game">
-                        <label class="sisme-form-label">Jeu sélectionné :</label>
+                        <label class="sisme-form-label">Jeu</label>
                         <div class="sisme-selected-game-display sisme-selected-display-base sisme-tags-list" id="<?php echo esc_attr($field_id . '_selected'); ?>">
                             <?php if (empty($value)): ?>
                                 <span class="sisme-no-selection">Aucun jeu sélectionné</span>
@@ -1114,7 +1076,6 @@ class Sisme_Game_Form_Module {
                     
                     <!-- Liste des suggestions -->
                     <div class="sisme-game-suggestions sisme-suggestions-parent-base">
-                        <label class="sisme-form-label">Jeux disponibles :</label>
                         <div class="sisme-suggestions-list sisme-suggestions-container-base">
                             <?php foreach ($tags as $tag): ?>
                                 <div class="suggestion-item" 
@@ -1143,11 +1104,7 @@ class Sisme_Game_Form_Module {
         $required_label = $component['required'] ? ' *' : '';
         ?>
         <tr>
-            <th scope="row">
-                <label for="<?php echo esc_attr($field_id); ?>">
-                    <?php echo esc_html($component['label'] . $required_label); ?>
-                </label>
-            </th>
+            
             <td>
                 <div class="sisme-description-component">
                     
@@ -1575,27 +1532,26 @@ class Sisme_Game_Form_Module {
                     // Mettre à jour le champ caché
                     jQuery('#' + fieldId).val(attachment.id);
                     
-                    // Mettre à jour l'aperçu sans recharger
-                    var preview = jQuery('#' + fieldId).closest('.sisme-media-component').find('.media-preview');
-                    var newPreview = '<div class="current-image" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f9f9f9; border-radius: 4px;">' +
-                                    '<img src="' + attachment.sizes.thumbnail.url + '" style="max-width: 80px; max-height: 80px; border-radius: 4px;">' +
-                                    '<div><strong>' + attachment.title + '</strong><div style="font-size: 12px; color: #666;">ID: ' + attachment.id + '</div></div></div>';
+                    // Trouver le container de la cover correspondante
+                    var container = jQuery('.sisme-select-media-btn.active').closest('.sisme-media-selector');
                     
-                    preview.html(newPreview);
+                    // Supprimer l'ancien placeholder/image
+                    container.find('.sisme-cover-placeholder, .sisme-form-cover-preview').remove();
                     
-                    // Mettre à jour les boutons
+                    // Ajouter la nouvelle image avant les boutons
+                    var buttonsDiv = container.find('.sisme-media-buttons');
+                    buttonsDiv.before('<img src="' + attachment.sizes.medium.url + '" alt="Cover" class="sisme-form-cover-preview">');
+                    
+                    // Mettre à jour le texte du bouton
                     var button = jQuery('.sisme-select-media-btn.active');
-                    button.text('🖼️ Changer l\'image');
+                    button.text('Modifier');
                     
-                    // Ajouter le bouton supprimer si pas présent
-                    if (!button.siblings('.sisme-remove-media-btn').length) {
-                        button.after('<button type="button" class="button sisme-remove-media-btn" data-field-id="' + fieldId + '">🗑️ Supprimer</button>');
-                    }
+                    // Afficher le bouton supprimer s'il est caché
+                    button.siblings('.sisme-remove-media-btn').show();
                 }
                 
                 jQuery('.sisme-select-media-btn').removeClass('active');
             });
-
             // Gestion des boutons de sélection
             $(document).on('click', '.sisme-select-media-btn', function(e) {
                 e.preventDefault();
@@ -1615,8 +1571,21 @@ class Sisme_Game_Form_Module {
                 var fieldId = $(this).data('field-id');
                 
                 if (confirm('Supprimer cette image ?')) {
+                    // Vider le champ caché
                     $('#' + fieldId).val('');
-                    location.reload();
+                    
+                    // Mettre à jour l'affichage visuel
+                    var container = $(this).closest('.sisme-media-selector');
+                    container.find('img, .sisme-cover-preview').remove();
+                    container.find('.sisme-cover-placeholder').remove();
+                    
+                    // Ajouter le placeholder vide
+                    var buttonsDiv = container.find('.sisme-media-buttons');
+                    buttonsDiv.before('<div class="sisme-cover-placeholder sisme-cover-empty">📷</div>');
+                    
+                    // Mettre à jour les boutons
+                    $(this).siblings('.sisme-select-media-btn').text('Sélectionner');
+                    $(this).hide(); // Cacher le bouton supprimer
                 }
             });
 

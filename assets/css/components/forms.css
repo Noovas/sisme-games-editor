@@ -83,7 +83,7 @@
 ======================================== */
 
 .sisme-form-label {
-    font-size: var(--sisme-text-xl);
+    font-size: var(--sisme-text-3xl);
     font-weight: var(--sisme-font-medium);
     color: var(--sisme-color-text);
     margin-bottom: var(--sisme-space-md); 
@@ -718,13 +718,14 @@
 .sisme-search-controls-base input {
     flex: 1;
     margin-bottom: 0 !important;
+    border: 2px dashed var(--sisme-color-primary) !important;
 }
 
 /* Conteneur de suggestions commun */
 .sisme-suggestions-container-base {
     max-height: 200px;
     overflow-y: auto;
-    border: 1px solid var(--sisme-border-subtle);
+    border: 4px dotted var(--sisme-color-primary-swap);
     border-radius: var(--sisme-radius-lg);
     background: white;
     margin-top: var(--sisme-space-xs);
