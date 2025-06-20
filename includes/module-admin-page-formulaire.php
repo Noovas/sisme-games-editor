@@ -504,7 +504,7 @@ class Sisme_Game_Form_Module {
             
             
             <td>
-                <div class="sisme-game-entities-component">
+                <div class="sisme-game-entities-component" data-component="<?php echo esc_attr($component_name); ?>">
                     <!-- Entités sélectionnées -->
                     <div class="sisme-selected-entities">
                         <label class="sisme-form-label"><?php echo ucfirst($entity_type_plural); ?></label>
@@ -1861,14 +1861,21 @@ class Sisme_Game_Form_Module {
             // Suppression d'une entité sélectionnée
             $('#<?php echo esc_js($this->module_id); ?>').on('click', '.remove-entity', function(e) {
                 e.preventDefault();
-                $(this).closest('.sisme-tag--entity').remove();
+                var entityElement = $(this).closest('.sisme-tag--entity');
+                var container = entityElement.closest('.sisme-game-entities-component');
                 
-                // Vérifier s'il reste des entités sélectionnées
-                var container = $(this).closest('.sisme-game-entities-component');
+                // Supprimer l'élément
+                entityElement.remove();
+                
+                // Mettre à jour le champ caché
+                updateHiddenField(container);
+                
+                // Vérifier s'il reste des entités sélectionnées pour afficher le message par défaut
                 var selectedDisplay = container.find('.sisme-selected-entities-display');
                 if (selectedDisplay.find('.sisme-tag--entity').length === 0) {
                     var entityType = container.find('.sisme-form-label').first().text().toLowerCase();
-                    selectedDisplay.html('<span class="sisme-no-selection">Aucun ' + entityType.replace(':', '').trim() + ' sélectionné</span>');
+                    var noSelectionMessage = 'Aucun ' + entityType.replace(':', '').trim() + ' sélectionné';
+                    selectedDisplay.html('<span class="sisme-no-selection">' + noSelectionMessage + '</span>');
                 }
             });
 
@@ -1937,25 +1944,78 @@ class Sisme_Game_Form_Module {
                 });
             }
 
+            function updateHiddenField(container) {
+                var hiddenInput = container.find('input[type="hidden"]');
+                var selectedIds = [];
+                
+                container.find('.sisme-tag--entity').each(function() {
+                    var entityId = $(this).data('entity-id');
+                    if (entityId) {
+                        selectedIds.push(entityId);
+                    }
+                });
+                
+                // Mettre à jour la valeur du champ caché
+                if (selectedIds.length > 0) {
+                    hiddenInput.val(JSON.stringify(selectedIds));
+                } else {
+                    hiddenInput.val('');
+                }
+            }
+
             // Fonction pour ajouter une entité à la sélection
             function addEntityToSelection(container, entityId, entityName, entityUrl) {
                 var selectedDisplay = container.find('.sisme-selected-entities-display');
-                var outputVar = container.find('input[type="hidden"]').attr('name').replace('[]', '');
+                
+                // ✅ CORRECTION : Déterminer le nom du champ de manière plus robuste
+                var fieldName = null;
+                
+                // Méthode 1 : Chercher un input existant
+                var existingInput = selectedDisplay.find('input[type="hidden"]').first();
+                if (existingInput.length > 0) {
+                    fieldName = existingInput.attr('name');
+                } else {
+                    // Méthode 2 : Déterminer selon l'ID du composant ou le data-attribute
+                    var componentDiv = container.closest('.sisme-game-entities-component');
+                    
+                    // Chercher un attribut data-component si il existe
+                    var componentName = componentDiv.attr('data-component');
+                    if (componentName) {
+                        fieldName = componentName + '[]';
+                    } else {
+                        // Méthode 3 : Déterminer selon le label visible
+                        var labelText = container.find('.sisme-form-label').text().toLowerCase();
+                        if (labelText.includes('développeur')) {
+                            fieldName = 'game_developers[]';
+                        } else if (labelText.includes('éditeur')) {
+                            fieldName = 'game_publishers[]';
+                        } else {
+                            console.error('ERREUR: Impossible de déterminer le type de champ');
+                            return;
+                        }
+                    }
+                }
+                
+                console.log('Champ détecté:', fieldName); // Pour debug
                 
                 // Supprimer le message "aucune entité sélectionnée"
                 selectedDisplay.find('.sisme-no-selection').remove();
                 
                 // Icône site web si URL présente
-                var websiteIcon = entityUrl ? '<span class="sisme-entity-website-icon" title="Site web disponible">🌐</span>' : '';
+                var websiteIcon = entityUrl ? 
+                    '<span class="sisme-entity-website-icon" title="Site web disponible">🌐</span>' : '';
                 
-                // Créer le tag d'entité sélectionnée
-                var entityTag = $('<span class="sisme-tag sisme-tag--selected sisme-tag--entity" data-entity-id="' + entityId + '">' +
-                                 entityName + websiteIcon +
-                                 '<span class="sisme-tag__remove remove-entity" title="Retirer cette entité">&times;</span>' +
-                                 '<input type="hidden" name="' + outputVar + '[]" value="' + entityId + '">' +
-                                 '</span>');
+                // Créer l'élément entité sélectionnée (même structure que le PHP)
+                var entityElement = $('<span class="sisme-tag sisme-tag--selected sisme-tag--entity" data-entity-id="' + entityId + '">' +
+                    entityName + websiteIcon +
+                    '<span class="sisme-tag__remove remove-entity" title="Retirer cet élément">&times;</span>' +
+                    '<input type="hidden" name="' + fieldName + '" value="' + entityId + '">' +
+                    '</span>');
                 
-                selectedDisplay.append(entityTag);
+                selectedDisplay.append(entityElement);
+                
+                // Effacer le champ de recherche
+                container.find('.sisme-entity-search-input').val('');
             }
 
             // Fonction pour ajouter une entité aux suggestions
