@@ -642,7 +642,6 @@ class Sisme_Game_Form_Module {
                                     <div>
                                         <strong><?php echo esc_html(str_replace('jeux-', '', $genre->name)); ?></strong>
                                     </div>
-                                    <span><?php echo $genre->count; ?> jeu(x)</span>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -956,13 +955,17 @@ class Sisme_Game_Form_Module {
                 </label>
             </th>
             <td>
-                <input type="date" 
-                       id="<?php echo esc_attr($field_id); ?>" 
-                       name="release_date" 
-                       value="<?php echo esc_attr($value); ?>"
-                       class="regular-text"
-                       <?php echo $required_attr; ?>>
-                <p class="description"><?php echo esc_html($component['description']); ?></p>
+                <div class="sisme-date-component">
+                    <input type="date" 
+                           id="<?php echo esc_attr($field_id); ?>" 
+                           name="release_date" 
+                           value="<?php echo esc_attr($value); ?>"
+                           class="sisme-form-input sisme-form-input--date"
+                           <?php echo $required_attr; ?>>
+                    <?php if (!empty($component['description'])): ?>
+                        <p class="sisme-form-description"><?php echo esc_html($component['description']); ?></p>
+                    <?php endif; ?>
+                </div>
             </td>
         </tr>
         <?php
@@ -987,22 +990,43 @@ class Sisme_Game_Form_Module {
                 <label><?php echo esc_html($component['label'] . $required_label); ?></label>
             </th>
             <td>
-                <div class="sisme-external-links">
-                    <?php foreach ($platforms as $platform_key => $platform_name): ?>
-                        <div class="link-field">
-                            <label for="<?php echo esc_attr($this->module_id . '_' . $platform_key); ?>">
-                                <?php echo esc_html($platform_name); ?>
-                            </label>
-                            <input type="url" 
-                                   id="<?php echo esc_attr($this->module_id . '_' . $platform_key); ?>" 
-                                   name="external_links[<?php echo esc_attr($platform_key); ?>]" 
-                                   value="<?php echo esc_attr($value[$platform_key] ?? ''); ?>"
-                                   placeholder="https://..."
-                                   class="regular-text">
-                        </div>
-                    <?php endforeach; ?>
+                <div class="sisme-external-links-component">
+                    <div class="sisme-external-links-grid">
+                        <?php foreach ($platforms as $platform_key => $platform_name): ?>
+                            <div class="sisme-external-link-field">
+                                <label for="<?php echo esc_attr($this->module_id . '_' . $platform_key); ?>" 
+                                       class="sisme-external-link-label sisme-external-link-label--<?php echo esc_attr($platform_key); ?>">
+                                    <span class="sisme-platform-icon">
+                                        <span class="sisme-store-icon">
+                                            <?php 
+                                            $store_logos = [
+                                                'steam' => 'Logo-STEAM.webp',
+                                                'epic' => 'Logo-EPIC.webp', 
+                                                'gog' => 'Logo-GOG.webp'
+                                            ];
+                                            
+                                            if (isset($store_logos[$platform_key])): ?>
+                                                <img src="<?php echo esc_url("https://games.sisme.fr/wp-content/uploads/2025/06/" . $store_logos[$platform_key]); ?>" 
+                                                     alt="<?php echo esc_attr($platform_name); ?>" 
+                                                     class="sisme-store-logo">
+                                            <?php else: ?>
+                                                🔗
+                                            <?php endif; ?>
+                                        </span>
+                                </label>
+                                <input type="url" 
+                                       id="<?php echo esc_attr($this->module_id . '_' . $platform_key); ?>" 
+                                       name="external_links[<?php echo esc_attr($platform_key); ?>]" 
+                                       value="<?php echo esc_attr($value[$platform_key] ?? ''); ?>"
+                                       placeholder="https://..."
+                                       class="sisme-form-input sisme-form-input--url">
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php if (!empty($component['description'])): ?>
+                        <p class="sisme-form-description"><?php echo esc_html($component['description']); ?></p>
+                    <?php endif; ?>
                 </div>
-                <p class="description"><?php echo esc_html($component['description']); ?></p>
             </td>
         </tr>
         <?php

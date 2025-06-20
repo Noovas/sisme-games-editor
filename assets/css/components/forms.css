@@ -1333,3 +1333,137 @@
         font-size: 1.2em;
     }
 }
+
+/* ========================================
+   📅 DATE INPUT SPÉCIALISÉ
+======================================== */
+
+.sisme-date-component {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-xs);
+}
+
+.sisme-form-input--date {
+    max-width: 200px;
+    font-family: var(--sisme-font-mono);
+    letter-spacing: 0.5px;
+}
+
+.sisme-form-input--date::-webkit-calendar-picker-indicator {
+    background: var(--sisme-color-primary);
+    border-radius: var(--sisme-radius-sm);
+    padding: 2px;
+    cursor: pointer;
+    transition: var(--sisme-transition-colors);
+}
+
+.sisme-form-input--date::-webkit-calendar-picker-indicator:hover {
+    background: var(--sisme-color-primary-dark);
+}
+
+.sisme-form-description {
+    font-size: var(--sisme-text-sm);
+    color: var(--sisme-color-text-secondary);
+    margin: 0;
+    line-height: var(--sisme-leading-relaxed);
+}
+
+/* ========================================
+   🔗 LIENS EXTERNES - FORMULAIRE
+======================================== */
+
+.sisme-external-links-component {
+    display: flex;
+    flex-direction: row;
+    gap: var(--sisme-space-md);
+}
+
+.sisme-external-links-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--sisme-space-md);
+}
+
+.sisme-external-link-field {
+    display: flex;
+    flex-direction: row;
+    gap: var(--sisme-space-xs);
+    align-items: center;
+}
+
+.sisme-external-link-label {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+    font-weight: var(--sisme-font-medium);
+    color: var(--sisme-color-text);
+    font-size: var(--sisme-text-sm);
+    margin-bottom: var(--sisme-space-xs);
+}
+
+.sisme-platform-icon {
+    font-size: 1.1em;
+    opacity: 0.8;
+}
+
+/* Couleurs spécifiques aux plateformes */
+.sisme-external-link-label--steam {
+    color: #1b2838;
+}
+
+.sisme-external-link-label--epic {
+    color: #0078f2;
+}
+
+.sisme-external-link-label--gog {
+    color: #86328a;
+}
+
+.sisme-form-input--url {
+    font-family: var(--sisme-font-mono);
+    font-size: var(--sisme-text-sm);
+    letter-spacing: 0.5px;
+}
+
+.sisme-form-input--url:focus {
+    border-color: var(--sisme-color-primary);
+    box-shadow: 0 0 0 3px rgba(161, 183, 141, 0.1);
+}
+
+.sisme-form-input--url:valid {
+    border-color: var(--sisme-color-success);
+}
+
+/* Responsive pour les liens externes */
+@media (max-width: 768px) {
+    .sisme-external-links-grid {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        grid-template-columns: 1fr;
+        gap: var(--sisme-space-sm);
+    }
+}
+
+.sisme-store-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
+
+.sisme-store-logo {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    border-radius: var(--sisme-radius-sm);
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-store-logo:hover {
+    transform: scale(1.1);
+}
