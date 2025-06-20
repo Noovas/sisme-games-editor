@@ -36,51 +36,15 @@ $page = new Sisme_Admin_Page_Wrapper(
     'Retour à Game Data'
 );
 
-// Traitement du formulaire
-$form_options = [
-    'submit_text' => $is_edit_mode ? 'Mettre à jour les données' : 'Créer le jeu et ses données'
-];
+// Variables pour gérer l'affichage du succès
+$success_message = '';
+$form_was_submitted = false;
 
-// Pré-remplir les données si en mode édition
-if ($is_edit_mode) {
-    // Récupérer les métadonnées existantes
-    $existing_game_genres = get_term_meta($tag_id, 'game_genres', true) ?: array();
-    $existing_game_modes = get_term_meta($tag_id, 'game_modes', true) ?: array();
-    $existing_game_developers = get_term_meta($tag_id, 'game_developers', true) ?: array();
-    $existing_game_publishers = get_term_meta($tag_id, 'game_publishers', true) ?: array();
-    $existing_description = get_term_meta($tag_id, 'game_description', true);
-    $existing_cover_main = get_term_meta($tag_id, 'cover_main', true);
-    $existing_cover_news = get_term_meta($tag_id, 'cover_news', true);
-    $existing_cover_patch = get_term_meta($tag_id, 'cover_patch', true);
-    $existing_cover_test = get_term_meta($tag_id, 'cover_test', true);
-    $existing_platforms = get_term_meta($tag_id, 'game_platforms', true);
-    $existing_release_date = get_term_meta($tag_id, 'release_date', true);
-    $existing_external_links = get_term_meta($tag_id, 'external_links', true);
-    
-    // Simuler une soumission pour pré-remplir le formulaire
-    if (empty($_POST)) {
-        $_POST['game_name'] = $tag_id;
-        $_POST['game_genres'] = $existing_game_genres;
-        $_POST['game_modes'] = $existing_game_modes;
-        $_POST['game_developers'] = $existing_game_developers;
-        $_POST['game_publishers'] = $existing_game_publishers;
-        $_POST['description'] = $existing_description;
-        $_POST['cover_main'] = $existing_cover_main;
-        $_POST['cover_news'] = $existing_cover_news;
-        $_POST['cover_patch'] = $existing_cover_patch;
-        $_POST['cover_test'] = $existing_cover_test;
-        $_POST['game_platforms'] = $existing_platforms ?: [];
-        $_POST['release_date'] = $existing_release_date;
-        $_POST['external_links'] = $existing_external_links ?: [];
-        $_POST['_wpnonce'] = wp_create_nonce('sisme_form_action');
-    }
-}
-
-$form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'game_platforms', 'release_date', 'external_links', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
-
-
-if ($form->is_submitted() && !empty($_POST['submit'])) {
-    $data = $form->get_submitted_data();
+// Traitement du formulaire AVANT de créer l'instance
+if (!empty($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme_form_action')) {
+    // Créer temporairement le formulaire pour traiter les données
+    $temp_form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'game_platforms', 'release_date', 'external_links', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
+    $data = $temp_form->get_submitted_data();
     
     if (!empty($data['game_name'])) {
         // Sauvegarder toutes les données automatiquement
@@ -100,14 +64,65 @@ if ($form->is_submitted() && !empty($_POST['submit'])) {
         // Date de mise à jour
         update_term_meta($data['game_name'], 'last_update', current_time('mysql'));
         
-        $form->display_success('Données du jeu sauvegardées avec succès !');
+        $success_message = 'Données du jeu sauvegardées avec succès !';
+        $form_was_submitted = true;
+        
+        // Vider $_POST pour forcer le préchargement propre
+        $_POST = array();
     }
 }
+
+// Pré-remplir les données si en mode édition
+if ($is_edit_mode) {
+    // Récupérer les métadonnées existantes
+    $existing_game_genres = get_term_meta($tag_id, 'game_genres', true) ?: array();
+    $existing_game_modes = get_term_meta($tag_id, 'game_modes', true) ?: array();
+    $existing_game_developers = get_term_meta($tag_id, 'game_developers', true) ?: array();
+    $existing_game_publishers = get_term_meta($tag_id, 'game_publishers', true) ?: array();
+    $existing_description = get_term_meta($tag_id, 'game_description', true);
+    $existing_cover_main = get_term_meta($tag_id, 'cover_main', true);
+    $existing_cover_news = get_term_meta($tag_id, 'cover_news', true);
+    $existing_cover_patch = get_term_meta($tag_id, 'cover_patch', true);
+    $existing_cover_test = get_term_meta($tag_id, 'cover_test', true);
+    $existing_platforms = get_term_meta($tag_id, 'game_platforms', true);
+    $existing_release_date = get_term_meta($tag_id, 'release_date', true);
+    $existing_external_links = get_term_meta($tag_id, 'external_links', true);
+    
+    // Simuler une soumission pour pré-remplir le formulaire
+    $_POST['game_name'] = $tag_id;
+    $_POST['game_genres'] = $existing_game_genres;
+    $_POST['game_modes'] = $existing_game_modes;
+    $_POST['game_developers'] = $existing_game_developers;
+    $_POST['game_publishers'] = $existing_game_publishers;
+    
+    // CORRECTION : Décoder la description pour éviter l'affichage d'échappements
+    $_POST['description'] = !empty($existing_description) 
+        ? wp_specialchars_decode($existing_description, ENT_QUOTES) 
+        : '';
+        
+    $_POST['cover_main'] = $existing_cover_main;
+    $_POST['cover_news'] = $existing_cover_news;
+    $_POST['cover_patch'] = $existing_cover_patch;
+    $_POST['cover_test'] = $existing_cover_test;
+    $_POST['game_platforms'] = $existing_platforms ?: [];
+    $_POST['release_date'] = $existing_release_date;
+    $_POST['external_links'] = $existing_external_links ?: [];
+    $_POST['_wpnonce'] = wp_create_nonce('sisme_form_action');
+}
+
+// Créer le formulaire APRÈS le préchargement
+$form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'game_platforms', 'release_date', 'external_links', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
 
 $page->render_start();
 ?>
 
 <div style="background: white; padding: 30px; border-radius: 8px; margin: 20px 0;">
+    
+    <?php if ($form_was_submitted && !empty($success_message)): ?>
+        <div style="background: #d1edff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0073aa;">
+            <p style="margin: 0; color: #0073aa;"><strong>✅ <?php echo esc_html($success_message); ?></strong></p>
+        </div>
+    <?php endif; ?>
     
     <?php if ($is_edit_mode): ?>
         <div style="background: #e7f3e7; padding: 15px; border-radius: 8px; margin-bottom: 20px;">

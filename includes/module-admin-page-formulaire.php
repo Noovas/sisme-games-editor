@@ -258,6 +258,11 @@ class Sisme_Game_Form_Module {
                 foreach ($allowed_tags as $tag) {
                     $allowed_html[$tag] = [];
                 }
+                
+                // CORRECTION : Décoder d'abord les entités HTML pour éviter le double échappement
+                $value = wp_specialchars_decode($value, ENT_QUOTES);
+                
+                // Puis appliquer wp_kses pour nettoyer les balises non autorisées
                 return wp_kses($value, $allowed_html);
 
             case 'cover_main':
