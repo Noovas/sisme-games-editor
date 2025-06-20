@@ -683,13 +683,13 @@
 }
 
 /* ========================================
-   🎮 COMPOSANTS GAME DATA SPÉCIALISÉS
+   🎮 CLASSES COMMUNES RÉUTILISABLES
 ======================================== */
 
-/* Zone de sélection unique */
-.sisme-selected-game-display {
+/* Zone de sélection commune */
+.sisme-selected-display-base {
     min-height: 50px;
-    padding: var(--sisme-space-sm);
+    padding: var(--sisme-space-lg);
     border: 2px dashed var(--sisme-border-subtle);
     border-radius: var(--sisme-radius-lg);
     background: var(--sisme-color-background);
@@ -701,16 +701,145 @@
     margin-bottom: var(--sisme-space-xl);
 }
 
-.sisme-selected-game-display:hover {
+.sisme-selected-display-base:hover {
     border-color: var(--sisme-color-primary);
     background: rgba(161, 183, 141, 0.05);
 }
+
+/* Contrôles de recherche communs */
+.sisme-search-controls-base {
+    display: flex;
+    gap: var(--sisme-space-md);
+    align-items: center;
+    margin-bottom: var(--sisme-space-xl);
+    padding: var(--sisme-space-sm) 0;
+}
+
+.sisme-search-controls-base input {
+    flex: 1;
+    margin-bottom: 0 !important;
+}
+
+/* Conteneur de suggestions commun */
+.sisme-suggestions-container-base {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--sisme-border-subtle);
+    border-radius: var(--sisme-radius-lg);
+    background: white;
+    margin-top: var(--sisme-space-xs);
+}
+
+/* Items de suggestion communs */
+.sisme-suggestions-container-base .suggestion-item {
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+    cursor: pointer;
+    transition: var(--sisme-transition-colors);
+    position: relative;
+}
+
+.sisme-suggestions-container-base .suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.sisme-suggestions-container-base .suggestion-item:hover {
+    background: rgba(161, 183, 141, 0.1);
+    border-left: 4px solid var(--sisme-color-primary);
+    padding-left: calc(var(--sisme-space-md) - 4px);
+}
+
+.sisme-suggestions-container-base .suggestion-item div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sisme-suggestions-container-base .suggestion-item strong {
+    color: var(--sisme-color-text);
+    font-weight: var(--sisme-font-medium);
+}
+
+.sisme-suggestions-container-base .suggestion-item span {
+    color: var(--sisme-color-muted);
+    font-size: var(--sisme-text-sm);
+    background: var(--sisme-color-background);
+    padding: 2px var(--sisme-space-xs);
+    border-radius: var(--sisme-radius-sm);
+}
+
+/* Conteneur de suggestions parent */
+.sisme-suggestions-parent-base {
+    margin-top: var(--sisme-space-lg);
+}
+
+/* ========================================
+   🎮 CLASSES SPÉCIFIQUES POUR JAVASCRIPT
+======================================== */
+
+/* Game Name - héritent des styles communs */
+.sisme-selected-game-display {
+    @extend .sisme-selected-display-base;
+    padding: var(--sisme-space-sm); /* Override pour jeu unique */
+}
+
+.sisme-game-search-controls {
+    @extend .sisme-search-controls-base;
+}
+
+.sisme-game-suggestions {
+    @extend .sisme-suggestions-parent-base;
+}
+
+.sisme-suggestions-list {
+    @extend .sisme-suggestions-container-base;
+}
+
+/* Genres - héritent des styles communs */
+.sisme-selected-genres-display {
+    @extend .sisme-selected-display-base;
+}
+
+.sisme-genre-search-controls {
+    @extend .sisme-search-controls-base;
+}
+
+.sisme-genre-suggestions {
+    @extend .sisme-suggestions-parent-base;
+}
+
+.sisme-genre-suggestions-list {
+    @extend .sisme-suggestions-container-base;
+}
+
+/* ========================================
+   🎮 STYLES SPÉCIFIQUES DES TAGS
+======================================== */
 
 /* Message "aucune sélection" */
 .sisme-no-selection {
     color: var(--sisme-color-muted);
     font-style: italic;
     font-size: var(--sisme-text-sm);
+}
+
+/* Bouton de suppression dans les tags */
+.sisme-tag__remove {
+    margin-left: var(--sisme-space-sm);
+    font-size: var(--sisme-text-lg);
+    font-weight: var(--sisme-font-bold);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: var(--sisme-transition-all);
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: var(--sisme-radius-sm);
+}
+
+.sisme-tag__remove:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
 }
 
 /* Tag de jeu sélectionné */
@@ -738,118 +867,25 @@
     box-shadow: var(--sisme-shadow-md);
 }
 
-/* Bouton de suppression dans les tags */
-.sisme-tag__remove {
-    margin-left: var(--sisme-space-sm);
-    font-size: var(--sisme-text-lg);
-    font-weight: var(--sisme-font-bold);
-    cursor: pointer;
-    opacity: 0.7;
-    transition: var(--sisme-transition-all);
-    line-height: 1;
-    padding: 2px 4px;
-    border-radius: var(--sisme-radius-sm);
-}
-
-.sisme-tag__remove:hover {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.1);
-}
-
-/* Contrôles de recherche sur une ligne */
-.sisme-game-search-controls {
-    display: flex;
-    gap: var(--sisme-space-md);
-    align-items: center;
-    margin-bottom: var(--sisme-space-xl);
-    padding: var(--sisme-space-sm) 0; 
-}
-
-.sisme-game-search-input {
-    flex: 1;
-    margin-bottom: 0 !important;
-}
-
-/* Conteneur des suggestions */
-.sisme-game-suggestions {
-    margin-top: var(--sisme-space-lg);
-}
-
-.sisme-suggestion-item:last-child {
-    border-bottom: none;
-}
-
-.sisme-suggestion-item:hover {
-    background: rgba(161, 183, 141, 0.1);
-    border-left: 4px solid var(--sisme-color-primary);
-    padding-left: calc(var(--sisme-space-md) - 4px);
-}
-
-.sisme-suggestion-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.sisme-suggestion-name {
-    color: var(--sisme-color-text);
+/* Tag de genre sélectionné */
+.sisme-tag--genre {
+    background: linear-gradient(135deg, var(--sisme-color-secondary) 0%, #bc8f53 100%);
+    color: white;
     font-weight: var(--sisme-font-medium);
-}
-
-.sisme-suggestion-count {
-    color: var(--sisme-color-muted);
     font-size: var(--sisme-text-sm);
-    background: var(--sisme-color-background);
-    padding: 2px var(--sisme-space-xs);
-    border-radius: var(--sisme-radius-sm);
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-md);
+    border: 1px solid #bc8f53;
+    box-shadow: var(--sisme-shadow-sm);
 }
 
-/* Liste des suggestions */
-.sisme-suggestions-list {
-    max-height: 200px;
-    overflow-y: auto;
-    border: 1px solid var(--sisme-border-subtle);
-    border-radius: var(--sisme-radius-lg);
-    background: white;
-    margin-top: var(--sisme-space-xs);
+.sisme-tag--genre::before {
+    content: '🎯';
+    margin-right: var(--sisme-space-xs);
+    font-size: 0.8em;
 }
 
-/* Items de suggestion */
-.suggestion-item {
-    padding: var(--sisme-space-md) var(--sisme-space-lg);
-    border-bottom: 1px solid var(--sisme-border-subtle);
-    cursor: pointer;
-    transition: var(--sisme-transition-colors);
-    position: relative;
-}
-
-.suggestion-item:last-child {
-    border-bottom: none;
-}
-
-.suggestion-item:hover {
-    background: rgba(161, 183, 141, 0.1);
-    border-left: 4px solid var(--sisme-color-primary);
-    padding-left: calc(var(--sisme-space-md) - 4px);
-}
-
-/* Contenu des suggestions */
-.suggestion-item div {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.suggestion-item strong {
-    color: var(--sisme-color-text);
-    font-weight: var(--sisme-font-medium);
-}
-
-.suggestion-item span {
-    color: var(--sisme-color-muted);
-    font-size: var(--sisme-text-sm);
-    background: var(--sisme-color-background);
-    padding: 2px var(--sisme-space-xs);
-    border-radius: var(--sisme-radius-sm);
+.sisme-tag--genre:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--sisme-shadow-md);
 }

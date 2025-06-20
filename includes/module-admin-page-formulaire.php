@@ -612,21 +612,19 @@ class Sisme_Game_Form_Module {
             <td>
                 <div class="sisme-game-genres-component">
                     
-                    <!-- Liste des genres sélectionnés - EN PREMIER -->
-                    <div class="sisme-selected-genres" style="margin-bottom: 15px;">
-                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Genres sélectionnés :</label>
-                        <div class="sisme-selected-genres-list" id="<?php echo esc_attr($field_id . '_selected'); ?>" 
-                             style="min-height: 40px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                    <!-- Genres sélectionnés -->
+                    <div class="sisme-selected-genres">
+                        <label class="sisme-form-label">Genres sélectionnés :</label>
+                        <div class="sisme-selected-genres-display sisme-selected-display-base sisme-tags-list" id="<?php echo esc_attr($field_id . '_selected'); ?>">
                             <?php if (empty($value)): ?>
-                                <span class="no-genres-selected" style="color: #666; font-style: italic;">Aucun genre sélectionné</span>
+                                <span class="sisme-no-selection">Aucun genre sélectionné</span>
                             <?php else: ?>
                                 <?php foreach ($value as $genre_id): ?>
                                     <?php $genre = get_category($genre_id); ?>
                                     <?php if ($genre): ?>
-                                        <span class="selected-genre-tag" data-genre-id="<?php echo esc_attr($genre_id); ?>" 
-                                              style="display: inline-block; background: var(--theme-palette-color-1); color: white; padding: 4px 8px; margin: 2px; border-radius: 3px; font-size: 12px;">
+                                        <span class="sisme-tag sisme-tag--selected sisme-tag--genre" data-genre-id="<?php echo esc_attr($genre_id); ?>">
                                             <?php echo esc_html(str_replace('jeux-', '', $genre->name ?? '')); ?>
-                                            <span class="remove-genre" style="margin-left: 5px; cursor: pointer; font-weight: bold;">&times;</span>
+                                            <span class="sisme-tag__remove remove-genre" title="Retirer ce genre">&times;</span>
                                             <input type="hidden" name="game_genres[]" value="<?php echo esc_attr($genre_id); ?>">
                                         </span>
                                     <?php endif; ?>
@@ -636,36 +634,36 @@ class Sisme_Game_Form_Module {
                     </div>
                     
                     <!-- Champ de recherche/création -->
-                    <div class="sisme-genre-search" style="margin-bottom: 15px;">
+                    <div class="sisme-genre-search-controls sisme-search-controls-base">
                         <input type="text" 
                                id="<?php echo esc_attr($field_id . '_search'); ?>"
-                               class="sisme-genre-search-input regular-text" 
-                               placeholder="Rechercher ou créer un genre..."
-                               style="width: 70%; margin-right: 10px;">
-                        <button type="button" 
-                                class="button button-secondary sisme-create-genre-btn"
-                                title="Créer le genre">
+                               class="sisme-form-input sisme-genre-search-input" 
+                               placeholder="Rechercher ou créer un genre...">
+                        
+                        <button type="button" class="sisme-btn sisme-btn--secondary sisme-create-genre-btn">
                             + Créer
                         </button>
                     </div>
                     
-                    <!-- Suggestions de genres existants -->
-                    <div class="sisme-genre-suggestions">
-                        <label style="font-weight: 600; margin-bottom: 8px; display: block;">Genres disponibles :</label>
-                        <div class="sisme-suggestions-list" style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; padding: 8px;">
-                            <?php if (empty($genres)): ?>
-                                <p style="margin: 0; color: #666; font-style: italic;">Aucun genre disponible. Créez le premier !</p>
-                            <?php else: ?>
-                                <?php foreach ($genres as $genre): ?>
-                                    <div class="suggestion-item" data-genre-id="<?php echo esc_attr($genre->term_id); ?>" 
-                                         style="padding: 6px 10px; margin: 2px 0; background: #fff; border-radius: 3px; cursor: pointer; border: 1px solid #e0e0e0;">
-                                        <strong><?php echo esc_html(str_replace('jeux-', '', $genre->name ?? '')); ?></strong>
+                    <!-- Liste des suggestions -->
+                    <div class="sisme-genre-suggestions sisme-suggestions-parent-base">
+                        <label class="sisme-form-label">Genres disponibles :</label>
+                        <div class="sisme-genre-suggestions-list sisme-suggestions-container-base">
+                            <?php foreach ($genres as $genre): ?>
+                                <div class="suggestion-item" 
+                                     data-genre-id="<?php echo esc_attr($genre->term_id); ?>" 
+                                     data-genre-name="<?php echo esc_attr($genre->name); ?>">
+                                    <div>
+                                        <strong><?php echo esc_html(str_replace('jeux-', '', $genre->name)); ?></strong>
                                     </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                                    <span><?php echo $genre->count; ?> jeu(x)</span>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
+                    
                 </div>
+                <p class="description"><?php echo esc_html($component['description']); ?></p>
             </td>
         </tr>
         <?php
@@ -1040,10 +1038,11 @@ class Sisme_Game_Form_Module {
             </th>
             <td class="sisme-form-field-cell">
                 <div class="sisme-game-name-component">
+                    
                     <!-- Jeu sélectionné -->
                     <div class="sisme-selected-game">
                         <label class="sisme-form-label">Jeu sélectionné :</label>
-                        <div class="sisme-selected-game-display sisme-tags-list" id="<?php echo esc_attr($field_id . '_selected'); ?>">
+                        <div class="sisme-selected-game-display sisme-selected-display-base sisme-tags-list" id="<?php echo esc_attr($field_id . '_selected'); ?>">
                             <?php if (empty($value)): ?>
                                 <span class="sisme-no-selection">Aucun jeu sélectionné</span>
                             <?php else: ?>
@@ -1060,7 +1059,7 @@ class Sisme_Game_Form_Module {
                     </div>
                     
                     <!-- Champ de recherche/création -->
-                    <div class="sisme-game-search-controls">
+                    <div class="sisme-game-search-controls sisme-search-controls-base">
                         <input type="text" 
                                id="<?php echo esc_attr($field_id . '_search'); ?>"
                                class="sisme-form-input sisme-game-search-input" 
@@ -1072,18 +1071,14 @@ class Sisme_Game_Form_Module {
                     </div>
                     
                     <!-- Liste des suggestions -->
-                    <div class="sisme-game-suggestions">
+                    <div class="sisme-game-suggestions sisme-suggestions-parent-base">
                         <label class="sisme-form-label">Jeux disponibles :</label>
-                        <div class="sisme-suggestions-list">
+                        <div class="sisme-suggestions-list sisme-suggestions-container-base">
                             <?php foreach ($tags as $tag): ?>
                                 <div class="suggestion-item" 
                                      data-game-id="<?php echo esc_attr($tag->term_id); ?>" 
-                                     data-game-name="<?php echo esc_attr($tag->name); ?>"
-                                     style="padding: 8px 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <strong><?php echo esc_html($tag->name); ?></strong>
-                                    </div>
-                                    <span style="color: #999; font-size: 11px;"><?php echo $tag->count; ?> article(s)</span>
+                                     data-game-name="<?php echo esc_attr($tag->name); ?>">
+                                    <div><strong><?php echo esc_html($tag->name); ?></strong></div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -1535,70 +1530,17 @@ class Sisme_Game_Form_Module {
                 }
             });
 
-            // === GESTION DES GENRES DE JEU ===
-            // Création d'un nouveau genre
-            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.sisme-create-genre-btn', function(e) {
-                e.preventDefault();
-                
-                var button = $(this);
-                var container = button.closest('.sisme-game-genres-component');
-                var input = container.find('.sisme-genre-search-input');
-                var genreName = input.val().trim();
-                
-                if (!genreName) {
-                    alert('Veuillez saisir un nom de genre.');
-                    return;
-                }
-                
-                button.prop('disabled', true).text('Création...');
-                
-                $.ajax({
-                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                    type: 'POST',
-                    data: {
-                        action: 'sisme_create_category',
-                        category_name: genreName,
-                        nonce: '<?php echo wp_create_nonce('sisme_create_category'); ?>'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // Ajouter le genre à la sélection
-                            addGenreToSelection(container, response.data.term_id, response.data.name.replace('jeux-', ''));
-                            
-                            // Ajouter à la liste des suggestions si c'est un nouveau genre
-                            if (!response.data.existed) {
-                                addGenreToSuggestions(container, response.data);
-                            }
-                            
-                            input.val('');
-                            button.text(response.data.existed ? 'Existait déjà !' : 'Créé !');
-                            setTimeout(function() {
-                                button.text('+ Créer').prop('disabled', false);
-                            }, 1500);
-                        } else {
-                            alert('Erreur: ' + (response.data || 'Problème inconnu'));
-                            button.text('+ Créer').prop('disabled', false);
-                        }
-                    },
-                    error: function() {
-                        alert('Erreur AJAX');
-                        button.text('+ Créer').prop('disabled', false);
-                    }
-                });
-            });
-
+            // === GESTION DES GENRES (MULTI-SÉLECTION) ===
             // Sélection d'un genre depuis les suggestions
-            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.suggestion-item', function(e) {
-                e.preventDefault();
-                
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.sisme-genre-suggestions-list .suggestion-item', function() {
                 var genreId = $(this).data('genre-id');
-                var genreName = $(this).find('strong').text();
+                var genreName = $(this).data('genre-name');
                 var container = $(this).closest('.sisme-game-genres-component');
+                var selectedList = container.find('.sisme-selected-genres-display');
                 
-                // Vérifier si déjà sélectionné
-                if (container.find('.selected-genre-tag[data-genre-id="' + genreId + '"]').length > 0) {
-                    alert('Ce genre est déjà sélectionné.');
-                    return;
+                // Vérifier si le genre n'est pas déjà sélectionné
+                if (selectedList.find('[data-genre-id="' + genreId + '"]').length > 0) {
+                    return; // Genre déjà sélectionné
                 }
                 
                 addGenreToSelection(container, genreId, genreName);
@@ -1607,24 +1549,61 @@ class Sisme_Game_Form_Module {
             // Suppression d'un genre sélectionné
             $('#<?php echo esc_js($this->module_id); ?>').on('click', '.remove-genre', function(e) {
                 e.preventDefault();
-                $(this).closest('.selected-genre-tag').remove();
+                $(this).closest('.sisme-tag--genre').remove();
                 
                 // Vérifier s'il reste des genres sélectionnés
                 var container = $(this).closest('.sisme-game-genres-component');
-                var selectedList = container.find('.sisme-selected-genres-list');
-                if (selectedList.find('.selected-genre-tag').length === 0) {
-                    selectedList.html('<span class="no-genres-selected" style="color: #666; font-style: italic;">Aucun genre sélectionné</span>');
+                var selectedDisplay = container.find('.sisme-selected-genres-display');
+                if (selectedDisplay.find('.sisme-tag--genre').length === 0) {
+                    selectedDisplay.html('<span class="sisme-no-selection">Aucun genre sélectionné</span>');
                 }
             });
 
-            // Recherche en temps réel dans les suggestions
+            // Création d'un nouveau genre
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.sisme-create-genre-btn', function(e) {
+                e.preventDefault();
+                
+                var container = $(this).closest('.sisme-game-genres-component');
+                var searchInput = container.find('.sisme-genre-search-input');
+                var genreName = searchInput.val().trim();
+                
+                if (!genreName) {
+                    alert('Veuillez saisir un nom de genre.');
+                    return;
+                }
+                
+                $(this).prop('disabled', true).text('Création...');
+                
+                $.ajax({
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    type: 'POST',
+                    data: {
+                        action: 'sisme_create_category',
+                        category_name: genreName,
+                        parent_category: 'jeux',
+                        nonce: '<?php echo wp_create_nonce('sisme_create_category'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            addGenreToSelection(container, response.data.term_id, response.data.name);
+                            searchInput.val('');
+                            addGenreToSuggestions(container, response.data);
+                        }
+                    },
+                    complete: function() {
+                        $(this).prop('disabled', false).text('+ Créer');
+                    }.bind(this)
+                });
+            });
+
+            // Recherche en temps réel dans les suggestions de genres
             $('#<?php echo esc_js($this->module_id); ?>').on('keyup', '.sisme-genre-search-input', function() {
                 var searchTerm = $(this).val().toLowerCase();
                 var container = $(this).closest('.sisme-game-genres-component');
                 var suggestions = container.find('.suggestion-item');
                 
                 suggestions.each(function() {
-                    var genreName = $(this).find('strong').text().toLowerCase();
+                    var genreName = $(this).data('genre-name').toLowerCase();
                     if (genreName.includes(searchTerm)) {
                         $(this).show();
                     } else {
@@ -1635,35 +1614,37 @@ class Sisme_Game_Form_Module {
 
             // Fonction pour ajouter un genre à la sélection
             function addGenreToSelection(container, genreId, genreName) {
-                var selectedList = container.find('.sisme-selected-genres-list');
+                var selectedDisplay = container.find('.sisme-selected-genres-display');
                 
                 // Supprimer le message "aucun genre sélectionné"
-                selectedList.find('.no-genres-selected').remove();
+                selectedDisplay.find('.sisme-no-selection').remove();
+                
+                // Nettoyer le nom du genre (enlever "jeux-")
+                var cleanGenreName = genreName.replace('jeux-', '');
                 
                 // Créer le tag de genre sélectionné
-                var genreTag = $('<span class="selected-genre-tag" data-genre-id="' + genreId + '" ' +
-                                'style="display: inline-block; background: var(--theme-palette-color-1); color: white; padding: 4px 8px; margin: 2px; border-radius: 3px; font-size: 12px;">' +
-                                genreName +
-                                '<span class="remove-genre" style="margin-left: 5px; cursor: pointer; font-weight: bold;">&times;</span>' +
+                var genreTag = $('<span class="sisme-tag sisme-tag--selected sisme-tag--genre" data-genre-id="' + genreId + '">' +
+                                cleanGenreName +
+                                '<span class="sisme-tag__remove remove-genre" title="Retirer ce genre">&times;</span>' +
                                 '<input type="hidden" name="game_genres[]" value="' + genreId + '">' +
                                 '</span>');
                 
-                selectedList.append(genreTag);
+                selectedDisplay.append(genreTag);
             }
 
             // Fonction pour ajouter un genre aux suggestions
             function addGenreToSuggestions(container, genreData) {
-                var suggestionsList = container.find('.sisme-suggestions-list');
+                var suggestionsList = container.find('.sisme-genre-suggestions-list');
+                var cleanGenreName = genreData.name.replace('jeux-', '');
                 
-                // Supprimer le message "aucun genre disponible" s'il existe
-                suggestionsList.find('p').remove();
+                var suggestion = $('<div class="suggestion-item" ' +
+                                  'data-genre-id="' + genreData.term_id + '" ' +
+                                  'data-genre-name="' + genreData.name + '">' +
+                                  '<div><strong>' + cleanGenreName + '</strong></div>' +
+                                  '<span>0 jeu(x)</span>' +
+                                  '</div>');
                 
-                var suggestionItem = $('<div class="suggestion-item" data-genre-id="' + genreData.term_id + '" ' +
-                                      'style="padding: 6px 10px; margin: 2px 0; background: #fff; border-radius: 3px; cursor: pointer; border: 1px solid #e0e0e0;">' +
-                                      '<strong>' + genreData.name.replace('jeux-', '') + '</strong>' +
-                                      '</div>');
-                
-                suggestionsList.prepend(suggestionItem);
+                suggestionsList.prepend(suggestion);
             }
 
             // === GESTION DES MODES DE JEU ===
