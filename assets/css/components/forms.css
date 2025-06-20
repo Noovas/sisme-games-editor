@@ -1467,3 +1467,85 @@
 .sisme-store-logo:hover {
     transform: scale(1.1);
 }
+
+/* ========================================
+   📷 COVERS - GRILLE HORIZONTALE
+======================================== */
+
+.sisme-covers-component {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-md);
+}
+
+.sisme-covers-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--sisme-space-lg);
+    width: 100%;
+}
+
+.sisme-cover-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sisme-space-sm);
+}
+
+.sisme-cover-label {
+    font-size: var(--sisme-text-sm);
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-color-text);
+    text-align: center;
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    background: rgba(161, 183, 141, 0.1);
+    border-radius: var(--sisme-radius-md);
+    width: 100%;
+    margin-bottom: var(--sisme-space-xs);
+}
+
+.sisme-form-cover-preview {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    border-radius: var(--sisme-radius-md);
+    border: 2px solid var(--sisme-border-subtle);
+}
+
+.sisme-cover-placeholder {
+    width: 100%;
+    max-width: 150px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    border-radius: var(--sisme-radius-md);
+    border: 2px dashed var(--sisme-border-subtle);
+}
+
+.sisme-cover-empty {
+    background: rgba(236, 240, 241, 0.5);
+    color: var(--sisme-color-muted);
+}
+
+.sisme-cover-error {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--sisme-color-error);
+    border-color: var(--sisme-color-error);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sisme-covers-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--sisme-space-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-covers-grid {
+        grid-template-columns: 1fr;
+        gap: var(--sisme-space-sm);
+    }
+}

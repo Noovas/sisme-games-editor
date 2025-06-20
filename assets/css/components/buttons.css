@@ -444,6 +444,10 @@
    🔧 UTILITAIRES BOUTONS
 ======================================== */
 
+.sisme-button-no-margin {
+    margin:0px !important;;
+}
+
 /* Espacement entre boutons */
 .sisme-btn + .sisme-btn {
     margin-left: var(--sisme-space-sm);

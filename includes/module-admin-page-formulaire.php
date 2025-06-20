@@ -757,82 +757,71 @@ class Sisme_Game_Form_Module {
     }
 
     /**
-     * Afficher un composant cover (sélecteur d'image)
+     * Afficher tous les covers
      */
-    private function render_cover_component($component_name) {
-        $component = $this->components[$component_name];
-        $value = isset($this->form_data[$component['output_var']]) ? $this->form_data[$component['output_var']] : '';
-        $field_id = $this->module_id . '_' . $component_name;
-        $required_attr = $component['required'] ? 'required' : '';
-        $required_label = $component['required'] ? ' *' : '';
-        
-        // Récupérer l'image actuelle si elle existe
-        $current_image_url = '';
-        $current_image_title = '';
-        if (!empty($value)) {
-            $image = wp_get_attachment_image_src($value, 'thumbnail');
-            if ($image) {
-                $current_image_url = $image[0];
-                $current_image_title = get_the_title($value);
-            }
-        }
+    private function render_all_covers_component() {
+        $covers = ['cover_main', 'cover_news', 'cover_patch', 'cover_test'];
+        $cover_labels = [
+            'cover_main' => 'Cover Principale',
+            'cover_news' => 'Cover News', 
+            'cover_patch' => 'Cover Patch',
+            'cover_test' => 'Cover Test'
+        ];
         ?>
         <tr>
             <th scope="row">
-                <label for="<?php echo esc_attr($field_id); ?>">
-                    <?php echo esc_html($component['label'] . $required_label); ?>
-                </label>
+                <label>Covers du jeu</label>
             </th>
             <td>
-                <div class="sisme-media-component">
-                    <!-- Champ caché pour stocker l'ID -->
-                    <input type="hidden" 
-                           id="<?php echo esc_attr($field_id); ?>" 
-                           name="<?php echo esc_attr($component['output_var']); ?>" 
-                           value="<?php echo esc_attr($value); ?>"
-                           <?php echo $required_attr; ?>>
-                    
-                    <!-- Aperçu de l'image -->
-                    <div class="media-preview" style="margin-bottom: 10px;">
-                        <?php if (!empty($current_image_url)): ?>
-                            <div class="current-image" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
-                                <img src="<?php echo esc_url($current_image_url); ?>" 
-                                     style="max-width: 80px; max-height: 80px; border-radius: 4px;">
-                                <div>
-                                    <strong><?php echo esc_html($current_image_title); ?></strong>
-                                    <div style="font-size: 12px; color: #666;">ID: <?php echo $value; ?></div>
+                <div class="sisme-covers-component">
+                    <div class="sisme-covers-grid">
+                        <?php foreach ($covers as $cover_name): ?>
+                            <?php 
+                            $component = $this->available_components[$cover_name];
+                            $value = isset($this->form_data[$component['output_var']]) ? $this->form_data[$component['output_var']] : '';
+                            $field_id = $this->module_id . '_' . $cover_name;
+                            $cover_label = $cover_labels[$cover_name];
+                            ?>
+                            <div class="sisme-cover-item">
+                                <label class="sisme-cover-label" for="<?php echo esc_attr($field_id); ?>">
+                                    <?php echo esc_html($cover_label); ?>
+                                </label>
+                                <div class="sisme-media-selector" data-cover-type="<?php echo esc_attr($cover_name); ?>">
+                                    <?php if (!empty($value)): ?>
+                                        <?php $image_url = wp_get_attachment_image_url($value, 'medium'); ?>
+                                        <?php if ($image_url): ?>
+                                            <img src="<?php echo esc_url($image_url); ?>" 
+                                                 alt="<?php echo esc_attr($cover_label); ?>" 
+                                                 class="sisme-cover-preview sisme-form-cover-preview">
+                                        <?php else: ?>
+                                            <div class="sisme-cover-placeholder sisme-cover-error">❌</div>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <div class="sisme-cover-placeholder sisme-cover-empty">📷</div>
+                                    <?php endif; ?>
+                                    
+                                    <div class="sisme-media-buttons">
+                                        <button type="button" class="sisme-btn sisme-btn--secondary sisme-btn--sm sisme-select-media" 
+                                                data-field-id="<?php echo esc_attr($field_id); ?>">
+                                            <?php echo !empty($value) ? 'Modifier' : 'Sélectionner'; ?>
+                                        </button>
+                                        <?php if (!empty($value)): ?>
+                                            <button type="button" class="sisme-button-no-margin sisme-btn sisme-btn--secondary sisme-btn--sm sisme-remove-media"
+                                                    data-field-id="<?php echo esc_attr($field_id); ?>">
+                                                Supprimer
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
+                                    
+                                    <input type="hidden" 
+                                           id="<?php echo esc_attr($field_id); ?>" 
+                                           name="<?php echo esc_attr($component['output_var']); ?>" 
+                                           value="<?php echo esc_attr($value); ?>">
                                 </div>
                             </div>
-                        <?php else: ?>
-                            <div class="no-image" style="padding: 20px; background: #f0f0f0; border-radius: 4px; text-align: center; color: #666;">
-                                Aucune image sélectionnée
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <!-- Boutons d'action -->
-                    <div class="media-actions" style="display: flex; gap: 10px;">
-                        <button type="button" 
-                                class="button button-secondary sisme-select-media-btn"
-                                data-field-id="<?php echo esc_attr($field_id); ?>"
-                                data-component="<?php echo esc_attr($component_name); ?>">
-                            🖼️ <?php echo !empty($value) ? 'Changer l\'image' : 'Sélectionner une image'; ?>
-                        </button>
-                        
-                        <?php if (!empty($value)): ?>
-                            <button type="button" 
-                                    class="button sisme-remove-media-btn"
-                                    data-field-id="<?php echo esc_attr($field_id); ?>"
-                                    data-component="<?php echo esc_attr($component_name); ?>">
-                                🗑️ Supprimer
-                            </button>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
                     </div>
                 </div>
-                
-                <p class="description">
-                    <?php echo esc_html($component['description']); ?>
-                </p>
             </td>
         </tr>
         <?php
@@ -1226,7 +1215,12 @@ class Sisme_Game_Form_Module {
             case 'cover_news':
             case 'cover_patch':
             case 'cover_test':
-                $this->render_cover_component($component_name);
+                // Les covers sont maintenant gérés groupés
+                static $covers_rendered = false;
+                if (!$covers_rendered) {
+                    $this->render_all_covers_component();
+                    $covers_rendered = true;
+                }
                 break;
 
             case 'game_platforms':
