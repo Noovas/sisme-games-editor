@@ -51,13 +51,13 @@ class Sisme_Game_Form_Module {
     private $available_components = [
         'game_name' => [
             'label' => 'Nom du jeu',
-            'description' => 'Sélectionnez un jeu existant ou créez un nouveau jeu.',
+            'description' => '',
             'required' => true,
             'output_var' => 'game_name'
         ],
         'description' => [
             'label' => 'Description du jeu',
-            'description' => 'Description détaillée acceptant les balises de mise en forme.',
+            'description' => '',
             'required' => false,
             'output_var' => 'description',
             'allowed_tags' => ['strong', 'em', 'br'],
@@ -65,7 +65,7 @@ class Sisme_Game_Form_Module {
         ],
         'game_genres' => [
             'label' => 'Genres du jeu',
-            'description' => 'Recherchez des genres existants ou créez-en de nouveaux.',
+            'description' => '',
             'required' => false,
             'output_var' => 'game_genres',
             'parent_category' => 'jeux',
@@ -73,14 +73,14 @@ class Sisme_Game_Form_Module {
         ],
         'game_modes' => [
             'label' => 'Modes de jeu',
-            'description' => 'Sélectionnez les modes de jeu disponibles.',
+            'description' => '',
             'required' => false,
             'output_var' => 'game_modes',
             'available_modes' => ['solo', 'multijoueur', 'cooperatif', 'competitif']
         ],
         'game_developers' => [
             'label' => 'Développeurs',
-            'description' => 'Recherchez ou créez des développeurs.',
+            'description' => '',
             'required' => false,
             'output_var' => 'game_developers',
             'parent_category' => 'editeurs-developpeurs',
@@ -88,7 +88,7 @@ class Sisme_Game_Form_Module {
         ],
         'game_publishers' => [
             'label' => 'Éditeurs',
-            'description' => 'Recherchez ou créez des éditeurs.',
+            'description' => '',
             'required' => false,
             'output_var' => 'game_publishers',
             'parent_category' => 'editeurs-developpeurs',
@@ -96,43 +96,43 @@ class Sisme_Game_Form_Module {
         ],
         'cover_main' => [
             'label' => 'Cover principale',
-            'description' => 'Image principale du jeu (médiathèque WordPress).',
+            'description' => '',
             'required' => false,
             'output_var' => 'cover_main'
         ],
         'cover_news' => [
             'label' => 'Cover news',
-            'description' => 'Image pour les articles news du jeu.',
+            'description' => '',
             'required' => false,
             'output_var' => 'cover_news'
         ],
         'cover_patch' => [
             'label' => 'Cover patch',
-            'description' => 'Image pour les articles patch du jeu.',
+            'description' => '',
             'required' => false,
             'output_var' => 'cover_patch'
         ],
         'cover_test' => [
             'label' => 'Cover test',
-            'description' => 'Image pour les articles test du jeu.',
+            'description' => '',
             'required' => false,
             'output_var' => 'cover_test'
         ],
         'game_platforms' => [
             'label' => 'Plateformes',
-            'description' => 'Sélectionnez les plateformes sur lesquelles le jeu est disponible.',
+            'description' => '',
             'required' => false,
             'output_var' => 'game_platforms'
         ],
         'release_date' => [
             'label' => 'Date de sortie',
-            'description' => 'Date de sortie du jeu.',
+            'description' => '',
             'required' => false,
             'output_var' => 'release_date'
         ],
         'external_links' => [
             'label' => 'Liens de vente',
-            'description' => 'Liens vers les plateformes de vente du jeu.',
+            'description' => '',
             'required' => false,
             'output_var' => 'external_links'
         ]
@@ -1039,41 +1039,55 @@ class Sisme_Game_Form_Module {
                 </label>
             </th>
             <td class="sisme-form-field-cell">
-                <div class="sisme-form-group">
-                    <div class="sisme-game-name-component">
-                        <!-- Sélecteur de tags existants -->
-                        <select id="<?php echo esc_attr($field_id); ?>" 
-                                name="game_name" 
-                                class="sisme-form-select sisme-form-select--lg sisme-tag-select" 
-                                required>
-                            <option value="">Sélectionner un jeu existant...</option>
-                            <?php foreach ($tags as $tag): ?>
-                                <option value="<?php echo esc_attr($tag->term_id); ?>" 
-                                        <?php selected($value, $tag->term_id); ?>>
-                                    <?php echo esc_html($tag->name); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        
-                        <!-- Section de création de nouveau tag -->
-                        <div class="sisme-create-tag-section">
-                            <label for="<?php echo esc_attr($field_id . '_new_tag'); ?>" class="sisme-form-label sisme-form-label--inline">
-                                Ou créer un nouveau jeu :
-                            </label>
-                            <div class="sisme-create-tag-controls">
-                                <input type="text" 
-                                   id="<?php echo esc_attr($field_id . '_new_tag'); ?>"
-                                   name="new_tag_input"
-                                   class="sisme-form-input sisme-new-tag-input" 
-                                   placeholder="Nom du nouveau jeu...">
-                                <button type="button" 
-                                        class="sisme-btn sisme-btn--secondary sisme-create-tag-btn"
-                                        title="Créer le tag">
-                                    ➕
-                                </button>
-                            </div>
+                <div class="sisme-game-name-component">
+                    <!-- Jeu sélectionné -->
+                    <div class="sisme-selected-game">
+                        <label class="sisme-form-label">Jeu sélectionné :</label>
+                        <div class="sisme-selected-game-display sisme-tags-list" id="<?php echo esc_attr($field_id . '_selected'); ?>">
+                            <?php if (empty($value)): ?>
+                                <span class="sisme-no-selection">Aucun jeu sélectionné</span>
+                            <?php else: ?>
+                                <?php $selected_tag = get_tag($value); ?>
+                                <?php if ($selected_tag): ?>
+                                    <span class="sisme-tag sisme-tag--selected sisme-tag--game" data-game-id="<?php echo esc_attr($value); ?>">
+                                        <?php echo esc_html($selected_tag->name); ?>
+                                        <span class="sisme-tag__remove remove-game" title="Retirer ce jeu">&times;</span>
+                                        <input type="hidden" name="game_name" value="<?php echo esc_attr($value); ?>">
+                                    </span>
+                                <?php endif; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
+                    
+                    <!-- Champ de recherche/création -->
+                    <div class="sisme-game-search-controls">
+                        <input type="text" 
+                               id="<?php echo esc_attr($field_id . '_search'); ?>"
+                               class="sisme-form-input sisme-game-search-input" 
+                               placeholder="Rechercher ou créer un jeu...">
+                        
+                        <button type="button" class="sisme-btn sisme-btn--secondary sisme-create-game-btn">
+                            + Créer
+                        </button>
+                    </div>
+                    
+                    <!-- Liste des suggestions -->
+                    <div class="sisme-game-suggestions">
+                        <label class="sisme-form-label">Jeux disponibles :</label>
+                        <div class="sisme-suggestions-container">
+                            <?php foreach ($tags as $tag): ?>
+                                <div class="sisme-suggestion-item" 
+                                     data-game-id="<?php echo esc_attr($tag->term_id); ?>" 
+                                     data-game-name="<?php echo esc_attr($tag->name); ?>">
+                                    <div class="sisme-suggestion-content">
+                                        <strong class="sisme-suggestion-name"><?php echo esc_html($tag->name); ?></strong>
+                                        <span class="sisme-suggestion-count"><?php echo $tag->count; ?> article(s)</span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    
                 </div>
             </td>
         </tr>
@@ -1895,6 +1909,106 @@ class Sisme_Game_Form_Module {
                                   'style="padding: 8px 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">' +
                                   '<div><strong>' + entityData.name + '</strong>' + websiteIcon + '</div>' +
                                   '<span style="color: #999; font-size: 11px;">0 jeu(x)</span>' +
+                                  '</div>');
+                
+                suggestionsList.prepend(suggestion);
+            }
+
+            // === GESTION DU NOM DU JEU (SÉLECTION UNIQUE) ===
+            // Sélection d'un jeu depuis les suggestions
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.sisme-game-suggestions .suggestion-item', function() {
+                var gameId = $(this).data('game-id');
+                var gameName = $(this).data('game-name');
+                var container = $(this).closest('.sisme-game-name-component');
+                
+                selectGame(container, gameId, gameName);
+            });
+
+            // Suppression du jeu sélectionné
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.remove-game', function(e) {
+                e.preventDefault();
+                var container = $(this).closest('.sisme-game-name-component');
+                var selectedDisplay = container.find('.sisme-selected-game-display');
+                
+                selectedDisplay.html('<span class="no-game-selected" style="color: #666; font-style: italic;">Aucun jeu sélectionné</span>');
+            });
+
+            // Création d'un nouveau jeu
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.sisme-create-game-btn', function(e) {
+                e.preventDefault();
+                
+                var container = $(this).closest('.sisme-game-name-component');
+                var searchInput = container.find('.sisme-game-search-input');
+                var gameName = searchInput.val().trim();
+                
+                if (!gameName) {
+                    alert('Veuillez saisir un nom de jeu.');
+                    return;
+                }
+                
+                $(this).prop('disabled', true).text('Création...');
+                
+                $.ajax({
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    type: 'POST',
+                    data: {
+                        action: 'sisme_create_tag',
+                        tag_name: gameName,
+                        nonce: '<?php echo wp_create_nonce('sisme_create_tag'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            selectGame(container, response.data.term_id, response.data.name);
+                            searchInput.val('');
+                            addGameToSuggestions(container, response.data);
+                        }
+                    },
+                    complete: function() {
+                        $(this).prop('disabled', false).text('+ Créer');
+                    }.bind(this)
+                });
+            });
+
+            // Recherche en temps réel dans les suggestions de jeux
+            $('#<?php echo esc_js($this->module_id); ?>').on('keyup', '.sisme-game-search-input', function() {
+                var searchTerm = $(this).val().toLowerCase();
+                var container = $(this).closest('.sisme-game-name-component');
+                var suggestions = container.find('.suggestion-item');
+                
+                suggestions.each(function() {
+                    var gameName = $(this).data('game-name').toLowerCase();
+                    if (gameName.includes(searchTerm)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            // Fonction pour sélectionner un jeu
+            function selectGame(container, gameId, gameName) {
+                var selectedDisplay = container.find('.sisme-selected-game-display');
+                
+                var gameTag = $('<span class="selected-game-tag" data-game-id="' + gameId + '" ' +
+                               'style="display: inline-block; background: var(--theme-palette-color-1); color: white; padding: 6px 12px; margin: 2px; border-radius: 4px; font-size: 14px; font-weight: bold;">' +
+                               gameName +
+                               '<span class="remove-game" style="margin-left: 8px; cursor: pointer; font-weight: bold;">&times;</span>' +
+                               '<input type="hidden" name="game_name" value="' + gameId + '">' +
+                               '</span>');
+                
+                selectedDisplay.html(gameTag);
+            }
+
+            // Fonction pour ajouter un jeu aux suggestions
+            function addGameToSuggestions(container, gameData) {
+                var suggestionsList = container.find('.sisme-suggestions-list');
+                
+                var suggestion = $('<div class="suggestion-item" ' +
+                                  'data-game-id="' + gameData.term_id + '" ' +
+                                  'data-game-name="' + gameData.name + '" ' +
+                                  'style="padding: 8px 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">' +
+                                  '<div><strong>' + gameData.name + '</strong></div>' +
+                                  '<span style="color: #999; font-size: 11px;">0 article(s)</span>' +
                                   '</div>');
                 
                 suggestionsList.prepend(suggestion);

@@ -73,7 +73,7 @@
 }
 
 .sisme-form-group--horizontal .sisme-form-label {
-    margin-bottom: 0;
+    margin-bottom: 10px;
     min-width: 120px;
     flex-shrink: 0;
 }
@@ -676,27 +676,139 @@
 }
 
 /* ========================================
-   ☑️ Création Jeu
+   🎮 COMPOSANTS GAME DATA SPÉCIALISÉS
 ======================================== */
 
-.sisme-create-tag-controls {
-    padding: 20px;
+/* Zone de sélection unique */
+.sisme-selected-game-display {
+    min-height: 50px;
+    border: 2px dashed var(--sisme-border-subtle);
+    border-radius: var(--sisme-radius-lg);
+    background: var(--sisme-color-background);
+    transition: var(--sisme-transition-colors);
     display: flex;
-    flex-direction: row;
-    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-xs);
 }
 
-select#game-form-1_game_name:focus {
-    border: solid 1px var(--sisme-color-primary);
-    box-shadow: none;
-    color: var(--sisme-color-dark);
+.sisme-selected-game-display:hover {
+    border-color: var(--sisme-color-primary);
+    background: rgba(161, 183, 141, 0.05);
 }
 
-select#game-form-1_game_name {
-    margin-bottom: 20px;
-    border: solid 1px var(--sisme-color-primary);
+/* Message "aucune sélection" */
+.sisme-no-selection {
+    color: var(--sisme-color-muted);
+    font-style: italic;
+    font-size: var(--sisme-text-sm);
 }
 
-select#game-form-1_game_name:hover {
-    color: var(--sisme-color-dark);
+/* Tag de jeu sélectionné */
+.sisme-tag--game {
+    background: linear-gradient(135deg, var(--sisme-color-primary) 0%, var(--sisme-color-primary-dark) 100%);
+    color: white;
+    font-weight: var(--sisme-font-semibold);
+    font-size: var(--sisme-text-base);
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    border-radius: var(--sisme-radius-lg);
+    border: 2px solid var(--sisme-color-primary-dark);
+    box-shadow: var(--sisme-shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-tag--game::before {
+    content: '🎮';
+    margin-right: var(--sisme-space-xs);
+    font-size: 0.9em;
+}
+
+.sisme-tag--game:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--sisme-shadow-md);
+}
+
+/* Bouton de suppression dans les tags */
+.sisme-tag__remove {
+    margin-left: var(--sisme-space-sm);
+    font-size: var(--sisme-text-lg);
+    font-weight: var(--sisme-font-bold);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: var(--sisme-transition-all);
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: var(--sisme-radius-sm);
+}
+
+.sisme-tag__remove:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* Contrôles de recherche sur une ligne */
+.sisme-game-search-controls {
+    display: flex;
+    gap: var(--sisme-space-md);
+    align-items: center;
+    margin-bottom: var(--sisme-space-lg);
+}
+
+.sisme-game-search-input {
+    flex: 1;
+    margin-bottom: 0 !important;
+}
+
+/* Conteneur des suggestions */
+.sisme-game-suggestions {
+    margin-top: var(--sisme-space-md);
+}
+
+.sisme-suggestions-container {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--sisme-border-subtle);
+    border-radius: var(--sisme-radius-lg);
+    background: white;
+    margin-top: var(--sisme-space-xs);
+}
+
+/* Items de suggestion */
+.sisme-suggestion-item {
+    padding: var(--sisme-space-md);
+    border-bottom: 1px solid var(--sisme-border-subtle);
+    cursor: pointer;
+    transition: var(--sisme-transition-colors);
+    position: relative;
+}
+
+.sisme-suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.sisme-suggestion-item:hover {
+    background: rgba(161, 183, 141, 0.1);
+    border-left: 4px solid var(--sisme-color-primary);
+    padding-left: calc(var(--sisme-space-md) - 4px);
+}
+
+.sisme-suggestion-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sisme-suggestion-name {
+    color: var(--sisme-color-text);
+    font-weight: var(--sisme-font-medium);
+}
+
+.sisme-suggestion-count {
+    color: var(--sisme-color-muted);
+    font-size: var(--sisme-text-sm);
+    background: var(--sisme-color-background);
+    padding: 2px var(--sisme-space-xs);
+    border-radius: var(--sisme-radius-sm);
 }
