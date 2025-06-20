@@ -1,7 +1,7 @@
 <?php
 /**
  * File: /sisme-games-editor/admin/pages/edit-game-data.php
- * Page d'édition des données de jeux
+ * Page d'édition des données de jeux avec nouveau design system
  */
 
 if (!defined('ABSPATH')) {
@@ -94,50 +94,61 @@ if ($is_edit_mode) {
     $_POST['game_modes'] = $existing_game_modes;
     $_POST['game_developers'] = $existing_game_developers;
     $_POST['game_publishers'] = $existing_game_publishers;
-    
-    // CORRECTION : Décoder la description pour éviter l'affichage d'échappements
-    $_POST['description'] = !empty($existing_description) 
-        ? wp_specialchars_decode($existing_description, ENT_QUOTES) 
-        : '';
-        
+    $_POST['description'] = !empty($existing_description) ? wp_specialchars_decode($existing_description, ENT_QUOTES) : ''; 
     $_POST['cover_main'] = $existing_cover_main;
     $_POST['cover_news'] = $existing_cover_news;
     $_POST['cover_patch'] = $existing_cover_patch;
     $_POST['cover_test'] = $existing_cover_test;
     $_POST['game_platforms'] = $existing_platforms ?: [];
     $_POST['release_date'] = $existing_release_date;
-    $_POST['external_links'] = $existing_external_links ?: [];
-    $_POST['_wpnonce'] = wp_create_nonce('sisme_form_action');
+    $_POST['external_links'] = $existing_external_links ?: [
+        'steam' => '',
+        'epic_games' => '',
+        'gog' => ''
+    ];
 }
 
-// Créer le formulaire APRÈS le préchargement
-$form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'game_platforms', 'release_date', 'external_links', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
+// Créer le formulaire avec tous les composants disponibles
+$form = new Sisme_Game_Form_Module([
+    'game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 
+    'description', 'game_platforms', 'release_date', 'external_links',
+    'cover_main', 'cover_news', 'cover_patch', 'cover_test'
+]);
 
 $page->render_start();
 ?>
 
+<!-- Message de succès -->
+<?php if ($form_was_submitted && !empty($success_message)) : ?>
+    <div class="sisme-notice sisme-notice--success">
+        ✅ <?php echo esc_html($success_message); ?>
+    </div>
+<?php endif; ?>
+
+<!-- Message de succès -->
+<?php if ($form_was_submitted && !empty($success_message)) : ?>
+    <div class="sisme-notice sisme-notice--success">
+        ✅ <?php echo esc_html($success_message); ?>
+    </div>
+<?php endif; ?>
+
+<!-- Formulaire avec aide contextuelle intégrée -->
 <div class="sisme-card">
+    <div class="sisme-card__header">
+        <h3 class="sisme-heading-4">
+            <?php echo $is_edit_mode ? '✏️ Modification du jeu' : '➕ Création d\'un nouveau jeu'; ?>
+        </h3>
+        <?php if ($is_edit_mode) : ?>
+            <div class="sisme-card__header-meta"></div>
+        <?php endif; ?>
+    </div>
     <div class="sisme-card__body">
-        
-        <?php if ($form_was_submitted && !empty($success_message)): ?>
-            <div class="sisme-notice sisme-notice--success sisme-mb-lg">
-                <strong>✅ <?php echo esc_html($success_message); ?></strong>
-            </div>
-        <?php endif; ?>
-        
-        <?php if ($is_edit_mode): ?>
-            <div class="sisme-notice sisme-notice--info sisme-mb-lg">
-                <h3 class="sisme-heading-4">🎮 Jeu en cours d'édition</h3>
-                <p class="sisme-text"><strong><?php echo esc_html($tag_data->name); ?></strong> (ID: <?php echo $tag_id; ?>)</p>
-            </div>
-        <?php endif; ?>
-        
-        <?php 
-        $form->render();
-        $form->render_javascript();
-        ?>
+        <?php $form->render(['context_help' => true]); ?>
     </div>
 </div>
 
-<?php
+<?php 
+// Rendre le JavaScript AJAX pour les fonctionnalités dynamiques
+$form->render_javascript(); 
 $page->render_end();
+?>
