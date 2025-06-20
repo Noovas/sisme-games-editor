@@ -17,7 +17,7 @@
  */
 
 /* ========================================
-   📊 TABLE DE BASE (existant - conservé)
+   📊 TABLE DE BASE
 ======================================== */
 
 .sisme-table {
@@ -322,6 +322,8 @@
    🎯 COLONNE ACTIONS
 ======================================== */
 
+
+
 td.sisme-game-actions-cell {
     width: 0;
 }
@@ -400,6 +402,25 @@ td.sisme-game-actions-cell {
     background: #dc2626;
     color: white;
     border-color: #dc2626;
+}
+
+.sisme-action-fiche {
+    background: #6366F1; /* Indigo/bleu pour différencier */
+    color: white;
+    border-color: #6366F1;
+    font-size: 16px;
+}
+
+.sisme-action-fiche:hover {
+    background: #4F46E5;
+    border-color: #4F46E5;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
+}
+
+.sisme-action-fiche:focus {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
 }
 
 /* ========================================

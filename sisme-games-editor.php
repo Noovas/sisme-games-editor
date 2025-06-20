@@ -212,6 +212,15 @@ class SismeGamesEditor {
             array($this, 'edit_game_data_page')
         );
 
+        add_submenu_page(
+            null,
+            'Nouvelle fiche de jeu',
+            'Nouvelle fiche de jeu', 
+            'manage_options',
+            'sisme-games-edit-fiche-jeu',
+            array($this, 'edit_fiche_jeu_page')
+        );
+
 
     }
     
@@ -346,6 +355,10 @@ class SismeGamesEditor {
 
     public function edit_game_data_page() {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-game-data.php';
+    }
+
+    public function edit_fiche_jeu_page() {
+        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-fiche-jeu.php';
     }
 
     public function ajax_load_more_articles() {

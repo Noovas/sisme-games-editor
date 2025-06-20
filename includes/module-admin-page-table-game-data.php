@@ -372,7 +372,12 @@ class Sisme_Game_Data_Table_Module {
                 <div class="sisme-game-actions">
                     <a href="<?php echo add_query_arg('tag_id', $game_data['id'], $this->options['edit_url']); ?>" 
                        class="sisme-action-btn sisme-action-edit" 
-                       title="Modifier">✏️</a>
+                       title="Modifier les données du jeu">✏️</a>
+                    
+                    <!-- NOUVEAU: Bouton de création de fiche -->
+                    <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-fiche-jeu&tag_id=' . $game_data['id']); ?>" 
+                       class="sisme-action-btn sisme-action-fiche" 
+                       title="Créer/Modifier la fiche du jeu">📝</a>
                     
                     <?php if ($game_data['articles_count'] > 0): ?>
                         <a href="<?php echo admin_url('admin.php?page=sisme-games-all-articles&s=' . urlencode($game_data['name'])); ?>" 
@@ -384,7 +389,7 @@ class Sisme_Game_Data_Table_Module {
                             class="sisme-action-btn sisme-action-delete delete-game-data" 
                             data-game-id="<?php echo $game_data['id']; ?>"
                             data-game-name="<?php echo esc_attr($game_data['name']); ?>"
-                            title="Supprimer">🗑️</button>
+                            title="Supprimer les données du jeu">🗑️</button>
                 </div>
             </td>
         </tr>
