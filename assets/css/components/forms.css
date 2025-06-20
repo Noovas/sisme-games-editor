@@ -975,3 +975,88 @@
     transform: translateY(-1px);
     box-shadow: var(--sisme-shadow-md);
 }
+
+/* ========================================
+   🎮 COMPOSANT ENTITÉS (DÉVELOPPEURS/ÉDITEURS)
+======================================== */
+
+/* Zone des entités sélectionnées - hérite des classes communes */
+.sisme-selected-entities-display {
+    @extend .sisme-selected-display-base;
+}
+
+/* Contrôles de recherche entités - héritent des classes communes */
+.sisme-entity-search-controls {
+    @extend .sisme-search-controls-base;
+}
+
+/* Conteneur des suggestions entités - hérite des classes communes */
+.sisme-entity-suggestions {
+    @extend .sisme-suggestions-parent-base;
+}
+
+.sisme-entity-suggestions-list {
+    @extend .sisme-suggestions-container-base;
+}
+
+/* Champ URL pour création d'entité */
+.sisme-entity-url-field {
+    margin-bottom: var(--sisme-space-lg);
+    padding: var(--sisme-space-md);
+    background: rgba(107, 70, 193, 0.05);
+    border: 1px solid rgba(107, 70, 193, 0.2);
+    border-radius: var(--sisme-radius-lg);
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-entity-url-field.sisme-entity-url-visible {
+    display: block !important;
+}
+
+/* Tag d'entité sélectionnée - même couleur que le tableau */
+.sisme-tag--entity {
+    background: linear-gradient(135deg, #6b46c1 0%, #553c9a 100%);
+    color: white;
+    font-weight: var(--sisme-font-medium);
+    font-size: var(--sisme-text-sm);
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-md);
+    border: 1px solid #553c9a;
+    box-shadow: var(--sisme-shadow-sm);
+}
+
+.sisme-tag--entity::before {
+    content: '🏢';
+    margin-right: var(--sisme-space-xs);
+    font-size: 0.8em;
+}
+
+.sisme-tag--entity:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--sisme-shadow-md);
+}
+
+/* Icône site web dans les entités */
+.sisme-entity-website-icon {
+    margin-left: var(--sisme-space-xs);
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+
+/* Animation du champ URL */
+.sisme-entity-url-field {
+    animation: sisme-slide-down var(--sisme-duration-normal) var(--sisme-ease-out);
+}
+
+@keyframes sisme-slide-down {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 100px;
+    }
+}
