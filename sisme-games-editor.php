@@ -221,6 +221,14 @@ class SismeGamesEditor {
             array($this, 'edit_fiche_jeu_page')
         );
 
+        add_submenu_page(
+            null, // Masqué du menu, accessible uniquement par URL directe
+            'Migration des Sections',
+            'Migration des Sections',
+            'manage_options',
+            'sisme-games-migration-sections',
+            array($this, 'migration_sections_page')
+        );
 
     }
     
@@ -359,6 +367,10 @@ class SismeGamesEditor {
 
     public function edit_fiche_jeu_page() {
         include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-fiche-jeu.php';
+    }
+ 
+    public function migration_sections_page() {
+        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/migration-sections.php';
     }
 
     public function ajax_load_more_articles() {
