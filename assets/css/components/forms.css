@@ -626,3 +626,51 @@
     background: var(--sisme-color-slate-light);
     border-color: rgba(255, 255, 255, 0.2);
 }
+
+/* ========================================
+   ☑️ GROUPES DE CHECKBOXES
+======================================== */
+
+.sisme-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-sm);
+    margin-top: var(--sisme-space-sm);
+}
+
+/* Variante horizontale pour les modes de jeu */
+.sisme-checkbox-group--horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-md);
+}
+
+/* Variante grid pour plus de 4 éléments */
+.sisme-checkbox-group--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--sisme-space-sm);
+}
+
+/* Élément checkbox dans le groupe */
+.sisme-checkbox-group .sisme-form-label--inline {
+    margin: 0;
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-sm);
+    transition: var(--sisme-transition-colors);
+}
+
+.sisme-checkbox-group .sisme-form-label--inline:hover {
+    background: rgba(161, 183, 141, 0.1);
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+    .sisme-checkbox-group--horizontal {
+        flex-direction: column;
+    }
+    
+    .sisme-checkbox-group--grid {
+        grid-template-columns: 1fr;
+    }
+}
