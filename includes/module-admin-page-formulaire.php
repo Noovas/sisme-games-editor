@@ -872,21 +872,66 @@ class Sisme_Game_Form_Module {
                 <label><?php echo esc_html($component['label'] . $required_label); ?></label>
             </th>
             <td>
-                <div class="sisme-platforms-selector">
+                <div class="sisme-game-platforms-component">
+                    
+                    <!-- Plateformes sélectionnées -->
+                    <div class="sisme-selected-platforms">
+                        <label class="sisme-form-label">Plateformes sélectionnées :</label>
+                        <div class="sisme-selected-platforms-display sisme-selected-display-base sisme-tags-list" id="<?php echo esc_attr($field_id . '_selected'); ?>">
+                            <?php if (empty($value)): ?>
+                                <span class="sisme-no-selection">Aucune plateforme sélectionnée</span>
+                            <?php else: ?>
+                                <?php foreach ($value as $platform_key): ?>
+                                    <?php 
+                                    // Trouver le nom de la plateforme
+                                    $platform_name = '';
+                                    foreach ($platforms as $category => $category_platforms) {
+                                        if (isset($category_platforms[$platform_key])) {
+                                            $platform_name = $category_platforms[$platform_key];
+                                            break;
+                                        }
+                                    }
+                                    ?>
+                                    <?php if ($platform_name): ?>
+                                        <span class="sisme-tag sisme-tag--selected sisme-tag--platform" data-platform-key="<?php echo esc_attr($platform_key); ?>">
+                                            <?php echo esc_html($platform_name); ?>
+                                            <span class="sisme-tag__remove remove-platform" title="Retirer cette plateforme">&times;</span>
+                                            <input type="hidden" name="game_platforms[]" value="<?php echo esc_attr($platform_key); ?>">
+                                        </span>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Plateformes disponibles par catégorie -->
                     <?php foreach ($platforms as $category => $category_platforms): ?>
-                        <div class="platform-category">
-                            <h4><?php echo esc_html($category); ?></h4>
-                            <?php foreach ($category_platforms as $platform_key => $platform_name): ?>
-                                <label class="platform-option">
-                                    <input type="checkbox" 
-                                           name="game_platforms[]" 
-                                           value="<?php echo esc_attr($platform_key); ?>"
-                                           <?php checked(in_array($platform_key, $value)); ?>>
-                                    <?php echo esc_html($platform_name); ?>
-                                </label>
-                            <?php endforeach; ?>
+                        <div class="sisme-platform-category sisme-suggestions-parent-base">
+                            <label class="sisme-form-label sisme-platform-category-label">
+                                <span class="sisme-category-icon"><?php echo $category === 'Mobile' ? '📱' : ($category === 'Console' ? '🎮' : '💻'); ?></span>
+                                <?php echo esc_html($category); ?>
+                            </label>
+                            <div class="sisme-platforms-grid">
+                                <?php foreach ($category_platforms as $platform_key => $platform_name): ?>
+                                    <div class="platform-option sisme-platform-option-card" 
+                                         data-platform-key="<?php echo esc_attr($platform_key); ?>"
+                                         data-category="<?php echo esc_attr(strtolower($category)); ?>">
+                                        <span class="sisme-platform-icon"><?php 
+                                            // Icônes par plateforme
+                                            $icons = [
+                                                'ios' => '🍎', 'android' => '🤖',
+                                                'xbox' => '🎮', 'playstation' => '🎮', 'switch' => '🕹️',
+                                                'web' => '🌐', 'mac' => '🍎', 'windows' => '🪟'
+                                            ];
+                                            echo $icons[$platform_key] ?? '💻';
+                                        ?></span>
+                                        <strong><?php echo esc_html($platform_name); ?></strong>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     <?php endforeach; ?>
+                    
                 </div>
                 <p class="description"><?php echo esc_html($component['description']); ?></p>
             </td>
@@ -1987,7 +2032,66 @@ class Sisme_Game_Form_Module {
                 suggestionsList.prepend(suggestion);
             }
 
+            // === GESTION DES PLATEFORMES ===
+            // Sélection d'une plateforme depuis les options disponibles
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.sisme-platform-option-card', function(e) {
+                e.preventDefault();
+                
+                var platformKey = $(this).data('platform-key');
+                var platformLabel = $(this).find('strong').text();
+                var container = $(this).closest('.sisme-game-platforms-component');
+                
+                // Vérifier si déjà sélectionnée
+                if (container.find('.sisme-tag--platform[data-platform-key="' + platformKey + '"]').length > 0) {
+                    alert('Cette plateforme est déjà sélectionnée.');
+                    return;
+                }
+                
+                addPlatformToSelection(container, platformKey, platformLabel);
+                
+                // Effet visuel sur le bouton cliqué
+                var category = $(this).data('category');
+                var colors = {
+                    'mobile': 'rgba(16, 185, 129, 0.1)',
+                    'console': 'rgba(245, 158, 11, 0.1)',
+                    'pc': 'rgba(59, 130, 246, 0.1)'
+                };
+                
+                $(this).css('background-color', colors[category] || 'rgba(161, 183, 141, 0.1)');
+                setTimeout(function() {
+                    $(this).css('background-color', 'white');
+                }.bind(this), 300);
+            });
 
+            // Suppression d'une plateforme sélectionnée
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.remove-platform', function(e) {
+                e.preventDefault();
+                $(this).closest('.sisme-tag--platform').remove();
+                
+                // Vérifier s'il reste des plateformes sélectionnées
+                var container = $(this).closest('.sisme-game-platforms-component');
+                var selectedDisplay = container.find('.sisme-selected-platforms-display');
+                if (selectedDisplay.find('.sisme-tag--platform').length === 0) {
+                    selectedDisplay.html('<span class="sisme-no-selection">Aucune plateforme sélectionnée</span>');
+                }
+            });
+
+            // Fonction pour ajouter une plateforme à la sélection
+            function addPlatformToSelection(container, platformKey, platformLabel) {
+                var selectedDisplay = container.find('.sisme-selected-platforms-display');
+                
+                // Supprimer le message "aucune plateforme sélectionnée"
+                selectedDisplay.find('.sisme-no-selection').remove();
+                
+                // Créer le tag de plateforme sélectionnée
+                var platformTag = $('<span class="sisme-tag sisme-tag--selected sisme-tag--platform" data-platform-key="' + platformKey + '">' +
+                                   platformLabel +
+                                   '<span class="sisme-tag__remove remove-platform" title="Retirer cette plateforme">&times;</span>' +
+                                   '<input type="hidden" name="game_platforms[]" value="' + platformKey + '">' +
+                                   '</span>');
+                
+                selectedDisplay.append(platformTag);
+            }
 
         });
         
