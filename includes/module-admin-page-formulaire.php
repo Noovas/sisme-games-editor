@@ -1091,19 +1091,32 @@ class Sisme_Game_Form_Module {
                 </label>
             </th>
             <td>
-                <textarea id="<?php echo esc_attr($field_id); ?>" 
-                          name="description" 
-                          rows="<?php echo esc_attr($component['rows']); ?>"
-                          placeholder="Décrivez le jeu, son gameplay, son univers..."
-                          class="large-text sisme-rich-textarea"
-                          style="width: 100%;"
-                          <?php echo $required_attr; ?>><?php echo esc_textarea($value); ?></textarea>
-                
-                <p class="description">
-                    <strong>Balises autorisées :</strong> 
-                    <?php echo '&lt;' . implode('&gt; &lt;', $component['allowed_tags']) . '&gt;'; ?>
-                    <br><?php echo esc_html($component['description']); ?>
-                </p>
+                <div class="sisme-description-component">
+                    
+                    <!-- Textarea avec styling amélioré -->
+                    <div class="sisme-description-field">
+                        <textarea id="<?php echo esc_attr($field_id); ?>" 
+                                  name="description" 
+                                  rows="<?php echo esc_attr($component['rows']); ?>"
+                                  placeholder="Décrivez le jeu, son gameplay, son univers, ses mécaniques principales..."
+                                  class="sisme-form-textarea sisme-rich-textarea sisme-description-textarea"
+                                  <?php echo $required_attr; ?>><?php echo esc_textarea($value); ?></textarea>
+                    </div>
+                    
+                    <!-- Aide contextuelle -->
+                    <div class="sisme-description-help">                        
+                        <div class="sisme-help-section">
+                            <span class="sisme-help-label">🏷️ Balises autorisées :</span>
+                            <div class="sisme-allowed-tags">
+                                <?php foreach ($component['allowed_tags'] as $tag): ?>
+                                    <code class="sisme-tag-example" title="Cliquer pour insérer">&lt;<?php echo esc_html($tag); ?>&gt;</code>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <p class="description"><?php echo esc_html($component['description']); ?></p>
             </td>
         </tr>
         <?php
@@ -1459,6 +1472,36 @@ class Sisme_Game_Form_Module {
                 title: 'Sélectionner une image',
                 multiple: false,
                 library: { type: 'image' }
+            });
+
+            // === GESTION DE LA DESCRIPTION ===
+            // Insertion de balises au clic
+            $('#<?php echo esc_js($this->module_id); ?>').on('click', '.sisme-tag-example', function() {
+                var tag = $(this).text().replace(/[<>]/g, '');
+                var textarea = $(this).closest('.sisme-description-component').find('.sisme-description-textarea')[0];
+                
+                if (textarea) {
+                    var start = textarea.selectionStart;
+                    var end = textarea.selectionEnd;
+                    var text = textarea.value;
+                    var before = text.substring(0, start);
+                    var after = text.substring(end, text.length);
+                    
+                    // Insérer les balises ouvrante et fermante
+                    var newText = before + '<' + tag + '></' + tag + '>' + after;
+                    textarea.value = newText;
+                    
+                    // Repositionner le curseur entre les balises
+                    var newPos = start + tag.length + 2;
+                    textarea.setSelectionRange(newPos, newPos);
+                    textarea.focus();
+                    
+                    // Effet visuel
+                    $(this).css('background', 'var(--sisme-color-primary)').css('color', 'white');
+                    setTimeout(function() {
+                        $(this).css('background', '').css('color', '');
+                    }.bind(this), 200);
+                }
             });
 
             wp.media.frames.selectMedia.on('select', function() {
@@ -1943,6 +1986,8 @@ class Sisme_Game_Form_Module {
                 
                 suggestionsList.prepend(suggestion);
             }
+
+
 
         });
         

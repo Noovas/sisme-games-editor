@@ -1060,3 +1060,121 @@
         max-height: 100px;
     }
 }
+
+/* ========================================
+   🎮 COMPOSANT DESCRIPTION
+======================================== */
+
+.sisme-description-component {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-lg);
+}
+
+/* Champ textarea amélioré */
+.sisme-description-field {
+    position: relative;
+}
+
+.sisme-description-textarea {
+    min-height: 120px;
+    padding: var(--sisme-space-md);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.6;
+    resize: vertical;
+    transition: var(--sisme-transition-all);
+    border: 2px solid var(--sisme-border-subtle);
+}
+
+.sisme-description-textarea:focus {
+    border-color: var(--sisme-color-primary);
+    box-shadow: 0 0 0 3px rgba(161, 183, 141, 0.1);
+    min-height: 160px; /* Grandit au focus */
+}
+
+.sisme-description-textarea::placeholder {
+    color: var(--sisme-color-muted);
+    font-style: italic;
+}
+
+/* Section d'aide contextuelle */
+.sisme-description-help {
+    background: linear-gradient(135deg, rgba(161, 183, 141, 0.05) 0%, rgba(212, 163, 115, 0.05) 100%);
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    border-radius: var(--sisme-radius-lg);
+    padding: var(--sisme-space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-md);
+}
+
+.sisme-help-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-xs);
+}
+
+.sisme-help-label {
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-color-text);
+    font-size: var(--sisme-text-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+}
+
+.sisme-help-text {
+    font-size: var(--sisme-text-sm);
+    color: var(--sisme-color-text-secondary);
+    line-height: var(--sisme-leading-normal);
+    margin: 0;
+    font-style: italic;
+}
+
+/* Tags autorisés */
+.sisme-allowed-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-xs);
+    margin-top: var(--sisme-space-xs);
+}
+
+.sisme-tag-example {
+    background: var(--sisme-color-background);
+    border: 1px solid var(--sisme-border-subtle);
+    border-radius: var(--sisme-radius-sm);
+    padding: 2px var(--sisme-space-xs);
+    font-family: var(--sisme-font-mono);
+    font-size: var(--sisme-text-xs);
+    color: var(--sisme-color-primary-dark);
+    cursor: pointer;
+    transition: var(--sisme-transition-all);
+    user-select: none;
+}
+
+.sisme-tag-example:hover {
+    background: var(--sisme-color-primary);
+    color: white;
+    border-color: var(--sisme-color-primary);
+    transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sisme-description-help {
+        padding: var(--sisme-space-sm);
+    }
+    
+    .sisme-allowed-tags {
+        justify-content: center;
+    }
+    
+    .sisme-description-textarea {
+        min-height: 100px;
+        padding: var(--sisme-space-sm);
+    }
+    
+    .sisme-description-textarea:focus {
+        min-height: 140px;
+    }
+}
