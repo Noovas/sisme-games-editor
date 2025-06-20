@@ -116,25 +116,27 @@ $form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'g
 $page->render_start();
 ?>
 
-<div style="background: white; padding: 30px; border-radius: 8px; margin: 20px 0;">
-    
-    <?php if ($form_was_submitted && !empty($success_message)): ?>
-        <div style="background: #d1edff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0073aa;">
-            <p style="margin: 0; color: #0073aa;"><strong>✅ <?php echo esc_html($success_message); ?></strong></p>
-        </div>
-    <?php endif; ?>
-    
-    <?php if ($is_edit_mode): ?>
-        <div style="background: #e7f3e7; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            <h3 style="margin: 0 0 10px;">🎮 Jeu en cours d'édition</h3>
-            <p style="margin: 0;"><strong><?php echo esc_html($tag_data->name); ?></strong> (ID: <?php echo $tag_id; ?>)</p>
-        </div>
-    <?php endif; ?>
-    
-    <?php 
-    $form->render();
-    $form->render_javascript();
-    ?>
+<div class="sisme-card">
+    <div class="sisme-card__body">
+        
+        <?php if ($form_was_submitted && !empty($success_message)): ?>
+            <div class="sisme-notice sisme-notice--success sisme-mb-lg">
+                <strong>✅ <?php echo esc_html($success_message); ?></strong>
+            </div>
+        <?php endif; ?>
+        
+        <?php if ($is_edit_mode): ?>
+            <div class="sisme-notice sisme-notice--info sisme-mb-lg">
+                <h3 class="sisme-heading-4">🎮 Jeu en cours d'édition</h3>
+                <p class="sisme-text"><strong><?php echo esc_html($tag_data->name); ?></strong> (ID: <?php echo $tag_id; ?>)</p>
+            </div>
+        <?php endif; ?>
+        
+        <?php 
+        $form->render();
+        $form->render_javascript();
+        ?>
+    </div>
 </div>
 
 <?php
