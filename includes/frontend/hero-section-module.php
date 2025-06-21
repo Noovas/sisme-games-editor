@@ -43,7 +43,7 @@ class Sisme_Hero_Section_Module {
      */
     private static function render_media_gallery($game_data) {
         $output = '';
-        
+        echo '<pre>DEBUG Screenshots: ' . print_r($game_data['screenshots'], true) . '</pre>';
         // Zone d'affichage principal
         $output .= '<div class="sisme-main-media-display" id="sismeMainDisplay">';
         
