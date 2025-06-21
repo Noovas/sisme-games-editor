@@ -243,11 +243,16 @@
 ======================================== */
 
 .sisme-game-info {
-    /* STRUCTURE SOLIDE */
     flex: 1;
     min-width: 300px;
     display: flex;
     flex-direction: column;
+}
+
+.sisme-game-modes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .sisme-game-title {
@@ -263,29 +268,22 @@
 }
 
 .sisme-game-description {
-    /* STRUCTURE SOLIDE */
     margin-bottom: 30px;
     font-size: 1rem;
     line-height: 1.6;
     flex-grow: 1;
-    
-    /* Styles visuels conservés */
     color: #c7d5e0;
 }
 
 .sisme-game-meta {
-    /* STRUCTURE SOLIDE */
     margin-bottom: 30px;
     padding: 20px;
-    
-    /* Styles visuels conservés */
     background: rgba(0, 0, 0, 0.3);
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sisme-meta-row {
-    /* STRUCTURE SOLIDE */
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -298,37 +296,50 @@
 }
 
 .sisme-meta-label {
-    /* STRUCTURE SOLIDE */
     font-weight: bold;
     min-width: 100px;
-    
-    /* Styles visuels conservés */
     color: #66c0f4;
 }
 
 .sisme-game-tags {
-    /* STRUCTURE SOLIDE */
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-.sisme-tag {
-    /* STRUCTURE SOLIDE */
+.sisme-mode-tag, .sisme-tag {
     padding: 6px 12px;
     font-size: 0.85rem;
-    
-    /* Styles visuels conservés */
+    cursor: default;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    text-transform: capitalize;
+    font-weight: 500;
+    border: 1px solid
+}
+
+.sisme-tag {
     background: rgba(102, 192, 244, 0.2);
     color: #66c0f4;
-    border-radius: 20px;
     border: 1px solid rgba(102, 192, 244, 0.3);
-    transition: all 0.3s ease;
+}
+
+.sisme-mode-tag {
+    border: 1px solid rgba(212, 163, 115, 0.3);
+    background: rgba(212, 163, 115, 0.2);
+    color: #d4a373;
+    
 }
 
 .sisme-tag:hover {
     background: rgba(102, 192, 244, 0.3);
     transform: translateY(-1px);
+}
+
+.sisme-mode-tag:hover {
+    background: rgba(212, 163, 115, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(212, 163, 115, 0.2);
 }
 
 .sisme-platforms {
@@ -357,6 +368,17 @@
     border-color: rgba(102, 192, 244, 0.5);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(102, 192, 244, 0.3);
+}
+
+.sisme-dev-publish-div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.sisme-publisher-info {
+    display: flex;
+    flex-direction: column;
 }
 
 /* ========================================

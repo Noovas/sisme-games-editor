@@ -123,8 +123,8 @@ class Sisme_Hero_Section_Module {
         $output .= self::render_platforms($game_data['platforms']);
         $output .= self::render_modes($game_data['modes']);
         $output .= self::render_developers($game_data['developers']);
+        $output .= self::render_publishers($game_data['publishers']);
         $output .= '</div>';
-        
         // Actions et liens boutiques
         $output .= '<div class="sisme-game-actions">';
         $output .= '<div class="sisme-price-section">';
@@ -143,7 +143,7 @@ class Sisme_Hero_Section_Module {
         if (empty($genres)) return '';
         
         $output = '<div class="sisme-meta-row">';
-        $output .= '<span class="sisme-meta-label">Genres :</span>';
+        $output .= '<span class="sisme-meta-label">Genres</span>';
         $output .= '<div class="sisme-game-tags">';
         
         foreach ($genres as $genre_id) {
@@ -183,7 +183,7 @@ class Sisme_Hero_Section_Module {
         );
         
         $output = '<div class="sisme-meta-row">';
-        $output .= '<span class="sisme-meta-label">Plateformes :</span>';
+        $output .= '<span class="sisme-meta-label">Plateformes</span>';
         $output .= '<div class="sisme-platforms">';
         
         // Vérifier et afficher PC
@@ -242,8 +242,17 @@ class Sisme_Hero_Section_Module {
         if (empty($modes)) return '';
         
         $output = '<div class="sisme-meta-row">';
-        $output .= '<span class="sisme-meta-label">Modes :</span>';
-        $output .= '<span class="sisme-meta-value">' . esc_html(implode(', ', $modes)) . '</span>';
+        $output .= '<span class="sisme-meta-label">Modes</span>';
+        $output .= '<div class="sisme-game-modes">';
+        
+        foreach ($modes as $mode) {
+            $mode_clean = strtolower(trim($mode));
+            $output .= '<span class="sisme-mode-tag ' . esc_attr($mode_clean) . '">';
+            $output .= esc_html(ucfirst($mode));
+            $output .= '</span>';
+        }
+        
+        $output .= '</div>';
         $output .= '</div>';
         
         return $output;
@@ -255,8 +264,8 @@ class Sisme_Hero_Section_Module {
     private static function render_developers($developers) {
         if (empty($developers)) return '';
         
-        $output = '<div class="sisme-meta-row">';
-        $output .= '<span class="sisme-meta-label">Développeur :</span>';
+        $output = '<div class="sisme-meta-row sisme-dev-publish-div">';
+        $output .= '<span class="sisme-meta-label">Développeur</span>';
         $output .= '<div class="sisme-developer-info">';
         
         foreach ($developers as $dev_id) {
@@ -271,6 +280,36 @@ class Sisme_Hero_Section_Module {
             }
         }
         
+        $output .= '</div>';
+        $output .= '</div>';
+        
+        return $output;
+    }
+
+    /**
+     * Générer les éditeurs/publishers
+     */
+    private static function render_publishers($publishers) {
+        if (empty($publishers)) return '';
+        
+        $output = '<div class="sisme-meta-row sisme-dev-publish-div">';
+        $output .= '<span class="sisme-meta-label">Éditeur</span>';
+        $output .= '<div class="sisme-publisher-info">';
+        
+        $publisher_links = array();
+        foreach ($publishers as $pub_id) {
+            $publisher = get_category($pub_id);
+            if ($publisher) {
+                $website = get_term_meta($pub_id, 'entity_website', true);
+                if ($website) {
+                    $publisher_links[] = '<a href="' . esc_url($website) . '" target="_blank">' . esc_html($publisher->name) . '</a>';
+                } else {
+                    $publisher_links[] = esc_html($publisher->name);
+                }
+            }
+        }
+        
+        $output .= implode('', $publisher_links);
         $output .= '</div>';
         $output .= '</div>';
         
