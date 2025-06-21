@@ -66,8 +66,8 @@ class SismeGamesEditor {
         // Sous-menu Game Data (page d'accueil)
         add_submenu_page(
             'sisme-games-game-data',
-            'Game Data',
-            'Game Data',
+            'Tableau de Bord',
+            'Tableau de Bord',
             'manage_options',
             'sisme-games-game-data',
             array($this, 'game_data_page')

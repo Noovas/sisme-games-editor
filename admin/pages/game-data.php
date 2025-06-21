@@ -1,7 +1,7 @@
 <?php
 /**
  * File: /sisme-games-editor/admin/pages/game-data.php
- * Page Game Data - Gestion des données de jeux
+ * Page Game Data - Dashboard principal (ex tableau de bord)
  */
 
 if (!defined('ABSPATH')) {
@@ -58,13 +58,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete_game_data' && isset($_
     }
 }
 
-// Créer la page avec le wrapper
+// Créer la page SANS bouton retour (page principale)
 $page = new Sisme_Admin_Page_Wrapper(
-    'Game Data',
-    'Gestion des données des jeux par étiquettes',
-    'database',
-    admin_url('admin.php?page=sisme-games-editor'),
-    'Retour au tableau de bord'
+    'Sisme Games - Dashboard',
+    'Gestion des données des jeux et création de contenu',
+    'database'
+    // Pas de $back_url ni $back_text = pas de bouton retour
 );
 
 // Créer le module table
@@ -73,50 +72,40 @@ $table = new Sisme_Game_Data_Table_Module([
     'edit_url' => admin_url('admin.php?page=sisme-games-edit-game-data')
 ]);
 
-// Récupérer les stats Game Data
-$stats_data = $table->get_stats();
-
 $page->render_start();
 ?>
 
-<!-- Statistiques Game Data -->
-<div class="sisme-card sisme-mb-lg">
-    <div class="sisme-card__header">
-        <h2 class="sisme-heading-3">📊 Statistiques Game Data</h2>
-    </div>
+<!-- Actions principales -->
+<div class="sisme-card">
     <div class="sisme-card__body">
-        <div class="sisme-grid sisme-grid-4">
-            <div class="sisme-card sisme-card--secondary">
-                <div class="sisme-card__body sisme-text-center">
-                    <div class="sisme-text-4xl sisme-color-primary sisme-mb-sm">
-                        <?php echo $stats_data['total_games']; ?>
-                    </div>
-                    <div class="sisme-text-sm sisme-text-muted">Jeux total</div>
-                </div>
+        <div class="sisme-dashboard-sections">
+            <div class="sisme-section-item">
+                <h3 class="sisme-section-title">🎮 Créer un jeu</h3>
+                <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-game-data'); ?>" 
+                   class="sisme-section-link">
+                    Ajouter un nouveau jeu dans la base de données
+                </a>
             </div>
-            <div class="sisme-card sisme-card--secondary">
-                <div class="sisme-card__body sisme-text-center">
-                    <div class="sisme-text-4xl sisme-color-primary sisme-mb-sm">
-                        <?php echo $stats_data['games_with_data']; ?>
-                    </div>
-                    <div class="sisme-text-sm sisme-text-muted">Avec données</div>
-                </div>
+            
+            <div class="sisme-section-item sisme-section-disabled">
+                <h3 class="sisme-section-title">📰 Créer une MàJ</h3>
+                <span class="sisme-section-link sisme-section-disabled-text">
+                    Rédiger une mise à jour ou actualité (bientôt disponible)
+                </span>
             </div>
-            <div class="sisme-card sisme-card--secondary">
-                <div class="sisme-card__body sisme-text-center">
-                    <div class="sisme-text-4xl sisme-color-primary sisme-mb-sm">
-                        <?php echo $stats_data['games_with_articles']; ?>
-                    </div>
-                    <div class="sisme-text-sm sisme-text-muted">Avec articles</div>
-                </div>
+            
+            <div class="sisme-section-item sisme-section-disabled">
+                <h3 class="sisme-section-title">📄 Tous les articles</h3>
+                <span class="sisme-section-link sisme-section-disabled-text">
+                    Gérer tous les contenus publiés (bientôt disponible)
+                </span>
             </div>
-            <div class="sisme-card sisme-card--secondary">
-                <div class="sisme-card__body sisme-text-center">
-                    <div class="sisme-text-4xl sisme-color-primary sisme-mb-sm">
-                        <?php echo $stats_data['total_articles']; ?>
-                    </div>
-                    <div class="sisme-text-sm sisme-text-muted">Articles total</div>
-                </div>
+            
+            <div class="sisme-section-item sisme-section-disabled">
+                <h3 class="sisme-section-title">⚙️ Paramètres</h3>
+                <span class="sisme-section-link sisme-section-disabled-text">
+                    Configuration du plugin (bientôt disponible)
+                </span>
             </div>
         </div>
     </div>
@@ -124,19 +113,11 @@ $page->render_start();
 
 <!-- Tableau Game Data -->
 <div class="sisme-card">
-    <div class="sisme-card__header sisme-card-game-data__header">
-        <h2 class="sisme-heading-3">🎮 Gestion des jeux</h2>
-        <div class="sisme-card__header-actions">
-            <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-game-data'); ?>" 
-               class="sisme-btn sisme-btn--primary">
-                ➕ Créer un jeu
-            </a>
-        </div>
-    </div>
-    <div class="sisme-card__body sisme-card__body--no-padding">
+    <div class="sisme-card__body">
         <?php $table->render(); ?>
     </div>
 </div>
 
 <?php
 $page->render_end();
+?>

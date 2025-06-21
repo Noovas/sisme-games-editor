@@ -382,27 +382,29 @@ class Sisme_Game_Data_Table_Module {
                         // Classes et textes conditionnels
                         if ($has_presentation) {
                             $btn_class = 'sisme-action-btn sisme-action-fiche sisme-has-presentation';
-                            $btn_title = 'Modifier';
+                            $btn_title = 'Modifier la fiche';
                             $btn_icon = '📝'; // Icône verte/remplie
                         } else {
                             $btn_class = 'sisme-action-btn sisme-action-fiche sisme-no-presentation';
-                            $btn_title = 'Créer';
+                            $btn_title = 'Créer une fiche';
                             $btn_icon = '📄'; // Icône vide/grise
                         }
-                        ?>
+                    ?>
 
-                        <a href="<?php echo esc_url($fiche_url); ?>" 
-                           class="<?php echo esc_attr($btn_class); ?>"
-                           title="<?php echo esc_attr($btn_title); ?>" 
-                           aria-label="<?php echo esc_attr($btn_title); ?>">
-                            <?php echo $btn_icon; ?>
-                        </a>
+                    <a href="<?php echo esc_url($fiche_url); ?>" 
+                       class="<?php echo esc_attr($btn_class); ?>"
+                       title="<?php echo esc_attr($btn_title); ?>" 
+                       aria-label="<?php echo esc_attr($btn_title); ?>">
+                        <?php echo $btn_icon; ?>
+                    </a>
                                             
+                    <!-- TEMPORAIREMENT DÉSACTIVÉ
                     <?php if ($game_data['articles_count'] > 0): ?>
                         <a href="<?php echo admin_url('admin.php?page=sisme-games-all-articles&s=' . urlencode($game_data['name'])); ?>" 
                            class="sisme-action-btn sisme-action-view-articles" 
                            title="Voir les articles de ce jeu">📄</a>
                     <?php endif; ?>
+                    -->
                     
                     <button type="button" 
                             class="sisme-action-btn sisme-action-delete delete-game-data" 
