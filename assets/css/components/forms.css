@@ -1890,3 +1890,207 @@
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
+
+/* ========================================
+   📖 COMPOSANTS READONLY (Game Data)
+======================================== */
+
+/* Grille des champs en lecture seule */
+.sisme-readonly-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--sisme-space-md);
+}
+
+/* Champ individuel en lecture seule */
+.sisme-readonly-field {
+    padding: var(--sisme-space-md);
+    background: rgba(161, 183, 141, 0.05);
+    border-radius: var(--sisme-radius-md);
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-readonly-field:hover {
+    background: rgba(161, 183, 141, 0.08);
+    border-color: rgba(161, 183, 141, 0.3);
+}
+
+/* Label des champs readonly */
+.sisme-readonly-label {
+    display: block;
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-color-text-muted);
+    font-size: var(--sisme-text-sm);
+    margin-bottom: var(--sisme-space-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Valeur des champs readonly */
+.sisme-readonly-value {
+    color: var(--sisme-color-text);
+    line-height: 1.5;
+    font-size: var(--sisme-text-base);
+}
+
+/* Liens externes en readonly */
+.sisme-external-links-readonly {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-xs);
+}
+
+.sisme-external-links-readonly .sisme-external-link {
+    @extend .sisme-tag;
+    background: var(--sisme-color-primary);
+    color: white;
+    text-decoration: none;
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-external-links-readonly .sisme-external-link:hover {
+    background: var(--sisme-color-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--sisme-shadow-md);
+}
+
+/* ========================================
+   📝 CONTENEUR DES SECTIONS
+======================================== */
+
+/* Conteneur principal des sections */
+.sisme-sections-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-lg);
+}
+
+/* Chaque section hérite des styles de card */
+.sisme-sections-container .sisme-card {
+    margin-bottom: 0; /* Supprime la marge par défaut des cards */
+}
+
+/* Actions pour les sections */
+.sisme-sections-container .sisme-form-actions {
+    margin-top: var(--sisme-space-md);
+    text-align: center;
+}
+
+/* ========================================
+   📷 SÉLECTEUR MÉDIA AMÉLIORÉ
+======================================== */
+
+/* Container du sélecteur média (réutilise le style existant) */
+.sisme-media-selector {
+    @extend .sisme-media-selector; /* Hérite du style existant */
+}
+
+/* Prévisualisation média */
+.sisme-media-preview {
+    margin-bottom: var(--sisme-space-md);
+    text-align: center;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Image de prévisualisation */
+.sisme-media-preview__image {
+    max-width: 200px;
+    max-height: 150px;
+    height: auto;
+    border-radius: var(--sisme-radius-md);
+    box-shadow: var(--sisme-shadow-sm);
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-media-preview__image:hover {
+    transform: scale(1.02);
+    box-shadow: var(--sisme-shadow-lg);
+}
+
+/* État vide de la prévisualisation */
+.sisme-media-preview__empty {
+    padding: var(--sisme-space-xl);
+    color: var(--sisme-color-text-muted);
+    font-style: italic;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: var(--sisme-radius-md);
+    border: 2px dashed var(--sisme-border-light);
+    transition: var(--sisme-transition-all);
+    cursor: pointer;
+    width: 100%;
+}
+
+.sisme-media-preview__empty:hover {
+    background: rgba(161, 183, 141, 0.05);
+    border-color: var(--sisme-color-primary);
+    color: var(--sisme-color-primary);
+}
+
+/* Actions du sélecteur média */
+.sisme-media-actions {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ========================================
+   🎨 RESPONSIVE - SECTIONS
+======================================== */
+
+/* Tablettes */
+@media (max-width: 1024px) {
+    .sisme-readonly-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--sisme-space-sm);
+    }
+    
+    .sisme-sections-container {
+        gap: var(--sisme-space-md);
+    }
+}
+
+/* Mobiles */
+@media (max-width: 768px) {
+    .sisme-readonly-grid {
+        grid-template-columns: 1fr;
+        gap: var(--sisme-space-sm);
+    }
+    
+    .sisme-readonly-field {
+        padding: var(--sisme-space-sm);
+    }
+    
+    .sisme-media-preview__image {
+        max-width: 150px;
+        max-height: 100px;
+    }
+    
+    .sisme-media-actions {
+        flex-direction: column;
+    }
+    
+    .sisme-external-links-readonly {
+        justify-content: center;
+    }
+}
+
+/* Très petits mobiles */
+@media (max-width: 480px) {
+    .sisme-media-preview__empty {
+        padding: var(--sisme-space-md);
+        font-size: var(--sisme-text-sm);
+    }
+    
+    .sisme-readonly-label {
+        font-size: var(--sisme-text-xs);
+    }
+    
+    .sisme-readonly-value {
+        font-size: var(--sisme-text-sm);
+    }
+}
