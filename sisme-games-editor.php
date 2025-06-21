@@ -34,10 +34,6 @@ class SismeGamesEditor {
     
     private function init_hooks() {
         add_action('admin_menu', array($this, 'add_admin_menu'));
-        add_action('admin_init', array($this, 'handle_form_submission'));
-        add_action('wp_ajax_sisme_create_fiche', array($this, 'ajax_create_fiche'));
-        add_action('wp_ajax_sisme_add_editor', array($this, 'ajax_add_editor'));
-        add_action('wp_ajax_sisme_load_more_articles', array($this, 'ajax_load_more_articles'));
         add_action('wp_ajax_sisme_create_tag', array($this, 'handle_ajax_create_tag'));
         add_action('wp_ajax_sisme_create_category', array($this, 'handle_ajax_create_category'));
         add_action('wp_ajax_sisme_create_entity', array($this, 'handle_ajax_create_entity'));
@@ -47,22 +43,76 @@ class SismeGamesEditor {
 
         new Sisme_Assets_Loader();
         new Sisme_Content_Filter();
-        new Sisme_SEO_Enhancements();
-        new Sisme_News_Manager();
-        //new Sisme_Game_Form_Module();
-
     }
     
     private function include_files() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/form-handler.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/assets-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/content-filter.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/seo-enhancements.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/news-manager.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/patch-news-handler.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-table-game-data.php';
-
     }
+
+    public function add_admin_menu() {
+        // Menu principal - Game Data comme page d'accueil
+        add_menu_page(
+            'Sisme Games',
+            'Sisme Games',
+            'manage_options',
+            'sisme-games-game-data',
+            array($this, 'game_data_page'),
+            'dashicons-games',
+            30
+        );
+        
+        // Sous-menu Game Data (page d'accueil)
+        add_submenu_page(
+            'sisme-games-game-data',
+            'Game Data',
+            'Game Data',
+            'manage_options',
+            'sisme-games-game-data',
+            array($this, 'game_data_page')
+        );
+
+        // Sous-menu Créer/Éditer Jeu
+        add_submenu_page(
+            'sisme-games-game-data',
+            'Créer Jeu',
+            'Créer Jeu',
+            'manage_options',
+            'sisme-games-edit-game-data',
+            array($this, 'edit_game_data_page')
+        );
+
+        // Sous-menu Créer Fiche (masqué du menu, accessible via liens)
+        add_submenu_page(
+            null,
+            'Créer Fiche de Jeu',
+            'Créer Fiche', 
+            'manage_options',
+            'sisme-games-edit-fiche-jeu',
+            array($this, 'edit_fiche_jeu_page')
+        );
+    }
+
+    // ===================================
+    // PAGES ADMIN ESSENTIELLES
+    // ===================================
+
+    public function game_data_page() {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/game-data.php';
+    }
+
+    public function edit_game_data_page() {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-game-data.php';
+    }
+
+    public function edit_fiche_jeu_page() {
+        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-fiche-jeu.php';
+    }
+
+    // ===================================
+    // AJAX HANDLERS ESSENTIELS
+    // ===================================
 
     public function handle_ajax_create_tag() {
         if (!wp_verify_nonce($_POST['nonce'], 'sisme_create_tag')) {
@@ -93,696 +143,97 @@ class SismeGamesEditor {
             'name' => $tag_info->name
         ));
     }
-    
-    public function add_admin_menu() {
-        add_menu_page(
-            'Sisme Games Editor',
-            'Games Editor',
-            'manage_options',
-            'sisme-games-editor',
-            array($this, 'dashboard_page'),
-            'dashicons-games',
-            30
-        );
-        
-        add_submenu_page(
-            'sisme-games-editor',
-            'Tableau de bord',
-            'Tableau de bord',
-            'manage_options',
-            'sisme-games-editor',
-            array($this, 'dashboard_page')
-        );
 
-        add_submenu_page(
-            'sisme-games-editor',
-            'Tous les articles',
-            'Tous les articles',
-            'manage_options',
-            'sisme-games-all-articles',
-            array($this, 'all_articles_page')
-        );
-        
-        add_submenu_page(
-            'sisme-games-editor',
-            'Fiches de jeu',
-            'Fiches de jeu',
-            'manage_options',
-            'sisme-games-fiches',
-            array($this, 'fiches_page')
-        );
-        
-        add_submenu_page(
-            'sisme-games-editor',
-            'Patch & News',
-            'Patch & News',
-            'manage_options',
-            'sisme-games-patch-news',
-            array($this, 'patch_news_page')
-        );
-        
-        add_submenu_page(
-            'sisme-games-editor',
-            'Tests',
-            'Tests',
-            'manage_options',
-            'sisme-games-tests',
-            array($this, 'tests_page')
-        );
-        
-        add_submenu_page(
-            'sisme-games-editor',
-            'Réglages',
-            'Réglages',
-            'manage_options',
-            'sisme-games-settings',
-            array($this, 'settings_page')
-        );
-
-        add_submenu_page(
-            'sisme-games-editor',
-            'Game Data',
-            'Game Data',
-            'manage_options',
-            'sisme-games-game-data',
-            array($this, 'game_data_page')
-        );
-
-        add_submenu_page(
-            null,
-            'Nouvelle fiche de jeu',
-            'Nouvelle fiche de jeu', 
-            'manage_options',
-            'sisme-games-edit-fiche-jeu',
-            array($this, 'edit_fiche_jeu_page')
-        );
-
-        add_submenu_page(
-            null, 
-            'Éditer une fiche',
-            'Éditer une fiche',
-            'manage_options',
-            'sisme-games-edit-fiche',
-            array($this, 'edit_fiche_page')
-        );
-
-        add_submenu_page(
-            null,
-            'Éditeur interne Sisme Games',
-            'Éditeur interne',
-            'manage_options',
-            'sisme-games-internal-editor',
-            array($this, 'internal_editor_page')
-        );
-
-        add_submenu_page(
-            null, 
-            'Éditer un article Patch & News',
-            'Éditer Patch & News',
-            'manage_options',
-            'sisme-games-edit-patch-news',
-            array($this, 'edit_patch_news_page')
-        );
-
-        add_submenu_page(
-            null,
-            'Édition de Test',
-            'Édition de Test',
-            'manage_options',
-            'sisme-games-edit-test',
-            array($this, 'edit_test_page')
-        );
-
-        add_submenu_page(
-            null,
-            'Éditer Game Data',
-            'Éditer Game Data',
-            'manage_options',
-            'sisme-games-edit-game-data',
-            array($this, 'edit_game_data_page')
-        );
-
-        add_submenu_page(
-            null,
-            'Nouvelle fiche de jeu',
-            'Nouvelle fiche de jeu', 
-            'manage_options',
-            'sisme-games-edit-fiche-jeu',
-            array($this, 'edit_fiche_jeu_page')
-        );
-
-
-
-    }
-    
-    public function handle_form_submission() {
-        if (!isset($_POST['sisme_form_action']) && !isset($_POST['sisme_edit_action']) && !isset($_POST['sisme_patch_news_action'])) {
-            return;
-        }
-        
-        if (isset($_POST['sisme_form_action'])) {
-            if (!wp_verify_nonce($_POST['sisme_nonce'], 'sisme_form')) {
-                wp_die('Erreur de sécurité');
-            }
-        } elseif (isset($_POST['sisme_edit_action'])) {
-            if (!wp_verify_nonce($_POST['sisme_edit_nonce'], 'sisme_edit_form')) {
-                wp_die('Erreur de sécurité');
-            }
-        } elseif (isset($_POST['sisme_patch_news_action'])) {
-            if (!wp_verify_nonce($_POST['sisme_edit_patch_news_nonce'], 'sisme_edit_patch_news_form')) {
-                wp_die('Erreur de sécurité');
-            }
-        }
-        
-        $form_handler = new Sisme_Form_Handler();
-        
-        if (isset($_POST['sisme_form_action'])) {
-            switch ($_POST['sisme_form_action']) {
-                case 'create_fiche_step1':
-                    $form_handler->handle_fiche_step1();
-                    break;
-                case 'create_fiche_step2':
-                    $form_handler->handle_fiche_step2();
-                    break;
-            }
-        } elseif (isset($_POST['sisme_edit_action'])) {
-            switch ($_POST['sisme_edit_action']) {
-                case 'create_fiche':
-                    $form_handler->handle_fiche_creation();
-                    break;
-                case 'update_fiche':
-                    $form_handler->handle_fiche_update();
-                    break;
-            }
-        } elseif (isset($_POST['sisme_patch_news_action'])) {
-            $patch_news_handler = new Sisme_Patch_News_Handler();
-            
-            switch ($_POST['sisme_patch_news_action']) {
-                case 'create_article':
-                    $patch_news_handler->handle_creation();
-                    break;
-                case 'update_article':
-                    $patch_news_handler->handle_update();
-                    break;
-            }
-        }
-    }
-    
-    public function ajax_create_fiche() {
-        check_ajax_referer('sisme_form', 'nonce');
-        
-        $form_handler = new Sisme_Form_Handler();
-        $result = $form_handler->create_complete_fiche($_POST);
-        
-        if ($result['success']) {
-            wp_send_json_success($result);
-        } else {
-            wp_send_json_error($result['message']);
-        }
-    }
-
-    public function ajax_add_editor() {
-        check_ajax_referer('sisme_editor', 'nonce');
-        
-        $editor_id = sanitize_text_field($_POST['editor_id']);
-        $section_number = intval($_POST['section_number']);
-        
-        ob_start();
-        wp_editor('', $editor_id, array(
-            'textarea_name' => 'sections[' . $section_number . '][content]',
-            'textarea_rows' => 8,
-            'media_buttons' => true,
-            'teeny' => false,
-            'tinymce' => true
-        ));
-        $editor_html = ob_get_clean();
-        
-        wp_send_json_success($editor_html);
-    }
-    
-    public function dashboard_page() {
-        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/dashboard.php';
-    }
-    
-    public function fiches_page() {
-        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/fiches.php';
-    }
-    
-    public function patch_news_page() {
-        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/patch-news.php';
-    }
-    
-    public function tests_page() {
-        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/tests.php';
-    }
-    
-    public function settings_page() {
-        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/settings.php';
-    }
-
-    public function edit_fiche_page() {
-        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-fiche.php';
-    }
-
-    public function internal_editor_page() {
-        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/internal-editor.php';
-    }
-
-    public function edit_patch_news_page() {
-        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-patch-news.php';
-    }
-
-    public function all_articles_page() {
-        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/all-articles.php';
-    }
-
-    public function edit_test_page() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-test.php';
-    }
-
-    public function game_data_page() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/game-data.php';
-    }
-
-    public function edit_game_data_page() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-game-data.php';
-    }
-
-    public function edit_fiche_jeu_page() {
-        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-fiche-jeu.php';
-    }
- 
-    public function migration_sections_page() {
-        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/migration-sections.php';
-    }
-
-    public function ajax_load_more_articles() {
-        // Vérification de sécurité
-        if (!wp_verify_nonce($_POST['nonce'], 'sisme_load_more')) {
-            wp_die('Erreur de sécurité');
-        }
-        
-        $page_num = intval($_POST['page_num']);
-        $search = sanitize_text_field($_POST['search']);
-        $filter_type = sanitize_text_field($_POST['filter_type']);
-        $filter_status = sanitize_text_field($_POST['filter_status']);
-        
-        // Fonction utilitaire pour récupérer les catégories Sisme
-        $sisme_categories = $this->get_sisme_categories_for_ajax();
-        
-        // Configuration de la requête
-        $args = array(
-            'post_type' => 'post',
-            'post_status' => array('publish', 'draft', 'private'),
-            'posts_per_page' => 10,
-            'paged' => $page_num,
-            'category__in' => $sisme_categories,
-            'orderby' => 'date',
-            'order' => 'DESC'
-        );
-        
-        // Appliquer les filtres
-        if (!empty($search)) {
-            $args['s'] = $search;
-        }
-        
-        if (!empty($filter_type)) {
-            switch ($filter_type) {
-                case 'fiches':
-                    $fiches_categories = array();
-                    foreach (get_categories(array('hide_empty' => false)) as $category) {
-                        if (strpos($category->slug, 'jeux-') === 0) {
-                            $fiches_categories[] = $category->term_id;
-                        }
-                    }
-                    if (!empty($fiches_categories)) {
-                        $args['category__in'] = $fiches_categories;
-                    }
-                    break;
-                case 'news':
-                    $news_cat = get_category_by_slug('news');
-                    if ($news_cat) {
-                        $args['cat'] = $news_cat->term_id;
-                    }
-                    break;
-                case 'patch':
-                    $patch_cat = get_category_by_slug('patch');
-                    if ($patch_cat) {
-                        $args['cat'] = $patch_cat->term_id;
-                    }
-                    break;
-                case 'tests':
-                    $tests_cat = get_category_by_slug('tests');
-                    if ($tests_cat) {
-                        $args['cat'] = $tests_cat->term_id;
-                    }
-                    break;
-            }
-        }
-        
-        if (!empty($filter_status)) {
-            $args['post_status'] = array($filter_status);
-        }
-        
-        $articles_query = new WP_Query($args);
-        
-        if (!$articles_query->have_posts()) {
-            wp_send_json_error('Aucun article trouvé');
-        }
-        
-        // Générer le HTML des articles
-        ob_start();
-        
-        while ($articles_query->have_posts()) : 
-            $articles_query->the_post(); 
-            $post_id = get_the_ID();
-            $status = get_post_status();
-            $article_info = $this->get_article_type_info_for_ajax($post_id);
-            
-            $status_labels = array(
-                'publish' => 'Publié',
-                'draft' => 'Brouillon',
-                'private' => 'Privé'
-            );
-            ?>
-            <!-- Article avec image à gauche -->
-            <div class="article-item">
-                <!-- Image à gauche -->
-                <div class="article-image">
-                    <?php if (has_post_thumbnail()) : ?>
-                        <?php echo get_the_post_thumbnail($post_id, 'medium', array('class' => 'article-thumb')); ?>
-                    <?php else : ?>
-                        <div class="no-image"><?php echo $article_info['icon']; ?></div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Contenu à droite -->
-                <div class="article-content">
-                    <!-- Ligne de données -->
-                    <div class="article-data">
-                        <div class="data-col title-col">
-                            <h4 class="article-title">
-                                <a href="<?php echo $article_info['edit_url']; ?>">
-                                    <?php the_title(); ?>
-                                </a>
-                            </h4>
-                        </div>
-                        
-                        <div class="data-col type-col">
-                            <span class="type-badge <?php echo $article_info['type']; ?>-badge">
-                                <?php echo $article_info['icon']; ?> <?php echo $article_info['label']; ?>
-                            </span>
-                        </div>
-                        
-                        <div class="data-col status-col">
-                            <span class="status-badge status-<?php echo $status; ?>">
-                                <?php echo isset($status_labels[$status]) ? $status_labels[$status] : ucfirst($status); ?>
-                            </span>
-                        </div>
-                        
-                        <div class="data-col date-col">
-                            <div class="date-info">
-                                <span class="date"><?php echo get_the_date('j M Y'); ?></span>
-                                <span class="time"><?php echo get_the_date('H:i'); ?></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Ligne d'actions -->
-                    <div class="article-actions">
-                        <a href="<?php echo $article_info['edit_url']; ?>" 
-                           class="action-btn edit-btn">✏️ Modifier</a>
-                        
-                        <?php if ($status === 'publish') : ?>
-                            <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-all-articles&action=unpublish&post_id=' . $post_id), 'unpublish_post_' . $post_id); ?>" 
-                               class="action-btn draft-btn">📝 Brouillon</a>
-                        <?php else : ?>
-                            <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-all-articles&action=publish&post_id=' . $post_id), 'publish_post_' . $post_id); ?>" 
-                               class="action-btn publish-btn">✅ Publier</a>
-                        <?php endif; ?>
-                        
-                        <a href="<?php echo get_permalink($post_id); ?>" 
-                           target="_blank" 
-                           class="action-btn view-btn">👁️ Voir</a>
-                        
-                        <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-all-articles&action=delete&post_id=' . $post_id), 'delete_post_' . $post_id); ?>" 
-                           onclick="return confirm('Supprimer cet article ?');"
-                           class="action-btn delete-btn">🗑️ Supprimer</a>
-                    </div>
-                </div>
-            </div>
-            <?php
-        endwhile;
-        
-        $html = ob_get_clean();
-        wp_reset_postdata();
-        
-        wp_send_json_success(array('html' => $html));
-    }
-    
-    // Méthodes utilitaires pour l'AJAX
-    private function get_sisme_categories_for_ajax() {
-        $all_categories = get_categories(array('hide_empty' => false));
-        $sisme_categories = array();
-        
-        foreach ($all_categories as $category) {
-            if (strpos($category->slug, 'jeux-') === 0 || 
-                in_array($category->slug, array('news', 'patch', 'tests'))) {
-                $sisme_categories[] = $category->term_id;
-            }
-        }
-        
-        return $sisme_categories;
-    }
-
-    //Handler AJAX pour créer des catégories de genre de jeu
     public function handle_ajax_create_category() {
-        // Vérification de sécurité
         if (!wp_verify_nonce($_POST['nonce'], 'sisme_create_category')) {
             wp_die('Sécurité : nonce invalide');
         }
         
         $category_name = sanitize_text_field($_POST['category_name']);
+        $parent_id = intval($_POST['parent_id']);
+        
         if (empty($category_name)) {
             wp_send_json_error('Nom de la catégorie requis');
         }
         
-        // Normaliser le nom pour créer le slug
-        $slug = 'jeux-' . sanitize_title($category_name);
-        
-        // Vérifier si la catégorie existe déjà par slug
-        $existing_category = get_category_by_slug($slug);
+        $existing_category = get_term_by('name', $category_name, 'category');
         if ($existing_category) {
             wp_send_json_success(array(
                 'term_id' => $existing_category->term_id,
-                'name' => $existing_category->name,
-                'slug' => $existing_category->slug,
-                'existed' => true
+                'name' => $existing_category->name
             ));
         }
         
-        // Trouver la catégorie parent "Jeux" 
-        $parent_category = get_category_by_slug('jeux-video');
-        if (!$parent_category) {
-            $parent_category = get_term_by('name', 'Jeux', 'category');
-        }
-        
-        if (!$parent_category) {
-            wp_send_json_error('Catégorie parent "Jeux" introuvable (slug testé: jeux-video)');
-        }
-        
-        // Vérifier que ce n'est pas un mode de jeu (exclusion)
-        $excluded_slugs = ['jeux-solo', 'jeux-multijoueur', 'jeux-cooperatif', 'jeux-competitif'];
-        if (in_array($slug, $excluded_slugs)) {
-            wp_send_json_error('Cette catégorie est réservée aux modes de jeu');
-        }
-        
-        // Créer la nouvelle catégorie
-        $new_category = wp_insert_category(array(
-            'cat_name' => $category_name,
-            'category_nicename' => $slug,
-            'category_parent' => $parent_category->term_id,
-            'category_description' => 'Genre de jeu : ' . $category_name
-        ));
-        
+        $new_category = wp_insert_term($category_name, 'category', array('parent' => $parent_id));
         if (is_wp_error($new_category)) {
             wp_send_json_error('Erreur : ' . $new_category->get_error_message());
         }
         
-        // Récupérer les informations de la catégorie créée
-        $category_info = get_category($new_category);
+        $category_info = get_term($new_category['term_id'], 'category');
         wp_send_json_success(array(
             'term_id' => $category_info->term_id,
-            'name' => $category_info->name,
-            'slug' => $category_info->slug,
-            'existed' => false
+            'name' => $category_info->name
         ));
     }
 
-    /**
-     * Handler AJAX pour créer des entités (développeurs/éditeurs)
-     */
     public function handle_ajax_create_entity() {
-        // Vérification de sécurité
         if (!wp_verify_nonce($_POST['nonce'], 'sisme_create_entity')) {
             wp_die('Sécurité : nonce invalide');
         }
         
         $entity_name = sanitize_text_field($_POST['entity_name']);
-        $entity_website = sanitize_url($_POST['entity_website']);
+        $entity_website = esc_url_raw($_POST['entity_website']);
         
         if (empty($entity_name)) {
             wp_send_json_error('Nom de l\'entité requis');
         }
         
-        // Normaliser le nom pour créer le slug
-        $slug = sanitize_title($entity_name);
-        
-        // Vérifier si l'entité existe déjà par slug
-        $existing_entity = get_category_by_slug($slug);
-        if ($existing_entity) {
-            wp_send_json_success(array(
-                'term_id' => $existing_entity->term_id,
-                'name' => $existing_entity->name,
-                'slug' => $existing_entity->slug,
-                'website' => get_term_meta($existing_entity->term_id, 'entity_website', true),
-                'existed' => true
-            ));
-        }
-        
-        // Trouver la catégorie parent "editeurs-developpeurs"
         $parent_category = get_category_by_slug('editeurs-developpeurs');
         if (!$parent_category) {
             wp_send_json_error('Catégorie parent "editeurs-developpeurs" introuvable');
         }
         
-        // Créer la nouvelle entité
-        $new_entity = wp_insert_category(array(
-            'cat_name' => $entity_name,
-            'category_nicename' => $slug,
-            'category_parent' => $parent_category->term_id,
-            'category_description' => 'Développeur/Éditeur : ' . $entity_name
-        ));
+        $existing_entity = get_term_by('name', $entity_name, 'category');
+        if ($existing_entity && $existing_entity->parent == $parent_category->term_id) {
+            wp_send_json_success(array(
+                'term_id' => $existing_entity->term_id,
+                'name' => $existing_entity->name,
+                'website' => get_term_meta($existing_entity->term_id, 'website_url', true)
+            ));
+        }
         
+        $new_entity = wp_insert_term($entity_name, 'category', array('parent' => $parent_category->term_id));
         if (is_wp_error($new_entity)) {
             wp_send_json_error('Erreur : ' . $new_entity->get_error_message());
         }
         
-        // Sauvegarder le lien web si fourni
         if (!empty($entity_website)) {
-            update_term_meta($new_entity, 'entity_website', $entity_website);
+            update_term_meta($new_entity['term_id'], 'website_url', $entity_website);
         }
         
-        // Récupérer les informations de l'entité créée
-        $entity_info = get_category($new_entity);
+        $entity_info = get_term($new_entity['term_id'], 'category');
         wp_send_json_success(array(
             'term_id' => $entity_info->term_id,
             'name' => $entity_info->name,
-            'slug' => $entity_info->slug,
-            'website' => $entity_website,
-            'existed' => false
+            'website' => $entity_website
         ));
-    }
-    
-    private function get_article_type_info_for_ajax($post_id) {
-        $categories = get_the_category($post_id);
-        
-        foreach ($categories as $category) {
-            if (strpos($category->slug, 'jeux-') === 0) {
-                return array(
-                    'type' => 'fiche',
-                    'icon' => '🎮',
-                    'label' => 'Fiche',
-                    'edit_url' => admin_url('admin.php?page=sisme-games-edit-fiche&post_id=' . $post_id)
-                );
-            } elseif ($category->slug === 'news') {
-                return array(
-                    'type' => 'news',
-                    'icon' => '📰',
-                    'label' => 'News',
-                    'edit_url' => admin_url('admin.php?page=sisme-games-edit-patch-news&post_id=' . $post_id)
-                );
-            } elseif ($category->slug === 'patch') {
-                return array(
-                    'type' => 'patch',
-                    'icon' => '🔧',
-                    'label' => 'Patch',
-                    'edit_url' => admin_url('admin.php?page=sisme-games-edit-patch-news&post_id=' . $post_id)
-                );
-            } elseif ($category->slug === 'tests') {
-                return array(
-                    'type' => 'tests',
-                    'icon' => '⭐',
-                    'label' => 'Test',
-                    'edit_url' => admin_url('admin.php?page=sisme-games-tests&post_id=' . $post_id)
-                );
-            }
-        }
-        
-        return array(
-            'type' => 'other',
-            'icon' => '📄',
-            'label' => 'Article',
-            'edit_url' => get_edit_post_link($post_id)
-        );
     }
 
     public function ajax_delete_game_data() {
-        // Vérification de sécurité
-        if (!wp_verify_nonce($_POST['nonce'], 'sisme_delete_game_data')) {
-            wp_send_json_error(array(
-                'message' => 'Erreur de sécurité : Token invalide'
-            ));
-        }
-        
-        // Vérification des permissions
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error(array(
-                'message' => 'Permissions insuffisantes'
-            ));
+        if (!check_ajax_referer('sisme_delete_game_data', 'nonce', false)) {
+            wp_send_json_error('Erreur de sécurité');
         }
         
         $game_id = intval($_POST['game_id']);
-        
         if (!$game_id) {
-            wp_send_json_error(array(
-                'message' => 'ID du jeu invalide'
-            ));
+            wp_send_json_error('ID du jeu requis');
         }
         
-        // Récupérer les infos du jeu avant suppression
         $tag = get_term($game_id, 'post_tag');
-        
         if (!$tag || is_wp_error($tag)) {
-            wp_send_json_error(array(
-                'message' => 'Jeu introuvable'
-            ));
+            wp_send_json_error('Jeu introuvable');
         }
         
-        $game_name = $tag->name;
-        
-        // 🔍 Vérifier s'il y a des articles liés à cette étiquette
-        $linked_posts = get_posts(array(
-            'tag_id' => $game_id,
-            'post_type' => 'post',
-            'post_status' => array('publish', 'draft', 'private', 'trash'),
-            'posts_per_page' => -1,
-            'fields' => 'ids'
-        ));
-        
-        // ⚠️ Si des articles sont liés, demander confirmation supplémentaire
-        if (!empty($linked_posts)) {
-            // On va retourner une erreur avec les détails pour que l'utilisateur confirme
-            if (!isset($_POST['force_delete']) || $_POST['force_delete'] !== 'yes') {
-                wp_send_json_error(array(
-                    'message' => 'Ce jeu est lié à ' . count($linked_posts) . ' article(s). Voulez-vous vraiment supprimer l\'étiquette et détacher ces articles ?',
-                    'needs_confirmation' => true,
-                    'linked_posts_count' => count($linked_posts)
-                ));
-            }
-        }
-        
-        // 🗑️ Supprimer toutes les métadonnées du jeu
         $meta_keys = [
             'game_description', 'game_genres', 'game_modes', 'game_developers', 
             'game_publishers', 'game_platforms', 'release_date', 'external_links',
@@ -790,35 +241,13 @@ class SismeGamesEditor {
             'screenshots', 'game_sections', 'last_update'
         ];
         
-        $deleted_count = 0;
         foreach ($meta_keys as $meta_key) {
-            if (delete_term_meta($game_id, $meta_key)) {
-                $deleted_count++;
-            }
+            delete_term_meta($game_id, $meta_key);
         }
         
-        // 🗑️ Supprimer l'étiquette elle-même
-        $deletion_result = wp_delete_term($game_id, 'post_tag');
-        
-        if (is_wp_error($deletion_result)) {
-            wp_send_json_error(array(
-                'message' => 'Erreur lors de la suppression de l\'étiquette : ' . $deletion_result->get_error_message()
-            ));
-        }
-        
-        $message = 'Le jeu "' . $game_name . '" a été complètement supprimé !';
-        if (!empty($linked_posts)) {
-            $message .= ' (' . count($linked_posts) . ' article(s) détaché(s))';
-        }
-        $message .= ' (' . $deleted_count . ' métadonnées supprimées)';
-        
-        wp_send_json_success(array(
-            'message' => $message
-        ));
+        wp_send_json_success('Données du jeu supprimées avec succès');
     }
 }
 
-function sisme_games_editor_init() {
-    SismeGamesEditor::get_instance();
-}
-add_action('init', 'sisme_games_editor_init');
+// Initialiser le plugin
+SismeGamesEditor::get_instance();
