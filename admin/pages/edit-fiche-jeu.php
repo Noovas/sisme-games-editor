@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
 require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/fiche-creator.php';
 
-// Récupérer l'ID du tag (jeu)
+// Récupérer l'ID du tag (jeu) - TOUJOURS depuis $_GET
 $tag_id = isset($_GET['tag_id']) ? intval($_GET['tag_id']) : 0;
 $post_id = isset($_GET['post_id']) ? intval($_GET['post_id']) : 0;
 
@@ -39,7 +39,69 @@ $game_data = array(
 // DEBUG: Récupérer aussi les sections par défaut du jeu
 $default_game_sections = get_term_meta($tag_id, 'game_sections', true) ?: array();
 
-// Mode création ou édition
+// Messages
+$success_message = '';
+$error_message = '';
+
+// Traitement du formulaire EN PREMIER
+if (isset($_POST['action']) && $_POST['action'] === 'create_fiche' && check_admin_referer('sisme_fiche_sections')) {
+    
+    // Récupérer et nettoyer les sections
+    $sections = $_POST['sections'] ?? array();
+    $clean_sections = array();
+    
+    if (is_array($sections)) {
+        foreach ($sections as $section) {
+            if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) {
+                $clean_sections[] = array(
+                    'title' => sanitize_text_field($section['title'] ?? ''),
+                    'content' => wp_kses_post($section['content'] ?? ''),
+                    'image_id' => intval($section['image_id'] ?? 0)
+                );
+            }
+        }
+    }
+    
+    // Redéterminer le mode en fonction des paramètres actuels
+    $current_is_edit_mode = $post_id > 0;
+    
+    if ($current_is_edit_mode) {
+        // Mode édition : mettre à jour
+        $result = Sisme_Fiche_Creator::update_fiche($post_id, $clean_sections);
+        
+        if ($result['success']) {
+            $success_message = $result['message'];
+        } else {
+            $error_message = $result['message'];
+        }
+        
+    } else {
+        // Mode création : créer nouvelle fiche
+        $result = Sisme_Fiche_Creator::create_fiche($tag_id, $clean_sections);
+        
+        if ($result['success']) {
+            $success_message = $result['message'];
+            
+            // Mettre à jour post_id et rediriger
+            $post_id = $result['post_id'];
+            $redirect_url = add_query_arg(array(
+                'tag_id' => $tag_id,
+                'post_id' => $post_id,
+                'page' => 'sisme-games-edit-fiche-jeu'
+            ), admin_url('admin.php'));
+            
+            wp_redirect($redirect_url);
+            exit;
+            
+        } else {
+            $error_message = $result['message'];
+        }
+    }
+}
+
+// MAINTENANT déterminer le mode pour l'affichage
+
+// MAINTENANT déterminer le mode pour l'affichage
 $is_edit_mode = $post_id > 0;
 
 // Si pas de post_id fourni, vérifier si une fiche existe déjà pour ce jeu
@@ -94,6 +156,8 @@ $error_message = '';
 
 // Traitement du formulaire
 if (isset($_POST['action']) && $_POST['action'] === 'create_fiche' && check_admin_referer('sisme_fiche_sections')) {
+    
+    echo '<div style="background: yellow; padding: 10px; margin: 10px 0;">DEBUG: Traitement formulaire - Mode édition: ' . ($is_edit_mode ? 'OUI' : 'NON') . ' - Post ID: ' . $post_id . ' - Tag ID: ' . $tag_id . '</div>';
     
     // Récupérer et nettoyer les sections
     $sections = $_POST['sections'] ?? array();
