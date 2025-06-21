@@ -21,38 +21,16 @@ class Sisme_Fiche_Template {
      * @return string Contenu HTML de la fiche
      */
     public static function generate_fiche_content($post_id) {
-        // Récupérer les tags du jeu
         $game_tags = wp_get_post_tags($post_id);
         if (empty($game_tags)) {
             return '';
         }
-        
         $tag_id = $game_tags[0]->term_id;
         $game_name = $game_tags[0]->name;
-        
-        // Récupérer les Game Data depuis term_meta
         $game_data = self::get_game_data_from_tag($tag_id);
-        
-        // Récupérer les sections depuis post_meta
         $sections = get_post_meta($post_id, '_sisme_game_sections', true) ?: array();
-        
-        // Charger les CSS frontend
         self::enqueue_frontend_styles();
-        
-        // Générer le contenu
-        $content = '';
-        
-        // 1. HERO SECTION - Module séparé
-        $content .= Sisme_Hero_Section_Module::render($game_data);
-        
-        // 2. Sections de présentation personnalisées
-        if (!empty($sections)) {
-            $content .= self::render_game_sections($sections);
-        }
-        
-        // 3. Blocs de navigation croisée
-        $content .= self::render_navigation_blocks($tag_id, $game_name, $game_data);
-        
+        $content = Sisme_Hero_Section_Module::render($game_data, $sections);
         return $content;
     }
     

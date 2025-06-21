@@ -17,12 +17,18 @@ class Sisme_Hero_Section_Module {
      * @param array $game_data Données du jeu depuis Game Data
      * @return string HTML de la hero section
      */
-    public static function render($game_data) {
+    public static function render($game_data, $sections = array()) {
         $output = '<div class="sisme-game-hero">';
         
-        // Colonne gauche - Média
+        // Colonne gauche - Média + Sections
         $output .= '<div class="sisme-game-media">';
         $output .= self::render_media_gallery($game_data);
+        
+        // SECTIONS SOUS LA GALERIE
+        if (!empty($sections)) {
+            $output .= self::render_game_sections($sections);
+        }
+        
         $output .= '</div>';
         
         // Colonne droite - Infos
@@ -117,7 +123,9 @@ class Sisme_Hero_Section_Module {
             $output .= '<p class="sisme-game-description">' . wp_kses_post($game_data['description']) . '</p>';
         }
         
-        // Métadonnées
+        // TITRE + MÉTADONNÉES avec ID pour le scroll
+        $output .= '<div class="sisme-game-meta-container" id="sismeGameMeta">';
+        $output .= '<h2 class="sisme-meta-title">Informations du jeu</h2>'; // NOUVEAU TITRE
         $output .= '<div class="sisme-game-meta">';
         $output .= self::render_genres($game_data['genres']);
         $output .= self::render_platforms($game_data['platforms']);
@@ -125,9 +133,6 @@ class Sisme_Hero_Section_Module {
         $output .= self::render_developers($game_data['developers']);
         $output .= self::render_publishers($game_data['publishers']);
         $output .= self::render_release_date($game_data['release_date']);
-        $output .= '</div>';
-        $output .= '<div class="sisme-game-actions">';
-        $output .= '<div class="sisme-price-section">';
         $output .= self::render_store_links($game_data['external_links']);
         $output .= '</div>';
         $output .= '</div>';
@@ -348,7 +353,7 @@ class Sisme_Hero_Section_Module {
     }
     
     /**
-     * Générer les liens boutiques - Toujours afficher les 3 icônes
+     * Générer les liens boutiques
      */
     private static function render_store_links($external_links) {
         $output = '<div class="sisme-store-links">';
@@ -388,6 +393,47 @@ class Sisme_Hero_Section_Module {
         }
         $output .= '<img src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-GOG.webp" alt="GOG">';
         $output .= $gog_url ? '</a>' : '</div>';
+        
+        $output .= '</div>';
+        
+        return $output;
+    }
+
+    /**
+     * Générer les Sections descriptives
+     */
+    private static function render_game_sections($sections) {
+        if (empty($sections)) {
+            return '';
+        }
+        
+        $output = '<div class="sisme-game-sections">';
+        $output .= '<h2>Présentation complète du jeu</h2>';
+        
+        foreach ($sections as $section) {
+            if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) {
+                $output .= '<div class="sisme-game-section">';
+                
+                if (!empty($section['title'])) {
+                    $output .= '<h3>' . esc_html($section['title']) . '</h3>';
+                }
+                
+                if (!empty($section['content'])) {
+                    $output .= wpautop(wp_kses_post($section['content']));
+                }
+                
+                if (!empty($section['image_id'])) {
+                    $image = wp_get_attachment_image($section['image_id'], 'large', false, array(
+                        'class' => 'sisme-section-image'
+                    ));
+                    if ($image) {
+                        $output .= '<div class="sisme-game-section-image">' . $image . '</div>';
+                    }
+                }
+                
+                $output .= '</div>';
+            }
+        }
         
         $output .= '</div>';
         

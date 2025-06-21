@@ -40,6 +40,85 @@
 }
 
 /* ========================================
+   🎮 HERO SECTION - SECTIONS DESCRIPTIVES
+======================================== */
+
+.sisme-game-sections {
+    margin-top: 30px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sisme-game-sections h2 {
+    color: #ffffff;
+    font-size: 1.5rem;
+    margin: 0 0 25px 0;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.sisme-game-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sisme-game-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.sisme-game-section h3 {
+    color: #66c0f4;
+    font-size: 1.25rem;
+    margin: 0 0 15px 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sisme-game-section p {
+    line-height: 1.6;
+    margin-bottom: 12px;
+    color: #c7d5e0;
+    font-size: 0.95rem;
+}
+
+.sisme-game-section-image {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.sisme-section-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+    .sisme-game-sections {
+        margin-top: 20px;
+        padding: 20px;
+    }
+    
+    .sisme-game-sections h2 {
+        font-size: 1.25rem;
+    }
+    
+    .sisme-game-section h3 {
+        font-size: 1.1rem;
+    }
+    
+    .sisme-game-section p {
+        font-size: 0.9rem;
+    }
+}
+
+/* ========================================
    📺 GALERIE MÉDIA - COLONNE GAUCHE
 ======================================== */
 
@@ -242,6 +321,34 @@
    📋 INFORMATIONS JEU - COLONNE DROITE
 ======================================== */
 
+.sisme-game-meta-container {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 25px;
+    margin-top: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    /* POSITION STICKY - suit le scroll de la page */
+    position: sticky;
+    top: 20px;
+    z-index: 10;
+    overflow-y: auto;
+}
+
+.sisme-game-meta-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sisme-game-meta-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.sisme-game-meta-container::-webkit-scrollbar-thumb {
+    background: rgba(102, 192, 244, 0.4);
+    border-radius: 3px;
+}
+
 .sisme-game-info {
     flex: 1;
     min-width: 300px;
@@ -271,7 +378,6 @@
     margin-bottom: 30px;
     font-size: 1rem;
     line-height: 1.6;
-    flex-grow: 1;
     color: #c7d5e0;
 }
 
@@ -484,6 +590,7 @@
         height: 80%;
     }
 }
+
 
 /* ========================================
    📱 RESPONSIVE DESIGN - STRUCTURE SOLIDE
