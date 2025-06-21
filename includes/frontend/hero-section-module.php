@@ -124,11 +124,10 @@ class Sisme_Hero_Section_Module {
         $output .= self::render_modes($game_data['modes']);
         $output .= self::render_developers($game_data['developers']);
         $output .= self::render_publishers($game_data['publishers']);
+        $output .= self::render_release_date($game_data['release_date']);
         $output .= '</div>';
-        // Actions et liens boutiques
         $output .= '<div class="sisme-game-actions">';
         $output .= '<div class="sisme-price-section">';
-        $output .= self::render_release_date($game_data['release_date']);
         $output .= self::render_store_links($game_data['external_links']);
         $output .= '</div>';
         $output .= '</div>';
@@ -317,43 +316,78 @@ class Sisme_Hero_Section_Module {
     }
     
     /**
-     * Générer la date de sortie
+     * Générer la date de sortie en français pour les métadonnées
      */
     private static function render_release_date($release_date) {
         if (empty($release_date)) return '';
         
-        $formatted_date = date('j F Y', strtotime($release_date));
-        return '<div class="sisme-release-date">Sorti le ' . esc_html($formatted_date) . '</div>';
+        // Mois en français
+        $mois = array(
+            1 => 'janvier', 2 => 'février', 3 => 'mars', 4 => 'avril',
+            5 => 'mai', 6 => 'juin', 7 => 'juillet', 8 => 'août',
+            9 => 'septembre', 10 => 'octobre', 11 => 'novembre', 12 => 'décembre'
+        );
+        
+        $date = DateTime::createFromFormat('Y-m-d', $release_date);
+        if ($date) {
+            $jour = $date->format('j');
+            $mois_num = (int)$date->format('n');
+            $annee = $date->format('Y');
+            
+            $date_fr = $jour . ' ' . $mois[$mois_num] . ' ' . $annee;
+            
+            $output = '<div class="sisme-meta-row">';
+            $output .= '<span class="sisme-meta-label">Date de sortie</span>';
+            $output .= '<span class="sisme-meta-value">' . esc_html($date_fr) . '</span>';
+            $output .= '</div>';
+            
+            return $output;
+        }
+        
+        return '';
     }
     
     /**
-     * Générer les liens boutiques
+     * Générer les liens boutiques - Toujours afficher les 3 icônes
      */
     private static function render_store_links($external_links) {
-        if (empty($external_links)) return '';
-        
         $output = '<div class="sisme-store-links">';
         
-        if (!empty($external_links['steam'])) {
-            $output .= '<a href="' . esc_url($external_links['steam']) . '" ';
-            $output .= 'class="sisme-store-btn steam" target="_blank">';
-            $output .= '<span>🎮</span> Voir sur Steam';
-            $output .= '</a>';
-        }
+        $steam_url = !empty($external_links['steam']) ? $external_links['steam'] : '';
+        $steam_class = $steam_url ? 'sisme-store-icon' : 'sisme-store-icon sisme-store-icon--disabled';
+        $steam_title = $steam_url ? 'Steam' : 'Pas disponible';
         
-        if (!empty($external_links['epic_games'])) {
-            $output .= '<a href="' . esc_url($external_links['epic_games']) . '" ';
-            $output .= 'class="sisme-store-btn epic" target="_blank">';
-            $output .= '<span>🏪</span> Epic Games Store';
-            $output .= '</a>';
+        if ($steam_url) {
+            $output .= '<a href="' . esc_url($steam_url) . '" class="' . $steam_class . '" target="_blank" title="' . $steam_title . '">';
+        } else {
+            $output .= '<div class="' . $steam_class . '" title="' . $steam_title . '">';
         }
+        $output .= '<img src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-STEAM.webp" alt="Steam">';
+        $output .= $steam_url ? '</a>' : '</div>';
         
-        if (!empty($external_links['gog'])) {
-            $output .= '<a href="' . esc_url($external_links['gog']) . '" ';
-            $output .= 'class="sisme-store-btn gog" target="_blank">';
-            $output .= '<span>🎯</span> GOG.com';
-            $output .= '</a>';
+        $epic_url = !empty($external_links['epic_games']) ? $external_links['epic_games'] : '';
+        $epic_class = $epic_url ? 'sisme-store-icon' : 'sisme-store-icon sisme-store-icon--disabled';
+        $epic_title = $epic_url ? 'Epic Games' : 'Pas disponible';
+        
+        if ($epic_url) {
+            $output .= '<a href="' . esc_url($epic_url) . '" class="' . $epic_class . '" target="_blank" title="' . $epic_title . '">';
+        } else {
+            $output .= '<div class="' . $epic_class . '" title="' . $epic_title . '">';
         }
+        $output .= '<img src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-EPIC.webp" alt="Epic Games">';
+        $output .= $epic_url ? '</a>' : '</div>';
+        
+        $gog_url = !empty($external_links['gog']) ? $external_links['gog'] : '';
+        $gog_class = $gog_url ? 'sisme-store-icon' : 'sisme-store-icon sisme-store-icon--disabled';
+        $gog_title = $gog_url ? 'GOG' : 'Pas disponible';
+        
+        if ($gog_url) {
+            $output .= '<a href="' . esc_url($gog_url) . '" class="' . $gog_class . '" target="_blank" title="' . $gog_title . '">';
+        } else {
+            $output .= '<div class="' . $gog_class . '" title="' . $gog_title . '">';
+        }
+        $output .= '<img src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-GOG.webp" alt="GOG">';
+        $output .= $gog_url ? '</a>' : '</div>';
         
         $output .= '</div>';
         
@@ -526,6 +560,20 @@ class Sisme_Hero_Section_Module {
             
             const platformIcons = document.querySelectorAll(".sisme-platform-icon");
             platformIcons.forEach(icon => {
+                const tooltipText = icon.getAttribute("title");
+                if (tooltipText) {
+                    icon.removeAttribute("title");
+                    
+                    icon.addEventListener("mouseenter", () => {
+                        showTooltip(icon, tooltipText);
+                    });
+                    
+                    icon.addEventListener("mouseleave", hideTooltip);
+                }
+            });
+
+            const storeIcons = document.querySelectorAll(".sisme-store-icon");
+            storeIcons.forEach(icon => {
                 const tooltipText = icon.getAttribute("title");
                 if (tooltipText) {
                     icon.removeAttribute("title");
