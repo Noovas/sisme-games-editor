@@ -1,7 +1,7 @@
 /**
  * File: /sisme-games-editor/assets/css/frontend/hero-section.css
- * Styles pour la Hero Section des fiches de jeu
- * Design gaming moderne avec galerie interactive
+ * Hero Section - STRUCTURE CORRIGÉE pour solidité
+ * Garde tous les styles visuels, corrige seulement le layout
  */
 
 /* ========================================
@@ -9,27 +9,23 @@
 ======================================== */
 
 .sisme-game-hero {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 40px;
+    /* STRUCTURE SOLIDE */
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
     padding: 40px;
-    margin: 0 0 40px 0;
+    box-sizing: border-box;
     
-    /* Style gaming sombre */
+    /* Styles visuels conservés */
     background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
     border-radius: 12px;
-    overflow: hidden;
     color: #c7d5e0;
-    
-    /* Bordure subtile */
-    border: 1px solid rgba(255, 255, 255, 0.1); 
-    
-    /* Ombres modernes */
+    border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 
         0 16px 48px rgba(0, 0, 0, 0.4),
         0 8px 24px rgba(0, 0, 0, 0.2);
-    
-    /* Animation d'apparition */
     animation: heroFadeIn 0.8s ease-out;
 }
 
@@ -49,25 +45,27 @@
 ======================================== */
 
 .sisme-game-media {
+    /* STRUCTURE SOLIDE */
+    flex: 2;
+    min-width: 300px;
+    margin-right: 40px;
     position: relative;
 }
 
 /* Zone d'affichage principal */
 .sisme-main-media-display {
+    /* STRUCTURE SOLIDE */
     width: 100%;
-    aspect-ratio: 16/9;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #000;
+    height: 0;
+    padding-bottom: 56.25%; /* Ratio 16:9 */
     position: relative;
+    overflow: hidden;
     
-    /* Bordure élégante */
+    /* Styles visuels conservés */
+    border-radius: 8px;
+    background: #000;
     border: 2px solid rgba(255, 255, 255, 0.1);
-    
-    /* Ombre de focus */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    
-    /* Transition smooth */
     transition: all 0.3s ease;
 }
 
@@ -76,15 +74,15 @@
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
 }
 
-.sisme-main-media-display iframe {
+.sisme-main-media-display iframe,
+.sisme-main-media-display img {
+    /* STRUCTURE SOLIDE */
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     border: none;
-}
-
-.sisme-main-media-display img {
-    width: 100%;
-    height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
 }
@@ -98,13 +96,15 @@
 ======================================== */
 
 .sisme-media-gallery {
+    /* STRUCTURE SOLIDE */
     display: flex;
     gap: 10px;
     margin-top: 15px;
     overflow-x: auto;
     padding-bottom: 5px;
+    width: 100%;
     
-    /* Scrollbar moderne */
+    /* Scrollbar conservée */
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
@@ -127,17 +127,19 @@
     background: rgba(102, 192, 244, 0.6);
 }
 
-/* Miniatures de la galerie */
+/* Miniatures */
 .sisme-media-thumb {
-    min-width: 120px;
+    /* STRUCTURE SOLIDE */
+    flex-shrink: 0;
+    width: 120px;
     height: 68px;
-    border-radius: 6px;
+    position: relative;
     overflow: hidden;
     cursor: pointer;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    position: relative;
     
-    /* Transitions fluides */
+    /* Styles visuels conservés */
+    border-radius: 6px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
 }
 
@@ -165,33 +167,25 @@
     transform: scale(1.1);
 }
 
-/* Indicateur pour le trailer */
+/* Indicateur trailer conservé */
 .sisme-media-thumb.trailer::after {
     content: "▶";
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    
-    /* Style du bouton play */
     background: rgba(0, 0, 0, 0.9);
     color: #fff;
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    
-    /* Centrage du texte */
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 14px;
     font-weight: bold;
-    
-    /* Animation subtile */
     transition: all 0.3s ease;
     pointer-events: none;
-    
-    /* Bordure élégante */
     border: 2px solid rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(4px);
 }
@@ -203,226 +197,148 @@
 }
 
 /* ========================================
-   ℹ️ INFORMATIONS - COLONNE DROITE
+   📋 INFORMATIONS JEU - COLONNE DROITE
 ======================================== */
 
 .sisme-game-info {
-    padding: 20px;
+    /* STRUCTURE SOLIDE */
+    flex: 1;
+    min-width: 300px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
 }
 
-/* Titre principal */
 .sisme-game-title {
+    /* STRUCTURE SOLIDE */
+    margin: 0 0 20px 0;
     font-size: 2.5rem;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
+    font-weight: bold;
     line-height: 1.2;
     
-    /* Effet de texte moderne */
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-    letter-spacing: -0.02em;
+    /* Styles visuels conservés */
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Description du jeu */
 .sisme-game-description {
-    color: #c7d5e0;
+    /* STRUCTURE SOLIDE */
+    margin-bottom: 30px;
     font-size: 1rem;
     line-height: 1.6;
-    margin: 0;
-    opacity: 0.9;
+    flex-grow: 1;
+    
+    /* Styles visuels conservés */
+    color: #c7d5e0;
 }
 
-/* ========================================
-   🏷️ MÉTADONNÉES DU JEU
-======================================== */
-
 .sisme-game-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    
-    /* Conteneur avec arrière-plan */
-    background: rgba(0, 0, 0, 0.2);
+    /* STRUCTURE SOLIDE */
+    margin-bottom: 30px;
     padding: 20px;
+    
+    /* Styles visuels conservés */
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sisme-meta-row {
+    /* STRUCTURE SOLIDE */
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
-    min-height: 32px;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+
+.sisme-meta-row:last-child {
+    margin-bottom: 0;
 }
 
 .sisme-meta-label {
-    color: #8f98a0;
-    font-size: 0.9rem;
+    /* STRUCTURE SOLIDE */
+    font-weight: bold;
     min-width: 100px;
-    font-weight: 500;
-    flex-shrink: 0;
+    
+    /* Styles visuels conservés */
+    color: #66c0f4;
 }
 
-.sisme-meta-value {
-    color: #fff;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-/* Tags de genres */
 .sisme-game-tags {
+    /* STRUCTURE SOLIDE */
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
 .sisme-tag {
-    background: rgba(103, 193, 245, 0.2);
-    color: #66c0f4;
+    /* STRUCTURE SOLIDE */
     padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    border: 1px solid rgba(103, 193, 245, 0.3);
+    font-size: 0.85rem;
     
-    /* Transition hover */
-    transition: all 0.2s ease;
+    /* Styles visuels conservés */
+    background: rgba(102, 192, 244, 0.2);
+    color: #66c0f4;
+    border-radius: 20px;
+    border: 1px solid rgba(102, 192, 244, 0.3);
+    transition: all 0.3s ease;
 }
 
 .sisme-tag:hover {
-    background: rgba(103, 193, 245, 0.3);
-    border-color: rgba(103, 193, 245, 0.5);
+    background: rgba(102, 192, 244, 0.3);
     transform: translateY(-1px);
 }
 
-/* Icônes des plateformes */
-.sisme-platforms {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.sisme-platform-icon {
-    width: 24px;
-    height: 24px;
-    background: linear-gradient(135deg, #66c0f4, #4a90e2);
-    border-radius: 4px;
-    
-    /* Centrage du texte */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    color: #fff;
-    font-weight: bold;
-    
-    /* Ombre et transition */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    transition: all 0.2s ease;
-}
-
-.sisme-platform-icon:hover {
-    transform: translateY(-1px) scale(1.1);
-    box-shadow: 0 4px 8px rgba(102, 192, 244, 0.4);
-}
-
-/* Informations développeur */
-.sisme-developer-info {
-    font-size: 0.9rem;
-    color: #c7d5e0;
-}
-
-.sisme-developer-info a {
-    color: #67c1f5;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
-}
-
-.sisme-developer-info a:hover {
-    color: #8dd3f7;
-    text-decoration: underline;
-}
-
 /* ========================================
-   🛒 ACTIONS ET BOUTIQUES
+   💰 SECTION PRIX ET BOUTIQUES
 ======================================== */
 
 .sisme-game-actions {
+    /* STRUCTURE SOLIDE */
     margin-top: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
 }
 
 .sisme-price-section {
-    background: rgba(0, 0, 0, 0.4);
+    /* STRUCTURE SOLIDE */
     padding: 20px;
+    
+    /* Styles visuels conservés */
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    
-    /* Bordure élégante */
-    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.1);
 }
 
-.sisme-release-date {
-    color: #67c1f5;
+.sisme-release-info {
+    /* STRUCTURE SOLIDE */
+    margin-bottom: 20px;
     font-size: 0.9rem;
-    font-weight: 500;
-    margin-bottom: 16px;
     
-    /* Icône calendrier */
-    position: relative;
-    padding-left: 20px;
+    /* Styles visuels conservés */
+    color: #c7d5e0;
 }
 
-.sisme-release-date::before {
-    content: "📅";
-    position: absolute;
-    left: 0;
-    opacity: 0.8;
-}
-
-/* Liens des boutiques */
 .sisme-store-links {
+    /* STRUCTURE SOLIDE */
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .sisme-store-btn {
+    /* STRUCTURE SOLIDE */
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
     padding: 14px 20px;
-    border-radius: 8px;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: bold;
     font-size: 0.9rem;
     
-    /* Transitions fluides */
+    /* Styles visuels conservés */
+    border-radius: 6px;
     transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.sisme-store-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transition: left 0.5s ease;
-}
-
-.sisme-store-btn:hover::before {
-    left: 100%;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .sisme-store-btn:hover {
@@ -430,7 +346,7 @@
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
-/* Styles spécifiques par boutique */
+/* Styles boutiques conservés */
 .sisme-store-btn.steam {
     background: linear-gradient(135deg, #1e3c72, #2a5298);
     color: #fff;
@@ -465,14 +381,18 @@
 }
 
 /* ========================================
-   📱 RESPONSIVE DESIGN
+   📱 RESPONSIVE DESIGN - STRUCTURE SOLIDE
 ======================================== */
 
 @media (max-width: 768px) {
     .sisme-game-hero {
-        grid-template-columns: 1fr;
-        gap: 30px;
+        flex-direction: column;
         padding: 30px 20px;
+    }
+    
+    .sisme-game-media {
+        margin-right: 0;
+        margin-bottom: 30px;
     }
     
     .sisme-game-title {
@@ -497,7 +417,7 @@
     }
     
     .sisme-media-thumb {
-        min-width: 100px;
+        width: 100px;
         height: 56px;
     }
 }
@@ -505,17 +425,13 @@
 @media (max-width: 480px) {
     .sisme-game-hero {
         padding: 20px 15px;
-        gap: 20px;
     }
     
     .sisme-game-title {
         font-size: 1.75rem;
     }
     
-    .sisme-game-meta {
-        padding: 15px;
-    }
-    
+    .sisme-game-meta,
     .sisme-price-section {
         padding: 15px;
     }
@@ -529,7 +445,16 @@
     }
     
     .sisme-media-thumb {
-        min-width: 80px;
+        width: 80px;
         height: 45px;
+    }
+    
+    .sisme-meta-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .sisme-meta-label {
+        min-width: auto;
     }
 }

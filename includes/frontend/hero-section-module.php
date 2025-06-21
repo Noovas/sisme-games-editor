@@ -43,7 +43,7 @@ class Sisme_Hero_Section_Module {
      */
     private static function render_media_gallery($game_data) {
         $output = '';
-        echo '<pre>DEBUG Screenshots: ' . print_r($game_data['screenshots'], true) . '</pre>';
+        
         // Zone d'affichage principal
         $output .= '<div class="sisme-main-media-display" id="sismeMainDisplay">';
         
@@ -66,14 +66,23 @@ class Sisme_Hero_Section_Module {
         $output .= '<div class="sisme-media-gallery">';
         
         // Trailer en premier (si disponible)
-        if (!empty($game_data['trailer_link'])) {
-            $youtube_id = self::extract_youtube_id($game_data['trailer_link']);
-            if ($youtube_id) {
-                $thumbnail_url = "https://img.youtube.com/vi/{$youtube_id}/maxresdefault.jpg";
-                $output .= '<div class="sisme-media-thumb trailer active" ';
-                $output .= 'data-type="trailer" data-youtube="' . esc_attr($youtube_id) . '">';
-                $output .= '<img src="' . esc_url($thumbnail_url) . '" alt="Trailer">';
-                $output .= '</div>';
+        if (!empty($game_data['screenshots'])) {
+            $screenshots_array = is_array($game_data['screenshots']) ? 
+                $game_data['screenshots'] : 
+                explode(',', $game_data['screenshots']);
+            
+            foreach ($screenshots_array as $screenshot_id) {
+                $screenshot_id = intval(trim($screenshot_id)); // Nettoyer l'ID
+                
+                $screenshot_url = wp_get_attachment_image_url($screenshot_id, 'large');
+                $thumbnail_url = wp_get_attachment_image_url($screenshot_id, 'thumbnail');
+                
+                if ($screenshot_url && $thumbnail_url) {
+                    $output .= '<div class="sisme-media-thumb" ';
+                    $output .= 'data-type="screenshot" data-image="' . esc_url($screenshot_url) . '">';
+                    $output .= '<img src="' . esc_url($thumbnail_url) . '" alt="Screenshot">';
+                    $output .= '</div>';
+                }
             }
         }
         
@@ -93,6 +102,8 @@ class Sisme_Hero_Section_Module {
         }
         
         $output .= '</div>';
+
+         
         
         return $output;
     }
