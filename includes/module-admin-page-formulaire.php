@@ -136,6 +136,13 @@ class Sisme_Game_Form_Module {
             'required' => false,
             'output_var' => 'release_date'
         ],
+        'screenshots' => [
+            'label' => 'Screenshots du jeu',
+            'description' => '',
+            'required' => false,
+            'output_var' => 'screenshots',
+            'component_type' => 'media_gallery'
+        ],
         'external_links' => [
             'label' => 'Liens de vente',
             'description' => '',
@@ -443,9 +450,151 @@ class Sisme_Game_Form_Module {
 
     /**
      * Afficher le composant éditeurs avec interface moderne
+     * Rendu du composant screenshots
      */
     private function render_game_publishers_component() {
         $this->render_modern_entity_component('game_publishers');
+    }
+
+    /**
+     * Rendu du composant screenshots avec fonctionnalités de modification
+     */
+    private function render_screenshots_component($component_name = 'screenshots') {
+        // Récupérer le composant depuis available_components
+        $component = $this->available_components[$component_name];
+        
+        $field_id = $this->module_id . '_screenshots';
+        $value = isset($this->form_data['screenshots']) ? $this->form_data['screenshots'] : array();
+        
+        // Si $value est une chaîne, la convertir en array
+        if (is_string($value) && !empty($value)) {
+            $value = explode(',', $value);
+        }
+        
+        // S'assurer que $value est toujours un array
+        if (!is_array($value)) {
+            $value = array();
+        }
+        
+        ?>
+        <tr>
+            <td>
+                <div class="sisme-screenshots-selector">
+                    <label class="sisme-form-label" for="<?php echo esc_attr($field_id); ?>"><?php echo esc_html($component['label']); ?></label>
+                    
+                    <?php if (!empty($component['description'])): ?>
+                        <p class="sisme-form-description"><?php echo esc_html($component['description']); ?></p>
+                    <?php endif; ?>
+                    
+                    <div class="sisme-screenshots-controls" style="margin-bottom: 15px;">
+                        <button type="button" class="sisme-btn sisme-btn--secondary" id="select-screenshots">
+                            📷 Ajouter des screenshots
+                        </button>
+                        <?php if (!empty($value)): ?>
+                            <button type="button" class="sisme-btn sisme-btn--danger" id="clear-all-screenshots">
+                                🗑️ Tout supprimer
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div id="screenshots-preview" class="sisme-screenshots-gallery" style="margin-top: 15px;">
+                        <?php if (!empty($value)): ?>
+                            <?php foreach ($value as $index => $screenshot_id): ?>
+                                <?php if (!empty($screenshot_id) && is_numeric($screenshot_id)): ?>
+                                    <?php $image = wp_get_attachment_image_src($screenshot_id, 'thumbnail'); ?>
+                                    <?php if ($image): ?>
+                                        <div class="sisme-screenshot-item" data-id="<?php echo esc_attr($screenshot_id); ?>">
+                                            <img src="<?php echo esc_url($image[0]); ?>" alt="Screenshot">
+                                            <div class="sisme-screenshot-overlay">
+                                                <button type="button" class="sisme-screenshot-remove" title="Supprimer">❌</button>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="sisme-no-screenshots">
+                                <p>Aucun screenshot ajouté</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <input type="hidden" name="screenshots" id="<?php echo esc_attr($field_id); ?>" value="<?php echo esc_attr(implode(',', $value)); ?>">
+                </div>
+                
+                <style>
+                .sisme-screenshots-gallery {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                    gap: 10px;
+                    max-height: 300px;
+                    overflow-y: auto;
+                    border: 2px dashed #ddd;
+                    padding: 15px;
+                    border-radius: 8px;
+                    background: #fafafa;
+                }
+                
+                .sisme-screenshot-item {
+                    position: relative;
+                    border-radius: 6px;
+                    overflow: hidden;
+                    transition: transform 0.2s;
+                }
+                
+                .sisme-screenshot-item:hover {
+                    transform: scale(1.05);
+                }
+                
+                .sisme-screenshot-item img {
+                    width: 80px;
+                    height: 80px;
+                    object-fit: cover;
+                    display: block;
+                    border-radius: 6px;
+                }
+                
+                .sisme-screenshot-overlay {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    background: rgba(0,0,0,0.7);
+                    border-radius: 0 6px 0 6px;
+                    opacity: 0;
+                    transition: opacity 0.2s;
+                }
+                
+                .sisme-screenshot-item:hover .sisme-screenshot-overlay {
+                    opacity: 1;
+                }
+                
+                .sisme-screenshot-remove {
+                    background: none;
+                    border: none;
+                    color: white;
+                    cursor: pointer;
+                    padding: 4px;
+                    font-size: 12px;
+                    line-height: 1;
+                }
+                
+                .sisme-no-screenshots {
+                    grid-column: 1 / -1;
+                    text-align: center;
+                    color: #666;
+                    font-style: italic;
+                    padding: 40px 20px;
+                }
+                
+                .sisme-screenshots-controls {
+                    display: flex;
+                    gap: 10px;
+                    align-items: center;
+                }
+                </style>
+            </td>
+        </tr>
+        <?php
     }
 
     /**
@@ -1186,7 +1335,7 @@ class Sisme_Game_Form_Module {
         </tr>
         <?php
     }
-    
+
     /**
      * Afficher un composant selon son nom
      * 
@@ -1244,6 +1393,10 @@ class Sisme_Game_Form_Module {
                 
             case 'external_links':
                 $this->render_external_links_component();
+                break;
+
+            case 'screenshots':
+                $this->render_screenshots_component('screenshots');
                 break;
                 
             default:
@@ -1492,7 +1645,147 @@ class Sisme_Game_Form_Module {
     public function render_javascript() {
         ?>
         <script>
+
+
         jQuery(document).ready(function($) {
+
+            // === GESTION DES SCREENSHOTS AMÉLIORÉE ===
+            // Sélecteur de screenshots multiple
+            $('#select-screenshots').on('click', function(e) {
+                e.preventDefault();
+                
+                var frame = wp.media({
+                    title: 'Ajouter des screenshots',
+                    button: { text: 'Ajouter ces images' },
+                    multiple: true
+                });
+                
+                frame.on('select', function() {
+                    var attachments = frame.state().get('selection').toJSON();
+                    var currentIds = getScreenshotIds();
+                    
+                    // Supprimer le message "aucun screenshot"
+                    $('#screenshots-preview').find('.sisme-no-screenshots').remove();
+                    
+                    // Ajouter les nouvelles images
+                    attachments.forEach(function(attachment) {
+                        if (currentIds.indexOf(attachment.id.toString()) === -1) {
+                            addScreenshotToGallery(attachment);
+                        }
+                    });
+                    
+                    updateScreenshotsField();
+                    updateClearButton();
+                });
+                
+                frame.open();
+            });
+
+            // Supprimer tous les screenshots
+            $(document).on('click', '#clear-all-screenshots', function(e) {
+                e.preventDefault();
+                
+                if (confirm('Êtes-vous sûr de vouloir supprimer tous les screenshots ?')) {
+                    clearAllScreenshots();
+                }
+            });
+
+            // Supprimer un screenshot individuel
+            $(document).on('click', '.sisme-screenshot-remove', function(e) {
+                e.preventDefault();
+                
+                var screenshotItem = $(this).closest('.sisme-screenshot-item');
+                removeScreenshot(screenshotItem);
+            });
+
+            // Fonction pour récupérer les IDs actuels
+            function getScreenshotIds() {
+                var value = $('input[name="screenshots"]').val();
+                return value ? value.split(',').filter(function(id) { return id.trim() !== ''; }) : [];
+            }
+
+            // Fonction pour ajouter un screenshot à la galerie
+            function addScreenshotToGallery(attachment) {
+                var imageUrl = attachment.sizes && attachment.sizes.thumbnail ? 
+                               attachment.sizes.thumbnail.url : attachment.url;
+                
+                var screenshotHtml = 
+                    '<div class="sisme-screenshot-item" data-id="' + attachment.id + '">' +
+                        '<img src="' + imageUrl + '" alt="Screenshot">' +
+                        '<div class="sisme-screenshot-overlay">' +
+                            '<button type="button" class="sisme-screenshot-remove" title="Supprimer">❌</button>' +
+                        '</div>' +
+                    '</div>';
+                
+                $('#screenshots-preview').append(screenshotHtml);
+            }
+
+            // Fonction pour supprimer un screenshot
+            function removeScreenshot(screenshotItem) {
+                screenshotItem.fadeOut(300, function() {
+                    $(this).remove();
+                    updateScreenshotsField();
+                    
+                    // Si plus de screenshots, afficher le message
+                    if ($('.sisme-screenshot-item').length === 0) {
+                        showNoScreenshotsMessage();
+                    }
+                    
+                    updateClearButton();
+                });
+            }
+
+            // Fonction pour supprimer tous les screenshots
+            function clearAllScreenshots() {
+                $('.sisme-screenshot-item').fadeOut(300, function() {
+                    $(this).remove();
+                    updateScreenshotsField();
+                    showNoScreenshotsMessage();
+                    updateClearButton();
+                });
+            }
+
+            // Fonction pour afficher le message "aucun screenshot"
+            function showNoScreenshotsMessage() {
+                var gallery = $('#screenshots-preview');
+                if (gallery.find('.sisme-screenshot-item').length === 0) {
+                    gallery.html(
+                        '<div class="sisme-no-screenshots">' +
+                            '<p>Aucun screenshot ajouté</p>' +
+                        '</div>'
+                    );
+                }
+            }
+
+            // Fonction pour mettre à jour le champ caché
+            function updateScreenshotsField() {
+                var ids = [];
+                $('.sisme-screenshot-item').each(function() {
+                    var id = $(this).data('id');
+                    if (id) {
+                        ids.push(id);
+                    }
+                });
+                
+                $('input[name="screenshots"]').val(ids.join(','));
+            }
+
+            // Fonction pour mettre à jour le bouton "Tout supprimer"
+            function updateClearButton() {
+                var clearButton = $('#clear-all-screenshots');
+                var hasScreenshots = $('.sisme-screenshot-item').length > 0;
+                
+                if (hasScreenshots && clearButton.length === 0) {
+                    $('#select-screenshots').after(
+                        '<button type="button" class="sisme-btn sisme-btn--danger" id="clear-all-screenshots" style="margin-left: 10px;">' +
+                            '🗑️ Tout supprimer' +
+                        '</button>'
+                    );
+                } else if (!hasScreenshots) {
+                    clearButton.remove();
+                }
+            }
+
             $('#<?php echo esc_js($this->module_id); ?>').on('click', '.sisme-create-tag-btn', function(e) {
                 e.preventDefault();
                 
