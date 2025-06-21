@@ -168,6 +168,15 @@ class SismeGamesEditor {
         );
 
         add_submenu_page(
+            null,
+            'Nouvelle fiche de jeu',
+            'Nouvelle fiche de jeu', 
+            'manage_options',
+            'sisme-games-edit-fiche-jeu',
+            array($this, 'edit_fiche_jeu_page')
+        );
+
+        add_submenu_page(
             null, 
             'Éditer une fiche',
             'Éditer une fiche',
@@ -221,14 +230,7 @@ class SismeGamesEditor {
             array($this, 'edit_fiche_jeu_page')
         );
 
-        add_submenu_page(
-            null,
-            'Migration des Sections',
-            'Migration des Sections',
-            'manage_options',
-            'sisme-games-migration-sections',
-            array($this, 'migration_sections_page')
-        );
+
 
     }
     

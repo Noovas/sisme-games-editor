@@ -1,7 +1,7 @@
 <?php
 /**
  * File: /sisme-games-editor/includes/assets-loader.php
- * Gestion du chargement des assets CSS/JS - Mis à jour avec news-cards
+ * Gestion du chargement des assets CSS/JS - MISE À JOUR avec Hero Section
  */
 
 // Sécurité : Empêcher l'accès direct
@@ -15,67 +15,101 @@ class Sisme_Assets_Loader {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_styles'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
     }
-
-    
     
     /**
-     * Charger les styles front-end
+     * Charger les styles admin
+     */
+    public function enqueue_admin_styles($hook) {
+        // Vérifier si on est sur une page admin du plugin
+        if (strpos($hook, 'sisme-games') === false) {
+            return;
+        }
+        
+        // CSS Admin principal (avec imports)
+        wp_enqueue_style(
+            'sisme-admin',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin.css',
+            array(),
+            SISME_GAMES_EDITOR_VERSION
+        );
+        
+        // JavaScript admin si nécessaire
+        wp_enqueue_script(
+            'sisme-admin-js',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/admin.js',
+            array('jquery'),
+            SISME_GAMES_EDITOR_VERSION,
+            true
+        );
+    }
+    
+    /**
+     * Charger les styles front-end - NOUVEAU SYSTÈME
      */
     public function enqueue_frontend_styles() {
-        // Vérifier si on est sur une fiche de jeu
+        // ========================================
+        // NOUVEAU : FICHES DE JEU AVEC HERO SECTION
+        // ========================================
         if (is_single() && $this->is_game_fiche()) {
-            // CSS des composants dans l'ordre d'affichage
+            
+            // 1. Tokens CSS en premier (variables partagées)
             wp_enqueue_style(
-                'sisme-description-styles',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/description.css',
+                'sisme-frontend-tokens',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/tokens.css',
                 array(),
                 SISME_GAMES_EDITOR_VERSION
             );
             
+            // 2. Hero Section (remplace description + trailer + informations)
             wp_enqueue_style(
-                'sisme-trailer-styles',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/trailer.css',
-                array(),
+                'sisme-hero-section',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/hero-section.css',
+                array('sisme-frontend-tokens'),
                 SISME_GAMES_EDITOR_VERSION
             );
             
-            wp_enqueue_style(
-                'sisme-informations-styles',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/informations.css',
-                array(),
-                SISME_GAMES_EDITOR_VERSION
-            );
-            
-            // CSS des sections de contenu personnalisées
+            // 3. Sections personnalisées (garde l'existant mais en dépendance)
             wp_enqueue_style(
                 'sisme-sections-styles',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/sections.css',
-                array(),
+                array('sisme-frontend-tokens'),
                 SISME_GAMES_EDITOR_VERSION
             );
             
+            // 4. Navigation blocks (nouveau, remplace blocks.css)
             wp_enqueue_style(
-                'sisme-blocks-styles',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/blocks.css',
-                array(),
+                'sisme-navigation-blocks',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/navigation-blocks.css',
+                array('sisme-frontend-tokens'),
                 SISME_GAMES_EDITOR_VERSION
             );
             
-            // CSS des liens boutiques
+            // 5. Styles de base fiche (garde l'existant)
             wp_enqueue_style(
-                'sisme-stores-styles',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/stores.css',
-                array(),
+                'sisme-fiche-base',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/fiche.css',
+                array('sisme-frontend-tokens'),
                 SISME_GAMES_EDITOR_VERSION
             );
         }
-
+        
+        // ========================================
+        // ANCIEN SYSTÈME MAINTENU pour les autres pages
+        // ========================================
+        
         // CSS pour les contenus patch/news
         if (is_single() && $this->is_patch_news_content()) {
             wp_enqueue_style(
+                'sisme-frontend-tokens',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/tokens.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            
+            wp_enqueue_style(
                 'sisme-patch-news-content-styles',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/patch-news-content.css',
-                array(),
+                array('sisme-frontend-tokens'),
                 SISME_GAMES_EDITOR_VERSION
             );
         }
@@ -83,20 +117,35 @@ class Sisme_Assets_Loader {
         // CSS pour les articles patch/news avec blocs croisés
         if (is_single() && (has_category('patch') || has_category('news'))) {
             wp_enqueue_style(
+                'sisme-frontend-tokens',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/tokens.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            
+            // ANCIEN : garde blocks.css pour compatibilité
+            wp_enqueue_style(
                 'sisme-blocks-styles',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/blocks.css',
-                array(),
+                array('sisme-frontend-tokens'),
                 SISME_GAMES_EDITOR_VERSION
             );
         }
 
         // CSS pour les pages news
         if (is_single() && $this->is_news_page()) {
+            wp_enqueue_style(
+                'sisme-frontend-tokens',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/tokens.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            
             // CSS de la grille/liste des news (container principal)
             wp_enqueue_style(
                 'sisme-news-list-styles',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/news-list.css',
-                array(),
+                array('sisme-frontend-tokens'),
                 SISME_GAMES_EDITOR_VERSION
             );
             
@@ -104,94 +153,14 @@ class Sisme_Assets_Loader {
             wp_enqueue_style(
                 'sisme-news-cards-styles',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/news-cards.css',
-                array(),
-                SISME_GAMES_EDITOR_VERSION
-            );
-            
-            // CSS des liens boutiques (réutilisé)
-            wp_enqueue_style(
-                'sisme-stores-styles',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/stores.css',
-                array(),
-                SISME_GAMES_EDITOR_VERSION
-            );
-        }
-    }
-
-    /**
-     * Vérifier si l'article actuel est un contenu patch/news
-     */
-    private function is_patch_news_content() {
-        global $post;
-        
-        if (!$post) {
-            return false;
-        }
-        
-        // Vérification par métadonnée
-        if (get_post_meta($post->ID, '_sisme_is_patch_news', true)) {
-            return true;
-        }
-        
-        // Vérification par catégorie
-        $categories = get_the_category($post->ID);
-        foreach ($categories as $category) {
-            if (in_array($category->slug, array('patch', 'news'))) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Vérifier si l'article actuel est une page news
-     */
-    private function is_news_page() {
-        global $post;
-        
-        if (!$post) {
-            return false;
-        }
-        
-        // Vérification par métadonnée
-        if (get_post_meta($post->ID, '_sisme_is_news_page', true)) {
-            return true;
-        }
-        
-        // Vérification par slug pattern
-        if (preg_match('/-news$/', $post->post_name)) {
-            return true;
-        }
-        
-        // Vérification par catégorie
-        $categories = get_the_category($post->ID);
-        foreach ($categories as $category) {
-            if ($category->slug === 'page-news') {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-
-    /**
-     * Charger les styles admin
-     */
-    public function enqueue_admin_styles($hook) {
-        // Charger uniquement sur les pages de ton plugin
-        if (strpos($hook, 'sisme-games') !== false) {
-            wp_enqueue_style(
-                'sisme-admin',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin.css',
-                array(),
+                array('sisme-frontend-tokens'),
                 SISME_GAMES_EDITOR_VERSION
             );
         }
     }
     
     /**
-     * Vérifier si l'article actuel est une fiche de jeu
+     * Vérifier si l'article actuel est une fiche de jeu (NOUVEAU CRITÈRE)
      */
     private function is_game_fiche() {
         global $post;
@@ -200,8 +169,22 @@ class Sisme_Assets_Loader {
             return false;
         }
         
-        // Vérifier si l'article a des métadonnées de jeu
-        $game_modes = get_post_meta($post->ID, '_sisme_game_modes', true);
-        return !empty($game_modes);
+        // NOUVEAU : Vérifier si l'article a des métadonnées _sisme_game_sections
+        $game_sections = get_post_meta($post->ID, '_sisme_game_sections', true);
+        return !empty($game_sections);
+    }
+    
+    /**
+     * Vérifier si c'est un contenu patch/news
+     */
+    private function is_patch_news_content() {
+        return has_category('patch') || has_category('news');
+    }
+    
+    /**
+     * Vérifier si c'est une page news
+     */
+    private function is_news_page() {
+        return is_category('news') || is_tag() || is_archive();
     }
 }

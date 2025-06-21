@@ -1,0 +1,230 @@
+/**
+ * File: /sisme-games-editor/assets/css/frontend/tokens.css
+ * Design tokens pour le frontend - Cohérence avec le backend
+ * Variables partagées entre tous les composants frontend
+ */
+
+/* ========================================
+   🎨 PALETTE DE COULEURS FRONTEND
+======================================== */
+:root {
+    /* Couleurs principales (héritées du backend) */
+    --sisme-color-primary: #A1B78D;
+    --sisme-color-primary-dark: #557A46;
+    --sisme-color-secondary: #D4A373;
+    
+    /* Couleurs neutres */
+    --sisme-color-background: #ECF0F1;
+    --sisme-color-surface: #ECF0F1;
+    --sisme-color-muted: #9caca0;
+    --sisme-color-text: #2C3E50;
+    --sisme-color-text-secondary: #425261;
+    
+    /* Couleurs gaming (spécifiques frontend) */
+    --sisme-gaming-dark: #1e1e1e;
+    --sisme-gaming-dark-light: #2a2a2a;
+    --sisme-gaming-text: #c7d5e0;
+    --sisme-gaming-text-muted: #8f98a0;
+    --sisme-gaming-accent: #66c0f4;
+    
+    /* États et feedback */
+    --sisme-color-success: var(--sisme-color-primary);
+    --sisme-color-warning: #f6ad55;
+    --sisme-color-error: #e53e3e;
+    --sisme-color-info: #3182ce;
+    
+    /* Transparences */
+    --sisme-overlay-light: rgba(236, 240, 241, 0.95);
+    --sisme-overlay-dark: rgba(30, 30, 30, 0.95);
+    --sisme-border-light: rgba(161, 183, 141, 0.2);
+    --sisme-border-strong: rgba(161, 183, 141, 0.8);
+    --sisme-white-alpha: rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
+   📏 ESPACEMENTS ET TAILLES
+======================================== */
+:root {
+    /* Espacement (système 8px) */
+    --sisme-space-xs: 4px;
+    --sisme-space-sm: 8px;
+    --sisme-space-md: 16px;
+    --sisme-space-lg: 24px;
+    --sisme-space-xl: 32px;
+    --sisme-space-2xl: 48px;
+    --sisme-space-3xl: 64px;
+    
+    /* Rayons de bordure */
+    --sisme-radius-sm: 4px;
+    --sisme-radius-md: 8px;
+    --sisme-radius-lg: 12px;
+    --sisme-radius-xl: 16px;
+    --sisme-radius-full: 9999px;
+    
+    /* Largeurs max */
+    --sisme-max-width-sm: 640px;
+    --sisme-max-width-md: 768px;
+    --sisme-max-width-lg: 1024px;
+    --sisme-max-width-xl: 1200px;
+    --sisme-max-width-2xl: 1400px;
+    
+    /* Hauteurs utiles */
+    --sisme-header-height: 64px;
+    --sisme-hero-height: 60vh;
+    --sisme-thumb-height: 68px;
+}
+
+/* ========================================
+   ✏️ TYPOGRAPHIE
+======================================== */
+:root {
+    /* Familles de polices */
+    --sisme-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --sisme-font-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+    
+    /* Tailles de police */
+    --sisme-text-xs: 0.75rem;   /* 12px */
+    --sisme-text-sm: 0.875rem;  /* 14px */
+    --sisme-text-base: 1rem;    /* 16px */
+    --sisme-text-lg: 1.125rem;  /* 18px */
+    --sisme-text-xl: 1.25rem;   /* 20px */
+    --sisme-text-2xl: 1.5rem;   /* 24px */
+    --sisme-text-3xl: 1.875rem; /* 30px */
+    --sisme-text-4xl: 2.25rem;  /* 36px */
+    --sisme-text-5xl: 3rem;     /* 48px */
+    
+    /* Poids de police */
+    --sisme-font-normal: 400;
+    --sisme-font-medium: 500;
+    --sisme-font-semibold: 600;
+    --sisme-font-bold: 700;
+    
+    /* Hauteurs de ligne */
+    --sisme-leading-none: 1;
+    --sisme-leading-tight: 1.25;
+    --sisme-leading-normal: 1.5;
+    --sisme-leading-relaxed: 1.625;
+    --sisme-leading-loose: 2;
+}
+
+/* ========================================
+   🎭 OMBRES ET EFFETS
+======================================== */
+:root {
+    /* Ombres */
+    --sisme-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --sisme-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --sisme-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --sisme-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --sisme-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    
+    /* Ombres gaming */
+    --sisme-shadow-gaming: 0 16px 48px rgba(0, 0, 0, 0.4);
+    --sisme-shadow-gaming-hover: 0 20px 60px rgba(0, 0, 0, 0.5);
+    --sisme-shadow-neon: 0 0 20px rgba(102, 192, 244, 0.4);
+    
+    /* Transitions */
+    --sisme-transition-fast: 0.15s ease;
+    --sisme-transition-normal: 0.3s ease;
+    --sisme-transition-slow: 0.5s ease;
+    --sisme-transition-all: all 0.3s ease;
+    
+    /* Z-index */
+    --sisme-z-dropdown: 1000;
+    --sisme-z-sticky: 1020;
+    --sisme-z-fixed: 1030;
+    --sisme-z-modal: 1040;
+    --sisme-z-popover: 1050;
+    --sisme-z-tooltip: 1060;
+}
+
+/* ========================================
+   🎮 COULEURS SPÉCIFIQUES GAMING
+======================================== */
+:root {
+    /* Boutiques de jeux */
+    --sisme-steam-primary: #1e3c72;
+    --sisme-steam-secondary: #2a5298;
+    --sisme-epic-primary: #0078f2;
+    --sisme-epic-secondary: #00a8ff;
+    --sisme-gog-primary: #7b2182;
+    --sisme-gog-secondary: #a239ca;
+    
+    /* Plateformes */
+    --sisme-windows: #00bcf2;
+    --sisme-mac: #000000;
+    --sisme-linux: #fcc624;
+    --sisme-xbox: #107c10;
+    --sisme-playstation: #003087;
+    --sisme-switch: #e60012;
+    --sisme-mobile: #34a853;
+    
+    /* Genres de jeux */
+    --sisme-action: #ff6b6b;
+    --sisme-rpg: #4ecdc4;
+    --sisme-strategy: #45b7d1;
+    --sisme-simulation: #96ceb4;
+    --sisme-sports: #ffeaa7;
+    --sisme-racing: #fd79a8;
+}
+
+/* ========================================
+   🔧 CLASSES UTILITAIRES DE BASE
+======================================== */
+
+/* Reset et base */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Classes d'espacement rapides */
+.sisme-p-0 { padding: 0; }
+.sisme-p-sm { padding: var(--sisme-space-sm); }
+.sisme-p-md { padding: var(--sisme-space-md); }
+.sisme-p-lg { padding: var(--sisme-space-lg); }
+
+.sisme-m-0 { margin: 0; }
+.sisme-m-sm { margin: var(--sisme-space-sm); }
+.sisme-m-md { margin: var(--sisme-space-md); }
+.sisme-m-lg { margin: var(--sisme-space-lg); }
+
+/* Classes de typographie */
+.sisme-text-center { text-align: center; }
+.sisme-text-left { text-align: left; }
+.sisme-text-right { text-align: right; }
+
+.sisme-font-normal { font-weight: var(--sisme-font-normal); }
+.sisme-font-medium { font-weight: var(--sisme-font-medium); }
+.sisme-font-semibold { font-weight: var(--sisme-font-semibold); }
+.sisme-font-bold { font-weight: var(--sisme-font-bold); }
+
+/* Classes de layout */
+.sisme-flex { display: flex; }
+.sisme-grid { display: grid; }
+.sisme-hidden { display: none; }
+.sisme-block { display: block; }
+
+.sisme-justify-center { justify-content: center; }
+.sisme-justify-between { justify-content: space-between; }
+.sisme-items-center { align-items: center; }
+
+/* Classes de responsive */
+.sisme-container {
+    width: 100%;
+    max-width: var(--sisme-max-width-xl);
+    margin: 0 auto;
+    padding: 0 var(--sisme-space-md);
+}
+
+@media (max-width: 768px) {
+    .sisme-container {
+        padding: 0 var(--sisme-space-sm);
+    }
+}
+
+/* Classes d'animation */
+.sisme-transition { transition: var(--sisme-transition-all); }
+.sisme-hover-lift:hover { transform: translateY(-2px); }
+.sisme-hover-scale:hover { transform: scale(1.05); }

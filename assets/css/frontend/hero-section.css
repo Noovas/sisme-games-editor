@@ -1,0 +1,535 @@
+/**
+ * File: /sisme-games-editor/assets/css/frontend/hero-section.css
+ * Styles pour la Hero Section des fiches de jeu
+ * Design gaming moderne avec galerie interactive
+ */
+
+/* ========================================
+   🎮 HERO SECTION - CONTAINER PRINCIPAL
+======================================== */
+
+.sisme-game-hero {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+    padding: 40px;
+    margin: 0 0 40px 0;
+    
+    /* Style gaming sombre */
+    background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+    border-radius: 12px;
+    overflow: hidden;
+    color: #c7d5e0;
+    
+    /* Bordure subtile */
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    
+    /* Ombres modernes */
+    box-shadow: 
+        0 16px 48px rgba(0, 0, 0, 0.4),
+        0 8px 24px rgba(0, 0, 0, 0.2);
+    
+    /* Animation d'apparition */
+    animation: heroFadeIn 0.8s ease-out;
+}
+
+@keyframes heroFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   📺 GALERIE MÉDIA - COLONNE GAUCHE
+======================================== */
+
+.sisme-game-media {
+    position: relative;
+}
+
+/* Zone d'affichage principal */
+.sisme-main-media-display {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    
+    /* Bordure élégante */
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    
+    /* Ombre de focus */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    
+    /* Transition smooth */
+    transition: all 0.3s ease;
+}
+
+.sisme-main-media-display:hover {
+    border-color: rgba(102, 192, 244, 0.3);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+.sisme-main-media-display iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.sisme-main-media-display img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.sisme-main-media-display:hover img {
+    transform: scale(1.02);
+}
+
+/* ========================================
+   🖼️ GALERIE DE NAVIGATION
+======================================== */
+
+.sisme-media-gallery {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    
+    /* Scrollbar moderne */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.sisme-media-gallery::-webkit-scrollbar {
+    height: 6px;
+}
+
+.sisme-media-gallery::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.sisme-media-gallery::-webkit-scrollbar-thumb {
+    background: rgba(102, 192, 244, 0.4);
+    border-radius: 3px;
+}
+
+.sisme-media-gallery::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 192, 244, 0.6);
+}
+
+/* Miniatures de la galerie */
+.sisme-media-thumb {
+    min-width: 120px;
+    height: 68px;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    
+    /* Transitions fluides */
+    transition: all 0.3s ease;
+}
+
+.sisme-media-thumb:hover {
+    border-color: #66c0f4;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 192, 244, 0.3);
+}
+
+.sisme-media-thumb.active {
+    border-color: #66c0f4;
+    box-shadow: 
+        0 0 16px rgba(102, 192, 244, 0.4),
+        0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sisme-media-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.sisme-media-thumb:hover img {
+    transform: scale(1.1);
+}
+
+/* Indicateur pour le trailer */
+.sisme-media-thumb.trailer::after {
+    content: "▶";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    /* Style du bouton play */
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    
+    /* Centrage du texte */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    
+    /* Animation subtile */
+    transition: all 0.3s ease;
+    pointer-events: none;
+    
+    /* Bordure élégante */
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+}
+
+.sisme-media-thumb.trailer:hover::after {
+    background: rgba(102, 192, 244, 0.9);
+    border-color: #66c0f4;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* ========================================
+   ℹ️ INFORMATIONS - COLONNE DROITE
+======================================== */
+
+.sisme-game-info {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Titre principal */
+.sisme-game-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    line-height: 1.2;
+    
+    /* Effet de texte moderne */
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    letter-spacing: -0.02em;
+}
+
+/* Description du jeu */
+.sisme-game-description {
+    color: #c7d5e0;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* ========================================
+   🏷️ MÉTADONNÉES DU JEU
+======================================== */
+
+.sisme-game-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    
+    /* Conteneur avec arrière-plan */
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sisme-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 32px;
+}
+
+.sisme-meta-label {
+    color: #8f98a0;
+    font-size: 0.9rem;
+    min-width: 100px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.sisme-meta-value {
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Tags de genres */
+.sisme-game-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.sisme-tag {
+    background: rgba(103, 193, 245, 0.2);
+    color: #66c0f4;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid rgba(103, 193, 245, 0.3);
+    
+    /* Transition hover */
+    transition: all 0.2s ease;
+}
+
+.sisme-tag:hover {
+    background: rgba(103, 193, 245, 0.3);
+    border-color: rgba(103, 193, 245, 0.5);
+    transform: translateY(-1px);
+}
+
+/* Icônes des plateformes */
+.sisme-platforms {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.sisme-platform-icon {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #66c0f4, #4a90e2);
+    border-radius: 4px;
+    
+    /* Centrage du texte */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #fff;
+    font-weight: bold;
+    
+    /* Ombre et transition */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.sisme-platform-icon:hover {
+    transform: translateY(-1px) scale(1.1);
+    box-shadow: 0 4px 8px rgba(102, 192, 244, 0.4);
+}
+
+/* Informations développeur */
+.sisme-developer-info {
+    font-size: 0.9rem;
+    color: #c7d5e0;
+}
+
+.sisme-developer-info a {
+    color: #67c1f5;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.sisme-developer-info a:hover {
+    color: #8dd3f7;
+    text-decoration: underline;
+}
+
+/* ========================================
+   🛒 ACTIONS ET BOUTIQUES
+======================================== */
+
+.sisme-game-actions {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sisme-price-section {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    /* Bordure élégante */
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+.sisme-release-date {
+    color: #67c1f5;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 16px;
+    
+    /* Icône calendrier */
+    position: relative;
+    padding-left: 20px;
+}
+
+.sisme-release-date::before {
+    content: "📅";
+    position: absolute;
+    left: 0;
+    opacity: 0.8;
+}
+
+/* Liens des boutiques */
+.sisme-store-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sisme-store-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    
+    /* Transitions fluides */
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-store-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.sisme-store-btn:hover::before {
+    left: 100%;
+}
+
+.sisme-store-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Styles spécifiques par boutique */
+.sisme-store-btn.steam {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: #fff;
+    border: 1px solid rgba(42, 82, 152, 0.5);
+}
+
+.sisme-store-btn.steam:hover {
+    background: linear-gradient(135deg, #2a5298, #1e3c72);
+    box-shadow: 0 6px 20px rgba(30, 60, 114, 0.4);
+}
+
+.sisme-store-btn.epic {
+    background: linear-gradient(135deg, #0078f2, #00a8ff);
+    color: #fff;
+    border: 1px solid rgba(0, 168, 255, 0.5);
+}
+
+.sisme-store-btn.epic:hover {
+    background: linear-gradient(135deg, #00a8ff, #0078f2);
+    box-shadow: 0 6px 20px rgba(0, 120, 242, 0.4);
+}
+
+.sisme-store-btn.gog {
+    background: linear-gradient(135deg, #7b2182, #a239ca);
+    color: #fff;
+    border: 1px solid rgba(162, 57, 202, 0.5);
+}
+
+.sisme-store-btn.gog:hover {
+    background: linear-gradient(135deg, #a239ca, #7b2182);
+    box-shadow: 0 6px 20px rgba(123, 33, 130, 0.4);
+}
+
+/* ========================================
+   📱 RESPONSIVE DESIGN
+======================================== */
+
+@media (max-width: 768px) {
+    .sisme-game-hero {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 30px 20px;
+    }
+    
+    .sisme-game-title {
+        font-size: 2rem;
+    }
+    
+    .sisme-store-links {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .sisme-store-btn {
+        flex: 1;
+        min-width: 140px;
+        padding: 12px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .sisme-media-gallery {
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .sisme-media-thumb {
+        min-width: 100px;
+        height: 56px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-game-hero {
+        padding: 20px 15px;
+        gap: 20px;
+    }
+    
+    .sisme-game-title {
+        font-size: 1.75rem;
+    }
+    
+    .sisme-game-meta {
+        padding: 15px;
+    }
+    
+    .sisme-price-section {
+        padding: 15px;
+    }
+    
+    .sisme-store-links {
+        flex-direction: column;
+    }
+    
+    .sisme-store-btn {
+        min-width: auto;
+    }
+    
+    .sisme-media-thumb {
+        min-width: 80px;
+        height: 45px;
+    }
+}

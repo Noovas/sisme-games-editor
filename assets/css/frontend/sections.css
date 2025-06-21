@@ -1,0 +1,383 @@
+/**
+ * File: /sisme-games-editor/assets/css/frontend/sections.css
+ * Styles pour les sections personnalisées des fiches - Frontend
+ * Cohérence avec tokens frontend et hero section
+ */
+
+/* ========================================
+   📝 CONTAINER PRINCIPAL DES SECTIONS
+======================================== */
+
+.sisme-fiche-presentation {
+    margin: var(--sisme-space-3xl) auto;
+    max-width: var(--sisme-max-width-xl);
+    padding: var(--sisme-space-2xl);
+    
+    /* Design sobre et élégant - cohérent avec hero et navigation */
+    background: var(--sisme-overlay-light);
+    border-radius: var(--sisme-radius-lg);
+    position: relative;
+    overflow: hidden;
+    
+    /* Bordure subtile */
+    border: 1px solid var(--sisme-border-light);
+    
+    /* Ombres douces et professionnelles */
+    box-shadow: 
+        var(--sisme-shadow-lg),
+        var(--sisme-shadow-md);
+    
+    /* Animation d'apparition */
+    animation: sectionsSlideIn 0.6s ease-out;
+    
+    /* Transition smooth */
+    transition: var(--sisme-transition-all);
+}
+
+@keyframes sectionsSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Barre décorative animée (cohérence avec navigation-blocks) */
+.sisme-fiche-presentation::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--sisme-border-light);
+    border-radius: 2px;
+}
+
+.sisme-fiche-presentation::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        var(--sisme-color-primary-dark) 50%, 
+        transparent 100%);
+    border-radius: 2px;
+    animation: sectionsFlow 4s ease-out infinite;
+}
+
+@keyframes sectionsFlow {
+    0% { left: -150px; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { left: calc(100% + 150px); opacity: 0; }
+}
+
+/* Effet hover discret */
+.sisme-fiche-presentation:hover {
+    border-color: var(--sisme-color-primary);
+    box-shadow: 
+        var(--sisme-shadow-xl),
+        var(--sisme-shadow-lg);
+}
+
+/* ========================================
+   📚 TITRE DE LA SECTION PRINCIPALE
+======================================== */
+
+.sisme-fiche-presentation h2 {
+    font-size: var(--sisme-text-3xl);
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-color-text);
+    margin: 0 0 var(--sisme-space-xl);
+    text-align: left;
+    position: relative;
+    
+    /* Ligne décorative */
+    padding-bottom: var(--sisme-space-md);
+    border-bottom: 2px solid var(--sisme-color-primary);
+    text-rendering: optimizeLegibility;
+    letter-spacing: -0.02em;
+}
+
+/* Icône du titre */
+.sisme-fiche-presentation h2::before {
+    content: '📝';
+    font-size: 0.9em;
+    margin-right: var(--sisme-space-sm);
+    opacity: 0.8;
+}
+
+/* ========================================
+   📄 SECTIONS INDIVIDUELLES
+======================================== */
+
+.sisme-game-section {
+    margin-bottom: var(--sisme-space-2xl);
+    padding-bottom: var(--sisme-space-xl);
+    position: relative;
+}
+
+/* Séparateur entre sections (sauf la dernière) */
+.sisme-game-section:not(:last-child) {
+    border-bottom: 1px solid rgba(161, 183, 141, 0.15);
+}
+
+.sisme-game-section:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 1px;
+    background: var(--sisme-color-primary);
+    opacity: 0.3;
+}
+
+/* ========================================
+   🔤 TITRES DES SECTIONS
+======================================== */
+
+.sisme-game-section h3 {
+    font-size: var(--sisme-text-2xl);
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-color-text);
+    margin: 0 0 var(--sisme-space-lg);
+    line-height: var(--sisme-leading-tight);
+    
+    /* Accent coloré */
+    position: relative;
+    padding-left: var(--sisme-space-md);
+}
+
+/* Barre colorée à gauche du titre */
+.sisme-game-section h3::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 4px;
+    height: calc(100% - 4px);
+    background: linear-gradient(180deg, 
+        var(--sisme-color-primary), 
+        var(--sisme-color-primary-dark));
+    border-radius: 2px;
+}
+
+/* ========================================
+   📝 CONTENU DES SECTIONS
+======================================== */
+
+.sisme-game-section p {
+    font-size: var(--sisme-text-base);
+    line-height: var(--sisme-leading-relaxed);
+    color: var(--sisme-color-text-secondary);
+    margin-bottom: var(--sisme-space-lg);
+}
+
+.sisme-game-section p:last-of-type {
+    margin-bottom: 0;
+}
+
+/* Mise en forme des liens */
+.sisme-game-section a {
+    color: var(--sisme-color-primary-dark);
+    text-decoration: underline;
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-game-section a:hover {
+    color: var(--sisme-color-primary);
+    text-decoration: none;
+}
+
+/* Listes */
+.sisme-game-section ul,
+.sisme-game-section ol {
+    margin: var(--sisme-space-lg) 0;
+    padding-left: var(--sisme-space-xl);
+}
+
+.sisme-game-section li {
+    font-size: var(--sisme-text-base);
+    line-height: var(--sisme-leading-normal);
+    color: var(--sisme-color-text-secondary);
+    margin-bottom: var(--sisme-space-sm);
+}
+
+/* Citations */
+.sisme-game-section blockquote {
+    margin: var(--sisme-space-xl) 0;
+    padding: var(--sisme-space-lg) var(--sisme-space-xl);
+    border-left: 4px solid var(--sisme-color-primary);
+    background: rgba(161, 183, 141, 0.05);
+    border-radius: 0 var(--sisme-radius-md) var(--sisme-radius-md) 0;
+    font-style: italic;
+    color: var(--sisme-color-text);
+}
+
+/* ========================================
+   🖼️ IMAGES DES SECTIONS
+======================================== */
+
+.sisme-game-section-image {
+    margin: var(--sisme-space-xl) 0;
+    text-align: center;
+}
+
+.sisme-section-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--sisme-radius-lg);
+    
+    /* Ombre élégante */
+    box-shadow: 
+        var(--sisme-shadow-lg),
+        var(--sisme-shadow-md);
+    
+    /* Bordure subtile */
+    border: 1px solid rgba(161, 183, 141, 0.2);
+    
+    /* Transition hover */
+    transition: var(--sisme-transition-normal);
+}
+
+.sisme-section-image:hover {
+    box-shadow: 
+        var(--sisme-shadow-xl),
+        var(--sisme-shadow-lg);
+    transform: scale(1.02);
+}
+
+/* ========================================
+   📱 RESPONSIVE DESIGN
+======================================== */
+
+@media (max-width: 768px) {
+    .sisme-fiche-presentation {
+        padding: var(--sisme-space-lg);
+        margin: var(--sisme-space-2xl) auto;
+    }
+    
+    .sisme-fiche-presentation h2 {
+        font-size: var(--sisme-text-2xl);
+        margin-bottom: var(--sisme-space-lg);
+    }
+    
+    .sisme-game-section {
+        margin-bottom: var(--sisme-space-xl);
+        padding-bottom: var(--sisme-space-lg);
+    }
+    
+    .sisme-game-section h3 {
+        font-size: var(--sisme-text-xl);
+        padding-left: var(--sisme-space-sm);
+        margin-bottom: var(--sisme-space-md);
+    }
+    
+    .sisme-game-section h3::before {
+        width: 3px;
+    }
+    
+    .sisme-game-section p {
+        font-size: var(--sisme-text-sm);
+        margin-bottom: var(--sisme-space-md);
+    }
+    
+    .sisme-game-section ul,
+    .sisme-game-section ol {
+        padding-left: var(--sisme-space-lg);
+        margin: var(--sisme-space-md) 0;
+    }
+    
+    .sisme-game-section li {
+        font-size: var(--sisme-text-sm);
+    }
+    
+    .sisme-game-section blockquote {
+        margin: var(--sisme-space-lg) 0;
+        padding: var(--sisme-space-md) var(--sisme-space-lg);
+        font-size: var(--sisme-text-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-fiche-presentation {
+        padding: var(--sisme-space-md);
+        margin: var(--sisme-space-xl) auto;
+    }
+    
+    .sisme-fiche-presentation h2 {
+        font-size: var(--sisme-text-xl);
+    }
+    
+    .sisme-game-section h3 {
+        font-size: var(--sisme-text-lg);
+    }
+    
+    .sisme-game-section-image {
+        margin: var(--sisme-space-lg) 0;
+    }
+}
+
+/* ========================================
+   🎨 VARIANTES ET ÉTATS SPÉCIAUX
+======================================== */
+
+/* Section mise en avant */
+.sisme-game-section.featured {
+    background: rgba(161, 183, 141, 0.05);
+    padding: var(--sisme-space-xl);
+    border-radius: var(--sisme-radius-lg);
+    border: 1px solid rgba(161, 183, 141, 0.2);
+}
+
+.sisme-game-section.featured h3 {
+    color: var(--sisme-color-primary-dark);
+}
+
+/* Section avec fond sombre (pour contraste) */
+.sisme-game-section.dark {
+    background: var(--sisme-color-text);
+    color: var(--sisme-overlay-light);
+    padding: var(--sisme-space-xl);
+    border-radius: var(--sisme-radius-lg);
+    margin: var(--sisme-space-xl) 0;
+}
+
+.sisme-game-section.dark h3 {
+    color: var(--sisme-overlay-light);
+}
+
+.sisme-game-section.dark p {
+    color: rgba(236, 240, 241, 0.8);
+}
+
+/* Animation d'entrée différée pour chaque section */
+.sisme-game-section:nth-child(1) { animation-delay: 0.1s; }
+.sisme-game-section:nth-child(2) { animation-delay: 0.2s; }
+.sisme-game-section:nth-child(3) { animation-delay: 0.3s; }
+.sisme-game-section:nth-child(4) { animation-delay: 0.4s; }
+.sisme-game-section:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes sectionSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.sisme-game-section {
+    animation: sectionSlideIn 0.4s ease-out both;
+}
