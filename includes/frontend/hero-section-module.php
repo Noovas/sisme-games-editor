@@ -327,14 +327,12 @@ class Sisme_Hero_Section_Module {
     private static function render_javascript() {
         return '<script>
         document.addEventListener("DOMContentLoaded", function() {
-            // === GALERIE INTERACTIVE ===
             const mainDisplay = document.getElementById("sismeMainDisplay");
             const trailerFrame = document.getElementById("sismeTrailerFrame");
             const screenshotImg = document.getElementById("sismeScreenshotImg");
             const thumbs = document.querySelectorAll(".sisme-media-thumb");
             
             if (mainDisplay && thumbs.length > 0) {
-                // Fonction pour mettre en pause YouTube
                 function pauseYouTube() {
                     if (trailerFrame && trailerFrame.contentWindow) {
                         trailerFrame.contentWindow.postMessage(
@@ -352,8 +350,23 @@ class Sisme_Hero_Section_Module {
                         const type = this.dataset.type;
                         
                         if (type === "trailer" && trailerFrame) {
-                            trailerFrame.style.display = "block";
-                            if (screenshotImg) screenshotImg.style.display = "none";
+                            if (screenshotImg && screenshotImg.style.display !== "none") {
+                                screenshotImg.classList.add("sisme-fading");
+                                
+                                setTimeout(() => {
+                                    screenshotImg.style.display = "none";
+                                    screenshotImg.classList.remove("sisme-fading");
+                                    
+                                    trailerFrame.style.display = "block";
+                                    trailerFrame.classList.add("sisme-appearing");
+                                    
+                                    setTimeout(() => {
+                                        trailerFrame.classList.remove("sisme-appearing");
+                                    }, 400);
+                                }, 150);
+                            } else {
+                                trailerFrame.style.display = "block";
+                            }
                             
                             const youtubeId = this.dataset.youtube;
                             if (youtubeId) {
@@ -365,15 +378,45 @@ class Sisme_Hero_Section_Module {
                             
                         } else if (type === "screenshot" && screenshotImg) {
                             pauseYouTube();
-                            if (trailerFrame) trailerFrame.style.display = "none";
-                            screenshotImg.style.display = "block";
-                            screenshotImg.src = this.dataset.image;
+                            
+                            if (trailerFrame && trailerFrame.style.display !== "none") {
+                                trailerFrame.classList.add("sisme-fading");
+                                
+                                setTimeout(() => {
+                                    trailerFrame.style.display = "none";
+                                    trailerFrame.classList.remove("sisme-fading");
+                                    
+                                    screenshotImg.src = this.dataset.image;
+                                    screenshotImg.style.display = "block";
+                                    screenshotImg.classList.add("sisme-appearing");
+                                    
+                                    setTimeout(() => {
+                                        screenshotImg.classList.remove("sisme-appearing");
+                                    }, 400);
+                                }, 150);
+                            } else {
+                                if (screenshotImg.src !== this.dataset.image) {
+                                    screenshotImg.classList.add("sisme-fading");
+                                    
+                                    setTimeout(() => {
+                                        screenshotImg.src = this.dataset.image;
+                                        screenshotImg.style.display = "block";
+                                        screenshotImg.classList.remove("sisme-fading");
+                                        screenshotImg.classList.add("sisme-appearing");
+                                        
+                                        setTimeout(() => {
+                                            screenshotImg.classList.remove("sisme-appearing");
+                                        }, 400);
+                                    }, 150);
+                                } else {
+                                    screenshotImg.style.display = "block";
+                                }
+                            }
                         }
                     });
                 });
             }
             
-            // === SYSTÈME DE TOOLTIPS ===
             function createTooltipSystem() {
                 if (document.getElementById("sismeTooltip")) return document.getElementById("sismeTooltip");
                 
@@ -442,7 +485,6 @@ class Sisme_Hero_Section_Module {
                 }
             }
             
-            // Initialiser les tooltips pour les plateformes
             const platformIcons = document.querySelectorAll(".sisme-platform-icon");
             platformIcons.forEach(icon => {
                 const tooltipText = icon.getAttribute("title");
