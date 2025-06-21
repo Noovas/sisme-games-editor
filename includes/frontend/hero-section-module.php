@@ -153,7 +153,14 @@ class Sisme_Hero_Section_Module {
         foreach ($genres as $genre_id) {
             $genre = get_category($genre_id);
             if ($genre) {
-                $output .= '<span class="sisme-tag">' . esc_html($genre->name) . '</span>';
+                // 🔗 LIEN VERS LA PAGE D'ARCHIVE DE LA CATÉGORIE
+                $genre_url = get_category_link($genre_id);
+                $genre_name = str_replace('jeux-', '', $genre->name); // Nettoyer le nom
+                
+                $output .= '<a href="' . esc_url($genre_url) . '" class="sisme-tag sisme-tag-link" ';
+                $output .= 'title="Voir tous les jeux de type ' . esc_attr($genre_name) . '">';
+                $output .= esc_html(ucfirst($genre_name));
+                $output .= '</a>';
             }
         }
         
@@ -370,7 +377,7 @@ class Sisme_Hero_Section_Module {
         $output .= '<img src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-STEAM.webp" alt="Steam">';
         $output .= $steam_url ? '</a>' : '</div>';
         
-        $epic_url = !empty($external_links['epic_games']) ? $external_links['epic_games'] : '';
+        $epic_url = !empty($external_links['epic']) ? $external_links['epic'] : '';
         $epic_class = $epic_url ? 'sisme-store-icon' : 'sisme-store-icon sisme-store-icon--disabled';
         $epic_title = $epic_url ? 'Epic Games' : 'Pas disponible';
         

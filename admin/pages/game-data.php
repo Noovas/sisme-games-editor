@@ -11,6 +11,53 @@ if (!defined('ABSPATH')) {
 require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
 require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-table-game-data.php';
 
+// 🗑️ Traitement de la suppression de Game Data
+if (isset($_GET['action']) && $_GET['action'] === 'delete_game_data' && isset($_GET['game_id'])) {
+    if (wp_verify_nonce($_GET['_wpnonce'], 'delete_game_data_' . $_GET['game_id'])) {
+        $game_id = intval($_GET['game_id']);
+        $tag = get_term($game_id, 'post_tag');
+        
+        if ($tag && !is_wp_error($tag)) {
+            // Supprimer toutes les métadonnées du jeu
+            $meta_keys = [
+                'game_description', 'game_genres', 'game_modes', 'game_developers', 
+                'game_publishers', 'game_platforms', 'release_date', 'external_links',
+                'trailer_link', 'cover_main', 'cover_news', 'cover_patch', 'cover_test',
+                'screenshots', 'game_sections', 'last_update'
+            ];
+            
+            foreach ($meta_keys as $meta_key) {
+                delete_term_meta($game_id, $meta_key);
+            }
+            
+            // Optionnel : Supprimer complètement l'étiquette
+            // wp_delete_term($game_id, 'post_tag');
+            
+            add_action('admin_notices', function() use ($tag) {
+                echo '<div class="notice notice-success is-dismissible">';
+                echo '<p>✅ Les données du jeu "' . esc_html($tag->name) . '" ont été supprimées avec succès !</p>';
+                echo '</div>';
+            });
+        } else {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error is-dismissible">';
+                echo '<p>❌ Erreur : Jeu introuvable.</p>';
+                echo '</div>';
+            });
+        }
+        
+        // Rediriger pour nettoyer l'URL
+        wp_redirect(admin_url('admin.php?page=sisme-games-game-data'));
+        exit;
+    } else {
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-error is-dismissible">';
+            echo '<p>❌ Erreur de sécurité : Token invalide.</p>';
+            echo '</div>';
+        });
+    }
+}
+
 // Créer la page avec le wrapper
 $page = new Sisme_Admin_Page_Wrapper(
     'Game Data',

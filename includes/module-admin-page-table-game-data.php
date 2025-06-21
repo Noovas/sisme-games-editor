@@ -765,11 +765,54 @@ class Sisme_Game_Data_Table_Module {
                 var gameId = $(this).data('game-id');
                 var gameName = $(this).data('game-name');
                 
-                if (confirm('Êtes-vous sûr de vouloir supprimer toutes les données du jeu "' + gameName + '" ?\n\nAttention : Cette action est irréversible !')) {
-                    // TODO: Implémenter la suppression AJAX
-                    alert('Suppression non encore implémentée.\nGameID: ' + gameId);
+                console.log('Suppression demandée - Game ID:', gameId, 'Name:', gameName);
+                
+                if (confirm('Êtes-vous sûr de vouloir supprimer complètement le jeu "' + gameName + '" ?\n\n🗑️ Cette action supprimera :\n- L\'étiquette du jeu\n- Toutes les métadonnées\n- Les covers et liens\n- Les sections par défaut\n\n❌ Cette action est irréversible !')) {
+                    
+                    deleteGame(gameId, gameName, false);
                 }
             });
+            
+            // Fonction de suppression
+            function deleteGame(gameId, gameName, forceDelete) {
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'sisme_delete_game_data',
+                        game_id: gameId,
+                        force_delete: forceDelete ? 'yes' : 'no',
+                        nonce: '<?php echo wp_create_nonce('sisme_delete_game_data'); ?>'
+                    },
+                    beforeSend: function() {
+                        // Afficher un loader sur le bouton
+                        $('.delete-game-data[data-game-id="' + gameId + '"]').html('⏳').prop('disabled', true);
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert('✅ ' + response.data.message);
+                            location.reload(); // Recharger la page
+                        } else {
+                            // Vérifier si c'est une demande de confirmation
+                            if (response.data.needs_confirmation) {
+                                if (confirm('⚠️ ' + response.data.message + '\n\nConfirmer la suppression ?')) {
+                                    // Relancer avec force_delete = true
+                                    deleteGame(gameId, gameName, true);
+                                } else {
+                                    $('.delete-game-data[data-game-id="' + gameId + '"]').html('🗑️').prop('disabled', false);
+                                }
+                            } else {
+                                alert('❌ Erreur : ' + response.data.message);
+                                $('.delete-game-data[data-game-id="' + gameId + '"]').html('🗑️').prop('disabled', false);
+                            }
+                        }
+                    },
+                    error: function() {
+                        alert('❌ Erreur de connexion');
+                        $('.delete-game-data[data-game-id="' + gameId + '"]').html('🗑️').prop('disabled', false);
+                    }
+                });
+            }
         });
         </script>
         <?php

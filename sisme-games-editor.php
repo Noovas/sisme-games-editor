@@ -41,6 +41,7 @@ class SismeGamesEditor {
         add_action('wp_ajax_sisme_create_tag', array($this, 'handle_ajax_create_tag'));
         add_action('wp_ajax_sisme_create_category', array($this, 'handle_ajax_create_category'));
         add_action('wp_ajax_sisme_create_entity', array($this, 'handle_ajax_create_entity'));
+        add_action('wp_ajax_sisme_delete_game_data', array($this, 'ajax_delete_game_data'));
 
         $this->include_files();
 
@@ -724,6 +725,96 @@ class SismeGamesEditor {
             'label' => 'Article',
             'edit_url' => get_edit_post_link($post_id)
         );
+    }
+
+    public function ajax_delete_game_data() {
+        // Vérification de sécurité
+        if (!wp_verify_nonce($_POST['nonce'], 'sisme_delete_game_data')) {
+            wp_send_json_error(array(
+                'message' => 'Erreur de sécurité : Token invalide'
+            ));
+        }
+        
+        // Vérification des permissions
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array(
+                'message' => 'Permissions insuffisantes'
+            ));
+        }
+        
+        $game_id = intval($_POST['game_id']);
+        
+        if (!$game_id) {
+            wp_send_json_error(array(
+                'message' => 'ID du jeu invalide'
+            ));
+        }
+        
+        // Récupérer les infos du jeu avant suppression
+        $tag = get_term($game_id, 'post_tag');
+        
+        if (!$tag || is_wp_error($tag)) {
+            wp_send_json_error(array(
+                'message' => 'Jeu introuvable'
+            ));
+        }
+        
+        $game_name = $tag->name;
+        
+        // 🔍 Vérifier s'il y a des articles liés à cette étiquette
+        $linked_posts = get_posts(array(
+            'tag_id' => $game_id,
+            'post_type' => 'post',
+            'post_status' => array('publish', 'draft', 'private', 'trash'),
+            'posts_per_page' => -1,
+            'fields' => 'ids'
+        ));
+        
+        // ⚠️ Si des articles sont liés, demander confirmation supplémentaire
+        if (!empty($linked_posts)) {
+            // On va retourner une erreur avec les détails pour que l'utilisateur confirme
+            if (!isset($_POST['force_delete']) || $_POST['force_delete'] !== 'yes') {
+                wp_send_json_error(array(
+                    'message' => 'Ce jeu est lié à ' . count($linked_posts) . ' article(s). Voulez-vous vraiment supprimer l\'étiquette et détacher ces articles ?',
+                    'needs_confirmation' => true,
+                    'linked_posts_count' => count($linked_posts)
+                ));
+            }
+        }
+        
+        // 🗑️ Supprimer toutes les métadonnées du jeu
+        $meta_keys = [
+            'game_description', 'game_genres', 'game_modes', 'game_developers', 
+            'game_publishers', 'game_platforms', 'release_date', 'external_links',
+            'trailer_link', 'cover_main', 'cover_news', 'cover_patch', 'cover_test',
+            'screenshots', 'game_sections', 'last_update'
+        ];
+        
+        $deleted_count = 0;
+        foreach ($meta_keys as $meta_key) {
+            if (delete_term_meta($game_id, $meta_key)) {
+                $deleted_count++;
+            }
+        }
+        
+        // 🗑️ Supprimer l'étiquette elle-même
+        $deletion_result = wp_delete_term($game_id, 'post_tag');
+        
+        if (is_wp_error($deletion_result)) {
+            wp_send_json_error(array(
+                'message' => 'Erreur lors de la suppression de l\'étiquette : ' . $deletion_result->get_error_message()
+            ));
+        }
+        
+        $message = 'Le jeu "' . $game_name . '" a été complètement supprimé !';
+        if (!empty($linked_posts)) {
+            $message .= ' (' . count($linked_posts) . ' article(s) détaché(s))';
+        }
+        $message .= ' (' . $deleted_count . ' métadonnées supprimées)';
+        
+        wp_send_json_success(array(
+            'message' => $message
+        ));
     }
 }
 

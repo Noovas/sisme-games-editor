@@ -416,12 +416,17 @@
 .sisme-mode-tag, .sisme-tag {
     padding: 6px 12px;
     font-size: 0.85rem;
-    cursor: default;
+    cursor: pointer;
     border-radius: 20px;
     transition: all 0.3s ease;
     text-transform: capitalize;
     font-weight: 500;
     border: 1px solid
+}
+
+.sisme-developer-info {
+    display: flex;
+    flex-direction: column;
 }
 
 .sisme-tag {
