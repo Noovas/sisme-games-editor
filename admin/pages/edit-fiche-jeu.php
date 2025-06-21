@@ -1,7 +1,7 @@
 <?php
 /**
  * File: /sisme-games-editor/admin/pages/edit-fiche-jeu.php
- * Version Simple - Juste formulaire sections + données jeu
+ * Version Simple - Juste formulaire sections + données jeu + DEBUG
  */
 
 if (!defined('ABSPATH')) {
@@ -36,8 +36,43 @@ $game_data = array(
     'release_date' => get_term_meta($tag_id, 'release_date', true),
 );
 
+// DEBUG: Récupérer aussi les sections par défaut du jeu
+$default_game_sections = get_term_meta($tag_id, 'game_sections', true) ?: array();
+
 // Mode création ou édition
 $is_edit_mode = $post_id > 0;
+
+// Si pas de post_id fourni, vérifier si une fiche existe déjà pour ce jeu
+if (!$is_edit_mode) {
+    $existing_fiche_id = Sisme_Fiche_Creator::find_existing_fiche($tag_id);
+    
+    // Si pas trouvé avec la fonction officielle, chercher manuellement
+    if (!$existing_fiche_id) {
+        $manual_search = get_posts(array(
+            'tag_id' => $tag_id,
+            'post_type' => 'post',
+            'post_status' => array('publish', 'draft', 'private'),
+            'posts_per_page' => 1
+        ));
+        
+        if (!empty($manual_search)) {
+            $existing_fiche_id = $manual_search[0]->ID;
+        }
+    }
+    
+    if ($existing_fiche_id) {
+        $post_id = $existing_fiche_id;
+        $is_edit_mode = true;
+        
+        // Mettre à jour l'URL pour inclure post_id ET préserver tag_id
+        $new_url = add_query_arg(array(
+            'post_id' => $post_id,
+            'tag_id' => $tag_id
+        ));
+        echo '<script>window.history.replaceState({}, "", "' . esc_js($new_url) . '");</script>';
+    }
+}
+
 $existing_sections = array();
 
 if ($is_edit_mode) {
@@ -47,12 +82,18 @@ if ($is_edit_mode) {
     }
 }
 
+// Si pas de sections dans l'article (création ou article sans sections), 
+// utiliser les sections par défaut du jeu
+if (empty($existing_sections) && !empty($default_game_sections)) {
+    $existing_sections = $default_game_sections;
+}
+
 // Messages
 $success_message = '';
 $error_message = '';
 
 // Traitement du formulaire
-if ($_POST['action'] === 'create_fiche' && check_admin_referer('sisme_fiche_sections')) {
+if (isset($_POST['action']) && $_POST['action'] === 'create_fiche' && check_admin_referer('sisme_fiche_sections')) {
     
     // Récupérer et nettoyer les sections
     $sections = $_POST['sections'] ?? array();
@@ -94,8 +135,11 @@ if ($_POST['action'] === 'create_fiche' && check_admin_referer('sisme_fiche_sect
             $post_id = $result['post_id'];
             $existing_sections = get_post_meta($post_id, '_sisme_game_sections', true) ?: array();
             
-            // Mettre à jour l'URL pour inclure post_id
-            $new_url = add_query_arg('post_id', $post_id, remove_query_arg('post_id'));
+            // Mettre à jour l'URL pour inclure post_id ET préserver tag_id
+            $new_url = add_query_arg(array(
+                'post_id' => $post_id,
+                'tag_id' => $tag_id
+            ), remove_query_arg('post_id'));
             echo '<script>window.history.replaceState({}, "", "' . esc_js($new_url) . '");</script>';
             
         } else {
@@ -129,306 +173,67 @@ $page->render_start();
     </div>
 <?php endif; ?>
 
-<!-- Données du jeu (lecture seule) -->
-<div class="sisme-card">
-    <div class="sisme-card__header sisme-card__header--flex">
-        <h3 class="sisme-card__title">🎮 Données du jeu</h3>
-        <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-game-data&tag_id=' . $tag_id); ?>" 
-           class="sisme-btn sisme-btn--small sisme-btn--secondary">
-            ✏️ Modifier
-        </a>
-    </div>
-    <div class="sisme-card__body">
-        <div class="sisme-readonly-grid">
-            <div class="sisme-readonly-field">
-                <label class="sisme-readonly-label">Titre</label>
-                <div class="sisme-readonly-value">
-                    <strong><?php echo esc_html($game_data['title']); ?></strong>
-                </div>
-            </div>
-            
-            <?php if (!empty($game_data['description'])): ?>
-            <div class="sisme-readonly-field">
-                <label class="sisme-readonly-label">Description</label>
-                <div class="sisme-readonly-value">
-                    <?php echo wp_trim_words(wp_kses_post($game_data['description']), 20); ?>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <?php if (!empty($game_data['release_date'])): ?>
-            <div class="sisme-readonly-field">
-                <label class="sisme-readonly-label">Date de sortie</label>
-                <div class="sisme-readonly-value">
-                    <?php echo esc_html(date('d/m/Y', strtotime($game_data['release_date']))); ?>
-                </div>
-            </div>
-            <?php endif; ?>
-        </div>
-    </div>
-</div>
-
 <!-- Formulaire des sections -->
-<div class="sisme-card">
-    <div class="sisme-card__header">
-        <h3 class="sisme-card__title">📝 Sections de présentation</h3>
-    </div>
-    <div class="sisme-card__body">
-        <form method="post" action="">
-            <?php wp_nonce_field('sisme_fiche_sections'); ?>
-            <input type="hidden" name="action" value="create_fiche">
-            
-            <div id="sections-container" class="sisme-sections-container">
-                <?php if (!empty($existing_sections)): ?>
-                    <?php foreach ($existing_sections as $index => $section): ?>
-                        <div class="sisme-card section-item" data-index="<?php echo $index; ?>">
-                            <div class="sisme-card__header sisme-card__header--flex">
-                                <h4 class="sisme-card__title">Section <?php echo ($index + 1); ?></h4>
-                                <button type="button" class="sisme-btn sisme-btn--danger sisme-btn--small remove-section">
-                                    🗑️ Supprimer
-                                </button>
-                            </div>
-                            
-                            <div class="sisme-card__body">
-                                <div class="sisme-form-group">
-                                    <label class="sisme-form-label">Titre de la section</label>
-                                    <input type="text" 
-                                           name="sections[<?php echo $index; ?>][title]" 
-                                           value="<?php echo esc_attr($section['title'] ?? ''); ?>" 
-                                           class="sisme-form-input"
-                                           placeholder="Ex: Gameplay, Histoire, Graphismes...">
-                                </div>
-                                
-                                <div class="sisme-form-group">
-                                    <label class="sisme-form-label">Contenu</label>
-                                    <textarea name="sections[<?php echo $index; ?>][content]" 
-                                              rows="6" 
-                                              class="sisme-form-textarea"
-                                              placeholder="Décrivez cette section du jeu..."><?php echo esc_textarea($section['content'] ?? ''); ?></textarea>
-                                </div>
-                                
-                                <div class="sisme-form-group">
-                                    <label class="sisme-form-label">Image de la section</label>
-                                    <div class="sisme-media-selector">
-                                        <input type="hidden" 
-                                               name="sections[<?php echo $index; ?>][image_id]" 
-                                               value="<?php echo esc_attr($section['image_id'] ?? 0); ?>"
-                                               class="section-image-id">
-                                        
-                                        <div class="sisme-media-preview">
-                                            <?php if (!empty($section['image_id'])): ?>
-                                                <?php echo wp_get_attachment_image($section['image_id'], 'medium', false, array('class' => 'sisme-media-preview__image')); ?>
-                                            <?php else: ?>
-                                                <div class="sisme-media-preview__empty">
-                                                    📷 Cliquez pour choisir une image
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        
-                                        <div class="sisme-media-actions">
-                                            <button type="button" class="sisme-btn sisme-btn--secondary select-image">
-                                                📷 Choisir une image
-                                            </button>
-                                            <button type="button" class="sisme-btn sisme-btn--danger remove-image" 
-                                                    style="<?php echo !empty($section['image_id']) ? '' : 'display:none;'; ?>">
-                                                🗑️ Supprimer
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="sisme-card section-item" data-index="0">
-                        <div class="sisme-card__header sisme-card__header--flex">
-                            <h4 class="sisme-card__title">Section 1</h4>
-                            <button type="button" class="sisme-btn sisme-btn--danger sisme-btn--small remove-section">
-                                🗑️ Supprimer
-                            </button>
-                        </div>
-                        
-                        <div class="sisme-card__body">
-                            <div class="sisme-form-group">
-                                <label class="sisme-form-label">Titre de la section</label>
-                                <input type="text" 
-                                       name="sections[0][title]" 
-                                       value="" 
-                                       class="sisme-form-input"
-                                       placeholder="Ex: Gameplay, Histoire, Graphismes...">
-                            </div>
-                            
-                            <div class="sisme-form-group">
-                                <label class="sisme-form-label">Contenu</label>
-                                <textarea name="sections[0][content]" 
-                                          rows="6" 
-                                          class="sisme-form-textarea"
-                                          placeholder="Décrivez cette section du jeu..."></textarea>
-                            </div>
-                            
-                            <div class="sisme-form-group">
-                                <label class="sisme-form-label">Image de la section</label>
-                                <div class="sisme-media-selector">
-                                    <input type="hidden" 
-                                           name="sections[0][image_id]" 
-                                           value=""
-                                           class="section-image-id">
-                                    
-                                    <div class="sisme-media-preview">
-                                        <div class="sisme-media-preview__empty">
-                                            📷 Cliquez pour choisir une image
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="sisme-media-actions">
-                                        <button type="button" class="sisme-btn sisme-btn--secondary select-image">
-                                            📷 Choisir une image
-                                        </button>
-                                        <button type="button" class="sisme-btn sisme-btn--danger remove-image" style="display:none;">
-                                            🗑️ Supprimer
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            </div>
-            
-            <div class="sisme-form-actions">
-                <button type="button" id="add-section" class="sisme-btn sisme-btn--secondary">
-                    ➕ Ajouter une section
-                </button>
-            </div>
-            
-            <div class="sisme-form-actions">
-                <button type="submit" name="submit_sections" class="sisme-btn sisme-btn--primary">
-                    <?php echo $is_edit_mode ? '💾 Mettre à jour' : '✨ Créer la fiche'; ?>
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-jQuery(document).ready(function($) {
-    let sectionIndex = <?php echo count($existing_sections) ?: 1; ?>;
+<form method="post">
+    <?php wp_nonce_field('sisme_fiche_sections'); ?>
+    <input type="hidden" name="action" value="create_fiche">
     
-    // Ajouter une section
-    $('#add-section').click(function() {
-        const newSection = `
-            <div class="sisme-card section-item" data-index="${sectionIndex}">
-                <div class="sisme-card__header sisme-card__header--flex">
-                    <h4 class="sisme-card__title">Section ${sectionIndex + 1}</h4>
-                    <button type="button" class="sisme-btn sisme-btn--danger sisme-btn--small remove-section">
-                        🗑️ Supprimer
-                    </button>
-                </div>
-                
-                <div class="sisme-card__body">
-                    <div class="sisme-form-group">
-                        <label class="sisme-form-label">Titre de la section</label>
-                        <input type="text" 
-                               name="sections[${sectionIndex}][title]" 
-                               value="" 
-                               class="sisme-form-input"
-                               placeholder="Ex: Gameplay, Histoire, Graphismes...">
-                    </div>
+    <h3>Sections de présentation</h3>
+    
+    <div id="sections-container">
+        <?php if (!empty($existing_sections)): ?>
+            <?php foreach ($existing_sections as $index => $section): ?>
+                <div style="border: 1px solid #ccc; margin: 10px 0; padding: 15px;">
+                    <h4>Section <?php echo ($index + 1); ?></h4>
                     
-                    <div class="sisme-form-group">
-                        <label class="sisme-form-label">Contenu</label>
-                        <textarea name="sections[${sectionIndex}][content]" 
+                    <p>
+                        <label>Titre de la section:</label><br>
+                        <input type="text" name="sections[<?php echo $index; ?>][title]" 
+                               value="<?php echo esc_attr($section['title'] ?? ''); ?>" 
+                               style="width: 100%;">
+                    </p>
+                    
+                    <p>
+                        <label>Contenu:</label><br>
+                        <textarea name="sections[<?php echo $index; ?>][content]" 
                                   rows="6" 
-                                  class="sisme-form-textarea"
-                                  placeholder="Décrivez cette section du jeu..."></textarea>
-                    </div>
+                                  style="width: 100%;"><?php echo esc_textarea($section['content'] ?? ''); ?></textarea>
+                    </p>
                     
-                    <div class="sisme-form-group">
-                        <label class="sisme-form-label">Image de la section</label>
-                        <div class="sisme-media-selector">
-                            <input type="hidden" 
-                                   name="sections[${sectionIndex}][image_id]" 
-                                   value=""
-                                   class="section-image-id">
-                            
-                            <div class="sisme-media-preview">
-                                <div class="sisme-media-preview__empty">📷 Cliquez pour choisir une image</div>
-                            </div>
-                            
-                            <div class="sisme-media-actions">
-                                <button type="button" class="sisme-btn sisme-btn--secondary select-image">
-                                    📷 Choisir une image
-                                </button>
-                                <button type="button" class="sisme-btn sisme-btn--danger remove-image" style="display:none;">
-                                    🗑️ Supprimer
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <p>
+                        <label>ID Image:</label><br>
+                        <input type="number" name="sections[<?php echo $index; ?>][image_id]" 
+                               value="<?php echo intval($section['image_id'] ?? 0); ?>">
+                    </p>
                 </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <!-- Section vide par défaut -->
+            <div style="border: 1px solid #ccc; margin: 10px 0; padding: 15px;">
+                <h4>Section 1</h4>
+                
+                <p>
+                    <label>Titre de la section:</label><br>
+                    <input type="text" name="sections[0][title]" value="" style="width: 100%;">
+                </p>
+                
+                <p>
+                    <label>Contenu:</label><br>
+                    <textarea name="sections[0][content]" rows="6" style="width: 100%;"></textarea>
+                </p>
+                
+                <p>
+                    <label>ID Image:</label><br>
+                    <input type="number" name="sections[0][image_id]" value="0">
+                </p>
             </div>
-        `;
-        
-        $('#sections-container').append(newSection);
-        sectionIndex++;
-        updateSectionNumbers();
-    });
+        <?php endif; ?>
+    </div>
     
-    // Supprimer une section
-    $(document).on('click', '.remove-section', function() {
-        if ($('.section-item').length > 1) {
-            $(this).closest('.section-item').remove();
-            updateSectionNumbers();
-        } else {
-            alert('Il faut au moins une section.');
-        }
-    });
-    
-    // Mettre à jour la numérotation
-    function updateSectionNumbers() {
-        $('.section-item').each(function(index) {
-            $(this).find('.sisme-card__title').text('Section ' + (index + 1));
-        });
-    }
-    
-    // Sélecteur d'image WordPress
-    $(document).on('click', '.select-image', function(e) {
-        e.preventDefault();
-        
-        const button = $(this);
-        const imageSelector = button.closest('.sisme-media-selector');
-        
-        const mediaUploader = wp.media({
-            title: 'Choisir une image pour la section',
-            button: {
-                text: 'Sélectionner cette image'
-            },
-            multiple: false
-        });
-        
-        mediaUploader.on('select', function() {
-            const attachment = mediaUploader.state().get('selection').first().toJSON();
-            
-            imageSelector.find('.section-image-id').val(attachment.id);
-            imageSelector.find('.sisme-media-preview').html(
-                `<img src="${attachment.sizes.medium ? attachment.sizes.medium.url : attachment.url}" 
-                      alt="${attachment.alt}" class="sisme-media-preview__image">`
-            );
-            imageSelector.find('.remove-image').show();
-        });
-        
-        mediaUploader.open();
-    });
-    
-    // Supprimer l'image
-    $(document).on('click', '.remove-image', function() {
-        const imageSelector = $(this).closest('.sisme-media-selector');
-        imageSelector.find('.section-image-id').val('');
-        imageSelector.find('.sisme-media-preview').html('<div class="sisme-media-preview__empty">📷 Cliquez pour choisir une image</div>');
-        $(this).hide();
-    });
-});
-</script>
+    <p>
+        <input type="submit" value="<?php echo $is_edit_mode ? 'Mettre à jour la fiche' : 'Créer la fiche'; ?>" class="button-primary">
+    </p>
+</form>
 
 <?php
 $page->render_end();
