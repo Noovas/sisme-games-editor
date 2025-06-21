@@ -56,19 +56,21 @@ class Sisme_Fiche_Creator {
                 'message' => 'Erreur lors de la création : ' . $post_id->get_error_message()
             );
         }
-        
+
+        // Récupérer la cover principale du jeu depuis Game Data
+        $cover_main_id = get_term_meta($tag_id, 'cover_main', true);
+
+        // Définir l'image à la une automatiquement
+        if (!empty($cover_main_id)) {set_post_thumbnail($post_id, $cover_main_id);}
+
         // Assigner le tag du jeu
         wp_set_post_terms($post_id, array($tag_id), 'post_tag');
         
         // Assigner les catégories genres
-        if (!empty($game_genres)) {
-            wp_set_post_categories($post_id, $game_genres);
-        }
+        if (!empty($game_genres)) {wp_set_post_categories($post_id, $game_genres);}
         
         // Sauvegarder les sections si fournies
-        if (!empty($sections)) {
-            update_post_meta($post_id, '_sisme_game_sections', $sections);
-        }
+        if (!empty($sections)) {update_post_meta($post_id, '_sisme_game_sections', $sections);}
         
         // Générer le contenu avec le template
         $generated_content = Sisme_Fiche_Template::generate_fiche_content($post_id);
