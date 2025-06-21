@@ -52,7 +52,7 @@ class Sisme_Hero_Section_Module {
             $youtube_id = self::extract_youtube_id($game_data['trailer_link']);
             if ($youtube_id) {
                 $output .= '<iframe id="sismeTrailerFrame" ';
-                $output .= 'src="https://www.youtube.com/embed/' . esc_attr($youtube_id) . '" ';
+                $output .= 'src="https://www.youtube.com/embed/' . esc_attr($youtube_id) . '?enablejsapi=1" ';
                 $output .= 'allowfullscreen></iframe>';
             }
         }
@@ -65,7 +65,19 @@ class Sisme_Hero_Section_Module {
         // Galerie de navigation
         $output .= '<div class="sisme-media-gallery">';
         
-        // Trailer en premier (si disponible)
+        // TRAILER THUMBNAIL EN PREMIER (si disponible)
+        if (!empty($game_data['trailer_link'])) {
+            $youtube_id = self::extract_youtube_id($game_data['trailer_link']);
+            if ($youtube_id) {
+                $thumbnail_url = "https://img.youtube.com/vi/{$youtube_id}/maxresdefault.jpg";
+                $output .= '<div class="sisme-media-thumb trailer active" ';
+                $output .= 'data-type="trailer" data-youtube="' . esc_attr($youtube_id) . '">';
+                $output .= '<img src="' . esc_url($thumbnail_url) . '" alt="Trailer">';
+                $output .= '</div>';
+            }
+        }
+        
+        // SCREENSHOTS (une seule fois !)
         if (!empty($game_data['screenshots'])) {
             $screenshots_array = is_array($game_data['screenshots']) ? 
                 $game_data['screenshots'] : 
@@ -86,24 +98,7 @@ class Sisme_Hero_Section_Module {
             }
         }
         
-        // Screenshots
-        if (!empty($game_data['screenshots'])) {
-            foreach ($game_data['screenshots'] as $screenshot_id) {
-                $screenshot_url = wp_get_attachment_image_url($screenshot_id, 'large');
-                $thumbnail_url = wp_get_attachment_image_url($screenshot_id, 'thumbnail');
-                
-                if ($screenshot_url && $thumbnail_url) {
-                    $output .= '<div class="sisme-media-thumb" ';
-                    $output .= 'data-type="screenshot" data-image="' . esc_url($screenshot_url) . '">';
-                    $output .= '<img src="' . esc_url($thumbnail_url) . '" alt="Screenshot">';
-                    $output .= '</div>';
-                }
-            }
-        }
-        
         $output .= '</div>';
-
-         
         
         return $output;
     }
@@ -165,32 +160,73 @@ class Sisme_Hero_Section_Module {
     }
     
     /**
-     * Générer les plateformes
+     * Générer les plateformes groupées par catégorie avec icônes et tooltips détaillés
      */
     private static function render_platforms($platforms) {
         if (empty($platforms)) return '';
         
-        $platform_icons = array(
-            'windows' => 'W',
-            'mac' => 'M',
-            'xbox' => 'X',
-            'playstation' => 'P',
-            'switch' => 'S',
-            'ios' => 'i',
-            'android' => 'A',
-            'web' => '@'
+        // Groupement des plateformes par catégorie
+        $pc_platforms = array('windows', 'mac');
+        $console_platforms = array('xbox', 'playstation', 'switch');
+        $mobile_platforms = array('ios', 'android');
+        
+        // Noms complets pour les tooltips
+        $platform_names = array(
+            'windows' => 'Windows',
+            'mac' => 'Mac',
+            'xbox' => 'Xbox',
+            'playstation' => 'PlayStation',
+            'switch' => 'Nintendo Switch',
+            'ios' => 'iOS',
+            'android' => 'Android',
+            'web' => 'Navigateur Web'
         );
         
         $output = '<div class="sisme-meta-row">';
         $output .= '<span class="sisme-meta-label">Plateformes :</span>';
         $output .= '<div class="sisme-platforms">';
         
-        foreach ($platforms as $platform) {
-            if (isset($platform_icons[$platform])) {
-                $output .= '<div class="sisme-platform-icon" title="' . esc_attr(ucfirst($platform)) . '">';
-                $output .= $platform_icons[$platform];
-                $output .= '</div>';
-            }
+        // Vérifier et afficher PC
+        $pc_found = array_intersect($platforms, $pc_platforms);
+        if (!empty($pc_found)) {
+            $pc_details = array_map(function($p) use ($platform_names) {
+                return $platform_names[$p];
+            }, $pc_found);
+            
+            $output .= '<span class="sisme-platform-icon" title="PC : ' . esc_attr(implode(', ', $pc_details)) . '">';
+            $output .= '💻'; // Icône PC
+            $output .= '</span>';
+        }
+        
+        // Vérifier et afficher Console
+        $console_found = array_intersect($platforms, $console_platforms);
+        if (!empty($console_found)) {
+            $console_details = array_map(function($p) use ($platform_names) {
+                return $platform_names[$p];
+            }, $console_found);
+            
+            $output .= '<span class="sisme-platform-icon" title="Console : ' . esc_attr(implode(', ', $console_details)) . '">';
+            $output .= '🎮'; // Icône Console
+            $output .= '</span>';
+        }
+        
+        // Vérifier et afficher Mobile
+        $mobile_found = array_intersect($platforms, $mobile_platforms);
+        if (!empty($mobile_found)) {
+            $mobile_details = array_map(function($p) use ($platform_names) {
+                return $platform_names[$p];
+            }, $mobile_found);
+            
+            $output .= '<span class="sisme-platform-icon" title="Mobile : ' . esc_attr(implode(', ', $mobile_details)) . '">';
+            $output .= '📱'; // Icône Mobile
+            $output .= '</span>';
+        }
+        
+        // Web à part (si présent)
+        if (in_array('web', $platforms)) {
+            $output .= '<span class="sisme-platform-icon" title="' . esc_attr($platform_names['web']) . '">';
+            $output .= '🌐'; // Icône Web
+            $output .= '</span>';
         }
         
         $output .= '</div>';
@@ -286,39 +322,139 @@ class Sisme_Hero_Section_Module {
     }
     
     /**
-     * Générer le JavaScript pour la galerie interactive
+     * JavaScript pour la galerie interactive avec pause du trailer
      */
     private static function render_javascript() {
         return '<script>
         document.addEventListener("DOMContentLoaded", function() {
+            // === GALERIE INTERACTIVE ===
             const mainDisplay = document.getElementById("sismeMainDisplay");
             const trailerFrame = document.getElementById("sismeTrailerFrame");
             const screenshotImg = document.getElementById("sismeScreenshotImg");
             const thumbs = document.querySelectorAll(".sisme-media-thumb");
             
-            if (!mainDisplay || thumbs.length === 0) return;
-            
-            thumbs.forEach(thumb => {
-                thumb.addEventListener("click", function() {
-                    thumbs.forEach(t => t.classList.remove("active"));
-                    this.classList.add("active");
-                    
-                    const type = this.dataset.type;
-                    
-                    if (type === "trailer" && trailerFrame) {
-                        trailerFrame.style.display = "block";
-                        if (screenshotImg) screenshotImg.style.display = "none";
-                        
-                        const youtubeId = this.dataset.youtube;
-                        if (youtubeId) {
-                            trailerFrame.src = `https://www.youtube.com/embed/${youtubeId}`;
-                        }
-                    } else if (type === "screenshot" && screenshotImg) {
-                        if (trailerFrame) trailerFrame.style.display = "none";
-                        screenshotImg.style.display = "block";
-                        screenshotImg.src = this.dataset.image;
+            if (mainDisplay && thumbs.length > 0) {
+                // Fonction pour mettre en pause YouTube
+                function pauseYouTube() {
+                    if (trailerFrame && trailerFrame.contentWindow) {
+                        trailerFrame.contentWindow.postMessage(
+                            \'{"event":"command","func":"pauseVideo","args":""}\',
+                            "*"
+                        );
                     }
+                }
+                
+                thumbs.forEach(thumb => {
+                    thumb.addEventListener("click", function() {
+                        thumbs.forEach(t => t.classList.remove("active"));
+                        this.classList.add("active");
+                        
+                        const type = this.dataset.type;
+                        
+                        if (type === "trailer" && trailerFrame) {
+                            trailerFrame.style.display = "block";
+                            if (screenshotImg) screenshotImg.style.display = "none";
+                            
+                            const youtubeId = this.dataset.youtube;
+                            if (youtubeId) {
+                                const newSrc = `https://www.youtube.com/embed/${youtubeId}?enablejsapi=1`;
+                                if (!trailerFrame.src.includes(youtubeId)) {
+                                    trailerFrame.src = newSrc;
+                                }
+                            }
+                            
+                        } else if (type === "screenshot" && screenshotImg) {
+                            pauseYouTube();
+                            if (trailerFrame) trailerFrame.style.display = "none";
+                            screenshotImg.style.display = "block";
+                            screenshotImg.src = this.dataset.image;
+                        }
+                    });
                 });
+            }
+            
+            // === SYSTÈME DE TOOLTIPS ===
+            function createTooltipSystem() {
+                if (document.getElementById("sismeTooltip")) return document.getElementById("sismeTooltip");
+                
+                const tooltip = document.createElement("div");
+                tooltip.id = "sismeTooltip";
+                tooltip.style.cssText = `
+                    position: absolute;
+                    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+                    color: #e2e8f0;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    font-size: 0.85rem;
+                    font-weight: 500;
+                    line-height: 1.3;
+                    pointer-events: none;
+                    z-index: 9999;
+                    opacity: 0;
+                    transform: translateY(5px) scale(0.95);
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    backdrop-filter: blur(8px);
+                    max-width: 250px;
+                    word-wrap: break-word;
+                `;
+                
+                document.body.appendChild(tooltip);
+                return tooltip;
+            }
+            
+            function showTooltip(element, text) {
+                const tooltip = createTooltipSystem();
+                if (!tooltip || !text) return;
+                
+                tooltip.textContent = text;
+                
+                const rect = element.getBoundingClientRect();
+                const tooltipRect = tooltip.getBoundingClientRect();
+                
+                let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+                let top = rect.top - tooltipRect.height - 8;
+                
+                const padding = 10;
+                if (left < padding) left = padding;
+                if (left + tooltipRect.width > window.innerWidth - padding) {
+                    left = window.innerWidth - tooltipRect.width - padding;
+                }
+                if (top < padding) {
+                    top = rect.bottom + 8;
+                }
+                
+                tooltip.style.left = left + "px";
+                tooltip.style.top = top + window.scrollY + "px";
+                
+                requestAnimationFrame(() => {
+                    tooltip.style.opacity = "1";
+                    tooltip.style.transform = "translateY(0) scale(1)";
+                });
+            }
+            
+            function hideTooltip() {
+                const tooltip = document.getElementById("sismeTooltip");
+                if (tooltip) {
+                    tooltip.style.opacity = "0";
+                    tooltip.style.transform = "translateY(5px) scale(0.95)";
+                }
+            }
+            
+            // Initialiser les tooltips pour les plateformes
+            const platformIcons = document.querySelectorAll(".sisme-platform-icon");
+            platformIcons.forEach(icon => {
+                const tooltipText = icon.getAttribute("title");
+                if (tooltipText) {
+                    icon.removeAttribute("title");
+                    
+                    icon.addEventListener("mouseenter", () => {
+                        showTooltip(icon, tooltipText);
+                    });
+                    
+                    icon.addEventListener("mouseleave", hideTooltip);
+                }
             });
         });
         </script>';

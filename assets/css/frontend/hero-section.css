@@ -1,7 +1,6 @@
 /**
  * File: /sisme-games-editor/assets/css/frontend/hero-section.css
- * Hero Section - STRUCTURE CORRIGÉE pour solidité
- * Garde tous les styles visuels, corrige seulement le layout
+ * Hero Section
  */
 
 /* ========================================
@@ -145,7 +144,6 @@
 
 .sisme-media-thumb:hover {
     border-color: #66c0f4;
-    transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(102, 192, 244, 0.3);
 }
 
@@ -287,6 +285,34 @@
 .sisme-tag:hover {
     background: rgba(102, 192, 244, 0.3);
     transform: translateY(-1px);
+}
+
+.sisme-platforms {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.sisme-platform-icon {
+    font-size: 1.5rem;
+    padding: 8px;
+    background: rgba(102, 192, 244, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(102, 192, 244, 0.3);
+    cursor: default;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+}
+
+.sisme-platform-icon:hover {
+    background: rgba(102, 192, 244, 0.2);
+    border-color: rgba(102, 192, 244, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 192, 244, 0.3);
 }
 
 /* ========================================
