@@ -222,7 +222,7 @@ class SismeGamesEditor {
         );
 
         add_submenu_page(
-            null, // Masqué du menu, accessible uniquement par URL directe
+            null,
             'Migration des Sections',
             'Migration des Sections',
             'manage_options',

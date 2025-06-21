@@ -39,7 +39,7 @@ $form_was_submitted = false;
 
 // Traitement formulaire
 if (!empty($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme_form_action')) {
-    $temp_form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'game_platforms', 'release_date', 'trailer_link', 'external_links', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
+    $temp_form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'game_platforms', 'release_date', 'trailer_link', 'external_links', 'cover_main', 'cover_news', 'cover_patch', 'cover_test', 'screenshots']);
     $data = $temp_form->get_submitted_data();
     
     if (!empty($data['game_name'])) {
@@ -73,9 +73,10 @@ if ($is_edit_mode) {
     $_POST['release_date'] = get_term_meta($tag_id, 'release_date', true);
     $_POST['external_links'] = get_term_meta($tag_id, 'external_links', true) ?: ['steam' => '', 'epic_games' => '', 'gog' => ''];
     $_POST['trailer_link'] = get_term_meta($tag_id, 'trailer_link', true) ?: '';
+    $_POST['screenshots'] = get_term_meta($tag_id, 'screenshots', true) ?: array();
 }
 
-$form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'game_platforms', 'release_date', 'trailer_link', 'external_links', 'cover_main', 'cover_news', 'cover_patch', 'cover_test']);
+$form = new Sisme_Game_Form_Module(['game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 'description', 'game_platforms', 'release_date', 'trailer_link', 'external_links', 'cover_main', 'cover_news', 'cover_patch', 'cover_test', 'screenshots']);
 
 $page->render_start();
 ?>
