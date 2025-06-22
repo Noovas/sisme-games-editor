@@ -1,7 +1,7 @@
 <?php
 /**
  * File: /sisme-games-editor/admin/pages/game-data.php
- * Page Game Data - Dashboard principal (ex tableau de bord)
+ * Page Game Data - Dashboard principal sobre et simple
  */
 
 if (!defined('ABSPATH')) {
@@ -30,9 +30,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete_game_data' && isset($_
                 delete_term_meta($game_id, $meta_key);
             }
             
-            // Optionnel : Supprimer complètement l'étiquette
-            // wp_delete_term($game_id, 'post_tag');
-            
             add_action('admin_notices', function() use ($tag) {
                 echo '<div class="notice notice-success is-dismissible">';
                 echo '<p>✅ Les données du jeu "' . esc_html($tag->name) . '" ont été supprimées avec succès !</p>';
@@ -60,10 +57,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete_game_data' && isset($_
 
 // Créer la page SANS bouton retour (page principale)
 $page = new Sisme_Admin_Page_Wrapper(
-    'Sisme Games - Dashboard',
-    'Gestion des données des jeux et création de contenu',
+    'Sisme Games',
+    'Gestion des jeux et création de contenu',
     'database'
-    // Pas de $back_url ni $back_text = pas de bouton retour
 );
 
 // Créer le module table
@@ -89,21 +85,21 @@ $page->render_start();
             
             <div class="sisme-section-item sisme-section-disabled">
                 <h3 class="sisme-section-title">📰 Créer une MàJ</h3>
-                <span class="sisme-section-link sisme-section-disabled-text">
+                <span class="sisme-section-disabled-text">
                     Rédiger une mise à jour ou actualité (bientôt disponible)
                 </span>
             </div>
             
             <div class="sisme-section-item sisme-section-disabled">
                 <h3 class="sisme-section-title">📄 Tous les articles</h3>
-                <span class="sisme-section-link sisme-section-disabled-text">
+                <span class="sisme-section-disabled-text">
                     Gérer tous les contenus publiés (bientôt disponible)
                 </span>
             </div>
             
             <div class="sisme-section-item sisme-section-disabled">
                 <h3 class="sisme-section-title">⚙️ Paramètres</h3>
-                <span class="sisme-section-link sisme-section-disabled-text">
+                <span class="sisme-section-disabled-text">
                     Configuration du plugin (bientôt disponible)
                 </span>
             </div>
@@ -111,12 +107,51 @@ $page->render_start();
     </div>
 </div>
 
-<!-- Tableau Game Data -->
-<div class="sisme-card">
+<!-- Ligne de contrôles épurée -->
+<div class="sisme-table-controls">
+    <h2 class="sisme-table-title">Jeux</h2>
+    
+    <div class="sisme-table-filters">
+        <input type="text" 
+               class="sisme-filter-input" 
+               placeholder="Rechercher un jeu..."
+               value="<?php echo isset($_GET['s']) ? esc_attr($_GET['s']) : ''; ?>">
+    </div>
+    
+    <div class="sisme-table-actions">
+        <a href="<?php echo admin_url('admin.php?page=sisme-games-edit-game-data'); ?>" 
+           class="sisme-btn sisme-btn--primary sisme-btn--compact">
+            ➕ Ajouter
+        </a>
+    </div>
+</div>
+
+<!-- Tableau épuré -->
+<div class="sisme-card sisme-card--table">
     <div class="sisme-card__body">
         <?php $table->render(); ?>
     </div>
 </div>
+
+<script>
+// Script simple pour la recherche
+document.querySelector('.sisme-filter-input').addEventListener('input', function(e) {
+    const searchValue = e.target.value;
+    const url = new URL(window.location);
+    
+    if (searchValue) {
+        url.searchParams.set('s', searchValue);
+    } else {
+        url.searchParams.delete('s');
+    }
+    
+    // Débounce simple
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+        window.location.href = url.toString();
+    }, 500);
+});
+</script>
 
 <?php
 $page->render_end();

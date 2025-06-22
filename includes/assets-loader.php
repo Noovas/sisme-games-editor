@@ -1,11 +1,10 @@
 <?php
 /**
  * File: /sisme-games-editor/includes/assets-loader.php
- * Gestion du chargement des assets CSS/JS - VERSION ÉPURÉE
+ * Gestion du chargement des assets CSS/JS - VERSION DARK ADMIN
  * 
- * Charge seulement les assets nécessaires selon le contexte :
- * - Admin : 1 seul CSS (admin.css avec imports)
- * - Frontend : CSS pour les fiches de jeu uniquement
+ * Charge le nouveau style gaming dark pour l'admin
+ * et conserve le frontend existant
  */
 
 if (!defined('ABSPATH')) {
@@ -20,7 +19,7 @@ class Sisme_Assets_Loader {
     }
     
     /**
-     * Charger les styles admin - SIMPLIFIÉ
+     * Charger les styles admin - DARK GAMING STYLE
      */
     public function enqueue_admin_styles($hook) {
         // Vérifier si on est sur une page admin du plugin
@@ -28,27 +27,38 @@ class Sisme_Assets_Loader {
             return;
         }
         
-        // CSS Admin principal avec tous les imports
+        // NOUVEAU CSS Dark Gaming (remplace admin.css)
         wp_enqueue_style(
-            'sisme-admin',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin.css',
+            'sisme-admin-dark',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin-dark.css',
             array(),
             SISME_GAMES_EDITOR_VERSION
         );
         
-        // JavaScript admin si nécessaire
+        // JavaScript pour les tooltips
         wp_enqueue_script(
-            'sisme-admin-js',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/admin.js',
-            array('jquery'),
+            'sisme-tooltip',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/tooltip.js',
+            array(),
             SISME_GAMES_EDITOR_VERSION,
             true
         );
+        
+        // JavaScript admin si nécessaire
+        if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'assets/js/admin.js')) {
+            wp_enqueue_script(
+                'sisme-admin-js',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/admin.js',
+                array('jquery', 'sisme-tooltip'),
+                SISME_GAMES_EDITOR_VERSION,
+                true
+            );
+        }
     }
     
     /**
-     * Charger les styles frontend - ÉPURÉ
-     * Charge seulement pour les fiches de jeu
+     * Charger les styles frontend - INCHANGÉ
+     * Garde le système existant pour les fiches de jeu
      */
     public function enqueue_frontend_styles() {
         // SEULEMENT pour les fiches de jeu modernes

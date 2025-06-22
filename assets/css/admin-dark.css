@@ -1,0 +1,552 @@
+/**
+ * File: /sisme-games-editor/assets/css/admin-dark.css
+ * CSS Admin Dark - Gaming Simple et Sobre
+ */
+
+/* ========================================
+   🎨 VARIABLES GAMING DARK
+======================================== */
+:root {
+    --sisme-gaming-dark: #1e1e1e;
+    --sisme-gaming-dark-light: #2a2a2a;
+    --sisme-gaming-dark-lighter: #353535;
+    --sisme-gaming-text: #c7d5e0;
+    --sisme-gaming-text-bright: #ffffff;
+    --sisme-gaming-text-muted: #8f98a0;
+    
+    --sisme-color-primary: #A1B78D;
+    --sisme-color-primary-light: #B8C9A4;
+    --sisme-color-error: #ef4444;
+    
+    --sisme-space-xs: 4px;
+    --sisme-space-sm: 8px;
+    --sisme-space-md: 16px;
+    --sisme-space-lg: 24px;
+    --sisme-space-xl: 32px;
+    
+    --sisme-radius-md: 8px;
+    --sisme-radius-lg: 12px;
+    
+    --sisme-transition-fast: 0.15s ease;
+    --sisme-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --sisme-hover-box-shadow: 0 0 10px 0px #ffffff88;
+}
+
+/* ========================================
+   🎯 OVERRIDE ADMIN WORDPRESS
+======================================== */
+#wpcontent,
+#wpbody-content,
+.wrap {
+    background: var(--sisme-gaming-dark) !important;
+    color: var(--sisme-gaming-text-bright) !important;
+}
+
+#wpfooter,
+.update-nag,
+.notice.notice-warning {
+    display: none !important;
+}
+
+/* ========================================
+   🏗️ STRUCTURE ADMIN
+======================================== */
+.sisme-admin-page {
+    background: var(--sisme-gaming-dark);
+    color: var(--sisme-gaming-text-bright);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--sisme-space-lg);
+    min-height: 100vh;
+}
+
+.sisme-admin-header {
+    margin-bottom: var(--sisme-space-xl);
+    padding-bottom: var(--sisme-space-lg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sisme-admin-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--sisme-gaming-text-bright);
+    margin: 0 0 var(--sisme-space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-md);
+}
+
+.sisme-admin-subtitle {
+    font-size: 1.125rem;
+    color: var(--sisme-gaming-text-muted);
+    margin: 0;
+    font-weight: 400;
+}
+
+/* ========================================
+   🃏 CARDS SIMPLES
+======================================== */
+.sisme-card {
+    background: var(--sisme-gaming-dark-light);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--sisme-radius-lg);
+    margin-bottom: var(--sisme-space-lg);
+    overflow: hidden;
+}
+
+.sisme-card__body {
+    padding: var(--sisme-space-lg);
+}
+
+/* ========================================
+   🎮 SECTIONS DASHBOARD
+======================================== */
+.sisme-dashboard-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--sisme-space-md);
+}
+
+.sisme-section-item {
+    padding: var(--sisme-space-md);
+    background: var(--sisme-gaming-dark-lighter);
+    border-radius: var(--sisme-radius-md);
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-section-item:hover:not(.sisme-section-disabled) {
+    box-shadow: var(--sisme-hover-box-shadow);
+}
+
+.sisme-section-title {
+    margin: 0 0 var(--sisme-space-xs);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--sisme-gaming-text-bright);
+}
+
+.sisme-section-link {
+    color: var(--sisme-gaming-text);
+    text-decoration: none;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.sisme-section-disabled {
+    opacity: 0.4;
+}
+
+/* ========================================
+   📊 TABLEAU GAME DATA - ÉPURÉ
+======================================== */
+
+/* Container du module table */
+.sisme-game-data-table-module {
+    background: transparent;
+    margin: 0;
+    padding: 0;
+}
+
+/* Masquer la recherche en double du module */
+.sisme-search-form-container {
+    display: none !important;
+}
+
+/* Table de base */
+.sisme-game-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+    border: none !important;
+}
+
+.sisme-table-header {
+    display: none !important;
+}
+
+.sisme-table-body {
+    background: transparent !important;
+}
+
+/* Ligne principale du jeu */
+.sisme-game-data-main-row {
+    background: var(--sisme-gaming-dark-light) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: var(--sisme-radius-md);
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-game-data-main-row:hover {
+    background: var(--sisme-gaming-dark-lighter) !important;
+    border-color: rgba(161, 183, 141, 0.2) !important;
+}
+
+.sisme-game-data-main-row td {
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    border: none !important;
+    background: transparent !important;
+    vertical-align: middle;
+}
+
+/* Titre du jeu - ENFIN VISIBLE */
+.sisme-game-title {
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    color: var(--sisme-gaming-text-bright) !important;
+    margin: 0 0 var(--sisme-space-xs) 0 !important;
+    text-shadow: none !important;
+}
+
+.sisme-game-meta {
+    font-size: 0.8rem !important;
+    color: var(--sisme-gaming-text) !important;
+    display: flex;
+    gap: var(--sisme-space-md);
+    flex-wrap: wrap;
+}
+
+.sisme-game-meta span {
+    color: var(--sisme-gaming-text) !important;
+}
+
+/* Actions du jeu */
+.sisme-game-actions {
+    display: flex;
+    gap: var(--sisme-space-xs);
+    justify-content: flex-end;
+}
+
+.sisme-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: var(--sisme-radius-md);
+    background: var(--sisme-gaming-dark-lighter);
+    color: var(--sisme-gaming-text-bright) !important;
+    text-decoration: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: var(--sisme-transition-fast);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sisme-action-btn:hover {
+    background: var(--sisme-color-primary) !important;
+    color: var(--sisme-gaming-text-bright) !important;
+    transform: translateY(-2px);
+    border-color: var(--sisme-color-primary);
+}
+
+.sisme-action-btn.sisme-action-delete:hover {
+    background: var(--sisme-color-error) !important;
+    border-color: var(--sisme-color-error);
+}
+
+/* Masquer les autres lignes pour simplifier */
+.sisme-game-info-row,
+.sisme-game-entities-row,
+.sisme-game-covers-row,
+.sisme-game-separator {
+    display: none !important;
+}
+
+/* ========================================
+   🎛️ LIGNE DE CONTRÔLES SIMPLE
+======================================== */
+.sisme-table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    margin-bottom: var(--sisme-space-lg);
+    background: var(--sisme-gaming-dark-lighter);
+    border-radius: var(--sisme-radius-md);
+    gap: var(--sisme-space-lg);
+}
+
+.sisme-table-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--sisme-gaming-text-bright);
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.sisme-table-filters {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+}
+
+.sisme-filter-input {
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--sisme-radius-md);
+    background: var(--sisme-gaming-dark);
+    color: var(--sisme-gaming-dark) !important;
+    font-size: 0.9rem;
+    min-width: 250px;
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-filter-input:focus {
+    outline: none;
+    border-color: var(--sisme-color-primary);
+    box-shadow: 0 0 0 2px rgba(161, 183, 141, 0.2);
+}
+
+.sisme-filter-input::placeholder {
+    color: var(--sisme-gaming-text-muted) !important;
+}
+
+.sisme-table-actions {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    flex-shrink: 0;
+}
+
+/* ========================================
+   🔘 BOUTONS
+======================================== */
+.sisme-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sisme-space-sm);
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    border: 1px solid transparent;
+    border-radius: var(--sisme-radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--sisme-transition-fast);
+    background: none;
+    color: var(--sisme-gaming-text-bright);
+}
+
+.sisme-btn--primary {
+    background: var(--sisme-color-primary);
+    color: var(--sisme-gaming-text-bright);
+    border-color: var(--sisme-color-primary);
+}
+
+.sisme-btn--primary:hover {
+    background: var(--sisme-color-primary-light);
+    border-color: var(--sisme-color-primary-light);
+    transform: translateY(-1px);
+}
+
+.sisme-btn--compact {
+    padding: var(--sisme-space-xs) var(--sisme-space-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* ========================================
+   📱 RESPONSIVE
+======================================== */
+@media (max-width: 768px) {
+    .sisme-table-controls {
+        flex-direction: column;
+        gap: var(--sisme-space-md);
+        text-align: center;
+    }
+    
+    .sisme-filter-input {
+        min-width: 100%;
+    }
+    
+    .sisme-game-meta {
+        flex-direction: column;
+        gap: var(--sisme-space-xs);
+    }
+    
+    .sisme-action-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+}
+
+/* ========================================
+   🎯 SYSTÈME DE TOOLTIP GAMING
+======================================== */
+
+.sisme-tooltip {
+    position: fixed; 
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px); /* Plus subtil */
+    transition: opacity 0.1s ease, transform 0.1s ease; /* Plus rapide */
+    
+    /* Style gaming dark */
+    background: var(--sisme-gaming-dark-lighter);
+    color: var(--sisme-gaming-text-bright);
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.3;
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 8px 24px rgba(0, 0, 0, 0.6),
+        0 4px 8px rgba(0, 0, 0, 0.4);
+    
+    /* Largeur max */
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    /* Éviter les problèmes de positionnement */
+    left: 0;
+    top: 0;
+}
+
+/* Tooltip visible */
+.sisme-tooltip.sisme-tooltip--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Flèche du tooltip */
+.sisme-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid var(--sisme-gaming-dark-lighter);
+}
+
+/* Bordure de la flèche */
+.sisme-tooltip::after {
+    content: '';
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 7px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Variantes de position */
+.sisme-tooltip--top {
+    transform-origin: bottom center;
+}
+
+.sisme-tooltip--bottom {
+    transform-origin: top center;
+}
+
+.sisme-tooltip--bottom::before {
+    top: auto;
+    bottom: -6px;
+    border-bottom: none;
+    border-top: 6px solid var(--sisme-gaming-dark-lighter);
+}
+
+.sisme-tooltip--bottom::after {
+    top: auto;
+    bottom: -7px;
+    border-bottom: none;
+    border-top: 7px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Tooltip multi-lignes */
+.sisme-tooltip--multiline {
+    white-space: normal;
+    max-width: 300px;
+    text-align: left;
+}
+
+/* Tooltip avec icône */
+.sisme-tooltip--icon {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+    white-space: normal;
+}
+
+.sisme-tooltip--icon .sisme-tooltip-icon {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+/* Tooltip de succès */
+.sisme-tooltip--success {
+    background: var(--sisme-color-primary);
+    border-color: var(--sisme-color-primary-light);
+}
+
+.sisme-tooltip--success::before {
+    border-bottom-color: var(--sisme-color-primary);
+}
+
+/* Tooltip d'erreur */
+.sisme-tooltip--error {
+    background: var(--sisme-color-error);
+    border-color: #ff6b6b;
+}
+
+.sisme-tooltip--error::before {
+    border-bottom-color: var(--sisme-color-error);
+}
+
+/* Tooltip d'info */
+.sisme-tooltip--info {
+    background: #3b82f6;
+    border-color: #60a5fa;
+}
+
+.sisme-tooltip--info::before {
+    border-bottom-color: #3b82f6;
+}
+
+/* ========================================
+   🎮 ATTRIBUTS POUR LES ÉLÉMENTS
+======================================== */
+
+/* Éléments avec tooltip */
+[data-sisme-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+/* Actions avec tooltip */
+.sisme-action-btn[data-sisme-tooltip] {
+    cursor: pointer;
+}
+
+/* Désactiver les tooltips title par défaut */
+[data-sisme-tooltip][title] {
+    title: '' !important;
+}
+
+/* ========================================
+   📱 RESPONSIVE
+======================================== */
+
+@media (max-width: 768px) {
+    .sisme-tooltip {
+        font-size: 0.75rem;
+        max-width: 200px;
+        padding: 6px 8px;
+    }
+    
+    .sisme-tooltip--multiline {
+        max-width: 250px;
+    }
+}

@@ -1,34 +1,12 @@
-    <?php
+<?php
 /**
  * File: /sisme-games-editor/includes/module-admin-page-table-game-data.php
- * Module: Table Game Data - Sisme Games Editor
- * 
- * Ce module affiche un tableau des étiquettes (jeux) avec leurs données associées
- * stockées dans term_meta. Permet la gestion complète des données de jeux.
- * 
- * Utilisation:
- * 1. Inclure ce fichier
- * 2. Initialiser la classe
- * 3. Appeler render() pour afficher le tableau
- * 
- * Exemples:
- * // Tableau basique
- * $table = new Sisme_Game_Data_Table_Module();
- * $table->render();
- * 
- * // Avec options personnalisées
- * $table = new Sisme_Game_Data_Table_Module([
- *     'per_page' => 20,
- *     'show_actions' => true,
- *     'edit_url' => admin_url('admin.php?page=edit-game-data')
- * ]);
+ * Module: Table Game Data - Version ÉPURÉE sans module de filtre
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
-
-require_once plugin_dir_path(__FILE__) . 'module-admin-page-filtre-article.php';
 
 class Sisme_Game_Data_Table_Module {
     
@@ -47,9 +25,7 @@ class Sisme_Game_Data_Table_Module {
     ];
     
     /**
-     * Constructeur
-     * 
-     * @param array $options Options du tableau
+     * Constructeur - SIMPLIFIÉ
      */
     public function __construct($options = []) {
         // Générer un ID unique pour chaque instance
@@ -58,13 +34,6 @@ class Sisme_Game_Data_Table_Module {
         
         // Traiter les options
         $this->process_options($options);
-
-        // Créer le module de filtre
-        $this->filter_module = new Sisme_Article_Filter_Module([
-            'search' => true,
-            'genres' => true,
-            'platforms' => true
-        ], 'game_data');
         
         // Traiter la pagination
         $this->process_pagination();
@@ -78,13 +47,11 @@ class Sisme_Game_Data_Table_Module {
      */
     private function process_options($options) {
         $default_options = [
-            'per_page' => 15,
+            'per_page' => -1,  // Tous par défaut
             'show_actions' => true,
-            'edit_url' => admin_url('admin.php?page=sisme-games-edit-test'),
+            'edit_url' => admin_url('admin.php?page=sisme-games-edit-game-data'),
             'columns' => $this->default_columns,
-            'show_pagination' => true,
-            'show_search' => true,
-            'show_add_button' => true
+            'show_pagination' => false,  // Désactivé par défaut
         ];
         
         $this->options = wp_parse_args($options, $default_options);
@@ -99,25 +66,27 @@ class Sisme_Game_Data_Table_Module {
     }
     
     /**
-     * Charger les données des jeux depuis les étiquettes et term_meta
+     * Charger les données des jeux - SIMPLIFIÉ
      */
     private function load_games_data() {
-        // Récupérer les arguments de filtre
-        $filter_args = $this->filter_module->get_game_data_filter_args();
-        
-        // Arguments de base pour récupérer TOUTES les étiquettes d'abord
+        // Arguments de base pour récupérer les étiquettes
         $args = [
             'taxonomy' => 'post_tag',
             'hide_empty' => false,
             'orderby' => 'name',
             'order' => 'ASC',
-            'number' => 0, // Récupérer tous
+            'number' => 0, // Tous
         ];
         
-        // Récupérer TOUTES les étiquettes (pas de filtre search ici)
-        $all_tags = get_terms($args);
+        // Ajouter recherche simple si présente
+        if (!empty($_GET['s'])) {
+            $args['search'] = sanitize_text_field($_GET['s']);
+        }
         
-        if (is_wp_error($all_tags)) {
+        // Récupérer les étiquettes
+        $tags = get_terms($args);
+        
+        if (is_wp_error($tags)) {
             $this->games_data = [];
             $this->total_items = 0;
             return;
@@ -125,215 +94,142 @@ class Sisme_Game_Data_Table_Module {
         
         // Traiter les données pour chaque étiquette
         $processed_data = [];
-        foreach ($all_tags as $tag) {
+        foreach ($tags as $tag) {
             $game_data = $this->process_tag_data($tag);
             if ($game_data) {
                 $processed_data[] = $game_data;
             }
         }
-
-        // MAINTENANT appliquer les filtres en PHP
         
-        // Filtrer par recherche de nom (en PHP, pas avec get_terms)
-        if (!empty($filter_args['search'])) {
-            $search_term = strtolower($filter_args['search']);
-            $processed_data = array_filter($processed_data, function($game) use ($search_term) {
-                return strpos(strtolower($game['name']), $search_term) !== false;
-            });
-        }
-
-        // Filtrer par genre
-        if (!empty($filter_args['genres'])) {
-            $processed_data = array_filter($processed_data, function($game) use ($filter_args) {
-                $genres = isset($game['meta_data']['game_genres']) && is_array($game['meta_data']['game_genres']) 
-                    ? $game['meta_data']['game_genres'] : [];
-                return in_array($filter_args['genres'], $genres);
-            });
-        }
-
-        // Filtrer par développeur/éditeur
-        if (!empty($filter_args['developers'])) {
-            $processed_data = array_filter($processed_data, function($game) use ($filter_args) {
-                // Récupérer les développeurs
-                $developers = isset($game['meta_data']['game_developers']) && is_array($game['meta_data']['game_developers']) 
-                    ? $game['meta_data']['game_developers'] : [];
-                
-                // Récupérer les éditeurs  
-                $publishers = isset($game['meta_data']['game_publishers']) && is_array($game['meta_data']['game_publishers']) 
-                    ? $game['meta_data']['game_publishers'] : [];
-                
-                // Fusionner développeurs et éditeurs
-                $all_entities = array_merge($developers, $publishers);
-                
-                // Chercher dans les deux
-                return in_array($filter_args['developers'], $all_entities);
-            });
-        }
-
-        // Filtrer par plateforme
-        if (!empty($filter_args['platforms'])) {
-            $processed_data = array_filter($processed_data, function($game) use ($filter_args) {
-                $platforms = isset($game['meta_data']['game_platforms']) && is_array($game['meta_data']['game_platforms']) 
-                    ? $game['meta_data']['game_platforms'] : [];
-                return in_array($filter_args['platforms'], $platforms);
-            });
-        }
-
-        // Calculer la pagination APRÈS tous les filtres
+        // Pagination si activée
         $this->total_items = count($processed_data);
         
-        // Appliquer la pagination seulement si on en a besoin
         if ($this->per_page > 0) {
             $offset = ($this->current_page - 1) * $this->per_page;
-            $this->games_data = array_slice($processed_data, $offset, $this->per_page);
-        } else {
-            // Pas de pagination (per_page = -1)
-            $this->games_data = $processed_data;
+            $processed_data = array_slice($processed_data, $offset, $this->per_page);
         }
+        
+        $this->games_data = $processed_data;
     }
     
     /**
-     * Traiter les données d'une étiquette (d'un jeu)
+     * Traiter les données d'une étiquette
      */
     private function process_tag_data($tag) {
+        // Récupérer toutes les métadonnées du jeu
+        $meta_data = [];
+        $meta_keys = [
+            'game_description', 'game_genres', 'game_modes', 'game_developers',
+            'game_publishers', 'game_platforms', 'release_date', 'external_links',
+            'trailer_link', 'cover_main', 'cover_news', 'cover_patch', 'cover_test',
+            'screenshots', 'game_sections', 'last_update'
+        ];
+        
+        foreach ($meta_keys as $key) {
+            $meta_data[$key] = get_term_meta($tag->term_id, $key, true);
+        }
+        
+        // Compter les articles liés
+        $articles_count = $this->get_tag_posts_count($tag->term_id);
+        
+        // Préparer les données de base
         $game_data = [
             'id' => $tag->term_id,
             'name' => $tag->name,
             'slug' => $tag->slug,
-            'description' => '',
-            'articles_count' => $tag->count,
-            'last_update' => '',
-            'meta_data' => []
+            'description' => $tag->description,
+            'articles_count' => $articles_count,
+            'meta_data' => $meta_data,
+            'last_update' => ''
         ];
         
-        // Récupérer toutes les métadonnées de l'étiquette
-        $all_meta = get_term_meta($tag->term_id);
-        
-        // Traiter les métadonnées spécifiques
-        foreach ($all_meta as $meta_key => $meta_values) {
-            if (is_array($meta_values) && count($meta_values) > 0) {
-                $value = $meta_values[0];
-                switch ($meta_key) {
-                    case 'game_description':
-                    case 'description':
-                        $game_data['description'] = wp_trim_words($value, 15);
-                        break;
-                        
-                    case 'last_update':
-                        $game_data['last_update'] = $value;
-                        break;
-                        
-                    case 'cover_main':
-                    case 'cover_news':
-                    case 'cover_patch':
-                    case 'cover_test':
-                        $game_data['meta_data'][$meta_key] = $value;
-                        break;
-                        
-                    case 'game_genres':
-                        $game_data['meta_data']['game_genres'] = maybe_unserialize($value);
-                        break;
-
-                    case 'game_modes':
-                        $game_data['meta_data']['game_modes'] = maybe_unserialize($value);
-                        break;
-
-                    case 'game_developers':
-                        $game_data['meta_data']['game_developers'] = maybe_unserialize($value);
-                        break;
-                        
-                    case 'game_publishers':
-                        $game_data['meta_data']['game_publishers'] = maybe_unserialize($value);
-                        break;
-
-                    case 'game_platforms':
-                        $game_data['meta_data']['game_platforms'] = maybe_unserialize($value);
-                        break;
-                        
-                    case 'release_date':
-                        $game_data['meta_data']['release_date'] = $value;
-                        break;
-                        
-                    case 'external_links':
-                        $game_data['meta_data']['external_links'] = maybe_unserialize($value);
-                        break;
-                                            
-                    default:
-                        // Stocker les autres métadonnées
-                        $game_data['meta_data'][$meta_key] = $value;
-                        break;
-                }
-            }
+        // Traiter certaines métadonnées spécifiques
+        if (!empty($meta_data['game_description'])) {
+            $game_data['description'] = wp_trim_words($meta_data['game_description'], 15);
         }
         
-        // Si pas de dernière mise à jour, utiliser la date de création des articles liés
-        if (empty($game_data['last_update']) && $tag->count > 0) {
-            $recent_post = get_posts([
-                'tag_id' => $tag->term_id,
-                'posts_per_page' => 1,
-                'orderby' => 'modified',
-                'order' => 'DESC',
-                'fields' => 'ids'
-            ]);
-            
-            if (!empty($recent_post)) {
-                $game_data['last_update'] = get_the_modified_date('Y-m-d H:i', $recent_post[0]);
-            }
+        if (!empty($meta_data['last_update'])) {
+            $game_data['last_update'] = $meta_data['last_update'];
         }
         
         return $game_data;
     }
     
     /**
-     * Afficher le formulaire de recherche
+     * Compter les articles pour un tag
      */
-    private function render_search_form() {
-        $search_value = isset($_GET['s']) ? esc_attr($_GET['s']) : '';
+    private function get_tag_posts_count($tag_id) {
+        $posts = get_posts([
+            'tag_id' => $tag_id,
+            'post_type' => 'post',
+            'post_status' => ['publish', 'draft', 'private'],
+            'posts_per_page' => 1,
+            'fields' => 'ids'
+        ]);
+        
+        return count($posts);
+    }
+    
+    /**
+     * Vérifier si un jeu a une présentation
+     */
+    private function game_has_presentation($tag_id) {
+        // Chercher un article avec des sections
+        $posts_with_sections = get_posts([
+            'tag_id' => $tag_id,
+            'post_type' => 'post',
+            'post_status' => ['publish', 'draft', 'private'],
+            'posts_per_page' => 1,
+            'meta_query' => [
+                [
+                    'key' => '_sisme_game_sections',
+                    'compare' => 'EXISTS'
+                ]
+            ],
+            'fields' => 'ids'
+        ]);
+        
+        return !empty($posts_with_sections);
+    }
+    
+    /**
+     * Rendre le tableau principal
+     */
+    public function render() {
         ?>
-        <div class="sisme-search-form-container">
-            <form method="get" class="sisme-search-form">
-                <?php
-                // Préserver les paramètres existants
-                foreach ($_GET as $key => $value) {
-                    if ($key !== 's' && $key !== 'paged') {
-                        echo '<input type="hidden" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '">';
-                    }
-                }
-                ?>
-                <input type="text" 
-                       name="s" 
-                       value="<?php echo $search_value; ?>" 
-                       placeholder="Rechercher un jeu..."
-                       class="sisme-search-input regular-text">
-                <button type="submit" class="button sisme-search-btn">🔍 Rechercher</button>
-                <?php if (!empty($search_value)): ?>
-                    <a href="<?php echo remove_query_arg(['s', 'paged']); ?>" class="button sisme-search-clear">✖️ Effacer</a>
-                <?php endif; ?>
-            </form>
+        <div class="sisme-game-data-table-module" id="<?php echo esc_attr($this->module_id); ?>">
             
-            <?php if ($this->options['show_add_button']): ?>
-                <div class="sisme-search-actions">
-                    <a href="<?php echo $this->options['edit_url']; ?>" class="button button-primary sisme-add-game-btn">
-                        ➕ Créer un nouveau jeu
-                    </a>
-                    <a href="<?php echo admin_url('edit-tags.php?taxonomy=post_tag'); ?>" class="button sisme-manage-tags-btn">
-                        🏷️ Gérer les étiquettes
-                    </a>
+            <?php if (empty($this->games_data)): ?>
+                <div class="sisme-no-data-message">
+                    <h3 class="sisme-no-data-title">Aucun jeu trouvé</h3>
+                    <?php if (!empty($_GET['s'])): ?>
+                        <p class="sisme-no-data-search">Aucun résultat pour "<?php echo esc_html($_GET['s']); ?>"</p>
+                        <a href="<?php echo remove_query_arg(['s', 'paged']); ?>" class="sisme-btn sisme-btn--secondary">Voir tous les jeux</a>
+                    <?php else: ?>
+                        <p class="sisme-no-data-empty">Commencez par créer des jeux.</p>
+                        <a href="<?php echo $this->options['edit_url']; ?>" class="sisme-btn sisme-btn--primary">
+                            ➕ Ajouter un jeu
+                        </a>
+                    <?php endif; ?>
                 </div>
+            <?php else: ?>
+                
+                <table class="sisme-game-data-table">
+                    <tbody class="sisme-table-body">
+                        <?php foreach ($this->games_data as $index => $game_data): ?>
+                            <?php $this->render_table_row($game_data); ?>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                
             <?php endif; ?>
+            
         </div>
         <?php
     }
-
+    
     /**
-     * Afficher l'en-tête du tableau
-     */
-    private function render_table_header() {
-        ?><thead class="sisme-table-header"></thead><?php
-    }
-
-    /**
-     * Tableau
+     * Rendre une ligne du tableau
      */
     private function render_table_row($game_data) {
         ?>
@@ -348,20 +244,15 @@ class Sisme_Game_Data_Table_Module {
                         <span class="sisme-game-slug">Slug: <?php echo esc_html($game_data['slug']); ?></span>
                         <span class="sisme-game-articles">
                             <?php if ($game_data['articles_count'] > 0): ?>
-                                <span class="sisme-articles-count-badge">
-                                    📄 <?php echo $game_data['articles_count']; ?> article<?php echo $game_data['articles_count'] > 1 ? 's' : ''; ?>
-                                </span>
+                                📄 <?php echo $game_data['articles_count']; ?> article<?php echo $game_data['articles_count'] > 1 ? 's' : ''; ?>
                             <?php else: ?>
-                                <span class="sisme-no-articles-badge">Aucun article</span>
+                                Aucun article
                             <?php endif; ?>
                         </span>
                         <?php if (!empty($game_data['last_update'])): ?>
-                            <?php $date = date_create($game_data['last_update']); ?>
-                            <?php if ($date): ?>
-                                <span class="sisme-last-update-badge">
-                                    Modifié: <?php echo date_format($date, 'd/m/Y H:i'); ?>
-                                </span>
-                            <?php endif; ?>
+                            <span class="sisme-last-update">
+                                Modifié: <?php echo date('d/m/Y H:i', strtotime($game_data['last_update'])); ?>
+                            </span>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -372,7 +263,7 @@ class Sisme_Game_Data_Table_Module {
                 <div class="sisme-game-actions">
                     <a href="<?php echo add_query_arg('tag_id', $game_data['id'], $this->options['edit_url']); ?>" 
                        class="sisme-action-btn sisme-action-edit" 
-                       title="Modifier les données du jeu">✏️</a>
+                       data-sisme-tooltip="Modifier les données du jeu">✏️</a>
 
                     <?php
                         // Vérifier si le jeu a des sections (présentation)
@@ -382,494 +273,30 @@ class Sisme_Game_Data_Table_Module {
                         // Classes et textes conditionnels
                         if ($has_presentation) {
                             $btn_class = 'sisme-action-btn sisme-action-fiche sisme-has-presentation';
-                            $btn_title = 'Modifier la fiche';
+                            $btn_tooltip = 'Modifier la fiche existante';
                             $btn_icon = '📝'; // Icône verte/remplie
                         } else {
                             $btn_class = 'sisme-action-btn sisme-action-fiche sisme-no-presentation';
-                            $btn_title = 'Créer une fiche';
+                            $btn_tooltip = 'Créer une nouvelle fiche';
                             $btn_icon = '📄'; // Icône vide/grise
                         }
-                    ?>
-
-                    <a href="<?php echo esc_url($fiche_url); ?>" 
-                       class="<?php echo esc_attr($btn_class); ?>"
-                       title="<?php echo esc_attr($btn_title); ?>" 
-                       aria-label="<?php echo esc_attr($btn_title); ?>">
-                        <?php echo $btn_icon; ?>
-                    </a>
-                                            
-                    <!-- TEMPORAIREMENT DÉSACTIVÉ
-                    <?php if ($game_data['articles_count'] > 0): ?>
-                        <a href="<?php echo admin_url('admin.php?page=sisme-games-all-articles&s=' . urlencode($game_data['name'])); ?>" 
-                           class="sisme-action-btn sisme-action-view-articles" 
-                           title="Voir les articles de ce jeu">📄</a>
-                    <?php endif; ?>
-                    -->
-                    
-                    <button type="button" 
-                            class="sisme-action-btn sisme-action-delete delete-game-data" 
-                            data-game-id="<?php echo $game_data['id']; ?>"
-                            data-game-name="<?php echo esc_attr($game_data['name']); ?>"
-                            title="Supprimer les données du jeu">🗑️</button>
-                </div>
-            </td>
-        </tr>
-
-        <!-- Ligne des covers -->
-        <tr class="sisme-game-data-covers-row">
-            <td colspan="2" class="sisme-game-data-covers-cell">
-                <div class="sisme-game-data-covers-container">                    
-                    <div class="sisme-game-data-covers-list">
-                        <?php
-                        $covers = ['cover_main', 'cover_news', 'cover_patch', 'cover_test'];
-                        $cover_labels = [
-                            'cover_main' => 'Principale',
-                            'cover_news' => 'News', 
-                            'cover_patch' => 'Patch',
-                            'cover_test' => 'Test'
-                        ];
-                        
-                        foreach ($covers as $cover_type) {
-                            $cover_id = isset($game_data['meta_data'][$cover_type]) ? $game_data['meta_data'][$cover_type] : '';
-                            ?>
-                            <div class="sisme-cover-item sisme-cover-<?php echo esc_attr($cover_type); ?>">
-                                <div class="sisme-cover-label">
-                                    <?php echo $cover_labels[$cover_type]; ?>
-                                </div>
-                                <?php if (!empty($cover_id)): ?>
-                                    <?php
-                                    $image = wp_get_attachment_image_src($cover_id, 'large');
-                                    if ($image):
-                                    ?>
-                                        <img src="<?php echo esc_url($image[0]); ?>" 
-                                             class="sisme-cover-image sisme-cover-image-valid"
-                                             title="<?php echo esc_attr(get_the_title($cover_id)); ?>"
-                                             alt="<?php echo esc_attr($cover_labels[$cover_type]); ?>">
-                                    <?php else: ?>
-                                        <div class="sisme-cover-placeholder sisme-cover-error">❌</div>
-                                    <?php endif; ?>
-                                <?php else: ?>
-                                    <div class="sisme-cover-placeholder sisme-cover-empty">📷</div>
-                                <?php endif; ?>
-                            </div>
-                            <?php
-                        }
                         ?>
-                    </div>
-                </div>
-            </td>
-        </tr>
 
-        <!-- Description (si elle existe) -->
-        <?php if (!empty($game_data['description'])): ?>
-        <tr class="sisme-game-data-description-row">
-            <td colspan="2" class="sisme-game-data-description-cell">
-                <div class="sisme-game-description-container">
-                    <div class="sisme-game-description-content">
-                        <?php echo esc_html($game_data['description']); ?>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <?php endif; ?>
-
-        <!-- Ligne des genres ET modes -->
-        <tr class="sisme-game-data-genres-row">
-            <td colspan="2" class="sisme-game-data-genres-cell">
-                <div class="sisme-game-data-genres-container">
-                    
-                    <!-- Genres -->
-                    <div class="sisme-game-info-section">
-                        <div class="sisme-tags-list">
-                        <?php 
-                        $genres = isset($game_data['meta_data']['game_genres']) ? $game_data['meta_data']['game_genres'] : [];
-                        if (!empty($genres) && is_array($genres)) {
-                            foreach ($genres as $genre_id) {
-                                $genre = get_category($genre_id);
-                                if ($genre) {
-                                    $genre_name = str_replace('jeux-', '', $genre->name);
-                                    echo '<span class="sisme-tag sisme-tag--genre">' . esc_html(ucfirst($genre_name)) . '</span>';
-                                }
-                            }
-                        } else {
-                            echo '<span class="sisme-data-empty">Non spécifiés</span>';
-                        }
-                        ?>
-                        </div>
-                    </div>
-                    
-                    <!-- Modes -->
-                    <div class="sisme-game-info-section">
-                        <div class="sisme-tags-list">
-                        <?php 
-                        $modes = isset($game_data['meta_data']['game_modes']) ? $game_data['meta_data']['game_modes'] : [];
-                        if (!empty($modes) && is_array($modes)) {
-                            foreach ($modes as $mode) {
-                                echo '<span class="sisme-tag sisme-tag--mode">' . esc_html(ucfirst($mode)) . '</span>';
-                            }
-                        } else {
-                            echo '<span class="sisme-data-empty">Non spécifiés</span>';
-                        }
-                        ?>
-                        </div>
-                    </div>
-                    
-                </div>
-            </td>
-        </tr>
-
-        <!-- Ligne des développeurs ET éditeurs -->
-        <tr class="sisme-game-data-entities-row">
-            <td colspan="2" class="sisme-game-data-entities-cell">
-                <div class="sisme-game-data-entities-container">
-                    
-                    <!-- Développeurs -->
-                    <div class="sisme-game-info-section">
-                        <div class="sisme-tags-list">
-                        <?php 
-                        $developers = isset($game_data['meta_data']['game_developers']) ? $game_data['meta_data']['game_developers'] : [];
-                        if (!empty($developers) && is_array($developers)) {
-                            foreach ($developers as $dev_id) {
-                                $developer = get_category($dev_id);
-                                if ($developer) {
-                                    $entity_website = get_term_meta($dev_id, 'entity_website', true);
-                                    if (!empty($entity_website)) {
-                                        echo '<a href="' . esc_url($entity_website) . '" target="_blank" class="sisme-tag sisme-tag--entity">' . esc_html($developer->name) . '</a>';
-                                    } else {
-                                        echo '<span class="sisme-tag sisme-tag--entity">' . esc_html($developer->name) . '</span>';
-                                    }
-                                }
-                            }
-                        } else {
-                            echo '<span class="sisme-data-empty">Non spécifiés</span>';
-                        }
-                        ?>
-                        </div>
-                    </div>
-
-                    <!-- Éditeurs -->
-                    <div class="sisme-game-info-section">
-                        <div class="sisme-tags-list">
-                        <?php 
-                        $publishers = isset($game_data['meta_data']['game_publishers']) ? $game_data['meta_data']['game_publishers'] : [];
-                        if (!empty($publishers) && is_array($publishers)) {
-                            foreach ($publishers as $pub_id) {
-                                $publisher = get_category($pub_id);
-                                if ($publisher) {
-                                    $entity_website = get_term_meta($pub_id, 'entity_website', true);
-                                    if (!empty($entity_website)) {
-                                        echo '<a href="' . esc_url($entity_website) . '" target="_blank" class="sisme-tag sisme-tag--entity">' . esc_html($publisher->name) . '</a>';
-                                    } else {
-                                        echo '<span class="sisme-tag sisme-tag--entity">' . esc_html($publisher->name) . '</span>';
-                                    }
-                                }
-                            }
-                        } else {
-                            echo '<span class="sisme-data-empty">Non spécifiés</span>';
-                        }
-                        ?>
-                        </div>
-                    </div>
-                    
-                </div>
-            </td>
-        </tr>
-        
-        <!-- Plateformes, date de sortie et liens externes -->
-        <tr class="sisme-game-platforms-row">
-            <td colspan="2" class="sisme-game-platforms-cell">
-                <div class="sisme-game-platforms-container">
-                    
-                    <!-- Plateformes -->
-                    <div class="sisme-game-info-section">
-                        <div class="sisme-tags-list">
-                        <?php 
-                        $platforms = isset($game_data['meta_data']['game_platforms']) ? $game_data['meta_data']['game_platforms'] : [];
-                        if (!empty($platforms)) {
-                            $platform_groups = [
-                                'Mobile' => ['ios', 'android'],
-                                'Console' => ['xbox', 'playstation', 'switch'], 
-                                'PC' => ['pc', 'web', 'mac', 'windows']
-                            ];
-                            
-                            $displayed_groups = [];
-                            $platform_details = [];
-                            
-                            foreach ($platform_groups as $group => $group_platforms) {
-                                $group_matches = array_intersect($platforms, $group_platforms);
-                                if (!empty($group_matches)) {
-                                    $displayed_groups[] = $group;
-                                    $platform_details[$group] = $group_matches;
-                                }
-                            }
-                            
-                            if (!empty($displayed_groups)) {
-                                foreach ($displayed_groups as $group) {
-                                    $details = implode(', ', array_map('ucfirst', $platform_details[$group]));
-                                    $group_class = 'sisme-platform-group--' . strtolower($group);
-                                    echo '<span class="sisme-platform-group ' . $group_class . '" title="' . esc_attr($details) . '">';
-                                    echo esc_html($group);
-                                    echo '</span>';
-                                }
-                            }
-                        } else {
-                            echo '<span class="sisme-data-empty">Non spécifiées</span>';
-                        }
-                        ?>
-                        </div>
-                    </div>
-                    
-                    <!-- Date de sortie -->
-                    <div class="sisme-game-info-section">
-                        <?php 
-                        $release_date = isset($game_data['meta_data']['release_date']) ? $game_data['meta_data']['release_date'] : '';
-                        if (!empty($release_date)) {
-                            $formatted_date = date_i18n('j F Y', strtotime($release_date));
-                            $today = date('Y-m-d');
-                            $date_class = 'sisme-release-date';
-                            if ($release_date > $today) {
-                                $date_class .= ' sisme-release-date--future';
-                            } elseif ($release_date < $today) {
-                                $date_class .= ' sisme-release-date--past';
-                            }
-                            echo '<span class="' . $date_class . '">' . esc_html($formatted_date) . '</span>';
-                        } else {
-                            echo '<span class="sisme-data-empty">Non spécifiée</span>';
-                        }
-                        ?>
-                    </div>
-                    
-                    <!-- Liens externes -->
-                    <div class="sisme-game-info-section">
-                        <div class="sisme-external-links-images">
-                        <?php 
-                        // Vérifier s'il y a un trailer_link (YouTube)
-                        $trailer_link = isset($game_data['meta_data']['trailer_link']) ? $game_data['meta_data']['trailer_link'] : '';
-                        $has_links = false;
-                        
-                        if (!empty($trailer_link)) {
-                            echo '<a href="' . esc_url($trailer_link) . '" target="_blank" class="sisme-external-link sisme-external-link--youtube" title="Voir la bande-annonce">';
-                            echo '<img src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-YT.webp" alt="YouTube" class="sisme-store-logo">';
-                            echo '</a>';
-                            $has_links = true;
-                        }
-                        
-                        // Liens existants (Steam, Epic, GOG)
-                        $external_links = isset($game_data['meta_data']['external_links']) ? $game_data['meta_data']['external_links'] : [];
-                        if (!empty($external_links) && is_array($external_links)) {
-                            foreach ($external_links as $platform => $url) {
-                                if (!empty($url)) {
-                                    $platform_name = ucfirst($platform);
-                                    if ($platform === 'epic_games') {
-                                        $platform_name = 'Epic Games';
-                                    }
-                                    
-                                    echo '<a href="' . esc_url($url) . '" target="_blank" class="sisme-external-link sisme-external-link--' . esc_attr($platform) . '" title="Acheter sur ' . esc_attr($platform_name) . '">';
-                                    
-                                    // Icônes selon la plateforme
-                                    switch ($platform) {
-                                        case 'steam':
-                                            echo '<img class="sisme-store-logo" src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-STEAM.webp" alt="Disponible sur Steam">';
-                                            break;
-                                        case 'epic_games':
-                                            echo '<img class="sisme-store-logo" src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-EPIC.webp" alt="Disponible sur Epic Games">';
-                                            break;
-                                        case 'gog':
-                                            echo '<img class="sisme-store-logo" src="https://games.sisme.fr/wp-content/uploads/2025/06/Logo-GOG.webp" alt="Disponible sur GOG">';
-                                            break;
-                                        default:
-                                            echo '<span class="sisme-store-text">' . esc_html($platform_name) . '</span>';
-                                            break;
-                                    }
-                                    
-                                    echo '</a>';
-                                    $has_links = true;
-                                }
-                            }
-                        }
-                        
-                        // Message si aucun lien
-                        if (!$has_links) {
-                            echo '<span class="sisme-data-empty">Aucun lien</span>';
-                        }
-                        ?>
-                        </div>
-                    </div>
-                    
-                </div>
-            </td>
-        </tr>
-
-        
-        <?php
-    }
-
-    /**
-     * Afficher la pagination
-     */
-    private function render_pagination() {
-        if (!$this->options['show_pagination'] || $this->total_items <= $this->per_page) {
-            return;
-        }
-        
-        $total_pages = ceil($this->total_items / $this->per_page);
-        $current_page = $this->current_page;
-        
-        ?>
-        <div class="sisme-pagination-wrapper">
-            <div class="sisme-pagination-info">
-                Affichage de <?php echo (($current_page - 1) * $this->per_page) + 1; ?> à 
-                <?php echo min($current_page * $this->per_page, $this->total_items); ?> 
-                sur <?php echo $this->total_items; ?> jeu<?php echo $this->total_items > 1 ? 'x' : ''; ?>
-            </div>
-            
-            <?php if ($total_pages > 1): ?>
-                <div class="sisme-pagination-links">
-                    <?php
-                    $base_url = remove_query_arg('paged');
-                    
-                    // Bouton précédent
-                    if ($current_page > 1) {
-                        echo '<a href="' . add_query_arg('paged', $current_page - 1, $base_url) . '" class="button sisme-pagination-prev">‹ Précédent</a> ';
-                    }
-                    
-                    // Numéros de pages
-                    for ($i = max(1, $current_page - 2); $i <= min($total_pages, $current_page + 2); $i++) {
-                        if ($i == $current_page) {
-                            echo '<span class="button button-primary sisme-pagination-current">' . $i . '</span> ';
-                        } else {
-                            echo '<a href="' . add_query_arg('paged', $i, $base_url) . '" class="button sisme-pagination-page">' . $i . '</a> ';
-                        }
-                    }
-                    
-                    // Bouton suivant
-                    if ($current_page < $total_pages) {
-                        echo '<a href="' . add_query_arg('paged', $current_page + 1, $base_url) . '" class="button sisme-pagination-next">Suivant ›</a>';
-                    }
-                    ?>
-                </div>
-            <?php endif; ?>
-        </div>
-        <?php
-    }
-
-    /**
-     * Afficher le JavaScript pour les actions
-     */
-    private function render_javascript() {
-        ?>
-        <script>
-        jQuery(document).ready(function($) {
-            // Gestion de la suppression
-            $('.delete-game-data').on('click', function(e) {
-                e.preventDefault();
-                
-                var gameId = $(this).data('game-id');
-                var gameName = $(this).data('game-name');
-                
-                console.log('Suppression demandée - Game ID:', gameId, 'Name:', gameName);
-                
-                if (confirm('Êtes-vous sûr de vouloir supprimer complètement le jeu "' + gameName + '" ?\n\n🗑️ Cette action supprimera :\n- L\'étiquette du jeu\n- Toutes les métadonnées\n- Les covers et liens\n- Les sections par défaut\n\n❌ Cette action est irréversible !')) {
-                    
-                    deleteGame(gameId, gameName, false);
-                }
-            });
-            
-            // Fonction de suppression
-            function deleteGame(gameId, gameName, forceDelete) {
-                $.ajax({
-                    url: ajaxurl,
-                    type: 'POST',
-                    data: {
-                        action: 'sisme_delete_game_data',
-                        game_id: gameId,
-                        force_delete: forceDelete ? 'yes' : 'no',
-                        nonce: '<?php echo wp_create_nonce('sisme_delete_game_data'); ?>'
-                    },
-                    beforeSend: function() {
-                        // Afficher un loader sur le bouton
-                        $('.delete-game-data[data-game-id="' + gameId + '"]').html('⏳').prop('disabled', true);
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert('✅ ' + response.data.message);
-                            location.reload(); // Recharger la page
-                        } else {
-                            // Vérifier si c'est une demande de confirmation
-                            if (response.data.needs_confirmation) {
-                                if (confirm('⚠️ ' + response.data.message + '\n\nConfirmer la suppression ?')) {
-                                    // Relancer avec force_delete = true
-                                    deleteGame(gameId, gameName, true);
-                                } else {
-                                    $('.delete-game-data[data-game-id="' + gameId + '"]').html('🗑️').prop('disabled', false);
-                                }
-                            } else {
-                                alert('❌ Erreur : ' + response.data.message);
-                                $('.delete-game-data[data-game-id="' + gameId + '"]').html('🗑️').prop('disabled', false);
-                            }
-                        }
-                    },
-                    error: function() {
-                        alert('❌ Erreur de connexion');
-                        $('.delete-game-data[data-game-id="' + gameId + '"]').html('🗑️').prop('disabled', false);
-                    }
-                });
-            }
-        });
-        </script>
-        <?php
-    }
-
-    /**
-     * Afficher le tableau complet
-     */
-    public function render() {
-        ?>
-        <div class="sisme-game-data-table-module" id="<?php echo esc_attr($this->module_id); ?>">
-            
-            <?php if ($this->options['show_search']): ?>
-                <?php $this->filter_module->render(); ?>
-            <?php endif; ?>
-            
-            <?php if (empty($this->games_data)): ?>
-                <div class="sisme-no-data-message">
-                    <h3 class="sisme-no-data-title">🎮 Aucun jeu trouvé</h3>
-                    <?php if (isset($_GET['s']) && !empty($_GET['s'])): ?>
-                        <p class="sisme-no-data-search">Aucun résultat pour "<?php echo esc_html($_GET['s']); ?>"</p>
-                        <a href="<?php echo remove_query_arg(['s', 'paged']); ?>" class="button sisme-no-data-clear">Voir tous les jeux</a>
-                    <?php else: ?>
-                        <p class="sisme-no-data-empty">Commencez par créer des étiquettes de jeux ou ajouter des données.</p>
-                        <a href="<?php echo $this->options['edit_url']; ?>" class="button button-primary sisme-no-data-add">
-                            ➕ Ajouter un jeu
+                        <a href="<?php echo esc_url($fiche_url); ?>" 
+                           class="<?php echo esc_attr($btn_class); ?>"
+                           data-sisme-tooltip="<?php echo esc_attr($btn_tooltip); ?>">
+                            <?php echo $btn_icon; ?>
                         </a>
-                    <?php endif; ?>
+                        
+                        <button type="button" 
+                                class="sisme-action-btn sisme-action-delete delete-game-data" 
+                                data-game-id="<?php echo $game_data['id']; ?>"
+                                data-game-name="<?php echo esc_attr($game_data['name']); ?>"
+                                data-sisme-tooltip="Supprimer définitivement ce jeu"
+                                data-sisme-tooltip-type="error">🗑️</button>
                 </div>
-            <?php else: ?>
-                
-                <table class="wp-list-table widefat fixed sisme-game-data-table">
-                    <?php $this->render_table_header(); ?>
-                    
-                    <tbody class="sisme-table-body">
-                        <?php foreach ($this->games_data as $index => $game_data): ?>
-                            <?php $this->render_table_row($game_data); ?>
-                            
-                            <!-- Séparateur visuel entre les jeux (sauf pour le dernier) -->
-                            <?php if ($index < count($this->games_data) - 1): ?>
-                                <tr class="sisme-game-separator">
-                                    <td colspan="2" class="sisme-game-separator-cell"></td>
-                                </tr>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-                
-                <?php $this->render_pagination(); ?>
-                
-            <?php endif; ?>
-            
-        </div>
-        
-        <?php $this->render_javascript(); ?>
+            </td>
+        </tr>
         <?php
     }
     
@@ -877,16 +304,17 @@ class Sisme_Game_Data_Table_Module {
      * Obtenir les statistiques des données
      */
     public function get_stats() {
-        // Récupérer toutes les étiquettes avec métadonnées
+        // Récupérer tous les jeux pour les stats
         $all_tags = get_terms([
             'taxonomy' => 'post_tag',
             'hide_empty' => false,
+            'number' => 0
         ]);
         
         $stats = [
             'total_games' => 0,
             'games_with_data' => 0,
-            'games_with_articles' => 0,
+            'games_with_fiches' => 0,
             'total_articles' => 0
         ];
         
@@ -894,39 +322,22 @@ class Sisme_Game_Data_Table_Module {
             $stats['total_games'] = count($all_tags);
             
             foreach ($all_tags as $tag) {
-                $meta = get_term_meta($tag->term_id);
-                if (!empty($meta)) {
+                // Vérifier si le jeu a des données
+                $has_data = get_term_meta($tag->term_id, 'game_description', true);
+                if (!empty($has_data)) {
                     $stats['games_with_data']++;
                 }
                 
-                if ($tag->count > 0) {
-                    $stats['games_with_articles']++;
-                    $stats['total_articles'] += $tag->count;
+                // Vérifier si le jeu a des fiches
+                if ($this->game_has_presentation($tag->term_id)) {
+                    $stats['games_with_fiches']++;
                 }
+                
+                // Compter les articles
+                $stats['total_articles'] += $this->get_tag_posts_count($tag->term_id);
             }
         }
         
         return $stats;
-    }
-
-    /**
-     * Vérifier si un jeu a des sections de présentation
-     * UNIQUEMENT dans le nouveau format (term_meta.game_sections)
-     */
-    private function game_has_presentation($tag_id) {
-        // Vérifier UNIQUEMENT dans term_meta (nouveau format)
-        $game_sections = get_term_meta($tag_id, 'game_sections', true);
-        
-        if (!empty($game_sections) && is_array($game_sections)) {
-            // Vérifier qu'il y a au moins une section avec du contenu
-            foreach ($game_sections as $section) {
-                if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) {
-                    return true;
-                }
-            }
-        }
-        
-        // Pas de vérification de l'ancien format - uniquement nouveau format
-        return false;
     }
 }
