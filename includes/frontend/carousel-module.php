@@ -151,11 +151,22 @@ class Sisme_Carousel_Module {
     }
 
     private function render_slides($items, $options) {
-        $output = '<div class="sisme-carousel-slides">';
+        $output = '';
         
         foreach ($items as $index => $item) {
-            $active_class = $index === 0 ? ' active' : '';
-            $output .= '<div class="sisme-carousel-slide' . $active_class . '" data-index="' . $index . '">';
+            // Classes pour position 3D
+            $slide_class = 'sisme-ultra-slide';
+            if ($index === 0) {
+                $slide_class .= ' active';
+            } elseif ($index === 1) {
+                $slide_class .= ' next';
+            } elseif ($index === count($items) - 1) {
+                $slide_class .= ' prev';
+            } else {
+                $slide_class .= ' far';
+            }
+            
+            $output .= '<div class="' . $slide_class . '" data-index="' . $index . '">';
             
             if ($item['type'] === 'image') {
                 $output .= $this->render_image_slide($item);
@@ -166,7 +177,6 @@ class Sisme_Carousel_Module {
             $output .= '</div>';
         }
         
-        $output .= '</div>';
         return $output;
     }
 
@@ -180,7 +190,7 @@ class Sisme_Carousel_Module {
         
         // Options par défaut spécifiques aux vedettes
         $defaults = array(
-            'height' => '400px',
+            'height' => '500px',
             'show_arrows' => true,
             'show_dots' => true,
             'autoplay' => true,
@@ -207,36 +217,40 @@ class Sisme_Carousel_Module {
             return $this->render_vedettes_empty_state();
         }
         
-        // 🔧 NOUVELLE STRUCTURE HTML
-        $output = '<div class="sisme-vedettes-carousel-container">';
+        // STRUCTURE ULTRA-STYLÉE
+        $output = '<div class="sisme-ultra-carousel">';
         
-        // Titre optionnel
+        // Effet de particules
+        $output .= '<div class="sisme-particles" id="particles-' . $options['id'] . '"></div>';
+        
+        // Titre
         if ($options['show_title'] && !empty($options['title'])) {
-            $output .= '<h2 class="sisme-vedettes-carousel-title">' . esc_html($options['title']) . '</h2>';
+            $output .= '<div class="sisme-ultra-title">';
+            $output .= '<h2>' . esc_html($options['title']) . '</h2>';
+            $output .= '</div>';
         }
         
-        // Wrapper carrousel avec navigation
-        $output .= '<div class="sisme-carousel-wrapper">';
+        // Carrousel 3D
+        $output .= '<div class="sisme-ultra-wrapper">';
+        $output .= '<div class="sisme-ultra-container" id="' . esc_attr($options['id']) . '">';
         
-        // Container image principal
-        $output .= $this->render_container_start($options);
+        // Slides 3D
         $output .= $this->render_slides($processed_items, $options);
-        $output .= $this->render_container_end();
         
-        // Navigation flèches (dans le wrapper, pas dans le container)
+        $output .= '</div>'; // fin ultra-container
+        
+        // Navigation
         $output .= $this->render_navigation($options, count($processed_items));
         
-        // Dots navigation (dans le wrapper)
+        $output .= '</div>'; // fin ultra-wrapper
+        
+        // Dots
         $output .= $this->render_dots($processed_items, $options);
         
-        // Fin du wrapper
-        $output .= '</div>';
-        
-        // JavaScript inline
+        // JavaScript
         $output .= $this->render_javascript($options);
         
-        // Fin du container principal
-        $output .= '</div>';
+        $output .= '</div>'; // fin ultra-carousel
         
         return $output;
     }
@@ -249,10 +263,13 @@ class Sisme_Carousel_Module {
             return '';
         }
         
-        $output = '<div class="sisme-carousel-nav">';
-        $output .= '<button class="sisme-carousel-btn sisme-carousel-btn--prev" data-direction="prev">‹</button>';
-        $output .= '<button class="sisme-carousel-btn sisme-carousel-btn--next" data-direction="next">›</button>';
-        $output .= '</div>';
+        $output = '<button class="sisme-ultra-nav prev">';
+        $output .= '<div class="sisme-ultra-btn">‹</div>';
+        $output .= '</button>';
+        
+        $output .= '<button class="sisme-ultra-nav next">';
+        $output .= '<div class="sisme-ultra-btn">›</div>';
+        $output .= '</button>';
         
         return $output;
     }
@@ -261,27 +278,22 @@ class Sisme_Carousel_Module {
      * Slides
      */
     private function render_image_slide($item) {
-        $output = '<div class="sisme-slide-image">';
+        $output = '<div class="sisme-ultra-image">';
         $output .= '<img src="' . esc_url($item['url']) . '" ';
         $output .= 'alt="' . esc_attr($item['alt']) . '" ';
         $output .= 'loading="lazy">';
         
-        // 🆕 Overlay avec infos du jeu (si disponibles)
+        // Overlay avec infos du jeu
         if (!empty($item['game_info'])) {
-            $output .= '<div class="sisme-slide-overlay">';
-            $output .= '<h3 class="sisme-slide-title">' . esc_html($item['game_info']['name']) . '</h3>';
+            $output .= '<div class="sisme-ultra-overlay">';
+            $output .= '<div class="sisme-ultra-game-title">' . esc_html($item['game_info']['name']) . '</div>';
             
             if (!empty($item['game_info']['sponsor'])) {
-                $output .= '<div class="sisme-slide-meta">Sponsorisé par ' . esc_html($item['game_info']['sponsor']) . '</div>';
+                $output .= '<div class="sisme-ultra-game-meta">Sponsorisé par ' . esc_html($item['game_info']['sponsor']) . '</div>';
+            } else {
+                $output .= '<div class="sisme-ultra-game-meta">Jeu à la Une</div>';
             }
             
-            $output .= '</div>';
-        }
-        
-        // Caption classique si pas d'overlay
-        if (empty($item['game_info']) && !empty($item['caption'])) {
-            $output .= '<div class="sisme-slide-caption">';
-            $output .= '<p>' . esc_html($item['caption']) . '</p>';
             $output .= '</div>';
         }
         
@@ -293,12 +305,17 @@ class Sisme_Carousel_Module {
      * État vide pour carrousel vedettes
      */
     private function render_vedettes_empty_state() {
-        return '<div class="sisme-vedettes-carousel-container">
-                    <div class="sisme-vedettes-carousel-empty">
-                        <div class="sisme-empty-icon">🌟</div>
-                        <h3>Aucun jeu vedette</h3>
-                        <p>Configurez des jeux en vedette pour voir le carrousel ici.</p>
-                        <small>Rendez-vous dans l\'administration pour ajouter des jeux à la une.</small>
+        return '<div class="sisme-ultra-carousel">
+                    <div class="sisme-ultra-title">
+                        <h2>Jeux à la Une</h2>
+                    </div>
+                    <div class="sisme-ultra-wrapper">
+                        <div class="sisme-ultra-empty">
+                            <div class="sisme-empty-icon">🌟</div>
+                            <h3>Aucun jeu vedette</h3>
+                            <p>Configurez des jeux en vedette pour voir le carrousel ici.</p>
+                            <small>Rendez-vous dans l\'administration pour ajouter des jeux à la une.</small>
+                        </div>
                     </div>
                 </div>';
     }
@@ -340,11 +357,11 @@ class Sisme_Carousel_Module {
             return '';
         }
         
-        $output = '<div class="sisme-carousel-dots">';
+        $output = '<div class="sisme-ultra-dots">';
         
         foreach ($items as $index => $item) {
             $active_class = $index === 0 ? ' active' : '';
-            $output .= '<button class="sisme-carousel-dot' . $active_class . '" data-slide="' . $index . '"></button>';
+            $output .= '<button class="sisme-ultra-dot' . $active_class . '" data-slide="' . $index . '"></button>';
         }
         
         $output .= '</div>';
@@ -379,40 +396,47 @@ class Sisme_Carousel_Module {
         $script = "
         <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const carouselContainer = document.getElementById('{$carousel_id}');
-            if (!carouselContainer) return;
-            
-            // Adapter à la structure (vedettes ou standard)
-            const parentWrapper = carouselContainer.closest('.sisme-carousel-wrapper');
-            const searchRoot = parentWrapper || carouselContainer;
-            
-            const slides = carouselContainer.querySelectorAll('.sisme-carousel-slide');
-            const dots = searchRoot.querySelectorAll('.sisme-carousel-dot');
-            const prevBtn = searchRoot.querySelector('.sisme-carousel-btn--prev');
-            const nextBtn = searchRoot.querySelector('.sisme-carousel-btn--next');
-            
             let currentSlide = 0;
-            let totalSlides = slides.length;
+            const slides = document.querySelectorAll('#{$carousel_id} .sisme-ultra-slide');
+            const dots = document.querySelectorAll('.sisme-ultra-dot');
+            const prevBtn = document.querySelector('.sisme-ultra-nav.prev .sisme-ultra-btn');
+            const nextBtn = document.querySelector('.sisme-ultra-nav.next .sisme-ultra-btn');
+            const totalSlides = slides.length;
             let autoplayTimer = null;
-            
-            if (totalSlides <= 1) return;
-            
-            function showSlide(index) {
-                slides.forEach(slide => slide.classList.remove('active'));
-                dots.forEach(dot => dot.classList.remove('active'));
-                
-                if (slides[index]) slides[index].classList.add('active');
-                if (dots[index]) dots[index].classList.add('active');
-                
-                currentSlide = index;
+
+            function updateSlides() {
+                slides.forEach((slide, index) => {
+                    slide.className = 'sisme-ultra-slide';
+                    
+                    if (index === currentSlide) {
+                        slide.classList.add('active');
+                    } else if (index === (currentSlide - 1 + totalSlides) % totalSlides) {
+                        slide.classList.add('prev');
+                    } else if (index === (currentSlide + 1) % totalSlides) {
+                        slide.classList.add('next');
+                    } else {
+                        slide.classList.add('far');
+                    }
+                });
+
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentSlide);
+                });
             }
-            
+
             function nextSlide() {
-                showSlide((currentSlide + 1) % totalSlides);
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateSlides();
             }
-            
+
             function prevSlide() {
-                showSlide((currentSlide - 1 + totalSlides) % totalSlides);
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                updateSlides();
+            }
+
+            function goToSlide(index) {
+                currentSlide = index;
+                updateSlides();
             }
             
             function startAutoplay() {
@@ -427,7 +451,7 @@ class Sisme_Carousel_Module {
                     autoplayTimer = null;
                 }
             }
-            
+
             // Event listeners
             if (nextBtn) {
                 nextBtn.addEventListener('click', function() {
@@ -436,7 +460,7 @@ class Sisme_Carousel_Module {
                     startAutoplay();
                 });
             }
-            
+
             if (prevBtn) {
                 prevBtn.addEventListener('click', function() {
                     stopAutoplay();
@@ -444,22 +468,45 @@ class Sisme_Carousel_Module {
                     startAutoplay();
                 });
             }
-            
+
             dots.forEach((dot, index) => {
                 dot.addEventListener('click', function() {
                     stopAutoplay();
-                    showSlide(index);
+                    goToSlide(index);
                     startAutoplay();
                 });
             });
-            
+
             // Pause au hover
-            const hoverTarget = parentWrapper || carouselContainer;
-            hoverTarget.addEventListener('mouseenter', stopAutoplay);
-            hoverTarget.addEventListener('mouseleave', startAutoplay);
-            
+            const carousel = document.querySelector('.sisme-ultra-carousel');
+            if (carousel) {
+                carousel.addEventListener('mouseenter', stopAutoplay);
+                carousel.addEventListener('mouseleave', startAutoplay);
+            }
+
+            // Créer des particules
+            function createParticle() {
+                const particlesContainer = document.getElementById('particles-{$carousel_id}');
+                if (!particlesContainer) return;
+                
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                
+                particlesContainer.appendChild(particle);
+                
+                setTimeout(() => {
+                    particle.remove();
+                }, 8000);
+            }
+
+            // Lancer les particules
+            setInterval(createParticle, 300);
+
             // Initialiser
-            showSlide(0);
+            updateSlides();
             startAutoplay();
         });
         </script>";

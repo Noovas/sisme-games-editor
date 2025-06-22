@@ -1,413 +1,413 @@
-/**
- * STRUCTURE CARROUSEL CORRIGÉE
- * Navigation externe, sans dédoublement d'image
- */
-
 /* ===== CONTAINER PRINCIPAL ===== */
-.sisme-vedettes-carousel-container {
-    max-width: 1200px;
-    width: 100%;
+.sisme-ultra-carousel {
+    max-width: 1400px;
     margin: 40px auto;
-    padding: 40px;
-    box-sizing: border-box;
+    padding: 60px 40px;
+    position: relative;
     
-    /* Design Gaming */
-    background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
-    border-radius: 12px;
-    color: #c7d5e0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Dégradé gaming avancé */
+    background: 
+        radial-gradient(ellipse at top, rgba(102, 192, 244, 0.1) 0%, transparent 70%),
+        linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1e1e1e 100%);
+    
+    border-radius: 20px;
+    border: 1px solid rgba(102, 192, 244, 0.2);
+    
+    /* Ombres ultra-premium */
     box-shadow: 
-        0 16px 48px rgba(0, 0, 0, 0.4),
-        0 8px 24px rgba(0, 0, 0, 0.2);
+        0 20px 60px rgba(0, 0, 0, 0.6),
+        0 10px 30px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 100px rgba(102, 192, 244, 0.1);
     
-    position: relative;
-    animation: carouselFadeIn 0.8s ease-out;
+    overflow: hidden;
+    animation: containerGlow 4s ease-in-out infinite alternate;
 }
 
-/* ===== TITRE ===== */
-.sisme-vedettes-carousel-title {
-    margin: 0 0 30px 0;
-    font-size: 2rem;
-    font-weight: bold;
-    line-height: 1.2;
-    color: #ffffff;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    text-align: center;
-    position: relative;
-    padding-bottom: 15px;
+@keyframes containerGlow {
+    0% { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 80px rgba(102, 192, 244, 0.1); }
+    100% { box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7), 0 0 120px rgba(102, 192, 244, 0.2); }
 }
 
-.sisme-vedettes-carousel-title::after {
+/* Effet de scan line animé */
+.sisme-ultra-carousel::before {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(90deg, #66c0f4, #d4a373);
-    border-radius: 2px;
-}
-
-/* ===== ZONE CARROUSEL AVEC NAVIGATION ===== */
-.sisme-carousel-wrapper {
-    position: relative;
+    top: 0;
+    left: -100%;
     width: 100%;
-    margin-bottom: 20px; /* Espace pour les dots */
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        #66c0f4, 
+        #d4a373, 
+        transparent
+    );
+    animation: scanLine 3s linear infinite;
+    z-index: 1;
 }
 
-/* ===== CONTAINER IMAGE ===== */
-.sisme-carousel-container {
+@keyframes scanLine {
+    0% { left: -100%; opacity: 0; }
+    50% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+}
+
+/* ===== TITRE ULTRA-STYLÉ ===== */
+.sisme-ultra-title {
+    text-align: center;
+    margin-bottom: 40px;
     position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    min-height: 300px;
-    max-height: 600px;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    margin: 0 60px; /* Espace pour les flèches */
+    z-index: 2;
 }
 
-/* ===== SLIDES ===== */
-.sisme-carousel-slides {
+.sisme-ultra-title h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    background: linear-gradient(45deg, #66c0f4, #d4a373, #66c0f4);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 3s ease-in-out infinite;
+    text-shadow: 0 0 30px rgba(102, 192, 244, 0.5);
+    position: relative;
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Titre simple sans effet holographique */
+
+/* ===== ZONE CARROUSEL 3D ===== */
+.sisme-ultra-wrapper {
+    position: relative;
+    height: 500px;
+    perspective: 1200px;
+    margin-bottom: 40px;
+}
+
+.sisme-ultra-container {
     position: relative;
     width: 100%;
     height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.sisme-carousel-slide {
+/* ===== SLIDES 3D PREMIUM ===== */
+.sisme-ultra-slide {
+    position: absolute;
+    width: 70%;
+    height: 100%;
+    left: 15%;
+    top: 0;
+    border-radius: 15px;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+    
+    /* Ombres 3D */
+    box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.4),
+        0 15px 30px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.sisme-ultra-slide.active {
+    transform: translateZ(0px) scale(1);
+    opacity: 1;
+    z-index: 10;
+}
+
+.sisme-ultra-slide.prev {
+    transform: translateX(-60%) translateZ(-200px) rotateY(45deg) scale(0.8);
+    opacity: 0.6;
+    z-index: 5;
+}
+
+.sisme-ultra-slide.next {
+    transform: translateX(60%) translateZ(-200px) rotateY(-45deg) scale(0.8);
+    opacity: 0.6;
+    z-index: 5;
+}
+
+.sisme-ultra-slide.far {
+    transform: translateZ(-400px) scale(0.6);
+    opacity: 0.3;
+    z-index: 1;
+}
+
+/* ===== IMAGES AVEC EFFETS ===== */
+.sisme-ultra-image {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-ultra-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+    filter: brightness(0.9) contrast(1.1);
+}
+
+.sisme-ultra-slide:hover .sisme-ultra-image img {
+    transform: scale(1.05);
+    filter: brightness(1) contrast(1.2);
+}
+
+/* Overlay dégradé gaming */
+.sisme-ultra-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        45deg,
+        rgba(102, 192, 244, 0.1) 0%,
+        transparent 50%,
+        rgba(212, 163, 115, 0.1) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.sisme-ultra-slide:hover .sisme-ultra-image::before {
+    opacity: 1;
+}
+
+/* ===== OVERLAY INFO GAMING ===== */
+.sisme-ultra-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 30px;
+    background: linear-gradient(
+        transparent,
+        rgba(0, 0, 0, 0.7),
+        rgba(0, 0, 0, 0.9)
+    );
+    color: white;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 2;
+}
+
+.sisme-ultra-slide:hover .sisme-ultra-overlay {
+    transform: translateY(0);
+}
+
+.sisme-ultra-game-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, #66c0f4, #ffffff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.sisme-ultra-game-meta {
+    font-size: 1rem;
+    color: #c7d5e0;
+    opacity: 0.9;
+}
+
+/* ===== NAVIGATION FUTURISTE ===== */
+.sisme-ultra-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+}
+
+.sisme-ultra-nav.prev {
+    left: -80px;
+}
+
+.sisme-ultra-nav.next {
+    right: -80px;
+}
+
+.sisme-ultra-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #66c0f4;
+    
+    /* Design futuriste */
+    background: 
+        radial-gradient(circle at 30% 30%, rgba(102, 192, 244, 0.3), transparent 70%),
+        linear-gradient(135deg, rgba(45, 45, 45, 0.9), rgba(30, 30, 30, 0.9));
+    
+    border: 2px solid rgba(102, 192, 244, 0.4);
+    box-shadow: 
+        0 0 20px rgba(102, 192, 244, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-ultra-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(102, 192, 244, 0.4), transparent);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    transform: translate(-50%, -50%);
+}
+
+.sisme-ultra-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 
+        0 0 30px rgba(102, 192, 244, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border-color: #66c0f4;
+}
+
+.sisme-ultra-btn:hover::before {
+    width: 100px;
+    height: 100px;
+}
+
+.sisme-ultra-btn:active {
+    transform: scale(0.95);
+}
+
+/* ===== DOTS HOLOGRAPHIQUES ===== */
+.sisme-ultra-dots {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.sisme-ultra-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(102, 192, 244, 0.3);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.sisme-ultra-dot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: #66c0f4;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.3s ease;
+}
+
+.sisme-ultra-dot.active {
+    border-color: #66c0f4;
+    box-shadow: 
+        0 0 20px rgba(102, 192, 244, 0.6),
+        inset 0 0 10px rgba(102, 192, 244, 0.2);
+    transform: scale(1.2);
+}
+
+.sisme-ultra-dot.active::before {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.sisme-ultra-dot:hover {
+    transform: scale(1.3);
+    border-color: rgba(102, 192, 244, 0.8);
+}
+
+/* ===== EFFETS PARTICULAIRES (OPTIONNEL) ===== */
+.sisme-particles {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    opacity: 0;
-    transition: opacity 0.6s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.sisme-carousel-slide.active {
-    opacity: 1;
-}
-
-.sisme-slide-image {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #000;
-    position: relative;
-}
-
-.sisme-slide-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-/* ===== NAVIGATION FLÈCHES - EXTERNE ===== */
-.sisme-carousel-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 100%;
-    height: 0;
-    display: flex;
-    justify-content: space-between;
     pointer-events: none;
-    z-index: 20;
+    z-index: 0;
 }
 
-.sisme-carousel-btn {
-    /* Style gaming visible */
-    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
-    color: #66c0f4;
-    border: 2px solid rgba(102, 192, 244, 0.5);
-    padding: 15px;
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 8px;
-    pointer-events: all;
-    transition: all 0.3s ease;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    line-height: 1;
-    
-    /* Ombre forte pour visibilité */
-    box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.6),
-        0 2px 6px rgba(0, 0, 0, 0.4),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
-    
-    /* Position absolue pour sortir du flux */
+.particle {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.sisme-carousel-btn--prev {
-    left: 0;
-}
-
-.sisme-carousel-btn--next {
-    right: 0;
-}
-
-/* Effet hover gaming */
-.sisme-carousel-btn:hover {
-    background: linear-gradient(135deg, #66c0f4 0%, #4a9fd1 100%);
-    color: #ffffff;
-    border-color: #66c0f4;
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 
-        0 6px 20px rgba(102, 192, 244, 0.6),
-        0 3px 10px rgba(102, 192, 244, 0.3),
-        0 0 0 1px #66c0f4;
-}
-
-.sisme-carousel-btn:active {
-    transform: translateY(-50%) scale(0.95);
-}
-
-/* Icônes des flèches */
-.sisme-carousel-btn--prev::after {
-    content: '‹';
-}
-
-.sisme-carousel-btn--next::after {
-    content: '›';
-}
-
-/* ===== DOTS NAVIGATION - SOUS LE CARROUSEL ===== */
-.sisme-carousel-dots {
-    position: absolute;
-    bottom: -50px; /* En dessous du wrapper */
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 12px;
-    z-index: 10;
-    
-    /* Style gaming pour le groupe de dots */
-    background: rgba(0, 0, 0, 0.4);
-    padding: 10px 15px;
-    border-radius: 25px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(5px);
-}
-
-.sisme-carousel-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.4);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 0;
-    position: relative;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.sisme-carousel-dot:hover {
-    background: rgba(102, 192, 244, 0.6);
-    border-color: rgba(102, 192, 244, 0.8);
-    transform: scale(1.2);
-    box-shadow: 
-        inset 0 1px 2px rgba(0, 0, 0, 0.2),
-        0 0 8px rgba(102, 192, 244, 0.4);
-}
-
-.sisme-carousel-dot.active {
+    width: 2px;
+    height: 2px;
     background: #66c0f4;
-    border-color: #66c0f4;
-    transform: scale(1.3);
-    box-shadow: 
-        inset 0 1px 2px rgba(0, 0, 0, 0.2),
-        0 0 12px rgba(102, 192, 244, 0.6);
+    border-radius: 50%;
+    animation: float 6s linear infinite;
 }
 
-/* ===== OVERLAY INFO JEU (OPTIONNEL) ===== */
-.sisme-slide-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-    color: white;
-    padding: 20px;
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
+@keyframes float {
+    0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) translateX(100px);
+        opacity: 0;
+    }
 }
 
-.sisme-carousel-slide:hover .sisme-slide-overlay {
-    transform: translateY(0);
-}
-
-.sisme-slide-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin: 0 0 8px 0;
-    color: #ffffff;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
-}
-
-.sisme-slide-meta {
-    font-size: 1rem;
-    color: #c7d5e0;
-    opacity: 0.9;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 1200px) {
-    .sisme-vedettes-carousel-container {
-        margin: 30px 20px;
-        padding: 30px;
+/* ===== RESPONSIVE ULTRA ===== */
+@media (max-width: 768px) {
+    .sisme-ultra-carousel {
+        padding: 40px 20px;
+        margin: 20px;
     }
     
-    .sisme-carousel-container {
-        margin: 0 50px;
+    .sisme-ultra-title h2 {
+        font-size: 2rem;
     }
     
-    .sisme-carousel-btn {
-        width: 45px;
-        height: 45px;
+    .sisme-ultra-wrapper {
+        height: 350px;
+    }
+    
+    .sisme-ultra-nav.prev {
+        left: -40px;
+    }
+    
+    .sisme-ultra-nav.next {
+        right: -40px;
+    }
+    
+    .sisme-ultra-btn {
+        width: 50px;
+        height: 50px;
         font-size: 20px;
     }
-}
-
-@media (max-width: 768px) {
-    .sisme-vedettes-carousel-container {
-        padding: 20px;
-        margin: 20px 10px;
-    }
-    
-    .sisme-carousel-container {
-        margin: 0 40px;
-        aspect-ratio: 16 / 10;
-    }
-    
-    .sisme-carousel-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-        padding: 10px;
-    }
-    
-    .sisme-carousel-dots {
-        bottom: -40px;
-        padding: 8px 12px;
-        gap: 10px;
-    }
-    
-    .sisme-carousel-dot {
-        width: 10px;
-        height: 10px;
-    }
-    
-    .sisme-vedettes-carousel-title {
-        font-size: 1.75rem;
-        margin-bottom: 25px;
-    }
-}
-
-@media (max-width: 480px) {
-    .sisme-vedettes-carousel-container {
-        padding: 15px;
-        margin: 15px 5px;
-    }
-    
-    .sisme-carousel-container {
-        margin: 0 35px;
-        aspect-ratio: 4 / 3;
-    }
-    
-    .sisme-carousel-btn {
-        width: 35px;
-        height: 35px;
-        font-size: 16px;
-        padding: 8px;
-    }
-    
-    .sisme-carousel-dots {
-        bottom: -35px;
-        padding: 6px 10px;
-        gap: 8px;
-    }
-    
-    .sisme-carousel-dot {
-        width: 8px;
-        height: 8px;
-    }
-    
-    .sisme-vedettes-carousel-title {
-        font-size: 1.5rem;
-        margin-bottom: 20px;
-    }
-}
-
-/* ===== ÉTAT VIDE ===== */
-.sisme-vedettes-carousel-empty {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 60px 40px;
-    text-align: center;
-    color: #c7d5e0;
-    margin: 20px 0;
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.sisme-vedettes-carousel-empty .sisme-empty-icon {
-    font-size: 4em;
-    margin-bottom: 20px;
-    opacity: 0.6;
-    color: #66c0f4;
-}
-
-.sisme-vedettes-carousel-empty h3 {
-    color: #ffffff;
-    font-size: 1.5rem;
-    margin: 0 0 15px 0;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.sisme-vedettes-carousel-empty p {
-    font-size: 1rem;
-    line-height: 1.6;
-    margin: 10px 0;
-    opacity: 0.9;
-}
-
-/* ===== ACCESSIBILITY ===== */
-.sisme-carousel-btn:focus {
-    outline: none;
-    border-color: #66c0f4;
-    box-shadow: 
-        0 0 0 3px rgba(102, 192, 244, 0.3),
-        0 4px 12px rgba(0, 0, 0, 0.6);
-}
-
-.sisme-carousel-dot:focus {
-    outline: none;
-    border-color: #66c0f4;
-    box-shadow: 
-        0 0 0 3px rgba(102, 192, 244, 0.3),
-        inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
