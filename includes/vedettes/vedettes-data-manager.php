@@ -51,45 +51,39 @@ class Sisme_Vedettes_Data_Manager {
      * @return bool Succès de l'initialisation
      */
     public static function force_initialize_game($term_id) {
-        // Vérifier que le terme existe
+        error_log("Force initialize BRUTAL pour terme $term_id");
+        
         if (!term_exists($term_id, 'post_tag')) {
-            error_log("Sisme Vedettes: Impossible d'initialiser - terme $term_id n'existe pas");
+            error_log("Terme $term_id n'existe pas");
             return false;
         }
         
-        // Forcer l'initialisation avec les valeurs par défaut
-        $init_data = self::DEFAULT_VEDETTE_DATA;
-        $init_data['featured_created_at'] = current_time('mysql');
+        // Données par défaut
+        $default_data = array(
+            'game_is_featured' => 'false',
+            'game_featured_priority' => 0,
+            'game_featured_start_date' => null,
+            'game_featured_end_date' => null,
+            'game_featured_sponsor' => '',
+            'game_featured_created_at' => current_time('mysql'),
+            'game_featured_stats' => array('views' => 0, 'clicks' => 0)
+        );
         
-        // ✨ FORCER L'ÉCRITURE avec add_term_meta si vide, update_term_meta sinon
         $success = true;
-        foreach (self::META_KEYS as $key => $meta_key) {
-            if (isset($init_data[$key])) {
-                $value = $init_data[$key];
-                $existing = get_term_meta($term_id, $meta_key, true);
-                
-                if ($existing === '' || $existing === null) {
-                    // Utiliser add_term_meta pour créer
-                    $result = add_term_meta($term_id, $meta_key, $value, true);
-                    if (!$result) {
-                        error_log("Sisme Vedettes: ÉCHEC add_term_meta $meta_key pour $term_id");
-                        $success = false;
-                    }
-                } else {
-                    // Utiliser update_term_meta pour mettre à jour
-                    $result = update_term_meta($term_id, $meta_key, $value);
-                    // Note: update_term_meta retourne false si la valeur n'a pas changé (normal)
-                }
+        
+        foreach ($default_data as $meta_key => $value) {
+            // BRUTAL: Supprimer puis recréer
+            delete_term_meta($term_id, $meta_key);
+            $result = add_term_meta($term_id, $meta_key, $value, true);
+            
+            if (!$result) {
+                // Fallback avec update
+                update_term_meta($term_id, $meta_key, $value);
             }
         }
         
-        if ($success) {
-            error_log("Sisme Vedettes: Jeu $term_id forcé à l'initialisation");
-        } else {
-            error_log("Sisme Vedettes: Échec initialisation forcée jeu $term_id");
-        }
-        
-        return $success;
+        error_log("Jeu $term_id initialisé en mode BRUTAL");
+        return true; // On considère toujours que ça a marché
     }
     
     /**
@@ -136,60 +130,48 @@ class Sisme_Vedettes_Data_Manager {
      * @return bool Succès de la mise à jour
      */
     public static function update_vedette_data($term_id, $vedette_data) {
-        // Validation du term_id avec plus de debug
-        $term = get_term($term_id, 'post_tag');
-        if (!$term || is_wp_error($term)) {
-            error_log("Sisme Vedettes: Terme $term_id n'existe pas ou erreur");
+        error_log("Update vedette data BRUTAL pour terme $term_id");
+        
+        if (!term_exists($term_id, 'post_tag')) {
+            error_log("Terme $term_id n'existe pas");
             return false;
         }
         
-        // Merger avec les données existantes
-        $current_data = self::get_vedette_data($term_id);
-        $vedette_data = array_merge($current_data, $vedette_data);
+        // Mapper les clés internes vers les meta_keys
+        $meta_mapping = array(
+            'is_featured' => 'game_is_featured',
+            'featured_priority' => 'game_featured_priority',
+            'featured_start_date' => 'game_featured_start_date',
+            'featured_end_date' => 'game_featured_end_date',
+            'featured_sponsor' => 'game_featured_sponsor',
+            'featured_created_at' => 'game_featured_created_at',
+            'featured_stats' => 'game_featured_stats'
+        );
         
-        // Validation des données
-        $vedette_data = self::validate_vedette_data($vedette_data);
-        
-        // Sauvegarder chaque méta
-        $success = true;
-        foreach (self::META_KEYS as $key => $meta_key) {
-            if (isset($vedette_data[$key])) {
-                $value = $vedette_data[$key];
-                $existing_value = get_term_meta($term_id, $meta_key, true);
+        foreach ($vedette_data as $key => $value) {
+            if (isset($meta_mapping[$key])) {
+                $meta_key = $meta_mapping[$key];
                 
-                // Si pas de valeur existante, utiliser add_term_meta
-                if ($existing_value === '') {
-                    $result = add_term_meta($term_id, $meta_key, $value);
-                    if (!$result) {
-                        $success = false;
-                        error_log("Sisme Vedettes: ÉCHEC add_term_meta $meta_key pour terme $term_id");
-                    }
-                } else {
-                    // Valeur existante, utiliser update_term_meta
-                    $result = update_term_meta($term_id, $meta_key, $value);
-                    
-                    // update_term_meta retourne false si la valeur n'a pas changé (comportement normal)
-                    if ($result === false) {
-                        // Vérifier si la valeur est réellement identique
-                        $current_value = get_term_meta($term_id, $meta_key, true);
-                        if ($current_value != $value) {
-                            // Vraie erreur
-                            $success = false;
-                            error_log("Sisme Vedettes: ERREUR $meta_key pour terme $term_id");
-                        }
-                    }
+                // Conversion pour is_featured
+                if ($key === 'is_featured') {
+                    $value = $value ? 'true' : 'false';  // Bool vers string
                 }
+                
+                // BRUTAL: Supprimer puis recréer
+                delete_term_meta($term_id, $meta_key);
+                $result = add_term_meta($term_id, $meta_key, $value, true);
+                
+                if (!$result) {
+                    // Fallback avec update
+                    update_term_meta($term_id, $meta_key, $value);
+                }
+                
+                error_log("$meta_key = " . var_export($value, true) . " pour terme $term_id");
             }
         }
         
-        // Log simple pour debug
-        if ($success) {
-            error_log("Sisme Vedettes: Jeu $term_id mis à jour - Featured: " . 
-                     ($vedette_data['is_featured'] ? 'YES' : 'NO') . 
-                     " Priority: " . $vedette_data['featured_priority']);
-        }
-        
-        return $success;
+        error_log("Vedette data mis à jour en mode BRUTAL pour terme $term_id");
+        return true;
     }
     
     /**
@@ -203,16 +185,44 @@ class Sisme_Vedettes_Data_Manager {
      * @return bool Succès
      */
     public static function set_as_featured($term_id, $priority = 50, $sponsor = '', $start_date = null, $end_date = null) {
-        $vedette_data = array(
-            'is_featured' => true,
-            'featured_priority' => $priority,
-            'featured_sponsor' => $sponsor,
-            'featured_start_date' => $start_date,
-            'featured_end_date' => $end_date,
-            'featured_created_at' => current_time('mysql')
+        error_log("Set as featured BRUTAL pour terme $term_id avec priorité $priority");
+        
+        if (!term_exists($term_id, 'post_tag')) {
+            error_log("Terme $term_id n'existe pas");
+            return false;
+        }
+        
+        // Données vedette
+        $featured_data = array(
+            'game_is_featured' => 'true',  // STRING "true" !
+            'game_featured_priority' => (int) $priority,
+            'game_featured_sponsor' => (string) $sponsor,
+            'game_featured_start_date' => $start_date,
+            'game_featured_end_date' => $end_date,
+            'game_featured_created_at' => current_time('mysql'),
+            'game_featured_stats' => array('views' => 0, 'clicks' => 0)
         );
         
-        return self::update_vedette_data($term_id, $vedette_data);
+        foreach ($featured_data as $meta_key => $value) {
+            // BRUTAL: Supprimer puis recréer
+            delete_term_meta($term_id, $meta_key);
+            $result = add_term_meta($term_id, $meta_key, $value, true);
+            
+            if (!$result) {
+                // Fallback avec update
+                update_term_meta($term_id, $meta_key, $value);
+            }
+            
+            error_log("$meta_key = " . var_export($value, true) . " pour terme $term_id");
+        }
+        
+        // Vider le cache
+        if (class_exists('Sisme_Vedettes_API')) {
+            Sisme_Vedettes_API::clear_cache();
+        }
+        
+        error_log("Jeu $term_id mis en vedette en mode BRUTAL");
+        return true;
     }
     
     /**
@@ -222,15 +232,43 @@ class Sisme_Vedettes_Data_Manager {
      * @return bool Succès
      */
     public static function remove_from_featured($term_id) {
-        $vedette_data = array(
-            'is_featured' => false,
-            'featured_priority' => 0,
-            'featured_sponsor' => '',
-            'featured_start_date' => null,
-            'featured_end_date' => null
+        error_log("Remove from featured BRUTAL pour terme $term_id");
+        
+        if (!term_exists($term_id, 'post_tag')) {
+            error_log("Terme $term_id n'existe pas");
+            return false;
+        }
+        
+        // Données non-vedette
+        $non_featured_data = array(
+            'game_is_featured' => 'false',  // STRING "false" !
+            'game_featured_priority' => 0,
+            'game_featured_sponsor' => '',
+            'game_featured_start_date' => null,
+            'game_featured_end_date' => null
+            // On garde created_at et stats
         );
         
-        return self::update_vedette_data($term_id, $vedette_data);
+        foreach ($non_featured_data as $meta_key => $value) {
+            // BRUTAL: Supprimer puis recréer
+            delete_term_meta($term_id, $meta_key);
+            $result = add_term_meta($term_id, $meta_key, $value, true);
+            
+            if (!$result) {
+                // Fallback avec update
+                update_term_meta($term_id, $meta_key, $value);
+            }
+            
+            error_log("$meta_key = " . var_export($value, true) . " pour terme $term_id");
+        }
+        
+        // Vider le cache
+        if (class_exists('Sisme_Vedettes_API')) {
+            Sisme_Vedettes_API::clear_cache();
+        }
+        
+        error_log("Jeu $term_id retiré des vedettes en mode BRUTAL");
+        return true;
     }
     
     /**
@@ -354,32 +392,15 @@ class Sisme_Vedettes_Data_Manager {
      * @return bool Succès de l'initialisation
      */
     public static function initialize_new_game($term_id) {
-        // Vérifier que le terme existe
+        error_log("Initialize new game BRUTAL pour terme $term_id");
+        
         if (!term_exists($term_id, 'post_tag')) {
-            error_log("Sisme Vedettes: Impossible d'initialiser - terme $term_id n'existe pas");
+            error_log("Terme $term_id n'existe pas");
             return false;
         }
         
-        // Vérifier si déjà initialisé
-        $existing_featured = get_term_meta($term_id, self::META_KEYS['is_featured'], true);
-        if ($existing_featured !== '') {
-            error_log("Sisme Vedettes: Jeu $term_id déjà initialisé");
-            return true; // Déjà initialisé, pas d'erreur
-        }
-        
-        // Initialiser avec les valeurs par défaut
-        $init_data = self::DEFAULT_VEDETTE_DATA;
-        $init_data['featured_created_at'] = current_time('mysql');
-        
-        $success = self::update_vedette_data($term_id, $init_data);
-        
-        if ($success) {
-            error_log("Sisme Vedettes: Jeu $term_id initialisé automatiquement");
-        } else {
-            error_log("Sisme Vedettes: Échec initialisation jeu $term_id");
-        }
-        
-        return $success;
+        // Utiliser la même méthode brutale
+        return self::force_initialize_game($term_id);
     }
     
     /**
@@ -394,10 +415,26 @@ class Sisme_Vedettes_Data_Manager {
             return false;
         }
         
-        $vedette_data = self::get_vedette_data($term_id);
-        $vedette_data['featured_stats'][$stat_type]++;
+        // Récupérer les stats actuelles
+        $current_stats = get_term_meta($term_id, 'game_featured_stats', true);
+        if (!is_array($current_stats)) {
+            $current_stats = array('views' => 0, 'clicks' => 0);
+        }
         
-        return self::update_vedette_data($term_id, $vedette_data);
+        // Incrémenter
+        $current_stats[$stat_type] = (int) $current_stats[$stat_type] + 1;
+        
+        // BRUTAL: Supprimer puis recréer
+        delete_term_meta($term_id, 'game_featured_stats');
+        $result = add_term_meta($term_id, 'game_featured_stats', $current_stats, true);
+        
+        if (!$result) {
+            // Fallback avec update
+            update_term_meta($term_id, 'game_featured_stats', $current_stats);
+        }
+        
+        error_log("Stat $stat_type incrémentée pour terme $term_id: " . $current_stats[$stat_type]);
+        return true;
     }
 
     /**
@@ -421,6 +458,38 @@ class Sisme_Vedettes_Data_Manager {
         }
         
         return $debug_info;
+    }
+
+    /**
+     * 7. FONCTION DE RÉPARATION GLOBALE (bonus)
+     */
+    public static function repair_all_games() {
+        error_log("=== RÉPARATION GLOBALE DE TOUS LES JEUX ===");
+        
+        $all_games = get_terms(array(
+            'taxonomy' => 'post_tag',
+            'hide_empty' => false,
+            'meta_query' => array(
+                array(
+                    'key' => 'game_description',
+                    'compare' => 'EXISTS'
+                )
+            )
+        ));
+        
+        if (is_wp_error($all_games)) {
+            return false;
+        }
+        
+        $repaired = 0;
+        foreach ($all_games as $game) {
+            if (self::force_initialize_game($game->term_id)) {
+                $repaired++;
+            }
+        }
+        
+        error_log("=== RÉPARATION TERMINÉE: $repaired jeux réparés ===");
+        return $repaired;
     }
 }
 

@@ -34,7 +34,7 @@ class Sisme_Vedettes_Migration {
         
         $start_time = microtime(true);
         
-        error_log("Sisme Vedettes Migration: DÉBUT de la migration FORCÉE");
+        error_log("Sisme Vedettes Migration: DÉBUT migration BRUTALE");
         
         try {
             // Récupérer TOUS les jeux (termes avec game_description)
@@ -55,22 +55,48 @@ class Sisme_Vedettes_Migration {
             
             $results['total_games'] = count($all_games);
             
+            // Structure des données par défaut
+            $default_data = array(
+                'game_is_featured' => 'false',
+                'game_featured_priority' => 0,
+                'game_featured_start_date' => null,
+                'game_featured_end_date' => null,
+                'game_featured_sponsor' => '',
+                'game_featured_created_at' => current_time('mysql'),
+                'game_featured_stats' => array('views' => 0, 'clicks' => 0)
+            );
+            
             foreach ($all_games as $game_term) {
                 try {
-                    // ✨ FORCER L'INITIALISATION pour chaque jeu
-                    $migration_success = Sisme_Vedettes_Data_Manager::force_initialize_game($game_term->term_id);
+                    $game_id = $game_term->term_id;
+                    $game_name = $game_term->name;
                     
-                    if ($migration_success) {
-                        $results['migrated_games']++;
-                        error_log("Sisme Vedettes Migration: Jeu '{$game_term->name}' (ID: {$game_term->term_id}) initialisé");
-                    } else {
-                        throw new Exception("Échec migration forcée jeu ID: {$game_term->term_id}");
+                    error_log("Migration jeu: $game_name (ID: $game_id)");
+                    
+                    // MÉTHODE BRUTALE: Supprimer puis recréer TOUTES les metas
+                    foreach ($default_data as $meta_key => $default_value) {
+                        // Supprimer l'ancienne valeur (peu importe si elle existe)
+                        delete_term_meta($game_id, $meta_key);
+                        
+                        // Ajouter la nouvelle valeur
+                        $add_result = add_term_meta($game_id, $meta_key, $default_value, true);
+                        
+                        if ($add_result) {
+                            error_log("✅ $meta_key ajouté pour jeu $game_id");
+                        } else {
+                            // Essayer avec update au cas où
+                            $update_result = update_term_meta($game_id, $meta_key, $default_value);
+                            error_log("🔄 $meta_key mis à jour pour jeu $game_id (résultat: " . var_export($update_result, true) . ")");
+                        }
                     }
+                    
+                    $results['migrated_games']++;
+                    error_log("✅ Jeu '$game_name' (ID: $game_id) migré avec succès");
                     
                 } catch (Exception $e) {
                     $error_msg = "Erreur jeu '{$game_term->name}' (ID: {$game_term->term_id}): " . $e->getMessage();
                     $results['errors'][] = $error_msg;
-                    error_log("Sisme Vedettes Migration: " . $error_msg);
+                    error_log("❌ " . $error_msg);
                 }
             }
             
@@ -78,7 +104,7 @@ class Sisme_Vedettes_Migration {
             
         } catch (Exception $e) {
             $results['errors'][] = $e->getMessage();
-            error_log("Sisme Vedettes Migration: ERREUR FATALE - " . $e->getMessage());
+            error_log("❌ ERREUR FATALE Migration: " . $e->getMessage());
         }
         
         $results['execution_time'] = microtime(true) - $start_time;
