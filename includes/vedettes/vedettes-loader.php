@@ -24,16 +24,10 @@ class Sisme_Vedettes_Loader {
      */
     public static function init() {
         // Enregistrer le shortcode
-        add_shortcode('sisme_vedettes', array('Sisme_Vedettes_API', 'vedettes_shortcode'));
-        
-        // Hook pour vider le cache quand une vedette est modifiée
+        add_shortcode('sisme_vedettes_carousel', array('Sisme_Vedettes_API', 'vedettes_carousel_shortcode'));
         add_action('updated_term_meta', array(self::class, 'clear_cache_on_update'), 10, 4);
-        
-        // ✅ NOUVEAUX HOOKS pour l'auto-initialisation
         add_action('added_term_meta', array(self::class, 'auto_initialize_vedettes'), 10, 4);
         add_action('updated_term_meta', array(self::class, 'auto_initialize_vedettes'), 10, 4);
-        
-        error_log("Sisme Vedettes: Système initialisé avec auto-initialisation");
     }
     
     /**
@@ -50,7 +44,6 @@ class Sisme_Vedettes_Loader {
         
         if (in_array($meta_key, $vedette_meta_keys)) {
             Sisme_Vedettes_API::clear_cache();
-            error_log("Sisme Vedettes: Cache vidé après modification de $meta_key pour terme $object_id");
         }
     }
     

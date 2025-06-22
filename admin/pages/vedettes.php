@@ -403,6 +403,109 @@ $page->render_start();
 
 </div>
 
+<!-- Notice d'utilisation du carrousel -->
+<div class="sisme-vedettes-section">
+    <h2>🎠 Utilisation du Carrousel Vedettes</h2>
+    
+    <div class="sisme-usage-grid">
+        
+        <!-- Shortcode simple -->
+        <div class="sisme-usage-card">
+            <h3>Shortcode Simple</h3>
+            <div class="sisme-code-block">
+                <code>[sisme_vedettes_carousel]</code>
+            </div>
+            <p>Affiche toutes les vedettes en carrousel 400px</p>
+        </div>
+        
+        <!-- Shortcode avec options -->
+        <div class="sisme-usage-card">
+            <h3>Avec Options</h3>
+            <div class="sisme-code-block">
+                <code>[sisme_vedettes_carousel limit="5" height="300px" autoplay="false"]</code>
+            </div>
+            <p>5 jeux max, 300px de haut, pas d'autoplay</p>
+        </div>
+        
+        <!-- Usage PHP -->
+        <div class="sisme-usage-card">
+            <h3>Usage PHP Template</h3>
+            <div class="sisme-code-block">
+                <code>echo Sisme_Vedettes_API::render_featured_carousel();</code>
+            </div>
+            <p>Intégration directe dans un thème</p>
+        </div>
+        
+    </div>
+    
+    <!-- Options disponibles -->
+    <div class="sisme-usage-options">
+        <h3>Options Disponibles</h3>
+        <ul>
+            <li><strong>limit</strong> : Nombre max de jeux (défaut: 10)</li>
+            <li><strong>height</strong> : Hauteur du carrousel (défaut: 400px)</li>
+            <li><strong>autoplay</strong> : Lecture automatique (défaut: true)</li>
+            <li><strong>show_arrows</strong> : Flèches navigation (défaut: true)</li>
+            <li><strong>show_dots</strong> : Points navigation (défaut: true)</li>
+        </ul>
+    </div>
+    
+</div>
+
+<div class="sisme-vedettes-section">
+    <h2>🎮 Simulateur de Carrousel</h2>
+    
+    <div class="sisme-simulator-container">
+        
+        <!-- Contrôles du simulateur -->
+        <div class="sisme-simulator-controls">
+            <div class="sisme-control-row">
+                <label>Hauteur: <input type="text" id="sim-height" value="300px" placeholder="300px"></label>
+                <label>Limite: <input type="number" id="sim-limit" value="5" min="1" max="10"></label>
+                <label><input type="checkbox" id="sim-autoplay"> Autoplay</label>
+                <label><input type="checkbox" id="sim-arrows" checked> Flèches</label>
+                <label><input type="checkbox" id="sim-dots" checked> Points</label>
+            </div>
+            <button type="button" class="sisme-btn sisme-btn--primary" onclick="updatePreview()">
+                🔄 Mettre à jour l'aperçu
+            </button>
+        </div>
+        
+        <!-- Zone d'aperçu -->
+        <div id="sisme-preview-zone">
+            <!-- L'aperçu sera injecté ici via AJAX -->
+        </div>
+        
+        <!-- Shortcode généré -->
+        <div class="sisme-generated-shortcode">
+            <label>Shortcode généré :</label>
+            <input type="text" id="generated-shortcode" readonly onclick="this.select()">
+        </div>
+        
+    </div>
+    
+</div>
+
+<script>
+function updatePreview() {
+    const height = document.getElementById('sim-height').value || '300px';
+    const limit = document.getElementById('sim-limit').value || '5';
+    const autoplay = document.getElementById('sim-autoplay').checked;
+    const arrows = document.getElementById('sim-arrows').checked;
+    const dots = document.getElementById('sim-dots').checked;
+    
+    // Générer le shortcode
+    const shortcode = `[sisme_vedettes_carousel limit="${limit}" height="${height}" autoplay="${autoplay}" show_arrows="${arrows}" show_dots="${dots}"]`;
+    document.getElementById('generated-shortcode').value = shortcode;
+    
+    // Mettre à jour l'aperçu via AJAX (à implémenter si souhaité)
+    document.getElementById('sisme-preview-zone').innerHTML = '<p>⏳ Aperçu mis à jour...</p>';
+}
+
+// Initialiser
+document.addEventListener('DOMContentLoaded', updatePreview);
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('gameSearchInput');

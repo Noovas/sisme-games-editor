@@ -241,69 +241,158 @@ class Sisme_Vedettes_API {
         
         return $stats;
     }
-    
+
     /**
-     * Shortcode pour afficher les jeux vedettes
+     * Générer un carrousel avec les covers des jeux vedettes
      * 
-     * Usage: [sisme_vedettes limit="5" template="carrousel"]
-     * 
-     * @param array $atts Attributs du shortcode
-     * @return string HTML généré
+     * @param array $options Options du carrousel
+     * @return string HTML du carrousel ou shortcode
      */
-    public static function vedettes_shortcode($atts) {
-        $atts = shortcode_atts(array(
-            'limit' => 10,
-            'template' => 'simple',
-            'show_priority' => false
-        ), $atts);
+    public static function render_featured_carousel($options = array()) {
+        // Options par défaut
+        $defaults = array(
+            'limit' => 10,              // Nombre max de jeux
+            'height' => '400px',        // Hauteur du carrousel
+            'autoplay' => true,         // Lecture automatique
+            'autoplay_delay' => 5000,   // Délai entre slides
+            'show_arrows' => true,      // Navigation flèches
+            'show_dots' => true,        // Points de navigation
+            'cover_size' => 'large',    // Taille d'image WP (thumbnail, medium, large, full)
+            'return_shortcode' => false, // Retourner le shortcode au lieu du HTML
+            'css_class' => 'sisme-vedettes-carousel' // Classe CSS personnalisée
+        );
         
-        $featured_games = self::get_frontend_featured_games($atts['limit'], true);
+        $options = array_merge($defaults, $options);
+        
+        // Récupérer les jeux vedettes
+        $featured_games = self::get_frontend_featured_games($options['limit'], false);
         
         if (empty($featured_games)) {
-            return '<p>Aucun jeu en vedette pour le moment.</p>';
+            if ($options['return_shortcode']) {
+                return '<!-- Aucun jeu vedette disponible -->';
+            }
+            return '<div class="sisme-vedettes-carousel-empty">
+                        <div class="sisme-empty-icon">🌟</div>
+                        <p>Aucun jeu vedette configuré</p>
+                    </div>';
         }
         
-        $output = '<div class="sisme-vedettes-container">';
+        // Récupérer les IDs des covers principales
+        $cover_ids = array();
+        $games_data = array(); // Pour les métadonnées des jeux
         
         foreach ($featured_games as $game) {
-            // Tracker automatiquement la vue
-            self::track_view($game['term_id']);
+            $cover_id = get_term_meta($game['term_id'], 'cover_main', true);
             
-            $output .= '<div class="sisme-vedette-item" data-term-id="' . $game['term_id'] . '">';
-            $output .= '<h3>' . esc_html($game['name']) . '</h3>';
-            
-            if ($atts['show_priority']) {
-                $output .= '<span class="vedette-priority">Priorité: ' . $game['priority'] . '</span>';
+            if ($cover_id && wp_attachment_is_image($cover_id)) {
+                $cover_ids[] = intval($cover_id);
+                
+                // Stocker les données du jeu pour enrichir le carrousel
+                $games_data[$cover_id] = array(
+                    'game_name' => $game['name'],
+                    'game_slug' => $game['slug'],
+                    'term_id' => $game['term_id'],
+                    'priority' => $game['priority'],
+                    'sponsor' => $game['sponsor']
+                );
             }
-            
-            if (!empty($game['sponsor'])) {
-                $output .= '<span class="vedette-sponsor">Sponsorisé par: ' . esc_html($game['sponsor']) . '</span>';
-            }
-            
-            // Lien vers la fiche du jeu
-            $game_link = home_url('/tag/' . $game['slug'] . '/');
-            $output .= '<a href="' . esc_url($game_link) . '" class="vedette-link" data-term-id="' . $game['term_id'] . '">Voir la fiche</a>';
-            
-            $output .= '</div>';
         }
         
-        $output .= '</div>';
+        if (empty($cover_ids)) {
+            if ($options['return_shortcode']) {
+                return '<!-- Aucune cover principale trouvée pour les jeux vedettes -->';
+            }
+            return '<div class="sisme-vedettes-carousel-empty">
+                        <div class="sisme-empty-icon">🖼️</div>
+                        <p>Aucune cover principale configurée pour les jeux vedettes</p>
+                    </div>';
+        }
         
-        // Ajouter le JavaScript pour tracker les clics
-        $output .= '<script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const vedette_links = document.querySelectorAll(".vedette-link");
-            vedette_links.forEach(function(link) {
-                link.addEventListener("click", function() {
-                    const term_id = this.getAttribute("data-term-id");
-                    // Envoyer le tracking via AJAX (à implémenter)
-                    console.log("Clic tracké pour jeu ID:", term_id);
-                });
-            });
-        });
-        </script>';
+        // Si on veut juste le shortcode
+        if ($options['return_shortcode']) {
+            $shortcode_atts = array(
+                'images="' . implode(',', $cover_ids) . '"',
+                'height="' . esc_attr($options['height']) . '"',
+                'autoplay="' . ($options['autoplay'] ? 'true' : 'false') . '"',
+                'show_arrows="' . ($options['show_arrows'] ? 'true' : 'false') . '"',
+                'show_dots="' . ($options['show_dots'] ? 'true' : 'false') . '"'
+            );
+            
+            return '[sisme_carousel ' . implode(' ', $shortcode_atts) . ']';
+        }
         
-        return $output;
+        // Sinon, générer le HTML directement avec le module carrousel
+        if (!class_exists('Sisme_Carousel_Module')) {
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/carousel-module.php';
+        }
+        
+        $carousel_options = array(
+            'height' => $options['height'],
+            'autoplay' => $options['autoplay'],
+            'autoplay_delay' => $options['autoplay_delay'],
+            'show_arrows' => $options['show_arrows'],
+            'show_dots' => $options['show_dots'],
+            'css_class' => $options['css_class'],
+            'item_type' => 'image'
+        );
+        
+        $carousel_html = Sisme_Carousel_Module::quick_render($cover_ids, $carousel_options);
+        
+        // Ajouter les métadonnées des jeux en data attributes pour JS
+        $games_json = json_encode($games_data);
+        $carousel_html = str_replace(
+            'class="' . esc_attr($options['css_class']) . '"',
+            'class="' . esc_attr($options['css_class']) . '" data-games-info="' . esc_attr($games_json) . '"',
+            $carousel_html
+        );
+        
+        return $carousel_html;
+    }
+
+    /**
+     * Shortcode pour le carrousel vedettes
+     * Usage: [sisme_vedettes_carousel limit="5" height="500px" autoplay="true"]
+     */
+    public static function vedettes_carousel_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'limit' => '10',
+            'height' => '400px',
+            'autoplay' => 'true',
+            'show_arrows' => 'true',
+            'show_dots' => 'true',
+            'css_class' => 'sisme-vedettes-carousel'
+        ), $atts);
+        
+        $options = array(
+            'limit' => intval($atts['limit']),
+            'height' => sanitize_text_field($atts['height']),
+            'autoplay' => filter_var($atts['autoplay'], FILTER_VALIDATE_BOOLEAN),
+            'show_arrows' => filter_var($atts['show_arrows'], FILTER_VALIDATE_BOOLEAN),
+            'show_dots' => filter_var($atts['show_dots'], FILTER_VALIDATE_BOOLEAN),
+            'css_class' => sanitize_html_class($atts['css_class'])
+        );
+        
+        return self::render_featured_carousel($options);
+    }
+
+    /**
+     * BONUS: Fonction utilitaire pour récupérer juste les IDs des covers
+     * 
+     * @param int $limit Nombre max de covers
+     * @return array Array d'IDs d'images
+     */
+    public static function get_featured_covers_ids($limit = 10) {
+        $featured_games = self::get_frontend_featured_games($limit, false);
+        $cover_ids = array();
+        
+        foreach ($featured_games as $game) {
+            $cover_id = get_term_meta($game['term_id'], 'cover_main', true);
+            if ($cover_id && wp_attachment_is_image($cover_id)) {
+                $cover_ids[] = intval($cover_id);
+            }
+        }
+        
+        return $cover_ids;
     }
 }
 

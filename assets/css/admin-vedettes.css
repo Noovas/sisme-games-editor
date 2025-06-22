@@ -963,3 +963,134 @@
         text-align: center;
     }
 }
+
+.sisme-simulator-container {
+    background: var(--sisme-gaming-dark);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 15px;
+}
+
+.sisme-simulator-controls {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sisme-control-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.sisme-control-row label {
+    color: var(--sisme-gaming-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+}
+
+.sisme-control-row input[type="text"],
+.sisme-control-row input[type="number"] {
+    padding: 5px 8px;
+    background: var(--sisme-gaming-dark-light);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: var(--sisme-gaming-text);
+    width: 80px;
+}
+
+.sisme-generated-shortcode {
+    margin-top: 20px;
+}
+
+.sisme-generated-shortcode label {
+    display: block;
+    color: var(--sisme-gaming-text);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.sisme-generated-shortcode input {
+    width: 100%;
+    padding: 10px;
+    background: #000;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.sisme-usage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.sisme-usage-card {
+    background: var(--sisme-gaming-dark);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sisme-usage-card h3 {
+    color: var(--sisme-gaming-accent);
+    margin: 0 0 10px;
+    font-size: 1.1em;
+}
+
+.sisme-code-block {
+    background: #000;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+    overflow-x: auto;
+}
+
+.sisme-code-block code {
+    color: #0f0;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+.sisme-usage-card p {
+    color: var(--sisme-gaming-text-muted);
+    margin: 10px 0 0;
+    font-size: 0.9em;
+}
+
+.sisme-usage-options {
+    background: var(--sisme-gaming-dark);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 20px;
+}
+
+.sisme-usage-options h3 {
+    color: var(--sisme-gaming-accent);
+    margin: 0 0 15px;
+}
+
+.sisme-usage-options ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.sisme-usage-options li {
+    color: var(--sisme-gaming-text);
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.sisme-usage-options strong {
+    color: var(--sisme-gaming-text-bright);
+}
