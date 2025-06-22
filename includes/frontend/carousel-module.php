@@ -288,7 +288,14 @@ class Sisme_Carousel_Module {
             $output .= '<div class="sisme-ultra-overlay">';
             $output .= '<div class="sisme-ultra-game-title">' . esc_html($item['game_info']['name']) . '</div>';
             
-            if (!empty($item['game_info']['sponsor'])) {
+            // MODIFICATION: Afficher la description tronquée au lieu de "Jeu à la Une"
+            if (!empty($item['game_info']['description'])) {
+                // Tronquer la description proprement sur un mot
+                $description = strip_tags($item['game_info']['description']);
+                $truncated_description = self::truncate_on_word($description, 150);
+                
+                $output .= '<div class="sisme-ultra-game-meta">' . esc_html($truncated_description) . '</div>';
+            } elseif (!empty($item['game_info']['sponsor'])) {
                 $output .= '<div class="sisme-ultra-game-meta">Sponsorisé par ' . esc_html($item['game_info']['sponsor']) . '</div>';
             } else {
                 $output .= '<div class="sisme-ultra-game-meta">Jeu à la Une</div>';
@@ -299,6 +306,29 @@ class Sisme_Carousel_Module {
         
         $output .= '</div>';
         return $output;
+    }
+
+    private static function truncate_on_word($text, $max_length = 150) {
+        // Si le texte est déjà assez court, le retourner tel quel
+        if (mb_strlen($text) <= $max_length) {
+            return $text;
+        }
+        
+        // Tronquer au nombre de caractères maximum
+        $truncated = mb_substr($text, 0, $max_length);
+        
+        // Trouver la dernière position d'un espace pour couper sur un mot
+        $last_space = mb_strrpos($truncated, ' ');
+        
+        // Si on trouve un espace et qu'il n'est pas trop proche du début
+        if ($last_space !== false && $last_space > ($max_length * 0.6)) {
+            $truncated = mb_substr($truncated, 0, $last_space);
+        }
+        
+        // Nettoyer les signes de ponctuation en fin si nécessaire
+        $truncated = rtrim($truncated, '.,;:!?');
+        
+        return $truncated . '...';
     }
 
     /**

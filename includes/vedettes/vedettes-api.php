@@ -268,9 +268,18 @@ class Sisme_Vedettes_API {
         // Récupérer les jeux vedettes
         $featured_games = self::get_frontend_featured_games($options['limit'], false);
         
+        // NOUVEAU: Si pas de vedettes, récupérer les derniers jeux par date de sortie
+        if (empty($featured_games)) {
+            error_log("Sisme Vedettes: Aucune vedette trouvée, activation du fallback");
+            $featured_games = self::get_recent_games_fallback($options['limit']);
+            
+            // Modifier le titre pour indiquer que c'est un fallback
+            $options['title'] = 'Derniers Jeux Sortis';
+        }
+        
         if (empty($featured_games)) {
             if ($options['return_shortcode']) {
-                return '<!-- Aucun jeu vedette disponible -->';
+                return '<!-- Aucun jeu vedette ou récent disponible -->';
             }
             
             if (!class_exists('Sisme_Carousel_Module')) {
@@ -279,7 +288,7 @@ class Sisme_Vedettes_API {
             return Sisme_Carousel_Module::quick_render_vedettes(array(), $options);
         }
         
-        // 🔧 CORRECTION: Préparer les items correctement
+        // Préparer les items pour le carrousel
         $carousel_items = array();
         
         foreach ($featured_games as $game) {
@@ -288,6 +297,9 @@ class Sisme_Vedettes_API {
             if ($cover_id && wp_attachment_is_image($cover_id)) {
                 $image_url = wp_get_attachment_image_url($cover_id, 'large');
                 if ($image_url) {
+                    // MODIFICATION: Récupérer la description du jeu
+                    $game_description = get_term_meta($game['term_id'], 'game_description', true);
+                    
                     $carousel_items[] = array(
                         'type' => 'image',
                         'id' => $cover_id,
@@ -299,8 +311,9 @@ class Sisme_Vedettes_API {
                             'name' => $game['name'],
                             'slug' => $game['slug'],
                             'term_id' => $game['term_id'],
-                            'priority' => $game['priority'],
-                            'sponsor' => $game['sponsor']
+                            'priority' => isset($game['priority']) ? $game['priority'] : 0,
+                            'sponsor' => isset($game['sponsor']) ? $game['sponsor'] : '',
+                            'description' => $game_description // NOUVEAU: Ajouter la description
                         )
                     );
                 }
@@ -318,11 +331,12 @@ class Sisme_Vedettes_API {
             return Sisme_Carousel_Module::quick_render_vedettes(array(), $options);
         }
         
-        // Si on veut juste le shortcode
+        // Retourner shortcode si demandé
         if ($options['return_shortcode']) {
-            $cover_ids = array_column($carousel_items, 'id');
+            $image_ids = array_column($carousel_items, 'id');
+            
             $shortcode_atts = array(
-                'images="' . implode(',', $cover_ids) . '"',
+                'images="' . implode(',', $image_ids) . '"',
                 'height="' . esc_attr($options['height']) . '"',
                 'autoplay="' . ($options['autoplay'] ? 'true' : 'false') . '"',
                 'show_arrows="' . ($options['show_arrows'] ? 'true' : 'false') . '"',
@@ -337,7 +351,6 @@ class Sisme_Vedettes_API {
             require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/carousel-module.php';
         }
         
-        // 🔧 CORRECTION: Utiliser la bonne méthode avec les bons paramètres
         $carousel_options = array(
             'height' => $options['height'],
             'autoplay' => $options['autoplay'],
@@ -351,6 +364,66 @@ class Sisme_Vedettes_API {
         );
         
         return Sisme_Carousel_Module::quick_render_vedettes($carousel_items, $carousel_options);
+    }
+
+    private static function get_recent_games_fallback($limit = 10) {
+        // Récupérer tous les jeux avec une date de sortie
+        $all_games = get_terms(array(
+            'taxonomy' => 'post_tag',
+            'hide_empty' => false,
+            'meta_query' => array(
+                'relation' => 'AND',
+                array(
+                    'key' => 'game_description',
+                    'compare' => 'EXISTS'
+                ),
+                array(
+                    'key' => 'release_date',
+                    'compare' => 'EXISTS'
+                ),
+                array(
+                    'key' => 'cover_main',
+                    'compare' => 'EXISTS'
+                )
+            )
+        ));
+        
+        if (is_wp_error($all_games) || empty($all_games)) {
+            error_log("Sisme Fallback: Aucun jeu avec date de sortie trouvé");
+            return array();
+        }
+        
+        $games_with_dates = array();
+        
+        foreach ($all_games as $term) {
+            $release_date = get_term_meta($term->term_id, 'release_date', true);
+            $cover_id = get_term_meta($term->term_id, 'cover_main', true);
+            
+            // Vérifier que la date est valide et qu'il y a une cover
+            if ($release_date && $cover_id && wp_attachment_is_image($cover_id)) {
+                $games_with_dates[] = array(
+                    'term_id' => $term->term_id,
+                    'name' => $term->name,
+                    'slug' => $term->slug,
+                    'release_date' => $release_date,
+                    'timestamp' => strtotime($release_date)
+                );
+            }
+        }
+        
+        // Trier par date de sortie (plus récent en premier)
+        usort($games_with_dates, function($a, $b) {
+            return $b['timestamp'] - $a['timestamp'];
+        });
+        
+        // Limiter au nombre demandé
+        if ($limit > 0) {
+            $games_with_dates = array_slice($games_with_dates, 0, $limit);
+        }
+        
+        error_log("Sisme Fallback: " . count($games_with_dates) . " jeux récents trouvés");
+        
+        return $games_with_dates;
     }
 
     /**
