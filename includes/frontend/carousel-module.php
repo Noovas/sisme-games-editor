@@ -388,7 +388,7 @@ class Sisme_Carousel_Module {
     /**
      * JavaScript inline pour ce carrousel
      */
-    private function render_javascript($options) {
+    private function render_javascript_production($options) {
         $carousel_id = $options['id'];
         $autoplay = $options['autoplay'] ? 'true' : 'false';
         $delay = $options['autoplay_delay'];
@@ -402,9 +402,15 @@ class Sisme_Carousel_Module {
             const prevBtn = document.querySelector('.sisme-ultra-nav.prev .sisme-ultra-btn');
             const nextBtn = document.querySelector('.sisme-ultra-nav.next .sisme-ultra-btn');
             const totalSlides = slides.length;
+            
             let autoplayTimer = null;
+            let isAnimating = false;
+            let autoplayEnabled = {$autoplay};
 
             function updateSlides() {
+                if (isAnimating) return;
+                isAnimating = true;
+                
                 slides.forEach((slide, index) => {
                     slide.className = 'sisme-ultra-slide';
                     
@@ -422,26 +428,34 @@ class Sisme_Carousel_Module {
                 dots.forEach((dot, index) => {
                     dot.classList.toggle('active', index === currentSlide);
                 });
+                
+                setTimeout(() => { isAnimating = false; }, 800);
             }
 
             function nextSlide() {
+                if (isAnimating) return;
                 currentSlide = (currentSlide + 1) % totalSlides;
                 updateSlides();
             }
 
             function prevSlide() {
+                if (isAnimating) return;
                 currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
                 updateSlides();
             }
 
             function goToSlide(index) {
+                if (isAnimating || index === currentSlide) return;
                 currentSlide = index;
                 updateSlides();
             }
             
             function startAutoplay() {
-                if ({$autoplay}) {
-                    autoplayTimer = setInterval(nextSlide, {$delay});
+                stopAutoplay();
+                if (autoplayEnabled) {
+                    autoplayTimer = setInterval(function() {
+                        if (!isAnimating) nextSlide();
+                    }, {$delay});
                 }
             }
             
@@ -451,43 +465,48 @@ class Sisme_Carousel_Module {
                     autoplayTimer = null;
                 }
             }
-
-            // Event listeners
-            if (nextBtn) {
-                nextBtn.addEventListener('click', function() {
-                    stopAutoplay();
-                    nextSlide();
+            
+            let clickDebounce = false;
+            
+            function handleClick(callback) {
+                if (clickDebounce || isAnimating) return;
+                clickDebounce = true;
+                stopAutoplay();
+                callback();
+                setTimeout(() => {
+                    clickDebounce = false;
                     startAutoplay();
-                });
+                }, 1000);
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => handleClick(nextSlide));
             }
 
             if (prevBtn) {
-                prevBtn.addEventListener('click', function() {
-                    stopAutoplay();
-                    prevSlide();
-                    startAutoplay();
-                });
+                prevBtn.addEventListener('click', () => handleClick(prevSlide));
             }
 
             dots.forEach((dot, index) => {
-                dot.addEventListener('click', function() {
-                    stopAutoplay();
-                    goToSlide(index);
-                    startAutoplay();
-                });
+                dot.addEventListener('click', () => handleClick(() => goToSlide(index)));
             });
 
-            // Pause au hover
             const carousel = document.querySelector('.sisme-ultra-carousel');
             if (carousel) {
-                carousel.addEventListener('mouseenter', stopAutoplay);
-                carousel.addEventListener('mouseleave', startAutoplay);
+                carousel.addEventListener('mouseenter', () => {
+                    autoplayEnabled = false;
+                    stopAutoplay();
+                });
+                
+                carousel.addEventListener('mouseleave', () => {
+                    autoplayEnabled = {$autoplay};
+                    startAutoplay();
+                });
             }
 
-            // Créer des particules
             function createParticle() {
                 const particlesContainer = document.getElementById('particles-{$carousel_id}');
-                if (!particlesContainer) return;
+                if (!particlesContainer || particlesContainer.children.length > 10) return;
                 
                 const particle = document.createElement('div');
                 particle.className = 'particle';
@@ -496,16 +515,16 @@ class Sisme_Carousel_Module {
                 particle.style.animationDelay = Math.random() * 2 + 's';
                 
                 particlesContainer.appendChild(particle);
-                
-                setTimeout(() => {
-                    particle.remove();
-                }, 8000);
+                setTimeout(() => particle.remove(), 8000);
             }
 
-            // Lancer les particules
-            setInterval(createParticle, 300);
+            const particleInterval = setInterval(createParticle, 500);
+            
+            window.addEventListener('beforeunload', () => {
+                stopAutoplay();
+                clearInterval(particleInterval);
+            });
 
-            // Initialiser
             updateSlides();
             startAutoplay();
         });
