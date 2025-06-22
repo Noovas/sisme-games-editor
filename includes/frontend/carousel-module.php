@@ -388,7 +388,7 @@ class Sisme_Carousel_Module {
     /**
      * JavaScript inline pour ce carrousel
      */
-    private function render_javascript_production($options) {
+    private function render_javascript($options) {
         $carousel_id = $options['id'];
         $autoplay = $options['autoplay'] ? 'true' : 'false';
         $delay = $options['autoplay_delay'];
