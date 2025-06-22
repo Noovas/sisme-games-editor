@@ -43,6 +43,54 @@ class Sisme_Vedettes_Data_Manager {
         'featured_created_at' => 'game_featured_created_at',
         'featured_stats' => 'game_featured_stats'
     );
+
+    /**
+     * Forcer l'initialisation d'un jeu (même s'il existe déjà)
+     * 
+     * @param int $term_id ID du terme (jeu)
+     * @return bool Succès de l'initialisation
+     */
+    public static function force_initialize_game($term_id) {
+        // Vérifier que le terme existe
+        if (!term_exists($term_id, 'post_tag')) {
+            error_log("Sisme Vedettes: Impossible d'initialiser - terme $term_id n'existe pas");
+            return false;
+        }
+        
+        // Forcer l'initialisation avec les valeurs par défaut
+        $init_data = self::DEFAULT_VEDETTE_DATA;
+        $init_data['featured_created_at'] = current_time('mysql');
+        
+        // ✨ FORCER L'ÉCRITURE avec add_term_meta si vide, update_term_meta sinon
+        $success = true;
+        foreach (self::META_KEYS as $key => $meta_key) {
+            if (isset($init_data[$key])) {
+                $value = $init_data[$key];
+                $existing = get_term_meta($term_id, $meta_key, true);
+                
+                if ($existing === '' || $existing === null) {
+                    // Utiliser add_term_meta pour créer
+                    $result = add_term_meta($term_id, $meta_key, $value, true);
+                    if (!$result) {
+                        error_log("Sisme Vedettes: ÉCHEC add_term_meta $meta_key pour $term_id");
+                        $success = false;
+                    }
+                } else {
+                    // Utiliser update_term_meta pour mettre à jour
+                    $result = update_term_meta($term_id, $meta_key, $value);
+                    // Note: update_term_meta retourne false si la valeur n'a pas changé (normal)
+                }
+            }
+        }
+        
+        if ($success) {
+            error_log("Sisme Vedettes: Jeu $term_id forcé à l'initialisation");
+        } else {
+            error_log("Sisme Vedettes: Échec initialisation forcée jeu $term_id");
+        }
+        
+        return $success;
+    }
     
     /**
      * Récupérer les données vedette d'un jeu
@@ -186,51 +234,51 @@ class Sisme_Vedettes_Data_Manager {
     }
     
     /**
-     * Récupérer tous les jeux en vedette, triés par priorité
+     * Récupérer tous les jeux en vedette, triés par priorité (VERSION CORRIGÉE)
      * 
      * @param bool $only_active Seulement les vedettes actives (selon dates)
      * @return array Liste des jeux vedettes avec leurs données
      */
     public static function get_featured_games($only_active = true) {
-        // Récupérer TOUS les termes qui ont la meta game_is_featured
-        $terms = get_terms(array(
+        // ✨ RÉCUPÉRER TOUS LES JEUX D'ABORD
+        $all_games = get_terms(array(
             'taxonomy' => 'post_tag',
             'hide_empty' => false,
             'meta_query' => array(
                 array(
-                    'key' => self::META_KEYS['is_featured'],
-                    'compare' => 'EXISTS'  // ← CHANGEMENT : on récupère tous ceux qui ont la meta
+                    'key' => 'game_description',
+                    'compare' => 'EXISTS'
                 )
             )
         ));
         
-        if (is_wp_error($terms) || empty($terms)) {
+        if (is_wp_error($all_games) || empty($all_games)) {
+            error_log("Sisme Vedettes: Aucun jeu trouvé pour get_featured_games");
             return array();
         }
         
         $featured_games = array();
         $current_date = current_time('Y-m-d H:i:s');
         
-        foreach ($terms as $term) {
+        foreach ($all_games as $term) {
             $vedette_data = self::get_vedette_data($term->term_id);
             
-            // ✨ FILTRAGE MANUEL : vérifier si réellement en vedette
+            // ✨ VÉRIFIER SI RÉELLEMENT EN VEDETTE
             if (!$vedette_data['is_featured']) {
                 continue; // Ignorer les jeux avec is_featured = false
             }
             
-            // Filtrer par dates si demandé
+            // Filtrage par dates si demandé
             if ($only_active) {
-                // Vérifier date de début
-                if ($vedette_data['featured_start_date'] && 
-                    $current_date < $vedette_data['featured_start_date']) {
-                    continue;
+                $start_date = $vedette_data['featured_start_date'];
+                $end_date = $vedette_data['featured_end_date'];
+                
+                if ($start_date && $start_date > $current_date) {
+                    continue; // Pas encore actif
                 }
                 
-                // Vérifier date de fin
-                if ($vedette_data['featured_end_date'] && 
-                    $current_date > $vedette_data['featured_end_date']) {
-                    continue;
+                if ($end_date && $end_date < $current_date) {
+                    continue; // Expiré
                 }
             }
             
@@ -238,14 +286,17 @@ class Sisme_Vedettes_Data_Manager {
                 'term_id' => $term->term_id,
                 'name' => $term->name,
                 'slug' => $term->slug,
+                'description' => $term->description,
                 'vedette_data' => $vedette_data
             );
         }
         
-        // Trier par priorité (plus haute en premier)
+        // Trier par priorité (plus haute priorité en premier)
         usort($featured_games, function($a, $b) {
             return $b['vedette_data']['featured_priority'] - $a['vedette_data']['featured_priority'];
         });
+        
+        error_log("Sisme Vedettes: " . count($featured_games) . " jeux en vedette trouvés");
         
         return $featured_games;
     }
@@ -347,6 +398,29 @@ class Sisme_Vedettes_Data_Manager {
         $vedette_data['featured_stats'][$stat_type]++;
         
         return self::update_vedette_data($term_id, $vedette_data);
+    }
+
+    /**
+     * Fonction de debug pour vérifier l'état d'un jeu
+     * 
+     * @param int $term_id ID du terme
+     * @return array État complet du jeu
+     */
+    public static function debug_game_state($term_id) {
+        $debug_info = array(
+            'term_id' => $term_id,
+            'term_exists' => term_exists($term_id, 'post_tag'),
+            'has_game_description' => get_term_meta($term_id, 'game_description', true) !== '',
+            'raw_meta' => array(),
+            'vedette_data' => self::get_vedette_data($term_id)
+        );
+        
+        // Récupérer toutes les metas brutes
+        foreach (self::META_KEYS as $key => $meta_key) {
+            $debug_info['raw_meta'][$meta_key] = get_term_meta($term_id, $meta_key, true);
+        }
+        
+        return $debug_info;
     }
 }
 

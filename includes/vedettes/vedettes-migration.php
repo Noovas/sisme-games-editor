@@ -18,7 +18,7 @@ require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-data-ma
 class Sisme_Vedettes_Migration {
     
     /**
-     * Exécuter la migration complète
+     * Exécuter la migration complète (VERSION CORRIGÉE)
      * 
      * @return array Résultats de la migration
      */
@@ -34,11 +34,10 @@ class Sisme_Vedettes_Migration {
         
         $start_time = microtime(true);
         
-        // Log début migration
-        error_log("Sisme Vedettes Migration: DÉBUT de la migration");
+        error_log("Sisme Vedettes Migration: DÉBUT de la migration FORCÉE");
         
         try {
-            // Récupérer tous les jeux (termes avec game_description)
+            // Récupérer TOUS les jeux (termes avec game_description)
             $all_games = get_terms(array(
                 'taxonomy' => 'post_tag',
                 'hide_empty' => false,
@@ -58,37 +57,14 @@ class Sisme_Vedettes_Migration {
             
             foreach ($all_games as $game_term) {
                 try {
-                    // Vérifier si déjà migré CORRECTEMENT avec les bonnes valeurs
-                    $existing_featured = get_term_meta($game_term->term_id, 'game_is_featured', true);
+                    // ✨ FORCER L'INITIALISATION pour chaque jeu
+                    $migration_success = Sisme_Vedettes_Data_Manager::force_initialize_game($game_term->term_id);
                     
-                    if ($existing_featured !== 'true' && $existing_featured !== 'false') {
-                        // Valeur incorrecte → Forcer à "false" en STRING
-                        $migration_data = array(
-                            'is_featured' => 'false',  // STRING "false" directement !
-                            'featured_priority' => 0,
-                            'featured_start_date' => null,
-                            'featured_end_date' => null,
-                            'featured_sponsor' => '',
-                            'featured_created_at' => current_time('mysql'),
-                            'featured_stats' => array('views' => 0, 'clicks' => 0)
-                        );
-                        
-                        $migration_success = Sisme_Vedettes_Data_Manager::update_vedette_data(
-                            $game_term->term_id, 
-                            $migration_data
-                        );
-                        
-                        if ($migration_success) {
-                            $results['migrated_games']++;
-                            error_log("Sisme Vedettes Migration: Jeu '{$game_term->name}' (ID: {$game_term->term_id}) forcé à 'false' (était: '$existing_featured')");
-                        } else {
-                            throw new Exception("Échec migration jeu ID: {$game_term->term_id}");
-                        }
+                    if ($migration_success) {
+                        $results['migrated_games']++;
+                        error_log("Sisme Vedettes Migration: Jeu '{$game_term->name}' (ID: {$game_term->term_id}) initialisé");
                     } else {
-                        // Déjà migré avec une valeur correcte ("true" ou "false")
-                        self::verify_game_integrity($game_term->term_id);
-                        $results['already_migrated']++;
-                        error_log("Sisme Vedettes Migration: Jeu '{$game_term->name}' (ID: {$game_term->term_id}) déjà correct");
+                        throw new Exception("Échec migration forcée jeu ID: {$game_term->term_id}");
                     }
                     
                 } catch (Exception $e) {
@@ -107,11 +83,9 @@ class Sisme_Vedettes_Migration {
         
         $results['execution_time'] = microtime(true) - $start_time;
         
-        // Log fin migration
         error_log("Sisme Vedettes Migration: FIN - " . 
                  "Total: {$results['total_games']}, " .
                  "Migrés: {$results['migrated_games']}, " .
-                 "Déjà migrés: {$results['already_migrated']}, " .
                  "Erreurs: " . count($results['errors']) . ", " .
                  "Temps: " . round($results['execution_time'], 2) . "s");
         
