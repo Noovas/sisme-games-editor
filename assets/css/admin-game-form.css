@@ -1,0 +1,409 @@
+/**
+ * File: /sisme-games-editor/assets/css/admin-game-form.css
+ * CSS épuré pour la page de création/édition de jeu - Gaming Dark
+ * 
+ * APPROCHE: Style l'HTML existant du Sisme_Game_Form_Module SANS rien casser
+ * Utilise les MÊMES variables que admin-dark.css
+ */
+
+/* ========================================
+   🎮 CONTEXT HEADER POUR MODE ÉDITION
+======================================== */
+
+.sisme-game-form-context {
+    background: var(--sisme-gaming-dark-light);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--sisme-radius-lg);
+    margin-bottom: var(--sisme-space-xl);
+    overflow: hidden;
+}
+
+.sisme-game-form-context__header {
+    padding: var(--sisme-space-lg);
+    background: var(--sisme-gaming-dark-lighter);
+}
+
+.sisme-game-form-context__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--sisme-gaming-text-bright);
+    margin: 0 0 var(--sisme-space-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-sm);
+}
+
+.sisme-game-form-context__meta {
+    font-size: 0.875rem;
+    color: var(--sisme-gaming-text-muted);
+    margin: 0;
+    display: flex;
+    gap: var(--sisme-space-md);
+    flex-wrap: wrap;
+}
+
+/* ========================================
+   📋 STYLAGE DU FORMULAIRE EXISTANT
+======================================== */
+
+/* Container principal du formulaire */
+.sisme-admin-page .sisme-game-form-module {
+    background: transparent;
+    margin: 0;
+    padding: 0;
+}
+
+/* Table WordPress par défaut */
+.sisme-admin-page .form-table {
+    background: transparent !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+.sisme-admin-page .form-table th,
+.sisme-admin-page .form-table td {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+/* Chaque ligne de composant = une card */
+.sisme-admin-page .form-table tr {
+    display: block !important;
+    background: var(--sisme-gaming-dark-light) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: var(--sisme-radius-lg) !important;
+    margin-bottom: var(--sisme-space-xl) !important;
+    padding: var(--sisme-space-xl) !important;
+    transition: var(--sisme-transition-fast) !important;
+    animation: sismeFadeInUp 0.6s ease-out;
+}
+
+.sisme-admin-page .form-table tr:hover {
+    border-color: rgba(161, 183, 141, 0.3) !important;
+    box-shadow: var(--sisme-hover-box-shadow) !important;
+}
+
+/* Labels des champs */
+.sisme-admin-page .form-table th {
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: var(--sisme-space-sm) !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    color: var(--sisme-gaming-text-bright) !important;
+    text-align: left !important;
+}
+
+.sisme-admin-page .form-table td {
+    display: block !important;
+    width: 100% !important;
+}
+
+/* ========================================
+   📝 CHAMPS DE FORMULAIRE
+======================================== */
+
+/* Input texte, textarea, select */
+.sisme-admin-page input[type="text"],
+.sisme-admin-page input[type="url"],
+.sisme-admin-page input[type="date"],
+.sisme-admin-page textarea,
+.sisme-admin-page select {
+    width: 100% !important;
+    padding: var(--sisme-space-sm) var(--sisme-space-md) !important;
+    background: var(--sisme-gaming-dark) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: var(--sisme-radius-md) !important;
+    color: var(--sisme-gaming-text-bright) !important;
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
+    transition: var(--sisme-transition-fast) !important;
+    box-sizing: border-box !important;
+}
+
+.sisme-admin-page input:focus,
+.sisme-admin-page textarea:focus,
+.sisme-admin-page select:focus {
+    outline: none !important;
+    border-color: var(--sisme-color-primary) !important;
+    box-shadow: 0 0 0 2px rgba(161, 183, 141, 0.2) !important;
+    transform: scale(1.01) !important;
+}
+
+.sisme-admin-page input::placeholder,
+.sisme-admin-page textarea::placeholder {
+    color: var(--sisme-gaming-text-muted) !important;
+    opacity: 0.8 !important;
+}
+
+.sisme-admin-page textarea {
+    min-height: 120px !important;
+    resize: vertical !important;
+    font-family: inherit !important;
+}
+
+/* ========================================
+   ☑️ CHECKBOXES ET MULTI-SÉLECTIONS
+======================================== */
+
+/* Checkboxes et radios */
+.sisme-admin-page input[type="checkbox"],
+.sisme-admin-page input[type="radio"] {
+    width: auto !important;
+    margin-right: var(--sisme-space-xs) !important;
+    accent-color: var(--sisme-color-primary) !important;
+    transform: scale(1.2) !important;
+}
+
+/* Labels de checkboxes */
+.sisme-admin-page input[type="checkbox"] + label,
+.sisme-admin-page input[type="radio"] + label {
+    color: var(--sisme-gaming-text) !important;
+    font-weight: 400 !important;
+    margin-left: var(--sisme-space-xs) !important;
+    cursor: pointer !important;
+}
+
+/* Conteneurs de checkboxes multiples */
+.sisme-admin-page .checkbox-group,
+.sisme-admin-page .genre-checkboxes,
+.sisme-admin-page .mode-checkboxes,
+.sisme-admin-page .platform-checkboxes {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: var(--sisme-space-md) !important;
+    margin-top: var(--sisme-space-sm) !important;
+}
+
+.sisme-admin-page .checkbox-item,
+.sisme-admin-page .genre-item,
+.sisme-admin-page .mode-item,
+.sisme-admin-page .platform-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--sisme-space-xs) !important;
+    padding: var(--sisme-space-xs) var(--sisme-space-sm) !important;
+    background: var(--sisme-gaming-dark) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: var(--sisme-radius-md) !important;
+    transition: var(--sisme-transition-fast) !important;
+    cursor: pointer !important;
+}
+
+.sisme-admin-page .checkbox-item:hover,
+.sisme-admin-page .genre-item:hover,
+.sisme-admin-page .mode-item:hover,
+.sisme-admin-page .platform-item:hover {
+    border-color: var(--sisme-color-primary) !important;
+    background: var(--sisme-gaming-dark-lighter) !important;
+}
+
+/* ========================================
+   🖼️ SÉLECTEURS MÉDIAS ÉPURÉS
+======================================== */
+
+/* Containers des sélecteurs de médias */
+.sisme-admin-page .sisme-media-selector {
+    margin-top: var(--sisme-space-md) !important;
+}
+
+.sisme-admin-page .sisme-cover-preview,
+.sisme-admin-page .sisme-cover-placeholder {
+    display: block !important;
+    max-width: 200px !important;
+    height: auto !important;
+    border-radius: var(--sisme-radius-md) !important;
+    margin-bottom: var(--sisme-space-sm) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.sisme-admin-page .sisme-cover-empty {
+    width: 150px !important;
+    height: 100px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--sisme-gaming-dark) !important;
+    border: 2px dashed rgba(255, 255, 255, 0.2) !important;
+    border-radius: var(--sisme-radius-md) !important;
+    font-size: 2rem !important;
+    color: var(--sisme-gaming-text-muted) !important;
+}
+
+.sisme-admin-page .sisme-media-buttons {
+    display: flex !important;
+    gap: var(--sisme-space-sm) !important;
+}
+
+.sisme-admin-page .sisme-select-media-btn,
+.sisme-admin-page .sisme-remove-media-btn,
+.sisme-admin-page .button {
+    padding: var(--sisme-space-xs) var(--sisme-space-md) !important;
+    background: var(--sisme-gaming-dark-lighter) !important;
+    color: var(--sisme-gaming-text-bright) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: var(--sisme-radius-md) !important;
+    font-size: 0.875rem !important;
+    cursor: pointer !important;
+    transition: var(--sisme-transition-fast) !important;
+    text-decoration: none !important;
+}
+
+.sisme-admin-page .sisme-select-media-btn:hover,
+.sisme-admin-page .button:hover {
+    background: var(--sisme-color-primary) !important;
+    border-color: var(--sisme-color-primary) !important;
+    color: var(--sisme-gaming-text-bright) !important;
+}
+
+.sisme-admin-page .sisme-remove-media-btn {
+    background: var(--sisme-color-error) !important;
+    border-color: var(--sisme-color-error) !important;
+}
+
+.sisme-admin-page .sisme-remove-media-btn:hover {
+    background: #dc2626 !important;
+}
+
+/* ========================================
+   📸 GALERIE SCREENSHOTS
+======================================== */
+
+.sisme-admin-page .screenshots-gallery,
+.sisme-admin-page .sisme-screenshots-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: var(--sisme-space-md) !important;
+    margin-top: var(--sisme-space-md) !important;
+}
+
+.sisme-admin-page .screenshot-item,
+.sisme-admin-page .sisme-screenshot-item {
+    position: relative !important;
+    border-radius: var(--sisme-radius-md) !important;
+    overflow: hidden !important;
+    aspect-ratio: 16/9 !important;
+    background: var(--sisme-gaming-dark) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.sisme-admin-page .screenshot-item img,
+.sisme-admin-page .sisme-screenshot-item img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.sisme-admin-page .screenshot-remove,
+.sisme-admin-page .sisme-screenshot-remove {
+    position: absolute !important;
+    top: 4px !important;
+    right: 4px !important;
+    background: var(--sisme-color-error) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 0.75rem !important;
+    cursor: pointer !important;
+    opacity: 0 !important;
+    transition: var(--sisme-transition-fast) !important;
+}
+
+.sisme-admin-page .screenshot-item:hover .screenshot-remove,
+.sisme-admin-page .sisme-screenshot-item:hover .sisme-screenshot-remove {
+    opacity: 1 !important;
+}
+
+/* ========================================
+   🔘 BOUTON SUBMIT PRINCIPAL
+======================================== */
+
+.sisme-admin-page .submit {
+    margin-top: var(--sisme-space-xl) !important;
+    padding: var(--sisme-space-xl) !important;
+    background: var(--sisme-gaming-dark-lighter) !important;
+    border-radius: var(--sisme-radius-lg) !important;
+    text-align: center !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.sisme-admin-page input[type="submit"],
+.sisme-admin-page .button-primary {
+    background: var(--sisme-color-primary) !important;
+    color: var(--sisme-gaming-text-bright) !important;
+    border: none !important;
+    padding: var(--sisme-space-md) var(--sisme-space-xl) !important;
+    border-radius: var(--sisme-radius-md) !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: var(--sisme-transition-fast) !important;
+    min-width: 180px !important;
+}
+
+.sisme-admin-page input[type="submit"]:hover,
+.sisme-admin-page .button-primary:hover {
+    background: var(--sisme-color-primary-light) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(161, 183, 141, 0.4) !important;
+}
+
+/* ========================================
+   🎨 ANIMATIONS ET EFFETS
+======================================== */
+
+/* Animation d'apparition */
+@keyframes sismeFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Delay progressif pour les composants */
+.sisme-admin-page .form-table tr:nth-child(1) { animation-delay: 0.1s; }
+.sisme-admin-page .form-table tr:nth-child(2) { animation-delay: 0.2s; }
+.sisme-admin-page .form-table tr:nth-child(3) { animation-delay: 0.3s; }
+.sisme-admin-page .form-table tr:nth-child(4) { animation-delay: 0.4s; }
+.sisme-admin-page .form-table tr:nth-child(5) { animation-delay: 0.5s; }
+
+/* ========================================
+   📱 RESPONSIVE MOBILE
+======================================== */
+
+@media (max-width: 768px) {
+    .sisme-game-form-context__header {
+        padding: var(--sisme-space-md) !important;
+    }
+    
+    .sisme-game-form-context__meta {
+        flex-direction: column !important;
+        gap: var(--sisme-space-xs) !important;
+    }
+    
+    .sisme-admin-page .form-table tr {
+        padding: var(--sisme-space-lg) !important;
+        margin-bottom: var(--sisme-space-lg) !important;
+    }
+    
+    .sisme-admin-page .checkbox-group,
+    .sisme-admin-page .genre-checkboxes,
+    .sisme-admin-page .mode-checkboxes,
+    .sisme-admin-page .platform-checkboxes {
+        flex-direction: column !important;
+        gap: var(--sisme-space-sm) !important;
+    }
+    
+    .sisme-admin-page .screenshots-gallery,
+    .sisme-admin-page .sisme-screenshots-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+        gap: var(--sisme-space-sm) !important;
+    }
+}

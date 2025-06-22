@@ -1,10 +1,11 @@
 <?php
 /**
  * File: /sisme-games-editor/includes/assets-loader.php
- * Gestion du chargement des assets CSS/JS - VERSION DARK ADMIN
+ * Gestion du chargement des assets CSS/JS - VERSION MISE À JOUR
  * 
- * Charge le nouveau style gaming dark pour l'admin
- * et conserve le frontend existant
+ * MODIFICATION: Ajout du CSS épuré pour la page de création de fiche
+ * 
+ * ATTENTION: Remplacer la méthode enqueue_admin_styles() existante par cette version
  */
 
 if (!defined('ABSPATH')) {
@@ -19,7 +20,9 @@ class Sisme_Assets_Loader {
     }
     
     /**
-     * Charger les styles admin - DARK GAMING STYLE
+     * Charger les styles admin - DARK GAMING STYLE + FICHE FORM
+     * 
+     * MODIFICATION: Ajout du chargement conditionnel pour edit-fiche-jeu
      */
     public function enqueue_admin_styles($hook) {
         // Vérifier si on est sur une page admin du plugin
@@ -27,7 +30,7 @@ class Sisme_Assets_Loader {
             return;
         }
         
-        // NOUVEAU CSS Dark Gaming (remplace admin.css)
+        // CSS Dark Gaming de base (pour toutes les pages admin du plugin)
         wp_enqueue_style(
             'sisme-admin-dark',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin-dark.css',
@@ -35,7 +38,42 @@ class Sisme_Assets_Loader {
             SISME_GAMES_EDITOR_VERSION
         );
         
-        // JavaScript pour les tooltips
+        // ===============================================
+        // CSS + JS spécifiques par page admin
+        // ===============================================
+        
+        // Page création/édition de fiche
+        if (strpos($hook, 'sisme-games-edit-fiche-jeu') !== false) {
+            wp_enqueue_style(
+                'sisme-fiche-form',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin-fiche-form.css',
+                array('sisme-admin-dark'),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            
+            // JavaScript optionnel pour améliorer l'UX
+            if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'assets/js/fiche-form.js')) {
+                wp_enqueue_script(
+                    'sisme-fiche-form-js',
+                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/fiche-form.js',
+                    array('jquery'),
+                    SISME_GAMES_EDITOR_VERSION,
+                    true
+                );
+            }
+        }
+        
+        // Page création/édition de jeu
+        if (strpos($hook, 'sisme-games-edit-game-data') !== false) {
+            wp_enqueue_style(
+                'sisme-game-form',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin-game-form.css',
+                array('sisme-admin-dark'),
+                SISME_GAMES_EDITOR_VERSION
+            );
+        }
+        
+        // JavaScript pour les tooltips (toutes les pages admin)
         wp_enqueue_script(
             'sisme-tooltip',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/tooltip.js',
@@ -89,58 +127,42 @@ class Sisme_Assets_Loader {
             );
             
             // 4. JavaScript galerie interactive (si screenshots présents)
-            $this->enqueue_gallery_script();
+            if ($this->has_screenshots()) {
+                wp_enqueue_script(
+                    'sisme-gallery-interactive',
+                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/gallery-interactive.js',
+                    array(),
+                    SISME_GAMES_EDITOR_VERSION,
+                    true
+                );
+            }
         }
     }
     
     /**
-     * Charger le script de galerie si nécessaire
+     * Vérifier si c'est une fiche de jeu moderne
      */
-    private function enqueue_gallery_script() {
+    private function is_game_fiche() {
+        if (!is_single()) return false;
+        
         global $post;
+        $sections = get_post_meta($post->ID, '_sisme_game_sections', true);
+        return !empty($sections);
+    }
+    
+    /**
+     * Vérifier si la fiche a des screenshots
+     */
+    private function has_screenshots() {
+        if (!is_single()) return false;
         
-        if (!$post) {
-            return;
-        }
-        
-        // Récupérer le tag du jeu
+        global $post;
         $game_tags = wp_get_post_tags($post->ID);
-        if (empty($game_tags)) {
-            return;
-        }
+        if (empty($game_tags)) return false;
         
-        // Vérifier si le jeu a des screenshots
         $tag_id = $game_tags[0]->term_id;
         $screenshots = get_term_meta($tag_id, 'screenshots', true);
         
-        if (!empty($screenshots)) {
-            wp_enqueue_script(
-                'sisme-gallery-interactive',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/gallery-interactive.js',
-                array('jquery'),
-                SISME_GAMES_EDITOR_VERSION,
-                true
-            );
-        }
-    }
-    
-    /**
-     * Détecter si l'article est une fiche de jeu moderne
-     * 
-     * @param int $post_id ID de l'article (optionnel)
-     * @return bool True si c'est une fiche de jeu
-     */
-    private function is_game_fiche($post_id = null) {
-        if (!$post_id) {
-            global $post;
-            if (!$post) {
-                return false;
-            }
-            $post_id = $post->ID;
-        }
-        
-        // Détecter via la métadonnée des sections de jeu
-        $game_sections = get_post_meta($post_id, '_sisme_game_sections', true);
-        return !empty($game_sections);
+        return !empty($screenshots);
     }
 }

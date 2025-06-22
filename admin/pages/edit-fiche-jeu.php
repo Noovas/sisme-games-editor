@@ -1,7 +1,16 @@
 <?php
 /**
  * File: /sisme-games-editor/admin/pages/edit-fiche-jeu.php
- * Version Simple - Juste formulaire sections + données jeu + DEBUG
+ * Page de création/édition de fiche - VERSION ÉPURÉE
+ * 
+ * MODIFICATIONS APPORTÉES:
+ * 1. Structure HTML plus propre avec classes CSS gaming
+ * 2. Affichage des infos du jeu en header élégant
+ * 3. Organisation du formulaire en sections claires
+ * 4. Préservation totale du fonctionnel existant
+ * 
+ * ATTENTION: Ce fichier remplace l'ancien edit-fiche-jeu.php
+ * Tester en mode backup avant de remplacer !
  */
 
 if (!defined('ABSPATH')) {
@@ -26,7 +35,7 @@ if (is_wp_error($tag_data) || !$tag_data) {
     wp_die('Erreur : Jeu non trouvé.');
 }
 
-// Récupérer les Game Data
+// Récupérer les Game Data pour affichage
 $game_data = array(
     'title' => $tag_data->name,
     'description' => get_term_meta($tag_id, 'game_description', true),
@@ -36,7 +45,7 @@ $game_data = array(
     'release_date' => get_term_meta($tag_id, 'release_date', true),
 );
 
-// DEBUG: Récupérer aussi les sections par défaut du jeu
+// Récupérer les sections par défaut du jeu
 $default_game_sections = get_term_meta($tag_id, 'game_sections', true) ?: array();
 
 // Messages
@@ -100,8 +109,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_fiche' && check_admi
 }
 
 // MAINTENANT déterminer le mode pour l'affichage
-
-// MAINTENANT déterminer le mode pour l'affichage
 $is_edit_mode = $post_id > 0;
 
 // Si pas de post_id fourni, vérifier si une fiche existe déjà pour ce jeu
@@ -150,73 +157,11 @@ if (empty($existing_sections) && !empty($default_game_sections)) {
     $existing_sections = $default_game_sections;
 }
 
-// Messages
-$success_message = '';
-$error_message = '';
-
-// Traitement du formulaire
-if (isset($_POST['action']) && $_POST['action'] === 'create_fiche' && check_admin_referer('sisme_fiche_sections')) {
-    
-    echo '<div style="background: yellow; padding: 10px; margin: 10px 0;">DEBUG: Traitement formulaire - Mode édition: ' . ($is_edit_mode ? 'OUI' : 'NON') . ' - Post ID: ' . $post_id . ' - Tag ID: ' . $tag_id . '</div>';
-    
-    // Récupérer et nettoyer les sections
-    $sections = $_POST['sections'] ?? array();
-    $clean_sections = array();
-    
-    if (is_array($sections)) {
-        foreach ($sections as $section) {
-            if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) {
-                $clean_sections[] = array(
-                    'title' => sanitize_text_field($section['title'] ?? ''),
-                    'content' => wp_kses_post($section['content'] ?? ''),
-                    'image_id' => intval($section['image_id'] ?? 0)
-                );
-            }
-        }
-    }
-    
-    if ($is_edit_mode) {
-        // Mode édition : mettre à jour
-        $result = Sisme_Fiche_Creator::update_fiche($post_id, $clean_sections);
-        
-        if ($result['success']) {
-            $success_message = $result['message'];
-            // Recharger les sections
-            $existing_sections = get_post_meta($post_id, '_sisme_game_sections', true) ?: array();
-        } else {
-            $error_message = $result['message'];
-        }
-        
-    } else {
-        // Mode création : créer nouvelle fiche
-        $result = Sisme_Fiche_Creator::create_fiche($tag_id, $clean_sections);
-        
-        if ($result['success']) {
-            $success_message = $result['message'];
-            
-            // Basculer en mode édition
-            $is_edit_mode = true;
-            $post_id = $result['post_id'];
-            $existing_sections = get_post_meta($post_id, '_sisme_game_sections', true) ?: array();
-            
-            // Mettre à jour l'URL pour inclure post_id ET préserver tag_id
-            $new_url = add_query_arg(array(
-                'post_id' => $post_id,
-                'tag_id' => $tag_id
-            ), remove_query_arg('post_id'));
-            echo '<script>window.history.replaceState({}, "", "' . esc_js($new_url) . '");</script>';
-            
-        } else {
-            $error_message = $result['message'];
-        }
-    }
-}
-
-// Configuration de la page
+// Configuration de la page avec wrapper épuré
 $page = new Sisme_Admin_Page_Wrapper(
     $is_edit_mode ? 'Modifier la fiche : ' . $tag_data->name : 'Créer la fiche : ' . $tag_data->name,
-    'Édition des sections de présentation',
-    'edit-pages',
+    'Édition des sections de présentation du jeu',
+    'edit', // Icône 📝
     admin_url('admin.php?page=sisme-games-game-data'),
     'Retour à Game Data'
 );
@@ -224,143 +169,227 @@ $page = new Sisme_Admin_Page_Wrapper(
 $page->render_start();
 ?>
 
-<!-- Messages -->
-<?php if (!empty($success_message)): ?>
-    <div class="sisme-notice sisme-notice--success">
-        ✅ <?php echo esc_html($success_message); ?>
-    </div>
-<?php endif; ?>
-
-<?php if (!empty($error_message)): ?>
-    <div class="sisme-notice sisme-notice--error">
-        ❌ <?php echo esc_html($error_message); ?>
-    </div>
-<?php endif; ?>
-
-<!-- Formulaire des sections -->
-<form method="post">
-    <?php wp_nonce_field('sisme_fiche_sections'); ?>
-    <input type="hidden" name="action" value="create_fiche">
-    
-    <h3>Sections de présentation</h3>
-    
-    <div id="sections-container">
-    <?php if (!empty($existing_sections)): ?>
-        <?php foreach ($existing_sections as $index => $section): ?>
-            <div style="border: 1px solid #ccc; margin: 10px 0; padding: 15px; background: #fff; border-radius: 5px;">
-                <h4>Section <?php echo ($index + 1); ?></h4>
-                
-                <p>
-                    <label><strong>Titre de la section:</strong></label><br>
-                    <input type="text" name="sections[<?php echo $index; ?>][title]" 
-                           value="<?php echo esc_attr($section['title'] ?? ''); ?>" 
-                           style="width: 100%; padding: 8px;"
-                           placeholder="Ex: Gameplay, Histoire, Graphismes...">
-                </p>
-                
-                <p>
-                    <label><strong>Contenu:</strong></label><br>
-                    <textarea name="sections[<?php echo $index; ?>][content]" 
-                              rows="6" 
-                              style="width: 100%; padding: 8px;"
-                              placeholder="Décrivez cette section du jeu..."><?php echo esc_textarea($section['content'] ?? ''); ?></textarea>
-                </p>
-                
-                <p>
-                    <label><strong>Image de la section:</strong></label><br>
-                    <div class="section-image-container">
-                        <div id="section-<?php echo $index; ?>-image-preview" style="margin-bottom: 10px; padding: 20px; border: 2px dashed #ddd; text-align: center; background: #f9f9f9; border-radius: 4px;">
-                            <?php 
-                            $image_id = intval($section['image_id'] ?? 0);
-                            if ($image_id > 0) {
-                                $image = wp_get_attachment_image_src($image_id, 'medium');
-                                $image_meta = wp_get_attachment_metadata($image_id);
-                                $filename = basename(get_attached_file($image_id));
-                                
-                                if ($image) {
-                                    echo '<img src="' . esc_url($image[0]) . '" style="max-width: 200px; height: auto; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" alt="Aperçu">';
-                                    echo '<div style="margin-top: 8px; font-size: 12px; color: #666;">';
-                                    echo '<strong>' . esc_html($filename) . '</strong><br>';
-                                    echo $image[1] . ' × ' . $image[2] . ' px';
-                                    echo '</div>';
-                                } else {
-                                    echo '<em style="color: #666;">Image introuvable (ID: ' . $image_id . ')</em>';
-                                }
-                            } else {
-                                echo '<em style="color: #666;">Aucune image sélectionnée</em>';
-                            }
-                            ?>
-                        </div>
-                        <button type="button" class="button select-section-image" data-section="<?php echo $index; ?>">
-                            <?php echo ($image_id > 0) ? '🔄 Changer l\'image' : '🖼️ Choisir une image'; ?>
-                        </button>
-                        <button type="button" class="button remove-section-image" data-section="<?php echo $index; ?>" style="margin-left: 10px; <?php echo ($image_id > 0) ? '' : 'display: none;'; ?> background: #dc3232; color: white;">
-                            🗑️ Supprimer l'image
-                        </button>
-                        <input type="hidden" id="section_<?php echo $index; ?>_image_id" name="sections[<?php echo $index; ?>][image_id]" value="<?php echo $image_id; ?>">
-                    </div>
-                </p>
+<!-- Messages de feedback -->
+<?php if (!empty($success_message) || !empty($error_message)): ?>
+    <div class="sisme-fiche-notices">
+        <?php if (!empty($success_message)): ?>
+            <div class="sisme-notice sisme-notice--success">
+                ✅ <?php echo esc_html($success_message); ?>
             </div>
-        <?php endforeach; ?>
-        
-        <!-- Bouton d'ajout de section -->
-        <div style="text-align: center; padding: 20px; margin: 20px 0; border: 2px dashed #ccc; border-radius: 8px; background: #f9f9f9;">
-            <button type="button" id="add-new-section" class="button button-secondary" style="font-size: 16px; padding: 10px 20px;">
-                ➕ Ajouter une nouvelle section
-            </button>
-            <p style="margin: 10px 0 0; color: #666; font-size: 14px;">
-                Cliquez pour ajouter une section de contenu personnalisée
-            </p>
+        <?php endif; ?>
+
+        <?php if (!empty($error_message)): ?>
+            <div class="sisme-notice sisme-notice--error">
+                ❌ <?php echo esc_html($error_message); ?>
+            </div>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
+
+<!-- Informations du jeu - Header élégant -->
+<div class="sisme-fiche-game-info">
+    <div class="sisme-fiche-game-info__header">
+        <h2 class="sisme-fiche-game-info__title">
+            🎮 <?php echo esc_html($game_data['title']); ?>
+        </h2>
+        <div class="sisme-fiche-game-info__meta">
+            <span>Tag ID: <?php echo $tag_id; ?></span>
+            <?php if ($is_edit_mode): ?>
+                <span>Article ID: <?php echo $post_id; ?></span>
+                <span>Mode: Édition</span>
+            <?php else: ?>
+                <span>Mode: Création</span>
+            <?php endif; ?>
+            <?php if (!empty($game_data['release_date'])): ?>
+                <span>Sortie: <?php echo esc_html($game_data['release_date']); ?></span>
+            <?php endif; ?>
         </div>
-        
-    <?php else: ?>
-        <!-- Section vide par défaut -->
-        <div style="border: 1px solid #ccc; margin: 10px 0; padding: 15px; background: #fff; border-radius: 5px;">
-            <h4>Section 1</h4>
-            
-            <p>
-                <label><strong>Titre de la section:</strong></label><br>
-                <input type="text" name="sections[0][title]" value="" style="width: 100%; padding: 8px;" placeholder="Ex: Gameplay, Histoire, Graphismes...">
-            </p>
-            
-            <p>
-                <label><strong>Contenu:</strong></label><br>
-                <textarea name="sections[0][content]" rows="6" style="width: 100%; padding: 8px;" placeholder="Décrivez cette section du jeu..."></textarea>
-            </p>
-            
-            <p>
-                <label><strong>Image de la section:</strong></label><br>
-                <div class="section-image-container">
-                    <div id="section-0-image-preview" style="margin-bottom: 10px; padding: 20px; border: 2px dashed #ddd; text-align: center; background: #f9f9f9; border-radius: 4px;">
-                        <em style="color: #666;">Aucune image sélectionnée</em>
-                    </div>
-                    <button type="button" class="button select-section-image" data-section="0">
-                        🖼️ Choisir une image
-                    </button>
-                    <button type="button" class="button remove-section-image" data-section="0" style="margin-left: 10px; display: none; background: #dc3232; color: white;">
-                        🗑️ Supprimer l'image
-                    </button>
-                    <input type="hidden" id="section_0_image_id" name="sections[0][image_id]" value="0">
-                </div>
-            </p>
-        </div>
-        
-        <!-- Bouton d'ajout de section -->
-        <div style="text-align: center; padding: 20px; margin: 20px 0; border: 2px dashed #ccc; border-radius: 8px; background: #f9f9f9;">
-            <button type="button" id="add-new-section" class="button button-secondary" style="font-size: 16px; padding: 10px 20px;">
-                ➕ Ajouter une nouvelle section
-            </button>
-            <p style="margin: 10px 0 0; color: #666; font-size: 14px;">
-                Cliquez pour ajouter une section de contenu personnalisée
-            </p>
+    </div>
+    
+    <?php if (!empty($game_data['description'])): ?>
+        <div class="sisme-fiche-game-info__body">
+            <div class="sisme-fiche-game-description">
+                <?php echo wp_kses_post($game_data['description']); ?>
+            </div>
         </div>
     <?php endif; ?>
 </div>
+
+<!-- Formulaire des sections - Structure épurée -->
+<div class="sisme-sections-form">
+    <div class="sisme-sections-form__header">
+        <h3 class="sisme-sections-form__title">
+            📝 Sections de présentation
+        </h3>
+    </div>
     
-    <p>
-        <input type="submit" value="<?php echo $is_edit_mode ? 'Mettre à jour la fiche' : 'Créer la fiche'; ?>" class="button-primary">
-    </p>
-</form>
+    <div class="sisme-sections-form__body">
+        <form method="post">
+            <?php wp_nonce_field('sisme_fiche_sections'); ?>
+            <input type="hidden" name="action" value="create_fiche">
+            
+            <div id="sections-container">
+                <?php if (!empty($existing_sections)): ?>
+                    <?php foreach ($existing_sections as $index => $section): ?>
+                        <div class="sisme-section-item">
+                            <div class="sisme-section-item__header">
+                                <h4 class="sisme-section-item__title">
+                                    Section <?php echo ($index + 1); ?>
+                                </h4>
+                                <?php if ($index > 0): // Pas de suppression pour la première section ?>
+                                    <button type="button" class="sisme-btn sisme-btn--danger sisme-btn--icon remove-section" 
+                                            data-sisme-tooltip="Supprimer cette section">
+                                        🗑️
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <div class="sisme-section-item__body">
+                                <div class="sisme-field-group">
+                                    <label class="sisme-field-label">
+                                        <strong>Titre de la section:</strong>
+                                    </label>
+                                    <input type="text" 
+                                           name="sections[<?php echo $index; ?>][title]" 
+                                           value="<?php echo esc_attr($section['title'] ?? ''); ?>" 
+                                           class="sisme-field-input"
+                                           placeholder="Ex: Gameplay, Histoire, Graphismes...">
+                                </div>
+                                
+                                <div class="sisme-field-group">
+                                    <label class="sisme-field-label">
+                                        <strong>Contenu:</strong>
+                                    </label>
+                                    <textarea name="sections[<?php echo $index; ?>][content]" 
+                                              rows="6" 
+                                              class="sisme-field-textarea"
+                                              placeholder="Décrivez cette section du jeu..."><?php echo esc_textarea($section['content'] ?? ''); ?></textarea>
+                                </div>
+                                
+                                <div class="sisme-field-group">
+                                    <label class="sisme-field-label">
+                                        <strong>Image de la section:</strong>
+                                    </label>
+                                    <div class="section-image-container">
+                                        <?php 
+                                        $image_id = intval($section['image_id'] ?? 0);
+                                        ?>
+                                        <div id="section-<?php echo $index; ?>-image-preview" class="sisme-image-preview">
+                                            <?php if ($image_id > 0): ?>
+                                                <?php 
+                                                $image = wp_get_attachment_image_src($image_id, 'medium');
+                                                $attachment = get_post($image_id);
+                                                ?>
+                                                <img src="<?php echo esc_url($image[0]); ?>" style="max-width: 200px; height: auto; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" alt="Aperçu">
+                                                <div style="margin-top: 8px; font-size: 12px; color: #666;">
+                                                    <strong><?php echo esc_html($attachment->post_title); ?></strong><br>
+                                                    <?php echo $image[1]; ?> × <?php echo $image[2]; ?> px
+                                                </div>
+                                            <?php else: ?>
+                                                <em style="color: #666;">Aucune image sélectionnée</em>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="sisme-image-buttons">
+                                            <button type="button" class="sisme-btn sisme-btn--secondary sisme-btn--icon select-section-image" 
+                                                    data-section="<?php echo $index; ?>"
+                                                    data-sisme-tooltip="<?php echo ($image_id > 0) ? 'Changer l\'image' : 'Choisir une image'; ?>">
+                                                <?php echo ($image_id > 0) ? '🔄' : '🖼️'; ?>
+                                            </button>
+                                            <button type="button" class="sisme-btn sisme-btn--danger sisme-btn--icon remove-section-image" 
+                                                    data-section="<?php echo $index; ?>" 
+                                                    data-sisme-tooltip="Supprimer l'image"
+                                                    style="<?php echo ($image_id > 0) ? '' : 'display: none;'; ?>">
+                                                🗑️
+                                            </button>
+                                        </div>
+                                        <input type="hidden" id="section_<?php echo $index; ?>_image_id" name="sections[<?php echo $index; ?>][image_id]" value="<?php echo $image_id; ?>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <!-- Section par défaut si aucune section existante -->
+                    <div class="sisme-section-item">
+                        <div class="sisme-section-item__header">
+                            <h4 class="sisme-section-item__title">
+                                Section 1
+                            </h4>
+                        </div>
+                        
+                        <div class="sisme-section-item__body">
+                            <div class="sisme-field-group">
+                                <label class="sisme-field-label">
+                                    <strong>Titre de la section:</strong>
+                                </label>
+                                <input type="text" 
+                                       name="sections[0][title]" 
+                                       value="" 
+                                       class="sisme-field-input"
+                                       placeholder="Ex: Gameplay, Histoire, Graphismes...">
+                            </div>
+                            
+                            <div class="sisme-field-group">
+                                <label class="sisme-field-label">
+                                    <strong>Contenu:</strong>
+                                </label>
+                                <textarea name="sections[0][content]" 
+                                          rows="6" 
+                                          class="sisme-field-textarea"
+                                          placeholder="Décrivez cette section du jeu..."></textarea>
+                            </div>
+                            
+                            <div class="sisme-field-group">
+                                <label class="sisme-field-label">
+                                    <strong>Image de la section:</strong>
+                                </label>
+                                <div class="section-image-container">
+                                    <div id="section-0-image-preview" class="sisme-image-preview">
+                                        <em style="color: #666;">Aucune image sélectionnée</em>
+                                    </div>
+                                    <div class="sisme-image-buttons">
+                                        <button type="button" class="sisme-btn sisme-btn--secondary sisme-btn--icon select-section-image" 
+                                                data-section="0"
+                                                data-sisme-tooltip="Choisir une image">
+                                            🖼️
+                                        </button>
+                                        <button type="button" class="sisme-btn sisme-btn--danger sisme-btn--icon remove-section-image" 
+                                                data-section="0" 
+                                                data-sisme-tooltip="Supprimer l'image"
+                                                style="display: none;">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                    <input type="hidden" id="section_0_image_id" name="sections[0][image_id]" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+                
+                <!-- Zone d'ajout de nouvelle section -->
+                <div class="sisme-add-section-zone">
+                    <button type="button" id="add-new-section" class="sisme-btn sisme-btn--primary sisme-btn--large sisme-btn--icon"
+                            data-sisme-tooltip="Ajouter une nouvelle section">
+                        ➕
+                    </button>
+                    <p class="sisme-add-section-help">
+                        Ajouter une section personnalisée
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Actions du formulaire -->
+            <div class="sisme-fiche-form-actions">
+                <input type="submit" 
+                       name="submit" 
+                       class="button-primary" 
+                       value="<?php echo $is_edit_mode ? 'Mettre à jour la fiche' : 'Créer la fiche'; ?>">
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 jQuery(document).ready(function($) {
     var sectionCounter = <?php echo count($existing_sections); ?>;
@@ -373,49 +402,69 @@ jQuery(document).ready(function($) {
     // Ajouter nouvelle section
     $('#add-new-section').click(function() {
         var newSectionHtml = `
-            <div style="border: 1px solid #ccc; margin: 10px 0; padding: 15px; background: #fff; border-radius: 5px;">
-                <h4>Section ${sectionCounter + 1} 
-                    <button type="button" class="button button-small remove-section" style="float: right; background: #dc3232; color: white;">
-                        🗑️ Supprimer
+            <div class="sisme-section-item" style="animation: sismeSectionFadeIn 0.3s ease-out;">
+                <div class="sisme-section-item__header">
+                    <h4 class="sisme-section-item__title">
+                        Section ${sectionCounter + 1}
+                    </h4>
+                    <button type="button" class="sisme-btn sisme-btn--danger sisme-btn--icon remove-section" 
+                            data-sisme-tooltip="Supprimer cette section">
+                        🗑️
                     </button>
-                </h4>
+                </div>
                 
-                <p>
-                    <label><strong>Titre de la section:</strong></label><br>
-                    <input type="text" name="sections[${sectionCounter}][title]" 
-                           value="" 
-                           style="width: 100%; padding: 8px;" 
-                           placeholder="Ex: Gameplay, Histoire, Graphismes...">
-                </p>
-                
-                <p>
-                    <label><strong>Contenu:</strong></label><br>
-                    <textarea name="sections[${sectionCounter}][content]" 
-                              rows="6" 
-                              style="width: 100%; padding: 8px;" 
-                              placeholder="Décrivez cette section du jeu..."></textarea>
-                </p>
-                
-                <p>
-                    <label><strong>Image de la section:</strong></label><br>
-                    <div class="section-image-container">
-                        <div id="section-${sectionCounter}-image-preview" style="margin-bottom: 10px; padding: 20px; border: 2px dashed #ddd; text-align: center; background: #f9f9f9; border-radius: 4px;">
-                            <em style="color: #666;">Aucune image sélectionnée</em>
-                        </div>
-                        <button type="button" class="button select-section-image" data-section="${sectionCounter}">
-                            🖼️ Choisir une image
-                        </button>
-                        <button type="button" class="button remove-section-image" data-section="${sectionCounter}" style="margin-left: 10px; display: none; background: #dc3232; color: white;">
-                            🗑️ Supprimer l'image
-                        </button>
-                        <input type="hidden" id="section_${sectionCounter}_image_id" name="sections[${sectionCounter}][image_id]" value="0">
+                <div class="sisme-section-item__body">
+                    <div class="sisme-field-group">
+                        <label class="sisme-field-label">
+                            <strong>Titre de la section:</strong>
+                        </label>
+                        <input type="text" 
+                               name="sections[${sectionCounter}][title]" 
+                               value="" 
+                               class="sisme-field-input"
+                               placeholder="Ex: Gameplay, Histoire, Graphismes...">
                     </div>
-                </p>
+                    
+                    <div class="sisme-field-group">
+                        <label class="sisme-field-label">
+                            <strong>Contenu:</strong>
+                        </label>
+                        <textarea name="sections[${sectionCounter}][content]" 
+                                  rows="6" 
+                                  class="sisme-field-textarea"
+                                  placeholder="Décrivez cette section du jeu..."></textarea>
+                    </div>
+                    
+                    <div class="sisme-field-group">
+                        <label class="sisme-field-label">
+                            <strong>Image de la section:</strong>
+                        </label>
+                        <div class="section-image-container">
+                            <div id="section-${sectionCounter}-image-preview" class="sisme-image-preview">
+                                <em style="color: #666;">Aucune image sélectionnée</em>
+                            </div>
+                            <div class="sisme-image-buttons">
+                                <button type="button" class="sisme-btn sisme-btn--secondary sisme-btn--icon select-section-image" 
+                                        data-section="${sectionCounter}"
+                                        data-sisme-tooltip="Choisir une image">
+                                    🖼️
+                                </button>
+                                <button type="button" class="sisme-btn sisme-btn--danger sisme-btn--icon remove-section-image" 
+                                        data-section="${sectionCounter}" 
+                                        data-sisme-tooltip="Supprimer l'image"
+                                        style="display: none;">
+                                    🗑️
+                                </button>
+                            </div>
+                            <input type="hidden" id="section_${sectionCounter}_image_id" name="sections[${sectionCounter}][image_id]" value="0">
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
         
-        // Insérer la nouvelle section juste avant le bouton d'ajout
-        var $newSection = $(newSectionHtml).insertBefore($(this).closest('div'));
+        // Insérer la nouvelle section juste avant la zone d'ajout
+        var $newSection = $(newSectionHtml).insertBefore('.sisme-add-section-zone');
         
         // Initialiser le sélecteur de médias pour la nouvelle section
         $newSection.find('.select-section-image').each(function() {
@@ -437,12 +486,6 @@ jQuery(document).ready(function($) {
             
             var section = $(this).data('section');
             var mediaUploader;
-            
-            // Si le media uploader existe déjà, le réutiliser
-            if (mediaUploader) {
-                mediaUploader.open();
-                return;
-            }
             
             // Créer le media uploader
             mediaUploader = wp.media({
@@ -474,7 +517,9 @@ jQuery(document).ready(function($) {
                 $('#section-' + section + '-image-preview').html(previewHtml);
                 
                 // Mettre à jour les boutons
-                $(`.select-section-image[data-section="${section}"]`).text('🔄 Changer l\'image');
+                $(`.select-section-image[data-section="${section}"]`)
+                    .html('🔄')
+                    .attr('data-sisme-tooltip', 'Changer l\'image');
                 $(`.remove-section-image[data-section="${section}"]`).show();
             });
             
@@ -489,16 +534,23 @@ jQuery(document).ready(function($) {
         
         $('#section_' + section + '_image_id').val('0');
         $('#section-' + section + '-image-preview').html('<em style="color: #666;">Aucune image sélectionnée</em>');
-        $(`.select-section-image[data-section="${section}"]`).text('🖼️ Choisir une image');
+        $(`.select-section-image[data-section="${section}"]`)
+            .html('🖼️')
+            .attr('data-sisme-tooltip', 'Choisir une image');
         $(this).hide();
     });
     
     // Supprimer section (délégation d'événement pour les éléments dynamiques)
     $(document).on('click', '.remove-section', function() {
         if (confirm('Supprimer cette section ?')) {
-            $(this).closest('div').remove();
+            $(this).closest('.sisme-section-item').fadeOut(300, function() {
+                $(this).remove();
+            });
         }
     });
 });
 </script>
-<?php $page->render_end(); ?>
+
+<?php
+$page->render_end();
+?>

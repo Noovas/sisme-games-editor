@@ -1,0 +1,311 @@
+/**
+ * File: /sisme-games-editor/assets/css/components/select-ux.css
+ * Sélecteurs UX améliorés - Simple et efficace pour TOUS les selects
+ */
+
+/* ========================================
+   🎮 SÉLECTEURS CUSTOM GAMING
+======================================== */
+
+.sisme-custom-select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.sisme-custom-select select {
+    display: none; /* Cacher le select natif */
+}
+
+/* ========================================
+   📋 SÉLECTEUR AFFICHÉ
+======================================== */
+
+.sisme-select-display {
+    width: 100%;
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    background: var(--sisme-gaming-dark);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--sisme-radius-md);
+    color: var(--sisme-gaming-text-bright);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--sisme-transition-fast);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 42px;
+    box-sizing: border-box;
+}
+
+.sisme-select-display:hover {
+    border-color: var(--sisme-color-primary);
+    background: var(--sisme-gaming-dark-lighter);
+}
+
+.sisme-select-display--open {
+    border-color: var(--sisme-color-primary);
+    box-shadow: 0 0 0 2px rgba(161, 183, 141, 0.2);
+}
+
+.sisme-select-text {
+    flex: 1;
+    color: var(--sisme-gaming-text-bright);
+}
+
+.sisme-select-text--placeholder {
+    color: var(--sisme-gaming-text-muted);
+    font-style: italic;
+}
+
+.sisme-select-arrow {
+    margin-left: var(--sisme-space-sm);
+    font-size: 0.8rem;
+    transition: var(--sisme-transition-fast);
+    color: var(--sisme-gaming-text-muted);
+}
+
+.sisme-select-display--open .sisme-select-arrow {
+    transform: rotate(180deg);
+    color: var(--sisme-color-primary);
+}
+
+/* ========================================
+   📜 DROPDOWN LISTE
+======================================== */
+
+.sisme-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--sisme-gaming-dark-light);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--sisme-radius-md);
+    margin-top: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 
+        0 8px 24px rgba(0, 0, 0, 0.3),
+        0 4px 12px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+}
+
+.sisme-select-dropdown--open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* ========================================
+   🎯 OPTIONS DE LA LISTE
+======================================== */
+
+.sisme-select-option {
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    cursor: pointer;
+    transition: var(--sisme-transition-fast);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--sisme-gaming-text);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-sm);
+}
+
+.sisme-select-option:last-child {
+    border-bottom: none;
+}
+
+.sisme-select-option:hover {
+    background: var(--sisme-gaming-dark-lighter);
+    color: var(--sisme-gaming-text-bright);
+    transform: translateX(2px);
+}
+
+.sisme-select-option--selected {
+    background: var(--sisme-color-primary);
+    color: var(--sisme-gaming-text-bright);
+    font-weight: 600;
+}
+
+.sisme-select-option--selected::before {
+    content: '✓';
+    font-weight: bold;
+    margin-right: var(--sisme-space-xs);
+}
+
+/* ========================================
+   🏷️ SÉLECTION MULTIPLE (TAGS)
+======================================== */
+
+.sisme-select-multiple .sisme-select-text {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-xs);
+    min-height: 20px;
+}
+
+.sisme-select-tag {
+    background: var(--sisme-color-primary);
+    color: var(--sisme-gaming-text-bright);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    animation: tagAppear 0.2s ease;
+}
+
+@keyframes tagAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.sisme-select-tag-remove {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-select-tag-remove:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* ========================================
+   🔍 RECHERCHE INTÉGRÉE
+======================================== */
+
+.sisme-select-search {
+    padding: var(--sisme-space-sm);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    background: var(--sisme-gaming-dark-light);
+    z-index: 1;
+}
+
+.sisme-select-search input {
+    width: 100%;
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    background: var(--sisme-gaming-dark);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--sisme-radius-md);
+    color: var(--sisme-gaming-text-bright);
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.sisme-select-search input:focus {
+    border-color: var(--sisme-color-primary);
+}
+
+.sisme-select-search input::placeholder {
+    color: var(--sisme-gaming-text-muted);
+    font-style: italic;
+}
+
+/* ========================================
+   🎨 VARIANTES SPÉCIALISÉES
+======================================== */
+
+/* Sélecteur de jeu avec icône */
+.sisme-select--game .sisme-select-option::before {
+    content: '🎮';
+    margin-right: var(--sisme-space-xs);
+}
+
+/* Sélecteur de genre avec couleurs */
+.sisme-select--genre .sisme-select-option::before {
+    content: '🎯';
+    margin-right: var(--sisme-space-xs);
+}
+
+/* Sélecteur de mode */
+.sisme-select--mode .sisme-select-option::before {
+    content: '👥';
+    margin-right: var(--sisme-space-xs);
+}
+
+/* Sélecteur de plateforme */
+.sisme-select--platform .sisme-select-option::before {
+    content: '💻';
+    margin-right: var(--sisme-space-xs);
+}
+
+/* ========================================
+   📱 RESPONSIVE MOBILE
+======================================== */
+
+@media (max-width: 768px) {
+    .sisme-select-dropdown {
+        max-height: 250px;
+    }
+    
+    .sisme-select-option {
+        padding: var(--sisme-space-sm);
+        font-size: 0.95rem;
+    }
+    
+    .sisme-select-tag {
+        font-size: 0.75rem;
+        padding: 1px 6px;
+    }
+}
+
+/* ========================================
+   ✨ ANIMATIONS SUBTILES
+======================================== */
+
+.sisme-select-option {
+    animation: optionSlideIn 0.1s ease-out;
+}
+
+@keyframes optionSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Delay progressif pour les options */
+.sisme-select-option:nth-child(1) { animation-delay: 0.02s; }
+.sisme-select-option:nth-child(2) { animation-delay: 0.04s; }
+.sisme-select-option:nth-child(3) { animation-delay: 0.06s; }
+.sisme-select-option:nth-child(4) { animation-delay: 0.08s; }
+.sisme-select-option:nth-child(5) { animation-delay: 0.10s; }
+
+/* État disabled */
+.sisme-custom-select--disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Focus accessible */
+.sisme-select-display:focus {
+    outline: 2px solid var(--sisme-color-primary);
+    outline-offset: 2px;
+}
