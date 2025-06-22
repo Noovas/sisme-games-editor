@@ -463,7 +463,7 @@ $page->render_start();
             <?php
             // Générer l'aperçu avec des options adaptées à l'admin
             $preview_options = array(
-                'limit' => 5,              // Limiter à 5 pour l'aperçu
+                'limit' => 999,              // Limiter à 5 pour l'aperçu
                 'height' => '600px',       // Plus petit pour la page admin
                 'autoplay' => true,       // Pas d'autoplay pour éviter les distractions
                 'show_arrows' => true,
