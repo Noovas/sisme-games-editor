@@ -13,45 +13,29 @@ require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-table-g
 
 // 🗑️ Traitement de la suppression de Game Data
 if (isset($_GET['action']) && $_GET['action'] === 'delete_game_data' && isset($_GET['game_id'])) {
-    if (wp_verify_nonce($_GET['_wpnonce'], 'delete_game_data_' . $_GET['game_id'])) {
-        $game_id = intval($_GET['game_id']);
-        $tag = get_term($game_id, 'post_tag');
+    
+    $game_id = intval($_GET['game_id']);
+    $tag = get_term($game_id, 'post_tag');
+    
+    if ($tag && !is_wp_error($tag)) {
+        $game_name = $tag->name;
         
-        if ($tag && !is_wp_error($tag)) {
-            // Supprimer toutes les métadonnées du jeu
-            $meta_keys = [
-                'game_description', 'game_genres', 'game_modes', 'game_developers', 
-                'game_publishers', 'game_platforms', 'release_date', 'external_links',
-                'trailer_link', 'cover_main', 'cover_news', 'cover_patch', 'cover_test',
-                'screenshots', 'game_sections', 'last_update'
-            ];
-            
-            foreach ($meta_keys as $meta_key) {
-                delete_term_meta($game_id, $meta_key);
-            }
-            
-            add_action('admin_notices', function() use ($tag) {
+        // Supprimer l'étiquette (et ses métadonnées automatiquement)
+        $result = wp_delete_term($game_id, 'post_tag');
+        
+        if (!is_wp_error($result)) {
+            add_action('admin_notices', function() use ($game_name) {
                 echo '<div class="notice notice-success is-dismissible">';
-                echo '<p>✅ Les données du jeu "' . esc_html($tag->name) . '" ont été supprimées avec succès !</p>';
+                echo '<p>✅ Jeu "' . esc_html($game_name) . '" supprimé définitivement.</p>';
                 echo '</div>';
             });
         } else {
-            add_action('admin_notices', function() {
+            add_action('admin_notices', function() use ($game_name) {
                 echo '<div class="notice notice-error is-dismissible">';
-                echo '<p>❌ Erreur : Jeu introuvable.</p>';
+                echo '<p>❌ Erreur lors de la suppression de "' . esc_html($game_name) . '".</p>';
                 echo '</div>';
             });
         }
-        
-        // Rediriger pour nettoyer l'URL
-        wp_redirect(admin_url('admin.php?page=sisme-games-game-data'));
-        exit;
-    } else {
-        add_action('admin_notices', function() {
-            echo '<div class="notice notice-error is-dismissible">';
-            echo '<p>❌ Erreur de sécurité : Token invalide.</p>';
-            echo '</div>';
-        });
     }
 }
 
@@ -59,7 +43,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete_game_data' && isset($_
 $page = new Sisme_Admin_Page_Wrapper(
     'Sisme Games',
     'Gestion des jeux et création de contenu',
-    'database'
+    'screen'
 );
 
 // Créer le module table
@@ -151,8 +135,41 @@ document.querySelector('.sisme-filter-input').addEventListener('input', function
         window.location.href = url.toString();
     }, 500);
 });
+
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('delete-game-data')) {
+        e.preventDefault();
+        
+        const gameId = e.target.dataset.gameId;
+        const gameName = e.target.dataset.gameName;
+        
+        if (confirm(`Supprimer "${gameName}" définitivement ?`)) {
+            const deleteUrl = new URL(window.location);
+            deleteUrl.searchParams.set('action', 'delete_game_data');
+            deleteUrl.searchParams.set('game_id', gameId);
+            deleteUrl.searchParams.set('_wpnonce', '<?php echo wp_create_nonce("delete_game_data_"); ?>' + gameId);
+            
+            window.location.href = deleteUrl.toString();
+        }
+    }
+});
 </script>
 
+<script>
+// JavaScript simple pour la confirmation
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('delete-game-data')) {
+        e.preventDefault();
+        
+        const gameId = e.target.dataset.gameId;
+        const gameName = e.target.dataset.gameName;
+        
+        if (confirm(`Supprimer définitivement "${gameName}" ?`)) {
+            window.location.href = `?page=sisme-games-game-data&action=delete_game_data&game_id=${gameId}`;
+        }
+    }
+});
+</script>
 <?php
 $page->render_end();
 ?>

@@ -293,7 +293,7 @@ class Sisme_Game_Data_Table_Module {
                                 data-game-id="<?php echo $game_data['id']; ?>"
                                 data-game-name="<?php echo esc_attr($game_data['name']); ?>"
                                 data-sisme-tooltip="Supprimer définitivement ce jeu"
-                                data-sisme-tooltip-type="error">🗑️</button>
+                                data-sisme-tooltip-type="error">💀</button>
                 </div>
             </td>
         </tr>

@@ -348,6 +348,14 @@ h1, h2, h3, h4, h5, h6, p, span {
     color: var(--sisme-gaming-text-bright);
 }
 
+.delete-game-data {
+    background: var(--sisme-bg-warning-light);
+}
+
+.delete-game-data:hover {
+    background: var(--sisme-bg-warning-strong);
+}
+
 .sisme-btn--primary {
     background: var(--sisme-color-primary);
     color: var(--sisme-gaming-text-bright);

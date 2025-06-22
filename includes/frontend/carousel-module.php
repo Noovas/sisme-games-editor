@@ -188,7 +188,7 @@ class Sisme_Carousel_Module {
             return $this->render_vedettes_empty_state();
         }
         
-        // Options par défaut spécifiques aux vedettes
+        // Options par défaut avec métadonnées SEO
         $defaults = array(
             'height' => '500px',
             'show_arrows' => true,
@@ -204,53 +204,56 @@ class Sisme_Carousel_Module {
         
         $options = array_merge($defaults, $options);
         
-        // Générer un ID unique si pas fourni
+        // Générer un ID unique
         if (!$options['id']) {
             self::$instance_counter++;
             $options['id'] = 'sisme-carousel-' . self::$instance_counter;
         }
         
-        // Traiter les items selon le type
+        // Traiter les items
         $processed_items = $this->process_items($items, $options['item_type']);
         
         if (empty($processed_items)) {
             return $this->render_vedettes_empty_state();
         }
         
-        // STRUCTURE ULTRA-STYLÉE
-        $output = '<div class="sisme-ultra-carousel">';
+        // STRUCTURE HTML SÉMANTIQUE
+        $output = '<section class="sisme-ultra-carousel" role="region" aria-label="' . esc_attr($options['title']) . '">';
+        
+        // Données structurées JSON-LD
+        $output .= $this->render_structured_data($processed_items, $options);
         
         // Effet de particules
-        $output .= '<div class="sisme-particles" id="particles-' . $options['id'] . '"></div>';
+        $output .= '<div class="sisme-particles" id="particles-' . $options['id'] . '" aria-hidden="true"></div>';
         
-        // Titre
+        // Titre sémantique
         if ($options['show_title'] && !empty($options['title'])) {
-            $output .= '<div class="sisme-ultra-title">';
+            $output .= '<header class="sisme-ultra-title">';
             $output .= '<h2>' . esc_html($options['title']) . '</h2>';
-            $output .= '</div>';
+            $output .= '</header>';
         }
         
-        // Carrousel 3D
-        $output .= '<div class="sisme-ultra-wrapper">';
+        // Carrousel avec ARIA
+        $output .= '<div class="sisme-ultra-wrapper" role="group" aria-label="Carrousel de jeux">';
         $output .= '<div class="sisme-ultra-container" id="' . esc_attr($options['id']) . '">';
         
-        // Slides 3D
+        // Slides avec structure sémantique
         $output .= $this->render_slides($processed_items, $options);
         
         $output .= '</div>'; // fin ultra-container
         
-        // Navigation
+        // Navigation avec ARIA
         $output .= $this->render_navigation($options, count($processed_items));
         
         $output .= '</div>'; // fin ultra-wrapper
         
-        // Dots
+        // Dots avec ARIA
         $output .= $this->render_dots($processed_items, $options);
         
         // JavaScript
         $output .= $this->render_javascript($options);
         
-        $output .= '</div>'; // fin ultra-carousel
+        $output .= '</section>'; // fin ultra-carousel
         
         return $output;
     }
@@ -263,12 +266,18 @@ class Sisme_Carousel_Module {
             return '';
         }
         
-        $output = '<button class="sisme-ultra-nav prev">';
+        $output = '<button class="sisme-ultra-nav prev" ';
+        $output .= 'aria-label="Jeu précédent" ';
+        $output .= 'title="Voir le jeu précédent">';
         $output .= '<div class="sisme-ultra-btn"></div>';
+        $output .= '<span class="sr-only">Jeu précédent</span>';
         $output .= '</button>';
         
-        $output .= '<button class="sisme-ultra-nav next">';
+        $output .= '<button class="sisme-ultra-nav next" ';
+        $output .= 'aria-label="Jeu suivant" ';
+        $output .= 'title="Voir le jeu suivant">';
         $output .= '<div class="sisme-ultra-btn"></div>';
+        $output .= '<span class="sr-only">Jeu suivant</span>';
         $output .= '</button>';
         
         return $output;
@@ -278,34 +287,122 @@ class Sisme_Carousel_Module {
      * Slides
      */
     private function render_image_slide($item) {
-        $output = '<div class="sisme-ultra-image">';
-        $output .= '<img src="' . esc_url($item['url']) . '" ';
-        $output .= 'alt="' . esc_attr($item['alt']) . '" ';
-        $output .= 'loading="lazy">';
+        // Préparer les données SEO
+        $game_name = !empty($item['game_info']['name']) ? $item['game_info']['name'] : 'Jeu';
+        $game_description = !empty($item['game_info']['description']) ? 
+            strip_tags($item['game_info']['description']) : '';
         
-        // Overlay avec infos du jeu
+        // ALT optimisé : descriptif et riche en mots-clés
+        $optimized_alt = "Cover du jeu " . $game_name . " - Jeu indépendant à découvrir";
+        
+        // TITLE optimisé : call-to-action + description
+        $optimized_title = "Découvrez " . $game_name;
+        if (!empty($game_description)) {
+            $short_desc = self::truncate_on_word($game_description, 60);
+            $optimized_title .= " - " . $short_desc;
+        } else {
+            $optimized_title .= " - Jeu indépendant à la une sur notre plateforme gaming";
+        }
+        
+        // Structure HTML sémantique avec microdata
+        $output = '<article class="sisme-ultra-image" itemscope itemtype="https://schema.org/VideoGame"';
+        
+        // Données de navigation
         if (!empty($item['game_info'])) {
-            $output .= '<div class="sisme-ultra-overlay">';
-            $output .= '<div class="sisme-ultra-game-title">' . esc_html($item['game_info']['name']) . '</div>';
+            $output .= ' data-game-slug="' . esc_attr($item['game_info']['slug']) . '"';
+            $output .= ' data-game-name="' . esc_attr($item['game_info']['name']) . '"';
+        }
+        
+        $output .= '>';
+        
+        // Image optimisée SEO
+        $output .= '<img src="' . esc_url($item['url']) . '" ';
+        $output .= 'alt="' . esc_attr($optimized_alt) . '" ';
+        $output .= 'title="' . esc_attr($optimized_title) . '" ';
+        $output .= 'itemprop="image" ';
+        $output .= 'loading="lazy" ';
+        $output .= 'width="800" height="600">';  // Dimensions pour CLS
+        
+        // Données structurées invisibles
+        if (!empty($item['game_info'])) {
+            $output .= '<meta itemprop="name" content="' . esc_attr($game_name) . '">';
+            if (!empty($game_description)) {
+                $output .= '<meta itemprop="description" content="' . esc_attr(self::truncate_on_word($game_description, 160)) . '">';
+            }
+            $output .= '<meta itemprop="url" content="' . esc_url(home_url('/tag/' . $item['game_info']['slug'] . '/')) . '">';
+        }
+        
+        // Overlay avec contenu sémantique
+        if (!empty($item['game_info'])) {
+            $output .= '<div class="sisme-ultra-overlay" role="banner">';
+            $output .= '<h3 class="sisme-ultra-game-title" itemprop="name">' . esc_html($item['game_info']['name']) . '</h3>';
             
-            // MODIFICATION: Afficher la description tronquée au lieu de "Jeu à la Une"
             if (!empty($item['game_info']['description'])) {
-                // Tronquer la description proprement sur un mot
-                $description = strip_tags($item['game_info']['description']);
-                $truncated_description = self::truncate_on_word($description, 150);
-                
-                $output .= '<div class="sisme-ultra-game-meta">' . esc_html($truncated_description) . '</div>';
+                $truncated_description = self::truncate_on_word(strip_tags($item['game_info']['description']), 120);
+                $output .= '<p class="sisme-ultra-game-meta" itemprop="description">' . esc_html($truncated_description) . '</p>';
             } elseif (!empty($item['game_info']['sponsor'])) {
-                $output .= '<div class="sisme-ultra-game-meta">Sponsorisé par ' . esc_html($item['game_info']['sponsor']) . '</div>';
+                $output .= '<p class="sisme-ultra-game-meta">Sponsorisé par ' . esc_html($item['game_info']['sponsor']) . '</p>';
             } else {
-                $output .= '<div class="sisme-ultra-game-meta">Jeu à la Une</div>';
+                $output .= '<p class="sisme-ultra-game-meta">Jeu à la Une</p>';
             }
             
             $output .= '</div>';
         }
         
-        $output .= '</div>';
+        $output .= '</article>';
         return $output;
+    }
+
+
+    private function render_structured_data($processed_items, $options) {
+        if (empty($processed_items)) {
+            return '';
+        }
+        
+        $games_data = array();
+        
+        foreach ($processed_items as $item) {
+            if (!empty($item['game_info'])) {
+                $game_data = array(
+                    "@type" => "VideoGame",
+                    "name" => $item['game_info']['name'],
+                    "image" => $item['url'],
+                    "url" => home_url('/tag/' . $item['game_info']['slug'] . '/'),
+                );
+                
+                if (!empty($item['game_info']['description'])) {
+                    $game_data['description'] = self::truncate_on_word(
+                        strip_tags($item['game_info']['description']), 
+                        160
+                    );
+                }
+                
+                $games_data[] = $game_data;
+            }
+        }
+        
+        if (empty($games_data)) {
+            return '';
+        }
+        
+        $structured_data = array(
+            "@context" => "https://schema.org",
+            "@type" => "ItemList",
+            "name" => $options['title'] ?: "Jeux à la Une",
+            "description" => "Découvrez notre sélection de jeux indépendants mis en avant",
+            "numberOfItems" => count($games_data),
+            "itemListElement" => array()
+        );
+        
+        foreach ($games_data as $index => $game) {
+            $structured_data['itemListElement'][] = array(
+                "@type" => "ListItem",
+                "position" => $index + 1,
+                "item" => $game
+            );
+        }
+        
+        return '<script type="application/ld+json">' . wp_json_encode($structured_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
     }
 
     private static function truncate_on_word($text, $max_length = 150) {
@@ -387,14 +484,24 @@ class Sisme_Carousel_Module {
             return '';
         }
         
-        $output = '<div class="sisme-ultra-dots">';
+        $output = '<nav class="sisme-ultra-dots" role="tablist" aria-label="Navigation du carrousel">';
         
         foreach ($items as $index => $item) {
             $active_class = $index === 0 ? ' active' : '';
-            $output .= '<button class="sisme-ultra-dot' . $active_class . '" data-slide="' . $index . '"></button>';
+            $game_name = !empty($item['game_info']['name']) ? $item['game_info']['name'] : 'Jeu ' . ($index + 1);
+            
+            $output .= '<button class="sisme-ultra-dot' . $active_class . '" ';
+            $output .= 'role="tab" ';
+            $output .= 'aria-label="Aller au jeu ' . esc_attr($game_name) . '" ';
+            $output .= 'aria-selected="' . ($index === 0 ? 'true' : 'false') . '" ';
+            $output .= 'title="' . esc_attr($game_name) . '" ';
+            $output .= 'data-index="' . $index . '">';
+            $output .= '<span class="sr-only">' . esc_html($game_name) . '</span>';
+            $output .= '</button>';
         }
         
-        $output .= '</div>';
+        $output .= '</nav>';
+        
         return $output;
     }
     

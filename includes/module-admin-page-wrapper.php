@@ -105,7 +105,8 @@ class Sisme_Admin_Page_Wrapper {
             'controller' => '<span style="margin-right: 12px; font-size: 28px;">🕹️</span>',
             'joystick' => '<span style="margin-right: 12px; font-size: 28px;">🎯</span>',
             'puzzle' => '<span style="margin-right: 12px; font-size: 28px;">🧩</span>',
-            'dice' => '<span style="margin-right: 12px; font-size: 28px;">🎲</span>'
+            'dice' => '<span style="margin-right: 12px; font-size: 28px;">🎲</span>',
+            'screen' => '<span style="margin-right: 12px; font-size: 28px;">💻</span>'
         );
         
         return isset($icons[$icon_id]) ? $icons[$icon_id] : $icons['dashboard'];

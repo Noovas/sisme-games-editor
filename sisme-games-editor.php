@@ -69,7 +69,7 @@ class SismeGamesEditor {
         add_submenu_page(
             'sisme-games-game-data',
             'Tableau de Bord',
-            'Tableau de Bord',
+            '🖥️ Tableau de Bord',
             'manage_options',
             'sisme-games-game-data',
             array($this, 'game_data_page')
