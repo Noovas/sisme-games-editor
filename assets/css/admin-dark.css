@@ -30,7 +30,11 @@
     --sisme-transition-fast: 0.15s ease;
     --sisme-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
     --sisme-hover-box-shadow: 0 0 10px 0px #ffffff88;
-    --sisme-hover-bg-valid-btn: #a1b78db5;
+
+    --sisme-bg-valid-light: #b8c9a421;
+    --sisme-bg-valid-strong: #a1b78db5;
+    --sisme-bg-warning-light: #ef44440f;
+    --sisme-bg-warning-strong: #dc32326b;
 }
 
 /* ========================================

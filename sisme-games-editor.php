@@ -79,7 +79,7 @@ class SismeGamesEditor {
         add_submenu_page(
             'sisme-games-game-data',
             'Créer Jeu',
-            'Créer Jeu',
+            '📝 Créer Jeu',
             'manage_options',
             'sisme-games-edit-game-data',
             array($this, 'edit_game_data_page')

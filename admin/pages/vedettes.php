@@ -222,60 +222,129 @@ $page->render_start();
 
     <!-- Section Retirer des vedettes -->
     <div class="sisme-vedettes-section">
-        <h2>⭐ Retirer des vedettes</h2>
+        <h2>🗑️ Retirer des vedettes</h2>
         
-        <?php if (!empty($non_featured_games)): ?>
-            <form method="post" class="sisme-vedettes-form" id="addFeaturedForm">
-                <input type="hidden" name="action" value="add_featured">
-                <input type="hidden" name="game_id" id="selectedGameId">
+        <?php if (!empty($featured_games)): ?>
+            <form method="post" class="sisme-vedettes-form" id="removeFeaturedForm">
+                <input type="hidden" name="action" value="remove_featured">
+                <input type="hidden" name="game_id" id="selectedRemoveGameId">
                 
-                <div class="sisme-form-row">
-                    <div class="sisme-form-field">
+                <!-- Layout en 2 colonnes (même structure) -->
+                <div class="sisme-vedettes-layout">
+                    
+                    <!-- Colonne gauche: Sélection du jeu à retirer -->
+                    <div class="sisme-selection-column">
                         <div class="sisme-game-name-component">
                             
-                            <!-- Jeu sélectionné -->
+                            <!-- Zone jeu sélectionné -->
                             <div class="sisme-selected-game">
-                                <label class="sisme-form-label">Jeu à mettre en vedette</label>
-                                <div class="sisme-selected-game-display sisme-selected-display-base" id="selectedGameDisplay">
-                                    <span class="no-game-selected" style="color: #666; font-style: italic;">Aucun jeu sélectionné</span>
+                                <label class="sisme-form-label">Jeu à retirer des vedettes</label>
+                                <div class="sisme-selected-game-display sisme-selected-game-display--remove" id="selectedRemoveGameDisplay">
+                                    <span class="no-game-selected">Aucun jeu sélectionné</span>
                                 </div>
                             </div>
 
-                            <!-- Recherche et sélection -->
-                            <div class="sisme-game-search-container">
-                                <label class="sisme-form-label">Rechercher un jeu :</label>
-                                <div class="sisme-search-box">
-                                    <input type="text" 
-                                           id="gameSearchInput" 
-                                           class="sisme-game-search-input sisme-form-input" 
-                                           placeholder="Tapez le nom d'un jeu..." 
-                                           autocomplete="off">
-                                    <div class="sisme-game-suggestions" id="gameSuggestions"></div>
+                            <!-- Recherche et liste des jeux en vedette -->
+                            <div class="sisme-game-search-section">
+                                <label class="sisme-form-label">Rechercher dans les jeux en vedette</label>
+                                <input type="text" 
+                                       id="removeGameSearchInput" 
+                                       class="sisme-game-search-input" 
+                                       placeholder="Tapez pour filtrer les jeux en vedette..."
+                                       autocomplete="off">
+                                
+                                <!-- Liste des jeux en vedette -->
+                                <div class="sisme-game-list sisme-featured-game-list" id="removeGameList">
+                                    <?php foreach ($featured_games_data as $featured_game): ?>
+                                        <div class="featured-game-item" 
+                                             data-game-id="<?php echo $featured_game['term_id']; ?>"
+                                             data-game-name="<?php echo esc_attr($featured_game['name']); ?>"
+                                             data-search="<?php echo esc_attr(strtolower($featured_game['name'])); ?>">
+                                            <div class="featured-game-info">
+                                                <span class="featured-game-name"><?php echo esc_html($featured_game['name']); ?></span>
+                                                <div class="featured-game-meta">
+                                                    <span class="priority-badge">Priorité: <?php echo $featured_game['vedette_data']['featured_priority']; ?></span>
+                                                    <?php if (!empty($featured_game['vedette_data']['featured_sponsor'])): ?>
+                                                        <span class="sponsor-badge">Sponsor: <?php echo esc_html($featured_game['vedette_data']['featured_sponsor']); ?></span>
+                                                    <?php endif; ?>
+                                                    <span class="stats-badge">
+                                                        👁️ <?php echo $featured_game['vedette_data']['featured_stats']['views']; ?> | 
+                                                        🖱️ <?php echo $featured_game['vedette_data']['featured_stats']['clicks']; ?>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="sisme-form-field">
-                        <label for="priority">Priorité (0-100) :</label>
-                        <input type="number" name="priority" id="priority" value="50" min="0" max="100" class="sisme-input">
-                    </div>
-                    
-                    <div class="sisme-form-field">
-                        <label for="sponsor">Sponsor (optionnel) :</label>
-                        <input type="text" name="sponsor" id="sponsor" placeholder="Nom du sponsor" class="sisme-input">
-                    </div>
-                    
-                    <div class="sisme-form-field">
-                        <button type="submit" class="sisme-btn sisme-btn--primary" id="submitBtn" disabled>
-                            ⭐ Mettre en vedette
-                        </button>
+                    <!-- Colonne droite: Information et confirmation -->
+                    <div class="sisme-config-column sisme-config-column--remove">
+                        <h3 class="sisme-config-title">Confirmation de suppression</h3>
+                        
+                        <div class="sisme-config-fields">
+                            
+                            <!-- Informations du jeu sélectionné -->
+                            <div class="sisme-selected-info" id="selectedGameInfo" style="display: none;">
+                                <div class="sisme-info-card">
+                                    <h4>Jeu sélectionné :</h4>
+                                    <div class="selected-game-details">
+                                        <span class="selected-name" id="selectedGameName"></span>
+                                        <span class="selected-id" id="selectedGameIdText"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="sisme-info-card">
+                                    <h4>Statistiques actuelles :</h4>
+                                    <div class="current-stats" id="currentStats">
+                                        <div class="stat-item">
+                                            <span class="stat-label">Priorité :</span>
+                                            <span class="stat-value" id="currentPriority">-</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Sponsor :</span>
+                                            <span class="stat-value" id="currentSponsor">Aucun</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Vues :</span>
+                                            <span class="stat-value" id="currentViews">0</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Clics :</span>
+                                            <span class="stat-value" id="currentClicks">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Warning -->
+                            <div class="sisme-warning-box" id="warningBox" style="display: none;">
+                                <div class="warning-icon">⚠️</div>
+                                <div class="warning-content">
+                                    <strong>Attention :</strong>
+                                    <p>Ce jeu sera retiré des vedettes et ne sera plus mis en avant sur le site. Les statistiques seront conservées.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Zone d'action -->
+                            <div class="sisme-form-actions">
+                                <button type="submit" class="sisme-btn sisme-btn--danger sisme-btn--large" id="removeSubmitBtn" disabled>
+                                    🗑️ Retirer des vedettes
+                                </button>
+                                <button type="button" class="sisme-btn sisme-btn--secondary" onclick="resetRemoveForm()">
+                                    🔄 Réinitialiser
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>
         <?php else: ?>
             <div class="sisme-empty-state">
-                <p>🎉 Tous les jeux sont déjà en vedette !</p>
+                <p>😔 Aucun jeu en vedette actuellement.</p>
+                <p>Utilisez la section ci-dessus pour en ajouter !</p>
             </div>
         <?php endif; ?>
     </div>
@@ -351,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
         allGameItems.forEach(item => {
             const gameSearch = item.dataset.search;
             if (!searchTerm || gameSearch.includes(searchTerm)) {
-                item.style.display = 'block';
+                item.style.display = 'flex';
             } else {
                 item.style.display = 'none';
             }
@@ -422,7 +491,7 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.value = '';
         
         // Réafficher tous les jeux
-        allGameItems.forEach(item => item.style.display = 'block');
+        allGameItems.forEach(item => item.style.display = 'flex');
     };
     
     // Validation du formulaire
@@ -431,6 +500,154 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             alert('Veuillez sélectionner un jeu');
             searchInput.focus();
+            return false;
+        }
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const removeSearchInput = document.getElementById('removeGameSearchInput');
+    const removeGameList = document.getElementById('removeGameList');
+    const selectedRemoveDisplay = document.getElementById('selectedRemoveGameDisplay');
+    const removeSubmitBtn = document.getElementById('removeSubmitBtn');
+    const allFeaturedItems = document.querySelectorAll('.featured-game-item');
+    
+    // Éléments d'information
+    const selectedGameInfo = document.getElementById('selectedGameInfo');
+    const warningBox = document.getElementById('warningBox');
+    const selectedGameName = document.getElementById('selectedGameName');
+    const selectedGameIdText = document.getElementById('selectedGameIdText');
+    const currentPriority = document.getElementById('currentPriority');
+    const currentSponsor = document.getElementById('currentSponsor');
+    const currentViews = document.getElementById('currentViews');
+    const currentClicks = document.getElementById('currentClicks');
+    
+    let selectedRemoveGameId = null;
+    let selectedGameData = null;
+    
+    // Données des jeux featured pour affichage
+    const featuredGamesData = <?php echo json_encode(array_map(function($game) {
+        return [
+            'id' => $game['term_id'],
+            'name' => $game['name'],
+            'priority' => $game['vedette_data']['featured_priority'],
+            'sponsor' => $game['vedette_data']['featured_sponsor'],
+            'views' => $game['vedette_data']['featured_stats']['views'],
+            'clicks' => $game['vedette_data']['featured_stats']['clicks']
+        ];
+    }, $featured_games_data)); ?>;
+    
+    // Filtrage en temps réel
+    removeSearchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        
+        allFeaturedItems.forEach(item => {
+            const gameSearch = item.dataset.search;
+            if (!searchTerm || gameSearch.includes(searchTerm)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+    
+    // Clic sur un jeu
+    removeGameList.addEventListener('click', function(e) {
+        const gameItem = e.target.closest('.featured-game-item');
+        if (!gameItem) return;
+        
+        const gameId = parseInt(gameItem.dataset.gameId);
+        const gameName = gameItem.dataset.gameName;
+        
+        // Trouver les données du jeu
+        selectedGameData = featuredGamesData.find(game => game.id === gameId);
+        
+        selectGameForRemoval(gameId, gameName, selectedGameData);
+    });
+    
+    // Sélectionner un jeu pour suppression
+    function selectGameForRemoval(gameId, gameName, gameData) {
+        selectedRemoveGameId = gameId;
+        
+        // Mettre à jour l'affichage de sélection
+        selectedRemoveDisplay.innerHTML = `
+            <div class="selected-game-info">
+                <div class="selected-game-details">
+                    <span class="game-name">${gameName}</span>
+                    <span class="game-id">ID: ${gameId}</span>
+                </div>
+                <button type="button" class="remove-game" onclick="clearRemoveSelection()">✕</button>
+            </div>
+        `;
+        selectedRemoveDisplay.classList.add('has-selection');
+        
+        // Remplir le champ caché
+        document.getElementById('selectedRemoveGameId').value = gameId;
+        
+        // Mettre à jour les informations
+        selectedGameName.textContent = gameName;
+        selectedGameIdText.textContent = `ID: ${gameId}`;
+        currentPriority.textContent = gameData.priority;
+        currentSponsor.textContent = gameData.sponsor || 'Aucun';
+        currentViews.textContent = gameData.views;
+        currentClicks.textContent = gameData.clicks;
+        
+        // Afficher les panneaux d'info
+        selectedGameInfo.style.display = 'flex';
+        
+        // Activer le bouton
+        removeSubmitBtn.disabled = false;
+        
+        // Marquer comme sélectionné dans la liste
+        allFeaturedItems.forEach(item => item.classList.remove('selected'));
+        document.querySelector(`[data-game-id="${gameId}"]`).classList.add('selected');
+    }
+    
+    // Fonction globale pour vider la sélection
+    window.clearRemoveSelection = function() {
+        selectedRemoveGameId = null;
+        selectedGameData = null;
+        
+        selectedRemoveDisplay.innerHTML = '<span class="no-game-selected">Aucun jeu sélectionné</span>';
+        selectedRemoveDisplay.classList.remove('has-selection');
+        document.getElementById('selectedRemoveGameId').value = '';
+        removeSubmitBtn.disabled = true;
+        
+        // Masquer les panneaux d'info
+        selectedGameInfo.style.display = 'none';
+        warningBox.style.display = 'none';
+        
+        // Enlever la sélection de la liste
+        allFeaturedItems.forEach(item => item.classList.remove('selected'));
+        
+        // Focus sur recherche
+        removeSearchInput.focus();
+    };
+    
+    // Fonction globale pour réinitialiser le formulaire
+    window.resetRemoveForm = function() {
+        clearRemoveSelection();
+        removeSearchInput.value = '';
+        
+        // Réafficher tous les jeux
+        allFeaturedItems.forEach(item => item.style.display = 'flex');
+    };
+    
+    // Validation du formulaire avec confirmation
+    document.getElementById('removeFeaturedForm').addEventListener('submit', function(e) {
+        if (!selectedRemoveGameId) {
+            e.preventDefault();
+            alert('Veuillez sélectionner un jeu à retirer');
+            removeSearchInput.focus();
+            return false;
+        }
+        
+        // Confirmation de suppression
+        const gameName = selectedGameData ? selectedGameData.name : 'ce jeu';
+        if (!confirm(`Êtes-vous sûr de vouloir retirer "${gameName}" des vedettes ?\n\nCette action peut être annulée en remettant le jeu en vedette.`)) {
+            e.preventDefault();
             return false;
         }
     });
