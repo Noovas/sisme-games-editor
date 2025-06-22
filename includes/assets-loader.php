@@ -17,6 +17,37 @@ class Sisme_Assets_Loader {
     public function __construct() {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_styles'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_carousel_assets'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_carousel_assets'));
+    }
+
+    /**
+     * Charger les assets carrousel quand nécessaire
+     */
+    public function enqueue_carousel_assets() {
+        // Vérifier si la page contient le shortcode vedettes
+        global $post;
+        $has_carousel_shortcode = false;
+        
+        if (is_object($post)) {
+            $has_carousel_shortcode = has_shortcode($post->post_content, 'sisme_vedettes_carousel');
+        }
+        
+        // Charger aussi dans l'admin sur la page vedettes
+        $is_vedettes_admin = is_admin() && isset($_GET['page']) && $_GET['page'] === 'sisme-games-vedettes';
+        
+        // Charger si shortcode présent ou page admin vedettes
+        if ($has_carousel_shortcode || $is_vedettes_admin) {
+            wp_enqueue_style(
+                'sisme-carousel',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/carousel.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            
+            // Log pour debug
+            error_log("Sisme: CSS carrousel chargé - Shortcode: " . ($has_carousel_shortcode ? 'oui' : 'non') . " - Admin vedettes: " . ($is_vedettes_admin ? 'oui' : 'non'));
+        }
     }
     
     /**

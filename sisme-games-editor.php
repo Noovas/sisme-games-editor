@@ -38,7 +38,7 @@ class SismeGamesEditor {
         add_action('wp_ajax_sisme_create_category', array($this, 'handle_ajax_create_category'));
         add_action('wp_ajax_sisme_create_entity', array($this, 'handle_ajax_create_entity'));
         add_action('wp_ajax_sisme_delete_game_data', array($this, 'ajax_delete_game_data'));
-        add_action('admin_init', array($this, 'init_vedettes_system'));
+        add_action('init', array($this, 'init_vedettes_system'));
 
         $this->include_files();
 

@@ -1,0 +1,447 @@
+/**
+ * File: assets/css/components/carousel.css
+ * Carrousel Vedettes - Style cohérent avec les fiches de jeu Sisme
+ */
+
+/* ===== CONTAINER PRINCIPAL - Style Hero Gaming ===== */
+.sisme-vedettes-carousel-container {
+    /* Structure identique à .sisme-game-hero */
+    max-width: 1200px;
+    width: 100%;
+    margin: 40px auto;
+    padding: 40px;
+    box-sizing: border-box;
+    
+    /* Design Gaming - identique aux fiches */
+    background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+    border-radius: 12px;
+    color: #c7d5e0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+        0 16px 48px rgba(0, 0, 0, 0.4),
+        0 8px 24px rgba(0, 0, 0, 0.2);
+    
+    /* Animation cohérente */
+    animation: carouselFadeIn 0.8s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes carouselFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== TITRE DU CARROUSEL ===== */
+.sisme-vedettes-carousel-title {
+    /* Style identique aux titres des fiches */
+    margin: 0 0 30px 0;
+    font-size: 2rem;
+    font-weight: bold;
+    line-height: 1.2;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    
+    /* Accent gaming */
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.sisme-vedettes-carousel-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #66c0f4, #d4a373);
+    border-radius: 2px;
+}
+
+/* ===== ZONE CARROUSEL ===== */
+.sisme-carousel-container {
+    position: relative;
+    width: 100%;
+    height: 400px; /* Hauteur par défaut */
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sisme-carousel-slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.sisme-carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sisme-carousel-slide.active {
+    opacity: 1;
+}
+
+/* ===== IMAGES DU CARROUSEL ===== */
+.sisme-slide-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    position: relative;
+}
+
+.sisme-slide-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 4px;
+}
+
+/* Overlay avec info du jeu (optionnel) */
+.sisme-slide-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    padding: 20px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.sisme-carousel-slide:hover .sisme-slide-overlay {
+    transform: translateY(0);
+}
+
+.sisme-slide-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+    color: #ffffff;
+}
+
+.sisme-slide-meta {
+    font-size: 0.9rem;
+    color: #c7d5e0;
+    opacity: 0.9;
+}
+
+/* ===== NAVIGATION - Style Gaming ===== */
+.sisme-carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.sisme-carousel-btn {
+    /* Style bouton gaming - cohérent avec les fiches */
+    background: linear-gradient(135deg, rgba(102, 192, 244, 0.8), rgba(102, 192, 244, 0.6));
+    color: white;
+    border: 1px solid rgba(102, 192, 244, 0.4);
+    padding: 15px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 50%;
+    pointer-events: all;
+    transition: all 0.3s ease;
+    min-width: 50px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    line-height: 1;
+    
+    /* Effet gaming */
+    box-shadow: 0 4px 12px rgba(102, 192, 244, 0.3);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.sisme-carousel-btn:hover {
+    background: linear-gradient(135deg, rgba(102, 192, 244, 1), rgba(102, 192, 244, 0.8));
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(102, 192, 244, 0.5);
+}
+
+.sisme-carousel-btn:active {
+    transform: scale(0.95);
+}
+
+.sisme-carousel-btn--prev::before {
+    content: '‹';
+}
+
+.sisme-carousel-btn--next::before {
+    content: '›';
+}
+
+/* ===== DOTS NAVIGATION - Style Gaming ===== */
+.sisme-carousel-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+}
+
+.sisme-carousel-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    position: relative;
+}
+
+.sisme-carousel-dot:hover {
+    background: rgba(102, 192, 244, 0.6);
+    border-color: rgba(102, 192, 244, 0.8);
+    transform: scale(1.2);
+}
+
+.sisme-carousel-dot.active {
+    background: #66c0f4;
+    border-color: #66c0f4;
+    transform: scale(1.3);
+    box-shadow: 0 0 10px rgba(102, 192, 244, 0.6);
+}
+
+/* Effet de pulsation pour le dot actif */
+.sisme-carousel-dot.active::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 50%;
+    border: 1px solid #66c0f4;
+    animation: dotPulse 2s infinite;
+}
+
+@keyframes dotPulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* ===== ÉTAT VIDE - Style Gaming ===== */
+.sisme-vedettes-carousel-empty {
+    /* Style cohérent avec les meta boxes des fiches */
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 60px 40px;
+    text-align: center;
+    color: #c7d5e0;
+    margin: 20px 0;
+}
+
+.sisme-vedettes-carousel-empty .sisme-empty-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+    opacity: 0.6;
+    color: #66c0f4;
+}
+
+.sisme-vedettes-carousel-empty h3 {
+    color: #ffffff;
+    font-size: 1.5rem;
+    margin: 0 0 15px 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.sisme-vedettes-carousel-empty p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 10px 0;
+    opacity: 0.9;
+}
+
+.sisme-vedettes-carousel-empty small {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    color: #66c0f4;
+}
+
+/* ===== ADMIN PREVIEW - Style adapté ===== */
+.sisme-admin-preview-carousel {
+    /* Dans l'admin, plus compact */
+    margin: 20px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sisme-admin-preview-carousel .sisme-carousel-btn {
+    background: rgba(102, 192, 244, 0.6);
+    padding: 10px 15px;
+    font-size: 16px;
+    min-width: 40px;
+    min-height: 40px;
+}
+
+.sisme-admin-preview-carousel .sisme-carousel-dot {
+    width: 10px;
+    height: 10px;
+}
+
+/* ===== RESPONSIVE GAMING ===== */
+@media (max-width: 768px) {
+    .sisme-vedettes-carousel-container {
+        padding: 30px 20px;
+        margin: 30px auto;
+    }
+    
+    .sisme-vedettes-carousel-title {
+        font-size: 1.75rem;
+        margin-bottom: 25px;
+    }
+    
+    .sisme-carousel-container {
+        height: 300px;
+    }
+    
+    .sisme-carousel-nav {
+        padding: 0 10px;
+    }
+    
+    .sisme-carousel-btn {
+        padding: 10px 15px;
+        font-size: 18px;
+        min-width: 40px;
+        min-height: 40px;
+    }
+    
+    .sisme-carousel-dots {
+        bottom: 15px;
+        gap: 10px;
+    }
+    
+    .sisme-carousel-dot {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-vedettes-carousel-container {
+        padding: 20px 15px;
+        margin: 20px auto;
+    }
+    
+    .sisme-vedettes-carousel-title {
+        font-size: 1.5rem;
+    }
+    
+    .sisme-carousel-container {
+        height: 250px;
+    }
+    
+    .sisme-carousel-nav {
+        padding: 0 5px;
+    }
+    
+    .sisme-carousel-btn {
+        padding: 8px 12px;
+        font-size: 16px;
+        min-width: 35px;
+        min-height: 35px;
+    }
+    
+    .sisme-carousel-dots {
+        bottom: 10px;
+        gap: 8px;
+    }
+    
+    .sisme-carousel-dot {
+        width: 10px;
+        height: 10px;
+    }
+    
+    .sisme-vedettes-carousel-empty {
+        padding: 40px 20px;
+    }
+}
+
+/* ===== ACCESSIBILITÉ GAMING ===== */
+.sisme-carousel-btn:focus {
+    outline: 2px solid #66c0f4;
+    outline-offset: 2px;
+}
+
+.sisme-carousel-dot:focus {
+    outline: 2px solid #66c0f4;
+    outline-offset: 2px;
+}
+
+/* Réduire les animations si demandé */
+@media (prefers-reduced-motion: reduce) {
+    .sisme-carousel-slide,
+    .sisme-carousel-btn,
+    .sisme-carousel-dot {
+        transition: none;
+    }
+    
+    .sisme-vedettes-carousel-container {
+        animation: none;
+    }
+    
+    .sisme-carousel-dot.active::after {
+        animation: none;
+    }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .sisme-carousel-nav,
+    .sisme-carousel-dots {
+        display: none;
+    }
+    
+    .sisme-carousel-slide {
+        position: static;
+        opacity: 1;
+        page-break-inside: avoid;
+    }
+    
+    .sisme-vedettes-carousel-container {
+        box-shadow: none;
+        background: #fff;
+        color: #000;
+    }
+}

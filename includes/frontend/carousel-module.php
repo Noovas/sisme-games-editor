@@ -139,6 +139,67 @@ class Sisme_Carousel_Module {
         
         return $output;
     }
+
+    /**
+     * Wrapper complet pour carrousel vedettes
+     */
+    public function render_vedettes_carousel($items = array(), $options = array()) {
+        if (empty($items)) {
+            return $this->render_vedettes_empty_state();
+        }
+        
+        // Options par défaut spécifiques aux vedettes
+        $defaults = array(
+            'height' => '400px',
+            'show_arrows' => true,
+            'show_dots' => true,
+            'autoplay' => true,
+            'autoplay_delay' => 5000,
+            'item_type' => 'image',
+            'css_class' => '',
+            'id' => null,
+            'show_title' => true,
+            'title' => 'Jeux à la Une'
+        );
+        
+        $options = array_merge($defaults, $options);
+        
+        // Générer un ID unique si pas fourni
+        if (!$options['id']) {
+            self::$instance_counter++;
+            $options['id'] = 'sisme-carousel-' . self::$instance_counter;
+        }
+        
+        // Traiter les items selon le type
+        $processed_items = $this->process_items($items, $options['item_type']);
+        
+        if (empty($processed_items)) {
+            return $this->render_vedettes_empty_state();
+        }
+        
+        // Container principal style gaming
+        $output = '<div class="sisme-vedettes-carousel-container">';
+        
+        // Titre optionnel
+        if ($options['show_title'] && !empty($options['title'])) {
+            $output .= '<h2 class="sisme-vedettes-carousel-title">' . esc_html($options['title']) . '</h2>';
+        }
+        
+        // Carrousel
+        $output .= $this->render_container_start($options);
+        $output .= $this->render_navigation($options, count($processed_items));
+        $output .= $this->render_slides($processed_items, $options);
+        $output .= $this->render_dots($processed_items, $options);
+        $output .= $this->render_container_end();
+        
+        // JavaScript inline
+        $output .= $this->render_javascript($options);
+        
+        // Fin du wrapper
+        $output .= '</div>';
+        
+        return $output;
+    }
     
     /**
      * Navigation (flèches)
@@ -159,37 +220,26 @@ class Sisme_Carousel_Module {
     /**
      * Slides
      */
-    private function render_slides($items, $options) {
-        $output = '<div class="sisme-carousel-slides">';
-        
-        foreach ($items as $index => $item) {
-            $active_class = $index === 0 ? ' active' : '';
-            $output .= '<div class="sisme-carousel-slide' . $active_class . '" data-index="' . $index . '">';
-            
-            if ($item['type'] === 'image') {
-                $output .= $this->render_image_slide($item);
-            } elseif ($item['type'] === 'custom') {
-                $output .= $this->render_custom_slide($item);
-            }
-            
-            $output .= '</div>';
-        }
-        
-        $output .= '</div>';
-        return $output;
-    }
-    
-    /**
-     * Slide image
-     */
     private function render_image_slide($item) {
         $output = '<div class="sisme-slide-image">';
         $output .= '<img src="' . esc_url($item['url']) . '" ';
         $output .= 'alt="' . esc_attr($item['alt']) . '" ';
         $output .= 'loading="lazy">';
         
-        // Caption si présente
-        if (!empty($item['caption'])) {
+        // 🆕 Overlay avec infos du jeu (si disponibles)
+        if (!empty($item['game_info'])) {
+            $output .= '<div class="sisme-slide-overlay">';
+            $output .= '<h3 class="sisme-slide-title">' . esc_html($item['game_info']['name']) . '</h3>';
+            
+            if (!empty($item['game_info']['sponsor'])) {
+                $output .= '<div class="sisme-slide-meta">Sponsorisé par ' . esc_html($item['game_info']['sponsor']) . '</div>';
+            }
+            
+            $output .= '</div>';
+        }
+        
+        // Caption classique si pas d'overlay
+        if (empty($item['game_info']) && !empty($item['caption'])) {
             $output .= '<div class="sisme-slide-caption">';
             $output .= '<p>' . esc_html($item['caption']) . '</p>';
             $output .= '</div>';
@@ -197,6 +247,28 @@ class Sisme_Carousel_Module {
         
         $output .= '</div>';
         return $output;
+    }
+
+    /**
+     * État vide pour carrousel vedettes
+     */
+    private function render_vedettes_empty_state() {
+        return '<div class="sisme-vedettes-carousel-container">
+                    <div class="sisme-vedettes-carousel-empty">
+                        <div class="sisme-empty-icon">🌟</div>
+                        <h3>Aucun jeu vedette</h3>
+                        <p>Configurez des jeux en vedette pour voir le carrousel ici.</p>
+                        <small>Rendez-vous dans l\'administration pour ajouter des jeux à la une.</small>
+                    </div>
+                </div>';
+    }
+
+    /**
+     * Méthode statique spécifique aux vedettes
+     */
+    public static function quick_render_vedettes($items, $options = array()) {
+        $instance = new self();
+        return $instance->render_vedettes_carousel($items, $options);
     }
     
     /**

@@ -333,6 +333,37 @@ class Sisme_Vedettes_API {
         if (!class_exists('Sisme_Carousel_Module')) {
             require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/carousel-module.php';
         }
+
+        // Préparer les items avec info des jeux
+        $carousel_items = array();
+        foreach ($cover_ids as $cover_id) {
+            $image_data = wp_get_attachment_image_url($cover_id, 'large');
+            if ($image_data) {
+                $item = array(
+                    'id' => $cover_id,
+                    'url' => $image_data,
+                    'alt' => get_post_meta($cover_id, '_wp_attachment_image_alt', true) ?: '',
+                    'title' => get_the_title($cover_id),
+                    'caption' => wp_get_attachment_caption($cover_id)
+                );
+                
+                // Ajouter les infos du jeu si disponibles
+                if (isset($games_data[$cover_id])) {
+                    $item['game_info'] = $games_data[$cover_id];
+                }
+                
+                $carousel_items[] = $item;
+            }
+        }
+
+        // Options spécifiques vedettes
+        $vedettes_options = array_merge($carousel_options, array(
+            'show_title' => !isset($options['show_title']) || $options['show_title'],
+            'title' => isset($options['title']) ? $options['title'] : 'Jeux à la Une'
+        ));
+
+        // Utiliser la méthode vedettes
+        $carousel_html = Sisme_Carousel_Module::quick_render_vedettes($carousel_items, $vedettes_options);
         
         $carousel_options = array(
             'height' => $options['height'],
@@ -346,7 +377,9 @@ class Sisme_Vedettes_API {
         
         error_log("Sisme Debug: Appel du module carrousel avec " . count($cover_ids) . " images");
         
-        $carousel_html = Sisme_Carousel_Module::quick_render($cover_ids, $carousel_options);
+        if (!class_exists('Sisme_Carousel_Module')) {
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/carousel-module.php';
+        }
         
         // Ajouter les métadonnées des jeux
         $games_json = json_encode($games_data);
