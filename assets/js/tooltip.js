@@ -1,16 +1,12 @@
 /**
  * File: /sisme-games-editor/assets/js/tooltip.js
- * Système de Tooltip Gaming - Instantané et Intelligent
+ * Système de Tooltip Gaming - Version CORRIGÉE et SIMPLIFIÉE
  */
 
 class SismeTooltip {
     constructor() {
         this.tooltip = null;
         this.currentElement = null;
-        this.showDelay = 0; // INSTANTANÉ
-        this.hideDelay = 0; // INSTANTANÉ
-        this.showTimer = null;
-        this.hideTimer = null;
         
         this.init();
     }
@@ -19,42 +15,31 @@ class SismeTooltip {
         // Créer le tooltip
         this.createTooltip();
         
-        // Écouter les événements sur tous les éléments avec data-sisme-tooltip
+        // Écouter les événements
         this.bindEvents();
-        
-        // Écouter les nouveaux éléments ajoutés dynamiquement
-        this.observeDOM();
     }
     
     createTooltip() {
         this.tooltip = document.createElement('div');
         this.tooltip.className = 'sisme-tooltip';
-        this.tooltip.style.position = 'absolute';
-        this.tooltip.style.zIndex = '9999';
         document.body.appendChild(this.tooltip);
     }
     
     bindEvents() {
-        // Utiliser la délégation d'événements pour les éléments dynamiques
+        // Délégation d'événements pour les éléments dynamiques
         document.addEventListener('mouseenter', (e) => {
             const element = e.target.closest('[data-sisme-tooltip]');
             if (element) {
-                this.handleMouseEnter(element, e);
+                this.show(element, e);
             }
         }, true);
         
         document.addEventListener('mouseleave', (e) => {
             const element = e.target.closest('[data-sisme-tooltip]');
-            if (element) {
-                this.handleMouseLeave(element, e);
+            if (element && element === this.currentElement) {
+                this.hide();
             }
         }, true);
-        
-        document.addEventListener('mousemove', (e) => {
-            if (this.currentElement) {
-                this.updatePosition(e);
-            }
-        });
         
         // Masquer au scroll
         document.addEventListener('scroll', () => {
@@ -67,59 +52,14 @@ class SismeTooltip {
         });
     }
     
-    observeDOM() {
-        // Observer les changements DOM pour les éléments ajoutés dynamiquement
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'childList') {
-                    // Les événements sont déjà gérés par délégation, rien à faire
-                }
-            });
-        });
-        
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    }
-    
-    handleMouseEnter(element, event) {
-        // Annuler le timer de masquage
-        if (this.hideTimer) {
-            clearTimeout(this.hideTimer);
-            this.hideTimer = null;
-        }
-        
-        // Si c'est le même élément, ne pas relancer
-        if (this.currentElement === element) {
-            return;
-        }
-        
-        this.currentElement = element;
-        
-        // Affichage INSTANTANÉ
-        this.show(element, event);
-    }
-    
-    handleMouseLeave(element, event) {
-        // Annuler le timer d'affichage
-        if (this.showTimer) {
-            clearTimeout(this.showTimer);
-            this.showTimer = null;
-        }
-        
-        // Si on sort de l'élément actuel, masquer immédiatement
-        if (this.currentElement === element) {
-            this.hide();
-        }
-    }
-    
     show(element, event) {
         const tooltipText = element.dataset.sismeTooltip;
         const tooltipType = element.dataset.sismeTooltipType || 'default';
         const tooltipIcon = element.dataset.sismeTooltipIcon;
         
         if (!tooltipText) return;
+        
+        this.currentElement = element;
         
         // Supprimer l'attribut title pour éviter les conflits
         if (element.hasAttribute('title')) {
@@ -145,63 +85,56 @@ class SismeTooltip {
             this.tooltip.className += ' sisme-tooltip--multiline';
         }
         
-        // Positionner et afficher
-        this.updatePosition(event);
+        // POSITIONNEMENT SIMPLIFIÉ
+        this.positionTooltip(element);
+        
+        // Afficher
         this.tooltip.classList.add('sisme-tooltip--visible');
     }
     
-    updatePosition(event) {
-        if (!this.tooltip || !this.tooltip.classList.contains('sisme-tooltip--visible')) {
-            return;
-        }
+    positionTooltip(element) {
+        // Récupérer la position de l'élément
+        const elementRect = element.getBoundingClientRect();
         
-        const mouseX = event.clientX;
-        const mouseY = event.clientY;
-        
-        // Force le recalcul de la taille
+        // Positionner temporairement pour mesurer
         this.tooltip.style.visibility = 'hidden';
         this.tooltip.style.display = 'block';
+        this.tooltip.style.position = 'fixed';
+        this.tooltip.style.left = '0';
+        this.tooltip.style.top = '0';
         
         const tooltipRect = this.tooltip.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
+        const viewport = {
+            width: window.innerWidth,
+            height: window.innerHeight
+        };
         
-        // Remettre visible
-        this.tooltip.style.visibility = 'visible';
+        // Position par défaut : au-dessus et centré
+        let x = elementRect.left + (elementRect.width / 2) - (tooltipRect.width / 2);
+        let y = elementRect.top - tooltipRect.height - 10;
         
-        // Position de base : à droite et légèrement en bas de la souris
-        let x = mouseX + 15;
-        let y = mouseY + 10;
-        
-        // Ajuster horizontalement si déborde à droite
-        if (x + tooltipRect.width > viewportWidth - 20) {
-            x = mouseX - tooltipRect.width - 15; // À gauche de la souris
+        // Ajustements horizontaux
+        const padding = 15;
+        if (x < padding) {
+            x = padding;
+        } else if (x + tooltipRect.width > viewport.width - padding) {
+            x = viewport.width - tooltipRect.width - padding;
         }
         
-        // Ajuster horizontalement si déborde à gauche
-        if (x < 20) {
-            x = 20;
-        }
-        
-        // Ajuster verticalement si déborde en bas
-        if (y + tooltipRect.height > viewportHeight - 20) {
-            y = mouseY - tooltipRect.height - 10; // Au-dessus de la souris
-            this.tooltip.classList.remove('sisme-tooltip--bottom');
-            this.tooltip.classList.add('sisme-tooltip--top');
-        } else {
+        // Ajustement vertical : si pas de place en haut, aller en bas
+        if (y < padding) {
+            y = elementRect.bottom + 10;
             this.tooltip.classList.remove('sisme-tooltip--top');
             this.tooltip.classList.add('sisme-tooltip--bottom');
+        } else {
+            this.tooltip.classList.remove('sisme-tooltip--bottom');
+            this.tooltip.classList.add('sisme-tooltip--top');
         }
         
-        // Ajuster verticalement si déborde en haut
-        if (y < 20) {
-            y = 20;
-        }
-        
-        // Appliquer la position avec transformation pour éviter le flicker
-        this.tooltip.style.transform = `translate(${x}px, ${y}px)`;
-        this.tooltip.style.left = '0px';
-        this.tooltip.style.top = '0px';
+        // Appliquer la position finale
+        this.tooltip.style.left = Math.round(x) + 'px';
+        this.tooltip.style.top = Math.round(y) + 'px';
+        this.tooltip.style.visibility = 'visible';
     }
     
     hide() {
@@ -216,25 +149,14 @@ class SismeTooltip {
         }
         
         this.currentElement = null;
-        
-        // Nettoyer les timers
-        if (this.showTimer) {
-            clearTimeout(this.showTimer);
-            this.showTimer = null;
-        }
-        if (this.hideTimer) {
-            clearTimeout(this.hideTimer);
-            this.hideTimer = null;
-        }
     }
     
-    // Méthodes publiques pour l'API
+    // API publique
     static show(element, text, type = 'default', icon = null) {
         element.setAttribute('data-sisme-tooltip', text);
         if (type !== 'default') element.setAttribute('data-sisme-tooltip-type', type);
         if (icon) element.setAttribute('data-sisme-tooltip-icon', icon);
         
-        // Déclencher l'affichage immédiatement
         const event = new MouseEvent('mouseenter', { bubbles: true });
         element.dispatchEvent(event);
     }
@@ -258,15 +180,11 @@ class SismeTooltip {
     }
 }
 
-// Initialiser automatiquement quand le DOM est prêt
-document.addEventListener('DOMContentLoaded', () => {
-    window.sismeTooltip = new SismeTooltip();
-});
-
-// Initialiser immédiatement si le DOM est déjà prêt
+// Initialisation automatique
 if (document.readyState === 'loading') {
-    // DOM pas encore chargé
+    document.addEventListener('DOMContentLoaded', () => {
+        window.sismeTooltip = new SismeTooltip();
+    });
 } else {
-    // DOM déjà chargé
     window.sismeTooltip = new SismeTooltip();
 }
