@@ -264,11 +264,11 @@ class Sisme_Carousel_Module {
         }
         
         $output = '<button class="sisme-ultra-nav prev">';
-        $output .= '<div class="sisme-ultra-btn">‹</div>';
+        $output .= '<div class="sisme-ultra-btn"></div>';
         $output .= '</button>';
         
         $output .= '<button class="sisme-ultra-nav next">';
-        $output .= '<div class="sisme-ultra-btn">›</div>';
+        $output .= '<div class="sisme-ultra-btn"></div>';
         $output .= '</button>';
         
         return $output;
@@ -396,13 +396,25 @@ class Sisme_Carousel_Module {
         $script = "
         <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let currentSlide = 0;
-            const slides = document.querySelectorAll('#{$carousel_id} .sisme-ultra-slide');
-            const dots = document.querySelectorAll('.sisme-ultra-dot');
-            const prevBtn = document.querySelector('.sisme-ultra-nav.prev .sisme-ultra-btn');
-            const nextBtn = document.querySelector('.sisme-ultra-nav.next .sisme-ultra-btn');
-            const totalSlides = slides.length;
+            const carousel = document.getElementById('{$carousel_id}');
+            if (!carousel) return;
             
+            let currentSlide = 0;
+            const slides = carousel.querySelectorAll('.sisme-ultra-slide');
+            
+            // Recherche robuste des boutons (plusieurs méthodes)
+            const prevBtn = document.querySelector('.sisme-ultra-nav.prev') || 
+                           carousel.parentElement.querySelector('.sisme-ultra-nav.prev') ||
+                           document.querySelector('[class*=\"prev\"]');
+            const nextBtn = document.querySelector('.sisme-ultra-nav.next') || 
+                           carousel.parentElement.querySelector('.sisme-ultra-nav.next') ||
+                           document.querySelector('[class*=\"next\"]');
+            
+            // Recherche des dots
+            const dotsContainer = document.querySelector('.sisme-ultra-dots');
+            const dots = dotsContainer ? dotsContainer.querySelectorAll('.sisme-ultra-dot') : [];
+            
+            const totalSlides = slides.length;
             let autoplayTimer = null;
             let isAnimating = false;
             let autoplayEnabled = {$autoplay};
@@ -425,9 +437,11 @@ class Sisme_Carousel_Module {
                     }
                 });
 
-                dots.forEach((dot, index) => {
-                    dot.classList.toggle('active', index === currentSlide);
-                });
+                if (dots && dots.length > 0) {
+                    dots.forEach((dot, index) => {
+                        dot.classList.toggle('active', index === currentSlide);
+                    });
+                }
                 
                 setTimeout(() => { isAnimating = false; }, 800);
             }
@@ -479,31 +493,48 @@ class Sisme_Carousel_Module {
                 }, 1000);
             }
 
+            // Event listeners avec vérification d'existence
             if (nextBtn) {
-                nextBtn.addEventListener('click', () => handleClick(nextSlide));
+                nextBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleClick(nextSlide);
+                });
             }
 
             if (prevBtn) {
-                prevBtn.addEventListener('click', () => handleClick(prevSlide));
+                prevBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleClick(prevSlide);
+                });
             }
 
-            dots.forEach((dot, index) => {
-                dot.addEventListener('click', () => handleClick(() => goToSlide(index)));
-            });
+            if (dots && dots.length > 0) {
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleClick(() => goToSlide(index));
+                    });
+                });
+            }
 
-            const carousel = document.querySelector('.sisme-ultra-carousel');
-            if (carousel) {
-                carousel.addEventListener('mouseenter', () => {
+            // Gestion du hover
+            const carouselWrapper = carousel.parentElement;
+            if (carouselWrapper) {
+                carouselWrapper.addEventListener('mouseenter', () => {
                     autoplayEnabled = false;
                     stopAutoplay();
                 });
                 
-                carousel.addEventListener('mouseleave', () => {
+                carouselWrapper.addEventListener('mouseleave', () => {
                     autoplayEnabled = {$autoplay};
                     startAutoplay();
                 });
             }
 
+            // Particles (optionnel)
             function createParticle() {
                 const particlesContainer = document.getElementById('particles-{$carousel_id}');
                 if (!particlesContainer || particlesContainer.children.length > 10) return;
@@ -525,6 +556,7 @@ class Sisme_Carousel_Module {
                 clearInterval(particleInterval);
             });
 
+            // Initialisation
             updateSlides();
             startAutoplay();
         });
