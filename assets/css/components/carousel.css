@@ -1,18 +1,17 @@
 /**
- * MODIFICATIONS CSS pour Carrousel Responsive
- * File: assets/css/components/carousel.css
+ * STRUCTURE CARROUSEL CORRIGÉE
+ * Navigation externe, sans dédoublement d'image
  */
 
-/* ===== CONTAINER PRINCIPAL - Version Responsive ===== */
+/* ===== CONTAINER PRINCIPAL ===== */
 .sisme-vedettes-carousel-container {
-    /* Structure identique à .sisme-game-hero mais plus grande */
     max-width: 1200px;
     width: 100%;
     margin: 40px auto;
     padding: 40px;
     box-sizing: border-box;
     
-    /* Design Gaming - identique aux fiches */
+    /* Design Gaming */
     background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
     border-radius: 12px;
     color: #c7d5e0;
@@ -21,12 +20,11 @@
         0 16px 48px rgba(0, 0, 0, 0.4),
         0 8px 24px rgba(0, 0, 0, 0.2);
     
-    animation: carouselFadeIn 0.8s ease-out;
     position: relative;
-    overflow: hidden;
+    animation: carouselFadeIn 0.8s ease-out;
 }
 
-/* ===== TITRE DU CARROUSEL ===== */
+/* ===== TITRE ===== */
 .sisme-vedettes-carousel-title {
     margin: 0 0 30px 0;
     font-size: 2rem;
@@ -51,37 +49,29 @@
     border-radius: 2px;
 }
 
-/* ===== ZONE CARROUSEL - HAUTEUR RESPONSIVE ===== */
+/* ===== ZONE CARROUSEL AVEC NAVIGATION ===== */
+.sisme-carousel-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px; /* Espace pour les dots */
+}
+
+/* ===== CONTAINER IMAGE ===== */
 .sisme-carousel-container {
     position: relative;
     width: 100%;
-    
-    /* 🔧 CHANGEMENT: Hauteur responsive basée sur ratio 16:9 */
     aspect-ratio: 16 / 9;
-    min-height: 300px; /* Hauteur minimum pour mobile */
-    max-height: 600px; /* Hauteur maximum pour très grands écrans */
-    
+    min-height: 300px;
+    max-height: 600px;
     border-radius: 8px;
     overflow: hidden;
     background: #000;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 0 60px; /* Espace pour les flèches */
 }
 
-/* Alternative: Si tu veux un ratio différent, change ici */
-.sisme-carousel-container.ratio-21-9 {
-    aspect-ratio: 21 / 9; /* Plus large/cinéma */
-}
-
-.sisme-carousel-container.ratio-4-3 {
-    aspect-ratio: 4 / 3; /* Plus carré */
-}
-
-.sisme-carousel-container.ratio-3-2 {
-    aspect-ratio: 3 / 2; /* Compromis */
-}
-
-/* ===== SLIDES - AJUSTEMENT POUR RESPONSIVE ===== */
+/* ===== SLIDES ===== */
 .sisme-carousel-slides {
     position: relative;
     width: 100%;
@@ -105,7 +95,6 @@
     opacity: 1;
 }
 
-/* ===== IMAGES DU CARROUSEL - OPTIMISÉES ===== */
 .sisme-slide-image {
     width: 100%;
     height: 100%;
@@ -119,126 +108,109 @@
 .sisme-slide-image img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* L'image remplit tout l'espace */
+    object-fit: cover;
     display: block;
-    border-radius: 4px;
 }
 
-/* Version alternative si tu veux garder les proportions de l'image */
-.sisme-slide-image.contain img {
-    object-fit: contain; /* L'image garde ses proportions */
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-}
-
-/* ===== RESPONSIVE ADAPTATIF ===== */
-@media (max-width: 1200px) {
-    .sisme-vedettes-carousel-container {
-        max-width: 100%;
-        margin: 30px 20px;
-        padding: 30px;
-    }
-    
-    .sisme-carousel-container {
-        max-height: 500px;
-    }
-}
-
-@media (max-width: 768px) {
-    .sisme-vedettes-carousel-container {
-        padding: 20px 15px;
-        margin: 20px 10px;
-    }
-    
-    .sisme-vedettes-carousel-title {
-        font-size: 1.75rem;
-        margin-bottom: 20px;
-    }
-    
-    .sisme-carousel-container {
-        /* Ratio plus carré sur mobile */
-        aspect-ratio: 16 / 10;
-        min-height: 250px;
-        max-height: 400px;
-    }
-}
-
-@media (max-width: 480px) {
-    .sisme-vedettes-carousel-container {
-        padding: 15px 10px;
-        margin: 15px 5px;
-    }
-    
-    .sisme-vedettes-carousel-title {
-        font-size: 1.5rem;
-        margin-bottom: 15px;
-    }
-    
-    .sisme-carousel-container {
-        /* Encore plus carré sur très petit écran */
-        aspect-ratio: 4 / 3;
-        min-height: 200px;
-        max-height: 300px;
-    }
-}
-
-/* ===== NAVIGATION - AJUSTÉE POUR GRANDES TAILLES ===== */
+/* ===== NAVIGATION FLÈCHES - EXTERNE ===== */
 .sisme-carousel-nav {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     width: 100%;
+    height: 0;
     display: flex;
     justify-content: space-between;
-    padding: 0 30px; /* Plus d'espace sur les côtés */
     pointer-events: none;
-    z-index: 10;
+    z-index: 20;
 }
 
 .sisme-carousel-btn {
-    background: linear-gradient(135deg, rgba(102, 192, 244, 0.9), rgba(102, 192, 244, 0.7));
-    color: white;
-    border: 1px solid rgba(102, 192, 244, 0.4);
-    padding: 20px 25px; /* Plus gros pour le grand format */
+    /* Style gaming visible */
+    background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+    color: #66c0f4;
+    border: 2px solid rgba(102, 192, 244, 0.5);
+    padding: 15px;
     font-size: 24px;
     font-weight: bold;
     cursor: pointer;
-    border-radius: 50%;
+    border-radius: 8px;
     pointer-events: all;
     transition: all 0.3s ease;
-    min-width: 60px;
-    min-height: 60px;
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
     user-select: none;
     line-height: 1;
-    box-shadow: 0 4px 12px rgba(102, 192, 244, 0.3);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    
+    /* Ombre forte pour visibilité */
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.6),
+        0 2px 6px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    
+    /* Position absolue pour sortir du flux */
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
+.sisme-carousel-btn--prev {
+    left: 0;
+}
+
+.sisme-carousel-btn--next {
+    right: 0;
+}
+
+/* Effet hover gaming */
 .sisme-carousel-btn:hover {
-    background: linear-gradient(135deg, rgba(102, 192, 244, 1), rgba(102, 192, 244, 0.8));
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(102, 192, 244, 0.5);
+    background: linear-gradient(135deg, #66c0f4 0%, #4a9fd1 100%);
+    color: #ffffff;
+    border-color: #66c0f4;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 
+        0 6px 20px rgba(102, 192, 244, 0.6),
+        0 3px 10px rgba(102, 192, 244, 0.3),
+        0 0 0 1px #66c0f4;
 }
 
-/* ===== DOTS NAVIGATION - PLUS VISIBLES ===== */
+.sisme-carousel-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* Icônes des flèches */
+.sisme-carousel-btn--prev::after {
+    content: '‹';
+}
+
+.sisme-carousel-btn--next::after {
+    content: '›';
+}
+
+/* ===== DOTS NAVIGATION - SOUS LE CARROUSEL ===== */
 .sisme-carousel-dots {
     position: absolute;
-    bottom: 30px; /* Plus d'espace en bas */
+    bottom: -50px; /* En dessous du wrapper */
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 15px; /* Plus d'espace entre les dots */
+    gap: 12px;
     z-index: 10;
+    
+    /* Style gaming pour le groupe de dots */
+    background: rgba(0, 0, 0, 0.4);
+    padding: 10px 15px;
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
 }
 
 .sisme-carousel-dot {
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.4);
     border: 2px solid rgba(255, 255, 255, 0.2);
@@ -246,30 +218,36 @@
     transition: all 0.3s ease;
     padding: 0;
     position: relative;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .sisme-carousel-dot:hover {
     background: rgba(102, 192, 244, 0.6);
     border-color: rgba(102, 192, 244, 0.8);
     transform: scale(1.2);
+    box-shadow: 
+        inset 0 1px 2px rgba(0, 0, 0, 0.2),
+        0 0 8px rgba(102, 192, 244, 0.4);
 }
 
 .sisme-carousel-dot.active {
     background: #66c0f4;
     border-color: #66c0f4;
-    transform: scale(1.4);
-    box-shadow: 0 0 15px rgba(102, 192, 244, 0.6);
+    transform: scale(1.3);
+    box-shadow: 
+        inset 0 1px 2px rgba(0, 0, 0, 0.2),
+        0 0 12px rgba(102, 192, 244, 0.6);
 }
 
-/* ===== OVERLAY - OPTIMISÉ POUR GRAND FORMAT ===== */
+/* ===== OVERLAY INFO JEU (OPTIONNEL) ===== */
 .sisme-slide-overlay {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
     color: white;
-    padding: 40px 30px; /* Plus de padding pour le grand format */
+    padding: 20px;
     transform: translateY(100%);
     transition: transform 0.3s ease;
 }
@@ -279,29 +257,117 @@
 }
 
 .sisme-slide-title {
-    font-size: 1.75rem; /* Plus gros pour le grand format */
+    font-size: 1.5rem;
     font-weight: bold;
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     color: #ffffff;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 .sisme-slide-meta {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: #c7d5e0;
     opacity: 0.9;
 }
 
-/* ===== ÉTAT VIDE - AJUSTÉ ===== */
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+    .sisme-vedettes-carousel-container {
+        margin: 30px 20px;
+        padding: 30px;
+    }
+    
+    .sisme-carousel-container {
+        margin: 0 50px;
+    }
+    
+    .sisme-carousel-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sisme-vedettes-carousel-container {
+        padding: 20px;
+        margin: 20px 10px;
+    }
+    
+    .sisme-carousel-container {
+        margin: 0 40px;
+        aspect-ratio: 16 / 10;
+    }
+    
+    .sisme-carousel-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        padding: 10px;
+    }
+    
+    .sisme-carousel-dots {
+        bottom: -40px;
+        padding: 8px 12px;
+        gap: 10px;
+    }
+    
+    .sisme-carousel-dot {
+        width: 10px;
+        height: 10px;
+    }
+    
+    .sisme-vedettes-carousel-title {
+        font-size: 1.75rem;
+        margin-bottom: 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-vedettes-carousel-container {
+        padding: 15px;
+        margin: 15px 5px;
+    }
+    
+    .sisme-carousel-container {
+        margin: 0 35px;
+        aspect-ratio: 4 / 3;
+    }
+    
+    .sisme-carousel-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+        padding: 8px;
+    }
+    
+    .sisme-carousel-dots {
+        bottom: -35px;
+        padding: 6px 10px;
+        gap: 8px;
+    }
+    
+    .sisme-carousel-dot {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .sisme-vedettes-carousel-title {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+}
+
+/* ===== ÉTAT VIDE ===== */
 .sisme-vedettes-carousel-empty {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    padding: 80px 40px; /* Plus de padding */
+    padding: 60px 40px;
     text-align: center;
     color: #c7d5e0;
     margin: 20px 0;
-    min-height: 300px;
+    min-height: 200px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -309,7 +375,7 @@
 }
 
 .sisme-vedettes-carousel-empty .sisme-empty-icon {
-    font-size: 5em; /* Plus gros */
+    font-size: 4em;
     margin-bottom: 20px;
     opacity: 0.6;
     color: #66c0f4;
@@ -317,81 +383,31 @@
 
 .sisme-vedettes-carousel-empty h3 {
     color: #ffffff;
-    font-size: 1.75rem; /* Plus gros */
+    font-size: 1.5rem;
     margin: 0 0 15px 0;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .sisme-vedettes-carousel-empty p {
-    font-size: 1.1rem;
+    font-size: 1rem;
     line-height: 1.6;
     margin: 10px 0;
     opacity: 0.9;
 }
 
-/* ===== RESPONSIVE NAVIGATION ===== */
-@media (max-width: 768px) {
-    .sisme-carousel-nav {
-        padding: 0 20px;
-    }
-    
-    .sisme-carousel-btn {
-        padding: 15px 18px;
-        font-size: 20px;
-        min-width: 50px;
-        min-height: 50px;
-    }
-    
-    .sisme-carousel-dots {
-        bottom: 20px;
-        gap: 12px;
-    }
-    
-    .sisme-carousel-dot {
-        width: 14px;
-        height: 14px;
-    }
-    
-    .sisme-slide-overlay {
-        padding: 25px 20px;
-    }
-    
-    .sisme-slide-title {
-        font-size: 1.4rem;
-    }
-    
-    .sisme-slide-meta {
-        font-size: 1rem;
-    }
+/* ===== ACCESSIBILITY ===== */
+.sisme-carousel-btn:focus {
+    outline: none;
+    border-color: #66c0f4;
+    box-shadow: 
+        0 0 0 3px rgba(102, 192, 244, 0.3),
+        0 4px 12px rgba(0, 0, 0, 0.6);
 }
 
-@media (max-width: 480px) {
-    .sisme-carousel-nav {
-        padding: 0 15px;
-    }
-    
-    .sisme-carousel-btn {
-        padding: 12px 15px;
-        font-size: 18px;
-        min-width: 45px;
-        min-height: 45px;
-    }
-    
-    .sisme-carousel-dots {
-        bottom: 15px;
-        gap: 10px;
-    }
-    
-    .sisme-carousel-dot {
-        width: 12px;
-        height: 12px;
-    }
-    
-    .sisme-slide-overlay {
-        padding: 20px 15px;
-    }
-    
-    .sisme-slide-title {
-        font-size: 1.25rem;
-    }
+.sisme-carousel-dot:focus {
+    outline: none;
+    border-color: #66c0f4;
+    box-shadow: 
+        0 0 0 3px rgba(102, 192, 244, 0.3),
+        inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }

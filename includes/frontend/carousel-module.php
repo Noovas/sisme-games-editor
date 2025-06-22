@@ -145,8 +145,7 @@ class Sisme_Carousel_Module {
         }
         
         $output = '<div class="' . $css_classes . '" id="' . esc_attr($options['id']) . '" ';
-        $output .= 'data-options="' . esc_attr(json_encode($options)) . '" ';
-        $output .= 'style="height: ' . esc_attr($options['height']) . '">';
+        $output .= 'data-options="' . esc_attr(json_encode($options)) . '">';
         
         return $output;
     }
@@ -208,7 +207,7 @@ class Sisme_Carousel_Module {
             return $this->render_vedettes_empty_state();
         }
         
-        // Container principal style gaming
+        // 🔧 NOUVELLE STRUCTURE HTML
         $output = '<div class="sisme-vedettes-carousel-container">';
         
         // Titre optionnel
@@ -216,17 +215,27 @@ class Sisme_Carousel_Module {
             $output .= '<h2 class="sisme-vedettes-carousel-title">' . esc_html($options['title']) . '</h2>';
         }
         
-        // Carrousel
+        // Wrapper carrousel avec navigation
+        $output .= '<div class="sisme-carousel-wrapper">';
+        
+        // Container image principal
         $output .= $this->render_container_start($options);
-        $output .= $this->render_navigation($options, count($processed_items));
         $output .= $this->render_slides($processed_items, $options);
-        $output .= $this->render_dots($processed_items, $options);
         $output .= $this->render_container_end();
+        
+        // Navigation flèches (dans le wrapper, pas dans le container)
+        $output .= $this->render_navigation($options, count($processed_items));
+        
+        // Dots navigation (dans le wrapper)
+        $output .= $this->render_dots($processed_items, $options);
+        
+        // Fin du wrapper
+        $output .= '</div>';
         
         // JavaScript inline
         $output .= $this->render_javascript($options);
         
-        // Fin du wrapper
+        // Fin du container principal
         $output .= '</div>';
         
         return $output;
@@ -370,13 +379,17 @@ class Sisme_Carousel_Module {
         $script = "
         <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const carousel = document.getElementById('{$carousel_id}');
-            if (!carousel) return;
+            const carouselContainer = document.getElementById('{$carousel_id}');
+            if (!carouselContainer) return;
             
-            const slides = carousel.querySelectorAll('.sisme-carousel-slide');
-            const dots = carousel.querySelectorAll('.sisme-carousel-dot');
-            const prevBtn = carousel.querySelector('.sisme-carousel-btn--prev');
-            const nextBtn = carousel.querySelector('.sisme-carousel-btn--next');
+            // Adapter à la structure (vedettes ou standard)
+            const parentWrapper = carouselContainer.closest('.sisme-carousel-wrapper');
+            const searchRoot = parentWrapper || carouselContainer;
+            
+            const slides = carouselContainer.querySelectorAll('.sisme-carousel-slide');
+            const dots = searchRoot.querySelectorAll('.sisme-carousel-dot');
+            const prevBtn = searchRoot.querySelector('.sisme-carousel-btn--prev');
+            const nextBtn = searchRoot.querySelector('.sisme-carousel-btn--next');
             
             let currentSlide = 0;
             let totalSlides = slides.length;
@@ -385,29 +398,21 @@ class Sisme_Carousel_Module {
             if (totalSlides <= 1) return;
             
             function showSlide(index) {
-                // Masquer toutes les slides
                 slides.forEach(slide => slide.classList.remove('active'));
                 dots.forEach(dot => dot.classList.remove('active'));
                 
-                // Afficher la slide active
-                if (slides[index]) {
-                    slides[index].classList.add('active');
-                }
-                if (dots[index]) {
-                    dots[index].classList.add('active');
-                }
+                if (slides[index]) slides[index].classList.add('active');
+                if (dots[index]) dots[index].classList.add('active');
                 
                 currentSlide = index;
             }
             
             function nextSlide() {
-                const next = (currentSlide + 1) % totalSlides;
-                showSlide(next);
+                showSlide((currentSlide + 1) % totalSlides);
             }
             
             function prevSlide() {
-                const prev = (currentSlide - 1 + totalSlides) % totalSlides;
-                showSlide(prev);
+                showSlide((currentSlide - 1 + totalSlides) % totalSlides);
             }
             
             function startAutoplay() {
@@ -448,11 +453,13 @@ class Sisme_Carousel_Module {
                 });
             });
             
-            // Pause autoplay au hover
-            carousel.addEventListener('mouseenter', stopAutoplay);
-            carousel.addEventListener('mouseleave', startAutoplay);
+            // Pause au hover
+            const hoverTarget = parentWrapper || carouselContainer;
+            hoverTarget.addEventListener('mouseenter', stopAutoplay);
+            hoverTarget.addEventListener('mouseleave', startAutoplay);
             
-            // Démarrer l'autoplay
+            // Initialiser
+            showSlide(0);
             startAutoplay();
         });
         </script>";
@@ -496,4 +503,44 @@ add_shortcode('sisme_carousel', function($atts, $content = '') {
     
     return Sisme_Carousel_Module::quick_render($image_ids, $options);
 });
+
+// ============================================================================
+// EXEMPLE DE STRUCTURE HTML GÉNÉRÉE
+// ============================================================================
+
+/**
+ * NOUVELLE STRUCTURE pour vedettes:
+ * 
+ * <div class="sisme-vedettes-carousel-container">
+ *   <h2 class="sisme-vedettes-carousel-title">Jeux à la Une</h2>
+ *   <div class="sisme-carousel-wrapper">
+ *     <div class="sisme-carousel-container" id="sisme-carousel-1">
+ *       <div class="sisme-carousel-slides">
+ *         <div class="sisme-carousel-slide active">...</div>
+ *         <div class="sisme-carousel-slide">...</div>
+ *       </div>
+ *     </div>
+ *     <div class="sisme-carousel-nav">
+ *       <button class="sisme-carousel-btn sisme-carousel-btn--prev">‹</button>
+ *       <button class="sisme-carousel-btn sisme-carousel-btn--next">›</button>
+ *     </div>
+ *     <div class="sisme-carousel-dots">
+ *       <button class="sisme-carousel-dot active"></button>
+ *       <button class="sisme-carousel-dot"></button>
+ *     </div>
+ *   </div>
+ *   <script>...</script>
+ * </div>
+ * 
+ * STRUCTURE standard inchangée:
+ * 
+ * <div class="sisme-carousel-container" id="sisme-carousel-1">
+ *   <div class="sisme-carousel-nav">...</div>
+ *   <div class="sisme-carousel-slides">...</div>
+ *   <div class="sisme-carousel-dots">...</div>
+ *   <script>...</script>
+ * </div>
+ */
 ?>
+
+
