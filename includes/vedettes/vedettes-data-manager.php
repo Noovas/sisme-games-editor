@@ -491,6 +491,56 @@ class Sisme_Vedettes_Data_Manager {
         error_log("=== RÉPARATION TERMINÉE: $repaired jeux réparés ===");
         return $repaired;
     }
+
+    /**
+     * Rechercher des jeux par nom (pour autocomplete)
+     * 
+     * @param string $search Terme de recherche
+     * @param bool $only_non_featured Uniquement les jeux non en vedette
+     * @return array Jeux correspondants
+     */
+    public static function search_games($search, $only_non_featured = false) {
+        $args = array(
+            'taxonomy' => 'post_tag',
+            'hide_empty' => false,
+            'name__like' => $search,
+            'meta_query' => array(
+                array(
+                    'key' => 'game_description',
+                    'compare' => 'EXISTS'
+                )
+            ),
+            'number' => 20,
+            'orderby' => 'name',
+            'order' => 'ASC'
+        );
+        
+        $games = get_terms($args);
+        
+        if (is_wp_error($games)) {
+            return array();
+        }
+        
+        $results = array();
+        
+        foreach ($games as $game) {
+            $vedette_data = self::get_vedette_data($game->term_id);
+            
+            // Filtrer par statut si demandé
+            if ($only_non_featured && $vedette_data['is_featured']) {
+                continue;
+            }
+            
+            $results[] = array(
+                'term_id' => $game->term_id,
+                'name' => $game->name,
+                'slug' => $game->slug,
+                'is_featured' => $vedette_data['is_featured']
+            );
+        }
+        
+        return $results;
+    }
 }
 
 ?>

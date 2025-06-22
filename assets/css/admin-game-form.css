@@ -433,12 +433,6 @@ input[type="date"]:focus {
     align-items: center;
 }
 
-.sisme-cover-label,
-.sisme-form-label {
-    margin: 10px;
-    font-size: 1.4em;
-}
-
 .sisme-form-label {
     margin-bottom: 10px;
 }

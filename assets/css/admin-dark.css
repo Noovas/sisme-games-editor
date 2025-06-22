@@ -30,6 +30,7 @@
     --sisme-transition-fast: 0.15s ease;
     --sisme-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
     --sisme-hover-box-shadow: 0 0 10px 0px #ffffff88;
+    --sisme-hover-bg-valid-btn: #a1b78db5;
 }
 
 /* ========================================
@@ -46,6 +47,21 @@
 .update-nag,
 .notice.notice-warning {
     display: none !important;
+}
+
+h1, h2, h3, h4, h5, h6, p, span {
+    color: var(--sisme-gaming-text-bright);
+}
+
+/* ========================================
+   🏗️ SOUS TITRE DE SECTION
+======================================== */
+
+.sisme-cover-label,
+.sisme-form-label {
+    margin: 10px 0px 15px 0px;
+    font-size: 1.4em;
+    display: block;
 }
 
 /* ========================================
