@@ -37,10 +37,8 @@ class Sisme_Assets_Loader {
             array(),
             SISME_GAMES_EDITOR_VERSION
         );
-        
-        // ===============================================
-        // CSS + JS spécifiques par page admin
-        // ===============================================
+
+
         
         // Page création/édition de fiche
         if (strpos($hook, 'sisme-games-edit-fiche-jeu') !== false) {
@@ -68,6 +66,16 @@ class Sisme_Assets_Loader {
             wp_enqueue_style(
                 'sisme-game-form',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin-game-form.css',
+                array('sisme-admin-dark'),
+                SISME_GAMES_EDITOR_VERSION
+            );
+        }
+
+        //Page vedettes
+        if (strpos($hook, 'vedettes') !== false) {
+            wp_enqueue_style(
+                'sisme-admin-vedettes',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin-vedettes.css',
                 array('sisme-admin-dark'),
                 SISME_GAMES_EDITOR_VERSION
             );

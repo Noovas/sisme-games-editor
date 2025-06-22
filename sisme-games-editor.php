@@ -49,6 +49,7 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/assets-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/content-filter.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-table-game-data.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php';
     }
 
     public function add_admin_menu() {
@@ -83,6 +84,16 @@ class SismeGamesEditor {
             array($this, 'edit_game_data_page')
         );
 
+        // Sous-menu Vedettes
+        add_submenu_page(
+            'sisme-games-game-data',
+            'Vedettes',
+            '⭐ Vedettes',
+            'manage_options',
+            'sisme-games-vedettes',
+            array($this, 'vedettes_page')
+        );
+
         // Sous-menu Créer Fiche (masqué du menu, accessible via liens)
         add_submenu_page(
             null,
@@ -108,6 +119,10 @@ class SismeGamesEditor {
 
     public function edit_fiche_jeu_page() {
         include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-fiche-jeu.php';
+    }
+
+    public function vedettes_page() {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/vedettes.php';
     }
 
     // ===================================

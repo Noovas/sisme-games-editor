@@ -15,8 +15,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
-require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-formulaire.php';
+if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-formulaire.php')) {require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-formulaire.php';}
+if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php')) {require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';}
+if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-data-manager.php')) {require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-data-manager.php';}
+
 
 // Récupérer l'ID du tag si en mode édition
 $tag_id = isset($_GET['tag_id']) ? intval($_GET['tag_id']) : 0;
@@ -63,6 +65,11 @@ if (!empty($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme
         }
         
         update_term_meta($data['game_name'], 'last_update', current_time('mysql'));
+
+        if (class_exists('Sisme_Vedettes_Data_Manager')) {
+            Sisme_Vedettes_Data_Manager::initialize_new_game($data['game_name']);
+        }
+
         $success_message = 'Données du jeu sauvegardées avec succès !';
         $form_was_submitted = true;
         $_POST = array();

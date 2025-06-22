@@ -1,0 +1,35 @@
+/**
+ * File: /sisme-games-editor/assets/css/admin-vedettes.css
+ * CSS pour la page Vedettes
+ */
+
+.sisme-placeholder-content {
+    text-align: center;
+    padding: 64px 32px;
+}
+
+.sisme-placeholder-box {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 32px;
+    background: var(--sisme-gaming-dark-light);
+    border-radius: 12px;
+    border: 2px dashed rgba(161, 183, 141, 0.3);
+}
+
+.sisme-placeholder-icon {
+    font-size: 4rem;
+    margin-bottom: 24px;
+    display: block;
+}
+
+.sisme-placeholder-box h3 {
+    color: var(--sisme-gaming-text-bright);
+    margin: 0 0 16px;
+    font-size: 1.25rem;
+}
+
+.sisme-placeholder-box p {
+    color: var(--sisme-gaming-text-muted);
+    margin: 0;
+}
