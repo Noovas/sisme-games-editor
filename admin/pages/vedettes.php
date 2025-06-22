@@ -452,59 +452,36 @@ $page->render_start();
     
 </div>
 
+<!-- Aperçu du carrousel -->
 <div class="sisme-vedettes-section">
-    <h2>🎮 Simulateur de Carrousel</h2>
-    
-    <div class="sisme-simulator-container">
-        
-        <!-- Contrôles du simulateur -->
-        <div class="sisme-simulator-controls">
-            <div class="sisme-control-row">
-                <label>Hauteur: <input type="text" id="sim-height" value="300px" placeholder="300px"></label>
-                <label>Limite: <input type="number" id="sim-limit" value="5" min="1" max="10"></label>
-                <label><input type="checkbox" id="sim-autoplay"> Autoplay</label>
-                <label><input type="checkbox" id="sim-arrows" checked> Flèches</label>
-                <label><input type="checkbox" id="sim-dots" checked> Points</label>
-            </div>
-            <button type="button" class="sisme-btn sisme-btn--primary" onclick="updatePreview()">
-                🔄 Mettre à jour l'aperçu
-            </button>
+    <h2>👀 Aperçu du Carrousel</h2>
+    <?php 
+    // Vérifier qu'on a des jeux vedettes pour l'aperçu
+    if (!empty($featured_games_data)): 
+    ?>
+        <div class="sisme-preview-container">
+            <?php
+            // Générer l'aperçu avec des options adaptées à l'admin
+            $preview_options = array(
+                'limit' => 5,              // Limiter à 5 pour l'aperçu
+                'height' => '600px',       // Plus petit pour la page admin
+                'autoplay' => true,       // Pas d'autoplay pour éviter les distractions
+                'show_arrows' => true,
+                'show_dots' => true,
+                'css_class' => 'sisme-admin-preview-carousel'
+            );
+            // Afficher le carrousel
+            echo Sisme_Vedettes_API::render_featured_carousel($preview_options);
+            ?>
         </div>
-        
-        <!-- Zone d'aperçu -->
-        <div id="sisme-preview-zone">
-            <!-- L'aperçu sera injecté ici via AJAX -->
+    <?php else: ?>
+        <div class="sisme-preview-empty">
+            <div class="sisme-empty-icon">🎯</div>
+            <p>Ajoutez des jeux aux vedettes pour voir l'aperçu du carrousel ici !</p>
+            <p><small>Le carrousel s'affichera automatiquement dès que vous aurez des jeux vedettes avec des covers principales.</small></p>
         </div>
-        
-        <!-- Shortcode généré -->
-        <div class="sisme-generated-shortcode">
-            <label>Shortcode généré :</label>
-            <input type="text" id="generated-shortcode" readonly onclick="this.select()">
-        </div>
-        
-    </div>
-    
+    <?php endif; ?>
 </div>
-
-<script>
-function updatePreview() {
-    const height = document.getElementById('sim-height').value || '300px';
-    const limit = document.getElementById('sim-limit').value || '5';
-    const autoplay = document.getElementById('sim-autoplay').checked;
-    const arrows = document.getElementById('sim-arrows').checked;
-    const dots = document.getElementById('sim-dots').checked;
-    
-    // Générer le shortcode
-    const shortcode = `[sisme_vedettes_carousel limit="${limit}" height="${height}" autoplay="${autoplay}" show_arrows="${arrows}" show_dots="${dots}"]`;
-    document.getElementById('generated-shortcode').value = shortcode;
-    
-    // Mettre à jour l'aperçu via AJAX (à implémenter si souhaité)
-    document.getElementById('sisme-preview-zone').innerHTML = '<p>⏳ Aperçu mis à jour...</p>';
-}
-
-// Initialiser
-document.addEventListener('DOMContentLoaded', updatePreview);
-</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

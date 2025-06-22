@@ -251,21 +251,26 @@ class Sisme_Vedettes_API {
     public static function render_featured_carousel($options = array()) {
         // Options par défaut
         $defaults = array(
-            'limit' => 10,              // Nombre max de jeux
-            'height' => '400px',        // Hauteur du carrousel
-            'autoplay' => true,         // Lecture automatique
-            'autoplay_delay' => 5000,   // Délai entre slides
-            'show_arrows' => true,      // Navigation flèches
-            'show_dots' => true,        // Points de navigation
-            'cover_size' => 'large',    // Taille d'image WP (thumbnail, medium, large, full)
-            'return_shortcode' => false, // Retourner le shortcode au lieu du HTML
-            'css_class' => 'sisme-vedettes-carousel' // Classe CSS personnalisée
+            'limit' => 10,
+            'height' => '400px',
+            'autoplay' => true,
+            'autoplay_delay' => 5000,
+            'show_arrows' => true,
+            'show_dots' => true,
+            'cover_size' => 'large',
+            'return_shortcode' => false,
+            'css_class' => 'sisme-vedettes-carousel'
         );
         
         $options = array_merge($defaults, $options);
         
+        // DEBUG: Log pour voir ce qui se passe
+        error_log("Sisme Debug: render_featured_carousel appelé avec limit=" . $options['limit']);
+        
         // Récupérer les jeux vedettes
         $featured_games = self::get_frontend_featured_games($options['limit'], false);
+        
+        error_log("Sisme Debug: " . count($featured_games) . " jeux vedettes trouvés");
         
         if (empty($featured_games)) {
             if ($options['return_shortcode']) {
@@ -279,15 +284,15 @@ class Sisme_Vedettes_API {
         
         // Récupérer les IDs des covers principales
         $cover_ids = array();
-        $games_data = array(); // Pour les métadonnées des jeux
+        $games_data = array();
         
         foreach ($featured_games as $game) {
             $cover_id = get_term_meta($game['term_id'], 'cover_main', true);
             
+            error_log("Sisme Debug: Jeu {$game['name']} (ID: {$game['term_id']}) - Cover ID: " . ($cover_id ?: 'AUCUNE'));
+            
             if ($cover_id && wp_attachment_is_image($cover_id)) {
                 $cover_ids[] = intval($cover_id);
-                
-                // Stocker les données du jeu pour enrichir le carrousel
                 $games_data[$cover_id] = array(
                     'game_name' => $game['name'],
                     'game_slug' => $game['slug'],
@@ -298,13 +303,16 @@ class Sisme_Vedettes_API {
             }
         }
         
+        error_log("Sisme Debug: " . count($cover_ids) . " covers valides trouvées: " . implode(', ', $cover_ids));
+        
         if (empty($cover_ids)) {
             if ($options['return_shortcode']) {
-                return '<!-- Aucune cover principale trouvée pour les jeux vedettes -->';
+                return '<!-- Aucune cover principale trouvée -->';
             }
             return '<div class="sisme-vedettes-carousel-empty">
                         <div class="sisme-empty-icon">🖼️</div>
                         <p>Aucune cover principale configurée pour les jeux vedettes</p>
+                        <small>Vérifiez que vos jeux vedettes ont bien une "Cover Principale" définie.</small>
                     </div>';
         }
         
@@ -321,7 +329,7 @@ class Sisme_Vedettes_API {
             return '[sisme_carousel ' . implode(' ', $shortcode_atts) . ']';
         }
         
-        // Sinon, générer le HTML directement avec le module carrousel
+        // Charger le module carrousel
         if (!class_exists('Sisme_Carousel_Module')) {
             require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/carousel-module.php';
         }
@@ -336,15 +344,19 @@ class Sisme_Vedettes_API {
             'item_type' => 'image'
         );
         
+        error_log("Sisme Debug: Appel du module carrousel avec " . count($cover_ids) . " images");
+        
         $carousel_html = Sisme_Carousel_Module::quick_render($cover_ids, $carousel_options);
         
-        // Ajouter les métadonnées des jeux en data attributes pour JS
+        // Ajouter les métadonnées des jeux
         $games_json = json_encode($games_data);
         $carousel_html = str_replace(
-            'class="' . esc_attr($options['css_class']) . '"',
-            'class="' . esc_attr($options['css_class']) . '" data-games-info="' . esc_attr($games_json) . '"',
+            'data-options=',
+            'data-games-info="' . esc_attr($games_json) . '" data-options=',
             $carousel_html
         );
+        
+        error_log("Sisme Debug: Carrousel généré, longueur HTML: " . strlen($carousel_html));
         
         return $carousel_html;
     }
