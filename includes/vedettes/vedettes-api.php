@@ -249,75 +249,78 @@ class Sisme_Vedettes_API {
      * @return string HTML du carrousel ou shortcode
      */
     public static function render_featured_carousel($options = array()) {
-        // Options par défaut
         $defaults = array(
             'limit' => 10,
-            'height' => '400px',
+            'height' => '600px',
             'autoplay' => true,
             'autoplay_delay' => 5000,
             'show_arrows' => true,
             'show_dots' => true,
             'cover_size' => 'large',
             'return_shortcode' => false,
-            'css_class' => 'sisme-vedettes-carousel'
+            'css_class' => 'sisme-vedettes-carousel',
+            'show_title' => true,
+            'title' => 'Jeux à la Une'
         );
         
         $options = array_merge($defaults, $options);
         
-        // DEBUG: Log pour voir ce qui se passe
-        error_log("Sisme Debug: render_featured_carousel appelé avec limit=" . $options['limit']);
-        
         // Récupérer les jeux vedettes
         $featured_games = self::get_frontend_featured_games($options['limit'], false);
-        
-        error_log("Sisme Debug: " . count($featured_games) . " jeux vedettes trouvés");
         
         if (empty($featured_games)) {
             if ($options['return_shortcode']) {
                 return '<!-- Aucun jeu vedette disponible -->';
             }
-            return '<div class="sisme-vedettes-carousel-empty">
-                        <div class="sisme-empty-icon">🌟</div>
-                        <p>Aucun jeu vedette configuré</p>
-                    </div>';
+            
+            if (!class_exists('Sisme_Carousel_Module')) {
+                require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/carousel-module.php';
+            }
+            return Sisme_Carousel_Module::quick_render_vedettes(array(), $options);
         }
         
-        // Récupérer les IDs des covers principales
-        $cover_ids = array();
-        $games_data = array();
+        // 🔧 CORRECTION: Préparer les items correctement
+        $carousel_items = array();
         
         foreach ($featured_games as $game) {
             $cover_id = get_term_meta($game['term_id'], 'cover_main', true);
             
-            error_log("Sisme Debug: Jeu {$game['name']} (ID: {$game['term_id']}) - Cover ID: " . ($cover_id ?: 'AUCUNE'));
-            
             if ($cover_id && wp_attachment_is_image($cover_id)) {
-                $cover_ids[] = intval($cover_id);
-                $games_data[$cover_id] = array(
-                    'game_name' => $game['name'],
-                    'game_slug' => $game['slug'],
-                    'term_id' => $game['term_id'],
-                    'priority' => $game['priority'],
-                    'sponsor' => $game['sponsor']
-                );
+                $image_url = wp_get_attachment_image_url($cover_id, 'large');
+                if ($image_url) {
+                    $carousel_items[] = array(
+                        'type' => 'image',
+                        'id' => $cover_id,
+                        'url' => $image_url,
+                        'alt' => get_post_meta($cover_id, '_wp_attachment_image_alt', true) ?: $game['name'],
+                        'title' => get_the_title($cover_id),
+                        'caption' => wp_get_attachment_caption($cover_id),
+                        'game_info' => array(
+                            'name' => $game['name'],
+                            'slug' => $game['slug'],
+                            'term_id' => $game['term_id'],
+                            'priority' => $game['priority'],
+                            'sponsor' => $game['sponsor']
+                        )
+                    );
+                }
             }
         }
         
-        error_log("Sisme Debug: " . count($cover_ids) . " covers valides trouvées: " . implode(', ', $cover_ids));
-        
-        if (empty($cover_ids)) {
+        if (empty($carousel_items)) {
             if ($options['return_shortcode']) {
                 return '<!-- Aucune cover principale trouvée -->';
             }
-            return '<div class="sisme-vedettes-carousel-empty">
-                        <div class="sisme-empty-icon">🖼️</div>
-                        <p>Aucune cover principale configurée pour les jeux vedettes</p>
-                        <small>Vérifiez que vos jeux vedettes ont bien une "Cover Principale" définie.</small>
-                    </div>';
+            
+            if (!class_exists('Sisme_Carousel_Module')) {
+                require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/carousel-module.php';
+            }
+            return Sisme_Carousel_Module::quick_render_vedettes(array(), $options);
         }
         
         // Si on veut juste le shortcode
         if ($options['return_shortcode']) {
+            $cover_ids = array_column($carousel_items, 'id');
             $shortcode_atts = array(
                 'images="' . implode(',', $cover_ids) . '"',
                 'height="' . esc_attr($options['height']) . '"',
@@ -333,38 +336,8 @@ class Sisme_Vedettes_API {
         if (!class_exists('Sisme_Carousel_Module')) {
             require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/carousel-module.php';
         }
-
-        // Préparer les items avec info des jeux
-        $carousel_items = array();
-        foreach ($cover_ids as $cover_id) {
-            $image_data = wp_get_attachment_image_url($cover_id, 'large');
-            if ($image_data) {
-                $item = array(
-                    'id' => $cover_id,
-                    'url' => $image_data,
-                    'alt' => get_post_meta($cover_id, '_wp_attachment_image_alt', true) ?: '',
-                    'title' => get_the_title($cover_id),
-                    'caption' => wp_get_attachment_caption($cover_id)
-                );
-                
-                // Ajouter les infos du jeu si disponibles
-                if (isset($games_data[$cover_id])) {
-                    $item['game_info'] = $games_data[$cover_id];
-                }
-                
-                $carousel_items[] = $item;
-            }
-        }
-
-        // Options spécifiques vedettes
-        $vedettes_options = array_merge($carousel_options, array(
-            'show_title' => !isset($options['show_title']) || $options['show_title'],
-            'title' => isset($options['title']) ? $options['title'] : 'Jeux à la Une'
-        ));
-
-        // Utiliser la méthode vedettes
-        $carousel_html = Sisme_Carousel_Module::quick_render_vedettes($carousel_items, $vedettes_options);
         
+        // 🔧 CORRECTION: Utiliser la bonne méthode avec les bons paramètres
         $carousel_options = array(
             'height' => $options['height'],
             'autoplay' => $options['autoplay'],
@@ -372,26 +345,12 @@ class Sisme_Vedettes_API {
             'show_arrows' => $options['show_arrows'],
             'show_dots' => $options['show_dots'],
             'css_class' => $options['css_class'],
-            'item_type' => 'image'
+            'item_type' => 'image',
+            'show_title' => $options['show_title'],
+            'title' => $options['title']
         );
         
-        error_log("Sisme Debug: Appel du module carrousel avec " . count($cover_ids) . " images");
-        
-        if (!class_exists('Sisme_Carousel_Module')) {
-            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/carousel-module.php';
-        }
-        
-        // Ajouter les métadonnées des jeux
-        $games_json = json_encode($games_data);
-        $carousel_html = str_replace(
-            'data-options=',
-            'data-games-info="' . esc_attr($games_json) . '" data-options=',
-            $carousel_html
-        );
-        
-        error_log("Sisme Debug: Carrousel généré, longueur HTML: " . strlen($carousel_html));
-        
-        return $carousel_html;
+        return Sisme_Carousel_Module::quick_render_vedettes($carousel_items, $carousel_options);
     }
 
     /**

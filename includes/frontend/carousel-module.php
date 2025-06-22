@@ -31,7 +31,7 @@ class Sisme_Carousel_Module {
         
         // Options par défaut
         $defaults = array(
-            'height' => '400px',
+            'height' => '600px',
             'show_arrows' => true,
             'show_dots' => true,
             'autoplay' => false,
@@ -77,7 +77,7 @@ class Sisme_Carousel_Module {
         
         foreach ($items as $index => $item) {
             if ($type === 'image') {
-                // Item = ID d'image
+                // Si c'est juste un ID numérique
                 if (is_numeric($item)) {
                     $image_data = $this->get_image_data($item);
                     if ($image_data) {
@@ -91,8 +91,19 @@ class Sisme_Carousel_Module {
                         );
                     }
                 }
+                // Si c'est déjà un objet avec les données (pour vedettes)
+                elseif (is_array($item) && isset($item['url'])) {
+                    $processed[] = array_merge(array(
+                        'type' => 'image',
+                        'id' => isset($item['id']) ? $item['id'] : 0,
+                        'url' => '',
+                        'alt' => '',
+                        'title' => '',
+                        'caption' => '',
+                        'game_info' => null
+                    ), $item);
+                }
             } elseif ($type === 'custom') {
-                // Item = objet avec données custom
                 if (is_array($item)) {
                     $processed[] = array_merge(array(
                         'type' => 'custom',
@@ -137,6 +148,26 @@ class Sisme_Carousel_Module {
         $output .= 'data-options="' . esc_attr(json_encode($options)) . '" ';
         $output .= 'style="height: ' . esc_attr($options['height']) . '">';
         
+        return $output;
+    }
+
+    private function render_slides($items, $options) {
+        $output = '<div class="sisme-carousel-slides">';
+        
+        foreach ($items as $index => $item) {
+            $active_class = $index === 0 ? ' active' : '';
+            $output .= '<div class="sisme-carousel-slide' . $active_class . '" data-index="' . $index . '">';
+            
+            if ($item['type'] === 'image') {
+                $output .= $this->render_image_slide($item);
+            } elseif ($item['type'] === 'custom') {
+                $output .= $this->render_custom_slide($item);
+            }
+            
+            $output .= '</div>';
+        }
+        
+        $output .= '</div>';
         return $output;
     }
 

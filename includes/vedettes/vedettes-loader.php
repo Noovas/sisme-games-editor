@@ -65,5 +65,40 @@ class Sisme_Vedettes_Loader {
             Sisme_Vedettes_Data_Manager::force_initialize_game($term_id);
         }
     }
+
+    public static function carousel_shortcode($atts, $content = '') {
+        $atts = shortcode_atts(array(
+            'images' => '', // IDs séparés par virgules
+            'height' => '600px',
+            'autoplay' => 'false',
+            'show_arrows' => 'true',
+            'show_dots' => 'true'
+        ), $atts);
+        
+        if (empty($atts['images'])) {
+            return '';
+        }
+        
+        $image_ids = array_map('intval', explode(',', $atts['images']));
+        $image_ids = array_filter($image_ids);
+        
+        if (empty($image_ids)) {
+            return '';
+        }
+        
+        if (!class_exists('Sisme_Carousel_Module')) {
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/carousel-module.php';
+        }
+        
+        $options = array(
+            'height' => $atts['height'],
+            'autoplay' => filter_var($atts['autoplay'], FILTER_VALIDATE_BOOLEAN),
+            'show_arrows' => filter_var($atts['show_arrows'], FILTER_VALIDATE_BOOLEAN),
+            'show_dots' => filter_var($atts['show_dots'], FILTER_VALIDATE_BOOLEAN),
+            'item_type' => 'image'
+        );
+        
+        return Sisme_Carousel_Module::quick_render($image_ids, $options);
+    }
 }
 ?>
