@@ -668,7 +668,7 @@ class Sisme_Game_Form_Module {
                                         <span class="sisme-tag sisme-tag--selected sisme-tag--entity" data-entity-id="<?php echo esc_attr($entity_id); ?>">
                                             <?php echo esc_html($entity->name); ?>
                                             <?php if (!empty($entity_website)): ?>
-                                                <span class="sisme-entity-website-icon" title="Site web disponible">🌐</span>
+                                                <span class="sisme-entity-website-icon" title="Site web disponible"></span>
                                             <?php endif; ?>
                                             <span class="sisme-tag__remove remove-entity" title="Retirer cet <?php echo $entity_type; ?>">&times;</span>
                                             <input type="hidden" name="<?php echo esc_attr($component['output_var']); ?>[]" value="<?php echo esc_attr($entity_id); ?>">
@@ -713,7 +713,7 @@ class Sisme_Game_Form_Module {
                                     <div>
                                         <strong><?php echo esc_html($entity->name); ?></strong>
                                         <?php if (!empty($entity_website)): ?>
-                                            <span class="sisme-entity-website-icon" title="Site web disponible">🌐</span>
+                                            <span class="sisme-entity-website-icon" title="Site web disponible"></span>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -2296,7 +2296,7 @@ class Sisme_Game_Form_Module {
                 
                 // Icône site web si URL présente
                 var websiteIcon = entityUrl ? 
-                    '<span class="sisme-entity-website-icon" title="Site web disponible">🌐</span>' : '';
+                    '<span class="sisme-entity-website-icon" title="Site web disponible"></span>' : '';
                 
                 // Créer l'élément entité sélectionnée (même structure que le PHP)
                 var entityElement = $('<span class="sisme-tag sisme-tag--selected sisme-tag--entity" data-entity-id="' + entityId + '">' +
@@ -2314,7 +2314,7 @@ class Sisme_Game_Form_Module {
             // Fonction pour ajouter une entité aux suggestions
             function addEntityToSuggestions(container, entityData) {
                 var suggestionsList = container.find('.sisme-entity-suggestions-list');
-                var websiteIcon = entityData.website ? '<span class="sisme-entity-website-icon" title="Site web disponible">🌐</span>' : '';
+                var websiteIcon = entityData.website ? '<span class="sisme-entity-website-icon" title="Site web disponible"></span>' : '';
                 
                 var suggestion = $('<div class="suggestion-item" ' +
                                   'data-entity-id="' + entityData.term_id + '" ' +
