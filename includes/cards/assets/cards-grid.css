@@ -1,770 +1,146 @@
-/**
- * File: /sisme-games-editor/includes/cards/assets/cards-grid.css
- * Styles spécifiques pour les grilles et carrousels de cartes
- * Utilise les tokens de assets/css/frontend/tokens.css
- */
-
 /* ========================================
-   🆕 TOKENS SPÉCIFIQUES GRILLES
-======================================== */
-:root {
-    /* Grilles - extend les tokens existants */
-    --sisme-grid-gap-default: var(--sisme-gap-m);
-    --sisme-grid-gap-compact: var(--sisme-gap-s);
-    --sisme-grid-gap-spacious: var(--sisme-gap-l);
-    
-    /* Carrousel futur */
-    --sisme-carousel-button-size: 48px;
-    --sisme-carousel-pagination-size: 12px;
-    --sisme-carousel-transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Hover effects grilles */
-    --sisme-grid-item-hover-lift: -4px;
-    --sisme-grid-hover-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ========================================
-   🎴 GRILLE DE CARTES - LAYOUT PRINCIPAL
+   🎠 CARROUSEL 3x3 WORDPRESS - VERSION FINALE
+   À remplacer dans /includes/cards/assets/cards-grid.css
 ======================================== */
 
-.sisme-cards-grid {
-    display: grid;
-    gap: var(--sisme-grid-gap-default);
-    grid-template-columns: repeat(var(--cards-per-row, 3), 1fr);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    
-    /* Container responsive - utilise tokens existants */
-    max-width: var(--sisme-max-width-xl);
+/* Container principal du carrousel */
+.sisme-cards-carousel {
+    position: relative;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: var(--sisme-space-md);
-    
-    /* Gaming dark background */
-    background: transparent;
-    position: relative;
+    padding: 0 60px; /* Espace pour les boutons navigation */
 }
 
-/* ========================================
-   📐 VARIATIONS PAR NOMBRE DE COLONNES
-======================================== */
-
-.sisme-cards-grid--cols-1 { 
-    grid-template-columns: 1fr; 
-    max-width: var(--sisme-max-width-md);
-}
-
-.sisme-cards-grid--cols-2 { 
-    grid-template-columns: repeat(2, 1fr); 
-    max-width: var(--sisme-max-width-lg);
-}
-
-.sisme-cards-grid--cols-3 { 
-    grid-template-columns: repeat(3, 1fr); 
-}
-
-.sisme-cards-grid--cols-4 { 
-    grid-template-columns: repeat(4, 1fr); 
-}
-
-.sisme-cards-grid--cols-5 { 
-    grid-template-columns: repeat(5, 1fr); 
-}
-
-.sisme-cards-grid--cols-6 { 
-    grid-template-columns: repeat(6, 1fr); 
-}
-
-/* ========================================
-   🎨 VARIATIONS PAR TYPE DE CARTE
-======================================== */
-
-.sisme-cards-grid--normal {
-    /* Style par défaut */
-}
-
-.sisme-cards-grid--compact {
-    gap: var(--sisme-grid-gap-compact);
-}
-
-.sisme-cards-grid--spacious {
-    gap: var(--sisme-grid-gap-spacious);
-}
-
-/* ========================================
-   📱 RESPONSIVE DESIGN INTELLIGENT
-======================================== */
-
-/* Desktop XL (1400px+) - Tous les layouts possibles */
-@media (min-width: 1400px) {
-    .sisme-cards-grid {
-        padding: var(--sisme-space-lg);
-    }
-}
-
-/* Desktop L (1200px - 1399px) - Réduction progressive */
-@media (max-width: 1399px) {
-    .sisme-cards-grid--cols-6,
-    .sisme-cards-grid--cols-5 {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-
-/* Desktop (900px - 1199px) - Max 3 colonnes */
-@media (max-width: 1199px) {
-    .sisme-cards-grid--cols-4,
-    .sisme-cards-grid--cols-5,
-    .sisme-cards-grid--cols-6 {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .sisme-cards-grid {
-        gap: var(--sisme-space-md);
-        padding: var(--sisme-space-md);
-    }
-}
-
-/* Tablet (600px - 899px) - Force 2 colonnes */
-@media (max-width: 899px) {
-    .sisme-cards-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: var(--sisme-space-md);
-        padding: var(--sisme-space-sm);
-    }
-}
-
-/* Mobile (jusqu'à 599px) - Force 1 colonne */
-@media (max-width: 599px) {
-    .sisme-cards-grid {
-        grid-template-columns: 1fr !important;
-        gap: var(--sisme-space-sm);
-        padding: var(--sisme-space-sm);
-    }
-}
-
-/* ========================================
-   🃏 ITEMS DE GRILLE
-======================================== */
-
-.sisme-cards-grid__item {
-    transition: var(--sisme-grid-hover-transition);
-    position: relative;
-}
-
-/* Hover effect sur l'item de grille */
-.sisme-cards-grid__item:hover {
-    transform: translateY(var(--sisme-grid-item-hover-lift));
-    z-index: 1;
-}
-
-/* ========================================
-   🚫 ÉTAT VIDE - UTILISE BADGES EXISTANTS
-======================================== */
-
-.sisme-cards-grid--empty {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 200px;
-    grid-template-columns: 1fr;
-    
-    /* Gaming dark theme */
-    background: var(--sisme-gaming-dark-light);
-    border-radius: var(--sisme-radius-lg);
-    border: 1px dashed var(--sisme-border-light);
-}
-
-.sisme-cards-grid__empty-message {
-    /* Utilise les styles badge existants */
-    color: var(--sisme-gaming-text-muted);
-    font-size: var(--sisme-text-lg);
-    font-weight: var(--sisme-font-medium);
-    text-align: center;
-    margin: 0;
-    padding: var(--sisme-space-xl);
-    
-    /* Gaming style */
-    background: var(--sisme-bg-bleu);
-    border: 1px solid var(--sisme-border-bleu);
-    border-radius: var(--sisme-radius-md);
-    color: var(--sisme-font-bleu);
-    
-    /* Icône gaming */
-    position: relative;
-}
-
-.sisme-cards-grid__empty-message::before {
-    content: '🎮';
-    display: block;
-    font-size: var(--sisme-text-3xl);
-    margin-bottom: var(--sisme-space-sm);
-    opacity: 0.7;
-}
-
-/* ========================================
-   🔧 DEBUG MODE - STYLE DÉVELOPPEUR
-======================================== */
-
-.sisme-cards-debug {
-    background: var(--sisme-bg-vert);
-    border: 1px solid var(--sisme-border-vert);
-    border-left: 4px solid var(--sisme-font-vert);
-    border-radius: var(--sisme-radius-md);
-    padding: var(--sisme-space-lg);
-    margin: var(--sisme-space-lg) 0;
-    font-family: var(--sisme-font-mono);
-}
-
-.sisme-cards-debug h4 {
-    color: var(--sisme-font-vert);
-    margin: 0 0 var(--sisme-space-md) 0;
-    font-size: var(--sisme-text-lg);
-    font-weight: var(--sisme-font-semibold);
-}
-
-.sisme-cards-debug p {
-    color: var(--sisme-gaming-text);
-    margin: var(--sisme-space-sm) 0;
-    font-size: var(--sisme-text-sm);
-}
-
-.sisme-cards-debug ul {
-    margin: var(--sisme-space-md) 0;
-    padding-left: var(--sisme-space-lg);
-    list-style-type: none;
-}
-
-.sisme-cards-debug li {
-    color: var(--sisme-gaming-text-muted);
-    font-size: var(--sisme-text-sm);
-    margin: var(--sisme-space-xs) 0;
-    position: relative;
-}
-
-.sisme-cards-debug li::before {
-    content: '▶';
-    color: var(--sisme-font-vert);
-    margin-right: var(--sisme-space-sm);
-    font-size: 0.8em;
-}
-
-/* ========================================
-   📊 STATISTIQUES - STYLE DÉVELOPPEUR
-======================================== */
-
-.sisme-cards-stats {
-    background: var(--sisme-bg-bleu);
-    border: 1px solid var(--sisme-border-bleu);
-    border-left: 4px solid var(--sisme-font-bleu);
-    border-radius: var(--sisme-radius-md);
-    padding: var(--sisme-space-lg);
-    margin: var(--sisme-space-lg) 0;
-}
-
-.sisme-cards-stats h4 {
-    color: var(--sisme-font-bleu);
-    margin: 0 0 var(--sisme-space-md) 0;
-    font-size: var(--sisme-text-lg);
-    font-weight: var(--sisme-font-semibold);
-}
-
-.sisme-cards-stats p {
-    color: var(--sisme-gaming-text);
-    margin: var(--sisme-space-sm) 0;
-    font-size: var(--sisme-text-sm);
-}
-
-.sisme-cards-stats ul {
-    margin: var(--sisme-space-md) 0;
-    padding-left: var(--sisme-space-lg);
-    list-style-type: none;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.sisme-cards-stats li {
-    color: var(--sisme-gaming-text-muted);
-    font-size: var(--sisme-text-sm);
-    margin: var(--sisme-space-xs) 0;
-    display: flex;
-    justify-content: space-between;
-    padding: var(--sisme-space-xs) 0;
-    border-bottom: 1px solid var(--sisme-border-bleu);
-}
-
-.sisme-cards-stats li:last-child {
-    border-bottom: none;
-}
-
-/* ========================================
-   🎠 PRÉPARATION CARROUSEL FUTUR
-======================================== */
-
-/* Container carrousel (pour futur développement) */
-.sisme-cards-carousel {
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--sisme-radius-lg);
-}
-
-/* Viewport carrousel */
-.sisme-cards-carousel__viewport {
-    overflow: hidden;
-    width: 100%;
-}
-
-/* Track carrousel */
-.sisme-cards-carousel__track {
-    display: flex;
-    transition: var(--sisme-carousel-transition);
-    will-change: transform;
-}
-
-/* Boutons navigation carrousel */
-.sisme-cards-carousel__button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: var(--sisme-carousel-button-size);
-    height: var(--sisme-carousel-button-size);
-    
-    /* Style gaming button */
-    background: var(--sisme-gaming-dark-light);
-    border: 1px solid var(--sisme-border-vert);
-    border-radius: var(--sisme-radius-full);
-    color: var(--sisme-font-vert);
-    cursor: pointer;
-    
-    /* Icon centré */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--sisme-text-lg);
-    
-    /* Shadow gaming */
-    box-shadow: var(--sisme-shadow-md);
-    transition: var(--sisme-transition-normal);
-    z-index: 2;
-}
-
-.sisme-cards-carousel__button:hover {
-    background: var(--sisme-bg-hover-vert);
-    box-shadow: var(--sisme-shadow-neon-vert);
-    transform: translateY(-50%) scale(1.1);
-}
-
-.sisme-cards-carousel__button--prev {
-    left: var(--sisme-space-md);
-}
-
-.sisme-cards-carousel__button--next {
-    right: var(--sisme-space-md);
-}
-
-/* Pagination dots */
-.sisme-cards-carousel__pagination {
-    display: flex;
-    justify-content: center;
-    gap: var(--sisme-space-sm);
-    margin-top: var(--sisme-space-lg);
-}
-
-.sisme-cards-carousel__dot {
-    width: var(--sisme-carousel-pagination-size);
-    height: var(--sisme-carousel-pagination-size);
-    border-radius: var(--sisme-radius-full);
-    background: var(--sisme-border-light);
-    border: none;
-    cursor: pointer;
-    transition: var(--sisme-transition-fast);
-}
-
-.sisme-cards-carousel__dot--active {
-    background: var(--sisme-font-vert);
-    box-shadow: var(--sisme-shadow-neon-vert);
-}
-
-.sisme-cards-carousel__dot:hover {
-    background: var(--sisme-font-vert);
-    transform: scale(1.2);
-}
-
-/* ========================================
-   📋 DONNÉES JSON CACHÉES
-======================================== */
-
-.sisme-cards-data {
-    display: none !important;
-    visibility: hidden;
-    position: absolute;
-    left: -9999px;
-}
-
-/* ========================================
-   ♿ ACCESSIBILITÉ
-======================================== */
-
-/* Respect des préférences de mouvement */
-@media (prefers-reduced-motion: reduce) {
-    .sisme-cards-grid__item,
-    .sisme-cards-carousel__track,
-    .sisme-cards-carousel__button,
-    .sisme-cards-carousel__dot {
-        transition: none;
-    }
-    
-    .sisme-cards-grid__item:hover {
-        transform: none;
-    }
-}
-
-/* High contrast support */
-@media (prefers-contrast: high) {
-    .sisme-cards-grid--empty,
-    .sisme-cards-debug,
-    .sisme-cards-stats {
-        border-width: 2px;
-    }
-    
-    .sisme-cards-carousel__button {
-        border-width: 2px;
-    }
-}
-
-/* Focus visible pour navigation clavier */
-.sisme-cards-carousel__button:focus-visible {
-    outline: 2px solid var(--sisme-gaming-accent);
-    outline-offset: 2px;
-}
-
-.sisme-cards-carousel__dot:focus-visible {
-    outline: 2px solid var(--sisme-gaming-accent);
-    outline-offset: 2px;
-}
-
-/* ========================================
-   🔧 UTILITAIRES GRILLE
-======================================== */
-
-/* Espacement personnalisé */
-.sisme-cards-grid--gap-sm {
-    gap: var(--sisme-grid-gap-compact);
-}
-
-.sisme-cards-grid--gap-lg {
-    gap: var(--sisme-grid-gap-spacious);
-}
-
-/* Padding personnalisé */
-.sisme-cards-grid--no-padding {
-    padding: 0;
-}
-
-.sisme-cards-grid--padding-lg {
-    padding: var(--sisme-space-xl);
-}
-
-/* Centre la grille si peu d'items */
-.sisme-cards-grid--center-items {
-    justify-items: center;
-}
-
-/* Hauteur uniforme des cartes */
-.sisme-cards-grid--uniform-height .sisme-cards-grid__item {
-    height: 100%;
-}
-
-/* ========================================
-   🎮 ANIMATIONS
-======================================== */
-
-/* Animation d'apparition des cartes */
-@keyframes sismeCardsFadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.sisme-cards-grid__item {
-    animation: sismeCardsFadeInUp 0.4s ease-out backwards;
-}
-
-/* Délai progressif pour effet cascade */
-.sisme-cards-grid__item:nth-child(1) { animation-delay: 0.1s; }
-.sisme-cards-grid__item:nth-child(2) { animation-delay: 0.2s; }
-.sisme-cards-grid__item:nth-child(3) { animation-delay: 0.3s; }
-.sisme-cards-grid__item:nth-child(4) { animation-delay: 0.4s; }
-.sisme-cards-grid__item:nth-child(5) { animation-delay: 0.5s; }
-.sisme-cards-grid__item:nth-child(6) { animation-delay: 0.6s; }
-
-/* Au-delà de 6, pas de délai pour éviter la lenteur */
-.sisme-cards-grid__item:nth-child(n+7) { animation-delay: 0s; }
-
-/* ========================================
-   🎠 CARROUSEL - STRUCTURE ET ANIMATION
-======================================== */
-
-.sisme-cards-carousel {
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--sisme-radius-lg);
-    background: transparent;
-}
-
+/* Container avec overflow caché */
 .sisme-carousel__container {
     overflow: hidden;
-    width: 100%;
-    position: relative;
+    border-radius: 12px;
 }
 
+/* Track du carrousel - SIMPLE ET EFFICACE */
 .sisme-carousel__track {
     display: flex;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
-    cursor: grab;
+    transition: transform 0.4s ease;
+    /* Pas de width fixe - flexbox calcule automatiquement */
 }
 
-.sisme-carousel__track:active {
-    cursor: grabbing;
-}
-
+/* Chaque slide = exactement 1/3 du viewport visible */
 .sisme-carousel__slide {
-    flex: 0 0 auto;
-    margin: 0;
-    padding: 0 var(--sisme-space-sm);
-}
-
-.sisme-carousel__slide:first-child {
-    padding-left: 0;
-}
-
-.sisme-carousel__slide:last-child {
-    padding-right: 0;
-}
-
-/* Slides clonés pour infinite loop */
-.sisme-carousel__slide--clone {
-    user-select: none;
-    pointer-events: none;
+    flex: 0 0 33.3333%; /* 1/3 du viewport */
+    padding: 0 12px; /* Espacement entre cartes */
+    box-sizing: border-box;
 }
 
 /* ========================================
-   ⬅️➡️ BOUTONS DE NAVIGATION - STYLE FEATURED
+   ⬅️➡️ BOUTONS DE NAVIGATION
 ======================================== */
 
 .sisme-carousel__btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: var(--sisme-carousel-button-size);
-    height: 100%;
-    max-height: 400px; /* Hauteur des cartes approximative */
-    
-    /* Style transparent avec dégradé comme featured */
-    background: linear-gradient(
-        90deg,
-        rgba(30, 30, 30, 0.1) 0%,
-        rgba(30, 30, 30, 0.6) 50%,
-        rgba(30, 30, 30, 0.1) 100%
-    );
+    width: 50px;
+    height: 50px;
+    background: rgba(0, 0, 0, 0.8);
     border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
     cursor: pointer;
-    
-    /* Positionnement */
-    z-index: var(--sisme-z-carousel-nav);
-    
-    /* Transitions smooth */
-    transition: var(--sisme-transition-fluide);
-    
-    /* Flexbox pour centrer l'icône */
+    z-index: 10;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    /* Texte */
-    color: var(--sisme-text-bright);
-    font-size: var(--sisme-text-2xl);
-    font-weight: var(--sisme-font-bold);
-    
-    /* Masqué par défaut */
-    opacity: 0;
-    visibility: hidden;
 }
 
-/* Affichage au hover du carrousel */
-.sisme-cards-carousel:hover .sisme-carousel__btn {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Hover des boutons */
 .sisme-carousel__btn:hover {
-    background: linear-gradient(
-        90deg,
-        rgba(30, 30, 30, 0.2) 0%,
-        rgba(30, 30, 30, 0.8) 50%,
-        rgba(30, 30, 30, 0.2) 100%
-    );
-    transform: translateY(-50%) scale(1.05);
-    box-shadow: var(--sisme-shadow-gaming);
+    background: rgba(0, 0, 0, 1);
+    transform: translateY(-50%) scale(1.1);
 }
 
-/* Positionnement spécifique */
+.sisme-carousel__btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: translateY(-50%);
+}
+
 .sisme-carousel__btn--prev {
     left: 0;
-    border-radius: 0 var(--sisme-radius-md) var(--sisme-radius-md) 0;
 }
 
 .sisme-carousel__btn--next {
     right: 0;
-    border-radius: var(--sisme-radius-md) 0 0 var(--sisme-radius-md);
 }
 
-/* Icônes des boutons */
 .sisme-carousel__btn-icon {
-    display: block;
     line-height: 1;
     user-select: none;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-/* Focus accessibilité */
-.sisme-carousel__btn:focus {
-    outline: 2px solid var(--sisme-gaming-accent);
-    outline-offset: 2px;
-}
-
-.sisme-carousel__btn:focus:not(:focus-visible) {
-    outline: none;
 }
 
 /* ========================================
-   ⚫⚪ PAGINATION DOTS - STYLE FEATURED
+   ⚫⚪ PAGINATION DOTS
 ======================================== */
 
 .sisme-carousel__pagination {
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: var(--sisme-space-sm);
-    margin-top: var(--sisme-space-lg);
-    padding: var(--sisme-space-md) 0;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 20px 0;
 }
 
 .sisme-carousel__dot {
-    width: var(--sisme-carousel-dot-size);
-    height: var(--sisme-carousel-dot-size);
-    border-radius: var(--sisme-radius-full);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
     border: none;
     cursor: pointer;
-    position: relative;
-    
-    /* Background style featured */
-    background: var(--sisme-surface-dark);
-    border: 1px solid var(--sisme-border-bleu-subtle);
-    
-    /* Transitions */
-    transition: var(--sisme-transition-fluide);
-    
-    /* Accessibilité */
-    outline: none;
+    transition: all 0.3s ease;
 }
 
-/* Point intérieur comme featured */
-.sisme-carousel__dot-inner {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 4px;
-    height: 4px;
-    border-radius: var(--sisme-radius-full);
-    background: var(--sisme-border-bleu-hover);
-    opacity: 0.5;
-    transition: var(--sisme-transition-fluide);
-}
-
-/* État actif */
-.sisme-carousel__dot.active {
-    background: var(--sisme-bg-bleu);
-    border-color: var(--sisme-border-bleu-active);
-    transform: scale(1.2);
-}
-
-.sisme-carousel__dot.active .sisme-carousel__dot-inner {
-    background: var(--sisme-font-bleu);
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.5);
-}
-
-/* Hover des dots */
 .sisme-carousel__dot:hover {
-    background: var(--sisme-bg-hover-bleu);
-    border-color: var(--sisme-border-bleu-hover);
+    background: rgba(255, 255, 255, 0.7);
     transform: scale(1.1);
 }
 
-.sisme-carousel__dot:hover .sisme-carousel__dot-inner {
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1.3);
-}
-
-/* Focus accessibilité */
-.sisme-carousel__dot:focus {
-    outline: 2px solid var(--sisme-gaming-accent);
-    outline-offset: 2px;
-}
-
-.sisme-carousel__dot:focus:not(:focus-visible) {
-    outline: none;
+.sisme-carousel__dot.active {
+    background: #4a9eff;
+    transform: scale(1.3);
 }
 
 /* ========================================
-   📱 RESPONSIVE CARROUSEL
+   📱 RESPONSIVE
 ======================================== */
 
-/* Mobile : Boutons plus petits */
-@media (max-width: 899px) {
-    .sisme-carousel__btn {
-        width: var(--sisme-carousel-button-mobile);
-        font-size: var(--sisme-text-xl);
-    }
-    
-    .sisme-carousel__pagination {
-        margin-top: var(--sisme-space-md);
-        gap: var(--sisme-space-xs);
-    }
-    
-    .sisme-carousel__dot {
-        width: 10px;
-        height: 10px;
-    }
-    
-    .sisme-carousel__dot-inner {
-        width: 3px;
-        height: 3px;
+/* Tablette : 2 cartes par page */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .sisme-carousel__slide {
+        flex: 0 0 50%; /* 2 cartes visibles */
     }
 }
 
-/* Touch devices : Toujours afficher les boutons */
-@media (hover: none) and (pointer: coarse) {
-    .sisme-carousel__btn {
-        opacity: 0.7;
-        visibility: visible;
+/* Mobile : 1 carte par page */
+@media (max-width: 768px) {
+    .sisme-cards-carousel {
+        padding: 0 10px;
     }
     
-    .sisme-carousel__btn:active {
-        opacity: 1;
+    .sisme-carousel__slide {
+        flex: 0 0 100%; /* 1 carte visible */
+        padding: 0 8px;
+    }
+    
+    .sisme-carousel__btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
     }
 }
 
 /* ========================================
-   🚫 ÉTATS SPÉCIAUX CARROUSEL
+   🚫 ÉTATS SPÉCIAUX
 ======================================== */
 
 /* Carrousel vide */
@@ -773,131 +149,67 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--sisme-surface-dark);
-    border: 1px dashed var(--sisme-border-bleu-subtle);
-    border-radius: var(--sisme-radius-lg);
+    background: #f8f9fa;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
 }
 
 .sisme-carousel__empty-message {
-    color: var(--sisme-gaming-text-muted);
-    font-size: var(--sisme-text-lg);
+    color: #666;
+    font-size: 16px;
     text-align: center;
     margin: 0;
 }
 
-/* Carrousel en erreur */
-.sisme-cards-carousel--error {
-    background: var(--sisme-bg-vert);
-    border: 1px solid var(--sisme-border-vert);
-    border-radius: var(--sisme-radius-lg);
-    padding: var(--sisme-space-lg);
-    text-align: center;
-}
-
-.sisme-carousel__error {
-    color: var(--sisme-font-vert);
-    font-weight: var(--sisme-font-medium);
-    margin: 0;
-}
-
-/* Debug mode */
+/* Mode debug */
 .sisme-cards-carousel--debug {
-    border: 2px solid var(--sisme-gaming-accent);
+    border: 2px solid #ff6b6b;
     position: relative;
 }
 
 .sisme-cards-carousel--debug::before {
-    content: '🎠 DEBUG';
+    content: '🎠 DEBUG MODE';
     position: absolute;
-    top: var(--sisme-space-xs);
-    right: var(--sisme-space-xs);
-    background: var(--sisme-gaming-accent);
-    color: var(--sisme-gaming-dark);
-    padding: var(--sisme-space-xs) var(--sisme-space-sm);
-    border-radius: var(--sisme-radius-sm);
-    font-size: var(--sisme-text-xs);
-    font-weight: var(--sisme-font-bold);
-    z-index: var(--sisme-z-carousel-nav);
+    top: 8px;
+    right: 8px;
+    background: #ff6b6b;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 999;
 }
 
 /* ========================================
-   ♿ ACCESSIBILITÉ ET PREFERENCES
+   ♿ ACCESSIBILITÉ
 ======================================== */
 
 /* Respect des préférences de mouvement */
 @media (prefers-reduced-motion: reduce) {
-    .sisme-carousel__track {
-        transition: none;
-    }
-    
+    .sisme-carousel__track,
     .sisme-carousel__btn,
-    .sisme-carousel__dot,
-    .sisme-carousel__dot-inner {
-        transition: none;
-    }
-    
-    .sisme-carousel__btn:hover {
-        transform: translateY(-50%);
-    }
-    
-    .sisme-carousel__dot.active,
-    .sisme-carousel__dot:hover {
-        transform: none;
+    .sisme-carousel__dot {
+        transition: none !important;
     }
 }
 
-/* High contrast support */
-@media (prefers-contrast: high) {
-    .sisme-carousel__btn {
-        border: 2px solid;
-    }
-    
-    .sisme-carousel__dot {
-        border-width: 2px;
-    }
+/* Focus visible pour navigation clavier */
+.sisme-carousel__btn:focus-visible,
+.sisme-carousel__dot:focus-visible {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
 }
 
 /* ========================================
-   🎮 ANIMATIONS GAMING AVANCÉES
+   🔧 OVERRIDE DE SÉCURITÉ
 ======================================== */
 
-/* Animation d'apparition du carrousel */
-@keyframes sismeCarouselFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* S'assurer qu'aucun autre CSS ne vient casser */
+.sisme-carousel__track {
+    width: auto !important; /* Pas de width fixe forcé */
 }
 
-.sisme-cards-carousel {
-    animation: sismeCarouselFadeIn 0.6s ease-out;
-}
-
-/* Effet de pulsation pour le dot actif */
-@keyframes sismeCarouselPulse {
-    0%, 100% {
-        box-shadow: 0 0 0 0 rgba(102, 192, 244, 0.4);
-    }
-    50% {
-        box-shadow: 0 0 0 4px rgba(102, 192, 244, 0.1);
-    }
-}
-
-.sisme-carousel__dot.active {
-    animation: sismeCarouselPulse 2s infinite;
-}
-
-/* Disable animation si préférence réduite */
-@media (prefers-reduced-motion: reduce) {
-    .sisme-cards-carousel {
-        animation: none;
-    }
-    
-    .sisme-carousel__dot.active {
-        animation: none;
-    }
+.sisme-carousel__slide[style*="width"] {
+    width: auto !important; /* Ignorer les width inline du JS complexe */
 }
