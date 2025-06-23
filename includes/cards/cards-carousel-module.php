@@ -157,7 +157,7 @@ class Sisme_Cards_Carousel_Module {
         }
         
         $output .= '</div>'; // fin carrousel
-        
+
         return $output;
     }
     
