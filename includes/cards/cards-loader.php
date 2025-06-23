@@ -86,9 +86,18 @@ class Sisme_Cards_Loader {
                 array(),
                 SISME_GAMES_EDITOR_VERSION
             );
+            
+            // 2. Système de tooltip
+            wp_enqueue_script(
+                'sisme-frontend-tooltip',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/frontend-tooltip.js',
+                array(),
+                SISME_GAMES_EDITOR_VERSION,
+                true
+            );
         }
         
-        // 2. CSS principal des cartes
+        // 3. CSS principal des cartes
         wp_enqueue_style(
             'sisme-cards',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/cards/assets/cards.css',
@@ -96,12 +105,12 @@ class Sisme_Cards_Loader {
             SISME_GAMES_EDITOR_VERSION
         );
         
-        // 3. JavaScript des cartes
+        // 4. JavaScript des cartes
         if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/cards/assets/cards.js')) {
             wp_enqueue_script(
                 'sisme-cards-js',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/cards/assets/cards.js',
-                array('jquery'),
+                $is_admin ? array('jquery') : array('jquery', 'sisme-frontend-tooltip'),
                 SISME_GAMES_EDITOR_VERSION,
                 true
             );

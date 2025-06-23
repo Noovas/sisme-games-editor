@@ -71,6 +71,41 @@
     color: var(--sisme-gaming-dark);
 }
 
+/* ===🎯 MODES DE JEU ================== */
+
+.sisme-card-modes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-xs);
+    margin-bottom: var(--sisme-space-md);
+}
+
+.sisme-card-mode {
+    background: var(--sisme-gaming-accent);
+    color: var(--sisme-gaming-dark);
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-sm);
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-card-mode:hover {
+    background: var(--sisme-gaming-text-bright);
+    transform: scale(1.01);
+}
+
+
+/* ===🎮 PLATEFORMES ================== */
+
+.sisme-card-platforms {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    margin-bottom: var(--sisme-space-md);
+}
+
 
 /* ========================================
    📋 COMPACT-CARD (à venir)
@@ -124,9 +159,10 @@
     font-weight: var(--sisme-font-bold);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--sisme-gaming-text-bright);
-    backdrop-filter: blur(10px);
+    color: var(--sisme-color-surface);
+    backdrop-filter: blur(100px);
     border: 1px solid var(--sisme-white-alpha);
+    cursor: default;
 }
 
 .sisme-badge-new {
@@ -169,32 +205,6 @@
     margin: 0 0 var(--sisme-space-md) 0;
 }
 
-/* ===🎮 PLATEFORMES ================== */
-
-.sisme-card-platforms {
-    display: flex;
-    gap: var(--sisme-space-sm);
-    margin-bottom: var(--sisme-space-md);
-}
-
-.sisme-card-platform {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--sisme-gaming-dark);
-    border-radius: var(--sisme-radius-sm);
-    font-size: var(--sisme-text-sm);
-    transition: var(--sisme-transition-fast);
-    border: 1px solid var(--sisme-white-alpha);
-}
-
-.sisme-card-platform:hover {
-    background: var(--sisme-gaming-accent);
-    transform: scale(1.1);
-}
-
 /* ===📊 META FOOTER ================== */
 
 .sisme-card-meta {
@@ -230,15 +240,3 @@
 /* ========================================
    📋 FULL-CARD (à venir)
 ======================================== */
-
-
-
-
-
-
-/* ========================================
-   📋 NORMAL-CARD - Style "Dernières Découvertes"
-======================================== */
-
-
-

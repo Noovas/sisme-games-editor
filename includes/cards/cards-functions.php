@@ -47,9 +47,10 @@ class Sisme_Cards_Functions {
             'slug' => $term->slug,
             'description' => wp_strip_all_tags($description),
             'cover_url' => $cover_url,
-            'game_url' => home_url('/tag/' . $term->slug . '/'),
+            'game_url' => home_url($term->slug . '/'),
             'genres' => self::get_game_genres($term_id),
-            'platforms' => self::get_game_platforms($term_id),
+            'modes' => self::get_game_modes($term_id),               
+        	'platforms' => self::get_game_platforms_grouped($term_id),   
             'release_date' => get_term_meta($term_id, 'release_date', true),
             'last_update' => get_term_meta($term_id, 'last_update', true),
             'timestamp' => self::get_game_timestamp($term_id)
@@ -57,6 +58,113 @@ class Sisme_Cards_Functions {
         
         return $game_data;
     }
+
+    /**
+	 * 🎮 Récupérer les plateformes groupées par famille
+	 * Retourne un tableau avec les groupes et les détails pour tooltips
+	 */
+	public static function get_game_platforms_grouped($term_id) {
+	    $platforms = get_term_meta($term_id, 'game_platforms', true) ?: array();
+	    
+	    if (empty($platforms)) {
+	        return array();
+	    }
+	    
+	    // Définition des groupes
+	    $groups = array(
+	        'pc' => array(
+	            'platforms' => array('windows', 'mac', 'linux'),
+	            'icon' => '💻',
+	            'label' => 'PC'
+	        ),
+	        'console' => array(
+	            'platforms' => array('xbox', 'playstation', 'switch'),
+	            'icon' => '🎮', 
+	            'label' => 'Console'
+	        ),
+	        'mobile' => array(
+	            'platforms' => array('ios', 'android'),
+	            'icon' => '📱',
+	            'label' => 'Mobile'
+	        ),
+	        'web' => array(
+	            'platforms' => array('web'),
+	            'icon' => '🌐',
+	            'label' => 'Web'
+	        )
+	    );
+	    
+	    // Noms complets pour tooltips
+	    $platform_names = array(
+	        'windows' => 'Windows',
+	        'mac' => 'macOS', 
+	        'linux' => 'Linux',
+	        'xbox' => 'Xbox',
+	        'playstation' => 'PlayStation',
+	        'switch' => 'Nintendo Switch',
+	        'ios' => 'iOS',
+	        'android' => 'Android',
+	        'web' => 'Navigateur Web'
+	    );
+	    
+	    $grouped_platforms = array();
+	    
+	    foreach ($groups as $group_key => $group_data) {
+	        $found_platforms = array_intersect($platforms, $group_data['platforms']);
+	        
+	        if (!empty($found_platforms)) {
+	            $platform_details = array();
+	            foreach ($found_platforms as $platform) {
+	                if (isset($platform_names[$platform])) {
+	                    $platform_details[] = $platform_names[$platform];
+	                }
+	            }
+	            
+	            $grouped_platforms[] = array(
+	                'group' => $group_key,
+	                'icon' => $group_data['icon'],
+	                'label' => $group_data['label'],
+	                'platforms' => $found_platforms,
+	                'tooltip' => implode(', ', $platform_details)
+	            );
+	        }
+	    }
+	    
+	    return $grouped_platforms;
+	}
+
+	/**
+	 * 🎯 Récupérer les modes de jeu
+	 */
+	public static function get_game_modes($term_id) {
+	    $modes = get_term_meta($term_id, 'game_modes', true) ?: array();
+	    
+	    if (empty($modes)) {
+	        return array();
+	    }
+	    
+	    // Traduction des modes
+	    $mode_labels = array(
+	        'solo' => 'Solo',
+	        'multijoueur' => 'Multijoueur',
+	        'coop' => 'Coopération',
+	        'competitif' => 'Compétitif',
+	        'online' => 'En ligne',
+	        'local' => 'Local'
+	    );
+	    
+	    $formatted_modes = array();
+	    foreach ($modes as $mode) {
+	        if (isset($mode_labels[$mode])) {
+	            $formatted_modes[] = array(
+	                'key' => $mode,
+	                'label' => $mode_labels[$mode]
+	            );
+	        }
+	    }
+	    
+	    return $formatted_modes;
+	}
     
     /**
      * 🏷️ Récupérer les genres du jeu

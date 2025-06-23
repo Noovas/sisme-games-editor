@@ -15,3 +15,64 @@ body,
 .post {
     background-color: var(--sisme-gaming-dark) !important;
 }
+
+
+/* ========================================
+   🎯 BADGES 
+======================================== */
+
+.sisme-badge {
+    padding: 6px 12px;
+    font-size: var(--sisme-text-sm);
+    cursor: default;
+    border-radius: var(--sisme-radius-md);
+    transition: var(--sisme-transition-all);
+    text-transform: capitalize;
+    font-weight: 500;
+    border: 1px solid;
+}
+
+.sisme-badge-platform {
+    cursor: default;
+    padding: var(--sisme-space-sm);
+    min-width: var(--sisme-size-icon-l);
+    height: var(--sisme-size-icon-l);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sisme-bg-vert);
+    border-radius: var(--sisme-radius-md);
+    font-size: var(--sisme-text-base);
+    transition: var(--sisme-transition-fast);
+    border: 1px solid var(--sisme-border-vert);
+    position: relative;
+}
+
+.sisme-badge-genre {
+    color: var(--sisme-font-bleu);
+    border: 1px solid var(--sisme-border-bleu);
+    background: var(--sisme-bg-bleu);
+}
+
+.sisme-badge-mode {
+    color: var(--sisme-font-orange);
+    border: 1px solid var(--sisme-border-orange);
+    background: var(--sisme-bg-orange);
+}
+
+.sisme-badge:hover {transform: translateY(-1px);}
+
+.sisme-badge-platform:hover {
+    background: var(--sisme-bg-hover-vert);
+    box-shadow: var(--sisme-shadow-neon-vert);
+}
+
+.sisme-badge-genre:hover {
+    background: var(--sisme-bg-hover-bleu);
+    box-shadow: var(--sisme-shadow-neon-bleu);
+}
+
+.sisme-badge-mode:hover {
+    background: var(--sisme-bg-hover-orange);
+    box-shadow: var(--sisme-shadow-neon-orange);
+}

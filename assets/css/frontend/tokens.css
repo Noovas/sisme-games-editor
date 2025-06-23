@@ -39,6 +39,21 @@
     --sisme-border-light: rgba(161, 183, 141, 0.2);
     --sisme-border-strong: rgba(161, 183, 141, 0.8);
     --sisme-white-alpha: rgba(255, 255, 255, 0.1);
+
+    --sisme-border-orange: rgba(212, 163, 115, 0.3);
+    --sisme-bg-orange: rgba(212, 163, 115, 0.2);
+    --sisme-bg-hover-orange: rgba(212, 163, 115, 0.3);
+    --sisme-font-orange: var(--sisme-color-secondary);
+
+    --sisme-border-bleu: rgba(102, 192, 244, 0.2);
+    --sisme-bg-bleu: rgba(102, 192, 244, 0.2);
+    --sisme-bg-hover-bleu: rgba(102, 192, 244, 0.3);
+    --sisme-font-bleu: var(--sisme-gaming-accent);
+
+    --sisme-border-vert: rgba(161, 183, 141, 0.3);
+    --sisme-bg-vert: rgba(161, 183, 141, 0.2);
+    --sisme-bg-hover-vert: rgba(161, 183, 141, 0.3);
+    --sisme-font-vert: var(--sisme-color-primary);
 }
 
 /* ========================================
@@ -55,10 +70,10 @@
     --sisme-space-3xl: 64px;
     
     /* Rayons de bordure */
-    --sisme-radius-sm: 4px;
-    --sisme-radius-md: 8px;
+    --sisme-radius-sm: 5px;
+    --sisme-radius-md: 10px;
     --sisme-radius-lg: 12px;
-    --sisme-radius-xl: 16px;
+    --sisme-radius-xl: 20px;
     --sisme-radius-full: 9999px;
     
     /* Largeurs max */
@@ -77,6 +92,11 @@
     --sisme-gap-s: 12px;
     --sisme-gap-m: 24px;
     --sisme-gap-l: 32px;
+
+    /* Icon */
+    --sisme-size-icon-s: 14px;
+    --sisme-size-icon-m: 28px;
+    --sisme-size-icon-l: 42px;
 }
 
 /* ========================================
@@ -127,7 +147,11 @@
     --sisme-shadow-gaming: 0 16px 48px rgba(0, 0, 0, 0.4);
     --sisme-shadow-gaming-hover: 0 20px 60px rgba(0, 0, 0, 0.5);
     --sisme-shadow-neon: 0 0 20px rgba(102, 192, 244, 0.4);
-    
+
+    --sisme-shadow-neon-orange: 0 4px 12px rgba(212, 163, 115, 0.3);
+    --sisme-shadow-neon-bleu: 0 4px 12px rgba(102, 192, 244, 0.3);
+    --sisme-shadow-neon-vert: 0 4px 12px rgba(161, 183, 141, 0.3);
+
     /* Transitions */
     --sisme-transition-fast: 0.15s ease;
     --sisme-transition-normal: 0.3s ease;
@@ -171,6 +195,8 @@
     --sisme-simulation: #96ceb4;
     --sisme-sports: #ffeaa7;
     --sisme-racing: #fd79a8;
+
+
 }
 
 /* ========================================

@@ -5,7 +5,6 @@
  * 
  * MODIFICATION: Ajout du CSS épuré pour la page de création de fiche
  * 
- * ATTENTION: Remplacer la méthode enqueue_admin_styles() existante par cette version
  */
 
 if (!defined('ABSPATH')) {
@@ -15,16 +14,14 @@ if (!defined('ABSPATH')) {
 class Sisme_Assets_Loader {
     
     public function __construct() {
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_global_frontend_styles'));
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_styles'));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_global_frontend'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_carousel_assets'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_carousel_assets'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_homepage_assets'));
     }
 
-    public function enqueue_global_frontend_styles() {
-        // Vérifier qu'on est bien sur le frontend (pas admin)
+    public function enqueue_global_frontend() {
         if (is_admin()) {
             return;
         }
@@ -39,6 +36,27 @@ class Sisme_Assets_Loader {
             SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/front-global.css',
             array(),
             SISME_GAMES_EDITOR_VERSION
+        );
+        wp_enqueue_style(
+            'sisme-hero-section',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/hero-section.css',
+            array('sisme-frontend-tokens'),
+            SISME_GAMES_EDITOR_VERSION
+        );
+
+        wp_enqueue_style(
+            'sisme-sections-styles',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/sections.css',
+            array('sisme-frontend-tokens'),
+            SISME_GAMES_EDITOR_VERSION
+        );
+
+        wp_enqueue_script(
+            'sisme-frontend-tooltip',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/frontend-tooltip.js',
+            array(),
+            SISME_GAMES_EDITOR_VERSION,
+            true
         );
     }
 
@@ -216,62 +234,6 @@ class Sisme_Assets_Loader {
                 true
             );
         }
-    }
-    
-    /**
-     * Charger les styles frontend - INCHANGÉ
-     * Garde le système existant pour les fiches de jeu
-     */
-    public function enqueue_frontend_styles() {
-        // SEULEMENT pour les fiches de jeu modernes
-        if (is_single() && $this->is_game_fiche()) {
-            
-            // 1. Variables CSS frontend
-            wp_enqueue_style(
-                'sisme-frontend-tokens',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/tokens.css',
-                array(),
-                SISME_GAMES_EDITOR_VERSION
-            );
-            
-            // 2. Hero Section (layout principal)
-            wp_enqueue_style(
-                'sisme-hero-section',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/hero-section.css',
-                array('sisme-frontend-tokens'),
-                SISME_GAMES_EDITOR_VERSION
-            );
-            
-            // 3. Sections personnalisées
-            wp_enqueue_style(
-                'sisme-sections-styles',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/sections.css',
-                array('sisme-frontend-tokens'),
-                SISME_GAMES_EDITOR_VERSION
-            );
-            
-            // 4. JavaScript galerie interactive (si screenshots présents)
-            if ($this->has_screenshots()) {
-                wp_enqueue_script(
-                    'sisme-gallery-interactive',
-                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/gallery-interactive.js',
-                    array(),
-                    SISME_GAMES_EDITOR_VERSION,
-                    true
-                );
-            }
-        }
-    }
-    
-    /**
-     * Vérifier si c'est une fiche de jeu moderne
-     */
-    private function is_game_fiche() {
-        if (!is_single()) return false;
-        
-        global $post;
-        $sections = get_post_meta($post->ID, '_sisme_game_sections', true);
-        return !empty($sections);
     }
     
     /**

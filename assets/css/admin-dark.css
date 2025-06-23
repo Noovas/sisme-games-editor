@@ -217,7 +217,7 @@ h1, h2, h3, h4, h5, h6, p, span {
     text-shadow: none !important;
 }
 
-.sisme-game-meta {
+/*.sisme-game-meta {
     font-size: 0.8rem !important;
     color: var(--sisme-gaming-text) !important;
     display: flex;
@@ -227,7 +227,7 @@ h1, h2, h3, h4, h5, h6, p, span {
 
 .sisme-game-meta span {
     color: var(--sisme-gaming-text) !important;
-}
+}*/
 
 /* Actions du jeu */
 .sisme-game-actions {
@@ -388,10 +388,10 @@ h1, h2, h3, h4, h5, h6, p, span {
         min-width: 100%;
     }
     
-    .sisme-game-meta {
+    /*.sisme-game-meta {
         flex-direction: column;
         gap: var(--sisme-space-xs);
-    }
+    }*/
     
     .sisme-action-btn {
         width: 32px;

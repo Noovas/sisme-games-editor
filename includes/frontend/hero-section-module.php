@@ -157,7 +157,7 @@ class Sisme_Hero_Section_Module {
                 $genre_url = get_category_link($genre_id);
                 $genre_name = str_replace('jeux-', '', $genre->name); // Nettoyer le nom
                 
-                $output .= '<a href="' . esc_url($genre_url) . '" class="sisme-tag sisme-tag-link" ';
+                $output .= '<a href="' . esc_url($genre_url) . '" class="sisme-badge sisme-badge-genre" ';
                 $output .= 'title="Voir tous les jeux de type ' . esc_attr($genre_name) . '">';
                 $output .= esc_html(ucfirst($genre_name));
                 $output .= '</a>';
@@ -204,8 +204,8 @@ class Sisme_Hero_Section_Module {
                 return $platform_names[$p];
             }, $pc_found);
             
-            $output .= '<span class="sisme-platform-icon" title="PC : ' . esc_attr(implode(', ', $pc_details)) . '">';
-            $output .= '💻'; // Icône PC
+            $output .= '<span class="sisme-badge-platform" title="' . esc_attr(implode(', ', $pc_details)) . '">';
+            $output .= '💻';
             $output .= '</span>';
         }
         
@@ -216,7 +216,7 @@ class Sisme_Hero_Section_Module {
                 return $platform_names[$p];
             }, $console_found);
             
-            $output .= '<span class="sisme-platform-icon" title="Console : ' . esc_attr(implode(', ', $console_details)) . '">';
+            $output .= '<span class="sisme-badge-platform" title="' . esc_attr(implode(', ', $console_details)) . '">';
             $output .= '🎮'; // Icône Console
             $output .= '</span>';
         }
@@ -228,15 +228,15 @@ class Sisme_Hero_Section_Module {
                 return $platform_names[$p];
             }, $mobile_found);
             
-            $output .= '<span class="sisme-platform-icon" title="Mobile : ' . esc_attr(implode(', ', $mobile_details)) . '">';
-            $output .= '📱'; // Icône Mobile
+            $output .= '<span class="sisme-badge-platform" title="' . esc_attr(implode(', ', $mobile_details)) . '">';
+            $output .= '📱'; 
             $output .= '</span>';
         }
         
         // Web à part (si présent)
         if (in_array('web', $platforms)) {
-            $output .= '<span class="sisme-platform-icon" title="' . esc_attr($platform_names['web']) . '">';
-            $output .= '🌐'; // Icône Web
+            $output .= '<span class="sisme-badge-platform" title="' . esc_attr($platform_names['web']) . '">';
+            $output .= '🌐';
             $output .= '</span>';
         }
         
@@ -258,7 +258,7 @@ class Sisme_Hero_Section_Module {
         
         foreach ($modes as $mode) {
             $mode_clean = strtolower(trim($mode));
-            $output .= '<span class="sisme-mode-tag ' . esc_attr($mode_clean) . '">';
+            $output .= '<span class="sisme-badge sisme-badge-mode ' . esc_attr($mode_clean) . '">';
             $output .= esc_html(ucfirst($mode));
             $output .= '</span>';
         }
@@ -611,7 +611,7 @@ class Sisme_Hero_Section_Module {
                 }
             }
             
-            const platformIcons = document.querySelectorAll(".sisme-platform-icon");
+            const platformIcons = document.querySelectorAll(".sisme-badge-platform");
             platformIcons.forEach(icon => {
                 const tooltipText = icon.getAttribute("title");
                 if (tooltipText) {

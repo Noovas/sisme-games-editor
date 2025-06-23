@@ -92,10 +92,15 @@ class Sisme_Cards_Normal_Module {
         if ($options['show_genres'] && !empty($game_data['genres'])) {
             $output .= self::render_genres($game_data);
         }
+
+        // Modes (optionnels)
+        if (!empty($game_data['modes'])) {
+            $output .= self::render_modes($game_data);
+        }
         
         // Plateformes (optionnelles)
         if ($options['show_platforms'] && !empty($game_data['platforms'])) {
-            $output .= self::render_platforms($game_data);
+            $output .= self::render_platforms_grouped($game_data);
         }
         
         // Meta footer
@@ -137,7 +142,23 @@ class Sisme_Cards_Normal_Module {
         
         // Limiter à 3 genres maximum
         foreach (array_slice($game_data['genres'], 0, 3) as $genre) {
-            $output .= '<span class="sisme-card-genre">' . esc_html($genre['name']) . '</span>';
+            $output .= '<span class="sisme-badge sisme-badge-genre">' . esc_html($genre['name']) . '</span>';
+        }
+        
+        $output .= '</div>';
+        
+        return $output;
+    }
+
+    /**
+     * 🎯 Modes de jeu
+     */
+    private static function render_modes($game_data) {
+        $output = '<div class="sisme-card-modes">';
+        
+        // Limiter à 4 modes maximum
+        foreach (array_slice($game_data['modes'], 0, 4) as $mode) {
+            $output .= '<span class="sisme-badge sisme-badge-mode">' . esc_html($mode['label']) . '</span>';
         }
         
         $output .= '</div>';
@@ -148,14 +169,13 @@ class Sisme_Cards_Normal_Module {
     /**
      * 🎮 Icônes des plateformes
      */
-    private static function render_platforms($game_data) {
+    private static function render_platforms_grouped($game_data) {
         $output = '<div class="sisme-card-platforms">';
-        
-        // Limiter à 4 plateformes maximum
-        foreach (array_slice($game_data['platforms'], 0, 4) as $platform) {
-            $icon = Sisme_Cards_Functions::get_platform_icon($platform);
-            $output .= '<span class="sisme-card-platform" title="' . esc_attr(ucfirst($platform)) . '">';
-            $output .= $icon;
+
+        foreach ($game_data['platforms'] as $platform_group) {
+            $output .= '<span class="sisme-badge-platform" ';
+            $output .= 'title="' . esc_attr($platform_group['tooltip']) . '">';
+            $output .= $platform_group['icon'];
             $output .= '</span>';
         }
         
