@@ -23,7 +23,9 @@ class Sisme_Cards_Normal_Module {
         'show_genres' => true,
         'show_platforms' => false,
         'show_date' => true,
-        'css_class' => ''
+        'css_class' => '',
+        'max_genres' => 3,          
+        'max_modes' => 4           
     );
     
     /**
@@ -83,22 +85,22 @@ class Sisme_Cards_Normal_Module {
         // Titre cliquable
         $output .= self::render_title($game_data);
         
-        // Description (optionnelle)
+        // Description
         if ($options['show_description'] && !empty($game_data['description'])) {
             $output .= self::render_description($game_data);
         }
         
-        // Genres (optionnels)
-        if ($options['show_genres'] && !empty($game_data['genres'])) {
-            $output .= self::render_genres($game_data);
+        // Genres
+        if ($options['show_genres'] && !empty($game_data['genres']) && $options['max_genres'] !== 0) {
+            $output .= self::render_genres($game_data, $options);
         }
 
-        // Modes (optionnels)
-        if (!empty($game_data['modes'])) {
-            $output .= self::render_modes($game_data);
+        // Modes
+        if (!empty($game_data['modes']) && $options['max_modes'] !== 0) {
+            $output .= self::render_modes($game_data, $options);
         }
         
-        // Plateformes (optionnelles)
+        // Plateformes
         if ($options['show_platforms'] && !empty($game_data['platforms'])) {
             $output .= self::render_platforms_grouped($game_data);
         }
@@ -139,9 +141,15 @@ class Sisme_Cards_Normal_Module {
      */
     private static function render_genres($game_data) {
         $output = '<div class="sisme-card-genres">';
+        $max_genres = isset($options['max_genres']) ? intval($options['max_genres']) : 3;
+        if ($max_genres == 0) {
+            return '';
+        }
+        $genres_to_show = ($max_genres == -1) ? 
+            $game_data['genres'] :                             
+            array_slice($game_data['genres'], 0, $max_genres);  
         
-        // Limiter à 3 genres maximum
-        foreach (array_slice($game_data['genres'], 0, 3) as $genre) {
+        foreach ($genres_to_show as $genre) {
             $output .= '<span class="sisme-badge sisme-badge-genre">' . esc_html($genre['name']) . '</span>';
         }
         
@@ -153,11 +161,18 @@ class Sisme_Cards_Normal_Module {
     /**
      * 🎯 Modes de jeu
      */
-    private static function render_modes($game_data) {
+    private static function render_modes($game_data, $options = array()) {
         $output = '<div class="sisme-card-modes">';
+        $max_modes = isset($options['max_modes']) ? intval($options['max_modes']) : 4;
+        if ($max_modes == 0) {
+            return '';
+        }
         
-        // Limiter à 4 modes maximum
-        foreach (array_slice($game_data['modes'], 0, 4) as $mode) {
+        $modes_to_show = ($max_modes == -1) ? 
+            $game_data['modes'] :                          
+            array_slice($game_data['modes'], 0, $max_modes);
+        
+        foreach ($modes_to_show as $mode) {
             $output .= '<span class="sisme-badge sisme-badge-mode">' . esc_html($mode['label']) . '</span>';
         }
         

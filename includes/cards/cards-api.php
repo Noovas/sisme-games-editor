@@ -380,16 +380,19 @@ add_shortcode('game_card', function($atts) {
         'show_genres' => 'true',
         'show_platforms' => 'false',
         'show_date' => 'true',
-        'css_class' => ''
+        'css_class' => '',
+        'max_genres' => '3',
+        'max_modes' => '4'
     ), $atts);
     
-    // Convertir les strings en boolean
     $options = array(
         'show_description' => filter_var($atts['show_description'], FILTER_VALIDATE_BOOLEAN),
         'show_genres' => filter_var($atts['show_genres'], FILTER_VALIDATE_BOOLEAN),
         'show_platforms' => filter_var($atts['show_platforms'], FILTER_VALIDATE_BOOLEAN),
         'show_date' => filter_var($atts['show_date'], FILTER_VALIDATE_BOOLEAN),
-        'css_class' => $atts['css_class']
+        'css_class' => $atts['css_class'],
+        'max_genres' => intval($atts['max_genres']),
+        'max_modes' => intval($atts['max_modes'])
     );
     
     return Sisme_Cards_API::render_card(intval($atts['id']), $atts['type'], $options);
@@ -506,10 +509,12 @@ add_shortcode('game_cards_carousel', function($atts) {
         'infinite' => 'true',
         'navigation' => 'true',
         'pagination' => 'true',
-        'debug' => 'false'
+        'debug' => 'false',
+        'max_genres' => '3', 
+        'max_modes' => '4'        
     ), $atts);
     
-    // Préparer les arguments
+    // Préparer les arguments 
     $args = array(
         'cards_per_view' => intval($atts['cards_per_view']),
         'total_cards' => intval($atts['total_cards']),
@@ -520,7 +525,9 @@ add_shortcode('game_cards_carousel', function($atts) {
         'infinite' => filter_var($atts['infinite'], FILTER_VALIDATE_BOOLEAN),
         'navigation' => filter_var($atts['navigation'], FILTER_VALIDATE_BOOLEAN),
         'pagination' => filter_var($atts['pagination'], FILTER_VALIDATE_BOOLEAN),
-        'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN)
+        'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN),
+        'max_genres' => intval($atts['max_genres']),
+        'max_modes' => intval($atts['max_modes'])
     );
     
     return Sisme_Cards_API::render_cards_carousel($args);
@@ -548,28 +555,3 @@ add_shortcode('debug_cards_carousel', function($atts) {
     
     return Sisme_Cards_API::render_cards_carousel($args);
 });
-
-/* 
-=== EXEMPLES D'UTILISATION ===
-
-1. Carrousel basique (3 cartes visibles, 9 total):
-[game_cards_carousel]
-
-2. Carrousel 4 cartes, 12 total:
-[game_cards_carousel cards_per_view="4" total_cards="12"]
-
-3. Carrousel filtré par genres:
-[game_cards_carousel genres="action,rpg" total_cards="8"]
-
-4. Carrousel sans navigation:
-[game_cards_carousel navigation="false"]
-
-5. Carrousel sans pagination:
-[game_cards_carousel pagination="false"]
-
-6. Debug carrousel:
-[debug_cards_carousel cards_per_view="2" total_cards="4"]
-
-7. Carrousel personnalisé complet:
-[game_cards_carousel cards_per_view="2" total_cards="6" genres="indie" sort_by_date="false"]
-*/

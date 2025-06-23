@@ -172,7 +172,6 @@ class Sisme_Cards_Functions {
     public static function get_game_genres($term_id) {
         $genre_ids = get_term_meta($term_id, 'game_genres', true) ?: array();
         $genres = array();
-        
         foreach ($genre_ids as $genre_id) {
             $genre = get_category($genre_id);
             if ($genre) {
@@ -491,7 +490,7 @@ class Sisme_Cards_Functions {
 	    
 	    return array_unique($genre_ids);
 	}
-	
+
 	/**
 	 * 🎭 Construire la meta_query selon les critères
 	 * 
@@ -710,10 +709,8 @@ class Sisme_Cards_Functions {
 	                foreach ($all_genre_ids as $genre_id) {
 	                    $category = get_category($genre_id);
 	                    if ($category) {
-	                        // Nettoyer le nom du genre (enlever "jeux-" si présent)
 	                        $genre_name = str_replace('jeux-', '', $category->name);
-	                        $genre_name = ucfirst($genre_name); // Capitaliser
-	                        
+	                        $genre_name = ucfirst($genre_name);
 	                        if (!isset($stats['games_by_genre'][$genre_name])) {
 	                            $stats['games_by_genre'][$genre_name] = 0;
 	                        }
@@ -734,10 +731,7 @@ class Sisme_Cards_Functions {
 	            }
 	        }
 	    }
-	    
-	    // ✅ Trier les genres par nombre décroissant
 	    arsort($stats['games_by_genre']);
-	    
 	    return $stats;
 	}
 

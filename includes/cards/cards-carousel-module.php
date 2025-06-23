@@ -127,9 +127,10 @@ class Sisme_Cards_Carousel_Module {
             $output .= '<div class="sisme-carousel__slide">';
             
             if (class_exists('Sisme_Cards_API')) {
-                // Carte SANS classe slide (elle est dans le wrapper)
                 $card_options = array(
-                    'css_class' => '' // Pas de classe spéciale, carte normale
+                    'css_class' => '',
+                    'max_genres' => isset($grid_args['max_genres']) ? $grid_args['max_genres'] : 3,
+                    'max_modes' => isset($grid_args['max_modes']) ? $grid_args['max_modes'] : 4
                 );
                 $card_html = Sisme_Cards_API::render_card($game_id, $grid_args['type'], $card_options);
                 $output .= $card_html;
