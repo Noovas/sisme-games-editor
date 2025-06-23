@@ -26,18 +26,6 @@
     position: relative;
 }
 
-.sisme-carousel-section-title::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(45deg, var(--sisme-gaming-accent, #66c0f4), var(--sisme-color-secondary, #D4A373));
-    border-radius: 2px;
-}
-
 .sisme-carousel-section-title.with-emoji::before {
     content: attr(data-emoji);
     margin-right: 0.5em;

@@ -226,32 +226,110 @@
    ⚫⚪ PAGINATION DOTS
 ======================================== */
 
+/* ===== DOTS HOLOGRAPHIQUES VEDETTES - STYLES EXACTS ===== */
+.sisme-ultra-dots {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.sisme-ultra-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(102, 192, 244, 0.3);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.sisme-ultra-dot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: #66c0f4;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.3s ease;
+}
+
+.sisme-ultra-dot.active {
+    border-color: #66c0f4;
+    box-shadow: 
+        0 0 20px rgba(102, 192, 244, 0.6),
+        inset 0 0 10px rgba(102, 192, 244, 0.2);
+    transform: scale(1.2);
+}
+
+.sisme-ultra-dot.active::before {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.sisme-ultra-dot:hover {
+    transform: scale(1.3);
+    border-color: rgba(102, 192, 244, 0.8);
+}
+
+/* ===== ADAPTATION POUR CARROUSELS CARDS ===== */
+/* Remplacer .sisme-ultra-dots par .sisme-carousel__pagination */
 .sisme-carousel__pagination {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    margin-top: 20px;
-    padding: 20px 0;
+    gap: 20px;
+    margin-top: 30px;
 }
 
+/* Remplacer .sisme-ultra-dot par .sisme-carousel__dot */
 .sisme-carousel__dot {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.4);
     border: none;
     cursor: pointer;
-    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(102, 192, 244, 0.3);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.sisme-carousel__dot:hover {
-    background: rgba(255, 255, 255, 0.7);
-    transform: scale(1.1);
+.sisme-carousel__dot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: #66c0f4;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.3s ease;
 }
 
 .sisme-carousel__dot.active {
-    background: #4a9eff;
+    border-color: #66c0f4;
+    box-shadow: 
+        0 0 20px rgba(102, 192, 244, 0.6),
+        inset 0 0 10px rgba(102, 192, 244, 0.2);
+    transform: scale(1.2);
+}
+
+.sisme-carousel__dot.active::before {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.sisme-carousel__dot:hover {
     transform: scale(1.3);
+    border-color: rgba(102, 192, 244, 0.8);
 }
 
 /* ========================================
@@ -383,4 +461,195 @@
 .sisme-carousel__dot:focus-visible {
     outline: 2px solid #007bff;
     outline-offset: 2px;
+}
+
+/* ========================================
+   🔄 INFINITE LOOP CSS
+======================================== */
+
+/* ===== CARROUSEL INFINITE LOOP ===== */
+.sisme-cards-carousel--infinite {
+    /* Masquer le débordement pour cacher les clones */
+    overflow: hidden;
+}
+
+.sisme-cards-carousel--infinite .sisme-carousel__container {
+    overflow: hidden; /* Important pour masquer les clones */
+}
+
+.sisme-cards-carousel--infinite .sisme-carousel__track {
+    /* Permettre la transition fluide */
+    transition: transform 0.5s ease;
+    will-change: transform; /* Optimisation performance */
+}
+
+/* ===== STYLES DES CLONES ===== */
+.sisme-carousel__slide--clone-start,
+.sisme-carousel__slide--clone-end {
+    /* Les clones ont les mêmes styles que les slides normaux */
+    flex: 0 0 calc(100% / var(--cards-per-view));
+    padding: 0 10px;
+}
+
+.sisme-carousel__slide--original {
+    /* Slides originaux (pour debug) */
+    flex: 0 0 calc(100% / var(--cards-per-view));
+    padding: 0 10px;
+}
+
+/* ===== DEBUG INFINITE LOOP ===== */
+.sisme-cards-carousel--debug.sisme-cards-carousel--infinite::before {
+    content: '🔄 INFINITE: ' attr(data-cards-per-view) ' cartes | ' attr(data-cards-count) ' originales';
+    background: #e74c3c;
+}
+
+/* Debug: Différencier les clones visuellement */
+.sisme-cards-carousel--debug .sisme-carousel__slide--clone-start {
+    outline: 3px solid orange !important; /* Clones de début en orange */
+}
+
+.sisme-cards-carousel--debug .sisme-carousel__slide--clone-end {
+    outline: 3px solid purple !important; /* Clones de fin en violet */
+}
+
+.sisme-cards-carousel--debug .sisme-carousel__slide--original {
+    outline: 2px solid green !important; /* Originaux en vert */
+}
+
+/* ===== OPTIMISATIONS PERFORMANCE ===== */
+.sisme-cards-carousel--infinite .sisme-carousel__slide {
+    /* Optimisation GPU pour les transitions */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+.sisme-cards-carousel--infinite .sisme-carousel__track {
+    /* Utiliser le GPU pour les transformations */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* ===== ÉTATS SPÉCIAUX INFINITE ===== */
+
+/* Pendant transition, désactiver les interactions */
+.sisme-cards-carousel--infinite.is-transitioning {
+    pointer-events: none;
+}
+
+.sisme-cards-carousel--infinite.is-transitioning .sisme-carousel__btn {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* Masquer la pagination en mode infinite */
+.sisme-cards-carousel--infinite .sisme-carousel__pagination {
+    display: none !important;
+}
+
+/* Boutons toujours actifs en infinite */
+.sisme-cards-carousel--infinite .sisme-carousel__btn:disabled {
+    opacity: 1 !important;
+    cursor: pointer !important;
+    transform: translateY(-50%) !important;
+}
+
+/* ===== ADAPTATIONS RESPONSIVE INFINITE ===== */
+
+/* Sur mobile, infinite fonctionne toujours */
+@media (max-width: 768px) {
+    .sisme-cards-carousel--infinite .sisme-carousel__slide--clone-start,
+    .sisme-cards-carousel--infinite .sisme-carousel__slide--clone-end,
+    .sisme-cards-carousel--infinite .sisme-carousel__slide--original {
+        /* Adapter aux breakpoints mobile existants */
+        flex: 0 0 50% !important; /* 2 cartes max sur mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-cards-carousel--infinite .sisme-carousel__slide--clone-start,
+    .sisme-cards-carousel--infinite .sisme-carousel__slide--clone-end,
+    .sisme-cards-carousel--infinite .sisme-carousel__slide--original {
+        flex: 0 0 100% !important; /* 1 carte sur très petit mobile */
+    }
+}
+
+/* ===== PRÉFÉRENCES UTILISATEUR ===== */
+
+/* Respecter reduced-motion même en infinite */
+@media (prefers-reduced-motion: reduce) {
+    .sisme-cards-carousel--infinite .sisme-carousel__track {
+        transition-duration: 0.2s !important;
+    }
+}
+
+/* ===== LOADING STATE ===== */
+.sisme-cards-carousel--infinite.is-loading {
+    opacity: 0.7;
+}
+
+.sisme-cards-carousel--infinite.is-loading .sisme-carousel__track {
+    transition: none !important;
+}
+
+/* ===== HOVER EFFECTS POUR INFINITE ===== */
+.sisme-cards-carousel--infinite:hover .sisme-carousel__track {
+    /* Ralentir légèrement la transition au hover pour meilleur contrôle */
+    transition-duration: 0.6s;
+}
+
+/* ===== FOCUS MANAGEMENT ===== */
+.sisme-cards-carousel--infinite .sisme-carousel__btn:focus {
+    /* Focus toujours visible sur boutons infinite */
+    outline: 2px solid #007bff !important;
+    outline-offset: 2px !important;
+}
+
+/* ===== ANIMATION D'ENTRÉE ===== */
+@keyframes infiniteCarouselAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sisme-cards-carousel--infinite {
+    animation: infiniteCarouselAppear 0.6s ease-out;
+}
+
+/* ===== VARIANTES DE VITESSE ===== */
+.sisme-cards-carousel--infinite.speed-slow .sisme-carousel__track {
+    transition-duration: 0.8s;
+}
+
+.sisme-cards-carousel--infinite.speed-fast .sisme-carousel__track {
+    transition-duration: 0.3s;
+}
+
+/* ===== INDICATEUR INFINITE ===== */
+.sisme-cards-carousel--infinite::after {
+    content: '∞';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 20px;
+    height: 20px;
+    background: rgba(102, 192, 244, 0.8);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 10;
+    opacity: 0.7;
+}
+
+/* Masquer l'indicateur en mode debug (on a déjà l'info) */
+.sisme-cards-carousel--debug.sisme-cards-carousel--infinite::after {
+    display: none;
 }

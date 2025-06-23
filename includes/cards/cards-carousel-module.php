@@ -19,9 +19,9 @@ class Sisme_Cards_Carousel_Module {
      * Options par défaut pour les carrousels
      */
     private static $default_options = array(
-        'cards_per_view' => 3,        // 2-5
-        'total_cards' => 9,           
-        'infinite' => false,
+        'cards_per_view' => 4,        
+        'total_cards' => 10,           
+        'infinite' => true,          
         'autoplay' => false,
         'navigation' => true,
         'pagination' => true,
@@ -95,13 +95,14 @@ class Sisme_Cards_Carousel_Module {
         $total_cards = count($game_ids);
         $cards_per_view = $carousel_options['cards_per_view'];
         $total_pages = ceil($total_cards / $cards_per_view);
+        $is_infinite = $carousel_options['infinite'] && $total_cards > $cards_per_view;
         
         // Configuration JavaScript
         $js_config = array(
             'cardsPerView' => $cards_per_view,
             'totalCards' => $total_cards,
             'totalPages' => $total_pages,
-            'infinite' => $carousel_options['infinite'],
+            'infinite' => $is_infinite,
             'autoplay' => $carousel_options['autoplay'],
             'navigation' => $carousel_options['navigation'],
             'pagination' => $carousel_options['pagination'],
@@ -114,39 +115,37 @@ class Sisme_Cards_Carousel_Module {
         if (!empty($grid_args['debug'])) {
             $css_class .= ' sisme-cards-carousel--debug';
         }
+        if ($is_infinite) {
+            $css_class .= ' sisme-cards-carousel--infinite';
+        }
 
+        // Initialiser $output vide
         $output = '';
+        
+        // Ajouter le titre EN PREMIER si présent
         if (!empty($grid_args['title'])) {
             $output .= self::render_section_title($grid_args['title']);
-        }   
+        }
         
-        $output = '<div class="' . esc_attr($css_class) . '" ';
+        // ENSUITE ajouter le carrousel
+        $output .= '<div class="' . esc_attr($css_class) . '" ';
         $output .= 'data-carousel-config="' . esc_attr(wp_json_encode($js_config)) . '" ';
         $output .= 'data-cards-count="' . $total_cards . '" ';
-        $output .= 'data-cards-per-view="' . $cards_per_view . '">';
+        $output .= 'data-cards-per-view="' . $cards_per_view . '"';
+        if ($is_infinite) {
+            $output .= ' data-infinite="true"';
+        }
+        $output .= '>';
         
         // Container du carrousel
         $output .= '<div class="sisme-carousel__container">';
         $output .= '<div class="sisme-carousel__track" style="--cards-per-view: ' . $cards_per_view . ';">';
         
-        // Générer les cartes via l'API existante
-        foreach ($game_ids as $game_id) {
-            // WRAPPER SLIDE qui gère l'espacement
-            $output .= '<div class="sisme-carousel__slide">';
-            
-            if (class_exists('Sisme_Cards_API')) {
-                $card_options = array(
-                    'css_class' => '',
-                    'max_genres' => isset($grid_args['max_genres']) ? $grid_args['max_genres'] : -1,
-                    'max_modes' => isset($grid_args['max_modes']) ? $grid_args['max_modes'] : -1
-                );
-                $card_html = Sisme_Cards_API::render_card($game_id, $grid_args['type'], $card_options);
-                $output .= $card_html;
-            } else {
-                $output .= '<div class="sisme-card-error">Erreur: API Cards non disponible</div>';
-            }
-            
-            $output .= '</div>'; // Fin wrapper slide
+        // GÉNÉRATION AVEC CLONES POUR INFINITE LOOP
+        if ($is_infinite) {
+            $output .= self::render_infinite_slides($game_ids, $cards_per_view, $grid_args);
+        } else {
+            $output .= self::render_normal_slides($game_ids, $grid_args);
         }
         
         $output .= '</div>'; // fin track
@@ -157,8 +156,8 @@ class Sisme_Cards_Carousel_Module {
             $output .= self::render_navigation_buttons();
         }
         
-        // Pagination (dots)
-        if ($carousel_options['pagination']) {
+        // Pagination (dots) - PAS d'infinite pour la pagination
+        if ($carousel_options['pagination'] && !$is_infinite) {
             $output .= self::render_pagination_dots($total_pages);
         }
         
@@ -176,6 +175,70 @@ class Sisme_Cards_Carousel_Module {
         $output .= '</div>';
         
         return $output;
+    }
+
+    /**
+     * 🔄 Générer les slides avec clones pour infinite loop
+     */
+    private static function render_infinite_slides($game_ids, $cards_per_view, $grid_args) {
+        $output = '';
+        $total_cards = count($game_ids);
+        
+        // CLONES DE FIN au début (pour aller vers la gauche)
+        $end_clones = array_slice($game_ids, -$cards_per_view);
+        foreach ($end_clones as $game_id) {
+            $output .= '<div class="sisme-carousel__slide sisme-carousel__slide--clone-end">';
+            $output .= self::render_single_card($game_id, $grid_args);
+            $output .= '</div>';
+        }
+        
+        // CARTES ORIGINALES
+        foreach ($game_ids as $game_id) {
+            $output .= '<div class="sisme-carousel__slide sisme-carousel__slide--original">';
+            $output .= self::render_single_card($game_id, $grid_args);
+            $output .= '</div>';
+        }
+        
+        // CLONES DE DÉBUT à la fin (pour aller vers la droite)
+        $start_clones = array_slice($game_ids, 0, $cards_per_view);
+        foreach ($start_clones as $game_id) {
+            $output .= '<div class="sisme-carousel__slide sisme-carousel__slide--clone-start">';
+            $output .= self::render_single_card($game_id, $grid_args);
+            $output .= '</div>';
+        }
+        
+        return $output;
+    }
+
+    /**
+     * 📄 Générer les slides normaux (sans clones)
+     */
+    private static function render_normal_slides($game_ids, $grid_args) {
+        $output = '';
+        
+        foreach ($game_ids as $game_id) {
+            $output .= '<div class="sisme-carousel__slide">';
+            $output .= self::render_single_card($game_id, $grid_args);
+            $output .= '</div>';
+        }
+        
+        return $output;
+    }
+
+    /**
+     * 🎴 Rendre une carte individuelle
+     */
+    private static function render_single_card($game_id, $grid_args) {
+        if (class_exists('Sisme_Cards_API')) {
+            $card_options = array(
+                'css_class' => '',
+                'max_genres' => isset($grid_args['max_genres']) ? $grid_args['max_genres'] : -1,
+                'max_modes' => isset($grid_args['max_modes']) ? $grid_args['max_modes'] : -1
+            );
+            return Sisme_Cards_API::render_card($game_id, $grid_args['type'], $card_options);
+        } else {
+            return '<div class="sisme-card-error">Erreur: API Cards non disponible</div>';
+        }
     }
     
     /**

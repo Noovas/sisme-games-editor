@@ -507,35 +507,37 @@ add_shortcode('cards_stats', function($atts) {
 // 🎠 SHORTCODE principal pour le carrousel
 add_shortcode('game_cards_carousel', function($atts) {
     $atts = shortcode_atts(array(
-        'cards_per_view' => '3',
-        'total_cards' => '9',
-        'type' => 'normal',
+        'cards_per_view' => '4',
+        'total_cards' => '10',
         'genres' => '',
-        'is_team_choice' => 'false',
-        'sort_by_date' => 'true',
-        'infinite' => 'true',
         'navigation' => 'true',
         'pagination' => 'true',
+        'infinite' => 'true',
+        'autoplay' => 'false',
+        'is_team_choice' => 'false',
+        'sort_by_date' => 'true',
         'debug' => 'false',
-        'max_genres' => '3', 
-        'max_modes' => '4',
+        'max_genres' => '0',
+        'max_modes' => '0',
+        'type' => 'normal',
         'title' => ''
     ), $atts);
     
-    // Préparer les arguments 
     $args = array(
         'cards_per_view' => intval($atts['cards_per_view']),
         'total_cards' => intval($atts['total_cards']),
-        'type' => sanitize_text_field($atts['type']),
-        'genres' => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
-        'is_team_choice' => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
-        'sort_by_date' => filter_var($atts['sort_by_date'], FILTER_VALIDATE_BOOLEAN),
-        'infinite' => filter_var($atts['infinite'], FILTER_VALIDATE_BOOLEAN),
+        'genres' => !empty($atts['genres']) ? 
+            array_map('trim', explode(',', $atts['genres'])) : array(),
         'navigation' => filter_var($atts['navigation'], FILTER_VALIDATE_BOOLEAN),
         'pagination' => filter_var($atts['pagination'], FILTER_VALIDATE_BOOLEAN),
+        'infinite' => filter_var($atts['infinite'], FILTER_VALIDATE_BOOLEAN),  
+        'autoplay' => filter_var($atts['autoplay'], FILTER_VALIDATE_BOOLEAN),
+        'is_team_choice' => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
+        'sort_by_date' => filter_var($atts['sort_by_date'], FILTER_VALIDATE_BOOLEAN),
         'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN),
         'max_genres' => intval($atts['max_genres']),
         'max_modes' => intval($atts['max_modes']),
+        'type' => sanitize_text_field($atts['type']),
         'title' => sanitize_text_field($atts['title'])
     );
     
