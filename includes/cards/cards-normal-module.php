@@ -216,10 +216,26 @@ class Sisme_Cards_Normal_Module {
     private static function render_meta_footer($game_data, $options) {
         $output = '<div class="sisme-card-meta">';
         
-        // Date relative (optionnelle)
-        if ($options['show_date']) {
-            $formatted_date = Sisme_Cards_Functions::format_relative_date($game_data['timestamp']);
-            $output .= '<span class="sisme-card-date">' . esc_html($formatted_date) . '</span>';
+        // Date de sortie avec format configurable
+        if ($options['show_date'] && !empty($game_data['release_date'])) {
+            $date_format = isset($options['date_format']) ? $options['date_format'] : 'short';
+            
+            switch ($date_format) {
+                case 'long':
+                    $formatted_date = Sisme_Cards_Functions::format_release_date_long($game_data['release_date']);
+                    break;
+                case 'status':
+                    $formatted_date = Sisme_Cards_Functions::format_release_date_with_status($game_data['release_date'], true);
+                    break;
+                case 'short':
+                default:
+                    $formatted_date = Sisme_Cards_Functions::format_release_date($game_data['release_date']);
+                    break;
+            }
+            
+            if (!empty($formatted_date)) {
+                $output .= '<span class="sisme-card-date">' . esc_html($formatted_date) . '</span>';
+            }
         }
         
         // Lien d'action

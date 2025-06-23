@@ -371,7 +371,7 @@ class Sisme_Cards_API {
     }
 }
 
-// 🎯 SHORTCODE pour tester
+// 🎯 SHORTCODE
 add_shortcode('game_card', function($atts) {
     $atts = shortcode_atts(array(
         'id' => 0,
@@ -380,6 +380,7 @@ add_shortcode('game_card', function($atts) {
         'show_genres' => 'true',
         'show_platforms' => 'false',
         'show_date' => 'true',
+        'date_format' => 'short',
         'css_class' => '',
         'max_genres' => '3',
         'max_modes' => '4'
@@ -390,6 +391,7 @@ add_shortcode('game_card', function($atts) {
         'show_genres' => filter_var($atts['show_genres'], FILTER_VALIDATE_BOOLEAN),
         'show_platforms' => filter_var($atts['show_platforms'], FILTER_VALIDATE_BOOLEAN),
         'show_date' => filter_var($atts['show_date'], FILTER_VALIDATE_BOOLEAN),
+        'date_format' => sanitize_text_field($atts['date_format']),
         'css_class' => $atts['css_class'],
         'max_genres' => intval($atts['max_genres']),
         'max_modes' => intval($atts['max_modes'])
@@ -398,7 +400,7 @@ add_shortcode('game_card', function($atts) {
     return Sisme_Cards_API::render_card(intval($atts['id']), $atts['type'], $options);
 });
 
-// 🎯 SHORTCODE principal pour la grille
+// 🎯 SHORTCODE grille
 add_shortcode('game_cards_grid', function($atts) {
     $atts = shortcode_atts(array(
         'type' => 'normal',

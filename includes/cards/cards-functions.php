@@ -26,7 +26,16 @@ class Sisme_Cards_Functions {
         // Vérifications de base
         $description = get_term_meta($term_id, 'game_description', true);
         $cover_id = get_term_meta($term_id, 'cover_main', true);
-        
+
+        $release_date = get_term_meta($term_id, 'release_date', true);
+    	$game_data['release_date'] = $release_date ?: '';
+
+    	if (!empty($release_date)) {
+	        $game_data['timestamp'] = strtotime($release_date);
+	    } else {
+	        $game_data['timestamp'] = 0;
+	    }
+	        
         if (empty($description) || empty($cover_id)) {
             return false;
         }
@@ -53,11 +62,129 @@ class Sisme_Cards_Functions {
         	'platforms' => self::get_game_platforms_grouped($term_id),   
             'release_date' => get_term_meta($term_id, 'release_date', true),
             'last_update' => get_term_meta($term_id, 'last_update', true),
-            'timestamp' => self::get_game_timestamp($term_id)
+            'timestamp' => self::get_game_timestamp($term_id),
+
         );
         
         return $game_data;
     }
+
+    /**
+	 * 🛠️ FONCTION UTILITAIRE : Déterminer le statut depuis une date
+	 * 
+	 * @param string $release_date Date au format YYYY-MM-DD
+	 * @return array Informations sur le statut
+	 */
+	private static function get_game_release_status_from_date($release_date) {
+	    if (empty($release_date)) {
+	        return array('is_released' => true);
+	    }
+	    
+	    $release_timestamp = strtotime($release_date);
+	    $current_timestamp = current_time('timestamp');
+	    
+	    return array(
+	        'is_released' => $current_timestamp >= $release_timestamp,
+	        'days_diff' => floor(($current_timestamp - $release_timestamp) / DAY_IN_SECONDS)
+	    );
+	}
+
+    /**
+	 * 🆕 FONCTION AVEC STATUT : Affichage avec indication du statut
+	 * 
+	 * @param string $release_date Date au format YYYY-MM-DD
+	 * @param bool $show_status Afficher le statut (Sorti/À venir)
+	 * @return string Date formatée avec statut optionnel
+	 */
+	public static function format_release_date_with_status($release_date, $show_status = false) {
+	    if (empty($release_date)) {
+	        return '';
+	    }
+	    
+	    $date = DateTime::createFromFormat('Y-m-d', $release_date);
+	    if (!$date) {
+	        return '';
+	    }
+	    
+	    // Formater la date
+	    $formatted_date = self::format_release_date($release_date);
+	    
+	    if (!$show_status) {
+	        return $formatted_date;
+	    }
+	    
+	    // Ajouter le statut si demandé
+	    $status_info = self::get_game_release_status_from_date($release_date);
+	    
+	    if ($status_info['is_released']) {
+	        return '✅ ' . $formatted_date;
+	    } else {
+	        return '📅 ' . $formatted_date;
+	    }
+	}
+
+    /**
+	 * Formater la date de sortie pour affichage
+	 * 
+	 * @param string $release_date Date au format YYYY-MM-DD
+	 * @return string Date formatée pour affichage ou chaîne vide
+	 */
+	public static function format_release_date($release_date) {
+	    if (empty($release_date)) {
+	        return '';
+	    }
+	    
+	    // Vérifier le format de la date
+	    $date = DateTime::createFromFormat('Y-m-d', $release_date);
+	    if (!$date) {
+	        return '';
+	    }
+	    
+	    // Mois en français
+	    $mois_fr = array(
+	        1 => 'janv', 2 => 'févr', 3 => 'mars', 4 => 'avr',
+	        5 => 'mai', 6 => 'juin', 7 => 'juil', 8 => 'août',
+	        9 => 'sept', 10 => 'oct', 11 => 'nov', 12 => 'déc'
+	    );
+	    
+	    $jour = $date->format('j');
+	    $mois_num = (int)$date->format('n');
+	    $annee = $date->format('Y');
+	    
+	    // Format compact : "15 déc 2024"
+	    return $jour . ' ' . $mois_fr[$mois_num] . ' ' . $annee;
+	}
+
+	/**
+	 * Format long pour certains contextes
+	 * 
+	 * @param string $release_date Date au format YYYY-MM-DD
+	 * @return string Date formatée format long
+	 */
+	public static function format_release_date_long($release_date) {
+	    if (empty($release_date)) {
+	        return '';
+	    }
+	    
+	    $date = DateTime::createFromFormat('Y-m-d', $release_date);
+	    if (!$date) {
+	        return '';
+	    }
+	    
+	    // Mois complets en français
+	    $mois_complets = array(
+	        1 => 'janvier', 2 => 'février', 3 => 'mars', 4 => 'avril',
+	        5 => 'mai', 6 => 'juin', 7 => 'juillet', 8 => 'août',
+	        9 => 'septembre', 10 => 'octobre', 11 => 'novembre', 12 => 'décembre'
+	    );
+	    
+	    $jour = $date->format('j');
+	    $mois_num = (int)$date->format('n');
+	    $annee = $date->format('Y');
+	    
+	    // Format long : "15 décembre 2024"
+	    return $jour . ' ' . $mois_complets[$mois_num] . ' ' . $annee;
+	}
 
     /**
 	 * 🎮 Récupérer les plateformes groupées par famille
@@ -234,28 +361,27 @@ class Sisme_Cards_Functions {
     }
     
     /**
-     * 🕒 Formater une date en format relatif
-     */
-    public static function format_relative_date($timestamp) {
-        $diff = time() - $timestamp;
-        
-        if ($diff < HOUR_IN_SECONDS) {
-            $minutes = floor($diff / MINUTE_IN_SECONDS);
-            return $minutes <= 1 ? 'Il y a 1 minute' : "Il y a {$minutes} minutes";
-        } elseif ($diff < DAY_IN_SECONDS) {
-            $hours = floor($diff / HOUR_IN_SECONDS);
-            return $hours <= 1 ? 'Il y a 1 heure' : "Il y a {$hours} heures";
-        } elseif ($diff < WEEK_IN_SECONDS) {
-            $days = floor($diff / DAY_IN_SECONDS);
-            return $days <= 1 ? 'Il y a 1 jour' : "Il y a {$days} jours";
-        } elseif ($diff < MONTH_IN_SECONDS) {
-            $weeks = floor($diff / WEEK_IN_SECONDS);
-            return $weeks <= 1 ? 'Il y a 1 semaine' : "Il y a {$weeks} semaines";
-        } else {
-            $months = floor($diff / MONTH_IN_SECONDS);
-            return $months <= 1 ? 'Il y a 1 mois' : "Il y a {$months} mois";
-        }
-    }
+	 * ⚠️ CONSERVER L'ANCIENNE FONCTION pour compatibilité (mais marquée comme deprecated)
+	 * 
+	 * @deprecated Utiliser format_release_date() à la place
+	 */
+	public static function format_relative_date($timestamp) {
+	    // Conserver pour compatibilité avec autres modules
+	    $now = current_time('timestamp');
+	    $diff = $now - $timestamp;
+	    
+	    if ($diff < DAY_IN_SECONDS) {
+	        return 'Aujourd\'hui';
+	    } elseif ($diff < 2 * DAY_IN_SECONDS) {
+	        return 'Hier';
+	    } elseif ($diff < 7 * DAY_IN_SECONDS) {
+	        return 'Il y a ' . floor($diff / DAY_IN_SECONDS) . ' jours';
+	    } elseif ($diff < 30 * DAY_IN_SECONDS) {
+	        return 'Il y a ' . floor($diff / (7 * DAY_IN_SECONDS)) . ' semaines';
+	    } else {
+	        return 'Il y a ' . floor($diff / (30 * DAY_IN_SECONDS)) . ' mois';
+	    }
+	}
     
     /**
      * ✂️ Tronquer intelligemment un texte sur les mots
