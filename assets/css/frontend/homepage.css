@@ -1,0 +1,435 @@
+/* ========================================
+   🏠 CONTAINER PRINCIPAL HOMEPAGE (hérite de .sisme-game-hero)
+======================================== */
+
+.sisme-homepage-main {
+    flex-direction: column;
+    gap: var(--sisme-space-3xl);
+    min-height: auto;
+}
+
+/* ========================================
+   📋 SECTIONS DANS LE CONTAINER PRINCIPAL
+======================================== */
+
+.sisme-homepage-section {
+    width: 100%;
+    margin-top: var(--sisme-space-3xl);
+    padding-top: var(--sisme-space-3xl);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
+   📋 HEADERS DE SECTIONS (style cohérent avec les fiches)
+======================================== */
+.sisme-section-header {
+    text-align: center;
+    margin-bottom: var(--sisme-space-2xl);
+}
+
+.sisme-section-title {
+    font-size: 2rem; /* Un peu plus petit que dans l'ancien CSS */
+    font-weight: bold;
+    color: #ffffff; /* Cohérent avec .sisme-game-title */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Même effet que les fiches */
+    margin: 0 0 var(--sisme-space-md);
+}
+
+.sisme-section-subtitle {
+    font-size: 1.1rem;
+    color: #c7d5e0; /* Même couleur que .sisme-game-description */
+    margin: 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+/* ========================================
+   💎 SECTION COUPS DE CŒUR ÉQUIPE
+======================================== */
+.sisme-featured-picks-grid {
+    display: grid;
+    gap: var(--sisme-space-lg);
+    margin-bottom: var(--sisme-space-xl);
+}
+
+.sisme-featured-pick-card {
+    display: flex;
+    background: rgba(0, 0, 0, 0.3); /* Même style que .sisme-game-meta */
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 200px;
+}
+
+.sisme-featured-pick-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: #66c0f4; /* Couleur accent des fiches */
+}
+
+.sisme-featured-pick-image {
+    width: 300px;
+    height: 200px;
+    background: linear-gradient(45deg, #333, #555);
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+.sisme-featured-pick-content {
+    padding: var(--sisme-space-lg);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sisme-featured-pick-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #ffffff; /* Cohérent avec les titres des fiches */
+    margin: 0 0 var(--sisme-space-sm);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sisme-featured-pick-description {
+    color: #c7d5e0; /* Même couleur que les descriptions des fiches */
+    margin: 0 0 var(--sisme-space-lg);
+    line-height: 1.6;
+}
+
+.sisme-editor-pick-badge {
+    background: #66c0f4; /* Couleur accent des fiches */
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: var(--sisme-space-sm);
+    display: inline-block;
+}
+
+/* ========================================
+   🔥 SECTION DERNIÈRES DÉCOUVERTES
+======================================== */
+.sisme-discoveries-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--sisme-space-lg);
+}
+
+.sisme-discovery-card {
+    background: rgba(0, 0, 0, 0.3); /* Même style que les meta-containers */
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.sisme-discovery-card:hover {
+    transform: translateY(-2px);
+    border-color: #66c0f4;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.sisme-discovery-image {
+    width: 100%;
+    height: 160px;
+    background: linear-gradient(45deg, #333, #555);
+    position: relative;
+}
+
+.sisme-discovery-badge {
+    position: absolute;
+    top: var(--sisme-space-sm);
+    right: var(--sisme-space-sm);
+    background: #d4a373; /* Couleur secondaire des fiches */
+    color: white;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.sisme-discovery-content {
+    padding: var(--sisme-space-lg);
+}
+
+.sisme-discovery-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ffffff;
+    margin: 0 0 var(--sisme-space-sm);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sisme-discovery-description {
+    color: #c7d5e0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0 0 var(--sisme-space-md);
+}
+
+.sisme-discovery-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--sisme-space-md);
+    font-size: 0.85rem;
+}
+
+.sisme-discovery-date {
+    color: #8f98a0; /* Couleur muted des fiches */
+}
+
+.sisme-discovery-link {
+    color: #66c0f4;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.sisme-discovery-link:hover {
+    text-decoration: underline;
+}
+
+/* ========================================
+   🎯 SECTION GENRES SHOWCASE
+======================================== */
+.sisme-genre-showcase {
+    margin-bottom: var(--sisme-space-2xl);
+}
+
+.sisme-genre-header {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-md);
+    margin-bottom: var(--sisme-space-lg);
+}
+
+.sisme-genre-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #66c0f4; /* Couleur accent comme les sous-titres des fiches */
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sisme-genre-icon {
+    font-size: 1.5rem;
+}
+
+.sisme-genre-scrollable {
+    display: flex;
+    gap: var(--sisme-space-md);
+    overflow-x: auto;
+    padding-bottom: var(--sisme-space-sm);
+    scrollbar-width: thin;
+}
+
+.sisme-genre-scrollable::-webkit-scrollbar {
+    height: 6px;
+}
+
+.sisme-genre-scrollable::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.sisme-genre-scrollable::-webkit-scrollbar-thumb {
+    background: #66c0f4;
+    border-radius: 3px;
+}
+
+.sisme-genre-card {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    min-width: 200px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.sisme-genre-card:hover {
+    transform: scale(1.02);
+    border-color: #66c0f4;
+}
+
+.sisme-genre-card-image {
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(45deg, #444, #666);
+}
+
+.sisme-genre-card-content {
+    padding: var(--sisme-space-md);
+}
+
+.sisme-genre-card-title {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #ffffff;
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
+   🎲 SECTION DÉCOUVERTE ALÉATOIRE
+======================================== */
+.sisme-random-discovery {
+    text-align: center;
+    padding: var(--sisme-space-2xl) 0;
+}
+
+.sisme-random-btn {
+    background: linear-gradient(45deg, #66c0f4, #d4a373); /* Couleurs des fiches */
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sisme-space-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Même ombres que les fiches */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sisme-random-btn:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.sisme-random-icon {
+    font-size: 1.3em;
+    transition: transform 0.3s ease;
+}
+
+.sisme-random-btn:hover .sisme-random-icon {
+    transform: rotate(90deg);
+}
+
+/* ========================================
+   💬 SECTION CTA COMMUNAUTÉ
+======================================== */
+.sisme-community-ctas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--sisme-space-lg);
+}
+
+.sisme-community-card {
+    background: rgba(0, 0, 0, 0.3); /* Même style que les containers des fiches */
+    border-radius: 8px;
+    padding: var(--sisme-space-xl);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.sisme-community-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: #66c0f4;
+}
+
+.sisme-community-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--sisme-space-lg);
+    display: block;
+}
+
+.sisme-community-card h3 {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffffff;
+    margin: 0 0 var(--sisme-space-md);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sisme-community-card p {
+    color: #c7d5e0;
+    margin: 0 0 var(--sisme-space-lg);
+    line-height: 1.6;
+}
+
+/* ========================================
+   🔧 BOUTONS COHÉRENTS AVEC LES FICHES
+======================================== */
+.sisme-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sisme-space-sm);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sisme-btn--primary {
+    background: #66c0f4;
+    color: white;
+    border-color: #66c0f4;
+}
+
+.sisme-btn--primary:hover {
+    background: #5aa8d8;
+    transform: translateY(-1px);
+}
+
+.sisme-btn--secondary {
+    background: #d4a373;
+    color: white;
+    border-color: #d4a373;
+}
+
+.sisme-btn--secondary:hover {
+    background: #c4935f;
+    transform: translateY(-1px);
+}
+
+/* ========================================
+   📱 RESPONSIVE DESIGN
+======================================== */
+@media (max-width: 768px) {
+    .sisme-game-hero.sisme-homepage-main {
+        padding: var(--sisme-space-lg); /* Moins de padding sur mobile */
+    }
+    
+    .sisme-section-title {
+        font-size: 1.6rem;
+    }
+    
+    .sisme-featured-pick-card {
+        flex-direction: column;
+    }
+    
+    .sisme-featured-pick-image {
+        width: 100%;
+        height: 180px;
+    }
+    
+    .sisme-discoveries-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sisme-community-ctas {
+        grid-template-columns: 1fr;
+    }
+    
+    .sisme-genre-scrollable {
+        padding: 0 var(--sisme-space-sm);
+    }
+}

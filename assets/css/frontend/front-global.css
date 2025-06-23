@@ -1,0 +1,17 @@
+/**
+ * File: /sisme-games-editor/assets/css/frontend/front-global.css
+ * 
+ */
+
+/* ========================================
+   🎯 OVERRIDE ADMIN WORDPRESS
+======================================== */
+
+h1, h2, h3, h4, h5, h6, p, span {
+    color: var(--sisme-gaming-text-bright);
+}
+
+body,
+.post {
+    background-color: var(--sisme-gaming-dark) !important;
+}

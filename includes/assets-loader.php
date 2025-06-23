@@ -15,10 +15,95 @@ if (!defined('ABSPATH')) {
 class Sisme_Assets_Loader {
     
     public function __construct() {
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_global_frontend_styles'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_styles'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_carousel_assets'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_carousel_assets'));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_homepage_assets'));
+    }
+
+    public function enqueue_global_frontend_styles() {
+        // Vérifier qu'on est bien sur le frontend (pas admin)
+        if (is_admin()) {
+            return;
+        }
+        wp_enqueue_style(
+            'sisme-frontend-tokens-global',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/tokens.css',
+            array(),
+            SISME_GAMES_EDITOR_VERSION
+        );
+        wp_enqueue_style(
+            'sisme-frontend-global',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/front-global.css',
+            array(),
+            SISME_GAMES_EDITOR_VERSION
+        );
+    }
+
+    public function enqueue_homepage_assets() {
+        global $post;
+        
+        // Vérifier si la page contient le shortcode homepage
+        $has_homepage_shortcode = false;
+        
+        if (is_object($post)) {
+            $has_homepage_shortcode = has_shortcode($post->post_content, 'sisme_homepage');
+        }
+        
+        // Charger aussi sur la page d'accueil (front_page)
+        $is_front_page = is_front_page() || is_home();
+        
+        // Charger si shortcode présent ou page d'accueil
+        if ($has_homepage_shortcode || $is_front_page) {
+            
+            // 1. Design tokens (base)
+            wp_enqueue_style(
+                'sisme-frontend-tokens',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/tokens.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            
+            // 2. Styles homepage spécifiques
+            wp_enqueue_style(
+                'sisme-homepage',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/homepage.css',
+                array('sisme-frontend-tokens'),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            
+            // 3. Carrousel
+            wp_enqueue_style(
+                'sisme-carousel',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/carousel.css',
+                array('sisme-frontend-tokens'),
+                SISME_GAMES_EDITOR_VERSION
+            );
+            
+            // 4. JavaScript homepage (si nécessaire)
+            if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'assets/js/homepage.js')) {
+                wp_enqueue_script(
+                    'sisme-homepage-js',
+                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/homepage.js',
+                    array('jquery'),
+                    SISME_GAMES_EDITOR_VERSION,
+                    true
+                );
+                
+                // Passer des variables PHP vers JavaScript
+                wp_localize_script('sisme-homepage-js', 'sismeHomepage', array(
+                    'ajaxUrl' => admin_url('admin-ajax.php'),
+                    'nonce' => wp_create_nonce('sisme_homepage_nonce'),
+                    'loadingText' => __('Chargement...', 'sisme-games-editor'),
+                    'errorText' => __('Erreur lors du chargement', 'sisme-games-editor')
+                ));
+            }
+            
+            // Log pour debug
+            error_log("Sisme: Assets homepage chargés - Shortcode: " . ($has_homepage_shortcode ? 'oui' : 'non') . " - Front page: " . ($is_front_page ? 'oui' : 'non'));
+        }
     }
 
     /**
@@ -205,3 +290,18 @@ class Sisme_Assets_Loader {
         return !empty($screenshots);
     }
 }
+
+add_action('wp_loaded', function() {
+    // Vérifier que le fichier existe avant de l'inclure
+    $homepage_module_file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/homepage-module.php';
+    
+    if (file_exists($homepage_module_file)) {
+        require_once $homepage_module_file;
+        
+        // Log de réussite
+        error_log("Sisme: Module homepage chargé avec succès");
+    } else {
+        // Log d'erreur
+        error_log("Sisme: ERREUR - Fichier homepage-module.php introuvable: " . $homepage_module_file);
+    }
+});
