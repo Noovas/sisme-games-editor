@@ -22,7 +22,7 @@ class Sisme_Vedettes_Loader {
     /**
      * Initialiser le système vedettes
      */
-    public static function init() {
+    public static function get_instance() {
         // Enregistrer le shortcode
         add_shortcode('sisme_vedettes_carousel', array('Sisme_Vedettes_API', 'vedettes_carousel_shortcode'));
         add_action('updated_term_meta', array(self::class, 'clear_cache_on_update'), 10, 4);

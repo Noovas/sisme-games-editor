@@ -16,6 +16,10 @@ if (!defined('ABSPATH')) {
 define('SISME_GAMES_EDITOR_VERSION', '1.0.0');
 define('SISME_GAMES_EDITOR_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SISME_GAMES_EDITOR_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('SISME_GAMES_MODULES', array(
+    "loader", 
+    "cards"
+));
 
 class SismeGamesEditor {
     
@@ -38,7 +42,7 @@ class SismeGamesEditor {
         add_action('wp_ajax_sisme_create_category', array($this, 'handle_ajax_create_category'));
         add_action('wp_ajax_sisme_create_entity', array($this, 'handle_ajax_create_entity'));
         add_action('wp_ajax_sisme_delete_game_data', array($this, 'ajax_delete_game_data'));
-        add_action('init', array($this, 'init_vedettes_system'));
+        add_action('init', array($this, 'init_modules_system'));
 
         $this->include_files();
 
@@ -51,6 +55,7 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/content-filter.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-table-game-data.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/cards/cards-loader.php';
     }
 
     public function add_admin_menu() {
@@ -264,13 +269,29 @@ class SismeGamesEditor {
         wp_send_json_success('Données du jeu supprimées avec succès');
     }
 
-    public function init_vedettes_system() {
-        if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php')) {
-            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php';
-            Sisme_Vedettes_Loader::init();
+    public function init_modules_system() {
+        foreach (SISME_GAMES_MODULES as $module_name) {
+            $loader_file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/' . $module_name . '/' . $module_name . '-loader.php';
+            if (file_exists($loader_file)) {
+                require_once $loader_file;
+                $class_name = 'Sisme_' . ucfirst($module_name) . '_Loader';
+                if (class_exists($class_name) && method_exists($class_name, 'get_instance')) {
+                    $class_name::get_instance();
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('[Sisme] Module initialisé : ' . $module_name . ' (' . $class_name . ')');
+                    }
+                } else {
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('[Sisme] Classe introuvable : ' . $class_name);
+                    }
+                }
+            } else {
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[Sisme] Module introuvable : ' . $module_name . ' (' . $loader_file . ')');
+                }
+            }
         }
     }
 }
 
-// Initialiser le plugin
 SismeGamesEditor::get_instance();
