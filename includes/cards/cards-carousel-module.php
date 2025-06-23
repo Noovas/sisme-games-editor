@@ -47,7 +47,9 @@ class Sisme_Cards_Carousel_Module {
             'genres' => $args['genres'] ?? array(),
             'is_team_choice' => $args['is_team_choice'] ?? false,
             'sort_by_date' => $args['sort_by_date'] ?? true,
-            'debug' => $args['debug'] ?? false
+            'debug' => $args['debug'] ?? false,
+            'max_genres' => $args['max_genres'] ?? -1,      
+            'max_modes' => $args['max_modes'] ?? -1   
         );
         
         // Debug
@@ -129,8 +131,8 @@ class Sisme_Cards_Carousel_Module {
             if (class_exists('Sisme_Cards_API')) {
                 $card_options = array(
                     'css_class' => '',
-                    'max_genres' => isset($grid_args['max_genres']) ? $grid_args['max_genres'] : 3,
-                    'max_modes' => isset($grid_args['max_modes']) ? $grid_args['max_modes'] : 4
+                    'max_genres' => isset($grid_args['max_genres']) ? $grid_args['max_genres'] : -1,
+                    'max_modes' => isset($grid_args['max_modes']) ? $grid_args['max_modes'] : -1
                 );
                 $card_html = Sisme_Cards_API::render_card($game_id, $grid_args['type'], $card_options);
                 $output .= $card_html;
