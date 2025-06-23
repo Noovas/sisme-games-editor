@@ -5,7 +5,7 @@
  */
 
 /* ========================================
-   🎨 PALETTE DE COULEURS FRONTEND
+   🎨 COULEURS - TOUTES LES COULEURS
 ======================================== */
 :root {
     /* Couleurs principales (héritées du backend) */
@@ -26,38 +26,87 @@
     --sisme-gaming-text: #c7d5e0;
     --sisme-gaming-text-muted: #8f98a0;
     --sisme-gaming-accent: #66c0f4;
+    --sisme-text-bright: #e2e8f0;
     
     /* États et feedback */
     --sisme-color-success: var(--sisme-color-primary);
     --sisme-color-warning: #f6ad55;
     --sisme-color-error: #e53e3e;
     --sisme-color-info: #3182ce;
+    --sisme-state-loading: var(--sisme-gaming-accent);
+    --sisme-state-empty: var(--sisme-gaming-text-muted);
+    --sisme-state-error: #ff6b6b;
+    --sisme-state-success: var(--sisme-color-primary);
     
-    /* Transparences */
-    --sisme-overlay-light: rgba(236, 240, 241, 0.95);
-    --sisme-overlay-dark: rgba(30, 30, 30, 0.95);
-    --sisme-border-light: rgba(161, 183, 141, 0.2);
-    --sisme-border-strong: rgba(161, 183, 141, 0.8);
-    --sisme-white-alpha: rgba(255, 255, 255, 0.1);
-
-    --sisme-border-orange: rgba(212, 163, 115, 0.3);
-    --sisme-bg-orange: rgba(212, 163, 115, 0.2);
-    --sisme-bg-hover-orange: rgba(212, 163, 115, 0.3);
+    /* Boutiques de jeux */
+    --sisme-steam-primary: #1e3c72;
+    --sisme-steam-secondary: #2a5298;
+    --sisme-epic-primary: #0078f2;
+    --sisme-epic-secondary: #00a8ff;
+    --sisme-gog-primary: #7b2182;
+    --sisme-gog-secondary: #a239ca;
+    
+    /* Plateformes */
+    --sisme-windows: #00bcf2;
+    --sisme-mac: #000000;
+    --sisme-linux: #fcc624;
+    --sisme-xbox: #107c10;
+    --sisme-playstation: #003087;
+    --sisme-switch: #e60012;
+    --sisme-mobile: #34a853;
+    
+    /* Genres de jeux */
+    --sisme-action: #ff6b6b;
+    --sisme-rpg: #4ecdc4;
+    --sisme-strategy: #45b7d1;
+    --sisme-simulation: #96ceb4;
+    --sisme-sports: #ffeaa7;
+    --sisme-racing: #fd79a8;
+    
+    /* Variants de couleurs gaming pour états */
+    --sisme-surface-dark: #252525;
+    --sisme-surface-dark-hover: #2f2f2f;
+    --sisme-surface-dark-active: #3a3a3a;
+    
+    /* Fonts colorés */
     --sisme-font-orange: var(--sisme-color-secondary);
-
-    --sisme-border-bleu: rgba(102, 192, 244, 0.2);
-    --sisme-bg-bleu: rgba(102, 192, 244, 0.2);
-    --sisme-bg-hover-bleu: rgba(102, 192, 244, 0.3);
     --sisme-font-bleu: var(--sisme-gaming-accent);
-
-    --sisme-border-vert: rgba(161, 183, 141, 0.3);
-    --sisme-bg-vert: rgba(161, 183, 141, 0.2);
-    --sisme-bg-hover-vert: rgba(161, 183, 141, 0.3);
     --sisme-font-vert: var(--sisme-color-primary);
 }
 
 /* ========================================
-   📏 ESPACEMENTS ET TAILLES
+   🌈 TRANSPARENCES - OVERLAYS, BORDURES, BG
+======================================== */
+:root {
+    /* Transparences */
+    --sisme-overlay-light: rgba(236, 240, 241, 0.95);
+    --sisme-overlay-dark: rgba(30, 30, 30, 0.95);
+    --sisme-overlay-fondu: rgba(30, 30, 30, 0.8);
+    --sisme-overlay-fondu-light: rgba(30, 30, 30, 0.6);
+    --sisme-overlay-fondu-heavy: rgba(30, 30, 30, 0.9);
+    --sisme-white-alpha: rgba(255, 255, 255, 0.1);
+
+    /* Bordures */
+    --sisme-border-light: rgba(161, 183, 141, 0.2);
+    --sisme-border-strong: rgba(161, 183, 141, 0.8);
+    --sisme-border-orange: rgba(212, 163, 115, 0.3);
+    --sisme-border-bleu: rgba(102, 192, 244, 0.2);
+    --sisme-border-vert: rgba(161, 183, 141, 0.3);
+    --sisme-border-bleu-subtle: rgba(102, 192, 244, 0.15);
+    --sisme-border-bleu-hover: rgba(102, 192, 244, 0.4);
+    --sisme-border-bleu-active: rgba(102, 192, 244, 0.8);
+
+    /* Backgrounds */
+    --sisme-bg-orange: rgba(212, 163, 115, 0.2);
+    --sisme-bg-hover-orange: rgba(212, 163, 115, 0.3);
+    --sisme-bg-bleu: rgba(102, 192, 244, 0.2);
+    --sisme-bg-hover-bleu: rgba(102, 192, 244, 0.3);
+    --sisme-bg-vert: rgba(161, 183, 141, 0.2);
+    --sisme-bg-hover-vert: rgba(161, 183, 141, 0.3);
+}
+
+/* ========================================
+   📏 ESPACEMENTS - TOUS LES ESPACEMENTS
 ======================================== */
 :root {
     /* Espacement (système 8px) */
@@ -69,13 +118,25 @@
     --sisme-space-2xl: 48px;
     --sisme-space-3xl: 64px;
     
+    /* Gaps */
+    --sisme-gap-xs: 8px;
+    --sisme-gap-s: 12px;
+    --sisme-gap-m: 24px;
+    --sisme-gap-l: 32px;
+    --sisme-gap-xl: 48px;
+    
     /* Rayons de bordure */
     --sisme-radius-sm: 5px;
     --sisme-radius-md: 10px;
     --sisme-radius-lg: 12px;
     --sisme-radius-xl: 20px;
     --sisme-radius-full: 9999px;
-    
+}
+
+/* ========================================
+   📐 DIMENSIONS - TOUTES LES TAILLES
+======================================== */
+:root {
     /* Largeurs max */
     --sisme-max-width-sm: 640px;
     --sisme-max-width-md: 768px;
@@ -88,19 +149,25 @@
     --sisme-hero-height: 60vh;
     --sisme-thumb-height: 68px;
 
-    /* Gaps */
-    --sisme-gap-s: 12px;
-    --sisme-gap-m: 24px;
-    --sisme-gap-l: 32px;
-
     /* Icon */
     --sisme-size-icon-s: 14px;
     --sisme-size-icon-m: 28px;
     --sisme-size-icon-l: 42px;
+    
+    /* Tailles composants */
+    --sisme-card-min-width: 280px;
+    --sisme-card-max-width: 400px;
+    --sisme-card-aspect-ratio: 1.5;
+    
+    /* Carrousel tokens */
+    --sisme-carousel-button-size: 48px;
+    --sisme-carousel-button-mobile: 40px;
+    --sisme-carousel-dot-size: 12px;
+    --sisme-carousel-dot-active: 16px;
 }
 
 /* ========================================
-   ✏️ TYPOGRAPHIE
+   ✏️ TYPOGRAPHIE - POLICES ET TEXTE
 ======================================== */
 :root {
     /* Familles de polices */
@@ -133,7 +200,7 @@
 }
 
 /* ========================================
-   🎭 OMBRES ET EFFETS
+   🎭 EFFETS VISUELS - OMBRES ET TRANSITIONS
 ======================================== */
 :root {
     /* Ombres */
@@ -147,7 +214,6 @@
     --sisme-shadow-gaming: 0 16px 48px rgba(0, 0, 0, 0.4);
     --sisme-shadow-gaming-hover: 0 20px 60px rgba(0, 0, 0, 0.5);
     --sisme-shadow-neon: 0 0 20px rgba(102, 192, 244, 0.4);
-
     --sisme-shadow-neon-orange: 0 4px 12px rgba(212, 163, 115, 0.3);
     --sisme-shadow-neon-bleu: 0 4px 12px rgba(102, 192, 244, 0.3);
     --sisme-shadow-neon-vert: 0 4px 12px rgba(161, 183, 141, 0.3);
@@ -157,7 +223,15 @@
     --sisme-transition-normal: 0.3s ease;
     --sisme-transition-slow: 0.5s ease;
     --sisme-transition-all: all 0.3s ease;
-    
+    --sisme-transition-rebond: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --sisme-transition-fluide: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --sisme-transition-elastic: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ========================================
+   🗂️ Z-INDEX - TOUS LES Z-INDEX
+======================================== */
+:root {
     /* Z-index */
     --sisme-z-dropdown: 1000;
     --sisme-z-sticky: 1020;
@@ -165,101 +239,21 @@
     --sisme-z-modal: 1040;
     --sisme-z-popover: 1050;
     --sisme-z-tooltip: 1060;
+    
+    /* Z-index pour grilles */
+    --sisme-z-grid-item: 1;
+    --sisme-z-grid-hover: 2;
+    --sisme-z-carousel-nav: 10;
+    --sisme-z-carousel-dots: 5;
 }
 
 /* ========================================
-   🎮 COULEURS SPÉCIFIQUES GAMING
+   📱 RESPONSIVE - BREAKPOINTS
 ======================================== */
 :root {
-    /* Boutiques de jeux */
-    --sisme-steam-primary: #1e3c72;
-    --sisme-steam-secondary: #2a5298;
-    --sisme-epic-primary: #0078f2;
-    --sisme-epic-secondary: #00a8ff;
-    --sisme-gog-primary: #7b2182;
-    --sisme-gog-secondary: #a239ca;
-    
-    /* Plateformes */
-    --sisme-windows: #00bcf2;
-    --sisme-mac: #000000;
-    --sisme-linux: #fcc624;
-    --sisme-xbox: #107c10;
-    --sisme-playstation: #003087;
-    --sisme-switch: #e60012;
-    --sisme-mobile: #34a853;
-    
-    /* Genres de jeux */
-    --sisme-action: #ff6b6b;
-    --sisme-rpg: #4ecdc4;
-    --sisme-strategy: #45b7d1;
-    --sisme-simulation: #96ceb4;
-    --sisme-sports: #ffeaa7;
-    --sisme-racing: #fd79a8;
-
-
+    /* Breakpoints (pour référence JS future) */
+    --sisme-bp-mobile: 599px;
+    --sisme-bp-tablet: 899px;
+    --sisme-bp-desktop: 1199px;
+    --sisme-bp-desktop-large: 1399px;
 }
-
-/* ========================================
-   🔧 CLASSES UTILITAIRES DE BASE
-======================================== */
-
-/* Reset et base */
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-/* Classes d'espacement rapides */
-.sisme-p-0 { padding: 0; }
-.sisme-p-sm { padding: var(--sisme-space-sm); }
-.sisme-p-md { padding: var(--sisme-space-md); }
-.sisme-p-lg { padding: var(--sisme-space-lg); }
-
-.sisme-m-0 { margin: 0; }
-.sisme-m-sm { margin: var(--sisme-space-sm); }
-.sisme-m-md { margin: var(--sisme-space-md); }
-.sisme-m-lg { margin: var(--sisme-space-lg); }
-
-.sisme-gap-small { gap: var(--sisme-gap-s); }
-.sisme-gap-medium { gap: var(--sisme-gap-m); }
-.sisme-gap-large { gap: var(--sisme-gap-l); }
-
-/* Classes de typographie */
-.sisme-text-center { text-align: center; }
-.sisme-text-left { text-align: left; }
-.sisme-text-right { text-align: right; }
-
-.sisme-font-normal { font-weight: var(--sisme-font-normal); }
-.sisme-font-medium { font-weight: var(--sisme-font-medium); }
-.sisme-font-semibold { font-weight: var(--sisme-font-semibold); }
-.sisme-font-bold { font-weight: var(--sisme-font-bold); }
-
-/* Classes de layout */
-.sisme-flex { display: flex; }
-.sisme-grid { display: grid; }
-.sisme-hidden { display: none; }
-.sisme-block { display: block; }
-
-.sisme-justify-center { justify-content: center; }
-.sisme-justify-between { justify-content: space-between; }
-.sisme-items-center { align-items: center; }
-
-/* Classes de responsive */
-.sisme-container {
-    width: 100%;
-    max-width: var(--sisme-max-width-xl);
-    margin: 0 auto;
-    padding: 0 var(--sisme-space-md);
-}
-
-@media (max-width: 768px) {
-    .sisme-container {
-        padding: 0 var(--sisme-space-sm);
-    }
-}
-
-/* Classes d'animation */
-.sisme-transition { transition: var(--sisme-transition-all); }
-.sisme-hover-lift:hover { transform: translateY(-2px); }
-.sisme-hover-scale:hover { transform: scale(1.05); }

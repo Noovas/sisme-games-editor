@@ -470,3 +470,90 @@ add_shortcode('cards_stats', function($atts) {
     
     return $output;
 });
+
+
+/*
+=== EXEMPLES D'UTILISATION ===
+
+1. Grille basique (3x3):
+[game_cards_grid]
+
+2. Grille 4 colonnes, max 8 cartes:
+[game_cards_grid cards_per_row="4" max_cards="8"]
+
+3. Filtré par genres:
+[game_cards_grid genres="action,rpg" max_cards="6"]
+
+4. Sans tri par date:
+[game_cards_grid sort_by_date="false"]
+
+5. Mode debug complet:
+[debug_cards_grid genres="action" max_cards="3"]
+
+6. Statistiques globales:
+[cards_stats]
+
+7. Statistiques par genre:
+[cards_stats genres="action,strategy"]
+
+8. Grille personnalisée:
+[game_cards_grid type="normal" cards_per_row="2" max_cards="4" genres="indie,puzzle" container_class="my-custom-grid"]
+
+=== TESTS À EFFECTUER ===
+
+1. Vérifier que les modules se chargent:
+   - cards-functions.php en premier
+   - cards-api.php ensuite
+
+2. Tester les shortcodes progressivement:
+   - [game_cards_grid debug="true"] pour voir les logs
+   - [cards_stats] pour vérifier les données
+   - [debug_cards_grid] pour le debug complet
+
+3. Vérifier le CSS:
+   - Grille responsive
+   - Variables CSS (--cards-per-row)
+   - States hover et focus
+
+4. Tester les critères:
+   - Filtrage par genres
+   - Tri par date de sortie
+   - Limite max_cards
+   - Mode debug avec logs
+
+5. Valider les données JSON:
+   - Métadonnées cachées pour carrousel
+   - Structure correcte
+   - IDs des jeux inclus
+
+=== STRUCTURE DES FICHIERS ===
+
+1. Ajouter dans cards-functions.php:
+   - get_games_by_criteria()
+   - build_criteria_meta_query() 
+   - filter_games_with_complete_data()
+   - sort_games_by_release_date()
+   - get_games_stats_by_criteria()
+   - test_criteria()
+
+2. Ajouter dans cards-api.php:
+   - render_cards_grid()
+   - validate_grid_args()
+   - render_grid_html()
+   - render_grid_metadata()
+   - render_grid_empty()
+   - debug_grid()
+
+3. Ajouter après la classe cards-api.php:
+   - Shortcode [game_cards_grid]
+   - Shortcode [debug_cards_grid]
+   - Shortcode [cards_stats]
+
+=== ORDRE DE PRIORITÉ POUR LES TESTS ===
+
+1. [cards_stats] → Vérifier qu'on a des jeux
+2. [debug_cards_grid max_cards="3"] → Voir la logique
+3. [game_cards_grid debug="true" max_cards="6"] → Test normal
+4. [game_cards_grid genres="action" cards_per_row="4"] → Test filtrage
+
+*/
