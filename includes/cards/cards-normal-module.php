@@ -7,6 +7,8 @@
  * - Rendu HTML des cartes normales uniquement
  * - Style "Dernières Découvertes"
  * - Gestion des options d'affichage
+ * 
+ * CORRECTION: Ajout du paramètre $options aux fonctions render_genres() et render_modes()
  */
 
 if (!defined('ABSPATH')) {
@@ -138,13 +140,18 @@ class Sisme_Cards_Normal_Module {
     
     /**
      * 🏷️ Tags des genres
+     * CORRECTION: Ajout du paramètre $options
      */
-    private static function render_genres($game_data) {
+    private static function render_genres($game_data, $options) {
         $output = '<div class="sisme-card-genres">';
+        
+        // CORRECTION: Maintenant $options est bien passé en paramètre
         $max_genres = isset($options['max_genres']) ? intval($options['max_genres']) : 3;
+        
         if ($max_genres == 0) {
             return '';
         }
+        
         $genres_to_show = ($max_genres == -1) ? 
             $game_data['genres'] :                             
             array_slice($game_data['genres'], 0, $max_genres);  
@@ -160,10 +167,14 @@ class Sisme_Cards_Normal_Module {
 
     /**
      * 🎯 Modes de jeu
+     * CORRECTION: Paramètre $options maintenant requis et utilisé correctement
      */
-    private static function render_modes($game_data, $options = array()) {
+    private static function render_modes($game_data, $options) {
         $output = '<div class="sisme-card-modes">';
+        
+        // CORRECTION: Maintenant $options est bien passé en paramètre
         $max_modes = isset($options['max_modes']) ? intval($options['max_modes']) : 4;
+        
         if ($max_modes == 0) {
             return '';
         }
@@ -219,5 +230,3 @@ class Sisme_Cards_Normal_Module {
         return $output;
     }
 }
-
-?>
