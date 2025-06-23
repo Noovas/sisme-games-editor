@@ -15,7 +15,7 @@ require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper
 require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php';
 
 // Initialiser le système vedettes
-Sisme_Vedettes_Loader::init();
+Sisme_Vedettes_Loader::get_instance();
 
 // Variables pour les tests
 $migration_results = null;

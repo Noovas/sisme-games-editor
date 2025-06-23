@@ -56,6 +56,7 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-table-game-data.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/cards/cards-loader.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/tools/emoji-helper.php';
     }
 
     public function add_admin_menu() {

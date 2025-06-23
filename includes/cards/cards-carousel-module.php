@@ -36,8 +36,8 @@ class Sisme_Cards_Carousel_Module {
      * @return string HTML du carrousel
      */
     public static function render_carousel($args = array()) {
-        
-        // Fusionner avec les options par défaut
+    
+        // Fusionner avec les options par défaut (AJOUTER title)
         $carousel_options = array_merge(self::$default_options, $args);
         
         // Préparer les arguments pour la grille de cartes
@@ -49,7 +49,8 @@ class Sisme_Cards_Carousel_Module {
             'sort_by_date' => $args['sort_by_date'] ?? true,
             'debug' => $args['debug'] ?? false,
             'max_genres' => $args['max_genres'] ?? -1,      
-            'max_modes' => $args['max_modes'] ?? -1   
+            'max_modes' => $args['max_modes'] ?? -1,
+            'title' => $args['title'] ?? ''  // NOUVEAU PARAMÈTRE
         );
         
         // Debug
@@ -76,7 +77,7 @@ class Sisme_Cards_Carousel_Module {
             return self::render_empty_carousel($carousel_options);
         }
         
-        // Générer le HTML du carrousel
+        // Générer le HTML du carrousel AVEC TITRE
         return self::render_carousel_html($game_ids, $carousel_options, $grid_args);
     }
     
@@ -113,6 +114,11 @@ class Sisme_Cards_Carousel_Module {
         if (!empty($grid_args['debug'])) {
             $css_class .= ' sisme-cards-carousel--debug';
         }
+
+        $output = '';
+        if (!empty($grid_args['title'])) {
+            $output .= self::render_section_title($grid_args['title']);
+        }   
         
         $output = '<div class="' . esc_attr($css_class) . '" ';
         $output .= 'data-carousel-config="' . esc_attr(wp_json_encode($js_config)) . '" ';
@@ -158,6 +164,17 @@ class Sisme_Cards_Carousel_Module {
         
         $output .= '</div>'; // fin carrousel
 
+        return $output;
+    }
+
+    /**
+     * Rendre le titre de section
+     */
+    private static function render_section_title($title) {
+        $output = '<div class="sisme-carousel-section-header">';
+        $output .= '<h2 class="sisme-carousel-section-title">' . esc_html($title) . '</h2>';
+        $output .= '</div>';
+        
         return $output;
     }
     

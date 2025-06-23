@@ -274,7 +274,7 @@ class Sisme_Vedettes_API {
             $featured_games = self::get_recent_games_fallback($options['limit']);
             
             // Modifier le titre pour indiquer que c'est un fallback
-            $options['title'] = 'Derniers Jeux Sortis';
+            $options['title'] = 'Jeux à la une';
         }
         
         if (empty($featured_games)) {

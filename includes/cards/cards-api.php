@@ -408,7 +408,10 @@ add_shortcode('game_cards_grid', function($atts) {
         'is_team_choice' => 'false',
         'sort_by_date' => 'true',
         'container_class' => '',
-        'debug' => 'false'
+        'debug' => 'false',
+        'max_genres' => '3',
+        'max_modes' => '4',
+        'title' => ''
     ), $atts);
     
     // Préparer les arguments
@@ -416,11 +419,15 @@ add_shortcode('game_cards_grid', function($atts) {
         'type' => sanitize_text_field($atts['type']),
         'cards_per_row' => intval($atts['cards_per_row']),
         'max_cards' => intval($atts['max_cards']),
-        'genres' => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
+        'genres' => !empty($atts['genres']) ? 
+            array_map('trim', explode(',', $atts['genres'])) : array(),
         'is_team_choice' => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
         'sort_by_date' => filter_var($atts['sort_by_date'], FILTER_VALIDATE_BOOLEAN),
-        'container_class' => sanitize_html_class($atts['container_class']),
-        'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN)
+        'container_class' => sanitize_text_field($atts['container_class']),
+        'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN),
+        'max_genres' => intval($atts['max_genres']),
+        'max_modes' => intval($atts['max_modes']),
+        'title' => sanitize_text_field($atts['title'])  // NOUVEAU
     );
     
     return Sisme_Cards_API::render_cards_grid($args);
@@ -511,7 +518,8 @@ add_shortcode('game_cards_carousel', function($atts) {
         'pagination' => 'true',
         'debug' => 'false',
         'max_genres' => '3', 
-        'max_modes' => '4'        
+        'max_modes' => '4',
+        'title' => ''
     ), $atts);
     
     // Préparer les arguments 
@@ -527,7 +535,8 @@ add_shortcode('game_cards_carousel', function($atts) {
         'pagination' => filter_var($atts['pagination'], FILTER_VALIDATE_BOOLEAN),
         'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN),
         'max_genres' => intval($atts['max_genres']),
-        'max_modes' => intval($atts['max_modes'])
+        'max_modes' => intval($atts['max_modes']),
+        'title' => sanitize_text_field($atts['title'])
     );
     
     return Sisme_Cards_API::render_cards_carousel($args);

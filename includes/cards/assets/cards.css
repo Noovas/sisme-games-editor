@@ -8,6 +8,43 @@
    📋 GLOBAL
 ======================================== */
 
+/* ===🏷️ TITRE ======================= */
+
+.sisme-carousel-section-header {
+    text-align: center;
+    margin-bottom: var(--sisme-space-2xl, 48px);
+}
+
+.sisme-carousel-section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, var(--sisme-gaming-accent, #66c0f4), var(--sisme-color-secondary, #D4A373));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    position: relative;
+}
+
+.sisme-carousel-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(45deg, var(--sisme-gaming-accent, #66c0f4), var(--sisme-color-secondary, #D4A373));
+    border-radius: 2px;
+}
+
+.sisme-carousel-section-title.with-emoji::before {
+    content: attr(data-emoji);
+    margin-right: 0.5em;
+    font-size: 0.8em;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
 /* ===📱 RESPONSIVE ==================== */
 
 @media (max-width: 768px) {
@@ -22,6 +59,14 @@
     
     .sisme-card-title {
         font-size: var(--sisme-text-lg);
+    }
+
+    .sisme-carousel-section-title {
+        font-size: 2rem;
+    }
+    
+    .sisme-carousel-section-header {
+        margin-bottom: var(--sisme-space-lg, 24px);
     }
 }
 
