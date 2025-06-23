@@ -36,8 +36,8 @@ class Sisme_Cards_Carousel_Module {
      * @return string HTML du carrousel
      */
     public static function render_carousel($args = array()) {
-    
-        // Fusionner avec les options par défaut (AJOUTER title)
+        
+        // Fusionner avec les options par défaut
         $carousel_options = array_merge(self::$default_options, $args);
         
         // Préparer les arguments pour la grille de cartes
@@ -50,12 +50,14 @@ class Sisme_Cards_Carousel_Module {
             'debug' => $args['debug'] ?? false,
             'max_genres' => $args['max_genres'] ?? -1,      
             'max_modes' => $args['max_modes'] ?? -1,
-            'title' => $args['title'] ?? ''  // NOUVEAU PARAMÈTRE
+            'title' => $args['title'] ?? '',
+            'released' => $args['released'] ?? 0    // NOUVEAU PARAMÈTRE
         );
         
         // Debug
         if ($grid_args['debug'] && defined('WP_DEBUG') && WP_DEBUG) {
             error_log('[Sisme Carousel] Configuration: ' . print_r($carousel_options, true));
+            error_log('[Sisme Carousel] Released filter: ' . $grid_args['released']);
         }
         
         // Récupérer les IDs des jeux
@@ -68,6 +70,7 @@ class Sisme_Cards_Carousel_Module {
             'is_team_choice' => $grid_args['is_team_choice'],
             'sort_by_date' => $grid_args['sort_by_date'],
             'max_results' => $grid_args['max_cards'],
+            'released' => $grid_args['released'],
             'debug' => $grid_args['debug']
         );
         
@@ -77,7 +80,7 @@ class Sisme_Cards_Carousel_Module {
             return self::render_empty_carousel($carousel_options);
         }
         
-        // Générer le HTML du carrousel AVEC TITRE
+        // Générer le HTML du carrousel
         return self::render_carousel_html($game_ids, $carousel_options, $grid_args);
     }
     

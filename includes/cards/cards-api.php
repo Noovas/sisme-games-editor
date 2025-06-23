@@ -118,7 +118,7 @@ class Sisme_Cards_API {
         // Paramètres par défaut
         $defaults = array(
             'type' => 'normal',                    // Type des cartes
-            'cards_per_row' => 3,                  // Nombre de cartes par ligne
+            'cards_per_row' => 4,                  // Nombre de cartes par ligne
             'max_cards' => -1,                     // Nombre max (-1 = illimité)
             'genres' => array(),                   // Liste des genres
             'is_team_choice' => false,             // Choix équipe (à venir)
@@ -402,7 +402,7 @@ add_shortcode('game_card', function($atts) {
 add_shortcode('game_cards_grid', function($atts) {
     $atts = shortcode_atts(array(
         'type' => 'normal',
-        'cards_per_row' => '3',
+        'cards_per_row' => '4',
         'max_cards' => '-1',
         'genres' => '',
         'is_team_choice' => 'false',
@@ -411,7 +411,8 @@ add_shortcode('game_cards_grid', function($atts) {
         'debug' => 'false',
         'max_genres' => '3',
         'max_modes' => '4',
-        'title' => ''
+        'title' => '',
+        'released' => '0'
     ), $atts);
     
     // Préparer les arguments
@@ -427,7 +428,8 @@ add_shortcode('game_cards_grid', function($atts) {
         'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN),
         'max_genres' => intval($atts['max_genres']),
         'max_modes' => intval($atts['max_modes']),
-        'title' => sanitize_text_field($atts['title'])  // NOUVEAU
+        'title' => sanitize_text_field($atts['title']),
+        'released' => intval($atts['released'])  // NOUVEAU
     );
     
     return Sisme_Cards_API::render_cards_grid($args);
@@ -441,7 +443,7 @@ add_shortcode('debug_cards_grid', function($atts) {
     
     $atts = shortcode_atts(array(
         'type' => 'normal',
-        'cards_per_row' => '3',
+        'cards_per_row' => '4',
         'max_cards' => '6',
         'genres' => '',
         'is_team_choice' => 'false',
@@ -507,22 +509,24 @@ add_shortcode('cards_stats', function($atts) {
 // 🎠 SHORTCODE principal pour le carrousel
 add_shortcode('game_cards_carousel', function($atts) {
     $atts = shortcode_atts(array(
-        'cards_per_view' => '4',
-        'total_cards' => '10',
+        'cards_per_view' => '3',
+        'total_cards' => '9',
         'genres' => '',
         'navigation' => 'true',
         'pagination' => 'true',
-        'infinite' => 'true',
+        'infinite' => 'false',
         'autoplay' => 'false',
         'is_team_choice' => 'false',
         'sort_by_date' => 'true',
         'debug' => 'false',
-        'max_genres' => '0',
-        'max_modes' => '0',
+        'max_genres' => '3',
+        'max_modes' => '4',
         'type' => 'normal',
-        'title' => ''
+        'title' => '',
+        'released' => '0'
     ), $atts);
     
+    // Préparer les arguments
     $args = array(
         'cards_per_view' => intval($atts['cards_per_view']),
         'total_cards' => intval($atts['total_cards']),
@@ -530,7 +534,7 @@ add_shortcode('game_cards_carousel', function($atts) {
             array_map('trim', explode(',', $atts['genres'])) : array(),
         'navigation' => filter_var($atts['navigation'], FILTER_VALIDATE_BOOLEAN),
         'pagination' => filter_var($atts['pagination'], FILTER_VALIDATE_BOOLEAN),
-        'infinite' => filter_var($atts['infinite'], FILTER_VALIDATE_BOOLEAN),  
+        'infinite' => filter_var($atts['infinite'], FILTER_VALIDATE_BOOLEAN),
         'autoplay' => filter_var($atts['autoplay'], FILTER_VALIDATE_BOOLEAN),
         'is_team_choice' => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
         'sort_by_date' => filter_var($atts['sort_by_date'], FILTER_VALIDATE_BOOLEAN),
@@ -538,7 +542,8 @@ add_shortcode('game_cards_carousel', function($atts) {
         'max_genres' => intval($atts['max_genres']),
         'max_modes' => intval($atts['max_modes']),
         'type' => sanitize_text_field($atts['type']),
-        'title' => sanitize_text_field($atts['title'])
+        'title' => sanitize_text_field($atts['title']),
+        'released' => intval($atts['released'])  // NOUVEAU (avec validation int)
     );
     
     return Sisme_Cards_API::render_cards_carousel($args);
@@ -565,4 +570,47 @@ add_shortcode('debug_cards_carousel', function($atts) {
     );
     
     return Sisme_Cards_API::render_cards_carousel($args);
+});
+
+/**
+ * 🆕 SHORTCODE DE DEBUG pour tester le filtrage par statut
+ */
+add_shortcode('debug_release_status', function($atts) {
+    if (!defined('WP_DEBUG') || !WP_DEBUG) {
+        return '<p style="color: #dc3232;">Shortcode debug statut disponible uniquement en mode WP_DEBUG</p>';
+    }
+    
+    $atts = shortcode_atts(array(
+        'game_id' => '0'
+    ), $atts);
+    
+    $output = '<div style="background: #f1f1f1; padding: 15px; border-radius: 5px; margin: 10px 0;">';
+    $output .= '<h4>🔍 Debug Statut de Sortie</h4>';
+    
+    if (!empty($atts['game_id'])) {
+        // Debug d'un jeu spécifique
+        $game_id = intval($atts['game_id']);
+        $status = Sisme_Cards_Functions::get_game_release_status($game_id);
+        $game = get_term($game_id);
+        
+        $output .= '<p><strong>Jeu :</strong> ' . ($game ? $game->name : 'Introuvable') . ' (ID: ' . $game_id . ')</p>';
+        $output .= '<p><strong>Date de sortie :</strong> ' . ($status['release_date'] ?: 'Non définie') . '</p>';
+        $output .= '<p><strong>Statut :</strong> ' . ($status['is_released'] ? '✅ Sorti' : '⏳ Pas encore sorti') . '</p>';
+        $output .= '<p><strong>Détail :</strong> ' . $status['status_text'] . '</p>';
+        $output .= '<p><strong>Différence (jours) :</strong> ' . $status['days_diff'] . '</p>';
+    } else {
+        // Statistiques globales
+        $stats = Sisme_Cards_Functions::get_release_status_stats();
+        
+        $output .= '<p><strong>Total jeux :</strong> ' . $stats['total'] . '</p>';
+        $output .= '<p><strong>Sortis :</strong> ' . $stats['released'] . ' ✅</p>';
+        $output .= '<p><strong>Pas encore sortis :</strong> ' . $stats['unreleased'] . ' ⏳</p>';
+        $output .= '<p><strong>Sans date :</strong> ' . $stats['no_date'] . ' ❓</p>';
+        $output .= '<p><strong>Sortis cette semaine :</strong> ' . $stats['released_this_week'] . ' 🔥</p>';
+        $output .= '<p><strong>Sortent cette semaine :</strong> ' . $stats['releasing_this_week'] . ' 🚀</p>';
+    }
+    
+    $output .= '</div>';
+    
+    return $output;
 });

@@ -324,26 +324,25 @@ class Sisme_Cards_Functions {
 	public static function get_games_by_criteria($criteria = array()) {
 	    
 	    // Critères par défaut
-	    $defaults = array(
+	    $default_criteria = array(
 	        'genres' => array(),
 	        'is_team_choice' => false,
 	        'sort_by_date' => true,
 	        'max_results' => -1,
+	        'released' => 0,
 	        'debug' => false
 	    );
 	    
-	    $criteria = array_merge($defaults, $criteria);
+	    $criteria = array_merge($default_criteria, $criteria);
 	    
-	    // Debug
-	    if ($criteria['debug'] && defined('WP_DEBUG') && WP_DEBUG) {
-	        error_log('[Sisme Cards Functions] Critères de recherche: ' . print_r($criteria, true));
+	    if ($criteria['debug']) {
+	        error_log('[Sisme Cards Functions] Critères: ' . print_r($criteria, true));
 	    }
 	    
-	    // ✅ NOUVELLE APPROCHE : Récupérer TOUS les termes post_tag avec game_description
-	    $all_game_terms = get_terms(array(
+	    // Récupérer tous les jeux (termes avec game_description)
+	    $all_games = get_terms(array(
 	        'taxonomy' => 'post_tag',
 	        'hide_empty' => false,
-	        'fields' => 'ids',
 	        'meta_query' => array(
 	            array(
 	                'key' => 'game_description',
@@ -352,62 +351,196 @@ class Sisme_Cards_Functions {
 	        )
 	    ));
 	    
-	    if (is_wp_error($all_game_terms) || empty($all_game_terms)) {
+	    if (is_wp_error($all_games) || empty($all_games)) {
 	        if ($criteria['debug']) {
-	            error_log('[Sisme Cards Functions] Aucun terme avec game_description trouvé');
+	            error_log('[Sisme Cards Functions] Aucun jeu trouvé ou erreur');
 	        }
 	        return array();
 	    }
 	    
-	    if ($criteria['debug']) {
-	        error_log('[Sisme Cards Functions] Termes avec game_description: ' . count($all_game_terms));
-	    }
-	    
-	    // ✅ FILTRAGE PAR CRITÈRES sur les meta
 	    $filtered_games = array();
 	    
-	    foreach ($all_game_terms as $term_id) {
+	    foreach ($all_games as $game_term) {
+	        $game_id = $game_term->term_id;
 	        
-	        // Vérifier que le jeu a des données complètes
-	        $game_data = self::get_game_data($term_id);
-	        if (!$game_data) {
+	        // ✅ FILTRAGE PAR GENRES (existant)
+	        if (!empty($criteria['genres']) && !self::term_has_genres($game_id, $criteria['genres'])) {
 	            continue;
 	        }
 	        
-	        // ✅ FILTRE PAR GENRES si spécifié
-	        if (!empty($criteria['genres'])) {
-	            if (!self::term_has_genres($term_id, $criteria['genres'])) {
-	                continue; // Ce jeu n'a pas les genres demandés
-	            }
-	        }
-	        
-	        // ✅ FILTRE is_team_choice si spécifié
+	        // ✅ FILTRAGE PAR CHOIX ÉQUIPE (existant)
 	        if ($criteria['is_team_choice']) {
-	            $is_team_choice = get_term_meta($term_id, 'is_team_choice', true);
-	            if (empty($is_team_choice) || $is_team_choice !== '1') {
-	                continue; // Ce jeu n'est pas un choix d'équipe
+	            $is_team_choice = get_term_meta($game_id, 'is_team_choice', true);
+	            if ($is_team_choice !== '1') {
+	                continue;
 	            }
 	        }
 	        
-	        // Si on arrive ici, le jeu correspond aux critères
-	        $filtered_games[] = $term_id;
+	        // 🆕 FILTRAGE PAR STATUT DE SORTIE
+	        if ($criteria['released'] !== 0) {
+	            $release_status = self::get_game_release_status($game_id);
+	            
+	            if ($criteria['released'] === 1 && !$release_status['is_released']) {
+	                // On veut uniquement les jeux sortis, mais celui-ci n'est pas sorti
+	                continue;
+	            }
+	            
+	            if ($criteria['released'] === -1 && $release_status['is_released']) {
+	                // On veut uniquement les jeux pas encore sortis, mais celui-ci est sorti
+	                continue;
+	            }
+	            
+	            if ($criteria['debug']) {
+	                error_log("[Sisme Cards] Jeu {$game_term->name}: " . 
+	                         ($release_status['is_released'] ? 'SORTI' : 'PAS ENCORE SORTI') . 
+	                         " (date: {$release_status['release_date']})");
+	            }
+	        }
+	        
+	        // ✅ VALIDATION DONNÉES COMPLÈTES (existant)
+	        $game_data = self::get_game_data($game_id);
+	        if ($game_data) {
+	            $filtered_games[] = $game_id;
+	        }
 	    }
 	    
 	    if ($criteria['debug']) {
-	        error_log('[Sisme Cards Functions] Jeux après filtrage: ' . count($filtered_games));
+	        error_log('[Sisme Cards Functions] ' . count($filtered_games) . ' jeux après filtrage (released=' . $criteria['released'] . ')');
 	    }
 	    
-	    // ✅ TRI PAR DATE si demandé
+	    // ✅ TRI PAR DATE si demandé (existant)
 	    if ($criteria['sort_by_date']) {
 	        $filtered_games = self::sort_games_by_release_date($filtered_games);
 	    }
 	    
-	    // ✅ LIMITE si spécifiée
+	    // ✅ LIMITE si spécifiée (existant)
 	    if ($criteria['max_results'] > 0) {
 	        $filtered_games = array_slice($filtered_games, 0, $criteria['max_results']);
 	    }
 	    
 	    return $filtered_games;
+	}
+
+	/**
+	 * Déterminer le statut de sortie d'un jeu
+	 * 
+	 * @param int $term_id ID du jeu
+	 * @return array ['is_released' => bool, 'release_date' => string, 'days_diff' => int]
+	 */
+	public static function get_game_release_status($term_id) {
+	    $release_date = get_term_meta($term_id, 'release_date', true);
+	    
+	    // Valeurs par défaut si pas de date
+	    if (empty($release_date)) {
+	        return array(
+	            'is_released' => true,      // Par défaut, considérer comme sorti
+	            'release_date' => '',
+	            'days_diff' => 0,
+	            'status_text' => 'Date inconnue'
+	        );
+	    }
+	    
+	    // Convertir en timestamp
+	    $release_timestamp = strtotime($release_date);
+	    $current_timestamp = current_time('timestamp');
+	    
+	    // Calculer la différence en jours
+	    $days_diff = floor(($current_timestamp - $release_timestamp) / DAY_IN_SECONDS);
+	    
+	    $is_released = $current_timestamp >= $release_timestamp;
+	    
+	    // Texte de statut pour debug/affichage
+	    if ($is_released) {
+	        if ($days_diff === 0) {
+	            $status_text = 'Sorti aujourd\'hui';
+	        } elseif ($days_diff === 1) {
+	            $status_text = 'Sorti hier';
+	        } else {
+	            $status_text = "Sorti il y a {$days_diff} jours";
+	        }
+	    } else {
+	        $abs_days = abs($days_diff);
+	        if ($abs_days === 0) {
+	            $status_text = 'Sort aujourd\'hui';
+	        } elseif ($abs_days === 1) {
+	            $status_text = 'Sort demain';
+	        } else {
+	            $status_text = "Sort dans {$abs_days} jours";
+	        }
+	    }
+	    
+	    return array(
+	        'is_released' => $is_released,
+	        'release_date' => $release_date,
+	        'days_diff' => $days_diff,
+	        'status_text' => $status_text
+	    );
+	}
+
+	/**
+	 * Obtenir des statistiques par statut de sortie
+	 * 
+	 * @return array Statistiques complètes
+	 */
+	public static function get_release_status_stats() {
+	    $all_games = get_terms(array(
+	        'taxonomy' => 'post_tag',
+	        'hide_empty' => false,
+	        'meta_query' => array(
+	            array(
+	                'key' => 'game_description',
+	                'compare' => 'EXISTS'
+	            )
+	        )
+	    ));
+	    
+	    $stats = array(
+	        'total' => 0,
+	        'released' => 0,
+	        'unreleased' => 0,
+	        'no_date' => 0,
+	        'released_this_week' => 0,
+	        'releasing_this_week' => 0
+	    );
+	    
+	    if (is_wp_error($all_games) || empty($all_games)) {
+	        return $stats;
+	    }
+	    
+	    $current_timestamp = current_time('timestamp');
+	    $week_start = $current_timestamp - (7 * DAY_IN_SECONDS);
+	    $week_end = $current_timestamp + (7 * DAY_IN_SECONDS);
+	    
+	    foreach ($all_games as $game) {
+	        $stats['total']++;
+	        
+	        $status = self::get_game_release_status($game->term_id);
+	        
+	        if (empty($status['release_date'])) {
+	            $stats['no_date']++;
+	            continue;
+	        }
+	        
+	        $release_timestamp = strtotime($status['release_date']);
+	        
+	        if ($status['is_released']) {
+	            $stats['released']++;
+	            
+	            // Sorti cette semaine ?
+	            if ($release_timestamp >= $week_start) {
+	                $stats['released_this_week']++;
+	            }
+	        } else {
+	            $stats['unreleased']++;
+	            
+	            // Sort cette semaine ?
+	            if ($release_timestamp <= $week_end) {
+	                $stats['releasing_this_week']++;
+	            }
+	        }
+	    }
+	    
+	    return $stats;
 	}
 
 	/**
