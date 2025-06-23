@@ -16,41 +16,58 @@ class Sisme_Assets_Loader {
     public function __construct() {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_global_frontend'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_carousel_assets'));
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_carousel_assets'));
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_homepage_assets'));
+        //add_action('wp_enqueue_scripts', array($this, 'enqueue_carousel_assets'));
+        //add_action('admin_enqueue_scripts', array($this, 'enqueue_carousel_assets'));
+        //add_action('wp_enqueue_scripts', array($this, 'enqueue_homepage_assets'));
     }
 
     public function enqueue_global_frontend() {
         if (is_admin()) {
             return;
         }
+        
         wp_enqueue_style(
             'sisme-frontend-tokens-global',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/tokens.css',
             array(),
             SISME_GAMES_EDITOR_VERSION
         );
+        
         wp_enqueue_style(
             'sisme-frontend-global',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/front-global.css',
-            array(),
+            array('sisme-frontend-tokens-global'),
             SISME_GAMES_EDITOR_VERSION
         );
+        
         wp_enqueue_style(
             'sisme-hero-section',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/hero-section.css',
-            array('sisme-frontend-tokens'),
+            array('sisme-frontend-tokens-global'),
+            SISME_GAMES_EDITOR_VERSION
+        );
+        
+        wp_enqueue_style(
+            'sisme-carousel-universal',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/carousel.css',
+            array('sisme-frontend-tokens-global'),
+            SISME_GAMES_EDITOR_VERSION
+        );
+        
+        wp_enqueue_style(
+            'sisme-sections-styles',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/sections.css',
+            array('sisme-frontend-tokens-global'),
             SISME_GAMES_EDITOR_VERSION
         );
 
         wp_enqueue_style(
-            'sisme-sections-styles',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/components/sections.css',
-            array('sisme-frontend-tokens'),
+            'sisme-homepage-universal',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/homepage.css',
+            array('sisme-frontend-tokens-global'),
             SISME_GAMES_EDITOR_VERSION
         );
-
+        
         wp_enqueue_script(
             'sisme-frontend-tooltip',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/frontend-tooltip.js',
@@ -60,7 +77,7 @@ class Sisme_Assets_Loader {
         );
     }
 
-    public function enqueue_homepage_assets() {
+    /*public function enqueue_homepage_assets() {
         global $post;
         
         // Vérifier si la page contient le shortcode homepage
@@ -122,12 +139,12 @@ class Sisme_Assets_Loader {
             // Log pour debug
             error_log("Sisme: Assets homepage chargés - Shortcode: " . ($has_homepage_shortcode ? 'oui' : 'non') . " - Front page: " . ($is_front_page ? 'oui' : 'non'));
         }
-    }
+    }*/
 
     /**
      * Charger les assets carrousel quand nécessaire
      */
-    public function enqueue_carousel_assets() {
+    /*public function enqueue_carousel_assets() {
         // Vérifier si la page contient le shortcode vedettes
         global $post;
         $has_carousel_shortcode = false;
@@ -151,7 +168,7 @@ class Sisme_Assets_Loader {
             // Log pour debug
             error_log("Sisme: CSS carrousel chargé - Shortcode: " . ($has_carousel_shortcode ? 'oui' : 'non') . " - Admin vedettes: " . ($is_vedettes_admin ? 'oui' : 'non'));
         }
-    }
+    }*/
     
     /**
      * Charger les styles admin - DARK GAMING STYLE + FICHE FORM
