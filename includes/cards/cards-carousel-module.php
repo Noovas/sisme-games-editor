@@ -19,9 +19,9 @@ class Sisme_Cards_Carousel_Module {
      * Options par défaut pour les carrousels
      */
     private static $default_options = array(
-        'cards_per_view' => 3,
-        'total_cards' => 9,
-        'infinite' => true,
+        'cards_per_view' => 3,        // 2-5
+        'total_cards' => 9,           
+        'infinite' => false,
         'autoplay' => false,
         'navigation' => true,
         'pagination' => true,
@@ -114,7 +114,8 @@ class Sisme_Cards_Carousel_Module {
         
         $output = '<div class="' . esc_attr($css_class) . '" ';
         $output .= 'data-carousel-config="' . esc_attr(wp_json_encode($js_config)) . '" ';
-        $output .= 'data-cards-count="' . $total_cards . '">';
+        $output .= 'data-cards-count="' . $total_cards . '" ';
+        $output .= 'data-cards-per-view="' . $cards_per_view . '">';
         
         // Container du carrousel
         $output .= '<div class="sisme-carousel__container">';
@@ -234,14 +235,14 @@ class Sisme_Cards_Carousel_Module {
      * @return array Résultat de validation
      */
     public static function validate_carousel_args($args) {
-        
+    
         // Valider cards_per_view
         if (isset($args['cards_per_view'])) {
             $cards_per_view = intval($args['cards_per_view']);
-            if ($cards_per_view < 1 || $cards_per_view > 6) {
+            if ($cards_per_view < 2 || $cards_per_view > 5) {
                 return array(
                     'valid' => false,
-                    'message' => 'cards_per_view doit être entre 1 et 6'
+                    'message' => 'cards_per_view doit être entre 2 et 5'
                 );
             }
         }

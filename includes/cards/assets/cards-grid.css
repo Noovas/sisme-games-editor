@@ -1,6 +1,6 @@
 /* ========================================
-   🎠 CARROUSEL WORDPRESS - AVEC WRAPPERS
-   Structure finale qui marche !
+   🎠 CARROUSEL MODULABLE 2-5 CARTES
+   CSS qui s'adapte au cards_per_view du shortcode
 ======================================== */
 
 /* Container principal du carrousel */
@@ -25,26 +25,40 @@
 }
 
 /* ========================================
-   🎯 WRAPPERS DES SLIDES - LA SOLUTION
+   🎯 WRAPPERS MODULABLES - SOLUTION DYNAMIQUE
 ======================================== */
 
-/* Le wrapper qui gère l'espacement et la largeur */
+/* Base : 2 cartes par défaut */
 .sisme-carousel__slide {
-    flex: 0 0 33.3333%; /* 1/3 exact du viewport */
-    padding: 0 12px; /* Espacement gauche/droite */
+    flex: 0 0 50%; /* 50% par défaut (2 cartes) */
+    padding: 0 12px;
     box-sizing: border-box;
-    
-    /* Éviter les débordements */
     min-width: 0;
     overflow: hidden;
 }
 
-/* Première slide sans padding gauche */
+/* Variantes selon cards_per_view - AVEC ATTRIBUT DATA */
+.sisme-cards-carousel[data-cards-per-view="2"] .sisme-carousel__slide {
+    flex: 0 0 50% !important; /* 100% ÷ 2 = 50% */
+}
+
+.sisme-cards-carousel[data-cards-per-view="3"] .sisme-carousel__slide {
+    flex: 0 0 33.3333% !important; /* 100% ÷ 3 = 33.33% */
+}
+
+.sisme-cards-carousel[data-cards-per-view="4"] .sisme-carousel__slide {
+    flex: 0 0 25% !important; /* 100% ÷ 4 = 25% */
+}
+
+.sisme-cards-carousel[data-cards-per-view="5"] .sisme-carousel__slide {
+    flex: 0 0 20% !important; /* 100% ÷ 5 = 20% */
+}
+
+/* Première/dernière slide sans padding externe */
 .sisme-carousel__slide:first-child {
     padding-left: 0;
 }
 
-/* Dernière slide sans padding droite */
 .sisme-carousel__slide:last-child {
     padding-right: 0;
 }
@@ -68,20 +82,36 @@
     flex: none !important;
     
     /* Hauteur uniformisée */
-    height: auto;
+    height: 100%;
     display: flex;
     flex-direction: column;
 }
 
-/* Image de carte uniforme */
+/* Image de carte uniforme selon nombre de cartes */
 .sisme-carousel__slide .sisme-card-image {
     width: 100%;
-    height: 200px;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     border-radius: 8px 8px 0 0;
     flex-shrink: 0;
+}
+
+/* Hauteur d'image adaptée au nombre de cartes */
+.sisme-cards-carousel[data-cards-per-view="2"] .sisme-card-image {
+    height: 240px; /* Plus grande pour 2 cartes */
+}
+
+.sisme-cards-carousel[data-cards-per-view="3"] .sisme-card-image {
+    height: 200px; /* Taille standard */
+}
+
+.sisme-cards-carousel[data-cards-per-view="4"] .sisme-card-image {
+    height: 180px; /* Plus petite pour 4 cartes */
+}
+
+.sisme-cards-carousel[data-cards-per-view="5"] .sisme-card-image {
+    height: 160px; /* Encore plus petite pour 5 cartes */
 }
 
 /* Contenu de carte */
@@ -92,12 +122,27 @@
     flex-direction: column;
 }
 
-/* Titre uniforme */
+/* Titre adapté au nombre de cartes */
 .sisme-carousel__slide .sisme-card-title {
-    font-size: 16px;
     line-height: 1.3;
     margin-bottom: 8px;
     flex-shrink: 0;
+}
+
+.sisme-cards-carousel[data-cards-per-view="2"] .sisme-card-title {
+    font-size: 18px; /* Plus grand pour 2 cartes */
+}
+
+.sisme-cards-carousel[data-cards-per-view="3"] .sisme-card-title {
+    font-size: 16px; /* Standard */
+}
+
+.sisme-cards-carousel[data-cards-per-view="4"] .sisme-card-title {
+    font-size: 15px; /* Plus petit pour 4 cartes */
+}
+
+.sisme-cards-carousel[data-cards-per-view="5"] .sisme-card-title {
+    font-size: 14px; /* Encore plus petit pour 5 cartes */
 }
 
 /* Description avec hauteur limitée */
@@ -107,11 +152,26 @@
     margin-bottom: 12px;
     flex-grow: 1;
     
-    /* Limiter à 3 lignes pour uniformité */
+    /* Limiter selon le nombre de cartes */
     display: -webkit-box;
-    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.sisme-cards-carousel[data-cards-per-view="2"] .sisme-card-description {
+    -webkit-line-clamp: 4; /* Plus de lignes pour 2 cartes */
+}
+
+.sisme-cards-carousel[data-cards-per-view="3"] .sisme-card-description {
+    -webkit-line-clamp: 3; /* Standard */
+}
+
+.sisme-cards-carousel[data-cards-per-view="4"] .sisme-card-description {
+    -webkit-line-clamp: 2; /* Moins de lignes pour 4 cartes */
+}
+
+.sisme-cards-carousel[data-cards-per-view="5"] .sisme-card-description {
+    -webkit-line-clamp: 2; /* Très compact pour 5 cartes */
 }
 
 /* Meta footer */
@@ -195,24 +255,50 @@
 }
 
 /* ========================================
-   📱 RESPONSIVE
+   📱 RESPONSIVE - ADAPTATIONS INTELLIGENTES
 ======================================== */
 
-/* Tablette : 2 cartes par page */
+/* Tablette : Réduire le nombre de cartes si trop */
 @media (max-width: 1024px) and (min-width: 769px) {
-    .sisme-carousel__slide {
-        flex: 0 0 50%; /* 2 cartes visibles */
+    /* 5 cartes → 3 cartes sur tablette */
+    .sisme-cards-carousel[data-cards-per-view="5"] .sisme-carousel__slide {
+        flex: 0 0 33.3333% !important;
+    }
+    
+    /* 4 cartes → 2 cartes sur tablette */
+    .sisme-cards-carousel[data-cards-per-view="4"] .sisme-carousel__slide {
+        flex: 0 0 50% !important;
+    }
+    
+    /* 3 cartes → reste 3 cartes mais plus serrées */
+    .sisme-cards-carousel[data-cards-per-view="3"] .sisme-carousel__slide {
+        padding: 0 8px;
     }
 }
 
-/* Mobile : 1 carte par page */
+/* Mobile : Maximum 2 cartes */
 @media (max-width: 768px) {
     .sisme-cards-carousel {
         padding: 0 10px;
     }
     
+    /* Toutes les configurations → maximum 2 cartes sur mobile */
+    .sisme-cards-carousel[data-cards-per-view="4"] .sisme-carousel__slide,
+    .sisme-cards-carousel[data-cards-per-view="5"] .sisme-carousel__slide {
+        flex: 0 0 50% !important; /* 2 cartes max */
+    }
+    
+    /* 3 cartes → 1 carte sur mobile */
+    .sisme-cards-carousel[data-cards-per-view="3"] .sisme-carousel__slide {
+        flex: 0 0 100% !important; /* 1 carte */
+    }
+    
+    /* 2 cartes → reste 2 cartes sur mobile */
+    .sisme-cards-carousel[data-cards-per-view="2"] .sisme-carousel__slide {
+        flex: 0 0 50% !important; /* Garde 2 cartes */
+    }
+    
     .sisme-carousel__slide {
-        flex: 0 0 100%; /* 1 carte visible */
         padding: 0 8px;
     }
     
@@ -225,6 +311,13 @@
         width: 40px;
         height: 40px;
         font-size: 16px;
+    }
+}
+
+/* Très petit mobile : Force 1 carte partout */
+@media (max-width: 480px) {
+    .sisme-carousel__slide {
+        flex: 0 0 100% !important; /* 1 carte partout */
     }
 }
 
@@ -250,7 +343,7 @@
 }
 
 .sisme-cards-carousel--debug::before {
-    content: '🎠 DEBUG MODE';
+    content: '🎠 DEBUG: ' attr(data-cards-per-view) ' cartes par vue';
     position: absolute;
     top: 8px;
     right: 8px;
@@ -270,10 +363,6 @@
 
 .sisme-cards-carousel--debug .sisme-game-card {
     outline: 2px solid green !important; /* Cartes en vert */
-}
-
-.sisme-cards-carousel--debug .sisme-carousel__track {
-    outline: 2px solid red !important; /* Track en rouge */
 }
 
 /* ========================================

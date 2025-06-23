@@ -1,9 +1,9 @@
 /**
- * Carrousel 3x3 WordPress - VERSION FINALE
- * À remplacer dans /includes/cards/assets/cards-carousel.js
+ * Carrousel Modulable 2-5 Cartes - JavaScript
+ * Version qui respecte le cards_per_view du shortcode
  */
 
-class SismeCarrousel3x3 {
+class SismeCarrouselModulable {
     constructor(element) {
         this.carousel = element;
         this.track = element.querySelector('.sisme-carousel__track');
@@ -12,8 +12,11 @@ class SismeCarrousel3x3 {
         this.nextBtn = element.querySelector('.sisme-carousel__btn--next');
         this.paginationContainer = element.querySelector('.sisme-carousel__pagination');
         
-        // Configuration selon la taille d'écran
+        // Configuration depuis l'attribut data
+        this.cardsPerViewDesktop = parseInt(this.carousel.dataset.cardsPerView) || 3;
         this.currentPage = 0;
+        
+        // Calculer selon responsive
         this.updateCardsPerView();
         
         // Debug
@@ -21,10 +24,10 @@ class SismeCarrousel3x3 {
                        (typeof WP_DEBUG !== 'undefined' && WP_DEBUG);
         
         if (isDebug) {
-            console.log('🎠 Carrousel 3x3 initialisé:', {
+            console.log('🎠 Carrousel Modulable initialisé:', {
+                cardsPerViewDesktop: this.cardsPerViewDesktop,
+                cardsPerViewActuel: this.cardsPerView,
                 totalSlides: this.totalSlides,
-                cardsPerView: this.cardsPerView,
-                cardsPerPage: this.cardsPerPage,
                 totalPages: this.totalPages
             });
         }
@@ -35,15 +38,36 @@ class SismeCarrousel3x3 {
     updateCardsPerView() {
         const width = window.innerWidth;
         
-        if (width <= 768) {
-            this.cardsPerView = 1; // Mobile : 1 carte
-            this.cardsPerPage = 1; // Défiler par 1
+        // Responsive intelligent selon le nombre de cartes demandé
+        if (width <= 480) {
+            // Très petit mobile : toujours 1 carte
+            this.cardsPerView = 1;
+            this.cardsPerPage = 1;
+        } else if (width <= 768) {
+            // Mobile : maximum 2 cartes ou 1 si c'était 3+
+            if (this.cardsPerViewDesktop >= 3) {
+                this.cardsPerView = 1;
+                this.cardsPerPage = 1;
+            } else {
+                this.cardsPerView = 2;
+                this.cardsPerPage = 2;
+            }
         } else if (width <= 1024) {
-            this.cardsPerView = 2; // Tablette : 2 cartes
-            this.cardsPerPage = 2; // Défiler par 2
+            // Tablette : adapter selon desktop
+            if (this.cardsPerViewDesktop === 5) {
+                this.cardsPerView = 3;
+                this.cardsPerPage = 3;
+            } else if (this.cardsPerViewDesktop === 4) {
+                this.cardsPerView = 2;
+                this.cardsPerPage = 2;
+            } else {
+                this.cardsPerView = this.cardsPerViewDesktop;
+                this.cardsPerPage = this.cardsPerViewDesktop;
+            }
         } else {
-            this.cardsPerView = 3; // Desktop : 3 cartes
-            this.cardsPerPage = 3; // Défiler par 3
+            // Desktop : utiliser la valeur demandée
+            this.cardsPerView = this.cardsPerViewDesktop;
+            this.cardsPerPage = this.cardsPerViewDesktop;
         }
         
         this.totalSlides = this.slides.length;
@@ -131,7 +155,7 @@ class SismeCarrousel3x3 {
         
         // Debug
         if (this.carousel.classList.contains('sisme-cards-carousel--debug')) {
-            console.log(`🎯 Page ${this.currentPage}: Transform ${translateXPercent}%`);
+            console.log(`🎯 Page ${this.currentPage}: Transform ${translateXPercent}% | ${this.cardsPerView} cartes visibles`);
         }
     }
     
@@ -183,25 +207,25 @@ document.addEventListener('DOMContentLoaded', () => {
             // Éviter la double-initialisation
             if (!carousel.hasAttribute('data-carousel-initialized')) {
                 carousel.setAttribute('data-carousel-initialized', 'true');
-                new SismeCarrousel3x3(carousel);
+                new SismeCarrouselModulable(carousel);
             }
         });
         
         if (carousels.length > 0) {
-            console.log(`🎠 ${carousels.length} carrousel(s) initialisé(s)`);
+            console.log(`🎠 ${carousels.length} carrousel(s) modulable(s) initialisé(s)`);
         }
     }, 100);
 });
 
 // Export pour utilisation manuelle
-window.SismeCarrousel3x3 = SismeCarrousel3x3;
+window.SismeCarrouselModulable = SismeCarrouselModulable;
 
 // Fonction helper pour forcer l'initialisation
-window.initSismeCarrousels = function() {
+window.initSismeCarrouselsModulables = function() {
     const carousels = document.querySelectorAll('.sisme-cards-carousel');
     carousels.forEach(carousel => {
         carousel.removeAttribute('data-carousel-initialized');
-        new SismeCarrousel3x3(carousel);
+        new SismeCarrouselModulable(carousel);
     });
-    console.log('🔄 Carrousels réinitialisés manuellement');
+    console.log('🔄 Carrousels modulables réinitialisés manuellement');
 };
