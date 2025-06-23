@@ -13,7 +13,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!defined('DAY_IN_SECONDS')) {
+    define('DAY_IN_SECONDS', 24 * 60 * 60); // 86400 secondes
+}
+
 class Sisme_Cards_Functions {
+
+
     
     /**
      * 📊 Récupérer les données complètes d'un jeu
@@ -338,27 +344,34 @@ class Sisme_Cards_Functions {
     }
     
     /**
-     * 🏷️ Déterminer le badge du jeu selon sa fraîcheur
-     */
-    public static function get_game_badge($game_data) {
-        $now = time();
-        $game_time = $game_data['timestamp'];
-        $diff_days = ($now - $game_time) / DAY_IN_SECONDS;
-        
-        if ($diff_days <= 7) {
-            return array(
-                'class' => 'sisme-badge-new',
-                'text' => 'NOUVEAU'
-            );
-        } elseif ($diff_days <= 30 && !empty($game_data['last_update'])) {
-            return array(
-                'class' => 'sisme-badge-updated',
-                'text' => 'MIS À JOUR'
-            );
-        }
-        
-        return null; // Pas de badge
-    }
+	 * 🏷️ Déterminer le badge du jeu selon sa fraîcheur
+	 */
+	public static function get_game_badge($game_data) {
+	    $now = time();
+	    $release_time = strtotime($game_data['release_date']); 
+	    $last_update_time = strtotime($game_data['last_update']);
+	    
+	    // Calcul basé sur la date de sortie
+	    $diff_days = floor(($now - $release_time) / 86400);
+	    
+	    if ($diff_days > 0 && $diff_days <= 7) {
+	        return array('class' => 'sisme-badge-new', 'text' => 'NOUVEAU');
+	    } elseif ($diff_days < 0) {
+	        return array('class' => 'sisme-badge-futur', 'text' => 'À VENIR');
+	    } elseif ($diff_days == 0) {
+	        return array('class' => 'sisme-badge-today', 'text' => 'AUJOURD\'HUI');
+	    }
+	    
+	    // Vérifier les mises à jour séparément
+	    if ($last_update_time) {
+	        $update_diff = floor(($now - $last_update_time) / 86400);
+	        if ($update_diff <= 30) {
+	            return array('class' => 'sisme-badge-updated', 'text' => 'MIS À JOUR');
+	        }
+	    }
+	    
+	    return array('class' => 'sisme-display__none', 'text' => '');
+	}
     
     /**
 	 * ⚠️ CONSERVER L'ANCIENNE FONCTION pour compatibilité (mais marquée comme deprecated)

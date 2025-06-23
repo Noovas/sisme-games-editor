@@ -199,13 +199,19 @@
 }
 
 .sisme-badge-new {
-    background: linear-gradient(135deg, var(--sisme-gaming-accent), var(--sisme-info));
-    box-shadow: var(--sisme-shadow-neon);
+    background: #557a46b3;
+}
+
+.sisme-badge-futur {
+    background: #66c0f4b3;
 }
 
 .sisme-badge-updated {
-    background: linear-gradient(135deg, var(--sisme-color-warning), var(--sisme-color-error));
-    box-shadow: 0 2px 8px rgba(246, 173, 85, 0.3);
+    background: #0c0d0e7a;
+}
+
+.sisme-badge-today {
+    background: #e53e3e90;
 }
 
 /* ===📝 BLOC CONTENU ================== */

@@ -30,8 +30,8 @@
 
 /* Base : 2 cartes par défaut */
 .sisme-carousel__slide {
-    flex: 0 0 50%; /* 50% par défaut (2 cartes) */
-    padding: 0 12px;
+    flex: 0 0 50%;
+    padding: 10px;
     box-sizing: border-box;
     min-width: 0;
     overflow: hidden;
@@ -54,13 +54,12 @@
     flex: 0 0 20% !important; /* 100% ÷ 5 = 20% */
 }
 
-/* Première/dernière slide sans padding externe */
 .sisme-carousel__slide:first-child {
-    padding-left: 0;
+    padding: 10px;
 }
 
 .sisme-carousel__slide:last-child {
-    padding-right: 0;
+    padding: 10px;
 }
 
 /* ========================================
@@ -404,7 +403,7 @@
     
     /* 3 cartes → reste 3 cartes mais plus serrées */
     .sisme-cards-carousel[data-cards-per-view="3"] .sisme-carousel__slide {
-        padding: 0 8px;
+        padding:10px;
     }
 }
 
@@ -431,7 +430,7 @@
     }
     
     .sisme-carousel__slide {
-        padding: 0 8px;
+        padding: 10px;
     }
     
     .sisme-carousel__slide:first-child,
@@ -542,7 +541,7 @@
 .sisme-carousel__slide--clone-end {
     /* Les clones ont les mêmes styles que les slides normaux */
     flex: 0 0 calc(100% / var(--cards-per-view));
-    padding: 0 10px;
+    padding: 10px;
 }
 
 .sisme-carousel__slide--original {

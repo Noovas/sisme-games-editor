@@ -227,7 +227,7 @@
 .sisme-ultra-nav {
     position: absolute;
     top: 0;
-    width: 100px;
+    width: 200px;
     height: 100%;
     cursor: pointer;
     z-index: 20;
@@ -240,11 +240,25 @@
 }
 
 .sisme-ultra-nav.prev {
+    border-radius: 90px 10px 10px 90px;
     left: 0;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.02),
+        transparent
+    );
 }
 
 .sisme-ultra-nav.next {
+    border-radius: 10px 90px 90px 10px;
     right: 0;
+    background: linear-gradient(
+        to left,
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.02),
+        transparent
+    );
 }
 
 /* Indicateur subtil au hover uniquement */

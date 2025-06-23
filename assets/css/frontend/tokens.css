@@ -257,3 +257,10 @@
     --sisme-bp-desktop: 1199px;
     --sisme-bp-desktop-large: 1399px;
 }
+
+/* ========================================
+   📱 UTILS
+======================================== */
+.sisme-display__none{
+    display: none;  
+} 
