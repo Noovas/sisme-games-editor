@@ -346,6 +346,29 @@ class Sisme_Cards_API {
         
         return $debug_html . self::render_cards_grid($args);
     }
+
+    /**
+     * 🎠 Rendre un carrousel de cartes - NOUVEAU POINT D'ENTRÉE
+     * 
+     * @param array $args Paramètres du carrousel
+     * @return string HTML du carrousel ou message d'erreur
+     */
+    public static function render_cards_carousel($args = array()) {
+        
+        // Vérifier que le module carrousel est disponible
+        if (!class_exists('Sisme_Cards_Carousel_Module')) {
+            return self::render_error('Module carrousel non chargé');
+        }
+        
+        // Valider les arguments
+        $validation = Sisme_Cards_Carousel_Module::validate_carousel_args($args);
+        if (!$validation['valid']) {
+            return self::render_error($validation['message']);
+        }
+        
+        // Déléguer au module carrousel
+        return Sisme_Cards_Carousel_Module::render_carousel($args);
+    }
 }
 
 // 🎯 SHORTCODE pour tester
@@ -471,89 +494,82 @@ add_shortcode('cards_stats', function($atts) {
     return $output;
 });
 
+// 🎠 SHORTCODE principal pour le carrousel
+add_shortcode('game_cards_carousel', function($atts) {
+    $atts = shortcode_atts(array(
+        'cards_per_view' => '3',
+        'total_cards' => '9',
+        'type' => 'normal',
+        'genres' => '',
+        'is_team_choice' => 'false',
+        'sort_by_date' => 'true',
+        'infinite' => 'true',
+        'navigation' => 'true',
+        'pagination' => 'true',
+        'debug' => 'false'
+    ), $atts);
+    
+    // Préparer les arguments
+    $args = array(
+        'cards_per_view' => intval($atts['cards_per_view']),
+        'total_cards' => intval($atts['total_cards']),
+        'type' => sanitize_text_field($atts['type']),
+        'genres' => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
+        'is_team_choice' => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
+        'sort_by_date' => filter_var($atts['sort_by_date'], FILTER_VALIDATE_BOOLEAN),
+        'infinite' => filter_var($atts['infinite'], FILTER_VALIDATE_BOOLEAN),
+        'navigation' => filter_var($atts['navigation'], FILTER_VALIDATE_BOOLEAN),
+        'pagination' => filter_var($atts['pagination'], FILTER_VALIDATE_BOOLEAN),
+        'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN)
+    );
+    
+    return Sisme_Cards_API::render_cards_carousel($args);
+});
 
-/*
+// 🔧 SHORTCODE de debug pour le carrousel
+add_shortcode('debug_cards_carousel', function($atts) {
+    if (!defined('WP_DEBUG') || !WP_DEBUG) {
+        return '<p style="color: #dc3232;">Shortcode debug carrousel disponible uniquement en mode WP_DEBUG</p>';
+    }
+    
+    $atts = shortcode_atts(array(
+        'cards_per_view' => '3',
+        'total_cards' => '6',
+        'genres' => ''
+    ), $atts);
+    
+    // Forcer le debug
+    $args = array(
+        'cards_per_view' => intval($atts['cards_per_view']),
+        'total_cards' => intval($atts['total_cards']),
+        'genres' => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
+        'debug' => true
+    );
+    
+    return Sisme_Cards_API::render_cards_carousel($args);
+});
+
+/* 
 === EXEMPLES D'UTILISATION ===
 
-1. Grille basique (3x3):
-[game_cards_grid]
+1. Carrousel basique (3 cartes visibles, 9 total):
+[game_cards_carousel]
 
-2. Grille 4 colonnes, max 8 cartes:
-[game_cards_grid cards_per_row="4" max_cards="8"]
+2. Carrousel 4 cartes, 12 total:
+[game_cards_carousel cards_per_view="4" total_cards="12"]
 
-3. Filtré par genres:
-[game_cards_grid genres="action,rpg" max_cards="6"]
+3. Carrousel filtré par genres:
+[game_cards_carousel genres="action,rpg" total_cards="8"]
 
-4. Sans tri par date:
-[game_cards_grid sort_by_date="false"]
+4. Carrousel sans navigation:
+[game_cards_carousel navigation="false"]
 
-5. Mode debug complet:
-[debug_cards_grid genres="action" max_cards="3"]
+5. Carrousel sans pagination:
+[game_cards_carousel pagination="false"]
 
-6. Statistiques globales:
-[cards_stats]
+6. Debug carrousel:
+[debug_cards_carousel cards_per_view="2" total_cards="4"]
 
-7. Statistiques par genre:
-[cards_stats genres="action,strategy"]
-
-8. Grille personnalisée:
-[game_cards_grid type="normal" cards_per_row="2" max_cards="4" genres="indie,puzzle" container_class="my-custom-grid"]
-
-=== TESTS À EFFECTUER ===
-
-1. Vérifier que les modules se chargent:
-   - cards-functions.php en premier
-   - cards-api.php ensuite
-
-2. Tester les shortcodes progressivement:
-   - [game_cards_grid debug="true"] pour voir les logs
-   - [cards_stats] pour vérifier les données
-   - [debug_cards_grid] pour le debug complet
-
-3. Vérifier le CSS:
-   - Grille responsive
-   - Variables CSS (--cards-per-row)
-   - States hover et focus
-
-4. Tester les critères:
-   - Filtrage par genres
-   - Tri par date de sortie
-   - Limite max_cards
-   - Mode debug avec logs
-
-5. Valider les données JSON:
-   - Métadonnées cachées pour carrousel
-   - Structure correcte
-   - IDs des jeux inclus
-
-=== STRUCTURE DES FICHIERS ===
-
-1. Ajouter dans cards-functions.php:
-   - get_games_by_criteria()
-   - build_criteria_meta_query() 
-   - filter_games_with_complete_data()
-   - sort_games_by_release_date()
-   - get_games_stats_by_criteria()
-   - test_criteria()
-
-2. Ajouter dans cards-api.php:
-   - render_cards_grid()
-   - validate_grid_args()
-   - render_grid_html()
-   - render_grid_metadata()
-   - render_grid_empty()
-   - debug_grid()
-
-3. Ajouter après la classe cards-api.php:
-   - Shortcode [game_cards_grid]
-   - Shortcode [debug_cards_grid]
-   - Shortcode [cards_stats]
-
-=== ORDRE DE PRIORITÉ POUR LES TESTS ===
-
-1. [cards_stats] → Vérifier qu'on a des jeux
-2. [debug_cards_grid max_cards="3"] → Voir la logique
-3. [game_cards_grid debug="true" max_cards="6"] → Test normal
-4. [game_cards_grid genres="action" cards_per_row="4"] → Test filtrage
-
+7. Carrousel personnalisé complet:
+[game_cards_carousel cards_per_view="2" total_cards="6" genres="indie" sort_by_date="false"]
 */

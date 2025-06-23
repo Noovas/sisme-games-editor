@@ -44,6 +44,8 @@ class Sisme_Cards_Loader {
         
         // 2. Modules de rendu
         require_once $cards_dir . 'cards-normal-module.php';
+        require_once $cards_dir . 'cards-carousel-module.php';
+
         // require_once $cards_dir . 'cards-details-module.php';   // À venir
         // require_once $cards_dir . 'cards-compact-module.php';   // À venir
         
@@ -78,9 +80,8 @@ class Sisme_Cards_Loader {
      * 📦 Charger les assets CSS/JS des cartes
      */
     private function load_cards_assets($is_admin = false) {
-
+        // 1. Design tokens (base)
         if (!$is_admin) {
-
             wp_enqueue_style(
                 'sisme-frontend-tokens',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/tokens.css',
@@ -88,6 +89,7 @@ class Sisme_Cards_Loader {
                 SISME_GAMES_EDITOR_VERSION
             );
             
+            // 2. Système de tooltip
             wp_enqueue_script(
                 'sisme-frontend-tooltip',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/frontend-tooltip.js',
@@ -96,21 +98,47 @@ class Sisme_Cards_Loader {
                 true
             );
         }
-
+        
+        // 3. CSS principal des cartes
         wp_enqueue_style(
             'sisme-cards',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/cards/assets/cards.css',
             $is_admin ? array() : array('sisme-frontend-tokens'),
             SISME_GAMES_EDITOR_VERSION
         );
-
+        
+        // 4. CSS grilles et carrousels
         wp_enqueue_style(
             'sisme-cards-grid',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/cards/assets/cards-grid.css',
-            $is_admin ? array() : array('sisme-frontend-tokens'),
+            array('sisme-cards'),
             SISME_GAMES_EDITOR_VERSION
         );
-
+        
+        // 5. 🆕 JavaScript carrousel (si le fichier existe)
+        if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/cards/assets/cards-carousel.js')) {
+            wp_enqueue_script(
+                'sisme-cards-carousel-js',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/cards/assets/cards-carousel.js',
+                $is_admin ? array('jquery') : array('jquery', 'sisme-frontend-tooltip'),
+                SISME_GAMES_EDITOR_VERSION,
+                true
+            );
+            
+            // Variables pour JavaScript carrousel
+            wp_localize_script('sisme-cards-carousel-js', 'sismeCarousel', array(
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('sisme_carousel_nonce'),
+                'loadingText' => __('Chargement...', 'sisme-games-editor'),
+                'errorText' => __('Erreur lors du chargement', 'sisme-games-editor'),
+                'prevText' => __('Précédent', 'sisme-games-editor'),
+                'nextText' => __('Suivant', 'sisme-games-editor'),
+                'pageText' => __('Page', 'sisme-games-editor'),
+                'debug' => defined('WP_DEBUG') && WP_DEBUG
+            ));
+        }
+        
+        // 6. JavaScript des cartes (existant)
         if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/cards/assets/cards.js')) {
             wp_enqueue_script(
                 'sisme-cards-js',
@@ -120,6 +148,7 @@ class Sisme_Cards_Loader {
                 true
             );
             
+            // Variables pour JavaScript (existant)
             wp_localize_script('sisme-cards-js', 'sismeCards', array(
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('sisme_cards_nonce'),
