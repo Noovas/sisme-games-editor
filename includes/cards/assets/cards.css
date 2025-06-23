@@ -161,8 +161,8 @@
 }
 
 .sisme-game-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--sisme-shadow-gaming-hover);
+    transform: translateY(-3px);
+    
 }
 
 /* ===🖼️ BLOC IMAGE =================== */

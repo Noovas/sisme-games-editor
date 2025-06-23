@@ -7,7 +7,7 @@
 .sisme-cards-carousel {
     position: relative;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 0px 0px 90px;
     padding: 0 60px; /* Espace pour les boutons */
 }
 
@@ -73,7 +73,7 @@
     width: 100% !important;
     max-width: none !important;
     min-width: 0 !important;
-    margin: 0 !important; /* Aucun margin sur la carte */
+    margin: 0px !important; /* Aucun margin sur la carte */
     
     /* Box model propre */
     box-sizing: border-box !important;
@@ -186,40 +186,94 @@
 
 .sisme-carousel__btn {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 50px;
-    height: 50px;
-    background: rgba(0, 0, 0, 0.8);
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    background: transparent;
     border: none;
-    border-radius: 50%;
-    color: white;
-    font-size: 20px;
     cursor: pointer;
     z-index: 10;
-    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.sisme-carousel__btn:hover {
-    background: rgba(0, 0, 0, 1);
-    transform: translateY(-50%) scale(1.1);
-}
-
-.sisme-carousel__btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-    transform: translateY(-50%);
+    transition: all 0.3s ease;
 }
 
 .sisme-carousel__btn--prev {
     left: 0;
+    border-radius: 40px 10px 10px 40px;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05), #00000020);
 }
 
 .sisme-carousel__btn--next {
     right: 0;
+    border-radius: 10px 40px 40px 10px;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02), #00000020);
+}
+
+.sisme-carousel__btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1px;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    opacity: 0;
+    transition: all 0.3s ease;
+    border-radius: 1px;
+}
+
+.sisme-carousel__btn:hover::before {
+    opacity: 1;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.sisme-carousel__btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.sisme-carousel__btn--prev::after {
+    content: '‹';
+    transform: translate(-50%, -50%);
+}
+
+.sisme-carousel__btn--next::after {
+    content: '›';
+    transform: translate(-50%, -50%);
+}
+
+.sisme-carousel__btn:hover::after {
+    opacity: 0.8;
+}
+
+.sisme-carousel__btn--prev:hover {
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05), #00000020);
+}
+
+.sisme-carousel__btn--next:hover {
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02), #00000020);;
+}
+
+.sisme-carousel__btn-icon {
+    display: none; /* Masquer car on utilise ::after */
 }
 
 /* ========================================
@@ -494,7 +548,7 @@
 .sisme-carousel__slide--original {
     /* Slides originaux (pour debug) */
     flex: 0 0 calc(100% / var(--cards-per-view));
-    padding: 0 10px;
+    padding: 10px;
 }
 
 /* ===== DEBUG INFINITE LOOP ===== */
@@ -597,13 +651,6 @@
     transition-duration: 0.6s;
 }
 
-/* ===== FOCUS MANAGEMENT ===== */
-.sisme-cards-carousel--infinite .sisme-carousel__btn:focus {
-    /* Focus toujours visible sur boutons infinite */
-    outline: 2px solid #007bff !important;
-    outline-offset: 2px !important;
-}
-
 /* ===== ANIMATION D'ENTRÉE ===== */
 @keyframes infiniteCarouselAppear {
     0% {
@@ -627,26 +674,6 @@
 
 .sisme-cards-carousel--infinite.speed-fast .sisme-carousel__track {
     transition-duration: 0.3s;
-}
-
-/* ===== INDICATEUR INFINITE ===== */
-.sisme-cards-carousel--infinite::after {
-    content: '∞';
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 20px;
-    height: 20px;
-    background: rgba(102, 192, 244, 0.8);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-    z-index: 10;
-    opacity: 0.7;
 }
 
 /* Masquer l'indicateur en mode debug (on a déjà l'info) */
