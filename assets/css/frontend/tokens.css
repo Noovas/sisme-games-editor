@@ -72,6 +72,11 @@
     --sisme-header-height: 64px;
     --sisme-hero-height: 60vh;
     --sisme-thumb-height: 68px;
+
+    /* Gaps */
+    --sisme-gap-s: 12px;
+    --sisme-gap-m: 24px;
+    --sisme-gap-l: 32px;
 }
 
 /* ========================================
@@ -189,6 +194,10 @@
 .sisme-m-sm { margin: var(--sisme-space-sm); }
 .sisme-m-md { margin: var(--sisme-space-md); }
 .sisme-m-lg { margin: var(--sisme-space-lg); }
+
+.sisme-gap-small { gap: var(--sisme-gap-s); }
+.sisme-gap-medium { gap: var(--sisme-gap-m); }
+.sisme-gap-large { gap: var(--sisme-gap-l); }
 
 /* Classes de typographie */
 .sisme-text-center { text-align: center; }
