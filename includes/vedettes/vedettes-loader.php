@@ -20,14 +20,43 @@ require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-api.php
 class Sisme_Vedettes_Loader {
     
     /**
-     * Initialiser le système vedettes
+     * Instance unique du loader
+     */
+    private static $instance = null;
+    
+    /**
+     * Constructeur privé (Singleton)
+     */
+    private function __construct() {
+        $this->init_hooks();
+    }
+    
+    /**
+     * Obtenir l'instance unique du loader
      */
     public static function get_instance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    /**
+     * 🎣 Initialiser les hooks WordPress
+     */
+    private function init_hooks() {
         // Enregistrer le shortcode
         add_shortcode('sisme_vedettes_carousel', array('Sisme_Vedettes_API', 'vedettes_carousel_shortcode'));
-        add_action('updated_term_meta', array(self::class, 'clear_cache_on_update'), 10, 4);
-        add_action('added_term_meta', array(self::class, 'auto_initialize_vedettes'), 10, 4);
-        add_action('updated_term_meta', array(self::class, 'auto_initialize_vedettes'), 10, 4);
+        
+        // Hooks pour les mises à jour automatiques
+        add_action('updated_term_meta', array($this, 'clear_cache_on_update'), 10, 4);
+        add_action('added_term_meta', array($this, 'auto_initialize_vedettes'), 10, 4);
+        add_action('updated_term_meta', array($this, 'auto_initialize_vedettes'), 10, 4);
+        
+        // Log pour debug
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[Sisme Vedettes] Loader initialisé avec succès');
+        }
     }
     
     /**
@@ -38,7 +67,7 @@ class Sisme_Vedettes_Loader {
      * @param string $meta_key Clé meta
      * @param mixed $meta_value Valeur meta
      */
-    public static function clear_cache_on_update($meta_id, $object_id, $meta_key, $meta_value) {
+    public function clear_cache_on_update($meta_id, $object_id, $meta_key, $meta_value) {
         // Vérifier si c'est une méta vedette
         $vedette_meta_keys = array_values(Sisme_Vedettes_Data_Manager::META_KEYS);
         
@@ -56,7 +85,7 @@ class Sisme_Vedettes_Loader {
      * @param string $meta_key Clé meta
      * @param mixed $meta_value Valeur meta
      */
-    public static function auto_initialize_vedettes($meta_id, $term_id, $meta_key, $meta_value) {
+    public function auto_initialize_vedettes($meta_id, $term_id, $meta_key, $meta_value) {
         // Déclencher uniquement pour game_description
         if ($meta_key === 'game_description') {
             error_log("Sisme Hook: Détection game_description pour terme $term_id");
@@ -66,7 +95,10 @@ class Sisme_Vedettes_Loader {
         }
     }
 
-    public static function carousel_shortcode($atts, $content = '') {
+    /**
+     * 🎠 Shortcode pour carrousel d'images (legacy - à supprimer plus tard)
+     */
+    public function carousel_shortcode($atts, $content = '') {
         $atts = shortcode_atts(array(
             'images' => '', // IDs séparés par virgules
             'height' => '600px',
@@ -101,4 +133,3 @@ class Sisme_Vedettes_Loader {
         return Sisme_Carousel_Module::quick_render($image_ids, $options);
     }
 }
-?>

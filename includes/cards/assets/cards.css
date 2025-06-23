@@ -1,0 +1,244 @@
+/**
+ * File: /sisme-games-editor/includes/cards/assets/cards.css
+ * Styles pour le système de cartes de jeux
+ * Utilise les variables de tokens.css
+ */
+
+/* ========================================
+   📋 GLOBAL
+======================================== */
+
+/* ===📱 RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+    .sisme-game-card {
+        max-width: 100%;
+        margin: 0 var(--sisme-space-sm);
+    }
+    
+    .sisme-card-content {
+        padding: var(--sisme-space-md);
+    }
+    
+    .sisme-card-title {
+        font-size: var(--sisme-text-lg);
+    }
+}
+
+/* ===🚨 ÉTATS D'ERREUR =============== */
+
+.sisme-card-error {
+    background: var(--sisme-color-error);
+    color: white;
+    padding: var(--sisme-space-md);
+    border-radius: var(--sisme-radius-md);
+    font-weight: var(--sisme-font-medium);
+    text-align: center;
+}
+
+.sisme-card-todo {
+    background: var(--sisme-color-warning);
+    color: var(--sisme-gaming-dark);
+    padding: var(--sisme-space-md);
+    border-radius: var(--sisme-radius-md);
+    font-weight: var(--sisme-font-medium);
+    text-align: center;
+    border: 1px dashed var(--sisme-color-warning);
+}
+
+/* ===🏷️ GENRES ======================= */
+
+.sisme-card-genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-xs);
+    margin-bottom: var(--sisme-space-md);
+}
+
+.sisme-card-genre {
+    background: var(--sisme-gaming-dark);
+    color: var(--sisme-gaming-text);
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-md);
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-medium);
+    border: 1px solid var(--sisme-white-alpha);
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-card-genre:hover {
+    background: var(--sisme-gaming-accent);
+    color: var(--sisme-gaming-dark);
+}
+
+
+/* ========================================
+   📋 COMPACT-CARD (à venir)
+======================================== */
+
+
+/* ========================================
+   📋 NORMAL-CARD
+======================================== */
+
+.sisme-game-card {
+    background: var(--sisme-gaming-dark-light);
+    border-radius: var(--sisme-radius-lg);
+    box-shadow: var(--sisme-shadow-lg);
+    overflow: hidden;
+    transition: var(--sisme-transition-all);
+    position: relative;
+    max-width: 350px;
+    margin: 0 auto;
+}
+
+.sisme-game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--sisme-shadow-gaming-hover);
+}
+
+/* ===🖼️ BLOC IMAGE =================== */
+
+.sisme-card-image {
+    width: 100%;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    background-color: var(--sisme-gaming-dark);
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-card-image:hover {
+    scale: 1.01;
+}
+
+.sisme-card-badge {
+    position: absolute;
+    top: var(--sisme-space-sm);
+    right: var(--sisme-space-sm);
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-sm);
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--sisme-gaming-text-bright);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--sisme-white-alpha);
+}
+
+.sisme-badge-new {
+    background: linear-gradient(135deg, var(--sisme-gaming-accent), var(--sisme-info));
+    box-shadow: var(--sisme-shadow-neon);
+}
+
+.sisme-badge-updated {
+    background: linear-gradient(135deg, var(--sisme-color-warning), var(--sisme-color-error));
+    box-shadow: 0 2px 8px rgba(246, 173, 85, 0.3);
+}
+
+/* ===📝 BLOC CONTENU ================== */
+
+.sisme-card-content {
+    padding: var(--sisme-space-lg);
+}
+
+.sisme-card-title {
+    margin: 0 0 var(--sisme-space-sm) 0;
+    font-size: var(--sisme-text-xl);
+    font-weight: var(--sisme-font-semibold);
+    line-height: var(--sisme-leading-tight);
+}
+
+.sisme-card-title a {
+    color: var(--sisme-gaming-text-bright);
+    text-decoration: none;
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-card-title a:hover {
+    color: var(--sisme-gaming-accent);
+}
+
+.sisme-card-description {
+    color: var(--sisme-gaming-text);
+    font-size: var(--sisme-text-sm);
+    line-height: var(--sisme-leading-normal);
+    margin: 0 0 var(--sisme-space-md) 0;
+}
+
+/* ===🎮 PLATEFORMES ================== */
+
+.sisme-card-platforms {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    margin-bottom: var(--sisme-space-md);
+}
+
+.sisme-card-platform {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sisme-gaming-dark);
+    border-radius: var(--sisme-radius-sm);
+    font-size: var(--sisme-text-sm);
+    transition: var(--sisme-transition-fast);
+    border: 1px solid var(--sisme-white-alpha);
+}
+
+.sisme-card-platform:hover {
+    background: var(--sisme-gaming-accent);
+    transform: scale(1.1);
+}
+
+/* ===📊 META FOOTER ================== */
+
+.sisme-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--sisme-space-sm);
+    border-top: 1px solid var(--sisme-white-alpha);
+}
+
+.sisme-card-date {
+    color: var(--sisme-gaming-text-muted);
+    font-size: var(--sisme-text-xs);
+    font-weight: var(--sisme-font-medium);
+}
+
+.sisme-card-link {
+    color: var(--sisme-gaming-accent);
+    text-decoration: none;
+    font-size: var(--sisme-text-sm);
+    font-weight: var(--sisme-font-semibold);
+    transition: var(--sisme-transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+}
+
+.sisme-card-link:hover {
+    color: var(--sisme-gaming-text-bright);
+    transform: translateX(2px);
+}
+
+/* ========================================
+   📋 FULL-CARD (à venir)
+======================================== */
+
+
+
+
+
+
+/* ========================================
+   📋 NORMAL-CARD - Style "Dernières Découvertes"
+======================================== */
+
+
+

@@ -32,7 +32,7 @@ class Sisme_Cards_Functions {
         }
         
         // URL de la cover
-        $cover_url = wp_get_attachment_image_url($cover_id, 'medium');
+        $cover_url = wp_get_attachment_image_url($cover_id, 'full');
         if (!$cover_url) {
             return false;
         }
