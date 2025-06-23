@@ -122,18 +122,21 @@ class Sisme_Cards_Carousel_Module {
         
         // Générer les cartes via l'API existante
         foreach ($game_ids as $game_id) {
-            $card_html = '';
+            // WRAPPER SLIDE qui gère l'espacement
+            $output .= '<div class="sisme-carousel__slide">';
             
             if (class_exists('Sisme_Cards_API')) {
+                // Carte SANS classe slide (elle est dans le wrapper)
                 $card_options = array(
-                    'css_class' => 'sisme-carousel__slide'
+                    'css_class' => '' // Pas de classe spéciale, carte normale
                 );
                 $card_html = Sisme_Cards_API::render_card($game_id, $grid_args['type'], $card_options);
+                $output .= $card_html;
             } else {
-                $card_html = '<div class="sisme-carousel__slide sisme-card-error">Erreur: API Cards non disponible</div>';
+                $output .= '<div class="sisme-card-error">Erreur: API Cards non disponible</div>';
             }
             
-            $output .= $card_html;
+            $output .= '</div>'; // Fin wrapper slide
         }
         
         $output .= '</div>'; // fin track

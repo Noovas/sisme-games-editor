@@ -1,6 +1,6 @@
 /* ========================================
-   🎠 CARROUSEL 3x3 WORDPRESS - VERSION FINALE
-   À remplacer dans /includes/cards/assets/cards-grid.css
+   🎠 CARROUSEL WORDPRESS - AVEC WRAPPERS
+   Structure finale qui marche !
 ======================================== */
 
 /* Container principal du carrousel */
@@ -8,7 +8,7 @@
     position: relative;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 60px; /* Espace pour les boutons navigation */
+    padding: 0 60px; /* Espace pour les boutons */
 }
 
 /* Container avec overflow caché */
@@ -17,18 +17,107 @@
     border-radius: 12px;
 }
 
-/* Track du carrousel - SIMPLE ET EFFICACE */
+/* Track du carrousel */
 .sisme-carousel__track {
     display: flex;
     transition: transform 0.4s ease;
-    /* Pas de width fixe - flexbox calcule automatiquement */
+    /* Largeur auto calculée par flexbox */
 }
 
-/* Chaque slide = exactement 1/3 du viewport visible */
+/* ========================================
+   🎯 WRAPPERS DES SLIDES - LA SOLUTION
+======================================== */
+
+/* Le wrapper qui gère l'espacement et la largeur */
 .sisme-carousel__slide {
-    flex: 0 0 33.3333%; /* 1/3 du viewport */
-    padding: 0 12px; /* Espacement entre cartes */
+    flex: 0 0 33.3333%; /* 1/3 exact du viewport */
+    padding: 0 12px; /* Espacement gauche/droite */
     box-sizing: border-box;
+    
+    /* Éviter les débordements */
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* Première slide sans padding gauche */
+.sisme-carousel__slide:first-child {
+    padding-left: 0;
+}
+
+/* Dernière slide sans padding droite */
+.sisme-carousel__slide:last-child {
+    padding-right: 0;
+}
+
+/* ========================================
+   🎴 CARTES WORDPRESS DANS LES WRAPPERS
+======================================== */
+
+/* Les vraies cartes WordPress dans leurs wrappers */
+.sisme-carousel__slide .sisme-game-card {
+    /* Reset complet - la carte prend toute la place du wrapper */
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 !important; /* Aucun margin sur la carte */
+    
+    /* Box model propre */
+    box-sizing: border-box !important;
+    
+    /* La carte s'adapte au wrapper */
+    flex: none !important;
+    
+    /* Hauteur uniformisée */
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Image de carte uniforme */
+.sisme-carousel__slide .sisme-card-image {
+    width: 100%;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 8px 8px 0 0;
+    flex-shrink: 0;
+}
+
+/* Contenu de carte */
+.sisme-carousel__slide .sisme-card-content {
+    padding: 16px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Titre uniforme */
+.sisme-carousel__slide .sisme-card-title {
+    font-size: 16px;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+/* Description avec hauteur limitée */
+.sisme-carousel__slide .sisme-card-description {
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    flex-grow: 1;
+    
+    /* Limiter à 3 lignes pour uniformité */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Meta footer */
+.sisme-carousel__slide .sisme-card-meta {
+    margin-top: auto; /* Pousse vers le bas */
+    flex-shrink: 0;
 }
 
 /* ========================================
@@ -71,11 +160,6 @@
 
 .sisme-carousel__btn--next {
     right: 0;
-}
-
-.sisme-carousel__btn-icon {
-    line-height: 1;
-    user-select: none;
 }
 
 /* ========================================
@@ -132,6 +216,11 @@
         padding: 0 8px;
     }
     
+    .sisme-carousel__slide:first-child,
+    .sisme-carousel__slide:last-child {
+        padding: 0 8px; /* Même padding sur mobile */
+    }
+    
     .sisme-carousel__btn {
         width: 40px;
         height: 40px;
@@ -154,13 +243,6 @@
     border-radius: 8px;
 }
 
-.sisme-carousel__empty-message {
-    color: #666;
-    font-size: 16px;
-    text-align: center;
-    margin: 0;
-}
-
 /* Mode debug */
 .sisme-cards-carousel--debug {
     border: 2px solid #ff6b6b;
@@ -181,6 +263,19 @@
     z-index: 999;
 }
 
+/* Debug: Voir les wrappers et cartes */
+.sisme-cards-carousel--debug .sisme-carousel__slide {
+    outline: 2px solid blue !important; /* Wrappers en bleu */
+}
+
+.sisme-cards-carousel--debug .sisme-game-card {
+    outline: 2px solid green !important; /* Cartes en vert */
+}
+
+.sisme-cards-carousel--debug .sisme-carousel__track {
+    outline: 2px solid red !important; /* Track en rouge */
+}
+
 /* ========================================
    ♿ ACCESSIBILITÉ
 ======================================== */
@@ -194,22 +289,9 @@
     }
 }
 
-/* Focus visible pour navigation clavier */
+/* Focus visible */
 .sisme-carousel__btn:focus-visible,
 .sisme-carousel__dot:focus-visible {
     outline: 2px solid #007bff;
     outline-offset: 2px;
-}
-
-/* ========================================
-   🔧 OVERRIDE DE SÉCURITÉ
-======================================== */
-
-/* S'assurer qu'aucun autre CSS ne vient casser */
-.sisme-carousel__track {
-    width: auto !important; /* Pas de width fixe forcé */
-}
-
-.sisme-carousel__slide[style*="width"] {
-    width: auto !important; /* Ignorer les width inline du JS complexe */
 }
