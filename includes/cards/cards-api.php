@@ -62,7 +62,8 @@ class Sisme_Cards_API {
                 return Sisme_Cards_Normal_Module::render($game_data, $options);
             
             case 'details':
-                return self::render_todo("Carte Details - À venir");
+                require_once dirname(__FILE__) . '/cards-details-module.php';
+                return Sisme_Cards_Details_Module::render($game_data, $options);
             
             case 'compact':
                 return self::render_todo("Carte Compact - À venir");
