@@ -173,7 +173,7 @@ class Sisme_Search_Filters {
             $criteria['search'] = $params['query'];
         }
         
-        // 🎯 FIX: Filtres par genres - Convertir IDs en slugs
+        // Filtres par genres - Convertir IDs en slugs
         if (!empty($params['genres'])) {
             $genre_slugs = self::convert_genre_ids_to_slugs($params['genres']);
             if (!empty($genre_slugs)) {
@@ -201,20 +201,14 @@ class Sisme_Search_Filters {
         // Filtres rapides
         if (!empty($params['quick_filter'])) {
             switch ($params['quick_filter']) {
-                case 'popular':
-                    $criteria['is_team_choice'] = true;
+                case 'featured':
+                    // $criteria['is_team_choice'] = true;
+                    break;
+                case 'upcoming':
+                    // Logique pour jeux à venir
                     break;
                 case 'new':
-                    $criteria['sort_by_date'] = true;
-                    $criteria['order'] = 'DESC';
-                    break;
-                case 'featured':
-                    $criteria['is_featured'] = true;
-                    break;
-                case 'exclusive':
-                    // Critère spécifique pour les exclusivités
-                    $criteria['meta_key'] = 'game_is_exclusive';
-                    $criteria['meta_value'] = 'yes';
+                    // Logique pour nouveautés
                     break;
             }
         }
@@ -511,17 +505,20 @@ class Sisme_Search_Filters {
         
         // Calculer les statistiques
         if (class_exists('Sisme_Cards_Functions')) {
-            $stats['popular'] = count(Sisme_Cards_Functions::get_games_by_criteria(array('is_team_choice' => true)));
-            $stats['new'] = count(Sisme_Cards_Functions::get_games_by_criteria(array('sort_by_date' => true, 'limit' => 30)));
-            $stats['featured'] = count(Sisme_Cards_Functions::get_games_by_criteria(array('is_featured' => true)));
-            $stats['exclusive'] = count(Sisme_Cards_Functions::get_games_by_criteria(array('meta_key' => 'game_is_exclusive', 'meta_value' => 'yes')));
+            $stats['popular'] = 0; // Métrique à créer plus tard
+            $stats['new'] = count(Sisme_Cards_Functions::get_games_by_criteria(array('sort_by_date' => true, 'limit' => 45)));
+            $stats['is_team_choice'] = count(Sisme_Cards_Functions::get_games_by_criteria(array('is_team_choice' => true)));
+            
+            // Jeux à venir (dates de sortie futures)
+            $stats['is_comming'] = self::count_upcoming_games();
+            
         } else {
-            // Valeurs par défaut
+            // Valeurs par défaut si Cards non disponible
             $stats = array(
-                'popular' => 24,
+                'popular' => 0,
                 'new' => 12,
-                'featured' => 8,
-                'exclusive' => 6
+                'is_team_choice' => 8,
+                'is_comming' => 6
             );
         }
         
@@ -529,6 +526,43 @@ class Sisme_Search_Filters {
         set_transient($cache_key, $stats, 3600);
         
         return $stats;
+    }
+
+    /**
+     * Compter les jeux avec dates de sortie à venir
+     * 
+     * @return int Nombre de jeux à venir
+     */
+    private static function count_upcoming_games() {
+        // Récupérer tous les jeux avec game_description (jeux complets)
+        $all_games = get_terms(array(
+            'taxonomy' => 'post_tag',
+            'hide_empty' => false,
+            'meta_query' => array(
+                array(
+                    'key' => 'game_description',
+                    'compare' => 'EXISTS'
+                )
+            )
+        ));
+        
+        if (is_wp_error($all_games) || empty($all_games)) {
+            return 0;
+        }
+        
+        $upcoming_count = 0;
+        $today = date('Y-m-d');
+        
+        foreach ($all_games as $game_term) {
+            $release_date = get_term_meta($game_term->term_id, 'release_date', true);
+            
+            // Vérifier si le jeu a une date de sortie future
+            if (!empty($release_date) && $release_date > $today) {
+                $upcoming_count++;
+            }
+        }
+        
+        return $upcoming_count;
     }
     
     /**

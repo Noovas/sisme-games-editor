@@ -227,21 +227,28 @@ class Sisme_Search_API {
         ob_start();
         ?>
         <div class="sisme-quick-filters" id="sismeQuickFilters">
-            <button class="sisme-quick-filter" data-filter="popular">
-                🔥 <?php esc_html_e('Populaires', 'sisme-games-editor'); ?> 
-                <span class="sisme-filter-count">(<?php echo self::get_quick_filter_count('popular'); ?>)</span>
-            </button>
-            <button class="sisme-quick-filter" data-filter="new">
-                🆕 <?php esc_html_e('Nouveautés', 'sisme-games-editor'); ?> 
-                <span class="sisme-filter-count">(<?php echo self::get_quick_filter_count('new'); ?>)</span>
-            </button>
-            <button class="sisme-quick-filter" data-filter="featured">
-                ⭐ <?php esc_html_e('Coups de cœur', 'sisme-games-editor'); ?> 
+            <!-- 💙 Coups de cœur (is_team_choice)  désactivé pour l'instant) -->
+            <button class="sisme-quick-filter" data-filter="featured" style="opacity: 0.6;" disabled title="Bientôt disponible">
+                💙 <?php esc_html_e('Coups de cœur', 'sisme-games-editor'); ?> 
                 <span class="sisme-filter-count">(<?php echo self::get_quick_filter_count('featured'); ?>)</span>
             </button>
-            <button class="sisme-quick-filter" data-filter="exclusive">
-                🎮 <?php esc_html_e('Exclusivités', 'sisme-games-editor'); ?> 
-                <span class="sisme-filter-count">(<?php echo self::get_quick_filter_count('exclusive'); ?>)</span>
+            
+            <!-- ⚡ Nouveautés -->
+            <button class="sisme-quick-filter" data-filter="new">
+                ⚡ <?php esc_html_e('Nouveautés', 'sisme-games-editor'); ?> 
+                <span class="sisme-filter-count">(<?php echo self::get_quick_filter_count('new'); ?>)</span>
+            </button>
+            
+            <!-- ⏳ À venir -->
+            <button class="sisme-quick-filter" data-filter="upcoming">
+                ⏳ <?php esc_html_e('À venir', 'sisme-games-editor'); ?> 
+                <span class="sisme-filter-count">(<?php echo self::get_quick_filter_count('upcoming'); ?>)</span>
+            </button>
+            
+            <!-- 🔥 Populaires (futur - désactivé pour l'instant) -->
+            <button class="sisme-quick-filter" data-filter="popular" style="opacity: 0.6;" disabled title="Bientôt disponible">
+                🔥 <?php esc_html_e('Populaires', 'sisme-games-editor'); ?> 
+                <span class="sisme-filter-count">(Bientôt)</span>
             </button>
         </div>
         <?php
@@ -924,18 +931,38 @@ class Sisme_Search_API {
     }
     
     /**
-     * Obtenir le nombre d'éléments pour les filtres rapides
+     * Obtenir le nombre d'éléments pour un filtre rapide
+     * 
+     * @param string $filter_type Type de filtre
+     * @return int Nombre d'éléments
      */
     private static function get_quick_filter_count($filter_type) {
-        // Placeholder - sera implémenté avec les vraies données
-        $counts = array(
-            'popular' => 24,
+        // Récupérer les stats depuis search-filters.php
+        if (class_exists('Sisme_Search_Filters')) {
+            $stats = Sisme_Search_Filters::get_quick_filter_stats();
+            
+            // Mapping des anciens noms vers les nouveaux
+            $mapping = array(
+                'popular' => 'popular',           // Métrique future (0 pour l'instant)
+                'new' => 'new',
+                'featured' => 'is_team_choice',
+                'upcoming' => 'is_comming'
+            );
+            
+            $stat_key = isset($mapping[$filter_type]) ? $mapping[$filter_type] : $filter_type;
+            
+            return isset($stats[$stat_key]) ? $stats[$stat_key] : 0;
+        }
+        
+        // Valeurs par défaut
+        $defaults = array(
+            'popular' => 0,       // Futur
             'new' => 12,
-            'featured' => 8,
-            'exclusive' => 6
+            'featured' => 8,      // Coups de cœur
+            'upcoming' => 6       // À venir
         );
         
-        return isset($counts[$filter_type]) ? $counts[$filter_type] : 0;
+        return isset($defaults[$filter_type]) ? $defaults[$filter_type] : 0;
     }
     
     /**
