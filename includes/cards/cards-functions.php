@@ -489,13 +489,41 @@ class Sisme_Cards_Functions {
 	            )
 	        )
 	    ));
-	    
-	    if (is_wp_error($all_games) || empty($all_games)) {
-	        if ($criteria['debug']) {
-	            error_log('[Sisme Cards Functions] Aucun jeu trouvé ou erreur');
-	        }
-	        return array();
-	    }
+
+	    if (!empty($criteria['search'])) {
+		    $search_term = sanitize_text_field($criteria['search']);
+		    $search_term = trim($search_term);
+		    
+		    if ($criteria['debug']) {
+		        error_log("[Sisme Cards] Recherche textuelle: '$search_term'");
+		        error_log("[Sisme Cards] Nombre de jeux avant recherche: " . count($all_games));
+		    }
+		    
+		    $search_filtered = array();
+		    
+		    foreach ($all_games as $game_term) {
+		        $found = false;
+
+		        if (stripos($game_term->name, $search_term) !== false) {
+		            $found = true;
+		            if ($criteria['debug']) {
+		                error_log("[Sisme Cards] Trouvé dans nom: {$game_term->name}");
+		            }
+		        }
+		        
+		        // Si trouvé, ajouter à la liste filtrée
+		        if ($found) {
+		            $search_filtered[] = $game_term;
+		        }
+		    }
+		    
+		    // Remplacer la liste des jeux par les résultats de recherche
+		    $all_games = $search_filtered;
+		    
+		    if ($criteria['debug']) {
+		        error_log("[Sisme Cards] Après recherche textuelle: " . count($all_games) . " jeux trouvés");
+		    }
+		}
 	    
 	    $filtered_games = array();
 	    
