@@ -57,12 +57,27 @@
     position: relative;
 }
 
+input#sismeSearchInput {
+    padding: 30px var(--sisme-space-xl);
+    border: none;
+    font-size: var(--sisme-size-icon-m);
+}
+
+
 .sisme-search-input-container {
+    background-color: var(--sisme-gaming-dark);
     display: flex;
+    border: solid 1px;
     gap: var(--sisme-space-sm);
     max-width: 600px;
     margin: 0 auto;
     position: relative;
+    padding: 10px;
+    align-items: center;
+    border-width: var(--theme-form-field-border-width, 1px);
+    border-style: var(--theme-form-field-border-style, solid);
+    border-color: var(--theme-form-field-border-initial-color);
+    border-radius: var(--has-classic-forms, var(--theme-form-field-border-radius, 3px));
 }
 
 .sisme-search-input {

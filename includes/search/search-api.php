@@ -79,9 +79,6 @@ class Sisme_Search_API {
             <p class="sisme-search-subtitle"><?php echo esc_html($validated_atts['hero_subtitle']); ?></p>
             <?php endif; ?>
             
-            <!-- Barre de recherche principale -->
-            <?php echo self::render_search_bar_html($current_params); ?>
-            
             <?php if ($validated_atts['show_suggestions']): ?>
             <!-- Tags suggestions populaires -->
             <?php echo self::render_popular_suggestions_html(); ?>
@@ -187,38 +184,6 @@ class Sisme_Search_API {
     }
     
     /**
-     * Rendu de la barre de recherche
-     */
-    private static function render_search_bar_html($current_params) {
-        ob_start();
-        ?>
-        <div class="sisme-search-bar">
-            <div class="sisme-search-input-container">
-                <input type="text" 
-                       id="sismeSearchInput" 
-                       class="sisme-search-input"
-                       placeholder="<?php esc_attr_e('Rechercher un jeu...', 'sisme-games-editor'); ?>"
-                       value="<?php echo esc_attr($current_params['query']); ?>"
-                       autocomplete="off">
-                <button type="button" class="sisme-search-btn" id="sismeSearchBtn">
-                    🔍 <?php esc_html_e('Rechercher', 'sisme-games-editor'); ?>
-                </button>
-            </div>
-            
-            <!-- Dropdown historique (caché par défaut) -->
-            <div class="sisme-search-history" id="sismeSearchHistory" style="display: none;">
-                <div class="sisme-history-header">
-                    <span><?php esc_html_e('🕒 Recherches récentes', 'sisme-games-editor'); ?></span>
-                    <button class="sisme-history-clear" title="<?php esc_attr_e('Vider l\'historique', 'sisme-games-editor'); ?>">✕</button>
-                </div>
-                <div class="sisme-history-list"></div>
-            </div>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-    
-    /**
      * Rendu des suggestions populaires
      */
     private static function render_popular_suggestions_html() {
@@ -290,6 +255,27 @@ class Sisme_Search_API {
         ob_start();
         ?>
         <div class="sisme-search-filters" id="sismeSearchFilters">
+            <!-- BARRE DE RECHERCHE INTÉGRÉE -->
+            <div class="sisme-search-input-container">    
+                <input type="text" 
+                       id="sismeSearchInput" 
+                       class="sisme-search-input-name"
+                       placeholder="<?php esc_attr_e('Rechercher un jeu...', 'sisme-games-editor'); ?>"
+                       value="<?php echo esc_attr($current_params['query']); ?>"
+                       autocomplete="off">
+                <button type="button" class="sisme-search-btn" id="sismeSearchBtn">
+                    🔍 <?php esc_html_e('Rechercher', 'sisme-games-editor'); ?>
+                </button>
+                <!-- Dropdown historique (caché par défaut) -->
+                <div class="sisme-search-history" id="sismeSearchHistory" style="display: none;">
+                    <div class="sisme-history-header">
+                        <span><?php esc_html_e('🕒 Recherches récentes', 'sisme-games-editor'); ?></span>
+                        <button class="sisme-history-clear" title="<?php esc_attr_e('Vider l\'historique', 'sisme-games-editor'); ?>">✕</button>
+                    </div>
+                    <div class="sisme-history-list"></div>
+                </div>
+            </div>
+
             <div class="sisme-filters-header">
                 <h3 class="sisme-filters-title"><?php esc_html_e('🎛️ Filtres Avancés', 'sisme-games-editor'); ?></h3>
                 <button class="sisme-filters-toggle" id="sismeFiltersToggle">
@@ -300,7 +286,6 @@ class Sisme_Search_API {
             
             <div class="sisme-filters-content" id="sismeFiltersContent">
                 <div class="sisme-filters-row">
-                    
                     <!-- Filtre Genres -->
                     <div class="sisme-filter-group" data-filter="genres">
                         <label class="sisme-filter-label"><?php esc_html_e('🎮 Genres', 'sisme-games-editor'); ?></label>
