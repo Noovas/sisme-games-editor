@@ -401,20 +401,178 @@ class Sisme_Search_API {
     
     /**
      * Rendu de l'état initial des résultats
+     * Affiche tous les jeux par défaut au lieu d'un état vide
      */
     private static function render_initial_results_state($current_params) {
-        // Si on a une recherche active, essayer d'afficher les résultats
         if (!empty($current_params['query']) || !empty($current_params['genres']) || !empty($current_params['platforms'])) {
             return self::render_search_results_html($current_params);
         }
+        return self::render_all_games_default($current_params);
+    }
+
+    /**
+     * 🚀 Afficher tous les jeux par défaut
+     * 
+     * @param array $current_params Paramètres courants
+     * @return string HTML avec tous les jeux
+     */
+    private static function render_all_games_default($current_params) {
+        // Paramètres par défaut pour récupérer tous les jeux
+        $default_search_params = array(
+            'query' => '',
+            'genres' => array(),
+            'platforms' => array(),
+            'status' => '',
+            'quick_filter' => '',
+            'sort' => 'name_asc',  // Tri alphabétique par défaut
+            'page' => 1,
+            'per_page' => 12       // Affichage paginé
+        );
         
-        // Sinon, afficher l'état vide
+        // Vérifier que le module de filtres est disponible
+        if (!class_exists('Sisme_Search_Filters')) {
+            return self::render_fallback_games_list();
+        }
+        
+        try {
+            // Effectuer la recherche "tous les jeux"
+            $results = Sisme_Search_Filters::perform_search($default_search_params);
+            
+            // Si aucun jeu trouvé, afficher un message
+            if (empty($results['games'])) {
+                return self::render_no_games_available();
+            }
+            
+            // Générer le HTML avec les résultats
+            ob_start();
+            ?>
+            <div class="sisme-search-results-container">
+                <!-- Compteur de résultats visible -->
+                <div class="sisme-search-counter" style="display: block;">
+                    <strong><?php echo sprintf(_n('%d jeu disponible', '%d jeux disponibles', $results['total'], 'sisme-games-editor'), $results['total']); ?></strong>
+                    <span class="sisme-counter-subtitle"><?php esc_html_e('Utilisez les filtres pour affiner votre recherche', 'sisme-games-editor'); ?></span>
+                </div>
+                
+                <!-- Grille des jeux -->
+                <?php echo self::render_games_grid($results['games'], 'grid'); ?>
+                
+                <!-- Pagination si nécessaire -->
+                <?php if ($results['has_more']): ?>
+                    <div class="sisme-search-pagination">
+                        <button class="sisme-load-more" id="sismeLoadMore" style="display: block;">
+                            📚 <?php esc_html_e('Charger plus de jeux', 'sisme-games-editor'); ?>
+                        </button>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <?php
+            return ob_get_clean();
+            
+        } catch (Exception $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Sisme Search: Error loading default games: ' . $e->getMessage());
+            }
+            
+            return self::render_fallback_games_list();
+        }
+    }
+
+    /**
+     * 🔧 FALLBACK: Liste simple si le système Cards n'est pas disponible
+     */
+    private static function render_fallback_games_list() {
+        // Récupérer les jeux directement depuis les terms
+        $games = get_terms(array(
+            'taxonomy' => 'post_tag',
+            'hide_empty' => false,
+            'meta_query' => array(
+                array(
+                    'key' => 'game_description',
+                    'compare' => 'EXISTS'
+                )
+            ),
+            'number' => 12,
+            'orderby' => 'name',
+            'order' => 'ASC'
+        ));
+        
+        if (empty($games)) {
+            return self::render_no_games_available();
+        }
+        
+        ob_start();
+        ?>
+        <div class="sisme-search-results-container">
+            <div class="sisme-search-counter" style="display: block;">
+                <strong><?php echo sprintf(_n('%d jeu disponible', '%d jeux disponibles', count($games), 'sisme-games-editor'), count($games)); ?></strong>
+                <span class="sisme-counter-subtitle"><?php esc_html_e('Liste des jeux (mode fallback)', 'sisme-games-editor'); ?></span>
+            </div>
+            
+            <div class="sisme-search-grid sisme-fallback-grid">
+                <?php foreach ($games as $game): ?>
+                    <div class="sisme-search-card sisme-fallback-card">
+                        <h3><?php echo esc_html($game->name); ?></h3>
+                        <p><?php echo esc_html(wp_trim_words(get_term_meta($game->term_id, 'game_description', true), 20)); ?></p>
+                        <div class="sisme-card-meta">
+                            <span><?php echo sprintf(__('ID: %d', 'sisme-games-editor'), $game->term_id); ?></span>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * 📭 Message quand aucun jeu n'est disponible
+     */
+    private static function render_no_games_available() {
         ob_start();
         ?>
         <div class="sisme-search-empty-state" id="sismeEmptyState">
             <div class="sisme-empty-icon">🎮</div>
-            <h3><?php esc_html_e('Recherchez votre jeu', 'sisme-games-editor'); ?></h3>
-            <p><?php esc_html_e('Utilisez la barre de recherche ci-dessus pour trouver des jeux', 'sisme-games-editor'); ?></p>
+            <h3><?php esc_html_e('Aucun jeu disponible', 'sisme-games-editor'); ?></h3>
+            <p><?php esc_html_e('Il semble qu\'aucun jeu ne soit encore configuré dans le système.', 'sisme-games-editor'); ?></p>
+            <p><a href="<?php echo admin_url('admin.php?page=sisme-games-game-data'); ?>" class="sisme-btn sisme-btn--primary">
+                <?php esc_html_e('Ajouter des jeux', 'sisme-games-editor'); ?>
+            </a></p>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * 🎮 Générer la grille des jeux avec le système Cards
+     * 
+     * @param array $games Données des jeux
+     * @param string $view_type Type de vue (grid/list)
+     * @return string HTML de la grille
+     */
+    private static function render_games_grid($games, $view_type = 'grid') {
+        if (empty($games)) {
+            return '';
+        }
+        
+        // Vérifier que l'API Cards est disponible
+        if (!class_exists('Sisme_Cards_API')) {
+            return '<p>' . __('Erreur: Système de cartes non disponible', 'sisme-games-editor') . '</p>';
+        }
+        
+        $grid_class = ($view_type === 'list') ? 'sisme-search-list' : 'sisme-search-grid';
+        $card_type = ($view_type === 'list') ? 'details' : 'normal';
+        
+        ob_start();
+        ?>
+        <div class="<?php echo esc_attr($grid_class); ?>" id="sismeSearchGrid">
+            <?php foreach ($games as $game): ?>
+                <div class="sisme-search-card">
+                    <?php 
+                    // Utiliser l'API Cards pour le rendu
+                    echo Sisme_Cards_API::render_card($game, $card_type);
+                    ?>
+                </div>
+            <?php endforeach; ?>
         </div>
         <?php
         return ob_get_clean();
@@ -422,15 +580,130 @@ class Sisme_Search_API {
     
     /**
      * Rendu des résultats de recherche
+     * 🚀 Utilise le système Filters + Cards pour les vrais résultats
+     * 
+     * @param array $search_params Paramètres de recherche
+     * @return string HTML des résultats
      */
     private static function render_search_results_html($search_params) {
-        // Cette méthode sera complétée quand on aura les modules de filtres
-        // Pour l'instant, on retourne un placeholder
+        // Vérifier que le module de filtres est disponible
+        if (!class_exists('Sisme_Search_Filters')) {
+            return '<div class="sisme-search-error"><p>' . __('Erreur: Module de filtres non disponible', 'sisme-games-editor') . '</p></div>';
+        }
+        
+        try {
+            // Effectuer la recherche avec les paramètres
+            $results = Sisme_Search_Filters::perform_search($search_params);
+            
+            // Si aucun résultat
+            if (empty($results['games'])) {
+                return self::render_no_results_html($search_params);
+            }
+            
+            // Déterminer le type de vue
+            $view_type = $search_params['view'] ?? 'grid';
+            
+            // Générer le HTML complet
+            ob_start();
+            ?>
+            <div class="sisme-search-results-container">
+                <!-- Compteur de résultats -->
+                <div class="sisme-search-counter" style="display: block;">
+                    <strong>
+                        <?php 
+                        echo Sisme_Search_Filters::get_search_summary($search_params, $results['total']);
+                        ?>
+                    </strong>
+                    <?php if (!empty($search_params['query']) || !empty($search_params['genres'])): ?>
+                        <button class="sisme-clear-search" onclick="window.location.reload();">
+                            <?php esc_html_e('🔄 Effacer les filtres', 'sisme-games-editor'); ?>
+                        </button>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- Grille des résultats -->
+                <?php echo self::render_games_grid($results['games'], $view_type); ?>
+                
+                <!-- Pagination -->
+                <?php if ($results['has_more']): ?>
+                    <div class="sisme-search-pagination">
+                        <button class="sisme-load-more" id="sismeLoadMore" 
+                                data-page="<?php echo esc_attr($results['page'] + 1); ?>"
+                                data-total-pages="<?php echo esc_attr($results['total_pages']); ?>"
+                                style="display: block;">
+                            📚 <?php esc_html_e('Charger plus de jeux', 'sisme-games-editor'); ?>
+                            <span class="sisme-load-more-info">
+                                (<?php echo sprintf(__('Page %d sur %d', 'sisme-games-editor'), $results['page'], $results['total_pages']); ?>)
+                            </span>
+                        </button>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <?php
+            return ob_get_clean();
+            
+        } catch (Exception $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Sisme Search: Error in render_search_results_html: ' . $e->getMessage());
+            }
+            
+            return '<div class="sisme-search-error"><p>' . __('Erreur lors de la recherche', 'sisme-games-editor') . '</p></div>';
+        }
+    }
+
+    /**
+     * 📭 Rendu quand aucun résultat trouvé
+     * 
+     * @param array $search_params Paramètres de recherche
+     * @return string HTML pour aucun résultat
+     */
+    private static function render_no_results_html($search_params) {
         ob_start();
         ?>
-        <div class="sisme-search-grid" id="sismeSearchGrid">
-            <p><?php esc_html_e('Résultats de recherche (à implémenter)', 'sisme-games-editor'); ?></p>
-            <p><?php esc_html_e('Paramètres:', 'sisme-games-editor'); ?> <?php echo esc_html(json_encode($search_params)); ?></p>
+        <div class="sisme-search-no-results">
+            <div class="sisme-empty-icon">🔍</div>
+            <h3><?php esc_html_e('Aucun jeu trouvé', 'sisme-games-editor'); ?></h3>
+            
+            <?php if (!empty($search_params['query'])): ?>
+                <p><?php echo sprintf(__('Aucun résultat pour "%s"', 'sisme-games-editor'), esc_html($search_params['query'])); ?></p>
+            <?php else: ?>
+                <p><?php esc_html_e('Aucun jeu ne correspond aux filtres sélectionnés', 'sisme-games-editor'); ?></p>
+            <?php endif; ?>
+            
+            <!-- Suggestions alternatives -->
+            <div class="sisme-no-results-suggestions">
+                <h4><?php esc_html_e('Suggestions :', 'sisme-games-editor'); ?></h4>
+                <ul>
+                    <li><?php esc_html_e('Vérifiez l\'orthographe', 'sisme-games-editor'); ?></li>
+                    <li><?php esc_html_e('Essayez des mots-clés plus généraux', 'sisme-games-editor'); ?></li>
+                    <li><?php esc_html_e('Réduisez le nombre de filtres', 'sisme-games-editor'); ?></li>
+                </ul>
+                
+                <button class="sisme-btn sisme-btn--secondary" onclick="window.location.reload();">
+                    <?php esc_html_e('🔄 Voir tous les jeux', 'sisme-games-editor'); ?>
+                </button>
+            </div>
+            
+            <!-- Suggestions populaires -->
+            <?php 
+            if (class_exists('Sisme_Search_Suggestions')) {
+                $popular = Sisme_Search_Suggestions::get_popular_searches(5);
+                if (!empty($popular)): 
+            ?>
+                <div class="sisme-popular-alternatives">
+                    <h4><?php esc_html_e('Recherches populaires :', 'sisme-games-editor'); ?></h4>
+                    <div class="sisme-popular-tags">
+                        <?php foreach ($popular as $term => $display): ?>
+                            <button class="sisme-popular-tag" data-term="<?php echo esc_attr($term); ?>">
+                                <?php echo esc_html($display); ?>
+                            </button>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php 
+                endif;
+            }
+            ?>
         </div>
         <?php
         return ob_get_clean();
