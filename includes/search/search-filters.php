@@ -380,13 +380,11 @@ class Sisme_Search_Filters {
         if (empty($games)) {
             return $games;
         }
-        
-        // Si pas de tri spécifique ou tri par pertinence, garder l'ordre Cards
+    
         if (empty($sort_type) || $sort_type === 'relevance') {
             return $games;
         }
         
-        // Pour les autres tris, on doit récupérer les données
         switch ($sort_type) {
             case 'name_asc':
                 usort($games, function($id_a, $id_b) {
@@ -408,7 +406,7 @@ class Sisme_Search_Filters {
                 usort($games, function($id_a, $id_b) {
                     $date_a = get_term_meta($id_a, 'release_date', true) ?: '1970-01-01';
                     $date_b = get_term_meta($id_b, 'release_date', true) ?: '1970-01-01';
-                    return strcmp($date_b, $date_a); // Plus récent en premier
+                    return strcmp($date_b, $date_a);
                 });
                 break;
                 
@@ -416,74 +414,15 @@ class Sisme_Search_Filters {
                 usort($games, function($id_a, $id_b) {
                     $date_a = get_term_meta($id_a, 'release_date', true) ?: '1970-01-01';
                     $date_b = get_term_meta($id_b, 'release_date', true) ?: '1970-01-01';
-                    return strcmp($date_a, $date_b); // Plus ancien en premier
+                    return strcmp($date_a, $date_b);
                 });
                 break;
                 
             default:
-                // Tri non reconnu, garder l'ordre original
                 break;
         }
         
-        // Debug pour vérifier le tri
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            $sample_names = array();
-            foreach (array_slice($games, 0, 3) as $id) {
-                $term = get_term($id);
-                $sample_names[] = $term ? $term->name : "ID $id";
-            }
-            
-            // Debug en console JavaScript
-            ?>
-            <script>
-            console.group('🔄 Sisme Search - Tri <?php echo esc_js($sort_type); ?>');
-            console.log('Échantillon résultat:', <?php echo json_encode($sample_names); ?>);
-            console.log('Nombre total:', <?php echo count($games); ?>);
-            console.groupEnd();
-            </script>
-            <?php
-        }
-        
         return $games;
-    }
-
-    /**
-     * 🚀 BONUS: Méthode pour tester le tri en console
-     * À utiliser temporairement pour vérifier le fonctionnement
-     */
-    public static function debug_sorting($games, $sort_type) {
-        if (!defined('WP_DEBUG') || !WP_DEBUG) {
-            return;
-        }
-        
-        $sorted = self::apply_sorting($games, $sort_type);
-        
-        // Récupérer les noms pour affichage
-        $names_before = array();
-        $names_after = array();
-        
-        foreach (array_slice($games, 0, 5) as $id) {
-            $term = get_term($id);
-            $names_before[] = $term ? $term->name : "ID $id";
-        }
-        
-        foreach (array_slice($sorted, 0, 5) as $id) {
-            $term = get_term($id);
-            $names_after[] = $term ? $term->name : "ID $id";
-        }
-        
-        // Affichage en console JavaScript
-        ?>
-        <script>
-        console.group('🧪 Debug Tri Détaillé - <?php echo esc_js($sort_type); ?>');
-        console.log('IDs avant:', <?php echo json_encode(array_slice($games, 0, 5)); ?>);
-        console.log('IDs après:', <?php echo json_encode(array_slice($sorted, 0, 5)); ?>);
-        console.log('Noms avant:', <?php echo json_encode($names_before); ?>);
-        console.log('Noms après:', <?php echo json_encode($names_after); ?>);
-        console.log('Tri appliqué:', '<?php echo esc_js($sort_type); ?>');
-        console.groupEnd();
-        </script>
-        <?php
     }
     
     /**
