@@ -18,7 +18,8 @@ define('SISME_GAMES_EDITOR_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SISME_GAMES_EDITOR_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('SISME_GAMES_MODULES', array(
     "vedettes", 
-    "cards"
+    "cards",
+    'search'
 ));
 
 class SismeGamesEditor {
@@ -57,6 +58,9 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/cards/cards-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/tools/emoji-helper.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/search/search-loader.php';
+
+
     }
 
     public function add_admin_menu() {
