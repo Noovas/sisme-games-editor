@@ -410,13 +410,13 @@
 /* Mobile : Maximum 2 cartes */
 @media (max-width: 768px) {
     .sisme-cards-carousel {
-        padding: 0 10px;
+        padding: 10px;
     }
     
     /* Toutes les configurations → maximum 2 cartes sur mobile */
     .sisme-cards-carousel[data-cards-per-view="4"] .sisme-carousel__slide,
     .sisme-cards-carousel[data-cards-per-view="5"] .sisme-carousel__slide {
-        flex: 0 0 50% !important; /* 2 cartes max */
+        flex: 0 0 100% !important; /* 2 cartes max */
     }
     
     /* 3 cartes → 1 carte sur mobile */
@@ -426,7 +426,7 @@
     
     /* 2 cartes → reste 2 cartes sur mobile */
     .sisme-cards-carousel[data-cards-per-view="2"] .sisme-carousel__slide {
-        flex: 0 0 50% !important; /* Garde 2 cartes */
+        flex: 0 0 100% !important; /* Garde 2 cartes */
     }
     
     .sisme-carousel__slide {
@@ -435,7 +435,7 @@
     
     .sisme-carousel__slide:first-child,
     .sisme-carousel__slide:last-child {
-        padding: 0 8px; /* Même padding sur mobile */
+        padding: 10px;
     }
     
     .sisme-carousel__btn {
