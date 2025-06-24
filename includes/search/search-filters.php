@@ -195,7 +195,11 @@ class Sisme_Search_Filters {
         
         // Statut de sortie
         if (!empty($params['status'])) {
-            $criteria['released'] = ($params['status'] === 'released') ? 1 : 0;
+            if ($params['status'] === 'released') {
+                $criteria['released'] = 1;  // Jeux sortis
+            } elseif ($params['status'] === 'upcoming') {
+                $criteria['released'] = -1; // Jeux à venir
+            }
         }
         
         // Filtres rapides
