@@ -10,11 +10,11 @@ class SismeFrontendTooltip {
         
         // 🎯 Classes spécifiques Sisme Games Editor qui peuvent avoir des tooltips
         this.allowedClasses = [
-            'sisme-badge-platform',     // Plateformes (fiches + cartes)
-            'sisme-store-icon',        // Icônes boutiques 
-            'sisme-tooltip-enabled',   // Classe générique pour activer tooltip
-            'sisme-action-btn',        // Boutons d'action
-            'sisme-info-icon'          // Icônes d'information
+            'sisme-badge-platform',
+            'sisme-store-icon',
+            'sisme-tooltip-enabled',
+            'sisme-action-btn',
+            'sisme-info-icon'
         ];
         
         this.init();

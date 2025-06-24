@@ -122,9 +122,9 @@ class Sisme_Cards_API {
             'max_cards' => -1,                     // Nombre max (-1 = illimité)
             'genres' => array(),                   // Liste des genres
             'is_team_choice' => false,             // Choix équipe (à venir)
-            'sort_by_date' => true,                // Tri par date de sortie
-            'container_class' => '',               // Classe CSS personnalisée
-            'debug' => false                       // Mode debug
+            'sort_by_date' => true,
+            'container_class' => '',
+            'debug' => false
         );
         
         // Fusionner et valider les paramètres
@@ -431,7 +431,7 @@ add_shortcode('game_cards_grid', function($atts) {
         'max_genres' => intval($atts['max_genres']),
         'max_modes' => intval($atts['max_modes']),
         'title' => sanitize_text_field($atts['title']),
-        'released' => intval($atts['released'])  // NOUVEAU
+        'released' => intval($atts['released']) 
     );
     
     return Sisme_Cards_API::render_cards_grid($args);
@@ -450,7 +450,8 @@ add_shortcode('debug_cards_grid', function($atts) {
         'genres' => '',
         'is_team_choice' => 'false',
         'sort_by_date' => 'true',
-        'container_class' => ''
+        'container_class' => '',
+        'released' => '0'
     ), $atts);
     
     // Préparer les arguments
@@ -461,7 +462,8 @@ add_shortcode('debug_cards_grid', function($atts) {
         'genres' => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
         'is_team_choice' => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
         'sort_by_date' => filter_var($atts['sort_by_date'], FILTER_VALIDATE_BOOLEAN),
-        'container_class' => sanitize_html_class($atts['container_class'])
+        'container_class' => sanitize_html_class($atts['container_class']),
+        'released' => intval($atts['released'])
     );
     
     return Sisme_Cards_API::debug_grid($args);
@@ -545,7 +547,7 @@ add_shortcode('game_cards_carousel', function($atts) {
         'max_modes' => intval($atts['max_modes']),
         'type' => sanitize_text_field($atts['type']),
         'title' => sanitize_text_field($atts['title']),
-        'released' => intval($atts['released'])  // NOUVEAU (avec validation int)
+        'released' => intval($atts['released'])
     );
     
     return Sisme_Cards_API::render_cards_carousel($args);

@@ -79,16 +79,6 @@ class Sisme_Search_API {
             <p class="sisme-search-subtitle"><?php echo esc_html($validated_atts['hero_subtitle']); ?></p>
             <?php endif; ?>
             
-            <?php if ($validated_atts['show_suggestions']): ?>
-            <!-- Tags suggestions populaires -->
-            <?php echo self::render_popular_suggestions_html(); ?>
-            <?php endif; ?>
-            
-            <?php if ($validated_atts['show_quick_filters']): ?>
-            <!-- Badges filtres rapides -->
-            <?php echo self::render_quick_filters_html(); ?>
-            <?php endif; ?>
-            
             <?php if ($validated_atts['show_filters']): ?>
             <!-- Filtres avancés -->
             <?php echo self::render_advanced_filters_html($current_params); ?>
@@ -184,43 +174,6 @@ class Sisme_Search_API {
     }
     
     /**
-     * Rendu des suggestions populaires
-     */
-    private static function render_popular_suggestions_html() {
-        // Récupérer les suggestions depuis le module dédié
-        $suggestions = array();
-        if (class_exists('Sisme_Search_Suggestions')) {
-            $suggestions = Sisme_Search_Suggestions::get_popular_searches();
-        }
-        
-        // Suggestions par défaut si pas de classe
-        if (empty($suggestions)) {
-            $suggestions = array(
-                'Action' => 'Action',
-                'RPG' => 'RPG', 
-                'PlayStation 5' => 'PlayStation 5',
-                '2024' => '2024',
-                'Multijoueur' => 'Multijoueur'
-            );
-        }
-        
-        ob_start();
-        ?>
-        <div class="sisme-popular-searches" id="sismePopularSearches">
-            <p class="sisme-popular-label"><?php esc_html_e('🔥 Recherches populaires:', 'sisme-games-editor'); ?></p>
-            <div class="sisme-popular-tags">
-                <?php foreach ($suggestions as $term => $display): ?>
-                <button class="sisme-popular-tag" data-term="<?php echo esc_attr($term); ?>">
-                    <?php echo esc_html($display); ?>
-                </button>
-                <?php endforeach; ?>
-            </div>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-    
-    /**
      * Rendu des filtres rapides
      */
     private static function render_quick_filters_html() {
@@ -228,25 +181,13 @@ class Sisme_Search_API {
         ?>
         <div class="sisme-quick-filters" id="sismeQuickFilters">
             <!-- 💙 Coups de cœur (is_team_choice)  désactivé pour l'instant) -->
-            <button class="sisme-quick-filter" data-filter="featured" style="opacity: 0.6;" disabled title="Bientôt disponible">
+            <button class="sisme-quick-filter sisme-tooltip-enabled" data-filter="featured" style="opacity: 0.6;" disabled title="Bientôt disponible">
                 💙 <?php esc_html_e('Coups de cœur', 'sisme-games-editor'); ?> 
                 <span class="sisme-filter-count">(<?php echo self::get_quick_filter_count('featured'); ?>)</span>
             </button>
-            
-            <!-- ⚡ Nouveautés -->
-            <button class="sisme-quick-filter" data-filter="new">
-                ⚡ <?php esc_html_e('Nouveautés', 'sisme-games-editor'); ?> 
-                <span class="sisme-filter-count">(<?php echo self::get_quick_filter_count('new'); ?>)</span>
-            </button>
-            
-            <!-- ⏳ À venir -->
-            <button class="sisme-quick-filter" data-filter="upcoming">
-                ⏳ <?php esc_html_e('À venir', 'sisme-games-editor'); ?> 
-                <span class="sisme-filter-count">(<?php echo self::get_quick_filter_count('upcoming'); ?>)</span>
-            </button>
-            
+                        
             <!-- 🔥 Populaires (futur - désactivé pour l'instant) -->
-            <button class="sisme-quick-filter" data-filter="popular" style="opacity: 0.6;" disabled title="Bientôt disponible">
+            <button class="sisme-quick-filter sisme-tooltip-enabled" data-filter="popular" style="opacity: 0.6;" disabled title="Bientôt disponible">
                 🔥 <?php esc_html_e('Populaires', 'sisme-games-editor'); ?> 
                 <span class="sisme-filter-count">(Bientôt)</span>
             </button>
@@ -332,15 +273,17 @@ class Sisme_Search_API {
                     </div>
                     
                 </div>
-                
-                <!-- Actions filtres -->
-                <div class="sisme-filters-actions">
-                    <button type="button" class="sisme-filter-apply" id="sismeApplyFilters">
-                        ✅ <?php esc_html_e('Appliquer', 'sisme-games-editor'); ?>
-                    </button>
-                    <button type="button" class="sisme-filter-reset" id="sismeResetFilters">
-                        🔄 <?php esc_html_e('Réinitialiser', 'sisme-games-editor'); ?>
-                    </button>
+                <div class="sisme-filter-footer sisme-flex-row">
+                    <?php echo self::render_quick_filters_html(); ?>
+                    <!-- Actions filtres -->
+                    <div class="sisme-filters-actions">
+                        <button type="button" class="sisme-filter-apply" id="sismeApplyFilters">
+                            ✅ <?php esc_html_e('Appliquer', 'sisme-games-editor'); ?>
+                        </button>
+                        <button type="button" class="sisme-filter-reset" id="sismeResetFilters">
+                            🔄 <?php esc_html_e('Réinitialiser', 'sisme-games-editor'); ?>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

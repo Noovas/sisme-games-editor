@@ -204,11 +204,14 @@ class Sisme_Search_Filters {
                 case 'featured':
                     // $criteria['is_team_choice'] = true;
                     break;
+
                 case 'upcoming':
-                    // Logique pour jeux à venir
+                    $criteria['released'] = -1; // Jeux pas encore sortis
                     break;
+
                 case 'new':
-                    // Logique pour nouveautés
+                    $criteria['sort_by_date'] = true;
+                    $criteria['max_results'] = 45; // Comme dans vos stats
                     break;
             }
         }
@@ -506,11 +509,7 @@ class Sisme_Search_Filters {
         // Calculer les statistiques
         if (class_exists('Sisme_Cards_Functions')) {
             $stats['popular'] = 0; // Métrique à créer plus tard
-            $stats['new'] = count(Sisme_Cards_Functions::get_games_by_criteria(array('sort_by_date' => true, 'limit' => 45)));
-            $stats['is_team_choice'] = count(Sisme_Cards_Functions::get_games_by_criteria(array('is_team_choice' => true)));
-            
-            // Jeux à venir (dates de sortie futures)
-            $stats['is_comming'] = self::count_upcoming_games();
+            $stats['is_team_choice'] = 0; // Bientôt Dispo
             
         } else {
             // Valeurs par défaut si Cards non disponible
