@@ -49,7 +49,7 @@ class Sisme_Search_API {
             'results_per_page' => '12',
             'default_view' => 'grid',
             'container_class' => 'sisme-search-interface',
-            'hero_title' => '🎮 Recherche de Jeux Gaming',
+            'hero_title' => '🔍 Recherche de Jeux indé',
             'hero_subtitle' => 'Trouvez vos jeux préférés parmi notre collection'
         );
         
@@ -75,10 +75,8 @@ class Sisme_Search_API {
             
             <?php if ($validated_atts['show_hero']): ?>
             <!-- Hero Section -->
-            <section class="sisme-search-hero">
-                <h1 class="sisme-search-title"><?php echo esc_html($validated_atts['hero_title']); ?></h1>
-                <p class="sisme-search-subtitle"><?php echo esc_html($validated_atts['hero_subtitle']); ?></p>
-            </section>
+            <h2 class="sisme-search-title"><?php echo esc_html($validated_atts['hero_title']); ?></h2>
+            <p class="sisme-search-subtitle"><?php echo esc_html($validated_atts['hero_subtitle']); ?></p>
             <?php endif; ?>
             
             <!-- Barre de recherche principale -->

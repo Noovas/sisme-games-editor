@@ -15,17 +15,6 @@
     margin-bottom: var(--sisme-space-2xl, 48px);
 }
 
-.sisme-carousel-section-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: linear-gradient(45deg, var(--sisme-gaming-accent, #66c0f4), var(--sisme-color-secondary, #D4A373));
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: 0;
-    position: relative;
-}
-
 .sisme-carousel-section-title.with-emoji::before {
     content: attr(data-emoji);
     margin-right: 0.5em;

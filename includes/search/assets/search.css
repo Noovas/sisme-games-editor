@@ -29,18 +29,11 @@
     animation: heroFadeIn 0.8s ease-out;
 }
 
-.sisme-search-title {
-    color: var(--sisme-gaming-text-bright);
-    font-size: 2.5rem;
-    margin-bottom: var(--sisme-space-md);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    font-weight: 700;
-}
-
 .sisme-search-subtitle {
+    text-align: center;
     color: var(--sisme-gaming-text-muted);
     font-size: 1.1rem;
-    margin: 0;
+    margin-bottom: 20px;
     opacity: 0.9;
 }
 
@@ -744,7 +737,6 @@
 
 .sisme-search-card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--sisme-shadow-gaming-hover), var(--sisme-shadow-neon-vert);
 }
 
 @keyframes resultsAppear {

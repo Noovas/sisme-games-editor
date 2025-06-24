@@ -16,6 +16,22 @@ body,
     background-color: var(--sisme-gaming-dark) !important;
 }
 
+/* ========================================
+   🎯 TITRES 
+======================================== */
+
+.sisme-carousel-section-title,
+.sisme-search-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, var(--sisme-gaming-accent, #66c0f4), var(--sisme-color-secondary, #D4A373));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    position: relative;
+}
 
 /* ========================================
    🎯 BADGES 
