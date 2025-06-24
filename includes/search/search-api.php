@@ -440,26 +440,71 @@ class Sisme_Search_API {
      * Générer les checkboxes des genres
      */
     private static function render_genres_checkboxes($selected_genres) {
-        // Récupérer les genres depuis WordPress
-        $genres = get_categories(array(
-            'taxonomy' => 'category',
-            'hide_empty' => false,
-            'orderby' => 'name',
-            'order' => 'ASC'
-        ));
+        // Récupérer SEULEMENT les genres enfants de la catégorie "jeux-vidéo"
+        $parent_category = get_category_by_slug('jeux-vidéo');
+        
+        if ($parent_category) {
+            // Récupérer les catégories enfants de "jeux-vidéo"
+            $genres = get_categories(array(
+                'taxonomy' => 'category',
+                'parent' => $parent_category->term_id,
+                'hide_empty' => false,
+                'orderby' => 'name',
+                'order' => 'ASC'
+            ));
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Sisme Search: Found ' . count($genres) . ' game genres under "jeux-vidéo" category');
+            }
+        } else {
+            $genres = array();
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Sisme Search: Parent category "jeux-vidéo" not found');
+            }
+        }
         
         ob_start();
-        foreach ($genres as $genre) {
-            $is_selected = in_array($genre->term_id, $selected_genres);
-            $genre_name = str_replace('jeux-', '', $genre->name); // Nettoyer le nom
-            ?>
-            <label class="sisme-checkbox-item">
-                <input type="checkbox" 
-                       value="<?php echo esc_attr($genre->term_id); ?>" 
-                       <?php checked($is_selected); ?>>
-                <?php echo esc_html($genre_name); ?>
-            </label>
-            <?php
+        if (!empty($genres)) {
+            foreach ($genres as $genre) {
+                $is_selected = in_array($genre->term_id, $selected_genres);
+                // Nettoyer le nom en supprimant le préfixe "jeux-" s'il existe
+                $genre_name = preg_replace('/^jeux-/i', '', $genre->name);
+                $genre_name = ucfirst(trim($genre_name)); // Première lettre en majuscule et trim
+                ?>
+                <label class="sisme-checkbox-item">
+                    <input type="checkbox" 
+                           value="<?php echo esc_attr($genre->term_id); ?>" 
+                           <?php checked($is_selected); ?>>
+                    <?php echo esc_html($genre_name); ?>
+                </label>
+                <?php
+            }
+        } else {
+            // Genres par défaut si aucun trouvé
+            $default_genres = array(
+                'action' => 'Action',
+                'rpg' => 'RPG',
+                'aventure' => 'Aventure',
+                'strategie' => 'Stratégie',
+                'simulation' => 'Simulation',
+                'fps' => 'FPS',
+                'plateforme' => 'Plateforme',
+                'course' => 'Course'
+            );
+            
+            foreach ($default_genres as $key => $name) {
+                ?>
+                <label class="sisme-checkbox-item">
+                    <input type="checkbox" value="<?php echo esc_attr($key); ?>">
+                    <?php echo esc_html($name); ?>
+                </label>
+                <?php
+            }
+            
+            // Message informatif en mode debug
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                echo '<p style="color: orange; font-size: 0.8em; margin: 10px;">DEBUG: Utilisation des genres par défaut - Vérifiez la catégorie parent "jeux-vidéo"</p>';
+            }
         }
         return ob_get_clean();
     }
@@ -468,16 +513,11 @@ class Sisme_Search_API {
      * Générer les checkboxes des plateformes
      */
     private static function render_platforms_checkboxes($selected_platforms) {
-        // Plateformes prédéfinies
+        // Plateformes simplifiées
         $platforms = array(
             'pc' => 'PC',
-            'ps5' => 'PlayStation 5',
-            'ps4' => 'PlayStation 4',
-            'xbox-series' => 'Xbox Series X|S',
-            'xbox-one' => 'Xbox One',
-            'switch' => 'Nintendo Switch',
-            'mobile' => 'Mobile',
-            'steam-deck' => 'Steam Deck'
+            'console' => 'Console',
+            'mobile' => 'Mobile'
         );
         
         ob_start();
