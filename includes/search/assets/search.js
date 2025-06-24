@@ -58,7 +58,7 @@
             this.loadSearchHistory();
             this.initializeFilters();
             this.loadQuickStats();
-            this.checkUrlParams();
+            //this.checkUrlParams();
             
             // Log d'initialisation
             if (sismeSearch.debug) {
@@ -313,7 +313,7 @@
             this.updateLoadMoreButton();
             
             // Mettre à jour l'URL
-            this.updateUrl();
+            //this.updateUrl();
             
             // Ajouter à l'historique
             if (data.params.query && !loadMore) {
@@ -693,7 +693,7 @@
         /**
          * Gestion de l'URL
          */
-        checkUrlParams() {
+        /*checkUrlParams() {
             const params = new URLSearchParams(window.location.search);
             
             // Recherche
@@ -743,9 +743,9 @@
                 this.updateFilterCounts();
                 this.performSearch();
             }
-        }
+        }*/
         
-        updateUrl() {
+        /*updateUrl() {
             const searchData = this.collectSearchData();
             const params = new URLSearchParams();
             
@@ -777,7 +777,7 @@
                           (params.toString() ? '?' + params.toString() : '');
             
             window.history.replaceState({}, '', newUrl);
-        }
+        }*/
         
         /**
          * Appliquer une suggestion alternative
