@@ -173,16 +173,26 @@ class Sisme_Search_Filters {
             $criteria['search'] = $params['query'];
         }
         
-        // Filtres par genres
+        // 🎯 FIX: Filtres par genres - Convertir IDs en slugs
         if (!empty($params['genres'])) {
-            $criteria['genres'] = $params['genres'];
+            $genre_slugs = self::convert_genre_ids_to_slugs($params['genres']);
+            if (!empty($genre_slugs)) {
+                $criteria['genres'] = $genre_slugs;
+                
+                // Debug pour vérifier la conversion
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('Sisme Search: Genre IDs ' . implode(',', $params['genres']) . ' → slugs ' . implode(',', $genre_slugs));
+                }
+            }
         }
+        
         /*
-        // Filtres par plateformes
+        // Filtres par plateformes (commenté temporairement)
         if (!empty($params['platforms'])) {
             $criteria['platforms'] = $params['platforms'];
         }
         */
+        
         // Statut de sortie
         if (!empty($params['status'])) {
             $criteria['released'] = ($params['status'] === 'released') ? 1 : 0;
@@ -210,6 +220,72 @@ class Sisme_Search_Filters {
         }
         
         return $criteria;
+    }
+
+    /**
+     * Convertir les IDs de genres en slugs
+     * 
+     * @param array $genre_ids Liste des IDs de genres
+     * @return array Liste des slugs de genres (les noms en fait)
+     */
+    private static function convert_genre_ids_to_slugs($genre_ids) {
+        $genre_names = array();
+        
+        foreach ($genre_ids as $genre_id) {
+            $genre_id = intval($genre_id);
+            if ($genre_id <= 0) {
+                continue;
+            }
+            
+            // Récupérer la catégorie par ID
+            $category = get_category($genre_id);
+            
+            if ($category && !is_wp_error($category)) {
+                // 🎯 FIX: Utiliser le NOM de la catégorie (pas le slug)
+                $name = $category->name;
+                
+                // Supprimer le préfixe "jeux-" si présent pour être compatible
+                $clean_name = preg_replace('/^jeux-/i', '', $name);
+                
+                $genre_names[] = $clean_name;
+                
+                // Debug pour tracer la conversion
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("Sisme Search: Genre ID {$genre_id} → nom '{$clean_name}'");
+                }
+            } else {
+                // Genre non trouvé, log en mode debug
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("Sisme Search: Genre ID {$genre_id} non trouvé");
+                }
+            }
+        }
+        
+        return array_unique($genre_names);
+    }
+
+    /**
+     * 🔧 Méthode pour tester la conversion
+     */
+    public static function debug_genres_conversion($genre_ids) {
+        if (!defined('WP_DEBUG') || !WP_DEBUG) {
+            return;
+        }
+        
+        error_log('=== DEBUG CONVERSION GENRES ===');
+        error_log('IDs reçus: ' . implode(', ', $genre_ids));
+        
+        $slugs = self::convert_genre_ids_to_slugs($genre_ids);
+        error_log('Slugs générés: ' . implode(', ', $slugs));
+        
+        // Tester avec Cards Functions
+        if (class_exists('Sisme_Cards_Functions')) {
+            $criteria = array('genres' => $slugs);
+            $games = Sisme_Cards_Functions::get_games_by_criteria($criteria);
+            error_log('Jeux trouvés avec les slugs: ' . count($games));
+        }
+        
+        error_log('=== FIN DEBUG CONVERSION ===');
     }
     
     /**

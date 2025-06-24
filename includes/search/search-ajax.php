@@ -169,9 +169,10 @@ class Sisme_Search_Ajax {
         <div class="<?php echo esc_attr($grid_class); ?>" data-view="<?php echo esc_attr($view_type); ?>">
             <?php
             foreach ($results['games'] as $game) {
-                if (isset($game['id']) && $game['id'] > 0) {
+                // $game est un ID entier, pas un tableau
+                if (is_numeric($game) && $game > 0) {
                     echo Sisme_Cards_API::render_card(
-                        $game['id'], 
+                        $game, 
                         $card_type, 
                         array(
                             'show_description' => true,

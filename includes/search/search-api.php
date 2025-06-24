@@ -462,7 +462,9 @@ class Sisme_Search_API {
                 </div>
                 
                 <!-- Grille des jeux -->
-                <?php echo self::render_games_grid($results['games'], 'grid'); ?>
+                <?php 
+                echo self::render_games_grid($results['games'], 'grid'); 
+                ?>
                 
                 <!-- Pagination si nécessaire -->
                 <?php if ($results['has_more']): ?>
@@ -594,10 +596,21 @@ class Sisme_Search_API {
         ob_start();
         ?>
         <div class="<?php echo esc_attr($grid_class); ?>" id="sismeSearchGrid">
-            <?php foreach ($games as $game): ?>
+            <?php foreach ($games as $index => $game): ?>
                 <div class="sisme-search-card">
                     <?php 
-                    // Utiliser l'API Cards pour le rendu
+                    // DEBUG: Afficher dans la console du navigateur
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        ?>
+                        <script>
+                        console.group('🎮 Sisme Search Debug - Jeu #<?php echo $index; ?>');
+                        console.log('Type:', <?php echo json_encode(gettype($game)); ?>);
+                        console.log('Contenu:', <?php echo json_encode($game); ?>);
+                        console.groupEnd();
+                        </script>
+                        <?php
+                    }
+                    
                     echo Sisme_Cards_API::render_card($game, $card_type);
                     ?>
                 </div>
@@ -984,6 +997,41 @@ class Sisme_Search_API {
     public static function render_search_results($atts = array()) {
         $current_params = self::get_current_search_params();
         return self::render_search_results_html($current_params);
+    }
+
+    /**
+     * 🧪 MÉTHODE DE DEBUG: Analyser le format des données retournées par Search_Filters
+     * 
+     * @param array $games Premier échantillon de jeux
+     * @return string Rapport de debug
+     */
+    private static function debug_games_format($games) {
+        if (empty($games) || !defined('WP_DEBUG') || !WP_DEBUG) {
+            return '';
+        }
+        
+        $first_game = $games[0];
+        
+        ob_start();
+        ?>
+        <div class="sisme-debug-panel" style="background: #333; color: #fff; padding: 15px; margin: 10px 0; border-left: 4px solid #0073aa;">
+            <h4>🧪 Debug Format des données jeux</h4>
+            <p><strong>Type:</strong> <?php echo gettype($first_game); ?></p>
+            <p><strong>Nombre de jeux:</strong> <?php echo count($games); ?></p>
+            
+            <?php if (is_array($first_game)): ?>
+                <p><strong>Clés disponibles:</strong> <?php echo implode(', ', array_keys($first_game)); ?></p>
+            <?php elseif (is_object($first_game)): ?>
+                <p><strong>Propriétés object:</strong> <?php echo implode(', ', array_keys(get_object_vars($first_game))); ?></p>
+            <?php endif; ?>
+            
+            <details>
+                <summary>Échantillon données brutes</summary>
+                <pre style="background: #222; padding: 10px; overflow: auto; max-height: 200px;"><?php echo esc_html(print_r($first_game, true)); ?></pre>
+            </details>
+        </div>
+        <?php
+        return ob_get_clean();
     }
 }
 
