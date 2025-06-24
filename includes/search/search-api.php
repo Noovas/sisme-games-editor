@@ -317,7 +317,7 @@ class Sisme_Search_API {
                         </div>
                     </div>
                     
-                    <!-- Filtre Plateformes -->
+                    <!-- Filtre Plateformes 
                     <div class="sisme-filter-group" data-filter="platforms">
                         <label class="sisme-filter-label"><?php esc_html_e('💻 Plateformes', 'sisme-games-editor'); ?></label>
                         <div class="sisme-platforms-filter">
@@ -330,7 +330,7 @@ class Sisme_Search_API {
                             </div>
                         </div>
                     </div>
-                    
+                    -->
                     <!-- Filtre Statut -->
                     <div class="sisme-filter-group" data-filter="status">
                         <label class="sisme-filter-label"><?php esc_html_e('📅 Statut', 'sisme-games-editor'); ?></label>

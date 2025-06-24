@@ -128,11 +128,11 @@
             $(document).on('input', '.sisme-genres-search', (e) => {
                 this.filterCheckboxes('.sisme-genres-list', e.target.value);
             });
-            
+            /*
             $(document).on('input', '.sisme-platforms-search', (e) => {
                 this.filterCheckboxes('.sisme-platforms-list', e.target.value);
             });
-            
+            */
             // Changement de checkboxes
             $(document).on('change', '.sisme-checkbox-item input[type="checkbox"]', () => {
                 this.updateFilterCounts();

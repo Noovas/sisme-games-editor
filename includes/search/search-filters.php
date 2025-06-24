@@ -81,14 +81,14 @@ class Sisme_Search_Filters {
         if (isset($params['genres']) && is_array($params['genres'])) {
             $validated['genres'] = array_map('intval', array_filter($params['genres']));
         }
-        
-        // Plateformes
+        /*
+        // Plateformes 
         $validated['platforms'] = array();
         if (isset($params['platforms']) && is_array($params['platforms'])) {
             $allowed_platforms = array('pc', 'console', 'mobile');
             $validated['platforms'] = array_intersect($params['platforms'], $allowed_platforms);
         }
-        
+        */
         // Statut de sortie
         $validated['status'] = '';
         if (isset($params['status']) && in_array($params['status'], array('released', 'upcoming'))) {
@@ -177,12 +177,12 @@ class Sisme_Search_Filters {
         if (!empty($params['genres'])) {
             $criteria['genres'] = $params['genres'];
         }
-        
+        /*
         // Filtres par plateformes
         if (!empty($params['platforms'])) {
             $criteria['platforms'] = $params['platforms'];
         }
-        
+        */
         // Statut de sortie
         if (!empty($params['status'])) {
             $criteria['released'] = ($params['status'] === 'released') ? 1 : 0;
@@ -225,14 +225,14 @@ class Sisme_Search_Filters {
         }
         
         $filtered = $games;
-        
+        /*
         // Filtrage par plateformes (si pas géré par Cards)
         if (!empty($params['platforms'])) {
             $filtered = array_filter($filtered, function($game) use ($params) {
                 return self::game_matches_platforms($game, $params['platforms']);
             });
         }
-        
+        */
         // Autres filtres personnalisés peuvent être ajoutés ici
         
         return array_values($filtered); // Réindexer le tableau

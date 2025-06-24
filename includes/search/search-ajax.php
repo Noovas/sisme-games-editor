@@ -101,7 +101,7 @@ class Sisme_Search_Ajax {
         return array(
             'query' => sanitize_text_field($post_data['query'] ?? ''),
             'genres' => self::extract_array_param($post_data, 'genres', 'int'),
-            'platforms' => self::extract_array_param($post_data, 'platforms', 'string'),
+            //'platforms' => self::extract_array_param($post_data, 'platforms', 'string'),
             'status' => sanitize_text_field($post_data['status'] ?? ''),
             'quick_filter' => sanitize_text_field($post_data['quick_filter'] ?? ''),
             'sort' => sanitize_text_field($post_data['sort'] ?? 'relevance'),
