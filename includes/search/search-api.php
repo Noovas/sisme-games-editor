@@ -404,9 +404,12 @@ class Sisme_Search_API {
      * Affiche tous les jeux par défaut au lieu d'un état vide
      */
     private static function render_initial_results_state($current_params) {
+        // Si on a une recherche active, essayer d'afficher les résultats
         if (!empty($current_params['query']) || !empty($current_params['genres']) || !empty($current_params['platforms'])) {
             return self::render_search_results_html($current_params);
         }
+        
+        // 🎮 NOUVEAU: Par défaut, afficher tous les jeux disponibles
         return self::render_all_games_default($current_params);
     }
 
@@ -447,6 +450,11 @@ class Sisme_Search_API {
             ob_start();
             ?>
             <div class="sisme-search-results-container">
+                <!-- Debug format des données (en mode WP_DEBUG) -->
+                <?php if (defined('WP_DEBUG') && WP_DEBUG): ?>
+                    <?php echo self::debug_games_format($results['games']); ?>
+                <?php endif; ?>
+                
                 <!-- Compteur de résultats visible -->
                 <div class="sisme-search-counter" style="display: block;">
                     <strong><?php echo sprintf(_n('%d jeu disponible', '%d jeux disponibles', $results['total'], 'sisme-games-editor'), $results['total']); ?></strong>
@@ -543,6 +551,27 @@ class Sisme_Search_API {
     }
 
     /**
+     * 🔧 FALLBACK: Grille simple si Cards API non disponible
+     * 
+     * @param array $games Données des jeux
+     * @param string $view_type Type de vue
+     * @return string HTML fallback
+     */
+    private static function render_fallback_grid($games, $view_type) {
+        $grid_class = ($view_type === 'list') ? 'sisme-search-list sisme-fallback-list' : 'sisme-search-grid sisme-fallback-grid';
+        
+        ob_start();
+        ?>
+        <div class="<?php echo esc_attr($grid_class); ?>">
+            <?php foreach ($games as $game): ?>
+                <?php echo self::render_fallback_card($game); ?>
+            <?php endforeach; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
      * 🎮 Générer la grille des jeux avec le système Cards
      * 
      * @param array $games Données des jeux
@@ -576,6 +605,96 @@ class Sisme_Search_API {
         </div>
         <?php
         return ob_get_clean();
+    }
+
+    /**
+     * 🎴 FALLBACK: Carte simple si problème avec Cards API
+     * 
+     * @param mixed $game Données du jeu
+     * @return string HTML carte simple
+     */
+    private static function render_fallback_card($game) {
+        // Extraire les données selon le format
+        $name = '';
+        $description = '';
+        $game_id = self::extract_game_id($game);
+        
+        if (is_array($game)) {
+            $name = $game['name'] ?? $game['title'] ?? 'Jeu sans nom';
+            $description = $game['description'] ?? '';
+        } elseif (is_object($game)) {
+            $name = $game->name ?? 'Jeu sans nom';
+            $description = get_term_meta($game->term_id, 'game_description', true) ?? '';
+        }
+        
+        ob_start();
+        ?>
+        <div class="sisme-search-card sisme-fallback-card">
+            <div class="sisme-fallback-card-header">
+                <h3 class="sisme-fallback-card-title"><?php echo esc_html($name); ?></h3>
+                <?php if ($game_id): ?>
+                    <span class="sisme-fallback-card-id">ID: <?php echo esc_html($game_id); ?></span>
+                <?php endif; ?>
+            </div>
+            
+            <?php if (!empty($description)): ?>
+                <div class="sisme-fallback-card-description">
+                    <p><?php echo esc_html(wp_trim_words($description, 20)); ?></p>
+                </div>
+            <?php endif; ?>
+            
+            <div class="sisme-fallback-card-footer">
+                <small>Mode fallback - Vérifiez la compatibilité Cards API</small>
+                <?php if (defined('WP_DEBUG') && WP_DEBUG): ?>
+                    <details>
+                        <summary>Debug données</summary>
+                        <pre><?php echo esc_html(print_r($game, true)); ?></pre>
+                    </details>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * 🔍 Extraire l'ID du jeu selon le format des données
+     * 
+     * @param mixed $game Données du jeu (format variable selon la source)
+     * @return int|false ID du jeu ou false si non trouvé
+     */
+    private static function extract_game_id($game) {
+        // Cas 1: Tableau avec clé 'id'
+        if (is_array($game) && isset($game['id'])) {
+            return intval($game['id']);
+        }
+        
+        // Cas 2: Tableau avec clé 'term_id'  
+        if (is_array($game) && isset($game['term_id'])) {
+            return intval($game['term_id']);
+        }
+        
+        // Cas 3: Objet WP_Term
+        if (is_object($game) && isset($game->term_id)) {
+            return intval($game->term_id);
+        }
+        
+        // Cas 4: Tableau avec clé 'game_id'
+        if (is_array($game) && isset($game['game_id'])) {
+            return intval($game['game_id']);
+        }
+        
+        // Cas 5: ID direct (entier)
+        if (is_numeric($game)) {
+            return intval($game);
+        }
+        
+        // Debug pour comprendre le format
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Sisme Search: Format de données jeu non reconnu: ' . print_r($game, true));
+        }
+        
+        return false;
     }
     
     /**
