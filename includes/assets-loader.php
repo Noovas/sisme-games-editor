@@ -270,7 +270,7 @@ class Sisme_Assets_Loader {
     }
 }
 
-add_action('wp_loaded', function() {
+/*add_action('wp_loaded', function() {
     // Vérifier que le fichier existe avant de l'inclure
     $homepage_module_file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/homepage-module.php';
     
@@ -283,4 +283,4 @@ add_action('wp_loaded', function() {
         // Log d'erreur
         error_log("Sisme: ERREUR - Fichier homepage-module.php introuvable: " . $homepage_module_file);
     }
-});
+});*/
