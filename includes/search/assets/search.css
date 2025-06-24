@@ -1,0 +1,1197 @@
+/**
+ * File: /sisme-games-editor/includes/search/assets/search.css
+ * Styles complets pour le module de recherche gaming
+ */
+
+/* ========================================
+   🎮 CONTAINER PRINCIPAL
+======================================== */
+
+.sisme-search-interface {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--sisme-space-lg);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ========================================
+   🌟 HERO SECTION
+======================================== */
+
+.sisme-search-hero {
+    text-align: center;
+    margin-bottom: var(--sisme-space-3xl);
+    padding: var(--sisme-space-3xl) var(--sisme-space-lg);
+    background: linear-gradient(135deg, var(--sisme-gaming-dark-light), var(--sisme-gaming-dark));
+    border-radius: var(--sisme-radius-lg);
+    border: 1px solid var(--sisme-border-light);
+    box-shadow: var(--sisme-shadow-gaming);
+    animation: heroFadeIn 0.8s ease-out;
+}
+
+.sisme-search-title {
+    color: var(--sisme-gaming-text-bright);
+    font-size: 2.5rem;
+    margin-bottom: var(--sisme-space-md);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    font-weight: 700;
+}
+
+.sisme-search-subtitle {
+    color: var(--sisme-gaming-text-muted);
+    font-size: 1.1rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+@keyframes heroFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   🔍 BARRE DE RECHERCHE
+======================================== */
+
+.sisme-search-bar {
+    margin-bottom: var(--sisme-space-xl);
+    position: relative;
+}
+
+.sisme-search-input-container {
+    display: flex;
+    gap: var(--sisme-space-sm);
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.sisme-search-input {
+    flex: 1;
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    background: var(--sisme-gaming-dark-light);
+    border: 2px solid var(--sisme-border-light);
+    border-radius: var(--sisme-radius-lg);
+    color: var(--sisme-gaming-text-bright);
+    font-size: 1.1rem;
+    transition: var(--sisme-transition-fluide);
+    outline: none;
+}
+
+.sisme-search-input:focus {
+    border-color: var(--sisme-color-primary);
+    box-shadow: 
+        0 0 0 3px rgba(161, 183, 141, 0.2),
+        0 0 20px rgba(161, 183, 141, 0.1);
+}
+
+.sisme-search-input::placeholder {
+    color: var(--sisme-gaming-text-muted);
+}
+
+.sisme-search-btn {
+    padding: var(--sisme-space-md) var(--sisme-space-xl);
+    background: linear-gradient(135deg, var(--sisme-color-primary), var(--sisme-color-primary-dark));
+    border: none;
+    border-radius: var(--sisme-radius-lg);
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--sisme-transition-fluide);
+    box-shadow: var(--sisme-shadow-neon-vert);
+    white-space: nowrap;
+}
+
+.sisme-search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sisme-shadow-gaming-hover), var(--sisme-shadow-neon-vert);
+    background: linear-gradient(135deg, var(--sisme-color-primary-dark), var(--sisme-color-primary));
+}
+
+.sisme-search-btn:active {
+    transform: translateY(0);
+}
+
+/* ========================================
+   🕒 HISTORIQUE DE RECHERCHE
+======================================== */
+
+.sisme-search-history {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--sisme-gaming-dark-light);
+    border: 1px solid var(--sisme-border-light);
+    border-radius: var(--sisme-radius-sm);
+    box-shadow: var(--sisme-shadow-gaming);
+    z-index: var(--sisme-z-dropdown);
+    margin-top: var(--sisme-space-xs);
+}
+
+.sisme-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    border-bottom: 1px solid var(--sisme-border-light);
+    background: var(--sisme-bg-bleu);
+}
+
+.sisme-history-header span {
+    color: var(--sisme-gaming-accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.sisme-history-clear {
+    background: none;
+    border: none;
+    color: var(--sisme-gaming-text-muted);
+    cursor: pointer;
+    padding: var(--sisme-space-xs);
+    border-radius: var(--sisme-radius-sm);
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-history-clear:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--sisme-gaming-text-bright);
+}
+
+.sisme-history-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.sisme-history-item {
+    display: block;
+    width: 100%;
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    background: none;
+    border: none;
+    color: var(--sisme-gaming-text);
+    text-align: left;
+    cursor: pointer;
+    transition: var(--sisme-transition-fast);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sisme-history-item:hover {
+    background: var(--sisme-bg-vert);
+    color: var(--sisme-color-primary);
+}
+
+.sisme-history-item:last-child {
+    border-bottom: none;
+}
+
+/* ========================================
+   🔥 SUGGESTIONS POPULAIRES
+======================================== */
+
+.sisme-popular-searches {
+    margin-bottom: var(--sisme-space-xl);
+    text-align: center;
+    animation: suggestionsSlideIn 0.6s ease-out 0.2s both;
+}
+
+.sisme-popular-label {
+    color: var(--sisme-gaming-text-bright);
+    font-weight: 600;
+    margin-bottom: var(--sisme-space-md);
+    font-size: 1rem;
+}
+
+.sisme-popular-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-sm);
+    justify-content: center;
+}
+
+.sisme-popular-tag {
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    background: var(--sisme-bg-orange);
+    border: 1px solid var(--sisme-border-orange);
+    border-radius: var(--sisme-radius-lg);
+    color: var(--sisme-color-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--sisme-transition-fast);
+    text-decoration: none;
+}
+
+.sisme-popular-tag:hover {
+    background: var(--sisme-bg-hover-orange);
+    border-color: var(--sisme-color-secondary);
+    transform: translateY(-1px);
+    box-shadow: var(--sisme-shadow-neon-orange);
+}
+
+@keyframes suggestionsSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   🚀 FILTRES RAPIDES
+======================================== */
+
+.sisme-quick-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-md);
+    justify-content: center;
+    margin-bottom: var(--sisme-space-xl);
+    animation: filtersSlideIn 0.6s ease-out 0.4s both;
+}
+
+.sisme-quick-filter {
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    background: var(--sisme-gaming-dark-light);
+    border: 2px solid var(--sisme-border-light);
+    border-radius: var(--sisme-radius-lg);
+    color: var(--sisme-gaming-text-bright);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--sisme-transition-fluide);
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+    text-decoration: none;
+}
+
+.sisme-quick-filter:hover {
+    border-color: var(--sisme-color-primary);
+    background: var(--sisme-bg-vert);
+    transform: translateY(-2px);
+    box-shadow: var(--sisme-shadow-neon-vert);
+}
+
+.sisme-quick-filter.active,
+.sisme-quick-filter--active {
+    background: linear-gradient(135deg, var(--sisme-color-primary), var(--sisme-color-primary-dark));
+    border-color: var(--sisme-color-primary);
+    color: white;
+    box-shadow: var(--sisme-shadow-neon-vert);
+}
+
+.sisme-filter-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-sm);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.sisme-quick-filter.active .sisme-filter-count {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes filtersSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   🎛️ FILTRES AVANCÉS
+======================================== */
+
+.sisme-search-filters {
+    background: var(--sisme-gaming-dark-light);
+    border: 1px solid var(--sisme-border-light);
+    border-radius: var(--sisme-radius-lg);
+    padding: var(--sisme-space-lg);
+    margin-bottom: var(--sisme-space-xl);
+    box-shadow: var(--sisme-shadow-gaming);
+    animation: advancedFiltersSlideIn 0.6s ease-out 0.6s both;
+}
+
+.sisme-filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--sisme-space-lg);
+    padding-bottom: var(--sisme-space-md);
+    border-bottom: 1px solid var(--sisme-border-light);
+}
+
+.sisme-filters-title {
+    color: var(--sisme-gaming-text-bright);
+    font-size: 1.2rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+.sisme-filters-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+    background: none;
+    border: 1px solid var(--sisme-border-light);
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    border-radius: var(--sisme-radius-sm);
+    color: var(--sisme-gaming-text);
+    cursor: pointer;
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-filters-toggle:hover {
+    background: var(--sisme-bg-bleu);
+    border-color: var(--sisme-gaming-accent);
+    color: var(--sisme-gaming-accent);
+}
+
+.sisme-toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+.sisme-filters-toggle.collapsed .sisme-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.sisme-filters-content {
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+    overflow: hidden;
+}
+
+.sisme-filters-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
+.sisme-filters-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--sisme-space-lg);
+    margin-bottom: var(--sisme-space-lg);
+}
+
+@keyframes advancedFiltersSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   📝 GROUPES DE FILTRES
+======================================== */
+
+.sisme-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-space-xs);
+}
+
+.sisme-filter-label {
+    color: var(--sisme-gaming-text-bright);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+}
+
+/* Indication du nombre de sélections */
+.sisme-filter-group.has-selection .sisme-filter-label::after {
+    content: " (" attr(data-selected-count) ")";
+    color: var(--sisme-color-primary);
+    font-weight: bold;
+    text-transform: none;
+}
+
+.sisme-filter-select {
+    width: 100%;
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    background: var(--sisme-gaming-dark);
+    border: 1px solid var(--sisme-border-light);
+    border-radius: var(--sisme-radius-sm);
+    color: var(--sisme-gaming-text-bright);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23A1B78D' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
+}
+
+.sisme-filter-select:focus {
+    outline: none;
+    border-color: var(--sisme-color-primary);
+    box-shadow: 0 0 0 3px rgba(161, 183, 141, 0.2);
+}
+
+.sisme-filter-select option {
+    background: var(--sisme-gaming-dark-light);
+    color: var(--sisme-gaming-text-bright);
+    padding: 8px;
+}
+
+/* ========================================
+   ☑️ FILTRES CHECKBOXES
+======================================== */
+
+.sisme-genres-filter,
+.sisme-platforms-filter {
+    border: 1px solid var(--sisme-border-light);
+    border-radius: var(--sisme-radius-sm);
+    background: var(--sisme-gaming-dark);
+    overflow: hidden;
+}
+
+.sisme-genres-search,
+.sisme-platforms-search {
+    width: 100%;
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    background: var(--sisme-gaming-dark);
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--sisme-gaming-text-bright);
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.sisme-genres-search:focus,
+.sisme-platforms-search:focus {
+    background: var(--sisme-gaming-dark-light);
+}
+
+.sisme-genres-search::placeholder,
+.sisme-platforms-search::placeholder {
+    color: var(--sisme-gaming-text-muted);
+}
+
+.sisme-genres-list,
+.sisme-platforms-list {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: var(--sisme-space-xs);
+}
+
+.sisme-checkbox-item {
+    display: flex;
+    align-items: center;
+    padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    cursor: pointer;
+    border-radius: var(--sisme-radius-sm);
+    transition: var(--sisme-transition-fast);
+    color: var(--sisme-gaming-text);
+    font-size: 0.9rem;
+}
+
+.sisme-checkbox-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--sisme-gaming-text-bright);
+}
+
+.sisme-checkbox-item input[type="checkbox"] {
+    margin-right: var(--sisme-space-sm);
+    accent-color: var(--sisme-color-primary);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.sisme-checkbox-item:has(input[type="checkbox"]:checked) {
+    color: var(--sisme-color-primary);
+    font-weight: 600;
+    background: var(--sisme-bg-vert);
+}
+
+/* Scrollbar custom pour les listes */
+.sisme-genres-list::-webkit-scrollbar,
+.sisme-platforms-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sisme-genres-list::-webkit-scrollbar-track,
+.sisme-platforms-list::-webkit-scrollbar-track {
+    background: var(--sisme-gaming-dark);
+}
+
+.sisme-genres-list::-webkit-scrollbar-thumb,
+.sisme-platforms-list::-webkit-scrollbar-thumb {
+    background: var(--sisme-color-primary);
+    border-radius: 3px;
+}
+
+.sisme-genres-list::-webkit-scrollbar-thumb:hover,
+.sisme-platforms-list::-webkit-scrollbar-thumb:hover {
+    background: var(--sisme-color-primary-dark);
+}
+
+/* ========================================
+   🎛️ ACTIONS DES FILTRES
+======================================== */
+
+.sisme-filters-actions {
+    display: flex;
+    gap: var(--sisme-space-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.sisme-filter-apply,
+.sisme-filter-reset {
+    padding: var(--sisme-space-md) var(--sisme-space-xl);
+    border: none;
+    border-radius: var(--sisme-radius-lg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--sisme-transition-fluide);
+    font-size: 1rem;
+    min-width: 120px;
+}
+
+.sisme-filter-apply {
+    background: linear-gradient(135deg, var(--sisme-color-primary), var(--sisme-color-primary-dark));
+    color: white;
+    box-shadow: var(--sisme-shadow-neon-vert);
+}
+
+.sisme-filter-apply:hover {
+    background: linear-gradient(135deg, var(--sisme-color-primary-dark), var(--sisme-color-primary));
+    transform: translateY(-2px);
+    box-shadow: var(--sisme-shadow-gaming-hover), var(--sisme-shadow-neon-vert);
+}
+
+.sisme-filter-reset {
+    background: linear-gradient(135deg, var(--sisme-color-secondary), #B8956A);
+    color: white;
+    box-shadow: var(--sisme-shadow-neon-orange);
+}
+
+.sisme-filter-reset:hover {
+    background: linear-gradient(135deg, #B8956A, var(--sisme-color-secondary));
+    transform: translateY(-2px);
+    box-shadow: var(--sisme-shadow-gaming-hover), var(--sisme-shadow-neon-orange);
+}
+
+.sisme-filter-apply:active,
+.sisme-filter-reset:active {
+    transform: translateY(0);
+}
+
+/* ========================================
+   📊 CONTRÔLES (TRI + VUE)
+======================================== */
+
+.sisme-search-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--sisme-space-xl);
+    padding: var(--sisme-space-md);
+    background: var(--sisme-bg-bleu);
+    border: 1px solid var(--sisme-border-bleu);
+    border-radius: var(--sisme-radius-sm);
+    flex-wrap: wrap;
+    gap: var(--sisme-space-md);
+}
+
+.sisme-search-sorting {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-md);
+}
+
+.sisme-sort-label {
+    color: var(--sisme-gaming-accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.sisme-sort-select {
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    background: var(--sisme-gaming-dark-light);
+    border: 1px solid var(--sisme-border-bleu);
+    border-radius: var(--sisme-radius-sm);
+    color: var(--sisme-gaming-text-bright);
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.sisme-view-selector {
+    display: flex;
+    gap: var(--sisme-space-xs);
+    background: var(--sisme-gaming-dark);
+    padding: var(--sisme-space-xs);
+    border-radius: var(--sisme-radius-sm);
+    border: 1px solid var(--sisme-border-light);
+}
+
+.sisme-view-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    background: none;
+    border: none;
+    border-radius: var(--sisme-radius-sm);
+    color: var(--sisme-gaming-text);
+    cursor: pointer;
+    transition: var(--sisme-transition-fast);
+    font-size: 0.9rem;
+}
+
+.sisme-view-btn:hover {
+    background: var(--sisme-bg-vert);
+    color: var(--sisme-color-primary);
+}
+
+.sisme-view-btn--active {
+    background: linear-gradient(135deg, var(--sisme-color-primary), var(--sisme-color-primary-dark));
+    color: white;
+    box-shadow: var(--sisme-shadow-neon-vert);
+}
+
+.sisme-view-icon {
+    font-size: 1.1rem;
+}
+
+/* ========================================
+   📊 COMPTEUR DE RÉSULTATS
+======================================== */
+
+.sisme-search-counter {
+    text-align: center;
+    margin-bottom: var(--sisme-space-lg);
+    color: var(--sisme-gaming-text);
+    font-size: 0.9rem;
+    padding: var(--sisme-space-sm);
+    background: var(--sisme-bg-orange);
+    border-radius: var(--sisme-radius-sm);
+    border: 1px solid var(--sisme-border-orange);
+    animation: counterFadeIn 0.4s ease-out;
+}
+
+.sisme-search-counter strong {
+    color: var(--sisme-color-secondary);
+    font-weight: 700;
+}
+
+@keyframes counterFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   🎴 ZONE DE RÉSULTATS
+======================================== */
+
+.sisme-search-results {
+    min-height: 400px;
+    position: relative;
+}
+
+/* Grilles de résultats */
+.sisme-search-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sisme-space-lg);
+    margin-bottom: var(--sisme-space-xl);
+    animation: resultsAppear 0.5s ease-out;
+}
+
+.sisme-search-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--sisme-space-md);
+    margin-bottom: var(--sisme-space-xl);
+    animation: resultsAppear 0.5s ease-out;
+}
+
+.sisme-search-card {
+    transition: var(--sisme-transition-fluide);
+    animation: cardFadeIn 0.4s ease-out;
+}
+
+.sisme-search-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sisme-shadow-gaming-hover), var(--sisme-shadow-neon-vert);
+}
+
+@keyframes resultsAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ========================================
+   😞 ÉTATS VIDES
+======================================== */
+
+.sisme-search-empty-state,
+.sisme-search-no-results {
+    text-align: center;
+    padding: var(--sisme-space-3xl) var(--sisme-space-lg);
+    color: var(--sisme-gaming-text);
+    animation: emptyStateFadeIn 0.6s ease-out;
+}
+
+.sisme-empty-icon {
+    font-size: 4rem;
+    margin-bottom: var(--sisme-space-lg);
+    opacity: 0.7;
+    animation: iconBounce 2s ease-in-out infinite;
+}
+
+.sisme-search-empty-state h3,
+.sisme-search-no-results h3 {
+    color: var(--sisme-gaming-text-bright);
+    margin-bottom: var(--sisme-space-md);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.sisme-search-empty-state p,
+.sisme-search-no-results p {
+    color: var(--sisme-gaming-text-muted);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.sisme-search-suggestions {
+    margin-top: var(--sisme-space-xl);
+}
+
+.sisme-search-suggestions p {
+    color: var(--sisme-gaming-text-bright);
+    font-weight: 600;
+    margin-bottom: var(--sisme-space-md);
+}
+
+.sisme-suggestion-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-space-sm);
+    justify-content: center;
+}
+
+.sisme-suggestion-tag {
+    padding: var(--sisme-space-sm) var(--sisme-space-md);
+    background: var(--sisme-bg-vert);
+    border: 1px solid var(--sisme-border-light);
+    border-radius: var(--sisme-radius-sm);
+    color: var(--sisme-color-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--sisme-transition-fast);
+    text-decoration: none;
+}
+
+.sisme-suggestion-tag:hover {
+    background: var(--sisme-bg-hover-vert);
+    border-color: var(--sisme-color-primary);
+    transform: translateY(-1px);
+}
+
+@keyframes emptyStateFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes iconBounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+/* ========================================
+   📚 BOUTON CHARGER PLUS
+======================================== */
+
+.sisme-load-more {
+    display: block;
+    margin: var(--sisme-space-xl) auto;
+    padding: var(--sisme-space-md) var(--sisme-space-xl);
+    background: transparent;
+    border: 2px solid var(--sisme-color-secondary);
+    border-radius: var(--sisme-radius-lg);
+    color: var(--sisme-color-secondary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--sisme-transition-fluide);
+    box-shadow: var(--sisme-shadow-neon-orange);
+    font-size: 1rem;
+    min-width: 200px;
+}
+
+.sisme-load-more:hover {
+    background: linear-gradient(135deg, var(--sisme-color-secondary), var(--sisme-color-primary));
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--sisme-shadow-gaming-hover), var(--sisme-shadow-neon-orange);
+}
+
+.sisme-load-more:active {
+    transform: translateY(0);
+}
+
+.sisme-load-more:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ========================================
+   ⏳ LOADER ET ANIMATIONS
+======================================== */
+
+.sisme-search-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--sisme-z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sisme-loader-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+.sisme-loader-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--sisme-space-xl);
+    background: var(--sisme-gaming-dark-light);
+    border-radius: var(--sisme-radius-lg);
+    border: 1px solid var(--sisme-border-light);
+    box-shadow: var(--sisme-shadow-gaming);
+}
+
+.sisme-loader-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--sisme-border-light);
+    border-top: 3px solid var(--sisme-gaming-accent);
+    border-radius: 50%;
+    animation: sismeSpinLoader 1s linear infinite;
+    margin-bottom: var(--sisme-space-md);
+}
+
+.sisme-loader-text {
+    color: var(--sisme-gaming-text-bright);
+    margin: 0;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+@keyframes sismeSpinLoader {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   📱 RESPONSIVE DESIGN
+======================================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .sisme-search-interface {
+        padding: var(--sisme-space-md);
+    }
+    
+    .sisme-search-hero {
+        padding: var(--sisme-space-xl) var(--sisme-space-md);
+    }
+    
+    .sisme-search-title {
+        font-size: 2rem;
+    }
+    
+    .sisme-search-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .sisme-quick-filters {
+        justify-content: flex-start;
+    }
+    
+    .sisme-search-controls {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .sisme-view-selector {
+        align-self: center;
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .sisme-search-interface {
+        padding: var(--sisme-space-sm);
+    }
+    
+    .sisme-search-hero {
+        padding: var(--sisme-space-lg) var(--sisme-space-sm);
+        margin-bottom: var(--sisme-space-xl);
+    }
+    
+    .sisme-search-title {
+        font-size: 1.8rem;
+    }
+    
+    .sisme-search-subtitle {
+        font-size: 1rem;
+    }
+    
+    .sisme-search-input-container {
+        flex-direction: column;
+        max-width: none;
+    }
+    
+    .sisme-search-btn {
+        width: 100%;
+        padding: var(--sisme-space-lg);
+    }
+    
+    .sisme-popular-tags,
+    .sisme-suggestion-tags {
+        justify-content: flex-start;
+    }
+    
+    .sisme-quick-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .sisme-quick-filter {
+        justify-content: center;
+    }
+    
+    .sisme-filters-row {
+        grid-template-columns: 1fr;
+        gap: var(--sisme-space-md);
+    }
+    
+    .sisme-filters-actions {
+        flex-direction: column;
+    }
+    
+    .sisme-filter-apply,
+    .sisme-filter-reset {
+        width: 100%;
+    }
+    
+    .sisme-search-controls {
+        gap: var(--sisme-space-sm);
+    }
+    
+    .sisme-search-sorting {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--sisme-space-sm);
+    }
+    
+    .sisme-sort-select {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .sisme-search-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sisme-search-list {
+        gap: var(--sisme-space-sm);
+    }
+    
+    .sisme-load-more {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* Très petit mobile */
+@media (max-width: 480px) {
+    .sisme-search-title {
+        font-size: 1.5rem;
+    }
+    
+    .sisme-search-hero {
+        padding: var(--sisme-space-md) var(--sisme-space-sm);
+    }
+    
+    .sisme-empty-icon {
+        font-size: 3rem;
+    }
+    
+    .sisme-search-empty-state h3,
+    .sisme-search-no-results h3 {
+        font-size: 1.3rem;
+    }
+    
+    .sisme-popular-tag,
+    .sisme-suggestion-tag {
+        font-size: 0.8rem;
+        padding: var(--sisme-space-xs) var(--sisme-space-sm);
+    }
+}
+
+/* ========================================
+   🎨 ANIMATIONS SPÉCIALES
+======================================== */
+
+/* Animation d'apparition séquentielle des cartes */
+.sisme-search-card:nth-child(1) { animation-delay: 0.1s; }
+.sisme-search-card:nth-child(2) { animation-delay: 0.2s; }
+.sisme-search-card:nth-child(3) { animation-delay: 0.3s; }
+.sisme-search-card:nth-child(4) { animation-delay: 0.4s; }
+.sisme-search-card:nth-child(5) { animation-delay: 0.5s; }
+.sisme-search-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* États de chargement */
+.sisme-search-results.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.sisme-search-results.loaded {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Animation de mise à jour des compteurs */
+.sisme-filter-count {
+    animation: countUpdate 0.3s ease-out;
+}
+
+@keyframes countUpdate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* ========================================
+   🔧 UTILITAIRES ET HELPERS
+======================================== */
+
+/* Classes d'état */
+.sisme-search-hidden {
+    display: none !important;
+}
+
+.sisme-search-visible {
+    display: block !important;
+}
+
+.sisme-search-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Focus visible pour accessibilité */
+.sisme-search-input:focus-visible,
+.sisme-search-btn:focus-visible,
+.sisme-filter-apply:focus-visible,
+.sisme-filter-reset:focus-visible,
+.sisme-load-more:focus-visible {
+    outline: 2px solid var(--sisme-gaming-accent);
+    outline-offset: 2px;
+}
+
+/* Réduction des animations si préférence utilisateur */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .sisme-loader-spinner {
+        animation: none;
+        border: 3px solid var(--sisme-gaming-accent);
+    }
+    
+    .sisme-empty-icon {
+        animation: none;
+    }
+}
+
+/* Mode sombre forcé (si nécessaire) */
+@media (prefers-color-scheme: dark) {
+    .sisme-search-interface {
+        /* Le thème est déjà sombre par défaut */
+    }
+}
