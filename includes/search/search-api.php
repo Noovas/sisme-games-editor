@@ -47,7 +47,8 @@ class Sisme_Search_API {
             'show_suggestions' => 'true',
             'show_quick_filters' => 'true',
             'results_per_page' => '12',
-            'default_view' => 'grid',
+            'default_view' => 'list',
+            'filters_collapsed' => 'true', 
             'container_class' => 'sisme-search-interface',
             'hero_title' => '🔍 Recherche de Jeux indé',
             'hero_subtitle' => 'Trouvez vos jeux préférés parmi notre collection'
@@ -81,7 +82,7 @@ class Sisme_Search_API {
             
             <?php if ($validated_atts['show_filters']): ?>
             <!-- Filtres avancés -->
-            <?php echo self::render_advanced_filters_html($current_params); ?>
+            <?php echo self::render_advanced_filters_html($current_params, $filters_collapsed); ?>
             <?php endif; ?>
             
             <?php if ($validated_atts['show_sorting']): ?>

@@ -55,15 +55,46 @@
          */
         init() {
             this.bindEvents();
-            this.loadSearchHistory();
-            this.initializeFilters();
-            this.loadQuickStats();
-            //this.checkUrlParams();
+        
+            // ✅ Lire les paramètres par défaut
+            const $interface = $('#sismeSearchInterface');
+            const defaultView = $interface.data('default-view') || 'list';
+            const filtersCollapsed = $interface.data('filters-collapsed') !== false;
             
-            // Log d'initialisation
-            if (sismeSearch.debug) {
-                console.log('🔍 Sisme Search Interface initialized');
+            // Initialiser la vue par défaut
+            this.state.currentFilters.view = defaultView;
+            
+            // ✅ Replier les filtres si demandé (toujours au début)
+            if (filtersCollapsed) {
+                const $content = $('#sismeFiltersContent');
+                const $toggle = $('#sismeFiltersToggle');
+                
+                $content.addClass('collapsed');
+                $toggle.addClass('collapsed');
+                $toggle.find('.sisme-toggle-icon').text('▼');
+                $toggle.find('.sisme-toggle-text').text('Afficher');
             }
+            
+            // Mettre à jour les boutons de vue
+            this.updateViewButtons();
+            this.applyDefaultView();
+        }
+
+        applyDefaultView() {
+            // Appliquer les classes CSS selon la vue par défaut
+            const $results = $('#sismeSearchResults');
+            
+            if (this.state.currentFilters.view === 'list') {
+                $results.removeClass('sisme-search-grid').addClass('sisme-search-list');
+            } else {
+                $results.removeClass('sisme-search-list').addClass('sisme-search-grid');
+            }
+        }
+
+        updateViewButtons() {
+            $('.sisme-view-btn').removeClass('sisme-view-btn--active');
+            $(`.sisme-view-btn[data-view="${this.state.currentFilters.view}"]`)
+                .addClass('sisme-view-btn--active');
         }
         
         /**
