@@ -1,0 +1,621 @@
+/**
+ * File: /sisme-games-editor/includes/user/user-auth/assets/user-auth.css
+ * Styles pour l'authentification utilisateur - Gaming Dark Theme
+ * 
+ * COMPATIBILITÉ: Réutilise les variables CSS du plugin principal
+ * DESIGN: Cohérent avec le thème gaming dark existant
+ * RESPONSIVE: Mobile-first design
+ */
+
+/* ========================================
+   🎮 VARIABLES ET BASE
+======================================== */
+
+:root {
+    /* Variables spécifiques auth (basées sur l'existant) */
+    --sisme-auth-border-radius: 12px;
+    --sisme-auth-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --sisme-auth-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
+    --sisme-auth-transition: all 0.3s ease;
+    
+    /* États des champs */
+    --sisme-auth-success: #10b981;
+    --sisme-auth-error: #ef4444;
+    --sisme-auth-warning: #f59e0b;
+    --sisme-auth-info: #3b82f6;
+}
+
+/* ========================================
+   📦 CONTAINER PRINCIPAL
+======================================== */
+
+.sisme-user-auth-container {
+    max-width: 440px;
+    margin: var(--sisme-space-xl) auto;
+    padding: var(--sisme-space-lg);
+    position: relative;
+}
+
+.sisme-user-auth-form-wrapper {
+    width: 100%;
+}
+
+/* ========================================
+   🎴 CARD D'AUTHENTIFICATION
+======================================== */
+
+.sisme-auth-card {
+    background: var(--sisme-gaming-dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--sisme-auth-border-radius);
+    padding: var(--sisme-space-xl);
+    box-shadow: var(--sisme-auth-shadow);
+    transition: var(--sisme-auth-transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, 
+        var(--sisme-color-primary), 
+        var(--sisme-color-primary-light));
+    border-radius: 2px;
+}
+
+.sisme-auth-card:hover {
+    box-shadow: var(--sisme-auth-shadow-hover);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* États spéciaux de la card */
+.sisme-auth-card--logged-in,
+.sisme-auth-card--login-required {
+    text-align: center;
+}
+
+/* ========================================
+   📋 HEADER DE LA CARD
+======================================== */
+
+.sisme-auth-header {
+    text-align: center;
+    margin-bottom: var(--sisme-space-xl);
+}
+
+.sisme-auth-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--sisme-gaming-text-bright);
+    margin: 0 0 var(--sisme-space-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sisme-space-sm);
+    line-height: 1.2;
+}
+
+.sisme-auth-icon {
+    font-size: 1.5em;
+    opacity: 0.9;
+}
+
+.sisme-auth-subtitle {
+    color: var(--sisme-gaming-text-muted);
+    font-size: 1rem;
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* ========================================
+   📝 FORMULAIRES
+======================================== */
+
+.sisme-user-auth-form {
+    width: 100%;
+}
+
+.sisme-auth-form-fields {
+    margin-bottom: var(--sisme-space-xl);
+}
+
+.sisme-auth-field {
+    margin-bottom: var(--sisme-space-lg);
+}
+
+.sisme-auth-field:last-child {
+    margin-bottom: 0;
+}
+
+/* ========================================
+   🏷️ LABELS ET DESCRIPTIONS
+======================================== */
+
+.sisme-auth-label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--sisme-gaming-text-bright);
+    margin-bottom: var(--sisme-space-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-xs);
+}
+
+.sisme-auth-label-icon {
+    font-size: 1.1em;
+    opacity: 0.8;
+}
+
+.sisme-auth-field-description {
+    font-size: 0.85rem;
+    color: var(--sisme-gaming-text-muted);
+    margin: var(--sisme-space-xs) 0 var(--sisme-space-sm);
+    opacity: 0.7;
+}
+
+/* ========================================
+   📥 CHAMPS DE SAISIE
+======================================== */
+
+.sisme-auth-input {
+    width: 100%;
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    background: var(--sisme-gaming-dark-lighter);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--sisme-radius-md);
+    color: var(--sisme-gaming-text-bright);
+    font-size: 1rem;
+    transition: var(--sisme-auth-transition);
+    box-sizing: border-box;
+}
+
+.sisme-auth-input::placeholder {
+    color: var(--sisme-gaming-text-muted);
+    opacity: 0.6;
+}
+
+.sisme-auth-input:focus {
+    outline: none;
+    border-color: var(--sisme-color-primary);
+    box-shadow: 0 0 0 3px rgba(161, 183, 141, 0.1);
+    background: rgba(161, 183, 141, 0.05);
+}
+
+/* États de validation */
+.sisme-auth-input--valid {
+    border-color: var(--sisme-auth-success);
+}
+
+.sisme-auth-input--error {
+    border-color: var(--sisme-auth-error);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Types spécifiques */
+.sisme-auth-input--email,
+.sisme-auth-input--text {
+    /* Styles par défaut */
+}
+
+.sisme-auth-input--password {
+    font-family: monospace;
+    letter-spacing: 2px;
+}
+
+.sisme-auth-input--password::placeholder {
+    font-family: system-ui, -apple-system, sans-serif;
+    letter-spacing: normal;
+}
+
+/* ========================================
+   ☑️ CHECKBOXES
+======================================== */
+
+.sisme-auth-checkbox-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sisme-space-sm);
+    cursor: pointer;
+    margin-top: var(--sisme-space-sm);
+}
+
+.sisme-auth-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    background: var(--sisme-gaming-dark-lighter);
+    cursor: pointer;
+    transition: var(--sisme-auth-transition);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.sisme-auth-checkbox:checked {
+    background: var(--sisme-color-primary);
+    border-color: var(--sisme-color-primary);
+}
+
+.sisme-auth-checkbox-label {
+    color: var(--sisme-gaming-text-bright);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    user-select: none;
+}
+
+/* ========================================
+   🎯 BOUTONS D'ACTION
+======================================== */
+
+.sisme-auth-form-actions {
+    text-align: center;
+}
+
+.sisme-auth-submit {
+    width: 100%;
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    background: var(--sisme-color-primary);
+    color: var(--sisme-gaming-text-bright);
+    border: none;
+    border-radius: var(--sisme-radius-md);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--sisme-auth-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sisme-space-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-auth-submit:hover:not(:disabled) {
+    background: var(--sisme-color-primary-light);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(161, 183, 141, 0.3);
+}
+
+.sisme-auth-submit:active {
+    transform: translateY(0);
+}
+
+.sisme-auth-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.sisme-btn-icon {
+    font-size: 1.2em;
+}
+
+/* ========================================
+   💬 MESSAGES
+======================================== */
+
+.sisme-auth-message {
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    border-radius: var(--sisme-radius-md);
+    margin-bottom: var(--sisme-space-lg);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sisme-space-sm);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.sisme-auth-message--success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #10b981;
+}
+
+.sisme-auth-message--error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.sisme-auth-message--warning {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #f59e0b;
+}
+
+.sisme-auth-message--info {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #3b82f6;
+}
+
+.sisme-message-icon {
+    font-size: 1.2em;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* ========================================
+   🔗 FOOTER ET LIENS
+======================================== */
+
+.sisme-auth-footer {
+    text-align: center;
+    margin-top: var(--sisme-space-xl);
+    padding-top: var(--sisme-space-lg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sisme-auth-link {
+    margin: 0;
+    color: var(--sisme-gaming-text-muted);
+    font-size: 0.9rem;
+}
+
+.sisme-auth-link a {
+    color: var(--sisme-color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--sisme-auth-transition);
+}
+
+.sisme-auth-link a:hover {
+    color: var(--sisme-color-primary-light);
+    text-decoration: underline;
+}
+
+/* ========================================
+   👤 PROFIL UTILISATEUR
+======================================== */
+
+.sisme-user-profile-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: var(--sisme-space-lg);
+}
+
+.sisme-profile-dashboard {
+    background: var(--sisme-gaming-dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--sisme-auth-border-radius);
+    padding: var(--sisme-space-xl);
+    box-shadow: var(--sisme-auth-shadow);
+}
+
+/* Header du profil */
+.sisme-profile-header {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-lg);
+    padding-bottom: var(--sisme-space-xl);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: var(--sisme-space-xl);
+}
+
+.sisme-profile-avatar .sisme-avatar {
+    border-radius: 50%;
+    border: 3px solid var(--sisme-color-primary);
+}
+
+.sisme-profile-info {
+    flex: 1;
+}
+
+.sisme-profile-name {
+    font-size: 1.5rem;
+    color: var(--sisme-gaming-text-bright);
+    margin: 0 0 var(--sisme-space-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-sm);
+}
+
+.sisme-profile-icon {
+    font-size: 1.2em;
+}
+
+.sisme-profile-meta {
+    color: var(--sisme-gaming-text-muted);
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.sisme-profile-actions {
+    display: flex;
+    gap: var(--sisme-space-sm);
+}
+
+/* Sections du profil */
+.sisme-profile-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--sisme-space-xl);
+}
+
+.sisme-profile-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--sisme-radius-md);
+    padding: var(--sisme-space-lg);
+}
+
+.sisme-profile-section-title {
+    font-size: 1.2rem;
+    color: var(--sisme-gaming-text-bright);
+    margin: 0 0 var(--sisme-space-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-sm);
+}
+
+.sisme-section-icon {
+    font-size: 1.1em;
+}
+
+.sisme-profile-empty {
+    color: var(--sisme-gaming-text-muted);
+    font-style: italic;
+    text-align: center;
+    margin: var(--sisme-space-lg) 0;
+}
+
+/* ========================================
+   🎮 MENU UTILISATEUR
+======================================== */
+
+.sisme-user-menu {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sisme-space-sm);
+}
+
+.sisme-user-menu-logged-in,
+.sisme-user-menu-logged-out {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-sm);
+}
+
+.sisme-user-menu-avatar .sisme-menu-avatar {
+    border-radius: 50%;
+    border: 2px solid var(--sisme-color-primary);
+}
+
+.sisme-user-menu-name {
+    color: var(--sisme-gaming-text-bright);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.sisme-user-menu-actions {
+    display: flex;
+    gap: var(--sisme-space-xs);
+}
+
+/* ========================================
+   📱 RESPONSIVE
+======================================== */
+
+@media (max-width: 768px) {
+    .sisme-user-auth-container {
+        margin: var(--sisme-space-lg) auto;
+        padding: var(--sisme-space-md);
+    }
+    
+    .sisme-auth-card {
+        padding: var(--sisme-space-lg);
+    }
+    
+    .sisme-auth-title {
+        font-size: 1.5rem;
+    }
+    
+    .sisme-profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--sisme-space-md);
+    }
+    
+    .sisme-profile-content {
+        grid-template-columns: 1fr;
+        gap: var(--sisme-space-lg);
+    }
+    
+    .sisme-user-menu-logged-in {
+        flex-direction: column;
+        gap: var(--sisme-space-xs);
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-auth-input {
+        padding: var(--sisme-space-sm) var(--sisme-space-md);
+    }
+    
+    .sisme-auth-submit {
+        padding: var(--sisme-space-sm) var(--sisme-space-lg);
+        font-size: 1rem;
+    }
+    
+    .sisme-user-menu-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .sisme-user-menu-actions .sisme-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ========================================
+   🎨 ANIMATIONS
+======================================== */
+
+@keyframes sismeFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sisme-auth-card {
+    animation: sismeFadeInUp 0.5s ease-out;
+}
+
+.sisme-auth-field {
+    animation: sismeFadeInUp 0.3s ease-out;
+    animation-fill-mode: both;
+}
+
+.sisme-auth-field:nth-child(1) { animation-delay: 0.05s; }
+.sisme-auth-field:nth-child(2) { animation-delay: 0.1s; }
+.sisme-auth-field:nth-child(3) { animation-delay: 0.15s; }
+.sisme-auth-field:nth-child(4) { animation-delay: 0.2s; }
+
+/* ========================================
+   🌟 ÉTATS FOCUS ET ACCESSIBILITÉ
+======================================== */
+
+.sisme-auth-input:focus,
+.sisme-auth-checkbox:focus,
+.sisme-auth-submit:focus {
+    outline: 2px solid var(--sisme-color-primary);
+    outline-offset: 2px;
+}
+
+/* Mode contraste élevé */
+@media (prefers-contrast: high) {
+    .sisme-auth-card {
+        border-width: 2px;
+    }
+    
+    .sisme-auth-input {
+        border-width: 2px;
+    }
+    
+    .sisme-auth-message {
+        border-width: 2px;
+    }
+}
+
+/* Mode mouvement réduit */
+@media (prefers-reduced-motion: reduce) {
+    .sisme-auth-card,
+    .sisme-auth-field,
+    .sisme-auth-input,
+    .sisme-auth-submit {
+        animation: none;
+        transition: none;
+    }
+}

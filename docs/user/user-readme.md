@@ -1,4 +1,4 @@
-# 🔐 Module User Auth - Sisme Games Editor
+# 👤 Module User - Sisme Games Editor
 
 **Version:** 1.0.0  
 **Date de création:** 25 Juin 2025  
@@ -6,32 +6,32 @@
 
 ## 📋 Vue d'ensemble
 
-Module d'authentification frontend pour le plugin Sisme Games Editor. Permet aux utilisateurs de s'inscrire, se connecter et gérer leur profil sans accès à l'administration WordPress.
+Module principal de gestion des utilisateurs pour le plugin Sisme Games Editor. Système complet d'espace membre gaming avec authentification, profils et ludothèque personnelle sans accès à l'administration WordPress.
 
 ### 🎯 Objectifs
 
-- **Authentification frontend** - Système complet login/register
-- **Sécurité renforcée** - Rate limiting, validation, nonces
-- **Design cohérent** - Integration parfaite avec le thème gaming
-- **Extensibilité** - Base pour les modules user-profile et user-library
+- **Espace membre gaming** - Système frontend complet pour les utilisateurs
+- **Architecture modulaire** - Sous-modules spécialisés et évolutifs  
+- **Intégration native** - Compatible avec l'écosystème du plugin
+- **Évolutivité** - Base solide pour fonctionnalités futures
 
-## 🏗️ Architecture
+## 🏗️ Architecture générale
 
-### 📁 Structure des fichiers
+### 📁 Structure des modules
 
 ```
 includes/user/
-├── user-loader.php                    # Master loader (point d'entrée système)
+├── user-loader.php                    # Master loader (point d'entrée)
 └── user-auth/                         # Module authentification
-    ├── user-auth-loader.php           # Loader du module auth
-    ├── user-auth-api.php              # Shortcodes et rendu HTML
-    ├── user-auth-handlers.php         # Logique métier (login/register)
-    ├── user-auth-security.php         # Sécurité et validation
-    ├── user-auth-forms.php            # Formulaires utilisant le module existant
+    ├── user-auth-loader.php           # ✅ TERMINÉ
+    ├── user-auth-security.php         # ✅ TERMINÉ  
+    ├── user-auth-handlers.php         # ✅ TERMINÉ
+    ├── user-auth-forms.php            # ✅ TERMINÉ
+    ├── user-auth-api.php              # ✅ TERMINÉ
     ├── assets/
-    │   ├── user-auth.css              # Styles gaming cohérents
-    │   └── user-auth.js               # Interactions frontend
-    └── README.md                      # Cette documentation
+    │   ├── user-auth.css              # ✅ TERMINÉ
+    │   └── user-auth.js               # ✅ TERMINÉ
+    └── README.md                      # Documentation spécifique
 ```
 
 ### 🔄 Flux d'initialisation
@@ -39,258 +39,217 @@ includes/user/
 ```
 1. Système principal → SISME_GAMES_MODULES → 'user'
 2. user-loader.php → Sisme_User_Loader::get_instance()
-3. Sisme_User_Loader → charge user-auth-loader.php
+3. Sisme_User_Loader → charge tous les sous-modules
 4. user-auth-loader.php → Sisme_User_Auth_Loader::get_instance()
-5. Sisme_User_Auth_Loader → charge tous les modules auth
-6. Shortcodes enregistrés et système prêt
+5. Sous-modules spécialisés initialisés
+6. Shortcodes et fonctionnalités disponibles
 ```
 
-## 🚀 Fonctionnalités
+## 🎮 Modules disponibles
 
-### ✅ Authentification complète
+### ✅ **user-auth (Authentification)** - TERMINÉ
 
-- **Connexion** avec email/mot de passe
-- **Inscription** avec validation email
-- **Remember me** pour session persistante
-- **Déconnexion** avec nettoyage session
+**Responsabilités :**
+- Connexion/inscription frontend
+- Sécurité et validation
+- Gestion des sessions
+- Dashboard utilisateur basique
 
-### 🛡️ Sécurité avancée
+**Shortcodes :**
+- `[sisme_user_login]` - Formulaire de connexion
+- `[sisme_user_register]` - Formulaire d'inscription
+- `[sisme_user_profile]` - Dashboard utilisateur
+- `[sisme_user_menu]` - Menu utilisateur compact
 
-- **Rate limiting** - Max 5 tentatives par 15 minutes
-- **Validation stricte** - Email, mot de passe, données
-- **Nonces WordPress** - Protection CSRF
-- **Sanitisation** - Toutes les entrées utilisateur
+### 🚧 **user-profile (Profil)** - À VENIR
 
-### 🎨 Interface utilisateur
+**Responsabilités prévues :**
+- Gestion complète du profil utilisateur
+- Modification avatar, bio, préférences
+- Statistiques d'activité détaillées
+- Paramètres de confidentialité
 
-- **Design gaming dark** - Cohérent avec le plugin
-- **Formulaires réactifs** - Feedback temps réel
-- **Messages d'erreur** - Clairs et informatifs
-- **Responsive design** - Mobile/tablet/desktop
+### 🚧 **user-library (Ludothèque)** - À VENIR
+
+**Responsabilités prévues :**
+- Gestion de la ludothèque personnelle
+- Favoris, wishlist, jeux terminés
+- Notes et commentaires privés
+- Temps de jeu et statistiques
+
+### 🚧 **user-social (Social)** - À VENIR
+
+**Responsabilités prévues :**
+- Fonctionnalités communautaires
+- Reviews publiques courtes
+- Listes de souhaits partagées
+- Système de suivi entre utilisateurs
 
 ## 📊 Données utilisateur
 
-### 🗂️ Structure user_meta
+### 🗂️ Structure user_meta globale
 
 ```php
-// Profil gaming de base
-'sisme_favorite_games' => array()      // IDs des jeux favoris (term_ids)
-'sisme_wishlist_games' => array()      // IDs wishlist (term_ids)
-'sisme_completed_games' => array()     // IDs jeux terminés (term_ids)
-'sisme_gaming_platforms' => array()   // ['PC', 'PS5', 'Xbox']
-'sisme_favorite_genres' => array()    // IDs des genres préférés
-'sisme_notifications_email' => true   // Préférences notifications
-'sisme_profile_created' => string     // Date création profil
+// Profil utilisateur
+'sisme_user_avatar' => attachment_id        // Avatar personnalisé
+'sisme_user_bio' => text                    // Biographie utilisateur
+'sisme_profile_created' => mysql_date       // Date création profil
+'sisme_last_login' => mysql_date            // Dernière connexion
+
+// Ludothèque gaming (géré par user-auth initialement)
+'sisme_favorite_games' => array(term_ids)   // Jeux favoris
+'sisme_wishlist_games' => array(term_ids)   // Liste de souhaits
+'sisme_completed_games' => array(term_ids)  // Jeux terminés
+'sisme_user_reviews' => array(data)         // Notes personnelles
+
+// Préférences gaming
+'sisme_gaming_platforms' => array(strings)  // ['PC', 'PS5', 'Xbox']
+'sisme_favorite_genres' => array(term_ids)  // Genres préférés
+
+// Paramètres système
+'sisme_notifications_email' => boolean      // Notifications par email
+'sisme_privacy_level' => string             // 'public', 'friends', 'private'
+'sisme_profile_version' => string           // Version du profil
 ```
 
-### 🔐 Sécurité utilisateur
+### 🔗 Intégration avec l'existant
 
-- **Tentatives de connexion** stockées en transients WordPress
-- **Sessions** gérées par WordPress nativement
-- **Mots de passe** hashés par WordPress (wp_hash_password)
+- **Jeux** - Utilise les `term_ids` de votre système de tags existant
+- **Genres** - Compatible avec vos catégories de genres
+- **Fiches** - Liens vers vos fiches de jeux existantes
+- **Assets** - Réutilise vos variables CSS gaming
 
-## 🎯 Shortcodes disponibles
+## 🚀 Installation et utilisation
 
-### 1. `[sisme_user_login]` - Formulaire de connexion
+### 📦 Prérequis
 
-```html
-[sisme_user_login 
-    redirect_to="/mon-profil/" 
-    show_register_link="true" 
-    show_remember="true"
-    title="Connexion"
-    submit_text="Se connecter"
-    container_class="sisme-user-auth-container"]
-```
+1. **Plugin Sisme Games Editor** activé
+2. **Module ajouté** à `SISME_GAMES_MODULES`
+3. **WordPress 5.0+** et **PHP 7.4+**
 
-**Paramètres:**
-- `redirect_to` (string) - URL de redirection après connexion
-- `show_register_link` (bool) - Afficher lien vers inscription
-- `show_remember` (bool) - Afficher case "Se souvenir de moi"
-- `title` (string) - Titre du formulaire
-- `submit_text` (string) - Texte du bouton
-- `container_class` (string) - Classes CSS du container
+### ⚙️ Configuration
 
-### 2. `[sisme_user_register]` - Formulaire d'inscription
-
-```html
-[sisme_user_register 
-    redirect_to="/mon-profil/" 
-    show_login_link="true"
-    require_email_verification="true"
-    title="Inscription"
-    submit_text="Créer mon compte"
-    container_class="sisme-user-auth-container"]
-```
-
-**Paramètres:**
-- `redirect_to` (string) - URL de redirection après inscription
-- `show_login_link` (bool) - Afficher lien vers connexion
-- `require_email_verification` (bool) - Validation email obligatoire
-- `title` (string) - Titre du formulaire
-- `submit_text` (string) - Texte du bouton
-- `container_class` (string) - Classes CSS du container
-
-### 3. `[sisme_user_profile]` - Dashboard utilisateur
-
-```html
-[sisme_user_profile 
-    show_favorites="true" 
-    show_activity="true"
-    show_recommendations="true"]
-```
-
-**Paramètres:**
-- `show_favorites` (bool) - Afficher section favoris
-- `show_activity` (bool) - Afficher activité récente
-- `show_recommendations` (bool) - Afficher recommandations
-
-### 4. `[sisme_user_menu]` - Menu utilisateur
-
-```html
-[sisme_user_menu 
-    show_avatar="true" 
-    show_logout="true"
-    container_class="sisme-user-menu"]
-```
-
-## 🔧 API et hooks
-
-### Classes principales
-
-#### `Sisme_User_Auth_API`
-- `render_login_form($atts)` - Rendu formulaire connexion
-- `render_register_form($atts)` - Rendu formulaire inscription
-- `render_profile_dashboard($atts)` - Rendu dashboard
-- `render_user_menu($atts)` - Rendu menu utilisateur
-
-#### `Sisme_User_Auth_Handlers`
-- `handle_login($data)` - Traitement connexion
-- `handle_register($data)` - Traitement inscription
-- `init_user_gaming_meta($user_id)` - Initialisation métadonnées
-
-#### `Sisme_User_Auth_Security`
-- `validate_login_attempt($email)` - Validation tentative
-- `validate_user_data($data, $context)` - Validation données
-- `record_failed_attempt($email)` - Enregistrement échec
-
-### Hooks WordPress disponibles
-
+**1. Activation automatique**
 ```php
-// Actions
-add_action('sisme_user_login_success', $callback, 10, 2);  // ($user_id, $user_data)
-add_action('sisme_user_register_success', $callback, 10, 2); // ($user_id, $user_data)
-add_action('sisme_user_logout', $callback, 10, 1); // ($user_id)
-
-// Filtres
-add_filter('sisme_user_login_redirect', $callback, 10, 2); // ($redirect_url, $user)
-add_filter('sisme_user_register_redirect', $callback, 10, 2); // ($redirect_url, $user)
-add_filter('sisme_user_default_meta', $callback, 10, 1); // ($default_meta)
-```
-
-## 🎨 Styling et CSS
-
-### Variables CSS utilisées
-
-Le module réutilise les variables CSS existantes du plugin :
-
-```css
-/* Variables gaming cohérentes */
---sisme-gaming-dark: #1a1a1a
---sisme-gaming-dark-lighter: #2d2d2d
---sisme-gaming-text-bright: #ffffff
---sisme-color-primary: #a1b78d
---sisme-color-primary-light: #b8c9a4
---sisme-radius-md: 8px
---sisme-radius-lg: 12px
---sisme-space-sm: 8px
---sisme-space-md: 16px
---sisme-space-lg: 24px
---sisme-space-xl: 32px
-```
-
-### Classes CSS principales
-
-```css
-.sisme-user-auth-container      /* Container principal */
-.sisme-auth-card               /* Card de formulaire */
-.sisme-auth-header             /* En-tête du formulaire */
-.sisme-auth-title              /* Titre avec icône */
-.sisme-auth-content            /* Contenu du formulaire */
-.sisme-auth-footer             /* Pied avec liens */
-.sisme-auth-error              /* Messages d'erreur */
-.sisme-auth-success            /* Messages de succès */
-```
-
-## 🚧 Installation et configuration
-
-### 1. Ajouter le module au système
-
-Dans le fichier principal du plugin, ajouter `'user'` à la constante :
-
-```php
+// Dans sisme-games-editor.php
 const SISME_GAMES_MODULES = [
-    'search',
-    'cards', 
-    'vedettes',
-    'team-choice',
-    'user'  // ← Nouveau module
+    'search', 'cards', 'vedettes', 'team-choice',
+    'user'  // ← Module utilisateur
 ];
 ```
 
-### 2. Créer les fichiers
-
-- Créer la structure des dossiers
-- Copier tous les fichiers du module
-- Vérifier les permissions des fichiers
-
-### 3. Configurer les pages
-
-Créer les pages WordPress avec les shortcodes :
-
+**2. Pages WordPress recommandées**
 - **Page "Connexion"** : `[sisme_user_login]`
-- **Page "Inscription"** : `[sisme_user_register]`  
+- **Page "Inscription"** : `[sisme_user_register]`
 - **Page "Mon Profil"** : `[sisme_user_profile]`
+
+**3. Intégration dans le thème**
+```php
+// Menu utilisateur dans header.php
+echo do_shortcode('[sisme_user_menu]');
+
+// Liens de connexion conditionnels
+if (is_user_logged_in()) {
+    echo '<a href="/mon-profil/">Mon Profil</a>';
+} else {
+    echo '<a href="/connexion/">Connexion</a>';
+}
+```
+
+## 🔧 API et développement
+
+### Classes principales
+
+#### `Sisme_User_Loader`
+- **Master loader** du système utilisateur
+- **Méthodes publiques :**
+  - `get_instance()` - Instance singleton
+  - `is_module_loaded($module_name)` - Vérifier si module chargé
+  - `get_active_modules()` - Liste des modules actifs
+
+#### Hooks WordPress disponibles
+
+```php
+// Actions globales utilisateur
+add_action('sisme_user_init_meta', $callback, 10, 2);     // Initialisation métadonnées
+add_action('user_register', $callback, 10, 1);           // WordPress natif + nos actions
+add_action('wp_login', $callback, 10, 2);                // WordPress natif + nos actions
+
+// Filtres pour personnalisation
+add_filter('sisme_user_default_meta', $callback, 10, 1); // Métadonnées par défaut
+add_filter('sisme_user_modules', $callback, 10, 1);      // Liste des modules à charger
+```
+
+### Extension du système
+
+**Ajouter un nouveau module :**
+
+1. **Créer le dossier** `includes/user/user-monmodule/`
+2. **Créer le loader** `user-monmodule-loader.php`
+3. **Classe required** `Sisme_User_Monmodule_Loader` avec `get_instance()`
+4. **Auto-chargement** - Le master loader s'en charge automatiquement
+
+## 📈 Statistiques et monitoring
+
+### 🔍 Logs disponibles
+
+```bash
+# Logs WordPress (wp-content/debug.log si WP_DEBUG activé)
+[Sisme User] Master loader initialisé avec succès
+[Sisme User] Module 'Authentification' initialisé : Sisme_User_Auth_Loader
+[Sisme User] Nouvel utilisateur inscrit : 123
+[Sisme User] Utilisateur connecté : user@email.com (ID: 123)
+```
+
+### 📊 Métriques utilisateur
+
+```php
+// Obtenir les statistiques globales
+$stats = [
+    'total_users' => wp_count_users()['total_users'],
+    'users_with_profiles' => count(get_users(['meta_key' => 'sisme_profile_created'])),
+    'active_modules' => Sisme_User_Loader::get_instance()->get_active_modules()
+];
+```
+
+## 🚧 Roadmap et évolutions
+
+### 📅 Version 1.1 (Prochaine)
+- **user-profile** - Gestion complète du profil
+- **Réinitialisation mot de passe** par email
+- **Validation email** à l'inscription
+
+### 📅 Version 1.2 (Future)
+- **user-library** - Ludothèque avancée avec statistiques
+- **Import/export** profil utilisateur
+- **API REST** pour applications mobiles
+
+### 📅 Version 1.3 (Future)
+- **user-social** - Fonctionnalités communautaires
+- **Système de notifications** en temps réel
+- **Gamification** - Points, badges, niveaux
 
 ## 🔍 Tests et debug
 
 ### Mode debug
 
-Le module utilise le système de debug WordPress. Pour activer les logs :
-
 ```php
+// Activer les logs détaillés
 define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);
+
+// Vérifier l'état des modules
+$loader = Sisme_User_Loader::get_instance();
+$modules = $loader->get_active_modules();
 ```
 
-### Logs disponibles
+### Tests recommandés
 
-- `[Sisme User]` - Logs du master loader
-- `[Sisme User Auth]` - Logs du module auth
-- Tentatives de connexion échouées
-- Créations de comptes
-- Erreurs de sécurité
-
-### Tests à effectuer
-
-1. **Inscription** - Créer un nouveau compte
-2. **Connexion** - Se connecter avec email/mot de passe
-3. **Remember me** - Tester session persistante
-4. **Rate limiting** - Tester blocage après 5 échecs
-5. **Validation** - Tester données invalides
-6. **Responsive** - Tester sur mobile/tablet
-
-## 🔄 Évolutions prévues
-
-### Version 1.1 (Prochaine)
-- **Réinitialisation mot de passe** par email
-- **Validation email** à l'inscription
-- **Connexion sociale** (Google, Discord)
-
-### Version 1.2 (Future)
-- **2FA** authentification à deux facteurs
-- **Historique connexions** pour sécurité
-- **Préférences avancées** notifications/privacy
+1. **Chargement des modules** - Vérifier les logs d'initialisation
+2. **Shortcodes** - Tester sur différentes pages
+3. **Responsive** - Mobile, tablet, desktop
+4. **Compatibilité** - Différents thèmes WordPress
+5. **Performance** - Temps de chargement et requêtes DB
 
 ## 📞 Support et maintenance
 
@@ -298,15 +257,19 @@ define('WP_DEBUG_LOG', true);
 - Aucun pour le moment
 
 ### Dépendances
-- WordPress 5.0+
-- Plugin Sisme Games Editor
-- Module formulaire existant du plugin
+- **WordPress 5.0+**
+- **PHP 7.4+**
+- **Plugin Sisme Games Editor**
+- **Module formulaire existant** du plugin
 
-### Contact
-Pour toute question ou amélioration, contacter l'équipe de développement Sisme Games Editor.
+### Maintenance
+
+- **Nettoyage automatique** - Sessions expirées via cron WordPress
+- **Mise à jour données** - Migration automatique des structures
+- **Compatibilité** - Tests réguliers avec nouvelles versions WP
 
 ---
 
 **Dernière mise à jour:** 25 Juin 2025  
-**Statut:** En développement  
+**Statut:** Module user-auth terminé, autres modules en développement  
 **Compatibilité:** WordPress 5.0+, PHP 7.4+

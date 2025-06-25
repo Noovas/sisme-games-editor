@@ -114,6 +114,10 @@ class Sisme_User_Auth_Loader {
             add_shortcode('sisme_user_register', ['Sisme_User_Auth_API', 'render_register_form']);
             add_shortcode('sisme_user_profile', ['Sisme_User_Auth_API', 'render_profile_dashboard']);
             add_shortcode('sisme_user_menu', ['Sisme_User_Auth_API', 'render_user_menu']);
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[Sisme User Auth] Shortcodes enregistrés : sisme_user_login, sisme_user_register, sisme_user_profile, sisme_user_menu');
+            }
         }
     }
     
@@ -149,11 +153,23 @@ class Sisme_User_Auth_Loader {
             'messages' => [
                 'loading' => 'Connexion en cours...',
                 'error' => 'Une erreur est survenue',
-                'success' => 'Connexion réussie !'
-            ]
+                'success' => 'Connexion réussie !',
+                'register_success' => 'Inscription réussie !',
+                'logout_success' => 'Déconnexion réussie'
+            ],
+            'config' => [
+                'redirect_delay' => 2000, // 2 secondes avant redirection
+                'show_messages' => true,   // Afficher les messages
+                'auto_hide_messages' => 5000 // Masquer après 5 secondes
+            ],
+            'debug' => defined('WP_DEBUG') && WP_DEBUG
         ]);
         
         $this->assets_loaded = true;
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[Sisme User Auth] Assets frontend chargés');
+        }
     }
     
     /**
@@ -196,5 +212,28 @@ class Sisme_User_Auth_Loader {
         } else {
             wp_send_json_error('Module de traitement non disponible');
         }
+    }
+    
+    /**
+     * Forcer le chargement des assets (utile pour shortcodes dynamiques)
+     */
+    public function force_load_assets() {
+        if (!$this->assets_loaded) {
+            $this->enqueue_frontend_assets();
+        }
+    }
+    
+    /**
+     * Vérifier si les assets sont chargés
+     */
+    public function are_assets_loaded() {
+        return $this->assets_loaded;
+    }
+    
+    /**
+     * Obtenir la version du module
+     */
+    public function get_version() {
+        return SISME_GAMES_EDITOR_VERSION;
     }
 }
