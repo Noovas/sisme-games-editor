@@ -266,35 +266,6 @@
     text-align: center;
 }
 
-.sisme-auth-submit {
-    width: 100%;
-    padding: var(--sisme-space-md) var(--sisme-space-lg);
-    background: var(--sisme-color-primary);
-    color: var(--sisme-gaming-text-bright);
-    border: none;
-    border-radius: var(--sisme-radius-md);
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--sisme-auth-transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--sisme-space-sm);
-    position: relative;
-    overflow: hidden;
-}
-
-.sisme-auth-submit:hover:not(:disabled) {
-    background: var(--sisme-color-primary-light);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(161, 183, 141, 0.3);
-}
-
-.sisme-auth-submit:active {
-    transform: translateY(0);
-}
-
 .sisme-auth-submit:disabled {
     opacity: 0.6;
     cursor: not-allowed;

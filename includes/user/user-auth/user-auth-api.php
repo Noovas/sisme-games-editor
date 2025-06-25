@@ -1,13 +1,12 @@
 <?php
 /**
  * File: /sisme-games-editor/includes/user/user-auth/user-auth-api.php
- * API et shortcodes pour l'authentification utilisateur
+ * API et shortcodes pour l'authentification utilisateur - VERSION CORRIGÉE
  * 
- * RESPONSABILITÉ:
- * - Shortcodes d'authentification ([sisme_user_login], [sisme_user_register], etc.)
- * - Rendu HTML des formulaires avec design gaming
- * - Interface utilisateur cohérente
- * - Gestion des états (connecté/déconnecté)
+ * MODIFICATION: URLs de redirection en dur avec pages fixes
+ * - sisme-user-profil
+ * - sisme-user-tableau-de-bord  
+ * - sisme-user-register
  */
 
 if (!defined('ABSPATH')) {
@@ -15,6 +14,12 @@ if (!defined('ABSPATH')) {
 }
 
 class Sisme_User_Auth_API {
+    
+    // URLs de redirection en dur
+    const PROFILE_URL = '/sisme-user-profil/';
+    const DASHBOARD_URL = '/sisme-user-tableau-de-bord/';
+    const REGISTER_URL = '/sisme-user-register/';
+    const LOGIN_URL = '/sisme-user-login/';
     
     /**
      * Initialisation de l'API
@@ -29,22 +34,20 @@ class Sisme_User_Auth_API {
      * Shortcode [sisme_user_login] - Formulaire de connexion
      */
     public static function render_login_form($atts = []) {
-        // Valeurs par défaut
+        // Valeurs par défaut avec URLs fixes
         $defaults = [
-            'redirect_to' => home_url('/mon-profil/'),
-            'show_register_link' => 'true',
-            'show_remember' => 'true',
             'container_class' => 'sisme-user-auth-container',
             'title' => 'Connexion',
             'subtitle' => 'Accédez à votre espace membre',
             'submit_text' => 'Se connecter',
+            'show_register_link' => 'true',
             'register_link_text' => 'Pas encore de compte ? S\'inscrire',
-            'register_url' => home_url('/inscription/')
+            'show_remember' => 'true'
         ];
         
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_login');
         
-        // Si déjà connecté, afficher message et liens
+        // Si déjà connecté, afficher message et liens vers dashboard
         if (is_user_logged_in()) {
             return self::render_already_logged_in();
         }
@@ -57,11 +60,11 @@ class Sisme_User_Auth_API {
             }
         }
         
-        // Créer le formulaire
+        // Créer le formulaire avec redirection vers dashboard
         $form_options = [
             'type' => 'login',
             'submit_text' => $atts['submit_text'],
-            'redirect_to' => $atts['redirect_to']
+            'redirect_to' => home_url(self::DASHBOARD_URL)
         ];
         
         $components = ['user_email', 'user_password'];
@@ -86,22 +89,20 @@ class Sisme_User_Auth_API {
      * Shortcode [sisme_user_register] - Formulaire d'inscription
      */
     public static function render_register_form($atts = []) {
-        // Valeurs par défaut
+        // Valeurs par défaut avec URLs fixes
         $defaults = [
-            'redirect_to' => home_url('/mon-profil/'),
-            'show_login_link' => 'true',
-            'require_email_verification' => 'false',
             'container_class' => 'sisme-user-auth-container',
             'title' => 'Inscription',
             'subtitle' => 'Rejoignez la communauté gaming',
             'submit_text' => 'Créer mon compte',
+            'show_login_link' => 'true',
             'login_link_text' => 'Déjà membre ? Se connecter',
-            'login_url' => home_url('/connexion/')
+            'require_email_verification' => 'false'
         ];
         
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_register');
         
-        // Si déjà connecté
+        // Si déjà connecté, rediriger vers dashboard
         if (is_user_logged_in()) {
             return self::render_already_logged_in();
         }
@@ -114,11 +115,11 @@ class Sisme_User_Auth_API {
             }
         }
         
-        // Créer le formulaire
+        // Créer le formulaire avec redirection vers dashboard
         $form_options = [
             'type' => 'register',
             'submit_text' => $atts['submit_text'],
-            'redirect_to' => $atts['redirect_to']
+            'redirect_to' => home_url(self::DASHBOARD_URL)
         ];
         
         $components = ['user_email', 'user_password', 'user_confirm_password', 'user_display_name', 'redirect_to'];
@@ -149,7 +150,7 @@ class Sisme_User_Auth_API {
         
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_profile');
         
-        // Vérifier si connecté
+        // Vérifier si connecté, sinon rediriger vers login
         if (!is_user_logged_in()) {
             return self::render_login_required();
         }
@@ -176,7 +177,7 @@ class Sisme_User_Auth_API {
                         </p>
                     </div>
                     <div class="sisme-profile-actions">
-                        <a href="<?php echo esc_url(wp_logout_url(home_url())); ?>" class="sisme-btn sisme-btn--secondary">
+                        <a href="<?php echo esc_url(wp_logout_url(home_url())); ?>" class="sisme-button sisme-button-orange">
                             <span class="sisme-btn-icon">🚪</span>
                             Déconnexion
                         </a>
@@ -233,7 +234,7 @@ class Sisme_User_Auth_API {
      * Shortcode [sisme_user_menu] - Menu utilisateur compact
      */
     public static function render_user_menu($atts = []) {
-        // Valeurs par défaut
+        // Valeurs par défaut avec URLs fixes
         $defaults = [
             'show_avatar' => 'true',
             'show_logout' => 'true',
@@ -264,7 +265,7 @@ class Sisme_User_Auth_API {
                     </div>
                     
                     <div class="sisme-user-menu-actions">
-                        <a href="<?php echo esc_url(home_url('/mon-profil/')); ?>" class="sisme-btn sisme-btn--small">
+                        <a href="<?php echo esc_url(home_url(self::DASHBOARD_URL)); ?>" class="sisme-btn sisme-btn--small">
                             <?php echo esc_html($atts['profile_text']); ?>
                         </a>
                         
@@ -278,10 +279,10 @@ class Sisme_User_Auth_API {
             <?php else: ?>
                 <div class="sisme-user-menu-logged-out">
                     <div class="sisme-user-menu-actions">
-                        <a href="<?php echo esc_url(home_url('/connexion/')); ?>" class="sisme-btn sisme-btn--small">
+                        <a href="<?php echo esc_url(home_url(self::LOGIN_URL)); ?>" class="sisme-btn sisme-btn--small">
                             <?php echo esc_html($atts['login_text']); ?>
                         </a>
-                        <a href="<?php echo esc_url(home_url('/inscription/')); ?>" class="sisme-btn sisme-btn--small sisme-btn--primary">
+                        <a href="<?php echo esc_url(home_url(self::REGISTER_URL)); ?>" class="sisme-btn sisme-btn--small sisme-btn--primary">
                             <?php echo esc_html($atts['register_text']); ?>
                         </a>
                     </div>
@@ -297,9 +298,11 @@ class Sisme_User_Auth_API {
      */
     private static function render_auth_card($type, $atts, $form) {
         $icon = ($type === 'login') ? '🔐' : '📝';
+        
+        // URLs fixes selon le type
         $show_link = ($type === 'login') ? $atts['show_register_link'] : $atts['show_login_link'];
         $link_text = ($type === 'login') ? $atts['register_link_text'] : $atts['login_link_text'];
-        $link_url = ($type === 'login') ? $atts['register_url'] : $atts['login_url'];
+        $link_url = ($type === 'login') ? home_url(self::REGISTER_URL) : home_url(self::LOGIN_URL);
         
         ob_start();
         ?>
@@ -345,9 +348,9 @@ class Sisme_User_Auth_API {
                     <p>Vous êtes déjà connecté en tant que <strong><?php echo esc_html($current_user->display_name); ?></strong>.</p>
                 </div>
                 <div class="sisme-auth-actions">
-                    <a href="<?php echo esc_url(home_url('/mon-profil/')); ?>" class="sisme-button sisme-button-vert">
+                    <a href="<?php echo esc_url(home_url(self::DASHBOARD_URL)); ?>" class="sisme-button sisme-button-vert">
                         <span class="sisme-btn-icon">👤</span>
-                        Mon profil
+                        Mon tableau de bord
                     </a>
                     <a href="<?php echo esc_url(wp_logout_url()); ?>" class="sisme-button sisme-button-orange">
                         <span class="sisme-btn-icon">🚪</span>
@@ -373,11 +376,11 @@ class Sisme_User_Auth_API {
                     <p>Vous devez être connecté pour accéder à cette page.</p>
                 </div>
                 <div class="sisme-auth-actions">
-                    <a href="<?php echo esc_url(home_url('/connexion/')); ?>" class="sisme-btn sisme-btn--primary">
+                    <a href="<?php echo esc_url(home_url(self::LOGIN_URL)); ?>" class="sisme-button sisme-button-vert">
                         <span class="sisme-btn-icon">🔐</span>
                         Se connecter
                     </a>
-                    <a href="<?php echo esc_url(home_url('/inscription/')); ?>" class="sisme-btn sisme-btn--secondary">
+                    <a href="<?php echo esc_url(home_url(self::REGISTER_URL)); ?>" class="sisme-button sisme-button-bleu">
                         <span class="sisme-btn-icon">📝</span>
                         S'inscrire
                     </a>
@@ -421,7 +424,7 @@ class Sisme_User_Auth_API {
         </div>
         <?php if (count($favorite_games) > 6): ?>
             <p class="sisme-favorites-more">
-                <a href="<?php echo esc_url(home_url('/ma-ludotheque/')); ?>">
+                <a href="<?php echo esc_url(home_url(self::PROFILE_URL)); ?>">
                     Voir tous mes favoris (<?php echo count($favorite_games); ?>)
                 </a>
             </p>

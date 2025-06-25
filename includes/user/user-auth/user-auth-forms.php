@@ -248,7 +248,7 @@ class Sisme_User_Auth_Forms {
                 <div class="sisme-auth-form-actions">
                     <button type="submit" 
                             name="<?php echo esc_attr($submit_name); ?>" 
-                            class="sisme-btn sisme-btn--primary sisme-btn--large sisme-auth-submit">
+                            class="sisme-button sisme-button-vert sisme-auth-submit">
                         <span class="sisme-btn-icon"><?php echo $this->form_type === 'register' ? '📝' : '🔐'; ?></span>
                         <?php echo esc_html($this->submit_button_text); ?>
                     </button>
