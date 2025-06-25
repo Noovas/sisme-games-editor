@@ -42,7 +42,7 @@ class Sisme_Fiche_Creator {
         $post_data = array(
             'post_title' => $article_title,
             'post_content' => '', // Sera généré par le template
-            'post_status' => 'draft',
+            'post_status' => 'publish',
             'post_type' => 'post',
             'post_author' => get_current_user_id()
         );
@@ -84,7 +84,7 @@ class Sisme_Fiche_Creator {
         return array(
             'success' => true,
             'post_id' => $post_id,
-            'message' => 'Fiche créée avec succès !'
+            'message' => 'Fiche publiée avec succès !'
         );
     }
     
