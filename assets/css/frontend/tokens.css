@@ -103,6 +103,13 @@
     --sisme-bg-hover-bleu: rgba(102, 192, 244, 0.3);
     --sisme-bg-vert: rgba(161, 183, 141, 0.2);
     --sisme-bg-hover-vert: rgba(161, 183, 141, 0.3);
+
+    --sisme-button-bg-orange: rgba(212, 163, 115, 0.5);
+    --sisme-button-bg-hover-orange: rgba(212, 163, 115, 0.8);
+    --sisme-button-bg-bleu: rgba(102, 192, 244, 0.5);
+    --sisme-button-bg-hover-bleu: rgba(102, 192, 244, 0.8);
+    --sisme-button-bg-vert: rgba(161, 183, 141, 0.5);
+    --sisme-button-bg-hover-vert: rgba(161, 183, 141, 0.8);
 }
 
 /* ========================================

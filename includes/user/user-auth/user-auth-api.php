@@ -345,11 +345,11 @@ class Sisme_User_Auth_API {
                     <p>Vous êtes déjà connecté en tant que <strong><?php echo esc_html($current_user->display_name); ?></strong>.</p>
                 </div>
                 <div class="sisme-auth-actions">
-                    <a href="<?php echo esc_url(home_url('/mon-profil/')); ?>" class="sisme-btn sisme-btn--primary">
+                    <a href="<?php echo esc_url(home_url('/mon-profil/')); ?>" class="sisme-button sisme-button-vert">
                         <span class="sisme-btn-icon">👤</span>
                         Mon profil
                     </a>
-                    <a href="<?php echo esc_url(wp_logout_url()); ?>" class="sisme-btn sisme-btn--secondary">
+                    <a href="<?php echo esc_url(wp_logout_url()); ?>" class="sisme-button sisme-button-orange">
                         <span class="sisme-btn-icon">🚪</span>
                         Déconnexion
                     </a>

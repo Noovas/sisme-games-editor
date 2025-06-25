@@ -34,6 +34,63 @@ body,
 }
 
 /* ========================================
+   🎯 BOUTONS 
+======================================== */
+
+.sisme-button {
+    display: flex;
+    align-items: center;
+    border: none;
+    color: white !important;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: var(--sisme-font-semibold);
+    border-radius: var(--sisme-radius-lg);
+    transition: var(--sisme-transition-fluide);
+    padding: var(--sisme-space-md) var(--sisme-space-lg);
+    transition: var(--sisme-transition-all);
+}
+
+.sisme-button:hover {
+    color: white !important;
+    transform: translateY(-2px);
+}
+
+.sisme-button-vert {
+    background: linear-gradient(90deg, var(--sisme-button-bg-vert), var(--sisme-button-bg-hover-vert));
+}
+
+.sisme-button-vert:hover {
+    box-shadow: var(--sisme-shadow-neon-vert);
+}
+
+.sisme-button-bleu {
+    background: linear-gradient(90deg, var(--sisme-button-bg-bleu), var(--sisme-button-bg-hover-bleu));
+}
+
+.sisme-button-bleu:hover {
+    box-shadow: var(--sisme-shadow-neon-bleu);
+}
+    
+.sisme-button-orange {
+    background: linear-gradient(90deg, var(--sisme-button-bg-orange), var(--sisme-button-bg-hover-orange));
+}
+
+.sisme-button-orange:hover {
+    box-shadow: var(--sisme-shadow-neon-orange);
+} 
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+
+/* ========================================
    🎯 BADGES 
 ======================================== */
 
