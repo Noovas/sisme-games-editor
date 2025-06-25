@@ -30,9 +30,7 @@ if ($tag_id > 0) {
     }
 }
 
-// Choix de l'équipe
-$is_team_choice = isset($data['is_team_choice']) ? $data['is_team_choice'] : '0';
-update_term_meta($tag_id, 'is_team_choice', $is_team_choice);
+
 
 $is_edit_mode = ($tag_data !== null);
 
@@ -42,7 +40,7 @@ $page_subtitle = $is_edit_mode ? 'Édition des données du jeu' : 'Créer un nou
 $page = new Sisme_Admin_Page_Wrapper(
     $page_title,
     $page_subtitle,
-    'create', // Icône 📝
+    'create',
     admin_url('admin.php?page=sisme-games-game-data'),
     'Retour à Game Data'
 );
@@ -52,7 +50,7 @@ $form_was_submitted = false;
 
 if (!empty($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme_form_action')) {
     $temp_form = new Sisme_Game_Form_Module([
-        'game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 
+        'game_name', 'is_team_choice', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 
         'description', 'game_platforms', 'release_date', 'trailer_link', 'external_links', 
         'cover_main', 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical', 'screenshots'
     ]);
@@ -95,6 +93,7 @@ if ($is_edit_mode) {
     $_POST['trailer_link'] = get_term_meta($tag_id, 'trailer_link', true);
     $_POST['external_links'] = get_term_meta($tag_id, 'external_links', true) ?: array();
     $_POST['screenshots'] = get_term_meta($tag_id, 'screenshots', true);
+    $_POST['is_team_choice'] = get_term_meta($tag_id, 'is_team_choice', true);
 }
 
 $page->render_start();
@@ -133,7 +132,7 @@ $page->render_start();
 <!-- Formulaire EXACTEMENT comme l'original -->
 <?php
 $form = new Sisme_Game_Form_Module([
-    'game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 
+    'game_name', 'is_team_choice', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 
     'description', 'game_platforms', 'release_date', 'trailer_link', 'external_links', 
     'cover_main', 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical', 'screenshots'
 ], [
