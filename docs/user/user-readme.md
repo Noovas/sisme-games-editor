@@ -7,32 +7,12 @@
 
 ## 📚 Modules Documentés
 
-- **User**  
-  Voir la documentation complète de l’utilisateur :  
-  - README → [docs/user/user-readme.md](docs/user/user-readme.md)  
-  - Dossier complet → [docs/user/](docs/user/)
+# 📁 Sisme-Games-Editor
 
-- **User‑Auth**  
-  Guide d’authentification & installation :  
-  - README → [docs/user-auth/user-auth-readme.md](docs/user-auth/user-auth-readme.md)
+- 📄 `README.md`
+- 📁 `docs/`
+  - 📁 `user/`
+    - 📄 [user-readme.md](docs/user/user-readme.md)
+  - 📁 `user-auth/`
+    - 📄 [user-auth-readme.md](docs/user-auth/user-auth-readme.md)
 
----
-
-## 🔧 Pourquoi cette structure ?
-
-- **Clarté visuelle** : l’arborescence permet de saisir en un coup d’œil la hiérarchie du plugin.
-- **Liens directs** : navigation facile vers les docs spécifiques.
-
----
-
-## 🔜 Prochaines sections possibles
-
-Souhaites-tu qu’on ajoute aussi :
-
-- 🛠️ **Installation**
-- ⚙️ **Fonctionnalités principales**
-- 👥 **Contribuer**
-- 📄 **Licence**
-
-Dis-moi si tu veux que je complète avec ces sections 😊
-::contentReference[oaicite:0]{index=0}
