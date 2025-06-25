@@ -180,9 +180,9 @@ class Sisme_Search_API {
         ob_start();
         ?>
         <div class="sisme-quick-filters" id="sismeQuickFilters">
-            <!-- 💙 Coups de cœur (is_team_choice)  désactivé pour l'instant) -->
+            <!-- 💖 Coups de cœur (is_team_choice)  désactivé pour l'instant) -->
             <button class="sisme-quick-filter sisme-tooltip-enabled" data-filter="featured" style="opacity: 0.6;" disabled title="Bientôt disponible">
-                💙 <?php esc_html_e('Coups de cœur', 'sisme-games-editor'); ?> 
+                💖 <?php esc_html_e('Coups de cœur', 'sisme-games-editor'); ?> 
                 <span class="sisme-filter-count">(<?php echo self::get_quick_filter_count('featured'); ?>)</span>
             </button>
                         

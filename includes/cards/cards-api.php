@@ -142,11 +142,13 @@ class Sisme_Cards_API {
         
         // 1. Récupérer les IDs des jeux via cards-functions
         $criteria = array(
-            'genres' => $args['genres'],
-            'is_team_choice' => $args['is_team_choice'],
-            'sort_by_date' => $args['sort_by_date'],
-            'max_results' => $args['max_cards'],
-            'debug' => $args['debug']
+            'genres' => $args['genres'] ?? array(),
+            'is_team_choice' => $args['is_team_choice'] ?? false,
+            'sort_by_date' => $args['sort_by_date'] ?? true,
+            'sort_order' => $args['sort_order'] ?? 'desc',  // ✅ NOUVEAU
+            'max_results' => ($args['max_cards'] ?? -1) > 0 ? $args['max_cards'] : -1,
+            'released' => $args['released'] ?? 0,
+            'debug' => $args['debug'] ?? false
         );
         
         $game_ids = Sisme_Cards_Functions::get_games_by_criteria($criteria);
@@ -409,6 +411,7 @@ add_shortcode('game_cards_grid', function($atts) {
         'genres' => '',
         'is_team_choice' => 'false',
         'sort_by_date' => 'true',
+        'sort_order' => 'desc',
         'container_class' => '',
         'debug' => 'false',
         'max_genres' => '3',
@@ -422,51 +425,61 @@ add_shortcode('game_cards_grid', function($atts) {
         'type' => sanitize_text_field($atts['type']),
         'cards_per_row' => intval($atts['cards_per_row']),
         'max_cards' => intval($atts['max_cards']),
-        'genres' => !empty($atts['genres']) ? 
-            array_map('trim', explode(',', $atts['genres'])) : array(),
+        'genres' => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
         'is_team_choice' => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
         'sort_by_date' => filter_var($atts['sort_by_date'], FILTER_VALIDATE_BOOLEAN),
+        'sort_order' => in_array($atts['sort_order'], ['asc', 'desc']) ? $atts['sort_order'] : 'desc', // ✅ VALIDATION
         'container_class' => sanitize_text_field($atts['container_class']),
         'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN),
         'max_genres' => intval($atts['max_genres']),
         'max_modes' => intval($atts['max_modes']),
         'title' => sanitize_text_field($atts['title']),
-        'released' => intval($atts['released']) 
+        'released' => intval($atts['released'])
     );
     
     return Sisme_Cards_API::render_cards_grid($args);
 });
 
-// 🔧 SHORTCODE de debug pour tester
-add_shortcode('debug_cards_grid', function($atts) {
-    if (!defined('WP_DEBUG') || !WP_DEBUG) {
-        return '<p style="color: #dc3232;">Shortcode debug disponible uniquement en mode WP_DEBUG</p>';
-    }
-    
+// 🎠 SHORTCODE CARROUSEL
+add_shortcode('game_cards_carousel', function($atts) {
     $atts = shortcode_atts(array(
-        'type' => 'normal',
-        'cards_per_row' => '4',
-        'max_cards' => '6',
+        'cards_per_view' => '3',
+        'total_cards' => '9',
         'genres' => '',
         'is_team_choice' => 'false',
         'sort_by_date' => 'true',
-        'container_class' => '',
+        'sort_order' => 'desc',
+        'navigation' => 'true',
+        'pagination' => 'true',
+        'infinite' => 'true',
+        'autoplay' => 'false',
+        'debug' => 'false',
+        'max_genres' => '3',
+        'max_modes' => '4',
+        'title' => '',
         'released' => '0'
     ), $atts);
     
     // Préparer les arguments
     $args = array(
-        'type' => sanitize_text_field($atts['type']),
-        'cards_per_row' => intval($atts['cards_per_row']),
-        'max_cards' => intval($atts['max_cards']),
+        'cards_per_view' => intval($atts['cards_per_view']),
+        'total_cards' => intval($atts['total_cards']),
         'genres' => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
         'is_team_choice' => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
         'sort_by_date' => filter_var($atts['sort_by_date'], FILTER_VALIDATE_BOOLEAN),
-        'container_class' => sanitize_html_class($atts['container_class']),
+        'sort_order' => in_array($atts['sort_order'], ['asc', 'desc']) ? $atts['sort_order'] : 'desc', // ✅ VALIDATION
+        'navigation' => filter_var($atts['navigation'], FILTER_VALIDATE_BOOLEAN),
+        'pagination' => filter_var($atts['pagination'], FILTER_VALIDATE_BOOLEAN),
+        'infinite' => filter_var($atts['infinite'], FILTER_VALIDATE_BOOLEAN),
+        'autoplay' => filter_var($atts['autoplay'], FILTER_VALIDATE_BOOLEAN),
+        'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN),
+        'max_genres' => intval($atts['max_genres']),
+        'max_modes' => intval($atts['max_modes']),
+        'title' => sanitize_text_field($atts['title']),
         'released' => intval($atts['released'])
     );
     
-    return Sisme_Cards_API::debug_grid($args);
+    return Sisme_Cards_API::render_cards_carousel($args);
 });
 
 // 📊 SHORTCODE pour afficher les statistiques
@@ -503,115 +516,6 @@ add_shortcode('cards_stats', function($atts) {
     
     if (!empty($stats['date_range']['oldest']) && !empty($stats['date_range']['newest'])) {
         $output .= '<p><strong>Période:</strong> ' . $stats['date_range']['oldest'] . ' → ' . $stats['date_range']['newest'] . '</p>';
-    }
-    
-    $output .= '</div>';
-    
-    return $output;
-});
-
-// 🎠 SHORTCODE principal pour le carrousel
-add_shortcode('game_cards_carousel', function($atts) {
-    $atts = shortcode_atts(array(
-        'cards_per_view' => '3',
-        'total_cards' => '9',
-        'genres' => '',
-        'navigation' => 'true',
-        'pagination' => 'true',
-        'infinite' => 'false',
-        'autoplay' => 'false',
-        'is_team_choice' => 'false',
-        'sort_by_date' => 'true',
-        'debug' => 'false',
-        'max_genres' => '3',
-        'max_modes' => '4',
-        'type' => 'normal',
-        'title' => '',
-        'released' => '0'
-    ), $atts);
-    
-    // Préparer les arguments
-    $args = array(
-        'cards_per_view' => intval($atts['cards_per_view']),
-        'total_cards' => intval($atts['total_cards']),
-        'genres' => !empty($atts['genres']) ? 
-            array_map('trim', explode(',', $atts['genres'])) : array(),
-        'navigation' => filter_var($atts['navigation'], FILTER_VALIDATE_BOOLEAN),
-        'pagination' => filter_var($atts['pagination'], FILTER_VALIDATE_BOOLEAN),
-        'infinite' => filter_var($atts['infinite'], FILTER_VALIDATE_BOOLEAN),
-        'autoplay' => filter_var($atts['autoplay'], FILTER_VALIDATE_BOOLEAN),
-        'is_team_choice' => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
-        'sort_by_date' => filter_var($atts['sort_by_date'], FILTER_VALIDATE_BOOLEAN),
-        'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN),
-        'max_genres' => intval($atts['max_genres']),
-        'max_modes' => intval($atts['max_modes']),
-        'type' => sanitize_text_field($atts['type']),
-        'title' => sanitize_text_field($atts['title']),
-        'released' => intval($atts['released'])
-    );
-    
-    return Sisme_Cards_API::render_cards_carousel($args);
-});
-
-// 🔧 SHORTCODE de debug pour le carrousel
-add_shortcode('debug_cards_carousel', function($atts) {
-    if (!defined('WP_DEBUG') || !WP_DEBUG) {
-        return '<p style="color: #dc3232;">Shortcode debug carrousel disponible uniquement en mode WP_DEBUG</p>';
-    }
-    
-    $atts = shortcode_atts(array(
-        'cards_per_view' => '3',
-        'total_cards' => '6',
-        'genres' => ''
-    ), $atts);
-    
-    // Forcer le debug
-    $args = array(
-        'cards_per_view' => intval($atts['cards_per_view']),
-        'total_cards' => intval($atts['total_cards']),
-        'genres' => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
-        'debug' => true
-    );
-    
-    return Sisme_Cards_API::render_cards_carousel($args);
-});
-
-/**
- * 🆕 SHORTCODE DE DEBUG pour tester le filtrage par statut
- */
-add_shortcode('debug_release_status', function($atts) {
-    if (!defined('WP_DEBUG') || !WP_DEBUG) {
-        return '<p style="color: #dc3232;">Shortcode debug statut disponible uniquement en mode WP_DEBUG</p>';
-    }
-    
-    $atts = shortcode_atts(array(
-        'game_id' => '0'
-    ), $atts);
-    
-    $output = '<div style="background: #f1f1f1; padding: 15px; border-radius: 5px; margin: 10px 0;">';
-    $output .= '<h4>🔍 Debug Statut de Sortie</h4>';
-    
-    if (!empty($atts['game_id'])) {
-        // Debug d'un jeu spécifique
-        $game_id = intval($atts['game_id']);
-        $status = Sisme_Cards_Functions::get_game_release_status($game_id);
-        $game = get_term($game_id);
-        
-        $output .= '<p><strong>Jeu :</strong> ' . ($game ? $game->name : 'Introuvable') . ' (ID: ' . $game_id . ')</p>';
-        $output .= '<p><strong>Date de sortie :</strong> ' . ($status['release_date'] ?: 'Non définie') . '</p>';
-        $output .= '<p><strong>Statut :</strong> ' . ($status['is_released'] ? '✅ Sorti' : '⏳ Pas encore sorti') . '</p>';
-        $output .= '<p><strong>Détail :</strong> ' . $status['status_text'] . '</p>';
-        $output .= '<p><strong>Différence (jours) :</strong> ' . $status['days_diff'] . '</p>';
-    } else {
-        // Statistiques globales
-        $stats = Sisme_Cards_Functions::get_release_status_stats();
-        
-        $output .= '<p><strong>Total jeux :</strong> ' . $stats['total'] . '</p>';
-        $output .= '<p><strong>Sortis :</strong> ' . $stats['released'] . ' ✅</p>';
-        $output .= '<p><strong>Pas encore sortis :</strong> ' . $stats['unreleased'] . ' ⏳</p>';
-        $output .= '<p><strong>Sans date :</strong> ' . $stats['no_date'] . ' ❓</p>';
-        $output .= '<p><strong>Sortis cette semaine :</strong> ' . $stats['released_this_week'] . ' 🔥</p>';
-        $output .= '<p><strong>Sortent cette semaine :</strong> ' . $stats['releasing_this_week'] . ' 🚀</p>';
     }
     
     $output .= '</div>';

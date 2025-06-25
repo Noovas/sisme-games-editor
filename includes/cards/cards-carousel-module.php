@@ -40,24 +40,25 @@ class Sisme_Cards_Carousel_Module {
         // Fusionner avec les options par défaut
         $carousel_options = array_merge(self::$default_options, $args);
         
-        // Préparer les arguments pour la grille de cartes
+        // Préparer les arguments pour la grille de cartes (MODIFIÉ)
         $grid_args = array(
             'type' => $args['type'] ?? 'normal',
             'max_cards' => $carousel_options['total_cards'],
             'genres' => $args['genres'] ?? array(),
             'is_team_choice' => $args['is_team_choice'] ?? false,
             'sort_by_date' => $args['sort_by_date'] ?? true,
+            'sort_order' => $args['sort_order'] ?? 'desc', 
             'debug' => $args['debug'] ?? false,
-            'max_genres' => $args['max_genres'] ?? -1,      
+            'max_genres' => $args['max_genres'] ?? -1,
             'max_modes' => $args['max_modes'] ?? -1,
             'title' => $args['title'] ?? '',
-            'released' => $args['released'] ?? 0    // NOUVEAU PARAMÈTRE
+            'released' => $args['released'] ?? 0
         );
         
         // Debug
         if ($grid_args['debug'] && defined('WP_DEBUG') && WP_DEBUG) {
             error_log('[Sisme Carousel] Configuration: ' . print_r($carousel_options, true));
-            error_log('[Sisme Carousel] Released filter: ' . $grid_args['released']);
+            error_log('[Sisme Carousel] Sort order: ' . $grid_args['sort_order']);
         }
         
         // Récupérer les IDs des jeux
@@ -69,6 +70,7 @@ class Sisme_Cards_Carousel_Module {
             'genres' => $grid_args['genres'],
             'is_team_choice' => $grid_args['is_team_choice'],
             'sort_by_date' => $grid_args['sort_by_date'],
+            'sort_order' => $grid_args['sort_order'],  //
             'max_results' => $grid_args['max_cards'],
             'released' => $grid_args['released'],
             'debug' => $grid_args['debug']

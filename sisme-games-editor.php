@@ -283,15 +283,15 @@ class SismeGamesEditor {
             $loader_file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/' . $module_name . '/' . $module_name . '-loader.php';
             if (file_exists($loader_file)) {
                 require_once $loader_file;
-                $class_name = 'Sisme_' . ucfirst($module_name) . '_Loader';
+                $class_name = 'Sisme_' . ucfirst(str_replace('-', '_', $module_name)) . '_Loader';
                 if (class_exists($class_name) && method_exists($class_name, 'get_instance')) {
                     $class_name::get_instance();
                     if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('[Sisme] Module initialisé : ' . $module_name . ' (' . $class_name . ')');
+                        error_log('[Sisme] Module initialisé : ' . $module_name . ' (' . str_replace('-', '_', $class_name) . ')');
                     }
                 } else {
                     if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('[Sisme] Classe introuvable : ' . $class_name);
+                        error_log('[Sisme] Classe introuvable : ' . class_name);
                     }
                 }
             } else {
