@@ -20,7 +20,8 @@ define('SISME_GAMES_MODULES', array(
     "vedettes", 
     "cards",
     "search",
-    "team-choice"
+    "team-choice",
+    "user"
 ));
 
 class SismeGamesEditor {
