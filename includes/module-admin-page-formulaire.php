@@ -55,6 +55,13 @@ class Sisme_Game_Form_Module {
             'required' => true,
             'output_var' => 'game_name'
         ],
+        'is_team_choice' => [
+            'label' => 'Choix de l\'équipe',
+            'description' => '',
+            'required' => false,
+            'output_var' => 'is_team_choice',
+            'type' => 'checkbox'
+        ],
         'trailer_link' => [
             'label' => 'Trailer',
             'description' => '',
@@ -154,7 +161,7 @@ class Sisme_Game_Form_Module {
             'description' => '',
             'required' => false,
             'output_var' => 'external_links'
-        ]
+        ],
     ];
     
     /**
@@ -284,11 +291,8 @@ class Sisme_Game_Form_Module {
                 foreach ($allowed_tags as $tag) {
                     $allowed_html[$tag] = [];
                 }
-                
-                // CORRECTION : Décoder d'abord les entités HTML pour éviter le double échappement
+
                 $value = wp_specialchars_decode($value, ENT_QUOTES);
-                
-                // Puis appliquer wp_kses pour nettoyer les balises non autorisées
                 return wp_kses($value, $allowed_html);
 
             case 'cover_main':
@@ -317,6 +321,9 @@ class Sisme_Game_Form_Module {
                     return $sanitized;
                 }
                 return [];
+            case 'is_team_choice':
+                return ($value === '1' || $value === 1 || $value === true) ? '1' : '0';
+
                 
             default:
                 return sanitize_text_field($value);
@@ -447,6 +454,7 @@ class Sisme_Game_Form_Module {
         
         return $entities;
     }
+
     /**
      * Afficher le composant développeurs avec interface moderne
      */
@@ -1406,6 +1414,10 @@ class Sisme_Game_Form_Module {
             case 'screenshots':
                 $this->render_screenshots_component('screenshots');
                 break;
+
+            case 'is_team_choice':
+                $this->render_team_choice_component();
+                break;
                 
             default:
                 ?>
@@ -1419,6 +1431,56 @@ class Sisme_Game_Form_Module {
                 </tr>
                 <?php
                 break;
+        }
+    }
+
+    /**
+     * Rendre le composant "Choix de l'équipe"
+     */
+    private function render_team_choice_component() {
+        $config = $this->components['is_team_choice'];
+        $output_var = $config['output_var'];
+        $field_id = $this->module_id . '_' . $output_var;
+        $use_table = $this->form_options['table'] ?? true;
+        
+        $current_value = isset($this->form_data[$output_var]) ? $this->form_data[$output_var] : false;
+        $is_checked = $current_value === '1' || $current_value === true;
+        
+        if ($use_table) {
+            echo '<tr>';
+            echo '<th scope="row">';
+            echo '<label for="' . esc_attr($field_id) . '">' . esc_html($config['label']) . '</label>';
+            echo '</th>';
+            echo '<td>';
+        } else {
+            echo '<label class="sisme-field-label" for="' . esc_attr($field_id) . '">';
+            echo '<strong>' . esc_html($config['label']) . '</strong>';
+            echo '</label>';
+        }
+        
+        echo '<div class="sisme-team-choice-container">';
+        echo '<label class="sisme-team-choice-checkbox">';
+        echo '<input type="checkbox" ';
+        echo 'id="' . esc_attr($field_id) . '" ';
+        echo 'name="' . esc_attr($output_var) . '" ';
+        echo 'value="1" ';
+        if ($is_checked) echo 'checked="checked" ';
+        echo 'class="sisme-checkbox-input">';
+        echo '<span class="sisme-checkbox-label">💖 Ce jeu est un choix spécial de l\'équipe</span>';
+        echo '</label>';
+        
+        if (!empty($config['description'])) {
+            echo '<p class="description">' . esc_html($config['description']) . '</p>';
+        }
+        
+        echo '<div class="sisme-team-choice-info">';
+        echo '<p><em>💡 Les jeux marqués comme "choix de l\'équipe" peuvent être filtrés spécifiquement dans les shortcodes et widgets.</em></p>';
+        echo '</div>';
+        echo '</div>';
+        
+        if ($use_table) {
+            echo '</td>';
+            echo '</tr>';
         }
     }
     
@@ -1598,7 +1660,7 @@ class Sisme_Game_Form_Module {
                     break;
 
                 case 'description':
-                    // Pas de validation spéciale pour la description
+                case 'is_team_choice':
                     break;
             }
         }

@@ -168,6 +168,59 @@ document.addEventListener('click', function(e) {
             window.location.href = `?page=sisme-games-game-data&action=delete_game_data&game_id=${gameId}`;
         }
     }
+
+    // team choice switch
+    if (e.target.classList.contains('team-choice-btn')) {
+        e.preventDefault();
+        
+        const btn = e.target;
+        const gameId = btn.getAttribute('data-game-id');
+        const currentValue = btn.getAttribute('data-team-choice');
+        
+        // Désactiver le bouton temporairement
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        
+        // Requête AJAX
+        const formData = new FormData();
+        formData.append('action', 'sisme_toggle_team_choice');
+        formData.append('term_id', gameId);
+        formData.append('current_value', currentValue);
+        formData.append('nonce', '<?php echo wp_create_nonce("sisme_team_choice_nonce"); ?>');
+        
+        fetch(ajaxurl, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mettre à jour le bouton
+                btn.textContent = data.data.icon;
+                btn.setAttribute('data-team-choice', data.data.new_value);
+                btn.setAttribute('title', data.data.title);
+                btn.className = 'action-btn team-choice-btn ' + data.data.class;
+                
+                // Animation de succès
+                btn.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    btn.style.transform = '';
+                }, 200);
+                
+            } else {
+                alert('Erreur: ' + data.data);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur AJAX:', error);
+            alert('Erreur de connexion');
+        })
+        .finally(() => {
+            // Réactiver le bouton
+            btn.disabled = false;
+            btn.style.opacity = '';
+        });
+    }
 });
 </script>
 <?php

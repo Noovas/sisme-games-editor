@@ -19,7 +19,8 @@ define('SISME_GAMES_EDITOR_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('SISME_GAMES_MODULES', array(
     "vedettes", 
     "cards",
-    'search'
+    "search",
+    "team-choice"
 ));
 
 class SismeGamesEditor {
@@ -44,6 +45,7 @@ class SismeGamesEditor {
         add_action('wp_ajax_sisme_create_entity', array($this, 'handle_ajax_create_entity'));
         add_action('wp_ajax_sisme_delete_game_data', array($this, 'ajax_delete_game_data'));
         add_action('init', array($this, 'init_modules_system'));
+        add_action('wp_ajax_sisme_toggle_team_choice', array($this, 'handle_toggle_team_choice'));
 
         $this->include_files();
 
@@ -59,6 +61,8 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/cards/cards-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/tools/emoji-helper.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/search/search-loader.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/team-choice/team-choice-loader.php';
+
 
 
     }
@@ -295,6 +299,37 @@ class SismeGamesEditor {
                     error_log('[Sisme] Module introuvable : ' . $module_name . ' (' . $loader_file . ')');
                 }
             }
+        }
+    }
+
+    public function handle_toggle_team_choice() {
+        if (!current_user_can('manage_categories')) {
+            wp_die('Permissions insuffisantes', 403);
+        }
+        
+        if (!check_ajax_referer('sisme_team_choice_nonce', 'nonce', false)) {
+            wp_die('Nonce invalide', 403);
+        }
+        
+        $term_id = intval($_POST['term_id'] ?? 0);
+        $current_value = sanitize_text_field($_POST['current_value'] ?? '0');
+        
+        if (!$term_id) {
+            wp_send_json_error('ID de jeu invalide');
+        }
+        
+        $new_value = ($current_value === '1') ? '0' : '1';
+        $success = update_term_meta($term_id, 'is_team_choice', $new_value);
+        
+        if ($success !== false) {
+            wp_send_json_success(array(
+                'new_value' => $new_value,
+                'icon' => ($new_value === '1') ? '💖' : '🤍',
+                'title' => ($new_value === '1') ? 'Retirer des choix équipe' : 'Ajouter aux choix équipe',
+                'class' => ($new_value === '1') ? 'team-choice-active' : 'team-choice-inactive'
+            ));
+        } else {
+            wp_send_json_error('Erreur lors de la mise à jour');
         }
     }
 }

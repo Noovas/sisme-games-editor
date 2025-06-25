@@ -261,11 +261,24 @@ class Sisme_Game_Data_Table_Module {
             <!-- Actions (colonne droite) -->
             <td class="sisme-game-actions-cell">
                 <div class="sisme-game-actions">
-                    <a href="<?php echo add_query_arg('tag_id', $game_data['id'], $this->options['edit_url']); ?>" 
-                       class="sisme-action-btn sisme-action-edit" 
-                       data-sisme-tooltip="Modifier les données du jeu">✏️</a>
+                    <a href="<?php echo add_query_arg('tag_id', $game_data['id'], $this->options['edit_url']); ?>"
+                        class="sisme-action-btn sisme-action-edit" 
+                        data-sisme-tooltip="Modifier les données du jeu">✏️</a>
 
-                    <?php
+                        <?php
+                        // Choix de l'équipe en bouton switch
+                        $is_team_choice = get_term_meta($game_data['id'], 'is_team_choice', true) === '1';
+                        $heart_class = $is_team_choice ? 'team-choice-active' : 'team-choice-inactive';
+                        $heart_icon = $is_team_choice ? '💖' : '🤍';?>
+                        <button type="button"
+                            class="sisme-action-btn team-choice-btn <?php echo $heart_class; ?>" 
+                            data-game-id="<?php echo $game_data['id']; ?>" 
+                            data-team-choice="<?php echo ($is_team_choice ? '1' : '0'); ?>" 
+                            data-sisme-tooltip="<?php echo ($is_team_choice ? 'Retirer des choix équipe' : 'Ajouter aux choix équipe'); ?>">
+                            <?php echo $heart_icon; ?>
+                        </button>
+
+                        <?php
                         // Vérifier si le jeu a des sections (présentation)
                         $has_presentation = $this->game_has_presentation($game_data['id']);
                         $fiche_url = admin_url('admin.php?page=sisme-games-edit-fiche-jeu&tag_id=' . $game_data['id']);
@@ -274,11 +287,11 @@ class Sisme_Game_Data_Table_Module {
                         if ($has_presentation) {
                             $btn_class = 'sisme-action-btn sisme-action-fiche sisme-has-presentation';
                             $btn_tooltip = 'Modifier la fiche existante';
-                            $btn_icon = '📝'; // Icône verte/remplie
+                            $btn_icon = '📝'
                         } else {
                             $btn_class = 'sisme-action-btn sisme-action-fiche sisme-no-presentation';
                             $btn_tooltip = 'Créer une nouvelle fiche';
-                            $btn_icon = '📄'; // Icône vide/grise
+                            $btn_icon = '📄'
                         }
                         ?>
 

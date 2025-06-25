@@ -392,7 +392,7 @@ $page->render_start();
 
 <script>
 jQuery(document).ready(function($) {
-    var sectionCounter = <?php echo count($existing_sections); ?>;
+    var sectionCounter = $('#sections-container .sisme-section-item').length;
     
     // Initialiser le sélecteur de médias pour les sections existantes
     $('.select-section-image').each(function() {
@@ -405,7 +405,8 @@ jQuery(document).ready(function($) {
             <div class="sisme-section-item" style="animation: sismeSectionFadeIn 0.3s ease-out;">
                 <div class="sisme-section-item__header">
                     <h4 class="sisme-section-item__title">
-                        Section ${sectionCounter + 1}
+                        sectionCounter++;
+                        Section ${sectionCounter}
                     </h4>
                     <button type="button" class="sisme-btn sisme-btn--danger sisme-btn--icon remove-section" 
                             data-sisme-tooltip="Supprimer cette section">

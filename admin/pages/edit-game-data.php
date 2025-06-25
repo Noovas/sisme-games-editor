@@ -23,13 +23,16 @@ if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-data
 // Récupérer l'ID du tag si en mode édition
 $tag_id = isset($_GET['tag_id']) ? intval($_GET['tag_id']) : 0;
 $tag_data = null;
-
 if ($tag_id > 0) {
     $tag_data = get_term($tag_id, 'post_tag');
     if (is_wp_error($tag_data)) {
         $tag_data = null;
     }
 }
+
+// Choix de l'équipe
+$is_team_choice = isset($data['is_team_choice']) ? $data['is_team_choice'] : '0';
+update_term_meta($tag_id, 'is_team_choice', $is_team_choice);
 
 $is_edit_mode = ($tag_data !== null);
 
@@ -47,7 +50,6 @@ $page = new Sisme_Admin_Page_Wrapper(
 $success_message = '';
 $form_was_submitted = false;
 
-// Traitement formulaire - LOGIQUE IDENTIQUE
 if (!empty($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme_form_action')) {
     $temp_form = new Sisme_Game_Form_Module([
         'game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 
@@ -76,7 +78,6 @@ if (!empty($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme
     }
 }
 
-// Pré-remplir données - LOGIQUE IDENTIQUE
 if ($is_edit_mode) {
     $_POST['game_name'] = $tag_id;
     $_POST['game_genres'] = get_term_meta($tag_id, 'game_genres', true) ?: array();
@@ -140,13 +141,7 @@ $form = new Sisme_Game_Form_Module([
     'nonce_action' => 'sisme_form_action'
 ]);
 
-// Rendre le formulaire EXACTEMENT comme dans l'original
 $form->render();
-
-// Rendre le JavaScript EXACTEMENT comme dans l'original
 $form->render_javascript();
-?>
-
-<?php
 $page->render_end();
 ?>
