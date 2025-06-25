@@ -18,7 +18,7 @@ Module principal de gestion des utilisateurs pour le plugin Sisme Games Editor. 
 ## 🏗️ Architecture générale
 
 ### 📁 Structure des modules
-
+ 
 ```
 includes/user/
 ├── user-loader.php                    # Master loader (point d'entrée)
