@@ -2,19 +2,6 @@
 
 *Sisme Games Editor* est le plugin central de **[games.sisme.fr](https://games.sisme.fr)**, conçu pour offrir une gestion fluide des utilisateurs et de l'authentification.
 
-Sisme Games Editor/
-├── 📁 docs/
-│ ├── 📁 user/
-│ │ ├── 📄 user-readme
-│ │ └── …autres fichiers/docs utilisateur…
-│ └── 📁 user-auth/
-│ ├── 📄 user-auth-readme
-│ └── …autres fichiers/docs authentification…
-├── 📁 src/ …code source du plugin…
-└── README.md ← (vous êtes ici)
-
-yaml
-Copier le code
 
 ---
 
