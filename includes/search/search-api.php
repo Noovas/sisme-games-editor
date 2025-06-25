@@ -97,7 +97,7 @@ class Sisme_Search_API {
             
             <!-- Zone de résultats -->
             <div class="sisme-search-results" id="sismeSearchResults">
-                <?php echo self::render_initial_results_state($current_params); ?>
+                <?php echo self::render_initial_results_state($current_params, $validated_atts['default_view']); ?>
             </div>
             
             <!-- Bouton charger plus -->
@@ -157,7 +157,7 @@ class Sisme_Search_API {
             'platforms' => self::get_url_array_param('platforms'),
             'status' => sanitize_text_field($_GET['status'] ?? ''),
             'sort' => sanitize_text_field($_GET['sort'] ?? 'relevance'),
-            'view' => sanitize_text_field($_GET['view'] ?? 'grid'),
+            'view' => sanitize_text_field($_GET['view'] ?? ''),
             'page' => max(1, intval($_GET['page'] ?? 1))
         );
     }
@@ -337,14 +337,14 @@ class Sisme_Search_API {
      * Rendu de l'état initial des résultats
      * Affiche tous les jeux par défaut au lieu d'un état vide
      */
-    private static function render_initial_results_state($current_params) {
+    private static function render_initial_results_state($current_params, $default_view = 'grid') {
         // Si on a une recherche active, essayer d'afficher les résultats
         if (!empty($current_params['query']) || !empty($current_params['genres']) || !empty($current_params['platforms'])) {
             return self::render_search_results_html($current_params);
         }
         
         // 🎮 NOUVEAU: Par défaut, afficher tous les jeux disponibles
-        return self::render_all_games_default($current_params);
+        return self::render_all_games_default($current_params, $default_view);
     }
 
     /**
@@ -353,7 +353,7 @@ class Sisme_Search_API {
      * @param array $current_params Paramètres courants
      * @return string HTML avec tous les jeux
      */
-    private static function render_all_games_default($current_params) {
+    private static function render_all_games_default($current_params, $default_view = 'list') {
         // Paramètres par défaut pour récupérer tous les jeux
         $default_search_params = array(
             'query' => '',
@@ -397,7 +397,8 @@ class Sisme_Search_API {
                 
                 <!-- Grille des jeux -->
                 <?php 
-                echo self::render_games_grid($results['games'], 'grid'); 
+                $view_type = $current_params['view'] ?: $default_view;
+                echo self::render_games_grid($results['games'], $default_view);
                 ?>
                 
                 <!-- Pagination si nécessaire -->
