@@ -66,7 +66,17 @@ class Sisme_Cards_Details_Module {
      * 🖼️ Bloc image sans badge (badge maintenant dans footer)
      */
     private static function render_image_block($game_data) {
-        $output = '<div class="sisme-card-image--details" style="background-image: url(\'' . esc_url($game_data['cover_url']) . '\')"></div>';
+
+        $cover_vertical_id = get_term_meta($game_data['term_id'], 'cover_vertical', true);
+    
+        if ($cover_vertical_id) {
+            $cover_url = wp_get_attachment_image_url($cover_vertical_id, 'full');
+            $cover_url = $cover_url ?: $game_data['cover_url']; // Fallback sur cover_main
+        } else {
+            $cover_url = $game_data['cover_url']; // Fallback sur cover_main
+        }
+        
+        $output = '<div class="sisme-card-image--details" style="background-image: url(\'' . esc_url($cover_url) . '\')"></div>';
         
         return $output;
     }
@@ -82,7 +92,7 @@ class Sisme_Cards_Details_Module {
         $output .= self::render_title($game_data);
         $output .= '</div>';
         
-        // Description complète (non tronquée)
+        // Description complète
         if ($options['show_description'] && !empty($game_data['description'])) {
             $output .= self::render_description($game_data);
         }
@@ -125,17 +135,17 @@ class Sisme_Cards_Details_Module {
     }
     
     /**
-     * 📝 Description complète - Plus longue que le module normal
+     * 📝 Description complète
      */
     private static function render_description($game_data) {
         // Mode details : description plus longue (250 caractères au lieu de 90)
-        $long_description = Sisme_Cards_Functions::truncate_smart($game_data['description'], 250);
+        $long_description = Sisme_Cards_Functions::truncate_smart($game_data['description'], 500);
         
         return '<div class="sisme-card-description--details">' . esc_html($long_description) . '</div>';
     }
     
     /**
-     * 🏷️ Genres - Réutilise la logique du module normal avec classe spécifique
+     * 🏷️ Genres
      */
     private static function render_genres($game_data, $options) {
         $output = '<div class="sisme-card-genres--details">';
@@ -151,7 +161,7 @@ class Sisme_Cards_Details_Module {
             array_slice($game_data['genres'], 0, $max_genres);  
         
         foreach ($genres_to_show as $genre) {
-            $output .= '<span class="sisme-badge-genre">' . esc_html($genre['name']) . '</span>';
+            $output .= '<span class="sisme-badge-genre sisme-badge">' . esc_html($genre['name']) . '</span>';
         }
         
         $output .= '</div>';
@@ -160,7 +170,7 @@ class Sisme_Cards_Details_Module {
     }
     
     /**
-     * 🎯 Modes de jeu - Réutilise la logique du module normal avec classe spécifique
+     * 🎯 Modes de jeu
      */
     private static function render_modes($game_data, $options) {
         $output = '<div class="sisme-card-modes--details">';
@@ -176,7 +186,7 @@ class Sisme_Cards_Details_Module {
             array_slice($game_data['modes'], 0, $max_modes);
         
         foreach ($modes_to_show as $mode) {
-            $output .= '<span class="sisme-badge-mode">' . esc_html($mode['label']) . '</span>';
+            $output .= '<span class="sisme-badge-mode sisme-badge">' . esc_html($mode['label']) . '</span>';
         }
         
         $output .= '</div>';
@@ -196,7 +206,7 @@ class Sisme_Cards_Details_Module {
         // Badge selon la fraîcheur (réutilise la logique existante)
         $badge = Sisme_Cards_Functions::get_game_badge($game_data);
         if ($badge) {
-            $output .= '<span class="sisme-card-badge--footer ' . $badge['class'] . '">' . $badge['text'] . '</span>';
+            $output .= '<span class="sisme-card-badge--footer sisme-badge ' . $badge['class'] . '">' . $badge['text'] . '</span>';
         }
         
         // Date de sortie

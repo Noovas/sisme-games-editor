@@ -45,8 +45,7 @@ class Sisme_Cards_Loader {
         // 2. Modules de rendu
         require_once $cards_dir . 'cards-normal-module.php';
         require_once $cards_dir . 'cards-carousel-module.php';
-
-        // require_once $cards_dir . 'cards-details-module.php';   // À venir
+        require_once $cards_dir . 'cards-details-module.php';
         // require_once $cards_dir . 'cards-compact-module.php';   // À venir
         
         // 3. API principale (doit être chargée après les modules)

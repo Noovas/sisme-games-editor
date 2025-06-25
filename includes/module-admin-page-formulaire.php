@@ -124,6 +124,12 @@ class Sisme_Game_Form_Module {
             'required' => false,
             'output_var' => 'cover_test'
         ],
+        'cover_vertical' => [
+            'label' => 'Cover verticale',
+            'description' => '',
+            'required' => false,
+            'output_var' => 'cover_vertical'
+        ],
         'game_platforms' => [
             'label' => 'Plateformes',
             'description' => '',
@@ -903,12 +909,13 @@ class Sisme_Game_Form_Module {
      * Afficher tous les covers
      */
     private function render_all_covers_component() {
-        $covers = ['cover_main', 'cover_news', 'cover_patch', 'cover_test'];
+        $covers = ['cover_main', 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical'];
         $cover_labels = [
             'cover_main' => 'Cover Principale',
             'cover_news' => 'Cover News', 
             'cover_patch' => 'Cover Patch',
-            'cover_test' => 'Cover Test'
+            'cover_test' => 'Cover Test',
+            'cover_vertical' => 'Cover Verticale'
         ];
         ?>
         <tr>
@@ -1375,6 +1382,7 @@ class Sisme_Game_Form_Module {
             case 'cover_news':
             case 'cover_patch':
             case 'cover_test':
+            case 'cover_vertical':
                 // Les covers sont maintenant gérés groupés
                 static $covers_rendered = false;
                 if (!$covers_rendered) {

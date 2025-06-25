@@ -52,7 +52,7 @@ if (!empty($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme
     $temp_form = new Sisme_Game_Form_Module([
         'game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 
         'description', 'game_platforms', 'release_date', 'trailer_link', 'external_links', 
-        'cover_main', 'cover_news', 'cover_patch', 'cover_test', 'screenshots'
+        'cover_main', 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical', 'screenshots'
     ]);
     $data = $temp_form->get_submitted_data();
     
@@ -88,6 +88,7 @@ if ($is_edit_mode) {
     $_POST['cover_news'] = get_term_meta($tag_id, 'cover_news', true);
     $_POST['cover_patch'] = get_term_meta($tag_id, 'cover_patch', true);
     $_POST['cover_test'] = get_term_meta($tag_id, 'cover_test', true);
+    $_POST['cover_vertical'] = get_term_meta($tag_id, 'cover_vertical', true);
     $_POST['game_platforms'] = get_term_meta($tag_id, 'game_platforms', true) ?: array();
     $_POST['release_date'] = get_term_meta($tag_id, 'release_date', true);
     $_POST['trailer_link'] = get_term_meta($tag_id, 'trailer_link', true);
@@ -133,7 +134,7 @@ $page->render_start();
 $form = new Sisme_Game_Form_Module([
     'game_name', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 
     'description', 'game_platforms', 'release_date', 'trailer_link', 'external_links', 
-    'cover_main', 'cover_news', 'cover_patch', 'cover_test', 'screenshots'
+    'cover_main', 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical', 'screenshots'
 ], [
     'submit_text' => $is_edit_mode ? 'Mettre à jour' : 'Créer le jeu',
     'nonce_action' => 'sisme_form_action'
