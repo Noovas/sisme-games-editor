@@ -270,7 +270,7 @@ class Sisme_User_Auth_API {
                         </a>
                         
                         <?php if ($atts['show_logout'] === 'true'): ?>
-                            <a href="<?php echo esc_url(wp_logout_url()); ?>" class="sisme-btn sisme-btn--small sisme-btn--secondary">
+                            <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="sisme-btn sisme-btn--small sisme-btn--secondary">
                                 <?php echo esc_html($atts['logout_text']); ?>
                             </a>
                         <?php endif; ?>
@@ -352,7 +352,7 @@ class Sisme_User_Auth_API {
                         <span class="sisme-btn-icon">👤</span>
                         Mon tableau de bord
                     </a>
-                    <a href="<?php echo esc_url(wp_logout_url()); ?>" class="sisme-button sisme-button-orange">
+                        <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="sisme-button sisme-button-orange">
                         <span class="sisme-btn-icon">🚪</span>
                         Déconnexion
                     </a>
