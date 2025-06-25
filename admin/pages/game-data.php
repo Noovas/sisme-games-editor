@@ -199,7 +199,7 @@ document.addEventListener('click', function(e) {
                 btn.textContent = data.data.icon;
                 btn.setAttribute('data-team-choice', data.data.new_value);
                 btn.setAttribute('title', data.data.title);
-                btn.className = 'action-btn team-choice-btn ' + data.data.class;
+                btn.className = 'sisme-action-btn team-choice-btn ' + data.data.class;
                 
                 // Animation de succès
                 btn.style.transform = 'scale(1.3)';
