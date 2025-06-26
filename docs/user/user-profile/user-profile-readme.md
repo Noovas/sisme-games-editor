@@ -27,12 +27,11 @@ includes/user/user-profile/
 3. `user_website` - Site web (url, optionnel)
 4. `user_location` - Localisation (text, optionnel)
 
-### 🎮 **Préférences gaming (5 composants)**
-5. `gaming_platform_preference` - Plateforme préférée (select)
+### 🎮 **Préférences gaming (4 composants)**
+5. `platform_preference` - Plateforme préférée (select)
 6. `favorite_game_genres` - Genres préférés (checkbox_group)
-7. `gaming_level` - Niveau de jeu (select)
-8. `gaming_playtime` - Temps de jeu par semaine (select)
-9. `gaming_favorite_games` - Jeux favoris (select multiple)
+7. `skill_level` - Niveau de jeu (select)
+8. `favorite_games` - Jeux favoris (select multiple)
 
 ### 🔒 **Confidentialité (3 composants)**
 10. `privacy_profile_public` - Profil public (checkbox)
@@ -71,7 +70,7 @@ includes/user/user-profile/
 **Section gaming uniquement**
 ```php
 [sisme_user_gaming_preferences 
-    title="Mes préférences gaming"
+    title="Mes préférences"
     compact="false"
 ]
 ```
@@ -95,30 +94,29 @@ includes/user/user-profile/
 'sisme_user_bio'                    => string(500)
 'sisme_user_location'               => string
 'sisme_user_website'                => url
-'sisme_profile_updated'             => mysql_date
+'sisme_user_profile_updated'        => mysql_date
 
 // Préférences gaming
-'sisme_gaming_platform_preference'  => string
-'sisme_favorite_game_genres'        => array(term_ids)
-'sisme_gaming_level'                => string
-'sisme_gaming_playtime'             => string
-'sisme_gaming_favorite_games'       => array(term_ids)
+'sisme_user_platform_preference'    => string
+'sisme_user_favorite_game_genres'   => array(term_ids)
+'sisme_user_skill_level'            => string
+'sisme_user_favorite_games'         => array(term_ids)
 
 // Confidentialité
-'sisme_privacy_profile_public'      => boolean
-'sisme_privacy_show_gaming_stats'   => boolean
-'sisme_privacy_allow_friend_requests' => boolean
+'sisme_user_privacy_profile_public'      => boolean
+'sisme_user_privacy_show_stats'          => boolean
+'sisme_user_privacy_allow_friend_requests' => boolean
 
 // Avatar custom
 'sisme_user_avatar'                 => attachment_id
-'sisme_avatar_updated'              => mysql_date
+'sisme_user_avatar_updated'         => mysql_date
 ```
 
 ### **Réutilisation existante (user-auth)**
 ```php
-'sisme_profile_created'             => mysql_date
-'sisme_last_login'                  => mysql_date
-'sisme_profile_version'             => string
+'sisme_user_profile_created'        => mysql_date
+'sisme_user_last_login'             => mysql_date
+'sisme_user_profile_version'        => string
 ```
 
 ## 🔧 Classes principales à implémenter
@@ -172,11 +170,10 @@ includes/user/user-profile/
 └─────────────────────────────────────┘
 
 ┌─────────────────────────────────────┐
-│ 🎮 PRÉFÉRENCES GAMING               │
+│ 🎮 PRÉFÉRENCES                      │
 │ • Plateforme [Sélectionnez ▼]      │
 │ • Genres ☑ Action ☑ RPG ☐ Sport    │
 │ • Niveau [Expérimenté ▼]           │
-│ • Temps/semaine [10-20h ▼]         │
 │ • Jeux favoris [Multi-select]      │
 └─────────────────────────────────────┘
 
