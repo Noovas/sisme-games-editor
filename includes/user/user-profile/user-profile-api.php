@@ -117,13 +117,15 @@ class Sisme_User_Profile_API {
         self::ensure_assets_loaded();
         
         $options = [
+            'type' => 'avatar', // IMPORTANT: définir le type
             'size' => $atts['size'],
             'show_delete' => $atts['show_delete'] === 'true',
             'show_info' => $atts['show_info'] === 'true',
             'css_class' => 'sisme-avatar-uploader'
         ];
         
-        $uploader_html = Sisme_User_Profile_Avatar::render_avatar_uploader(null, $options);
+        // CORRECTION: Utiliser render_image_uploader au lieu de render_avatar_uploader
+        $uploader_html = Sisme_User_Profile_Avatar::render_image_uploader(null, $options);
         
         ob_start();
         ?>
@@ -156,14 +158,14 @@ class Sisme_User_Profile_API {
         self::ensure_assets_loaded();
         
         $options = [
-            'type' => 'banner',
+            'type' => 'banner', // IMPORTANT: définir le type
             'size' => $atts['size'],
             'show_delete' => $atts['show_delete'] === 'true',
             'show_info' => $atts['show_info'] === 'true',
             'css_class' => 'sisme-banner-uploader'
         ];
         
-        $uploader_html = Sisme_User_Profile_Avatar::render_banner_uploader(null, $options);
+        $uploader_html = Sisme_User_Profile_Avatar::render_image_uploader(null, $options);
         
         ob_start();
         ?>
