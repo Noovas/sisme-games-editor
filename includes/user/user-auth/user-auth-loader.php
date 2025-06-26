@@ -95,7 +95,7 @@ class Sisme_User_Auth_Loader {
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
         
         // Traitement des requêtes d'authentification
-        add_action('init', [$this, 'handle_auth_requests']);
+        add_action('wp_loaded', [$this, 'handle_auth_requests']);
         
         // Nettoyage lors de la déconnexion
         add_action('wp_logout', [$this, 'handle_logout_cleanup']);

@@ -22,7 +22,8 @@ class Sisme_User_Auth_Handlers {
      */
     public static function init_request_handling() {
         // Traitement des formulaires POST
-        add_action('init', [__CLASS__, 'process_auth_forms'], 10);
+        //add_action('init', [__CLASS__, 'process_auth_forms'], 1);
+        self::process_auth_forms();
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('[Sisme User Auth Handlers] Gestionnaire de traitement initialisé');

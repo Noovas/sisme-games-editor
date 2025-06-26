@@ -124,7 +124,7 @@ class Sisme_User_Auth_Forms {
      * Traiter les options du formulaire
      */
     private function process_form_options($options) {
-        $this->form_action = $options['action'] ?? '';
+        $this->form_action = $options['action'] ?? $_SERVER['REQUEST_URI'];
         $this->form_method = strtoupper($options['method'] ?? 'POST');
         $this->submit_button_text = $options['submit_text'] ?? 'Valider';
         $this->show_nonce = $options['nonce'] ?? true;
@@ -246,9 +246,9 @@ class Sisme_User_Auth_Forms {
                 </div>
                 
                 <div class="sisme-auth-form-actions">
-                    <button type="submit" 
-                            name="<?php echo esc_attr($submit_name); ?>" 
-                            class="sisme-button sisme-button-vert sisme-auth-submit">
+                    <input type="hidden" name="<?php echo esc_attr($submit_name); ?>" >
+                    <button type="submit"
+                        class="sisme-button sisme-button-vert sisme-auth-submit">
                         <span class="sisme-btn-icon"><?php echo $this->form_type === 'register' ? '📝' : '🔐'; ?></span>
                         <?php echo esc_html($this->submit_button_text); ?>
                     </button>
