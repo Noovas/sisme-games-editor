@@ -278,6 +278,15 @@ class Sisme_User_Dashboard_API {
         ob_start();
         ?>
         <div class="sisme-recent-games">
+            <div class="sisme-section-header">
+                <h3 class="sisme-section-title">
+                    <span class="sisme-title-icon">🆕</span>
+                    Jeux Récemment Ajoutés
+                </h3>
+                <a href="<?php echo home_url('/#sismeSearchInterface'); ?>" class="sisme-section-link">
+                    Voir tous les jeux →
+                </a>
+            </div>
             <h3 class="sisme-widget-title">🆕 Derniers ajouts</h3>
             
             <?php if (empty($recent_games)): ?>
