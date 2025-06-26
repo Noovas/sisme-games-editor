@@ -64,7 +64,7 @@ class Sisme_User_Profile_Handlers {
      * @return void
      */
     private static function process_preferences_form() {
-        if (!wp_verify_nonce($_POST['_wpnonce'], 'sisme_user_preferences_update')) {
+        if (!wp_verify_nonce($_POST['_wpnonce'], 'sisme_user_profile_update')) {
             wp_die('Erreur de sécurité. Veuillez recharger la page.');
         }
         
@@ -303,13 +303,6 @@ class Sisme_User_Profile_Handlers {
      */
     private static function validate_preferences_data($data) {
         $errors = [];
-        
-        if (isset($data['platform_preference'])) {
-            $valid_platforms = ['pc', 'playstation', 'xbox', 'nintendo', 'mobile', 'multiple'];
-            if (!empty($data['platform_preference']) && !in_array($data['platform_preference'], $valid_platforms)) {
-                $errors['platform_preference'] = 'Plateforme non valide.';
-            }
-        }
         
         if (isset($data['skill_level'])) {
             $valid_levels = ['beginner', 'casual', 'experienced', 'hardcore', 'professional'];

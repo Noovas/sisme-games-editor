@@ -32,8 +32,13 @@ class Sisme_User_Profile_Forms {
         $this->init_available_components();
         $this->load_game_data();
         $this->set_components($components);
-        $this->load_user_data();
         $this->process_options($options);
+        $this->load_user_data();
+        $this->process_submitted_data();
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("[Sisme User Profile Forms] Formulaire initialisé avec composants : " . implode(', ', array_keys($this->components)));
+        }
     }
     
     /**
@@ -71,32 +76,6 @@ class Sisme_User_Profile_Forms {
                 'icon' => '🌐',
                 'section' => 'basic'
             ],
-            'user_location' => [
-                'type' => 'text',
-                'label' => 'Localisation',
-                'placeholder' => 'Votre ville, pays',
-                'required' => false,
-                'output_var' => 'user_location',
-                'icon' => '📍',
-                'section' => 'basic'
-            ],
-            'platform_preference' => [
-                'type' => 'select',
-                'label' => 'Plateforme préférée',
-                'required' => false,
-                'output_var' => 'platform_preference',
-                'icon' => '🎮',
-                'section' => 'gaming',
-                'options' => [
-                    '' => 'Sélectionnez...',
-                    'pc' => 'PC',
-                    'playstation' => 'PlayStation',
-                    'xbox' => 'Xbox',
-                    'nintendo' => 'Nintendo',
-                    'mobile' => 'Mobile',
-                    'multiple' => 'Plusieurs plateformes'
-                ]
-            ],
             'favorite_game_genres' => [
                 'type' => 'checkbox_group',
                 'label' => 'Genres préférés',
@@ -122,14 +101,13 @@ class Sisme_User_Profile_Forms {
                     'professional' => 'Professionnel'
                 ]
             ],
-            'favorite_games' => [
-                'type' => 'select_multiple',
+            'favorite_games_display' => [
+                'type' => 'display',
                 'label' => 'Jeux favoris',
-                'required' => false,
-                'output_var' => 'favorite_games',
+                'output_var' => 'favorite_games_display',
                 'icon' => '🎲',
                 'section' => 'gaming',
-                'options' => []
+                'description' => 'Vos jeux favoris seront mis à jour automatiquement depuis les fiches de jeux.'
             ],
             'privacy_profile_public' => [
                 'type' => 'checkbox',
@@ -238,11 +216,9 @@ class Sisme_User_Profile_Forms {
         
         $meta_fields = [
             'user_bio' => 'sisme_user_bio',
-            'user_location' => 'sisme_user_location',
-            'platform_preference' => 'sisme_user_platform_preference',
             'favorite_game_genres' => 'sisme_user_favorite_game_genres',
             'skill_level' => 'sisme_user_skill_level',
-            'favorite_games' => 'sisme_user_favorite_games',
+            'favorite_games_display' => 'sisme_user_favorite_games',
             'privacy_profile_public' => 'sisme_user_privacy_profile_public',
             'privacy_show_stats' => 'sisme_user_privacy_show_stats',
             'privacy_allow_friend_requests' => 'sisme_user_privacy_allow_friend_requests'
@@ -266,6 +242,24 @@ class Sisme_User_Profile_Forms {
     }
     
     /**
+     * Traiter les données soumises
+     * @return void
+     */
+    private function process_submitted_data() {
+        if (!$this->is_submitted()) {
+            return;
+        }
+        
+        foreach ($this->components as $component_name => $component) {
+            $output_var = $component['output_var'];
+            
+            if (isset($_POST[$output_var])) {
+                $this->form_data[$output_var] = $this->sanitize_component_value($_POST[$output_var], $component);
+            }
+        }
+    }
+    
+    /**
      * Rendu du formulaire complet
      * @return string HTML du formulaire
      */
@@ -286,7 +280,12 @@ class Sisme_User_Profile_Forms {
         
         $output .= '<form class="sisme-profile-form" method="post" enctype="multipart/form-data">';
         $output .= wp_nonce_field('sisme_user_profile_update', '_wpnonce', true, false);
-        $output .= '<input type="hidden" name="sisme_user_profile_submit" value="1">';
+        
+        if ($this->form_type === 'preferences') {
+            $output .= '<input type="hidden" name="sisme_user_preferences_submit" value="1">';
+        } else {
+            $output .= '<input type="hidden" name="sisme_user_profile_submit" value="1">';
+        }
         
         $output .= $this->render_sections();
         
@@ -411,6 +410,9 @@ class Sisme_User_Profile_Forms {
                 
             case 'checkbox_group':
                 return $this->render_checkbox_group_field($component, $field_id, $value);
+                
+            case 'display':
+                return $this->render_display_field($component, $field_id, $value);
         }
         
         return '';
@@ -545,11 +547,54 @@ class Sisme_User_Profile_Forms {
     }
     
     /**
+     * Rendu champ d'affichage seul (non éditable)
+     * @param array $component Configuration
+     * @param string $field_id ID du champ
+     * @param mixed $value Valeur
+     * @return string HTML
+     */
+    private function render_display_field($component, $field_id, $value) {
+        $favorite_games = is_array($value) ? $value : [];
+        
+        $output = '<div class="sisme-profile-display-field">';
+        
+        if (empty($favorite_games)) {
+            $output .= '<div class="sisme-profile-empty-state">';
+            $output .= '<span class="sisme-empty-icon">🎲</span>';
+            $output .= '<p>Aucun jeu favori pour le moment</p>';
+            $output .= '<small>Ajoutez des jeux à vos favoris depuis leurs fiches</small>';
+            $output .= '</div>';
+        } else {
+            $games = get_terms([
+                'taxonomy' => 'post_tag',
+                'include' => array_slice($favorite_games, 0, 10),
+                'hide_empty' => false
+            ]);
+            
+            if (!is_wp_error($games) && !empty($games)) {
+                $output .= '<div class="sisme-favorite-games-list">';
+                foreach ($games as $game) {
+                    $output .= '<span class="sisme-game-tag">' . esc_html($game->name) . '</span>';
+                }
+                $output .= '</div>';
+                
+                if (count($favorite_games) > 10) {
+                    $remaining = count($favorite_games) - 10;
+                    $output .= '<p class="sisme-games-count">et ' . $remaining . ' autre(s) jeu(x)</p>';
+                }
+            }
+        }
+        
+        $output .= '</div>';
+        return $output;
+    }
+    
+    /**
      * Vérifier si le formulaire a été soumis
      * @return bool Status de soumission
      */
     public function is_submitted() {
-        return isset($_POST['sisme_user_profile_submit']);
+        return isset($_POST['sisme_user_profile_submit']) || isset($_POST['sisme_user_preferences_submit']);
     }
     
     /**
@@ -557,21 +602,7 @@ class Sisme_User_Profile_Forms {
      * @return array Données du formulaire
      */
     public function get_submitted_data() {
-        if (!$this->is_submitted()) {
-            return [];
-        }
-        
-        $data = [];
-        
-        foreach ($this->components as $component_name => $component) {
-            $output_var = $component['output_var'];
-            
-            if (isset($_POST[$output_var])) {
-                $data[$output_var] = $this->sanitize_component_value($_POST[$output_var], $component);
-            }
-        }
-        
-        return $data;
+        return $this->form_data;
     }
     
     /**
