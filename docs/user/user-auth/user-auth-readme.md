@@ -1,407 +1,263 @@
-# 🔐 Module User Auth - Sisme Games Editor
+# 🔐 Module User Auth - API Reference
 
-**Version:** 1.0.2  
-**Date de création:** 25 Juin 2025  
-**Dernière mise à jour:** 25 Juin 2025  
-**Statut:** ✅ **TERMINÉ ET FONCTIONNEL**  
-**Module parent:** User  
+**Version:** 1.0.3  
+**Status:** Production Ready  
 
-## 📋 Vue d'ensemble
-
-Sous-module d'authentification pour le système utilisateur du plugin Sisme Games Editor. Permet aux utilisateurs de s'inscrire, se connecter et gérer leur profil basique sans accès à l'administration WordPress.
-
-### 🎯 Objectifs
-
-- **Authentification frontend** - Système complet login/register
-- **Sécurité renforcée** - Rate limiting, validation, nonces
-- **Design cohérent** - Integration parfaite avec le thème gaming
-- **Base évolutive** - Foundation pour user-profile et user-library
-
-## 🏗️ Architecture technique
-
-### 📁 Structure des fichiers
+## Architecture
 
 ```
 includes/user/user-auth/
-├── user-auth-loader.php           # ✅ Loader principal du module
-├── user-auth-security.php         # ✅ Sécurité et validation
-├── user-auth-handlers.php         # ✅ Logique métier (login/register)
-├── user-auth-forms.php            # ✅ Formulaires et composants
-├── user-auth-api.php              # ✅ Shortcodes et rendu HTML
-├── assets/
-│   ├── user-auth.css              # ✅ Styles gaming cohérents
-│   └── user-auth.js               # ✅ Validation et interactions
-└── README.md                      # Cette documentation
+├── user-auth-loader.php     # Singleton loader
+├── user-auth-security.php   # Validation & rate limiting  
+├── user-auth-handlers.php   # POST processing & user creation
+├── user-auth-forms.php      # Form components & rendering
+├── user-auth-api.php        # Shortcodes & public API
+└── assets/                  # CSS/JS assets
 ```
 
-### 🔄 Flux d'initialisation
+## Classes & Methods
 
-```
-1. Master User Loader → charge user-auth-loader.php
-2. Sisme_User_Auth_Loader::get_instance() → initialise le module
-3. Chargement des composants : Security → Handlers → Forms → API
-4. Enregistrement des shortcodes et hooks WordPress
-5. Assets CSS/JS chargés conditionnellement
-6. Module prêt à utiliser
+### `Sisme_User_Auth_Loader`
+
+**Singleton Pattern**
+```php
+$loader = Sisme_User_Auth_Loader::get_instance();
 ```
 
-## ✅ Fonctionnalités implémentées
+**Methods:**
+- `force_load_assets()` - Load CSS/JS manually
+- `are_assets_loaded()` - Check if assets loaded
+- `get_version()` - Get module version
 
-### 🔐 Authentification complète
+### `Sisme_User_Auth_Security`
 
-- **Connexion** avec email/mot de passe + "Se souvenir de moi"
-- **Inscription** avec validation email et confirmation mot de passe
-- **Déconnexion** avec redirection vers la page d'accueil
-- **Messages d'état** - Erreurs, succès, informations
+**Rate Limiting:**
+```php
+validate_login_attempt($email) // Returns true|WP_Error
+record_failed_attempt($email)  // Increment attempt counter
+clear_failed_attempts($email)  // Reset on success
+```
 
-### 🛡️ Sécurité avancée
+**Validation:**
+```php
+validate_user_data($data, $context) // $context: 'login'|'register'
+sanitize_user_data($data)          // Clean all inputs
+get_security_stats()               // Stats array
+```
 
-- **Rate limiting** - Maximum 5 tentatives par 15 minutes
-- **Validation stricte** - Email format, mot de passe force, données
-- **Protection CSRF** - Nonces WordPress sur tous les formulaires
-- **Sanitisation** - Toutes les entrées utilisateur nettoyées
-- **Emails jetables** - Domaines temporaires bloqués
+**Configuration:**
+- Max attempts: 5
+- Lockout time: 15 minutes  
+- Cleanup: hourly cron
 
-### 🎨 Interface utilisateur
+### `Sisme_User_Auth_Handlers`
 
-- **Design gaming dark** - Cohérent avec le plugin existant
-- **Responsive** - Mobile, tablet, desktop optimisés
-- **Validation temps réel** - JavaScript avec debounce
-- **États visuels** - Focus, erreur, succès, chargement
-- **Accessibilité** - ARIA labels, navigation clavier
+**Core Functions:**
+```php
+handle_login($data)    // Process login, returns array|WP_Error
+handle_register($data) // Create user, returns array|WP_Error
+handle_logout($user_id) // Custom logout with hooks
+```
 
-### 🎮 Dashboard utilisateur
+**Session Management:**
+```php
+set_auth_message($message, $type)  // Store flash message
+get_auth_message()                 // Retrieve & clear message
+```
 
-- **Profil basique** - Avatar, nom, date d'inscription
-- **Favoris** - Affichage des jeux favoris (utilise vos term_ids)
-- **Activité** - Dernière connexion, statistiques simples
-- **Actions** - Déconnexion, navigation
+**User Meta Initialization:**
+```php
+get_default_user_meta() // Default metadata structure
+```
 
-## 🎯 Shortcodes disponibles
+### `Sisme_User_Auth_Forms`
 
-### 1. `[sisme_user_login]` - Formulaire de connexion
+**Constructor:**
+```php
+new Sisme_User_Auth_Forms($components, $options)
+```
 
-```html
+**Components Available:**
+- `user_email` - Email field (required)
+- `user_password` - Password field (required)  
+- `user_confirm_password` - Password confirmation
+- `user_display_name` - Display name (optional)
+- `remember_me` - Remember checkbox
+- `redirect_to` - Hidden redirect URL
+
+**Options:**
+- `type` - 'login'|'register'
+- `submit_text` - Button text
+- `action` - Form action URL
+- `redirect_to` - Redirect URL
+
+**Methods:**
+```php
+$form->render()              // Output complete form HTML
+$form->is_submitted()        // Check if form was submitted  
+$form->get_submitted_data()  // Get sanitized form data
+$form->validate()           // Validate form data
+```
+
+**Static Helpers:**
+```php
+Sisme_User_Auth_Forms::create_login_form($options)
+Sisme_User_Auth_Forms::create_register_form($options)
+```
+
+### `Sisme_User_Auth_API`
+
+**Shortcodes:**
+
+#### `[sisme_user_login]`
+```php
 [sisme_user_login 
     title="Connexion"
-    subtitle="Accédez à votre espace gaming"
+    subtitle="Subtitle text"
+    submit_text="Se connecter"
     show_register_link="true"
+    register_link_text="Pas de compte ?"
     show_remember="true"
-    submit_text="Se connecter"]
+    container_class="custom-class"]
 ```
 
-**Paramètres disponibles :**
-- `title` (string) - Titre du formulaire
-- `subtitle` (string) - Sous-titre explicatif  
-- `submit_text` (string) - Texte bouton soumission
-- `show_register_link` (bool) - Afficher lien inscription
-- `show_remember` (bool) - Case "Se souvenir de moi"
-- `register_link_text` (string) - Texte lien inscription
-- `container_class` (string) - Classes CSS container
-
-**🔗 URLs de redirection fixes :**
-- **Après connexion** → `/sisme-user-tableau-de-bord/`
-- **Lien inscription** → `/sisme-user-register/`
-
-### 2. `[sisme_user_register]` - Formulaire d'inscription
-
-```html
-[sisme_user_register 
-    title="Créer un compte"
-    subtitle="Rejoignez notre communauté gaming"
+#### `[sisme_user_register]`  
+```php
+[sisme_user_register
+    title="Inscription" 
+    subtitle="Subtitle text"
+    submit_text="Créer compte"
     show_login_link="true"
-    submit_text="Créer mon compte"]
+    login_link_text="Déjà membre ?"
+    container_class="custom-class"]
 ```
 
-**Paramètres disponibles :**
-- `title` (string) - Titre du formulaire
-- `subtitle` (string) - Sous-titre explicatif
-- `submit_text` (string) - Texte bouton soumission
-- `show_login_link` (bool) - Afficher lien connexion
-- `login_link_text` (string) - Texte lien connexion
-- `require_email_verification` (bool) - Validation email (futur)
-- `container_class` (string) - Classes CSS container
-
-**🔗 URLs de redirection fixes :**
-- **Après inscription** → `/sisme-user-tableau-de-bord/`
-- **Lien connexion** → `/sisme-user-login/`
-
-### 3. `[sisme_user_profile]` - Dashboard utilisateur
-
-```html
-[sisme_user_profile 
+#### `[sisme_user_profile]`
+```php
+[sisme_user_profile
     show_favorites="true"
-    show_activity="true"
-    show_recommendations="false"]
+    show_activity="true" 
+    show_recommendations="false"
+    container_class="custom-class"]
 ```
 
-**Paramètres :**
-- `show_favorites` (bool) - Section jeux favoris
-- `show_activity` (bool) - Activité récente
-- `show_recommendations` (bool) - Recommandations (placeholder)
-- `container_class` (string) - Classes CSS container
-
-**🔗 URLs fixes :**
-- **Si non connecté** → Redirection vers `/sisme-user-login/`
-
-### 4. `[sisme_user_menu]` - Menu utilisateur compact
-
-```html
-[sisme_user_menu 
+#### `[sisme_user_menu]`
+```php
+[sisme_user_menu
     show_avatar="true"
     show_logout="true"
     login_text="Connexion"
-    profile_text="Mon tableau de bord"]
+    profile_text="Mon profil"
+    logout_text="Déconnexion"]
 ```
 
-**Paramètres :**
-- `show_avatar` (bool) - Avatar utilisateur
-- `show_logout` (bool) - Bouton déconnexion
-- `login_text` (string) - Texte bouton connexion
-- `register_text` (string) - Texte bouton inscription
-- `profile_text` (string) - Texte lien profil
-- `logout_text` (string) - Texte bouton déconnexion
-- `container_class` (string) - Classes CSS container
+## WordPress Integration
 
-**🔗 URLs fixes :**
-- **Connexion** → `/sisme-user-login/`
-- **Inscription** → `/sisme-user-register/`
-- **Mon profil** → `/sisme-user-tableau-de-bord/`
-- **Déconnexion** → **Page d'accueil** `/` ✅
+**Required Pages:**
+- `/sisme-user-login/` → `[sisme_user_login]`
+- `/sisme-user-register/` → `[sisme_user_register]`
+- `/sisme-user-tableau-de-bord/` → `[sisme_user_profile]`
 
-## 🔗 URLs et pages WordPress requises
-
-### Pages WordPress nécessaires
-
-Pour que le module fonctionne, vous devez créer ces **4 pages WordPress** avec les slugs exacts :
-
-**1. Page de connexion :** `/sisme-user-login/`
-```
-Titre : Connexion
-Slug : sisme-user-login
-Contenu : [sisme_user_login]
-```
-
-**2. Page d'inscription :** `/sisme-user-register/`
-```
-Titre : Inscription
-Slug : sisme-user-register
-Contenu : [sisme_user_register]
-```
-
-**3. Page dashboard :** `/sisme-user-tableau-de-bord/`
-```
-Titre : Mon tableau de bord
-Slug : sisme-user-tableau-de-bord
-Contenu : [sisme_user_profile]
-```
-
-**4. Page optionnelle menu :** Pour tester le menu utilisateur
-```
-Titre : Test Menu
-Slug : test-user-menu
-Contenu : [sisme_user_menu]
-```
-
-### Comportement de déconnexion
-
-- **Déconnexion** → Redirection automatique vers **la page d'accueil** (`/`)
-- **Session nettoyée** → Toutes les données de session utilisateur supprimées
-- **Message de confirmation** → "Vous avez été déconnecté avec succès"
-
-## 🔧 API technique
-
-### Classes principales
-
-#### `Sisme_User_Auth_Loader`
+**Hooks Available:**
 ```php
-// Singleton pattern
-$loader = Sisme_User_Auth_Loader::get_instance();
+// Actions
+do_action('sisme_user_login_success', $user_id, $data);
+do_action('sisme_user_register_success', $user_id, $data);
+do_action('sisme_user_logout', $user_id);
+do_action('sisme_user_init_meta', $user_id, $default_meta);
 
-// Méthodes publiques
-$loader->force_load_assets();           // Charger CSS/JS manuellement
-$loader->are_assets_loaded();           // Vérifier état assets
-$loader->get_version();                 // Version du module
+// Filters  
+apply_filters('sisme_user_login_redirect', $url);
+apply_filters('sisme_user_register_redirect', $url);
+apply_filters('sisme_user_logout_redirect', $url);
 ```
 
-#### `Sisme_User_Auth_Security`
-```php
-// Validation tentatives connexion
-$check = Sisme_User_Auth_Security::validate_login_attempt($email);
+**AJAX Endpoints:**
+- `wp_ajax_nopriv_sisme_user_login`
+- `wp_ajax_nopriv_sisme_user_register`
 
-// Validation données utilisateur
-$validation = Sisme_User_Auth_Security::validate_user_data($data, 'login');
-
-// Nettoyage données
-$clean_data = Sisme_User_Auth_Security::sanitize_user_data($post_data);
-
-// Statistiques sécurité
-$stats = Sisme_User_Auth_Security::get_security_stats();
-```
-
-#### `Sisme_User_Auth_Handlers`
-```php
-// Traitement connexion
-$result = Sisme_User_Auth_Handlers::handle_login($data);
-
-// Traitement inscription  
-$result = Sisme_User_Auth_Handlers::handle_register($data);
-
-// Métadonnées par défaut
-$meta = Sisme_User_Auth_Handlers::get_default_user_meta();
-
-// Déconnexion personnalisée
-Sisme_User_Auth_Handlers::handle_logout($user_id);
-```
-
-#### `Sisme_User_Auth_Forms`
-```php
-// Création formulaire connexion
-$form = Sisme_User_Auth_Forms::create_login_form($options);
-
-// Création formulaire inscription
-$form = Sisme_User_Auth_Forms::create_register_form($options);
-
-// Vérification soumission
-if ($form->is_submitted()) {
-    $data = $form->get_submitted_data();
-    $errors = $form->validate();
-}
-
-// Rendu HTML
-$form->render();
-```
-
-### Hooks WordPress disponibles
+## User Metadata Structure
 
 ```php
-// Actions spécifiques au module auth
-add_action('sisme_user_login_success', 'your_function');
-add_action('sisme_user_register_success', 'your_function');
-add_action('sisme_user_logout', 'your_function');
-
-// Filtres pour personnalisation
-add_filter('sisme_user_login_redirect', 'your_function');
-add_filter('sisme_user_register_redirect', 'your_function');
-add_filter('sisme_user_logout_redirect', 'your_function'); // Nouveau
+'sisme_user_avatar'         => attachment_id
+'sisme_user_bio'           => text
+'sisme_profile_created'    => mysql_date
+'sisme_last_login'         => mysql_date
+'sisme_last_logout'        => mysql_date
+'sisme_favorite_games'     => array(term_ids)
+'sisme_wishlist_games'     => array(term_ids)  
+'sisme_completed_games'    => array(term_ids)
+'sisme_user_reviews'       => array(data)
+'sisme_gaming_platforms'   => array(strings)
+'sisme_favorite_genres'    => array(term_ids)
+'sisme_notifications_email'=> boolean
+'sisme_privacy_level'      => 'public'|'friends'|'private'
+'sisme_profile_version'    => string
 ```
 
-## 🎨 Personnalisation CSS
+## CSS Classes
 
-Le module hérite automatiquement des variables CSS de votre thème gaming :
-
+**Form Structure:**
 ```css
-:root {
-    --sisme-color-primary: #a1b78d;
-    --sisme-gaming-dark: #1a1a1a;
-    --sisme-gaming-dark-lighter: #2a2a2a;
-    --sisme-gaming-text-bright: #ffffff;
-    --sisme-auth-success: #22c55e;
-    --sisme-auth-error: #ef4444;
-    --sisme-auth-warning: #f59e0b;
-    --sisme-auth-info: #3b82f6;
-}
+.sisme-user-auth-container
+  .sisme-auth-card
+    .sisme-auth-header
+    .sisme-auth-content
+      .sisme-user-auth-form
+        .sisme-auth-form-fields
+          .sisme-auth-field
+            .sisme-auth-label
+            .sisme-auth-input
+        .sisme-auth-form-actions
+          .sisme-auth-submit
+    .sisme-auth-footer
 ```
 
-### Classes CSS principales
+**State Classes:**
+- `.sisme-auth-input--error`
+- `.sisme-auth-input--valid` 
+- `.sisme-auth-input--focus`
+- `.sisme-auth-message--error`
+- `.sisme-auth-message--success`
 
-```css
-.sisme-auth-card                    /* Container principal */
-.sisme-auth-header                  /* En-tête formulaire */
-.sisme-auth-content                 /* Zone de contenu */
-.sisme-auth-input                   /* Champs de saisie */
-.sisme-auth-input--error            /* État erreur */
-.sisme-auth-input--valid            /* État valide */
-.sisme-auth-message                 /* Messages système */
-.sisme-auth-message--error          /* Message erreur */
-.sisme-auth-message--success        /* Message succès */
-.sisme-user-menu                    /* Menu utilisateur */
-.sisme-user-dashboard               /* Dashboard utilisateur */
-```
+## JavaScript API
 
-## ✅ Tests et validation
-
-### Tests fonctionnels réalisés
-
-**1. Fonctionnalités de base**
-- ✅ Inscription avec validation email
-- ✅ Connexion avec email/mot de passe
-- ✅ "Se souvenir de moi" fonctionne
-- ✅ Déconnexion propre avec redirection vers accueil ✅
-- ✅ Messages d'erreur appropriés
-
-**2. Sécurité**
-- ✅ Rate limiting après 5 échecs
-- ✅ Mots de passe faibles rejetés
-- ✅ Emails jetables bloqués
-- ✅ Injection SQL impossible
-- ✅ XSS protégé par échappement
-
-**3. UX et design**
-- ✅ Responsive mobile/tablet/desktop
-- ✅ Validation temps réel
-- ✅ États visuels corrects
-- ✅ Animations fluides
-- ✅ Accessibilité clavier
-
-**4. Intégration**
-- ✅ Compatible avec votre thème
-- ✅ CSS ne casse pas l'existant  
-- ✅ JavaScript sans conflit
-- ✅ Performance acceptable
-
-### Debug JavaScript
-
+**Global Object:**
 ```javascript
-// Dans la console navigateur
-SismeUserAuth.debug('Test de debug', {data: 'exemple'});
-
-// Vérifier configuration
-console.log(window.sismeUserAuth);
-
-// État des formulaires
-console.log(SismeUserAuth.state);
+window.sismeUserAuth = {
+    ajax_url: string,
+    nonce: string,
+    messages: object,
+    config: object,
+    debug: boolean
+}
 ```
 
-## 🚧 Limitations et améliorations futures
+**Form Validation:**
+- Real-time validation with 300ms debounce
+- Password confirmation matching
+- Email format validation
+- Required field validation
 
-### Limitations actuelles
+## Dependencies
 
-- **Pas de reset password** - Prévu pour version 1.1
-- **Pas de validation email** - Système basique pour l'instant
-- **Dashboard simple** - Sera enrichi par user-profile
-- **Pas de 2FA** - Sécurité supplémentaire prévue
-- **Recommandations placeholder** - Logique IA à implémenter
+- WordPress 5.0+
+- PHP 7.4+
+- jQuery (WordPress core)
+- Parent User module
+- CSS variables from main plugin
 
-### Évolutions prévues (v1.1)
+## Technical Notes
 
-- **Réinitialisation mot de passe** par email
-- **Validation email obligatoire** à l'inscription
-- **Connexion sociale** (Google, Discord, Steam)
-- **Export de données** utilisateur (RGPD)
-- **Amélioration dashboard** avec plus de statistiques
+**Form Processing:**
+- Uses `wp_loaded` hook + direct call for compatibility
+- Hidden input for submit detection (button name unreliable)
+- Session-based flash messages
+- Nonce validation on all forms
 
-## 📞 Support et maintenance
-
-### Problèmes connus
-- Aucun problème critique identifié
-- Compatible WordPress 5.0 à 6.3+
-- Testé PHP 7.4 à 8.2
-
-### Dépendances
-- **Module User** (parent)
-- **Module formulaire** existant du plugin
-- **Variables CSS gaming** du plugin
-- **jQuery** (inclus WordPress)
-
-### Contact et contributions
-Pour toute question, amélioration ou bug :
-- Équipe développement Sisme Games Editor
-- Logs détaillés pour débogage
-- Tests sur environnement de staging recommandés
-
----
-
-**Dernière mise à jour:** 25 Juin 2025  
-**Statut:** ✅ PRODUCTION READY  
-**Compatibilité:** WordPress 5.0+, PHP 7.4+, jQuery 3.0+
+**Security:**
+- Rate limiting via WordPress transients
+- IP + email combined tracking
+- Password strength validation
+- Email domain blacklisting
+- XSS protection via `esc_*` functions
