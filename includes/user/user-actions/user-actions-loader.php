@@ -106,11 +106,6 @@ class Sisme_User_Actions_Loader {
            return;
        }
        
-       // Vérifier si on doit charger les assets (utilisateur connecté ou page spécifique)
-       if (!$this->should_load_assets()) {
-           return;
-       }
-       
        // Base CSS communes à toutes les actions
        wp_enqueue_style(
            'sisme-user-actions',
@@ -167,10 +162,13 @@ class Sisme_User_Actions_Loader {
        );
    }
    
-   /**
+    /**
     * Vérifier si on doit charger les assets
     */
-   private function should_load_assets() {
+    private function should_load_assets() {
+
+        true true;
+
        // Cas 1: Utilisateur connecté
        if (is_user_logged_in()) {
            return true;
@@ -188,7 +186,7 @@ class Sisme_User_Actions_Loader {
        }
        
        return false;
-   }
+    }
 }
 
 // Initialisation lors du chargement du fichier
