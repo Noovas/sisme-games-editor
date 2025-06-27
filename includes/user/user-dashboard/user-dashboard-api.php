@@ -272,53 +272,77 @@ class Sisme_User_Dashboard_API {
     }
     
     /**
-     * Jeux récents
+     * 🆕 Jeux actifs en grille triés par date de mise à jour - VERSION CORRIGÉE
      */
-    private static function render_recent_games($recent_games) {
+    private static function render_recent_games($recent_games_data) {
         ob_start();
         ?>
         <div class="sisme-recent-games">
             <div class="sisme-section-header">
                 <h3 class="sisme-section-title">
                     <span class="sisme-title-icon">🆕</span>
-                    Jeux Récemment Ajoutés
+                    News
                 </h3>
-                <a href="<?php echo home_url('/#sismeSearchInterface'); ?>" class="sisme-section-link">
-                    Voir tous les jeux →
-                </a>
             </div>
-            <h3 class="sisme-widget-title">🆕 Derniers ajouts</h3>
+            <h3 class="sisme-widget-title">Les derniers ajouts</h3>
             
-            <?php if (empty($recent_games)): ?>
-                <p class="sisme-games-empty">Aucun jeu récent trouvé.</p>
-            <?php else: ?>
-                <div class="sisme-games-grid">
-                    <?php foreach ($recent_games as $game): ?>
-                        <div class="sisme-game-card">
-                            <div class="sisme-game-cover" style="background-image: url('<?php echo esc_url($game['cover_url']); ?>')">
-                                <?php if (empty($game['cover_url'])): ?>
-                                    <span class="sisme-game-placeholder">🎮</span>
-                                <?php endif; ?>
-                            </div>
-                            <div class="sisme-game-info">
-                                <h4 class="sisme-game-name">
-                                    <a href="<?php echo esc_url($game['game_url']); ?>">
-                                        <?php echo esc_html($game['name']); ?>
-                                    </a>
-                                </h4>
-                                <?php if (!empty($game['genres'])): ?>
-                                    <p class="sisme-game-meta">
-                                        <?php 
-                                        $genre_names = array_column($game['genres'], 'name');
-                                        echo esc_html(implode(', ', $genre_names)); 
-                                        ?>
-                                    </p>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
+            <?php
+            if (class_exists('Sisme_Cards_API') && class_exists('Sisme_Cards_Functions')) {
+                
+                // ✅ ÉTAPE 1 : Récupérer manuellement les jeux triés par last_update
+                $terms = get_terms([
+                    'taxonomy' => 'post_tag',
+                    'hide_empty' => false,
+                    'fields' => 'ids',
+                    'number' => 50, // Limite directement
+                    'meta_query' => [
+                        [
+                            'key' => 'game_description',
+                            'compare' => 'EXISTS'
+                        ],
+                        [
+                            'key' => 'last_update',
+                            'compare' => 'EXISTS'
+                        ]
+                    ],
+                    'meta_key' => 'last_update',
+                    'orderby' => 'meta_value',
+                    'order' => 'DESC' // Plus récents en premier
+                ]);
+                
+                if (!is_wp_error($terms) && !empty($terms)) {
+                    
+                    // ✅ ÉTAPE 2 : Générer manuellement la grille avec les bonnes options
+                    echo '<div class="sisme-cards-grid sisme-cards-grid--normal sisme-cards-grid--cols-2 sisme-dashboard-recent-games-grid" style="--cards-per-row: 2;" data-cards-count="' . count($terms) . '">';
+                    
+                    // ✅ ÉTAPE 3 : Générer chaque carte avec les bonnes options
+                    foreach ($terms as $game_id) {
+                        $card_options = [
+                            'show_description' => false,
+                            'show_genres' => false,       
+                            'show_platforms' => false,
+                            'max_modes' => 0, 
+                            'show_date' => true,    
+                            'date_format' => 'short',
+                            'css_class' => 'sisme-cards-grid__item sisme-dashboard-card'
+                        ];
+                        
+                        echo Sisme_Cards_API::render_card($game_id, 'normal', $card_options);
+                    }
+                    
+                    echo '</div>';
+                    
+                } else {
+                    ?>
+                    <p class="sisme-games-empty">Sisme a trouvé dégun par ici, sans donc un bug</p>
+                    <?php
+                }
+            } else {
+                ?>
+                <p class="sisme-games-empty">Module Cards non disponible</p>
+                <?php
+            }
+            ?>
         </div>
         <?php
         return ob_get_clean();

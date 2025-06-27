@@ -585,19 +585,9 @@
 }
 
 .sisme-game-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-1px);
     border-color: var(--sisme-dashboard-accent-primary);
     box-shadow: var(--sisme-dashboard-shadow-lg);
-}
-
-.sisme-game-card.game-clicked {
-    animation: game-card-click 0.3s ease;
-}
-
-@keyframes game-card-click {
-    0% { transform: translateY(-4px) scale(1); }
-    50% { transform: translateY(-4px) scale(1.05); }
-    100% { transform: translateY(-4px) scale(1); }
 }
 
 .sisme-game-cover {
@@ -1250,5 +1240,40 @@
     .sisme-dashboard-main {
         box-shadow: none !important;
         border: 1px solid #000 !important;
+    }
+}
+
+
+/* ===📐 GRILLE DE CARTES ==================== */
+
+.sisme-dashboard-card {
+    width: 100%;
+}
+
+.sisme-game-card {
+    max-width: none !important;
+    min-height: 0px !important;
+}
+
+.sisme-dashboard-card .sisme-card-image {
+    height: 160px;
+}
+
+.sisme-dashboard-recent-games-grid {
+    display: grid !important;
+    grid-template-columns: repeat(1, 1fr) !important;
+    gap: 16px !important;
+    margin: 20px 0;
+}
+
+.sisme-dashboard-card .sisme-card-description,
+.sisme-dashboard-card .sisme-card-genres,
+.sisme-dashboard-card .sisme-card-modes {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .sisme-dashboard-recent-games-grid {
+        grid-template-columns: 1fr !important;
     }
 }

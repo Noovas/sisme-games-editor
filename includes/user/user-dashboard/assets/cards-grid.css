@@ -1,0 +1,26 @@
+/* Forcer la grille 2 colonnes */
+.sisme-dashboard-recent-games-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+    margin: 20px 0;
+}
+
+/* Masquer complètement description et genres sur les cartes dashboard */
+.sisme-dashboard-card .sisme-card-description,
+.sisme-dashboard-card .sisme-card-genres,
+.sisme-dashboard-card .sisme-card-modes {
+    display: none !important;
+}
+
+/* S'assurer que la date s'affiche bien */
+.sisme-dashboard-card .sisme-card-meta {
+    display: block !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sisme-dashboard-recent-games-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
