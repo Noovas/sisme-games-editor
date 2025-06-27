@@ -14,7 +14,8 @@ class SismeFrontendTooltip {
             'sisme-store-icon',
             'sisme-tooltip-enabled',
             'sisme-action-btn',
-            'sisme-info-icon'
+            'sisme-info-icon',
+            'sisme-disabled'
         ];
         
         this.init();
@@ -121,7 +122,7 @@ class SismeFrontendTooltip {
     autoInitializeTooltips() {
         // Fonction pour initialiser un élément
         const initElement = (element) => {
-            // ✅ VÉRIFICATION : Seulement si classe autorisée ET title présent
+            // Seulement si classe autorisée ET title présent
             if (this.hasAllowedClass(element)) {
                 const tooltipText = element.getAttribute("title");
                 if (tooltipText) {

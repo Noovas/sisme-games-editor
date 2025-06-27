@@ -15,6 +15,9 @@ if (!defined('ABSPATH')) {
 }
 
 class Sisme_User_Dashboard_API {
+
+    const REGISTER_URL = '/sisme-user-register/';
+    const LOGIN_URL = '/sisme-user-login/';
     
     /**
      * Initialisation de l'API
@@ -36,7 +39,7 @@ class Sisme_User_Dashboard_API {
         $defaults = [
             'container_class' => 'sisme-user-dashboard',
             'user_id' => '', // Vide = utilisateur courant
-            'title' => 'Mon Dashboard Gaming'
+            'title' => 'Ma Sismothèque'
         ];
         
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_dashboard');
@@ -109,7 +112,7 @@ class Sisme_User_Dashboard_API {
                     </h1>
                     <p class="sisme-profile-stats">
                         <span class="sisme-stat">🎮 <?php echo esc_html($gaming_stats['total_games']); ?> jeux</span>
-                        <span class="sisme-stat">⭐ <?php echo esc_html($gaming_stats['favorite_games']); ?> favoris</span>
+                        <span class="sisme-stat">❤️ <?php echo esc_html($gaming_stats['favorite_games']); ?> favoris</span>
                         <span class="sisme-stat">🏆 Niveau <?php echo esc_html($gaming_stats['level']); ?></span>
                     </p>
                 </div>
@@ -122,9 +125,9 @@ class Sisme_User_Dashboard_API {
             </div>
             
             <div class="sisme-quick-actions">
-                <a href="#library" class="sisme-quick-btn" data-section="library">
+                <a href="#library" class="sisme-quick-btn " data-section="library">
                     <span class="sisme-icon">📚</span>
-                    <span class="sisme-label">Ma Bibliothèque</span>
+                    <span class="sisme-label">Ma Sismothèque</span>
                 </a>
                 <a href="#favorites" class="sisme-quick-btn" data-section="favorites">
                     <span class="sisme-icon">❤️</span>
@@ -190,7 +193,7 @@ class Sisme_User_Dashboard_API {
         ob_start();
         ?>
         <nav class="sisme-dashboard-nav">
-            <h3 class="sisme-nav-title">🎮 Mon Gaming</h3>
+            <h3 class="sisme-nav-title">☰ Mon Sismenu</h3>
             <ul class="sisme-nav-list">
                 <li><a href="#overview" class="sisme-nav-link active" data-section="overview">
                     <span class="sisme-nav-icon">📊</span>
@@ -198,13 +201,13 @@ class Sisme_User_Dashboard_API {
                 </a></li>
                 <li><a href="#library" class="sisme-nav-link" data-section="library">
                     <span class="sisme-nav-icon">📚</span>
-                    <span class="sisme-nav-text">Ma Bibliothèque</span>
+                    <span class="sisme-nav-text">Ma Sismethèque</span>
                 </a></li>
                 <li><a href="#favorites" class="sisme-nav-link" data-section="favorites">
-                    <span class="sisme-nav-icon">⭐</span>
+                    <span class="sisme-nav-icon">❤️</span>
                     <span class="sisme-nav-text">Favoris</span>
                 </a></li>
-                <li><a href="#activity" class="sisme-nav-link" data-section="activity">
+                <li class=""><a href="#activity" class="sisme-nav-link" data-section="activity">
                     <span class="sisme-nav-icon">📈</span>
                     <span class="sisme-nav-text">Activité</span>
                 </a></li>
@@ -228,7 +231,12 @@ class Sisme_User_Dashboard_API {
                 <span class="sisme-stat-label">Jeux possédés</span>
             </div>
             <div class="sisme-stat-item">
-                <span class="sisme-stat-icon">⭐</span>
+                <span class="sisme-stat-icon">🎯</span>
+                <span class="sisme-stat-value"><?php echo esc_html($gaming_stats['owned_games']); ?></span>
+                <span class="sisme-stat-label">Favoris</span>
+            </div>
+            <div class="sisme-stat-item">
+                <span class="sisme-stat-icon">❤️</span>
                 <span class="sisme-stat-value"><?php echo esc_html($gaming_stats['favorite_games']); ?></span>
                 <span class="sisme-stat-label">Favoris</span>
             </div>
@@ -403,7 +411,7 @@ class Sisme_User_Dashboard_API {
     private static function render_stats_widget($gaming_stats) {
         ob_start();
         ?>
-        <div class="sisme-widget sisme-stats">
+        <div class="sisme-widget sisme-stats" id="stats">
             <h3 class="sisme-widget-title">
                 <span class="sisme-widget-icon">📊</span>
                 Statistiques
@@ -467,10 +475,10 @@ class Sisme_User_Dashboard_API {
                     Vous devez être connecté pour accéder à votre dashboard gaming.
                 </p>
                 <div class="sisme-login-actions">
-                    <a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>" class="sisme-btn sisme-btn-primary">
+                    <a href="<?php echo esc_url(home_url(self::LOGIN_URL)); ?>" class="sisme-btn sisme-btn-primary">
                         Se connecter
                     </a>
-                    <a href="<?php echo esc_url(wp_registration_url()); ?>" class="sisme-btn sisme-btn-secondary">
+                    <a href="<?php echo esc_url(home_url(self::REGISTER_URL)); ?>" class="sisme-btn sisme-btn-secondary">
                         S'inscrire
                     </a>
                 </div>

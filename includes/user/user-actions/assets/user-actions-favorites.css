@@ -4,7 +4,7 @@
  */
 
 /* Animation cœur */
-.sisme-action-favorite.clicked .sisme-action-icon {
+.sisme-action-favorite.clicked.sisme-action-icon {
     animation: heartBeat 0.6s ease;
 }
 
@@ -16,12 +16,12 @@
     70% { transform: scale(1); }
 }
 
-.sisme-action-active {
+.sisme-action-active.sisme-action-favorite {
     background: var(--sisme-button-bg-vert);
 }
 
 .sisme-action-inactive{
-    
+
 }
 
 .sisme-action-favorite.sisme-action-inactive:hover {

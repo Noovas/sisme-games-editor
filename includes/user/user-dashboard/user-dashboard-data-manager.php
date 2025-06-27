@@ -8,6 +8,8 @@
  * - Intégration avec le module Cards pour les jeux
  * - Cache simple des données
  * - Statistiques gaming de base
+ * 
+ * Support complet des collections owned
  */
 
 if (!defined('ABSPATH')) {
@@ -49,6 +51,7 @@ class Sisme_User_Dashboard_Data_Manager {
             'gaming_stats' => self::get_gaming_stats($user_id),
             'recent_games' => self::get_recent_games($user_id),
             'favorite_games' => self::get_favorite_games($user_id),
+            'owned_games' => self::get_owned_games($user_id),
             'activity_feed' => self::get_activity_feed($user_id),
             'last_updated' => current_time('timestamp')
         ];
@@ -87,39 +90,47 @@ class Sisme_User_Dashboard_Data_Manager {
     }
     
     /**
-     * Statistiques gaming de l'utilisateur
+     * Statistiques gaming de l'utilisateur avec support owned
      * 
      * @param int $user_id ID utilisateur
      * @return array Stats gaming
      */
     public static function get_gaming_stats($user_id) {
-        // Récupérer les jeux favoris
+        // Récupérer les jeux favoris ET owned
         $favorite_games = get_user_meta($user_id, 'sisme_user_favorite_games', true) ?: [];
+        $owned_games = get_user_meta($user_id, 'sisme_user_owned_games', true) ?: [];
+        
         $favorite_count = is_array($favorite_games) ? count($favorite_games) : 0;
+        $owned_count = is_array($owned_games) ? count($owned_games) : 0;
+        
+        // Calculer le nombre total de jeux uniques (éviter doublons)
+        $all_unique_games = array_unique(array_merge($favorite_games, $owned_games));
+        $total_unique_count = count($all_unique_games);
         
         // Compter les articles (fiches) de jeux créés par l'utilisateur (si applicable)
         $user_posts = count_user_posts($user_id, 'post');
         
-        // Stats basiques
+        // Stats complètes avec favoris ET owned
         return [
-            'total_games' => $favorite_count, // Pour l'instant = favoris
+            'total_games' => $total_unique_count,
             'favorite_games' => $favorite_count,
+            'owned_games' => $owned_count,
             'user_posts' => $user_posts,
             'completion_rate' => 0, // À implémenter plus tard
             'playtime_hours' => 0,  // À implémenter plus tard
-            'level' => self::calculate_user_level($favorite_count, $user_posts)
+            'level' => self::calculate_user_level($total_unique_count, $user_posts)
         ];
     }
     
     /**
      * Calculer le niveau de l'utilisateur basé sur son activité
      * 
-     * @param int $favorite_count Nombre de favoris
+     * @param int $total_games_count Nombre total de jeux
      * @param int $posts_count Nombre de posts
      * @return string Niveau utilisateur
      */
-    private static function calculate_user_level($favorite_count, $posts_count) {
-        $score = $favorite_count + ($posts_count * 2);
+    private static function calculate_user_level($total_games_count, $posts_count) {
+        $score = $total_games_count + ($posts_count * 2);
         
         if ($score >= 50) return 'Expert';
         if ($score >= 20) return 'Expérimenté';
@@ -191,15 +202,46 @@ class Sisme_User_Dashboard_Data_Manager {
         // Limiter le nombre de favoris
         $favorite_game_ids = array_slice($favorite_game_ids, 0, $limit);
         
-        $favorite_games = [];
-        foreach ($favorite_game_ids as $term_id) {
+        return self::build_games_array($favorite_game_ids);
+    }
+    
+    /**
+     * Récupérer les jeux possédés de l'utilisateur
+     * 
+     * @param int $user_id ID utilisateur
+     * @param int $limit Nombre de jeux owned à récupérer
+     * @return array Jeux possédés
+     */
+    public static function get_owned_games($user_id, $limit = 12) {
+        $owned_game_ids = get_user_meta($user_id, 'sisme_user_owned_games', true);
+        
+        if (!is_array($owned_game_ids) || empty($owned_game_ids)) {
+            return [];
+        }
+        
+        // Limiter le nombre de jeux owned
+        $owned_game_ids = array_slice($owned_game_ids, 0, $limit);
+        
+        return self::build_games_array($owned_game_ids);
+    }
+    
+    /**
+     * Méthode utilitaire pour construire un tableau de jeux à partir d'IDs
+     * 
+     * @param array $game_ids Liste des IDs de jeux
+     * @return array Tableau de jeux avec données complètes
+     */
+    private static function build_games_array($game_ids) {
+        $games = [];
+        
+        foreach ($game_ids as $term_id) {
             $term = get_term($term_id, 'post_tag');
             if ($term && !is_wp_error($term)) {
                 // Récupérer les données via Cards si disponible
                 if (class_exists('Sisme_Cards_Functions')) {
                     $game_data = Sisme_Cards_Functions::get_game_data($term_id);
                     if ($game_data) {
-                        $favorite_games[] = [
+                        $games[] = [
                             'id' => $term_id,
                             'name' => $game_data['name'],
                             'slug' => $game_data['slug'],
@@ -209,7 +251,7 @@ class Sisme_User_Dashboard_Data_Manager {
                     }
                 } else {
                     // Fallback simple sans Cards
-                    $favorite_games[] = [
+                    $games[] = [
                         'id' => $term_id,
                         'name' => $term->name,
                         'slug' => $term->slug,
@@ -220,11 +262,11 @@ class Sisme_User_Dashboard_Data_Manager {
             }
         }
         
-        return $favorite_games;
+        return $games;
     }
     
     /**
-     * Feed d'activité simple de l'utilisateur
+     * Feed d'activité avec support owned
      * 
      * @param int $user_id ID utilisateur
      * @param int $limit Nombre d'éléments
@@ -265,10 +307,26 @@ class Sisme_User_Dashboard_Data_Manager {
             if ($term && !is_wp_error($term)) {
                 $activities[] = [
                     'type' => 'favorite',
-                    'icon' => '⭐',
+                    'icon' => '❤️',
                     'message' => 'Ajout de "' . $term->name . '" aux favoris',
                     'date' => current_time('mysql'), // Approximatif
                     'timestamp' => current_time('timestamp') - 3600 // Il y a 1h
+                ];
+            }
+        }
+        
+        // Activité 4: Jeux owned récents
+        $owned_games = get_user_meta($user_id, 'sisme_user_owned_games', true);
+        if (!empty($owned_games) && is_array($owned_games)) {
+            $last_owned = end($owned_games);
+            $term = get_term($last_owned, 'post_tag');
+            if ($term && !is_wp_error($term)) {
+                $activities[] = [
+                    'type' => 'owned',
+                    'icon' => '🎯',
+                    'message' => 'Ajout de "' . $term->name . '" à votre collection',
+                    'date' => current_time('mysql'), // Approximatif
+                    'timestamp' => current_time('timestamp') - 1800 // Il y a 30min
                 ];
             }
         }
@@ -352,6 +410,76 @@ class Sisme_User_Dashboard_Data_Manager {
     }
     
     /**
+     * Ajouter un jeu à la collection owned
+     * 
+     * @param int $user_id ID utilisateur
+     * @param int $game_id ID du jeu (term_id)
+     * @return bool Succès
+     */
+    public static function add_owned_game($user_id, $game_id) {
+        $current_owned = get_user_meta($user_id, 'sisme_user_owned_games', true) ?: [];
+        
+        if (!is_array($current_owned)) {
+            $current_owned = [];
+        }
+        
+        // Vérifier si pas déjà en owned
+        if (!in_array($game_id, $current_owned)) {
+            $current_owned[] = intval($game_id);
+            $success = update_user_meta($user_id, 'sisme_user_owned_games', $current_owned);
+            
+            if ($success) {
+                // Nettoyer le cache
+                self::clear_user_dashboard_cache($user_id);
+                
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("[Sisme Dashboard Data] Jeu {$game_id} ajouté à la collection owned de l'utilisateur {$user_id}");
+                }
+                
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Retirer un jeu de la collection owned
+     * 
+     * @param int $user_id ID utilisateur
+     * @param int $game_id ID du jeu
+     * @return bool Succès
+     */
+    public static function remove_owned_game($user_id, $game_id) {
+        $current_owned = get_user_meta($user_id, 'sisme_user_owned_games', true) ?: [];
+        
+        if (!is_array($current_owned)) {
+            return false;
+        }
+        
+        $key = array_search($game_id, $current_owned);
+        if ($key !== false) {
+            unset($current_owned[$key]);
+            $current_owned = array_values($current_owned); // Réindexer
+            
+            $success = update_user_meta($user_id, 'sisme_user_owned_games', $current_owned);
+            
+            if ($success) {
+                // Nettoyer le cache
+                self::clear_user_dashboard_cache($user_id);
+                
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("[Sisme Dashboard Data] Jeu {$game_id} retiré de la collection owned de l'utilisateur {$user_id}");
+                }
+                
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
      * Mettre à jour la dernière visite du dashboard
      * 
      * @param int $user_id ID utilisateur
@@ -406,7 +534,7 @@ class Sisme_User_Dashboard_Data_Manager {
     }
     
     /**
-     * Initialiser les données de base pour un nouvel utilisateur
+     * Initialiser les données de base pour un nouvel utilisateur avec support owned
      * 
      * @param int $user_id ID utilisateur
      * @return bool Succès
@@ -414,6 +542,7 @@ class Sisme_User_Dashboard_Data_Manager {
     public static function init_user_dashboard_data($user_id) {
         $default_data = [
             'sisme_user_favorite_games' => [],
+            'sisme_user_owned_games' => [],
             'sisme_user_last_dashboard_visit' => current_time('mysql'),
             'sisme_user_dashboard_created' => current_time('mysql')
         ];
@@ -436,7 +565,7 @@ class Sisme_User_Dashboard_Data_Manager {
     }
     
     /**
-     * Obtenir des statistiques globales pour debug
+     * ✅ CORRECTIF: Obtenir des statistiques globales pour debug avec support owned
      * 
      * @return array Stats système
      */
@@ -450,15 +579,30 @@ class Sisme_User_Dashboard_Data_Manager {
              AND meta_value != '' AND meta_value != 'a:0:{}'"
         );
         
+        // ✅ AJOUTÉ: Compter les utilisateurs avec des jeux owned
+        $users_with_owned = $wpdb->get_var(
+            "SELECT COUNT(DISTINCT user_id) FROM {$wpdb->usermeta} 
+             WHERE meta_key = 'sisme_user_owned_games' 
+             AND meta_value != '' AND meta_value != 'a:0:{}'"
+        );
+        
         // Compter le total de favoris
         $total_favorites = $wpdb->get_var(
             "SELECT COUNT(*) FROM {$wpdb->usermeta} 
              WHERE meta_key = 'sisme_user_favorite_games'"
         );
         
+        // ✅ AJOUTÉ: Compter le total de owned
+        $total_owned = $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->usermeta} 
+             WHERE meta_key = 'sisme_user_owned_games'"
+        );
+        
         return [
             'users_with_favorites' => intval($users_with_favorites),
+            'users_with_owned' => intval($users_with_owned), // ✅ AJOUTÉ
             'total_favorite_entries' => intval($total_favorites),
+            'total_owned_entries' => intval($total_owned), // ✅ AJOUTÉ
             'cache_duration_minutes' => self::CACHE_DURATION / 60,
             'cards_module_available' => class_exists('Sisme_Cards_Functions')
         ];

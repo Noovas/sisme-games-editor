@@ -76,7 +76,7 @@
     background: var(--sisme-dashboard-bg-secondary);
     border-bottom: 1px solid var(--sisme-dashboard-border-color);
     padding: var(--sisme-dashboard-space-lg);
-    position: sticky;
+    position: relative;
     top: 0;
     z-index: 100;
     backdrop-filter: blur(10px);
@@ -968,6 +968,7 @@
 /* ===📱 MOBILE RESPONSIVE ================ */
 @media (max-width: 767px) {
     .sisme-dashboard-header {
+        position: relative;
         padding: var(--sisme-dashboard-space-md);
     }
     
@@ -1040,7 +1041,14 @@
     }
     
     .sisme-dashboard-sidebar.mobile-open {
-        left: 0;
+        z-index: 999;
+        left: 0px;
+        top: 0px;
+        position: fixed;
+        overflow-y: auto;
+        height: 100vh;
+        width: 100%;
+        border-radius: var(--sisme-radius-md);
     }
     
     .sisme-notification {

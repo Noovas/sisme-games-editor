@@ -120,7 +120,7 @@
             
             $toggle.css({
                 position: 'fixed',
-                top: '20px',
+                top: '10px',
                 left: '20px',
                 background: 'var(--sisme-gaming-accent, #58a6ff)',
                 color: 'white',
@@ -170,7 +170,7 @@
                 width: '100%',
                 height: '100%',
                 background: 'rgba(0, 0, 0, 0.5)',
-                zIndex: '999',
+                zIndex: '-1',
                 display: 'block'
             });
             $('body').append($newOverlay);

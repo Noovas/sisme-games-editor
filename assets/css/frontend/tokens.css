@@ -284,3 +284,126 @@
     display: flex;
     flex-direction: column;
 }
+
+.sisme-disabled {
+    /* Apparence visuelle désactivée */
+    opacity: 0.5;
+    filter: grayscale(1) brightness(0.8);
+    
+    /* Désactiver toutes les interactions */
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    
+    /* Curseur indiquant l'état désactivé */
+    cursor: not-allowed !important;
+    
+    /* Transition fluide lors de l'activation/désactivation */
+    transition: all 0.3s ease;
+}
+
+/* Désactiver tous les enfants également */
+.sisme-disabled *,
+.sisme-disabled *::before,
+.sisme-disabled *::after {
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+}
+
+/* Spécifique aux boutons */
+.sisme-disabled button,
+.sisme-disabled .btn,
+.sisme-disabled [role="button"],
+.sisme-disabled input[type="button"],
+.sisme-disabled input[type="submit"] {
+    opacity: 0.4;
+    box-shadow: none !important;
+}
+
+/* Spécifique aux liens */
+.sisme-disabled a,
+.sisme-disabled [role="link"] {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* Spécifique aux champs de formulaire */
+.sisme-disabled input,
+.sisme-disabled textarea,
+.sisme-disabled select,
+.sisme-disabled [contenteditable] {
+    background-color: #f5f5f5 !important;
+    border-color: #ddd !important;
+    color: #999 !important;
+}
+
+/* Animation de désactivation */
+@keyframes sisme-disable {
+    from {
+        opacity: 1;
+        filter: grayscale(0) brightness(1);
+    }
+    to {
+        opacity: 0.5;
+        filter: grayscale(1) brightness(0.8);
+    }
+}
+
+/* Animation d'activation */
+@keyframes sisme-enable {
+    from {
+        opacity: 0.5;
+        filter: grayscale(1) brightness(0.8);
+    }
+    to {
+        opacity: 1;
+        filter: grayscale(0) brightness(1);
+    }
+}
+
+/* Classes utilitaires pour animations */
+.sisme-disabling {
+    animation: sisme-disable 0.3s ease forwards;
+}
+
+.sisme-enabling {
+    animation: sisme-enable 0.3s ease forwards;
+}
+
+/* Variantes de désactivation */
+.sisme-disabled--soft {
+    opacity: 0.7;
+    filter: grayscale(0.5) brightness(0.9);
+    pointer-events: none;
+}
+
+.sisme-disabled--strong {
+    opacity: 0.3;
+    filter: grayscale(1) brightness(0.6) blur(1px);
+    pointer-events: none;
+}
+
+/* Support du mode sombre */
+@media (prefers-color-scheme: dark) {
+    .sisme-disabled {
+        filter: grayscale(1) brightness(0.6);
+    }
+    
+    .sisme-disabled input,
+    .sisme-disabled textarea,
+    .sisme-disabled select {
+        background-color: #2a2a2a !important;
+        border-color: #444 !important;
+        color: #666 !important;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sisme-disabled {
+        /* Effet plus visible sur mobile */
+        opacity: 0.4;
+    }
+}
