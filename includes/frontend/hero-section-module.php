@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-actions/user-actions-api.php';
+
 class Sisme_Hero_Section_Module {
     
     /**
@@ -35,7 +37,6 @@ class Sisme_Hero_Section_Module {
         $output .= '<div class="sisme-game-info">';
         $output .= self::render_game_info($game_data);
         $output .= '</div>';
-        
         $output .= '</div>';
         
         // JavaScript pour la galerie interactive
@@ -122,6 +123,9 @@ class Sisme_Hero_Section_Module {
         if (!empty($game_data['description'])) {
             $output .= '<p class="sisme-game-description">' . wp_kses_post($game_data['description']) . '</p>';
         }
+
+        // User-actions
+        $output .= self::render_user_actions($game_data);
         
         // TITRE + MÉTADONNÉES avec ID pour le scroll
         $output .= '<div class="sisme-game-meta-container" id="sismeGameMeta">';
@@ -137,6 +141,41 @@ class Sisme_Hero_Section_Module {
         $output .= '</div>';
         $output .= '</div>';
         
+        return $output;
+    }
+
+
+    /**
+     * Générer les user-actions
+     */
+    private static function render_user_actions($game_data) {
+        $output = '';
+
+        $output .= '<div class="sisme-user-actions sisme-user-action-fiches">';
+        
+        // Bouton favoris
+        $output .= Sisme_User_Actions_API::render_action_button(
+            $game_data['id'],
+            'favorite',
+            [
+                'size' => 'large',
+                'show_text' => true,
+                'show_count' => true
+            ]
+        );
+        
+        // Bouton collection
+        $output .= Sisme_User_Actions_API::render_action_button(
+            $game_data['id'],
+            'owned',
+            [
+                'size' => 'large',
+                'show_text' => true,
+                'show_count' => true
+            ]
+        );
+        
+        $output .= '</div>';
         return $output;
     }
     
