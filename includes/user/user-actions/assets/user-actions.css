@@ -1,0 +1,96 @@
+/**
+ * File : assets/user-actions.css
+ * Styles de base pour les boutons d'action utilisateur
+ */
+
+.sisme-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0.5rem;
+    margin: 0.25rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-action-btn:hover {
+    background: rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Tailles des boutons */
+.sisme-action-size-small {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.sisme-action-size-medium {
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.sisme-action-size-large {
+    font-size: 1.2rem;
+    padding: 0.75rem 1rem;
+}
+
+/* Icône */
+.sisme-action-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.25rem;
+}
+
+/* Compteur */
+.sisme-action-count {
+    font-size: 0.85em;
+    margin-left: 0.35rem;
+    opacity: 0.8;
+}
+
+/* Texte du bouton */
+.sisme-action-text {
+    margin-left: 0.5rem;
+}
+
+/* États actifs/inactifs */
+.sisme-action-active .sisme-action-icon-inactive,
+.sisme-action-inactive .sisme-action-icon-active,
+.sisme-action-active .sisme-action-text-inactive,
+.sisme-action-inactive .sisme-action-text-active {
+    display: none;
+}
+
+/* Intégration dans Hero Section */
+.sisme-hero-actions {
+    display: flex;
+    margin-top: 1.5rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Animation du clic */
+.sisme-action-btn.clicked {
+    animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+/* Intégration dans les cartes */
+.sisme-card .sisme-action-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 2;
+    backdrop-filter: blur(3px);
+}
