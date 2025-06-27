@@ -94,3 +94,170 @@
     z-index: 2;
     backdrop-filter: blur(3px);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * File: user-actions-debug-fix.css
+ * Fix pour le problème de double affichage des états actif/inactif
+ * À ajouter temporairement pour diagnostiquer et corriger le bug
+ */
+
+/* ========================================
+   🐛 DIAGNOSTIC VISUEL DU PROBLÈME
+======================================== */
+
+/* Mettre une bordure rouge pour identifier les éléments problématiques */
+.sisme-action-btn {
+    border: 2px solid red !important;
+    position: relative !important;
+}
+
+.sisme-action-btn::before {
+    content: attr(data-is-active) ' | ' attr(class);
+    position: absolute;
+    top: -20px;
+    left: 0;
+    font-size: 10px;
+    background: yellow;
+    color: black;
+    padding: 2px 4px;
+    border-radius: 2px;
+    z-index: 1000;
+}
+
+/* ========================================
+   🔧 FIX FORCÉ DES ÉTATS
+======================================== */
+
+/* FORCER le masquage des états opposés avec !important */
+.sisme-action-active .sisme-action-icon-inactive {
+    display: none !important;
+}
+
+.sisme-action-inactive .sisme-action-icon-active {
+    display: none !important;
+}
+
+.sisme-action-active .sisme-action-text-inactive {
+    display: none !important;
+}
+
+.sisme-action-inactive .sisme-action-text-active {
+    display: none !important;
+}
+
+/* ========================================
+   🔍 VÉRIFICATION DES CLASSES CSS
+======================================== */
+
+/* Colorer différemment selon l'état pour identifier le problème */
+.sisme-action-active {
+    background-color: rgba(0, 255, 0, 0.2) !important; /* Vert pour actif */
+}
+
+.sisme-action-inactive {
+    background-color: rgba(255, 0, 0, 0.2) !important; /* Rouge pour inactif */
+}
+
+/* ========================================
+   🚨 ALTERNATIVE : MASQUAGE SÉLECTIF
+======================================== */
+
+/* Si le problème persiste, utiliser une approche différente */
+.sisme-action-btn .sisme-action-icon-active,
+.sisme-action-btn .sisme-action-icon-inactive,
+.sisme-action-btn .sisme-action-text-active,
+.sisme-action-btn .sisme-action-text-inactive {
+    display: none !important;
+}
+
+/* Puis réafficher seulement l'état approprié */
+.sisme-action-active .sisme-action-icon-active,
+.sisme-action-inactive .sisme-action-icon-inactive,
+.sisme-action-active .sisme-action-text-active,
+.sisme-action-inactive .sisme-action-text-inactive {
+    display: inline !important;
+}
+
+/* ========================================
+   📋 ÉTATS SPÉCIFIQUES PAR TYPE
+======================================== */
+
+/* Favoris - État actif */
+.sisme-action-favorite.sisme-action-active .sisme-action-icon-active {
+    display: inline !important;
+}
+
+.sisme-action-favorite.sisme-action-active .sisme-action-icon-inactive {
+    display: none !important;
+}
+
+/* Favoris - État inactif */
+.sisme-action-favorite.sisme-action-inactive .sisme-action-icon-active {
+    display: none !important;
+}
+
+.sisme-action-favorite.sisme-action-inactive .sisme-action-icon-inactive {
+    display: inline !important;
+}
+
+/* Collection - État actif */
+.sisme-action-owned.sisme-action-active .sisme-action-icon-active {
+    display: inline !important;
+}
+
+.sisme-action-owned.sisme-action-active .sisme-action-icon-inactive {
+    display: none !important;
+}
+
+/* Collection - État inactif */
+.sisme-action-owned.sisme-action-inactive .sisme-action-icon-active {
+    display: none !important;
+}
+
+.sisme-action-owned.sisme-action-inactive .sisme-action-icon-inactive {
+    display: inline !important;
+}
+
+/* ========================================
+   🧹 VERSION CLEAN (à utiliser après diagnostic)
+======================================== */
+
+/*
+Une fois le problème identifié, remplacer par cette version propre :
+
+.sisme-action-btn .sisme-action-icon-active,
+.sisme-action-btn .sisme-action-icon-inactive,
+.sisme-action-btn .sisme-action-text-active,
+.sisme-action-btn .sisme-action-text-inactive {
+    display: none;
+}
+
+.sisme-action-active .sisme-action-icon-active,
+.sisme-action-active .sisme-action-text-active {
+    display: inline;
+}
+
+.sisme-action-inactive .sisme-action-icon-inactive,
+.sisme-action-inactive .sisme-action-text-inactive {
+    display: inline;
+}
+*/

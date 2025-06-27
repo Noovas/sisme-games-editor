@@ -1,14 +1,14 @@
-# 🎮 Module User Actions - Documentation
+# 🎮 Module User Actions
 
-**Version:** 1.0.0  
-**Status:** Production Ready  
+**Version:** 1.0.1  
+**Status:** ✅ Production Ready  
 **Module:** `includes/user/user-actions/`
 
-## 🎯 Vue d'ensemble
+## Vue d'ensemble
 
-Module permettant aux utilisateurs d'interagir avec les jeux via des actions comme ajouter aux favoris ou à leur collection personnelle. Fournit des boutons interactifs intégrables dans Hero Section et Cards.
+Module d'actions utilisateur pour les jeux (favoris, collection). Boutons interactifs avec AJAX temps réel, intégration automatique dans Hero Section et Cards.
 
-## 📁 Structure des fichiers
+## Structure des fichiers
 
 ```
 includes/user/user-actions/
@@ -19,13 +19,13 @@ includes/user/user-actions/
 └── assets/
     ├── user-actions.css            # Styles de base
     ├── user-actions-favorites.css  # Styles favoris
-    ├── user-actions.js             # JavaScript commun
+    ├── user-actions.js             # JavaScript principal
     └── user-actions-favorites.js   # JS spécifique favoris
 ```
 
-## 🚀 Utilisation
+## Utilisation
 
-### Rendu de boutons d'action
+### Rendu de boutons
 
 ```php
 // Bouton favoris basique
@@ -34,7 +34,7 @@ echo Sisme_User_Actions_API::render_action_button(
     Sisme_User_Actions_Data_Manager::COLLECTION_FAVORITE
 );
 
-// Bouton collection avec options
+// Bouton avec options
 echo Sisme_User_Actions_API::render_action_button(
     $game_id,
     Sisme_User_Actions_Data_Manager::COLLECTION_OWNED,
@@ -47,93 +47,109 @@ echo Sisme_User_Actions_API::render_action_button(
 );
 ```
 
-### Paramètres de render_action_button()
-
-| Paramètre | Type | Défaut | Description |
-|-----------|------|--------|-------------|
-| `$game_id` | int | - | ID du jeu (term_id) |
-| `$action_type` | string | - | Type d'action ('favorite' ou 'owned') |
-| `$options` | array | [] | Options de personnalisation |
-
-#### Options disponibles
+### Options disponibles
 
 | Option | Type | Défaut | Description |
 |--------|------|--------|-------------|
+| `size` | string | 'medium' | Taille ('small', 'medium', 'large') |
+| `show_text` | bool | false | Afficher le texte |
+| `show_count` | bool | true | Afficher le compteur |
 | `classes` | string | '' | Classes CSS supplémentaires |
-| `size` | string | 'medium' | Taille du bouton ('small', 'medium', 'large') |
-| `show_count` | bool | true | Afficher le compteur d'utilisateurs |
-| `update` | bool | false | Forcer la mise à jour du cache |
-| `show_text` | bool | false | Afficher le texte en plus de l'icône |
-| `text_active` | string | '' | Texte personnalisé état actif |
-| `text_inactive` | string | '' | Texte personnalisé état inactif |
 
-### Récupération des collections
+### API de données
 
 ```php
-// Obtenir les jeux favoris d'un utilisateur
-$favorite_games = Sisme_User_Actions_Data_Manager::get_user_collection(
-    $user_id,
-    Sisme_User_Actions_Data_Manager::COLLECTION_FAVORITE,
-    10 // Limite
+// Vérifier si un jeu est favori
+$is_favorite = Sisme_User_Actions_Data_Manager::is_game_in_user_collection(
+    $user_id, $game_id, 'favorite'
 );
 
-// Vérifier si un jeu est dans la collection
-$is_favorite = Sisme_User_Actions_Data_Manager::is_game_in_user_collection(
-    $user_id,
-    $game_id,
-    Sisme_User_Actions_Data_Manager::COLLECTION_FAVORITE
+// Récupérer les favoris d'un utilisateur
+$favorites = Sisme_User_Actions_Data_Manager::get_user_collection(
+    $user_id, 'favorite', 10
 );
+
+// Actions programmatiques
+Sisme_User_Actions_Data_Manager::add_game_to_user_collection($user_id, $game_id, 'favorite');
+Sisme_User_Actions_Data_Manager::remove_game_from_user_collection($user_id, $game_id, 'favorite');
 ```
 
 ### Shortcode
 
 ```html
-<!-- Afficher les jeux favoris de l'utilisateur courant -->
-[sisme_user_collection collection="favorite" limit="6" title="Mes jeux favoris" columns="3"]
+<!-- Afficher les favoris de l'utilisateur courant -->
+[sisme_user_collection collection="favorite" limit="6" title="Mes favoris"]
 
-<!-- Afficher les jeux possédés d'un utilisateur spécifique -->
-[sisme_user_collection user_id="123" collection="owned" limit="10" title="Sa collection"]
+<!-- Collection d'un utilisateur spécifique -->
+[sisme_user_collection user_id="123" collection="owned" limit="10"]
 ```
 
-## 🧩 Intégration
+## Intégration automatique
 
-Le module s'intègre automatiquement avec:
-- **Hero Section**: Boutons dans la section d'info du jeu
-- **Cards**: Bouton favori dans le coin supérieur droit
+- **Hero Section** : Boutons ajoutés automatiquement dans les infos du jeu
+- **Cards** : Bouton favori en coin supérieur droit
+- **Assets** : Chargés automatiquement sur tout le frontend
 
-## ⚙️ API AJAX
+## AJAX
 
-Endpoint: `wp_ajax_sisme_toggle_game_collection`
-- **Paramètres**: 
-  - `game_id` (int): ID du jeu
-  - `collection_type` (string): Type de collection ('favorite' ou 'owned')
-  - `security` (string): Nonce de sécurité
+**Endpoint :** `wp_ajax_sisme_toggle_game_collection`
 
-## 🎨 Personnalisation CSS
+**Paramètres :**
+- `game_id` (int) : ID du jeu
+- `collection_type` (string) : 'favorite' ou 'owned'  
+- `security` (string) : Nonce
 
-### Variables personnalisables
-```css
-:root {
-    --sisme-action-favorite-color: #ff3333;
-    --sisme-action-owned-color: #33aaff;
-    --sisme-action-bg: rgba(0, 0, 0, 0.2);
-    --sisme-action-hover-bg: rgba(0, 0, 0, 0.3);
+**Réponse :**
+```json
+{
+    "success": true,
+    "data": {
+        "status": "added|removed",
+        "is_active": true,
+        "message": "Jeu ajouté à votre collection"
+    }
 }
 ```
 
-## 🔧 Hooks disponibles
+## Hooks WordPress
 
 ### Actions
-- `sisme_user_favorite_game_added` - ($user_id, $game_id)
-- `sisme_user_favorite_game_removed` - ($user_id, $game_id)
-- `sisme_user_owned_game_added` - ($user_id, $game_id)
-- `sisme_user_owned_game_removed` - ($user_id, $game_id)
+```php
+do_action('sisme_user_favorite_game_added', $user_id, $game_id);
+do_action('sisme_user_favorite_game_removed', $user_id, $game_id);
+do_action('sisme_user_owned_game_added', $user_id, $game_id);
+do_action('sisme_user_owned_game_removed', $user_id, $game_id);
+```
 
 ### Filtres
-- `sisme_user_collection_button_html` - ($html, $game_id, $action_type, $options)
-- `sisme_user_collection_items` - ($items, $user_id, $collection_type)
+```php
+apply_filters('sisme_user_collection_button_html', $html, $game_id, $action_type, $options);
+apply_filters('sisme_user_collection_items', $items, $user_id, $collection_type);
+```
 
-## 📋 Meta Keys
+## Base de données
 
-- `sisme_user_favorite_games` - Array de term_ids
-- `sisme_user_owned_games` - Array de term_ids
+**Meta Keys :**
+- `sisme_user_favorite_games` : Array de term_ids (jeux favoris)
+- `sisme_user_owned_games` : Array de term_ids (jeux possédés)
+
+## CSS Classes principales
+
+```css
+.sisme-action-btn                 /* Bouton principal */
+.sisme-action-favorite           /* Bouton favoris */
+.sisme-action-owned              /* Bouton collection */
+.sisme-action-active             /* État actif */
+.sisme-action-inactive           /* État inactif */
+.sisme-hero-actions              /* Container Hero Section */
+```
+
+## Configuration
+
+Le module se charge automatiquement via `user-loader.php`. Aucune configuration manuelle requise.
+
+**Prérequis :** WordPress 5.0+, PHP 7.4+, Plugin Sisme Games Editor activé.
+
+## Debug
+
+Si `WP_DEBUG` activé, logs automatiques dans les fichiers de log WordPress. Fonction debug JS : `debugUserActions()` dans la console.

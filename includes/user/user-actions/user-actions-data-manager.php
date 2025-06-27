@@ -179,20 +179,44 @@ class Sisme_User_Actions_Data_Manager {
         $is_in_collection = self::is_game_in_user_collection($user_id, $game_id, $collection_type);
         
         if ($is_in_collection) {
+            // Supprimer de la collection
             $success = self::remove_game_from_user_collection($user_id, $game_id, $collection_type);
-            $new_status = false;
-            $message = sprintf(__('Jeu retiré de votre collection %s', 'sisme-games-editor'), $collection_type);
+            
+            if ($success) {
+                return [
+                    'success' => true,
+                    'status' => 'removed',
+                    'message' => __('Jeu retiré de votre collection', 'sisme-games-editor'),
+                    'is_active' => false
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'status' => 'error',
+                    'message' => __('Erreur lors de la suppression', 'sisme-games-editor'),
+                    'is_active' => $is_in_collection
+                ];
+            }
         } else {
+            // Ajouter à la collection
             $success = self::add_game_to_user_collection($user_id, $game_id, $collection_type);
-            $new_status = true;
-            $message = sprintf(__('Jeu ajouté à votre collection %s', 'sisme-games-editor'), $collection_type);
+            
+            if ($success) {
+                return [
+                    'success' => true,
+                    'status' => 'added',
+                    'message' => __('Jeu ajouté à votre collection', 'sisme-games-editor'),
+                    'is_active' => true
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'status' => 'error',
+                    'message' => __('Erreur lors de l\'ajout', 'sisme-games-editor'),
+                    'is_active' => $is_in_collection
+                ];
+            }
         }
-        
-        return [
-            'success' => $success,
-            'status' => $new_status,
-            'message' => $message
-        ];
     }
     
     /**

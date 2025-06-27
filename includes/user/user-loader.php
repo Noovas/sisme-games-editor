@@ -60,6 +60,7 @@ class Sisme_User_Loader {
         // Modules disponibles (par ordre de priorité)
         $available_modules = [
             'user-auth'     => 'Authentification',
+            'user-actions'  => 'Actions utilisateur', 
             'user-dashboard' => 'Dashboard utilisateur',
             'user-profile'  => 'Profil utilisateur', 
             'user-library'  => 'Ludothèque personnelle'
