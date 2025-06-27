@@ -98,7 +98,6 @@ class Sisme_Cards_Loader {
             );
         }
         
-        // 3. CSS principal des cartes
         wp_enqueue_style(
             'sisme-cards',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/cards/assets/cards.css',
@@ -106,15 +105,23 @@ class Sisme_Cards_Loader {
             SISME_GAMES_EDITOR_VERSION
         );
         
-        // 4. CSS grilles et carrousels
+        // 4. CSS grilles
         wp_enqueue_style(
             'sisme-cards-grid',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/cards/assets/cards-grid.css',
             array('sisme-cards'),
             SISME_GAMES_EDITOR_VERSION
         );
+
+        // 4. CSS Carrousel
+        wp_enqueue_style(
+            'sisme-cards-grid',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/cards/assets/cards-carrousel.css',
+            array('sisme-cards'),
+            SISME_GAMES_EDITOR_VERSION
+        );
         
-        // 5. 🆕 JavaScript carrousel (si le fichier existe)
+        // 5. JavaScript carrousel
         if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/cards/assets/cards-carousel.js')) {
             wp_enqueue_script(
                 'sisme-cards-carousel-js',

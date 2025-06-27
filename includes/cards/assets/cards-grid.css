@@ -1,6 +1,6 @@
 /* ========================================
-   🎠 CARROUSEL MODULABLE 2-5 CARTES
-   CSS qui s'adapte au cards_per_view du shortcode
+   🎠 CARROUSEL RESPONSIVE INTELLIGENT
+   Version améliorée avec support touch
 ======================================== */
 
 /* Container principal du carrousel */
@@ -9,6 +9,7 @@
     max-width: 1200px;
     margin-bottom: 90px !important;
     padding: 0 60px;
+    touch-action: pan-y pinch-zoom;
 }
 
 /* Container avec overflow caché */
@@ -20,73 +21,47 @@
 /* Track du carrousel */
 .sisme-carousel__track {
     display: flex;
-    transition: transform 0.4s ease;
-    /* Largeur auto calculée par flexbox */
+    transition: transform 0.3s ease;
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
 }
 
 /* ========================================
    🎯 WRAPPERS MODULABLES - SOLUTION DYNAMIQUE
 ======================================== */
 
-/* Base : 2 cartes par défaut */
+/* Slides responsives */
 .sisme-carousel__slide {
-    flex: 0 0 50%;
+    flex: 0 0 33.3333%; /* Valeur par défaut, surchargée par JS */
     padding: 10px;
     box-sizing: border-box;
     min-width: 0;
     overflow: hidden;
-}
-
-/* Variantes selon cards_per_view - AVEC ATTRIBUT DATA */
-.sisme-cards-carousel[data-cards-per-view="2"] .sisme-carousel__slide {
-    flex: 0 0 50% !important; /* 100% ÷ 2 = 50% */
-}
-
-.sisme-cards-carousel[data-cards-per-view="3"] .sisme-carousel__slide {
-    flex: 0 0 33.3333% !important; /* 100% ÷ 3 = 33.33% */
-}
-
-.sisme-cards-carousel[data-cards-per-view="4"] .sisme-carousel__slide {
-    flex: 0 0 25% !important; /* 100% ÷ 4 = 25% */
-}
-
-.sisme-cards-carousel[data-cards-per-view="5"] .sisme-carousel__slide {
-    flex: 0 0 20% !important; /* 100% ÷ 5 = 20% */
-}
-
-.sisme-carousel__slide:first-child {
-    padding: 10px;
-}
-
-.sisme-carousel__slide:last-child {
-    padding: 10px;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 /* ========================================
    🎴 CARTES WORDPRESS DANS LES WRAPPERS
 ======================================== */
 
-/* Les vraies cartes WordPress dans leurs wrappers */
+/* Cartes dans les slides */
 .sisme-carousel__slide .sisme-game-card {
-    /* Reset complet - la carte prend toute la place du wrapper */
     width: 100% !important;
     max-width: none !important;
     min-width: 0 !important;
-    margin: 0px !important; /* Aucun margin sur la carte */
-    
-    /* Box model propre */
+    margin: 0 !important;
     box-sizing: border-box !important;
-    
-    /* La carte s'adapte au wrapper */
     flex: none !important;
-    
-    /* Hauteur uniformisée */
     height: 100%;
     display: flex;
     flex-direction: column;
 }
 
-/* Image de carte uniforme selon nombre de cartes */
 .sisme-carousel__slide .sisme-card-image {
     width: 100%;
     background-size: cover;
@@ -94,6 +69,7 @@
     background-repeat: no-repeat;
     border-radius: 8px 8px 0 0;
     flex-shrink: 0;
+    height: 220px;
 }
 
 /* Hauteur d'image adaptée au nombre de cartes */
@@ -183,31 +159,29 @@
    ⬅️➡️ BOUTONS DE NAVIGATION
 ======================================== */
 
+/* Boutons de navigation */
 .sisme-carousel__btn {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 60px;
-    background: transparent;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
     border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 18px;
     cursor: pointer;
     z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition: all 0.3s ease;
+    touch-action: manipulation;
+    min-height: 44px;
+    min-width: 44px;
 }
 
-.sisme-carousel__btn--prev {
-    left: 0;
-    border-radius: 40px 10px 10px 40px;
-    background: linear-gradient(to left, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05), #00000020);
-}
-
-.sisme-carousel__btn--next {
-    right: 0;
-    border-radius: 10px 40px 40px 10px;
-    background: linear-gradient(to left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02), #00000020);
+.sisme-carousel__btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: translateY(-50%) scale(1.1);
 }
 
 .sisme-carousel__btn::before {
@@ -249,6 +223,11 @@
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
+.sisme-carousel__btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: translateY(-50%) scale(1.1);
+}
+
 .sisme-carousel__btn--prev::after {
     content: '‹';
     transform: translate(-50%, -50%);
@@ -259,20 +238,79 @@
     transform: translate(-50%, -50%);
 }
 
-.sisme-carousel__btn:hover::after {
-    opacity: 0.8;
+.sisme-carousel__btn:active {
+    transform: translateY(-50%) scale(0.95);
 }
 
-.sisme-carousel__btn--prev:hover {
-    background: linear-gradient(to left, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.05), #00000020);
+.sisme-carousel__btn--prev {
+    left: 10px;
 }
 
-.sisme-carousel__btn--next:hover {
-    background: linear-gradient(to left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02), #00000020);;
+.sisme-carousel__btn--next {
+    right: 10px;
 }
 
-.sisme-carousel__btn-icon {
-    display: none; /* Masquer car on utilise ::after */
+/* Responsive mobile-first */
+@media (max-width: 768px) {
+    .sisme-cards-carousel {
+        padding: 0 50px;
+    }
+    
+    .sisme-carousel__btn {
+        width: 44px;
+        height: 44px;
+        font-size: 16px;
+    }
+    
+    .sisme-carousel__slide .sisme-card-image {
+        height: 180px;
+    }
+    
+    .sisme-carousel__btn--prev {
+        left: 0;
+    }
+    
+    .sisme-carousel__btn--next {
+        right: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-cards-carousel {
+        padding: 0 40px;
+    }
+    
+    .sisme-carousel__slide .sisme-card-image {
+        height: 160px;
+    }
+    
+    .sisme-carousel__slide {
+        padding: 5px;
+    }
+}
+
+/* États spéciaux */
+.sisme-cards-carousel.is-transitioning {
+    pointer-events: none;
+}
+
+.sisme-cards-carousel.is-transitioning .sisme-carousel__track {
+    pointer-events: none;
+}
+
+/* Accessibilité */
+@media (prefers-reduced-motion: reduce) {
+    .sisme-carousel__track,
+    .sisme-carousel__btn,
+    .sisme-carousel__dot {
+        transition-duration: 0.1s !important;
+    }
+}
+
+.sisme-carousel__btn:focus-visible,
+.sisme-carousel__dot:focus-visible {
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
 }
 
 /* ========================================
