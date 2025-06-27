@@ -110,6 +110,9 @@
     --sisme-button-bg-hover-bleu: rgba(102, 192, 244, 0.8);
     --sisme-button-bg-vert: rgba(161, 183, 141, 0.5);
     --sisme-button-bg-hover-vert: rgba(161, 183, 141, 0.8);
+    --sisme-button-bg-rouge: rgba(255, 50, 50, 0.5);
+    --sisme-button-bg-hover-rouge: rgba(255, 50, 50, 0.8);
+    
 }
 
 /* ========================================

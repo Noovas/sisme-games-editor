@@ -158,8 +158,8 @@ class Sisme_Hero_Section_Module {
             $game_data['id'],
             'favorite',
             [
-                'size' => 'large',
-                'show_text' => true,
+                'size' => 'medium',
+                'show_text' => false,
                 'show_count' => true
             ]
         );

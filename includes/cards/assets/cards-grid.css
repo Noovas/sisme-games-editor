@@ -198,13 +198,6 @@
     border-radius: 1px;
 }
 
-.sisme-carousel__btn:hover::before {
-    opacity: 1;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-}
-
 .sisme-carousel__btn::after {
     content: '';
     position: absolute;
