@@ -103,6 +103,14 @@ class Sisme_User_Actions_Loader {
             array('sisme-user-actions'),
             SISME_GAMES_EDITOR_VERSION
         );
+
+        // CSS owned
+        wp_enqueue_style(
+            'sisme-user-actions-owned',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-actions/assets/user-actions-owned.css',
+            array('sisme-user-actions'),
+            SISME_GAMES_EDITOR_VERSION
+        );
         
         // JavaScript principal
         wp_enqueue_script(

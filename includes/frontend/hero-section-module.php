@@ -163,7 +163,17 @@ class Sisme_Hero_Section_Module {
                 'show_count' => true
             ]
         );
+        $output .= $button_html;
 
+        $button_html = Sisme_User_Actions_API::render_action_button(
+            $game_data['id'],
+            'owned',
+            [
+                'size' => 'medium',
+                'show_text' => false,
+                'show_count' => true
+            ]
+        );
         $output .= $button_html;
 
         $output .= '</div>';

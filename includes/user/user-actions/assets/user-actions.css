@@ -120,7 +120,6 @@
 .sisme-user-action-fiches {
     display: flex;
     flex-direction: row;
-    gap: var(--sisme-gap-s);
     padding: var(--sisme-space-sm);
 }
 
