@@ -12,6 +12,7 @@ if (!defined('ABSPATH')) {
 // Inclure les modules frontend
 require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/frontend/hero-section-module.php';
 
+
 class Sisme_Fiche_Template {
     
     /**
@@ -59,6 +60,7 @@ class Sisme_Fiche_Template {
      */
     private static function get_game_data_from_tag($tag_id) {
         return array(
+            'id' => $tag_id,
             'title' => get_term($tag_id)->name,
             'description' => get_term_meta($tag_id, 'game_description', true),
             'genres' => get_term_meta($tag_id, 'game_genres', true) ?: array(),

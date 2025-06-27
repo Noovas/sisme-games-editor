@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
 
 require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-actions/user-actions-api.php';
 
+
 class Sisme_Hero_Section_Module {
     
     /**
@@ -150,11 +151,10 @@ class Sisme_Hero_Section_Module {
      */
     private static function render_user_actions($game_data) {
         $output = '';
-
         $output .= '<div class="sisme-user-actions sisme-user-action-fiches">';
         
-        // Bouton favoris
-        $output .= Sisme_User_Actions_API::render_action_button(
+        
+        $button_html = Sisme_User_Actions_API::render_action_button(
             $game_data['id'],
             'favorite',
             [
@@ -163,18 +163,9 @@ class Sisme_Hero_Section_Module {
                 'show_count' => true
             ]
         );
-        
-        // Bouton collection
-        $output .= Sisme_User_Actions_API::render_action_button(
-            $game_data['id'],
-            'owned',
-            [
-                'size' => 'large',
-                'show_text' => true,
-                'show_count' => true
-            ]
-        );
-        
+
+        $output .= $button_html;
+
         $output .= '</div>';
         return $output;
     }
