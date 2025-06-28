@@ -48,7 +48,7 @@ class Sisme_User_Dashboard_Data_Manager {
         $dashboard_data = [
             'user_info' => self::get_user_info($user_id),
             'gaming_stats' => self::get_gaming_stats($user_id),
-            'recent_games' => self::get_recent_games($user_id),
+            'recent_games' => self::get_recent_games_filtered($user_id),
             'favorite_games' => self::get_favorite_games($user_id),
             'owned_games' => self::get_owned_games($user_id),
             'activity_feed' => self::get_activity_feed($user_id),
@@ -627,5 +627,68 @@ class Sisme_User_Dashboard_Data_Manager {
             'cache_duration_minutes' => self::CACHE_DURATION / 60,
             'cards_module_available' => class_exists('Sisme_Cards_Functions')
         ];
+    }
+
+    /**
+     * 🎯 Récupérer les jeux récents filtrés par genres favoris
+     */
+    public static function get_recent_games_filtered($user_id, $limit = 12) {
+        self::clear_user_dashboard_cache($user_id);
+        // Récupérer préférences
+        if (!class_exists('Sisme_User_Preferences_Data_Manager')) {
+            return self::get_recent_games_fallback($limit);
+        }
+        
+        $preferences = Sisme_User_Preferences_Data_Manager::get_user_preferences($user_id);
+        
+        if (empty($preferences['genres'])) {
+            return self::get_recent_games_fallback($limit);
+        }
+        
+        // Utiliser Cards avec critères
+        if (class_exists('Sisme_Cards_Functions')) {
+            $criteria = [
+                'genres' => $preferences['genres'],
+                'max_results' => $limit,
+                'sort_by_date' => true
+            ];
+            
+            $filtered_game_ids = Sisme_Cards_Functions::get_games_by_criteria($criteria);
+            
+            // CONVERTIR LES IDS EN DONNÉES COMPLÈTES
+            return self::build_games_array($filtered_game_ids);
+        }
+        
+        return self::get_recent_games_fallback($limit);
+    }
+
+    /**
+     * 🔄 Fallback jeux récents sans filtre
+     */
+    private static function get_recent_games_fallback($limit = 12) {
+        if (class_exists('Sisme_Cards_Functions')) {
+            $fallback_ids = Sisme_Cards_Functions::get_games_by_criteria([
+                'max_results' => $limit,
+                'sort_by_date' => true
+            ]);
+            
+            return self::build_games_array($fallback_ids);
+        }
+        
+        return self::get_recent_games($limit); // Méthode existante
+    }
+
+    /**
+     * ⚡ Vérifier si préférences personnalisées
+     */
+    public static function user_has_personalized_preferences($user_id) {
+        if (!class_exists('Sisme_User_Preferences_Data_Manager')) {
+            return false;
+        }
+        
+        $preferences = Sisme_User_Preferences_Data_Manager::get_user_preferences($user_id);
+        $defaults = Sisme_User_Preferences_Data_Manager::get_default_preferences();
+        
+        return !empty($preferences['genres']) && $preferences['genres'] !== $defaults['genres'];
     }
 }

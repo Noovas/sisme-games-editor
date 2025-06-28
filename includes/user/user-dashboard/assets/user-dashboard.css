@@ -437,6 +437,16 @@
     backdrop-filter: blur(4px);
 }
 
+.sisme-filter-badge {
+    background: linear-gradient(135deg, var(--sisme-dashboard-accent-primary), var(--sisme-dashboard-accent-success));
+    color: var(--sisme-dashboard-bg-primary);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: var(--sisme-dashboard-space-sm);
+}
+
 /* ===❤️ SECTION FAVORIS ================== */
 .sisme-library-section {
     animation: section-fade-in 0.5s ease;
@@ -582,7 +592,7 @@
     width: 100%;
     height: 120px;
     background: linear-gradient(135deg, var(--sisme-dashboard-accent-primary), var(--sisme-dashboard-accent-secondary));
-    background-size: contain;
+    background-size: cover;
     background-position: center;
     position: relative;
     overflow: hidden;

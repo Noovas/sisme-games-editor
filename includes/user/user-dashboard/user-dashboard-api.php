@@ -506,114 +506,119 @@ class Sisme_User_Dashboard_API {
      * @return string HTML de la grille
      */
     private static function render_recent_games($recent_games_data) {
-        ob_start();
-        ?>
-        <div class="sisme-recent-games">
-            <h3 class="sisme-widget-title">⚡ Les derniers ajouts</h3>
-            
-            <?php
-            // Récupérer les derniers jeux triés par ID décroissant (plus récents en premier)
-            $recent_terms = get_terms([
-                'taxonomy' => 'post_tag',
-                'hide_empty' => false,
-                'number' => 12, // Limiter à 12 jeux récents
-                'meta_query' => [
-                    [
-                        'key' => 'game_description',
-                        'compare' => 'EXISTS'
-                    ]
-                ],
-                'orderby' => 'term_id',
-                'order' => 'DESC' // Du plus récent (ID le plus élevé) au plus ancien
-            ]);
-            
-            if (!is_wp_error($recent_terms) && !empty($recent_terms)): ?>
-                <div class="sisme-games-grid sisme-recent-grid">
-                    <?php foreach ($recent_terms as $term): 
-                        // Récupérer les métadonnées du jeu
-                        $game_description = get_term_meta($term->term_id, 'game_description', true);
-                        $release_date = get_term_meta($term->term_id, 'release_date', true);
-                        $cover_main = get_term_meta($term->term_id, 'cover_main', true);
-                        $game_genres = get_term_meta($term->term_id, 'game_genres', true) ?: [];
-                        
-                        // URL de l'image de couverture
-                        $cover_url = '';
-                        if ($cover_main) {
-                            $cover_url = wp_get_attachment_image_url($cover_main, 'medium');
-                        }
-                        
-                        // Formater la date de sortie
-                        $formatted_date = '';
-                        if ($release_date) {
-                            $formatted_date = date_i18n('j M Y', strtotime($release_date));
-                        }
-                        
-                        // Récupérer les genres pour affichage
-                        $genres_display = [];
-                        if (!empty($game_genres)) {
-                            $genres_terms = get_terms([
-                                'taxonomy' => 'game_genre',
-                                'include' => array_slice($game_genres, 0, 2), // Max 2 genres pour l'affichage
-                                'hide_empty' => false
-                            ]);
-                            
-                            if (!is_wp_error($genres_terms)) {
-                                foreach ($genres_terms as $genre) {
-                                    $genres_display[] = $genre->name;
-                                }
-                            }
-                        }
-                        
-                        // Utiliser la fonction helper pour l'URL du jeu
-                        $game_url = self::get_game_url($term->term_id);
-                        ?>
-                        <div class="sisme-game-card sisme-recent-grid">
-                            <a href="<?php echo esc_url($game_url); ?>" class="sisme-game-link sisme-recent-grid">
-                                <div class="sisme-game-cover sisme-recent-grid" style="<?php echo $cover_url ? 'background-image: url(' . esc_url($cover_url) . ');' : ''; ?>">
-                                    <div class="sisme-game-overlay sisme-recent-grid">
-                                        <span class="sisme-owned-badge sisme-recent-grid">⚡</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="sisme-game-info sisme-recent-grid">
-                                    <h4 class="sisme-game-title sisme-recent-grid"><?php echo esc_html($term->name); ?></h4>
-                                    
-                                    <?php if (!empty($game_description)): ?>
-                                        <p class="sisme-game-description sisme-recent-grid">
-                                            <?php echo esc_html(wp_trim_words($game_description, 15, '...')); ?>
-                                        </p>
-                                    <?php endif; ?>
-                                    
-                                    <?php if (!empty($genres_display)): ?>
-                                        <div class="sisme-game-genres sisme-recent-grid">
-                                            <?php foreach ($genres_display as $genre): ?>
-                                                <span class="sisme-genre-tag sisme-recent-grid"><?php echo esc_html($genre); ?></span>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    <?php endif; ?>
-                                    
-                                    <?php if ($formatted_date): ?>
-                                        <div class="sisme-game-release-date sisme-recent-grid">
-                                            <span class="sisme-date-icon sisme-recent-grid">📅</span>
-                                            <span class="sisme-date-text sisme-recent-grid">Date de sortie : <?php echo esc_html($formatted_date); ?></span>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            </a>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                
-            <?php else: ?>
-                <div class="sisme-empty-state">
-                    <div class="sisme-empty-icon">⚡</div>
-                    <h3>Aucun jeu récent</h3>
-                    <p>Les derniers jeux ajoutés à Sisme Games apparaîtront ici.</p>
-                </div>
-            <?php endif; ?>
-        </div>
-        <?php
-        return ob_get_clean();
+       ob_start();
+       ?>
+       <div class="sisme-recent-games">
+           <?php $has_personalized = Sisme_User_Dashboard_Data_Manager::user_has_personalized_preferences(get_current_user_id()); ?>
+           <h3 class="sisme-widget-title">
+               ⚡ Les derniers ajouts
+               <?php if ($has_personalized): ?>
+                   <span class="sisme-filter-badge">🎯 personnalisés</span>
+               <?php endif; ?>
+           </h3>
+
+           <?php if ($has_personalized): ?>
+               <script>
+                   console.group('🎯 DASHBOARD FILTRAGE');
+                   console.log('Utilisateur a des préférences personnalisées:', <?php echo json_encode($has_personalized); ?>);
+                   
+                   <?php 
+                   $preferences = Sisme_User_Preferences_Data_Manager::get_user_preferences(get_current_user_id());
+                   ?>
+                   console.log('Genres favoris:', <?php echo json_encode($preferences['genres'] ?? []); ?>);
+                   console.log('Nombre de jeux récents filtrés:', <?php echo count($recent_games_data); ?>);
+                   console.log('Jeux récents récupérés:', <?php echo json_encode(array_map(function($game) {
+                       return ['id' => $game['id'], 'name' => $game['name']];
+                   }, array_slice($recent_games_data, 0, 5))); ?>);
+                   console.groupEnd();
+               </script>
+           <?php else: ?>
+               <script>
+                   console.log('🎮 Dashboard: Aucun filtrage appliqué, préférences par défaut');
+               </script>
+           <?php endif; ?>
+           
+           <?php if (!empty($recent_games_data)): ?>
+               <div class="sisme-games-grid sisme-recent-grid">
+                   <?php foreach ($recent_games_data as $game): 
+                       $game_id = $game['id'];
+                       
+                       // Récupérer toutes les données depuis les meta terms
+                       $game_description = get_term_meta($game_id, 'game_description', true);
+                       $release_date = get_term_meta($game_id, 'release_date', true);
+                       $cover_main = get_term_meta($game_id, 'cover_main', true);
+                       $game_genres = get_term_meta($game_id, 'game_genres', true) ?: [];
+                       
+                       // URL de l'image de couverture
+                       $cover_url = '';
+                       if ($cover_main) {
+                           $cover_url = wp_get_attachment_image_url($cover_main, 'full');
+                       }
+                       
+                       // Formater la date
+                       $formatted_date = '';
+                       if ($release_date) {
+                           $formatted_date = date_i18n('j M Y', strtotime($release_date));
+                       }
+                       
+                       // Récupérer les noms des genres
+                       $genres_display = [];
+                       if (!empty($game_genres)) {
+                           foreach (array_slice($game_genres, 0, 2) as $genre_id) {
+                               $genre = get_category($genre_id);
+                               if ($genre) {
+                                   $genres_display[] = $genre->name;
+                               }
+                           }
+                       }
+                       ?>
+                       <div class="sisme-game-card sisme-recent-grid">
+                           <a href="<?php echo esc_url($game['game_url']); ?>" class="sisme-game-link sisme-recent-grid">
+                               <div class="sisme-game-cover sisme-recent-grid" style="<?php echo $cover_url ? 'background-image: url(' . esc_url($cover_url) . ');' : ''; ?>">
+                                   <div class="sisme-game-overlay sisme-recent-grid">
+                                       <span class="sisme-owned-badge sisme-recent-grid">⚡</span>
+                                   </div>
+                               </div>
+                               
+                               <div class="sisme-game-info sisme-recent-grid">
+                                   <h4 class="sisme-game-title sisme-recent-grid"><?php echo esc_html($game['name']); ?></h4>
+                                   
+                                   <?php if (!empty($game_description)): ?>
+                                       <p class="sisme-game-description sisme-recent-grid">
+                                           <?php echo esc_html(wp_trim_words($game_description, 15, '...')); ?>
+                                       </p>
+                                   <?php endif; ?>
+                                   
+                                   <?php if (!empty($genres_display)): ?>
+                                       <div class="sisme-game-genres sisme-recent-grid">
+                                           <?php foreach ($genres_display as $genre): ?>
+                                               <span class="sisme-badge sisme-badge-genre"><?php echo esc_html($genre); ?></span>
+                                           <?php endforeach; ?>
+                                       </div>
+                                   <?php endif; ?>
+                                   
+                                   <?php if ($formatted_date): ?>
+                                       <div class="sisme-game-release-date sisme-recent-grid">
+                                           <span class="sisme-date-icon sisme-recent-grid">📅</span>
+                                           <span class="sisme-date-text sisme-recent-grid"><?php echo esc_html($formatted_date); ?></span>
+                                       </div>
+                                   <?php endif; ?>
+                               </div>
+                           </a>
+                       </div>
+                   <?php endforeach; ?>
+               </div>
+               
+           <?php else: ?>
+               <div class="sisme-empty-state">
+                   <div class="sisme-empty-icon">⚡</div>
+                   <h3>Aucun jeu récent</h3>
+                   <p>Les derniers jeux ajoutés à Sisme Games apparaîtront ici.</p>
+               </div>
+           <?php endif; ?>
+       </div>
+       <?php
+       return ob_get_clean();
     }
 
     /**
@@ -682,10 +687,7 @@ class Sisme_User_Dashboard_API {
                         
                         // Récupérer la cover
                         $cover_main = get_term_meta($term->term_id, 'cover_main', true);
-                        $cover_url = '';
-                        if ($cover_main) {
-                            $cover_url = wp_get_attachment_image_url($cover_main, 'medium');
-                        }
+                        $cover_url = $cover_main;
                         
                         // Utiliser la fonction helper pour l'URL
                         $game_url = self::get_game_url($game_id);
