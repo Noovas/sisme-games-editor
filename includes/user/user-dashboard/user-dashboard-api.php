@@ -376,28 +376,57 @@ class Sisme_User_Dashboard_API {
 
     /**
      * Rendu de la section paramètres avec préférences utilisateur
+     * 
+     * Utilise exclusivement le module user-preferences moderne
+     * 
+     * @param int $user_id ID de l'utilisateur
+     * @return string HTML de la section paramètres
      */
     private static function render_settings_section($user_id) {
-        // Vérifier que le module User Preferences est disponible
+        // Vérifier les prérequis pour user-preferences
         if (!class_exists('Sisme_User_Preferences_Loader')) {
             return self::render_preferences_unavailable();
         }
         
-        // Intégrer avec le module préférences
+        if (!class_exists('Sisme_User_Preferences_API')) {
+            return self::render_preferences_unavailable();
+        }
+        
+        if (!class_exists('Sisme_User_Preferences_Data_Manager')) {
+            return self::render_preferences_unavailable();
+        }
+        
+        // Initialiser le loader user-preferences
         $preferences_loader = Sisme_User_Preferences_Loader::get_instance();
         
-        // S'assurer que le module est prêt
+        // S'assurer que le module est prêt pour l'intégration dashboard
         if (!$preferences_loader->integrate_with_dashboard()) {
             return self::render_preferences_error();
         }
         
-        // Utiliser le shortcode préférences dans le dashboard
+        // Forcer le chargement des assets user-preferences
+        $preferences_loader->force_load_assets();
+        
+        // Vérifier que l'utilisateur existe
+        if (!get_userdata($user_id)) {
+            return self::render_preferences_error('Utilisateur introuvable');
+        }
+        
+        // Utiliser directement l'API user-preferences plutôt que le shortcode
+        // pour éviter tout conflit avec user-profile
         ob_start();
         ?>
         <div class="sisme-dashboard-preferences">
             <?php 
-            // Intégrer le formulaire de préférences sans titre (car déjà dans le header de section)
-            echo do_shortcode('[sisme_user_preferences sections="gaming,notifications,privacy" title=""]'); 
+            // Rendu direct via l'API user-preferences
+            $preferences_html = Sisme_User_Preferences_API::render_preferences_shortcode([
+                'sections' => 'gaming,notifications,privacy',
+                'title' => '',
+                'user_id' => $user_id,
+                'container_class' => 'sisme-user-preferences sisme-dashboard-integration'
+            ]);
+            
+            echo $preferences_html;
             ?>
         </div>
         <?php

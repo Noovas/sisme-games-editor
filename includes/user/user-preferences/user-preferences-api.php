@@ -91,7 +91,7 @@ class Sisme_User_Preferences_API {
                 
                 <!-- Actions globales -->
                 <div class="sisme-preferences-actions">
-                    <button type="button" class="sisme-btn sisme-btn--secondary sisme-reset-preferences">
+                    <button type="button" class="sisme-button sisme-button-bleu sisme-reset-preferences">
                         <span class="sisme-btn-icon">🔄</span>
                         Réinitialiser mes préférences
                     </button>
@@ -149,7 +149,7 @@ class Sisme_User_Preferences_API {
                         'platforms',
                         Sisme_User_Preferences_Data_Manager::get_available_platforms(),
                         $preferences['platforms'],
-                        ['display_key' => 'name', 'value_key' => 'slug', 'columns' => 3]
+                        ['display_key' => 'name', 'value_key' => 'slug', 'columns' => 2]
                     ); 
                     ?>
                 </div>
@@ -163,7 +163,7 @@ class Sisme_User_Preferences_API {
                         'genres',
                         Sisme_User_Preferences_Data_Manager::get_available_genres(),
                         $preferences['genres'],
-                        ['display_key' => 'name', 'value_key' => 'id', 'columns' => 4]
+                        ['display_key' => 'name', 'value_key' => 'id', 'columns' => 2]
                     ); 
                     ?>
                 </div>
@@ -177,7 +177,7 @@ class Sisme_User_Preferences_API {
                         'player_types',
                         Sisme_User_Preferences_Data_Manager::get_available_player_types(),
                         $preferences['player_types'],
-                        ['display_key' => 'name', 'value_key' => 'slug', 'columns' => 3]
+                        ['display_key' => 'name', 'value_key' => 'slug', 'columns' => 2]
                     ); 
                     ?>
                 </div>

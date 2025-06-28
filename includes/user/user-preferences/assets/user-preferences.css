@@ -69,7 +69,7 @@
     font-size: var(--sisme-font-size-lg, 1.25rem);
     font-weight: var(--sisme-font-weight-semibold, 600);
     color: var(--sisme-color-text-primary, #1a1a1a);
-    margin: 0 0 var(--sisme-spacing-lg, 1.5rem) 0;
+    margin: 0 0 20px 0 !important;
     padding-bottom: var(--sisme-spacing-sm, 0.5rem);
     border-bottom: 2px solid var(--sisme-color-primary, #007cba);
 }
@@ -220,7 +220,7 @@
 ======================================== */
 
 .sisme-multi-select {
-    background: var(--sisme-color-bg-primary, #ffffff);
+    background-color: rgba(0, 0, 0, 0.3);
     border-radius: var(--sisme-border-radius-md, 8px);
     border: 1px solid var(--sisme-color-border-light, #e9ecef);
     padding: var(--sisme-spacing-md, 1rem);
@@ -229,7 +229,6 @@
 .sisme-multi-select-grid {
     display: grid;
     gap: var(--sisme-spacing-sm, 0.5rem);
-    margin-bottom: var(--sisme-spacing-md, 1rem);
 }
 
 /* Responsive des grilles */
@@ -241,12 +240,14 @@
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 
+
 .sisme-multi-select-item {
+    margin: 0;
     display: flex;
     align-items: center;
     gap: var(--sisme-spacing-sm, 0.5rem);
     padding: var(--sisme-spacing-sm, 0.5rem) var(--sisme-spacing-md, 1rem);
-    background: var(--sisme-color-bg-secondary, #f8f9fa);
+    background: rgba(0, 0, 0, 0.3);
     border: 2px solid transparent;
     border-radius: var(--sisme-border-radius-sm, 6px);
     cursor: pointer;
@@ -255,8 +256,8 @@
 }
 
 .sisme-multi-select-item:hover {
-    background: var(--sisme-color-bg-hover, #e9ecef);
-    border-color: var(--sisme-color-primary-light, #b3d9f2);
+    background: var(--sisme-bg-hover-bleu);
+    border-color: var(--sisme-border-bleu-active);
 }
 
 .sisme-multi-select-item.selected {
@@ -367,27 +368,15 @@
 }
 
 .sisme-reset-preferences {
-    background: var(--sisme-color-warning, #ffc107);
-    color: var(--sisme-color-text-primary, #1a1a1a);
-    border: none;
-    padding: var(--sisme-spacing-sm, 0.5rem) var(--sisme-spacing-lg, 1.5rem);
-    border-radius: var(--sisme-border-radius-sm, 6px);
-    font-weight: var(--sisme-font-weight-semibold, 600);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sisme-spacing-sm, 0.5rem);
+
 }
 
 .sisme-reset-preferences:hover {
-    background: var(--sisme-color-warning-dark, #e0a800);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+
 }
 
 .sisme-reset-preferences:active {
-    transform: translateY(0);
+
 }
 
 /* ========================================

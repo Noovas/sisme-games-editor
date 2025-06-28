@@ -146,20 +146,18 @@ class Sisme_User_Preferences_Loader {
         );
         
         // Configuration JavaScript
-        wp_localize_script('sisme-user-preferences', 'sismeUserPreferences', [
+        wp_localize_script('sisme-user-preferences-js', 'sismeUserPreferences', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'security' => wp_create_nonce('sisme_user_preferences_nonce'),
             'auto_save' => true,
-            'save_delay' => 1000, // 1 seconde
+            'save_delay' => 1000,
             'user_id' => get_current_user_id(),
             'i18n' => [
                 'saving' => 'Sauvegarde en cours...',
                 'saved' => 'Sauvegardé !',
                 'error' => 'Erreur lors de la sauvegarde',
-                'reset_confirm' => 'Êtes-vous sûr de vouloir réinitialiser vos préférences ?',
-                'reset_success' => 'Préférences réinitialisées'
-            ],
-            'debug' => defined('WP_DEBUG') && WP_DEBUG
+                'reset_confirm' => 'Êtes-vous sûr de vouloir réinitialiser vos préférences ?'
+            ]
         ]);
         
         $this->assets_loaded = true;

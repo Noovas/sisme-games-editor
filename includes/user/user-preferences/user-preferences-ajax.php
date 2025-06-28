@@ -19,6 +19,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (defined('WP_DEBUG')) {
+    ini_set('display_errors', 0);
+    error_reporting(0);
+}
+
 class Sisme_User_Preferences_Ajax {
     
     /**
@@ -42,8 +47,16 @@ class Sisme_User_Preferences_Ajax {
      * Handler AJAX pour mettre à jour une préférence utilisateur
      */
     public static function ajax_update_user_preference() {
+        if (ob_get_length()) {
+            ob_clean();
+        }
         // Vérifier le nonce de sécurité
         if (!check_ajax_referer('sisme_user_preferences_nonce', 'security', false)) {
+            self::log_ajax_error('update_preference', 'invalid_nonce', [
+                'received_nonce' => $_POST['security'] ?? 'missing',
+                'expected_action' => 'sisme_user_preferences_nonce'
+            ]);
+            
             wp_send_json_error([
                 'message' => __('Erreur de sécurité', 'sisme-games-editor'),
                 'code' => 'invalid_nonce'
@@ -53,6 +66,8 @@ class Sisme_User_Preferences_Ajax {
         // Vérifier que l'utilisateur est connecté
         $user_id = get_current_user_id();
         if (!$user_id) {
+            self::log_ajax_error('update_preference', 'not_logged_in');
+            
             wp_send_json_error([
                 'message' => __('Vous devez être connecté', 'sisme-games-editor'),
                 'code' => 'not_logged_in'
@@ -61,6 +76,12 @@ class Sisme_User_Preferences_Ajax {
         
         // Vérifier les paramètres requis
         if (!isset($_POST['preference_key']) || !isset($_POST['preference_value'])) {
+            self::log_ajax_error('update_preference', 'missing_params', [
+                'has_key' => isset($_POST['preference_key']),
+                'has_value' => isset($_POST['preference_value']),
+                'post_keys' => array_keys($_POST)
+            ]);
+            
             wp_send_json_error([
                 'message' => __('Paramètres manquants', 'sisme-games-editor'),
                 'code' => 'missing_params'
@@ -71,39 +92,119 @@ class Sisme_User_Preferences_Ajax {
         $preference_key = sanitize_text_field($_POST['preference_key']);
         $preference_value = $_POST['preference_value'];
         
-        // Traitement spécial selon le type de valeur
-        $preference_value = self::process_preference_value($preference_key, $preference_value);
-        
+        // Log des données reçues
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("[Sisme User Preferences Ajax] Mise à jour préférence {$preference_key} pour utilisateur {$user_id}: " . print_r($preference_value, true));
+            error_log("[Sisme User Preferences Ajax] Données brutes reçues - Key: {$preference_key}, Value type: " . gettype($preference_value) . ", Value: " . print_r($preference_value, true));
+        }
+        
+        // Traitement spécial selon le type de valeur
+        try {
+            $processed_value = self::process_preference_value($preference_key, $preference_value);
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme User Preferences Ajax] Valeur après traitement - Type: " . gettype($processed_value) . ", Value: " . print_r($processed_value, true));
+            }
+            
+        } catch (Exception $e) {
+            self::log_ajax_error('update_preference', 'processing_failed', [
+                'exception' => $e->getMessage(),
+                'key' => $preference_key,
+                'raw_value' => $preference_value
+            ]);
+            
+            wp_send_json_error([
+                'message' => __('Erreur lors du traitement des données', 'sisme-games-editor'),
+                'code' => 'processing_failed'
+            ]);
         }
         
         // Vérifier que le Data Manager est disponible
         if (!class_exists('Sisme_User_Preferences_Data_Manager')) {
+            self::log_ajax_error('update_preference', 'data_manager_missing');
+            
             wp_send_json_error([
                 'message' => __('Module de données non disponible', 'sisme-games-editor'),
                 'code' => 'data_manager_missing'
             ]);
         }
         
+        // Validation supplémentaire des données
+        if (!Sisme_User_Preferences_Data_Manager::validate_preference_key($preference_key)) {
+            self::log_ajax_error('update_preference', 'invalid_key', [
+                'key' => $preference_key
+            ]);
+            
+            wp_send_json_error([
+                'message' => __('Clé de préférence invalide', 'sisme-games-editor'),
+                'code' => 'invalid_key',
+                'preference_key' => $preference_key
+            ]);
+        }
+        
+        if (!Sisme_User_Preferences_Data_Manager::validate_preference_value($preference_key, $processed_value)) {
+            self::log_ajax_error('update_preference', 'invalid_value', [
+                'key' => $preference_key,
+                'value' => $processed_value,
+                'value_type' => gettype($processed_value)
+            ]);
+            
+            wp_send_json_error([
+                'message' => __('Valeur de préférence invalide', 'sisme-games-editor'),
+                'code' => 'invalid_value',
+                'preference_key' => $preference_key
+            ]);
+        }
+        
         // Mettre à jour la préférence
-        $success = Sisme_User_Preferences_Data_Manager::update_user_preference(
-            $user_id,
-            $preference_key,
-            $preference_value
-        );
+        try {
+            $success = Sisme_User_Preferences_Data_Manager::update_user_preference(
+                $user_id,
+                $preference_key,
+                $processed_value
+            );
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme User Preferences Ajax] Résultat update_user_preference: " . ($success ? 'TRUE' : 'FALSE'));
+            }
+            
+        } catch (Exception $e) {
+            self::log_ajax_error('update_preference', 'save_exception', [
+                'exception' => $e->getMessage(),
+                'user_id' => $user_id,
+                'key' => $preference_key,
+                'value' => $processed_value
+            ]);
+            
+            wp_send_json_error([
+                'message' => __('Exception lors de la sauvegarde', 'sisme-games-editor'),
+                'code' => 'save_exception'
+            ]);
+        }
         
         if ($success) {
             // Récupérer la valeur sauvegardée pour confirmation
             $saved_value = Sisme_User_Preferences_Data_Manager::get_user_preference($user_id, $preference_key);
             
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme User Preferences Ajax] Valeur confirmée depuis DB: " . print_r($saved_value, true));
+            }
+            
             wp_send_json_success([
                 'message' => __('Préférence sauvegardée', 'sisme-games-editor'),
                 'preference_key' => $preference_key,
                 'preference_value' => $saved_value,
+                'processed_value' => $processed_value,
                 'timestamp' => current_time('timestamp')
             ]);
+            
         } else {
+            self::log_ajax_error('update_preference', 'save_failed', [
+                'user_id' => $user_id,
+                'key' => $preference_key,
+                'processed_value' => $processed_value,
+                'user_exists' => (bool) get_userdata($user_id)
+            ]);
+            
             wp_send_json_error([
                 'message' => __('Erreur lors de la sauvegarde', 'sisme-games-editor'),
                 'code' => 'save_failed',
@@ -175,7 +276,34 @@ class Sisme_User_Preferences_Ajax {
             'login_url' => wp_login_url(get_permalink())
         ]);
     }
-    
+
+    /**
+     * Convertir une valeur en boolean de manière robuste
+     * 
+     * @param mixed $value Valeur à convertir
+     * @return bool Valeur boolean
+     */
+    private static function convert_to_boolean($value) {
+        // Si c'est déjà un boolean
+        if (is_bool($value)) {
+            return $value;
+        }
+        
+        // Si c'est un string
+        if (is_string($value)) {
+            $value = strtolower(trim($value));
+            return in_array($value, ['true', '1', 'on', 'yes'], true);
+        }
+        
+        // Si c'est un nombre
+        if (is_numeric($value)) {
+            return (bool) intval($value);
+        }
+        
+        // Par défaut, convertir normalement
+        return (bool) $value;
+    }
+        
     /**
      * Traiter une valeur de préférence selon son type
      * 
@@ -184,20 +312,49 @@ class Sisme_User_Preferences_Ajax {
      * @return mixed Valeur traitée
      */
     private static function process_preference_value($key, $value) {
+        // Log pour debugging
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("[Sisme User Preferences Ajax] Processing {$key} with value: " . print_r($value, true));
+        }
+        
         switch ($key) {
             case 'platforms':
             case 'genres':
             case 'player_types':
-                // Assurer que c'est un array
-                if (!is_array($value)) {
+                // Assurer que c'est un array, même si vide
+                if (is_null($value) || $value === '' || $value === false) {
                     return [];
                 }
-                return $value;
+                
+                if (!is_array($value)) {
+                    // Si c'est une string vide ou "null", retourner tableau vide
+                    if (empty($value) || $value === 'null' || $value === '[]') {
+                        return [];
+                    }
+                    
+                    // Tenter de decoder si c'est du JSON
+                    $decoded = json_decode($value, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        return $decoded;
+                    }
+                    
+                    // Fallback: transformer en array
+                    return [$value];
+                }
+                
+                // Nettoyer le tableau : supprimer les valeurs vides/nulles
+                $cleaned = array_filter($value, function($item) {
+                    return !is_null($item) && $item !== '' && $item !== false;
+                });
+                
+                // Re-indexer le tableau pour éviter les indices vides
+                return array_values($cleaned);
                 
             case 'notifications':
-                // Traiter les notifications (peut être un array partiel)
+                // Traiter les notifications (peut être un array partiel ou complet)
                 if (!is_array($value)) {
-                    return [];
+                    // Si ce n'est pas un array, retourner config par défaut
+                    return Sisme_User_Preferences_Data_Manager::get_default_preferences()['notifications'];
                 }
                 
                 // S'assurer que toutes les clés de notification existent
@@ -205,17 +362,21 @@ class Sisme_User_Preferences_Ajax {
                 $processed = [];
                 
                 foreach (array_keys($notification_types) as $notif_key) {
-                    $processed[$notif_key] = isset($value[$notif_key]) ? (bool) $value[$notif_key] : false;
+                    if (isset($value[$notif_key])) {
+                        // Convertir en boolean de manière robuste
+                        $processed[$notif_key] = self::convert_to_boolean($value[$notif_key]);
+                    } else {
+                        // Valeur par défaut si clé manquante
+                        $defaults = Sisme_User_Preferences_Data_Manager::get_default_preferences();
+                        $processed[$notif_key] = $defaults['notifications'][$notif_key] ?? false;
+                    }
                 }
                 
                 return $processed;
                 
             case 'privacy_public':
-                // Convertir en boolean
-                if (is_string($value)) {
-                    return in_array(strtolower($value), ['true', '1', 'on', 'yes']);
-                }
-                return (bool) $value;
+                // Convertir en boolean de manière robuste
+                return self::convert_to_boolean($value);
                 
             default:
                 return $value;
@@ -275,10 +436,14 @@ class Sisme_User_Preferences_Ajax {
         $log_message = "[Sisme User Preferences Ajax] ERREUR {$action}: {$error_code}";
         
         if (!empty($context)) {
-            $log_message .= ' | Contexte: ' . json_encode($context);
+            $log_message .= ' | Contexte: ' . json_encode($context, JSON_UNESCAPED_UNICODE);
         }
         
         error_log($log_message);
+        ?> 
+        <script>
+            console.log(<?php $log_message ?> )
+        </script> <?php
     }
     
     /**

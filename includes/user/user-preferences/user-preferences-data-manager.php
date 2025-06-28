@@ -92,34 +92,78 @@ class Sisme_User_Preferences_Data_Manager {
      */
     public static function update_user_preference($user_id, $key, $value) {
         if (!$user_id || !get_userdata($user_id)) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme User Preferences] ERREUR - Utilisateur invalide: {$user_id}");
+            }
             return false;
         }
         
         if (!self::validate_preference_key($key)) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("[Sisme User Preferences] Clé de préférence invalide: {$key}");
+                error_log("[Sisme User Preferences] ERREUR - Clé de préférence invalide: {$key}");
             }
             return false;
         }
         
-        // Valider et nettoyer la valeur
+        // Debug: Log des données avant validation
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("[Sisme User Preferences] Validation pour {$key} - Type: " . gettype($value) . ", Valeur: " . print_r($value, true));
+        }
+        
+        // Valider la valeur AVANT de nettoyer
         if (!self::validate_preference_value($key, $value)) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("[Sisme User Preferences] Valeur invalide pour {$key}: " . print_r($value, true));
+                error_log("[Sisme User Preferences] ERREUR - Valeur invalide pour {$key}: " . print_r($value, true));
+                
+                // Debug supplémentaire pour les tableaux
+                if (is_array($value)) {
+                    error_log("[Sisme User Preferences] DEBUG - Tableau de taille: " . count($value) . ", Empty: " . (empty($value) ? 'OUI' : 'NON'));
+                }
             }
             return false;
         }
         
-        $sanitized_value = self::sanitize_preference_value($key, $value);
-        $meta_key = self::get_meta_key_for_preference($key);
+        // Nettoyer la valeur
+        $clean_value = self::sanitize_preference_value($key, $value);
         
-        $success = update_user_meta($user_id, $meta_key, $sanitized_value);
-        
-        if ($success && defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("[Sisme User Preferences] Préférence {$key} mise à jour pour utilisateur {$user_id}");
+        // Debug: Log des données après nettoyage
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("[Sisme User Preferences] Valeur après nettoyage - Type: " . gettype($clean_value) . ", Valeur: " . print_r($clean_value, true));
         }
         
-        return $success;
+        // Obtenir la meta_key WordPress
+        $meta_key = self::get_meta_key_for_preference($key);
+        if (empty($meta_key)) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme User Preferences] ERREUR - Meta key introuvable pour: {$key}");
+            }
+            return false;
+        }
+        
+        // Sauvegarder
+        $success = update_user_meta($user_id, $meta_key, $clean_value);
+        
+        // Debug: Log du résultat
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("[Sisme User Preferences] Sauvegarde {$key} pour utilisateur {$user_id}: " . ($success !== false ? 'SUCCESS' : 'FAILED'));
+            
+            // Vérifier que la sauvegarde a bien fonctionné
+            $saved_value = get_user_meta($user_id, $meta_key, true);
+            error_log("[Sisme User Preferences] Valeur vérifiée depuis DB: " . print_r($saved_value, true));
+        }
+        
+        if ($success !== false) {
+            // Déclencher un hook pour d'autres modules
+            do_action('sisme_user_preference_updated', $user_id, $key, $clean_value);
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme User Preferences] Préférence {$key} mise à jour avec succès pour utilisateur {$user_id}");
+            }
+            
+            return true;
+        }
+        
+        return false;
     }
     
     /**
@@ -318,15 +362,19 @@ class Sisme_User_Preferences_Data_Manager {
     public static function validate_preference_value($key, $value) {
         switch ($key) {
             case 'platforms':
+                // CORRECTION: Vérifier que c'est un array ET valider son contenu (même si vide)
                 return is_array($value) && self::validate_platforms($value);
                 
             case 'genres':
+                // CORRECTION: Vérifier que c'est un array ET valider son contenu (même si vide)
                 return is_array($value) && self::validate_genre_ids($value);
                 
             case 'player_types':
+                // CORRECTION: Vérifier que c'est un array ET valider son contenu (même si vide)
                 return is_array($value) && self::validate_player_types($value);
                 
             case 'notifications':
+                // CORRECTION: Vérifier que c'est un array ET valider son contenu (même si vide)
                 return is_array($value) && self::validate_notifications($value);
                 
             case 'privacy_public':
@@ -396,6 +444,11 @@ class Sisme_User_Preferences_Data_Manager {
      * @return bool True si valides
      */
     private static function validate_platforms($platforms) {
+        // Tableau vide = OK (aucune sélection)
+        if (empty($platforms)) {
+            return true;
+        }
+        
         $available_platforms = array_column(self::get_available_platforms(), 'slug');
         
         foreach ($platforms as $platform) {
@@ -414,18 +467,19 @@ class Sisme_User_Preferences_Data_Manager {
      * @return bool True si valides
      */
     private static function validate_genre_ids($genre_ids) {
+        // Tableau vide = OK (aucune sélection)
+        if (empty($genre_ids)) {
+            return true;
+        }
+        
+        // Vérifier que chaque ID est numérique et > 0
         foreach ($genre_ids as $genre_id) {
             if (!is_numeric($genre_id) || intval($genre_id) <= 0) {
                 return false;
             }
-            
-            // Vérifier que le genre existe
-            $category = get_category(intval($genre_id));
-            if (!$category || is_wp_error($category)) {
-                return false;
-            }
         }
         
+        // On ne vérifie PLUS get_category() car ça peut faire planter
         return true;
     }
     
@@ -436,6 +490,11 @@ class Sisme_User_Preferences_Data_Manager {
      * @return bool True si valides
      */
     private static function validate_player_types($player_types) {
+    // Tableau vide = OK (aucune sélection)
+        if (empty($player_types)) {
+            return true;
+        }
+        
         $available_types = array_column(self::get_available_player_types(), 'slug');
         
         foreach ($player_types as $type) {
@@ -454,6 +513,10 @@ class Sisme_User_Preferences_Data_Manager {
      * @return bool True si valides
      */
     private static function validate_notifications($notifications) {
+        if (empty($notifications)) {
+            return true;
+        }
+    
         $valid_keys = array_keys(self::get_notification_types());
         
         foreach ($notifications as $key => $value) {
