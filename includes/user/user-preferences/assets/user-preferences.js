@@ -53,6 +53,7 @@
         // Initialiser les composants
         initSaveIndicator();
         initToggleHandlers();
+        initAvatarUploader();
         initMultiSelectHandlers();
         initResetHandler();
         initGlobalActions();
@@ -548,6 +549,140 @@
     function log(...args) {
         if (config.debug || (typeof window.WP_DEBUG !== 'undefined' && window.WP_DEBUG)) {
             console.log('[Sisme User Preferences]', ...args);
+        }
+    }
+
+    /**
+     * Initialiser l'uploader d'avatar
+     */
+    function initAvatarUploader() {
+        // Déclencher l'input file
+        $(document).on('click', '.sisme-avatar-upload-btn', function() {
+            $('#sisme-avatar-input').click();
+        });
+
+        // Gérer la sélection de fichier
+        $(document).on('change', '#sisme-avatar-input', function() {
+            const file = this.files[0];
+            if (file) {
+                uploadAvatar(file);
+            }
+            // Reset input pour permettre re-sélection du même fichier
+            this.value = '';
+        });
+
+        // Gérer la suppression
+        $(document).on('click', '.sisme-avatar-delete', function(e) {
+            e.preventDefault();
+            if (confirm('Êtes-vous sûr de vouloir supprimer votre avatar ?')) {
+                deleteAvatar();
+            }
+        });
+    }
+
+    /**
+     * Upload d'avatar via AJAX
+     */
+    function uploadAvatar(file) {
+        // Validation côté client
+        const maxSize = 2 * 1024 * 1024; // 2Mo
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        
+        if (file.size > maxSize) {
+            showNotification('Fichier trop volumineux (max 2Mo)', 'error');
+            return;
+        }
+        
+        if (!allowedTypes.includes(file.type)) {
+            showNotification('Type de fichier non autorisé (JPG, PNG, GIF)', 'error');
+            return;
+        }
+
+        // Afficher indicateur de chargement
+        showSaveIndicator('Upload en cours...');
+        
+        const formData = new FormData();
+        formData.append('action', 'sisme_upload_user_avatar');
+        formData.append('security', sismeUserPreferences.security);
+        formData.append('avatar_file', file);
+
+        $.ajax({
+            url: sismeUserPreferences.ajax_url,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                hideSaveIndicator();
+                
+                if (response.success) {
+                    updateAvatarPreview(response.data.url);
+                    showNotification(response.data.message, 'success');
+                    
+                    // Déclencher événement custom
+                    $(document).trigger('sisme_avatar_updated', [response.data.attachment_id, response.data.url]);
+                } else {
+                    showNotification(response.data.message || 'Erreur lors de l\'upload', 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                hideSaveIndicator();
+                console.error('Erreur AJAX avatar upload:', error);
+                showNotification('Erreur de connexion lors de l\'upload', 'error');
+            }
+        });
+    }
+
+    /**
+     * Suppression d'avatar via AJAX
+     */
+    function deleteAvatar() {
+        showSaveIndicator('Suppression...');
+        
+        $.ajax({
+            url: sismeUserPreferences.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'sisme_delete_user_avatar',
+                security: sismeUserPreferences.security
+            },
+            success: function(response) {
+                hideSaveIndicator();
+                
+                if (response.success) {
+                    updateAvatarPreview(null);
+                    showNotification(response.data.message, 'success');
+                    
+                    // Déclencher événement custom
+                    $(document).trigger('sisme_avatar_deleted');
+                } else {
+                    showNotification(response.data.message || 'Erreur lors de la suppression', 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                hideSaveIndicator();
+                console.error('Erreur AJAX avatar delete:', error);
+                showNotification('Erreur de connexion lors de la suppression', 'error');
+            }
+        });
+    }
+
+    /**
+     * Mettre à jour la prévisualisation d'avatar
+     */
+    function updateAvatarPreview(url) {
+        const $preview = $('.sisme-avatar-preview');
+        const $uploadBtn = $('.sisme-avatar-upload-btn');
+        
+        if (url) {
+            $preview.html(`
+                <img src="${url}" alt="Avatar" class="sisme-avatar-current">
+                <button type="button" class="sisme-avatar-delete" title="Supprimer">❌</button>
+            `);
+            $uploadBtn.text('Changer');
+        } else {
+            $preview.html('<div class="sisme-avatar-placeholder">👤</div>');
+            $uploadBtn.text('Ajouter');
         }
     }
     

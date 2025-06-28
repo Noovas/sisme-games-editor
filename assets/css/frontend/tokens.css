@@ -224,9 +224,9 @@
     --sisme-shadow-gaming: 0 16px 48px rgba(0, 0, 0, 0.4);
     --sisme-shadow-gaming-hover: 0 20px 60px rgba(0, 0, 0, 0.5);
     --sisme-shadow-neon: 0 0 20px rgba(102, 192, 244, 0.4);
-    --sisme-shadow-neon-orange: 0 4px 12px rgba(212, 163, 115, 0.3);
-    --sisme-shadow-neon-bleu: 0 4px 12px rgba(102, 192, 244, 0.3);
-    --sisme-shadow-neon-vert: 0 4px 12px rgba(161, 183, 141, 0.3);
+    --sisme-shadow-neon-orange: 0 4px 4px rgba(212, 163, 115, 0.3);
+    --sisme-shadow-neon-bleu: 0 4px 4px rgba(102, 192, 244, 0.3);
+    --sisme-shadow-neon-vert: 0 4px 4px rgba(161, 183, 141, 0.3);
 
     /* Transitions */
     --sisme-transition-fast: 0.15s ease;
@@ -271,6 +271,15 @@
 /* ========================================
    📱 UTILS
 ======================================== */
+
+.sisme-card-title a, h4.sisme-game-title {
+    display: block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 50%;
+}
+
 .sisme-display__none{
     display: none;  
 } 

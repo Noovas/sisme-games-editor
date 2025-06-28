@@ -112,7 +112,7 @@ class Sisme_User_Dashboard_API {
                 </div>
                 
                 <div class="sisme-profile-actions">
-                    <a href="<?php echo wp_logout_url(); ?>" class="sisme-button sisme-btn--secondary">
+                    <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="sisme-button sisme-btn--secondary">
                         <span class="sisme-icon">🚪</span>
                         <span class="sisme-label">Déconnexion</span>
                     </a>
@@ -659,7 +659,7 @@ class Sisme_User_Dashboard_API {
     }
 
     /**
-     * Widget favoris sidebar avec liens vers les fiches (version simplifiée)
+     * Widget favoris sidebar avec liens vers les fiches
      */
     private static function render_favorites_widget($favorite_games) {
         ob_start();
@@ -684,12 +684,14 @@ class Sisme_User_Dashboard_API {
                         // Récupérer le term du jeu
                         $term = get_term($game_id, 'post_tag');
                         if (!$term || is_wp_error($term)) continue;
+
+                        $cover_main = get_term_meta($game_id, 'cover_main', true);
                         
-                        // Récupérer la cover
-                        $cover_main = get_term_meta($term->term_id, 'cover_main', true);
-                        $cover_url = $cover_main;
-                        
-                        // Utiliser la fonction helper pour l'URL
+                        $cover_url = '';
+                        if ($cover_main) {
+                            $cover_url = wp_get_attachment_image_url($cover_main, 'medium');
+                        }
+
                         $game_url = self::get_game_url($game_id);
                     ?>
                         <a href="<?php echo esc_url($game_url); ?>" class="sisme-favorite-item">

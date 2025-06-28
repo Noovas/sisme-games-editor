@@ -27,8 +27,14 @@
      */
     SismeDashboard.init = function() {
         if (this.isInitialized) {
+            // ✅ AJOUT: Réinitialiser la navigation même si déjà initialisé
+            this.currentSection = 'overview'; // Reset
+            this.initNavigation(); // Relire localStorage
             return;
         }
+        
+        // Réinitialiser l'état
+        this.currentSection = 'overview';
         
         this.bindEvents();
         this.initNavigation();
@@ -38,7 +44,6 @@
         this.isInitialized = true;
         this.log('Dashboard JavaScript initialisé');
         
-        // Message de bienvenue après un délai
         setTimeout(() => {
             this.showNotification('Bienvenue sur votre dashboard ! 🎮', 'success', 3000);
         }, 1000);

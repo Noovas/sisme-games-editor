@@ -26,6 +26,8 @@ class Sisme_User_Preferences_Data_Manager {
     const META_PLAYER_TYPES = 'sisme_user_player_types';
     const META_NOTIFICATIONS = 'sisme_user_notifications';
     const META_PRIVACY_PUBLIC = 'sisme_user_privacy_public';
+    const META_AVATAR = 'sisme_user_avatar';
+
     
     // Clés de préférences valides
     private static $valid_preference_keys = [
@@ -33,7 +35,8 @@ class Sisme_User_Preferences_Data_Manager {
         'genres', 
         'player_types',
         'notifications',
-        'privacy_public'
+        'privacy_public',
+        'avatar'
     ];
     
     /**
@@ -54,6 +57,7 @@ class Sisme_User_Preferences_Data_Manager {
             'genres' => get_user_meta($user_id, self::META_GENRES, true) ?: $defaults['genres'],
             'player_types' => get_user_meta($user_id, self::META_PLAYER_TYPES, true) ?: $defaults['player_types'],
             'notifications' => get_user_meta($user_id, self::META_NOTIFICATIONS, true) ?: $defaults['notifications'],
+            'avatar' => get_user_meta($user_id, self::META_AVATAR, true) ?: $defaults['avatar'],
             'privacy_public' => get_user_meta($user_id, self::META_PRIVACY_PUBLIC, true) !== '' ? 
                                (bool) get_user_meta($user_id, self::META_PRIVACY_PUBLIC, true) : 
                                $defaults['privacy_public']
@@ -343,7 +347,8 @@ class Sisme_User_Preferences_Data_Manager {
                 'new_indie_releases' => true,
                 'newsletter' => true
             ],
-            'privacy_public' => true // Profil public par défaut
+            'privacy_public' => true,
+            'avatar' => 0
         ];
     }
     
@@ -533,5 +538,34 @@ class Sisme_User_Preferences_Data_Manager {
         }
         
         return true;
+    }
+
+    /**
+     * Sauvegarder l'ID d'attachment de l'avatar
+     */
+    public static function update_user_avatar($user_id, $attachment_id) {
+        return update_user_meta($user_id, self::META_AVATAR, intval($attachment_id));
+    }
+
+    /**
+     * Supprimer l'avatar utilisateur
+     */
+    public static function delete_user_avatar($user_id) {
+        $old_avatar = get_user_meta($user_id, self::META_AVATAR, true);
+        if ($old_avatar) {
+            wp_delete_attachment($old_avatar, true);
+        }
+        return delete_user_meta($user_id, self::META_AVATAR);
+    }
+
+    /**
+     * Récupérer l'URL de l'avatar utilisateur
+     */
+    public static function get_user_avatar_url($user_id, $size = 'thumbnail') {
+        $avatar_id = get_user_meta($user_id, self::META_AVATAR, true);
+        if ($avatar_id) {
+            return wp_get_attachment_image_url($avatar_id, $size);
+        }
+        return false;
     }
 }

@@ -34,9 +34,14 @@ class Sisme_User_Preferences_Ajax {
         add_action('wp_ajax_sisme_update_user_preference', [self::class, 'ajax_update_user_preference']);
         add_action('wp_ajax_sisme_reset_user_preferences', [self::class, 'ajax_reset_user_preferences']);
         
-        // Actions AJAX pour utilisateurs non connectés (refus)
+        // Actions AJAX pour utilisateurs non connectés
         add_action('wp_ajax_nopriv_sisme_update_user_preference', [self::class, 'ajax_not_logged_in']);
         add_action('wp_ajax_nopriv_sisme_reset_user_preferences', [self::class, 'ajax_not_logged_in']);
+
+        add_action('wp_ajax_sisme_upload_user_avatar', [self::class, 'ajax_upload_avatar']);
+        add_action('wp_ajax_sisme_delete_user_avatar', [self::class, 'ajax_delete_avatar']);
+        add_action('wp_ajax_nopriv_sisme_upload_user_avatar', [self::class, 'ajax_not_logged_in']);
+        add_action('wp_ajax_nopriv_sisme_delete_user_avatar', [self::class, 'ajax_not_logged_in']);
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('[Sisme User Preferences Ajax] Hooks AJAX enregistrés');
@@ -495,6 +500,106 @@ class Sisme_User_Preferences_Ajax {
             ],
             'data_manager_available' => class_exists('Sisme_User_Preferences_Data_Manager'),
             'current_user_id' => get_current_user_id()
+        ];
+    }
+
+    /**
+     * Handler AJAX pour upload avatar
+     */
+    public static function ajax_upload_avatar() {
+        if (!check_ajax_referer('sisme_user_preferences_nonce', 'security', false)) {
+            wp_send_json_error(['message' => 'Erreur de sécurité']);
+        }
+
+        $user_id = get_current_user_id();
+        if (!$user_id) {
+            wp_send_json_error(['message' => 'Connexion requise']);
+        }
+
+        if (empty($_FILES['avatar_file'])) {
+            wp_send_json_error(['message' => 'Aucun fichier fourni']);
+        }
+
+        $upload_result = self::process_avatar_upload($_FILES['avatar_file'], $user_id);
+        if (is_wp_error($upload_result)) {
+            wp_send_json_error(['message' => $upload_result->get_error_message()]);
+        }
+
+        wp_send_json_success([
+            'attachment_id' => $upload_result['attachment_id'],
+            'url' => $upload_result['url'],
+            'message' => 'Avatar mis à jour'
+        ]);
+    }
+
+    /**
+     * Handler AJAX pour suppression avatar
+     */
+    public static function ajax_delete_avatar() {
+        if (!check_ajax_referer('sisme_user_preferences_nonce', 'security', false)) {
+            wp_send_json_error(['message' => 'Erreur de sécurité']);
+        }
+
+        $user_id = get_current_user_id();
+        if (!$user_id) {
+            wp_send_json_error(['message' => 'Connexion requise']);
+        }
+
+        $success = Sisme_User_Preferences_Data_Manager::delete_user_avatar($user_id);
+        if ($success) {
+            wp_send_json_success(['message' => 'Avatar supprimé']);
+        } else {
+            wp_send_json_error(['message' => 'Erreur lors de la suppression']);
+        }
+    }
+
+    /**
+     * Traiter l'upload d'avatar
+     */
+    private static function process_avatar_upload($file, $user_id) {
+        // Validation fichier
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $max_size = 2097152; // 2Mo
+
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            return new WP_Error('upload_error', 'Erreur upload');
+        }
+
+        if ($file['size'] > $max_size) {
+            return new WP_Error('file_too_large', 'Fichier trop volumineux (max 2Mo)');
+        }
+
+        $file_info = wp_check_filetype($file['name']);
+        if (!in_array($file_info['type'], $allowed_types)) {
+            return new WP_Error('invalid_type', 'Type non autorisé (JPG, PNG, GIF)');
+        }
+
+        // Supprimer ancien avatar
+        Sisme_User_Preferences_Data_Manager::delete_user_avatar($user_id);
+
+        // Upload via WordPress
+        $upload = wp_handle_upload($file, ['test_form' => false]);
+        if (isset($upload['error'])) {
+            return new WP_Error('wp_upload_error', $upload['error']);
+        }
+
+        // Créer attachment
+        $attachment_data = [
+            'post_title' => 'Avatar utilisateur ' . $user_id,
+            'post_content' => '',
+            'post_status' => 'inherit',
+            'post_mime_type' => $upload['type']
+        ];
+
+        $attachment_id = wp_insert_attachment($attachment_data, $upload['file']);
+        wp_generate_attachment_metadata($attachment_id, $upload['file']);
+
+        // Sauvegarder en user meta
+        Sisme_User_Preferences_Data_Manager::update_user_avatar($user_id, $attachment_id);
+
+        return [
+            'attachment_id' => $attachment_id,
+            'url' => wp_get_attachment_image_url($attachment_id, 'thumbnail')
         ];
     }
 }

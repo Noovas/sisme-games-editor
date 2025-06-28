@@ -177,7 +177,7 @@ class Sisme_User_Auth_API {
                         </p>
                     </div>
                     <div class="sisme-profile-actions">
-                        <a href="<?php echo esc_url(wp_logout_url(home_url())); ?>" class="sisme-button sisme-button-orange">
+                        <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="sisme-button sisme-button-orange">
                             <span class="sisme-btn-icon">🚪</span>
                             Déconnexion
                         </a>

@@ -63,7 +63,6 @@ class Sisme_User_Loader {
             'user-preferences'  => 'Preferences utilisateur', 
             'user-actions'  => 'Actions utilisateur',
             'user-dashboard' => 'Dashboard utilisateur',
-            'user-profile'  => 'Profil utilisateur', 
             'user-library'  => 'Ludothèque personnelle'
         ];
         

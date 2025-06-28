@@ -31,7 +31,7 @@ class Sisme_User_Preferences_API {
         }
         
         $defaults = [
-            'sections' => 'gaming,notifications,privacy', // Sections à afficher
+            'sections' => 'profile,gaming,notifications,privacy',
             'user_id' => get_current_user_id(),
             'container_class' => 'sisme-user-preferences',
             'title' => 'Mes préférences'
@@ -112,6 +112,10 @@ class Sisme_User_Preferences_API {
         }
         
         switch ($section_name) {
+            
+            case 'profile':
+                return self::render_profile_section($user_preferences);
+
             case 'gaming':
                 return self::render_gaming_section($user_preferences);
                 
@@ -120,12 +124,13 @@ class Sisme_User_Preferences_API {
                 
             case 'privacy':
                 return self::render_privacy_section($user_preferences);
-                
+            
             default:
                 return '';
         }
     }
-    
+
+
     /**
      * Rendu de la section préférences gaming
      */
@@ -137,9 +142,11 @@ class Sisme_User_Preferences_API {
                 <span class="sisme-section-icon">🎮</span>
                 Préférences de jeu
             </h3>
+
+            
             
             <div class="sisme-section-content">
-                
+
                 <!-- Plateformes préférées -->
                 <div class="sisme-preference-group">
                     <label class="sisme-preference-label">Plateformes préférées</label>
@@ -252,6 +259,69 @@ class Sisme_User_Preferences_API {
                 
             </div>
         </section>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Rendu de la section profile
+     */
+    private static function render_profile_section($preferences) {
+        ob_start();
+        ?>
+        <section class="sisme-preferences-section" data-section="profile">
+            <h3 class="sisme-section-title">
+                <span class="sisme-section-icon">👤</span>
+                Profil
+            </h3>
+            
+            <div class="sisme-section-content">
+                
+                <!-- Avatar -->
+                <div class="sisme-preference-group">
+                    <?php echo self::render_avatar_field(get_current_user_id()); ?>
+                </div>
+                
+            </div>
+        </section>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Rendu du champ avatar
+     */
+    private static function render_avatar_field($user_id) {
+        $current_avatar = Sisme_User_Preferences_Data_Manager::get_user_avatar_url($user_id, 'thumbnail');
+        
+        ob_start();
+        ?>
+        <div class="sisme-preference-field sisme-avatar-field">
+            <label class="sisme-preference-label">
+                <span class="sisme-preference-icon">🖼️</span>
+                Avatar
+            </label>
+            <p class="sisme-preference-description">Votre photo de profil</p>
+            
+            <div class="sisme-avatar-uploader" data-user-id="<?php echo esc_attr($user_id); ?>">
+                <div class="sisme-avatar-preview">
+                    <?php if ($current_avatar): ?>
+                        <img src="<?php echo esc_url($current_avatar); ?>" alt="Avatar" class="sisme-avatar-current">
+                        <button type="button" class="sisme-avatar-delete" title="Supprimer">❌</button>
+                    <?php else: ?>
+                        <div class="sisme-avatar-placeholder">👤</div>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="sisme-avatar-controls">
+                    <input type="file" id="sisme-avatar-input" accept="image/*" style="display: none;">
+                    <button type="button" class="sisme-avatar-upload-btn sisme-button sisme-button-bleu">
+                        <?php echo $current_avatar ? 'Changer' : 'Ajouter'; ?>
+                    </button>
+                    <small>JPG, PNG ou GIF - Max 2Mo</small>
+                </div>
+            </div>
+        </div>
         <?php
         return ob_get_clean();
     }

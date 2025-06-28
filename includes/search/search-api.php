@@ -47,7 +47,7 @@ class Sisme_Search_API {
             'show_suggestions' => 'true',
             'show_quick_filters' => 'true',
             'results_per_page' => '12',
-            'default_view' => 'list',
+            'default_view' => 'grid',
             'filters_collapsed' => 'true', 
             'container_class' => 'sisme-search-interface',
             'hero_title' => '🔍 Recherche de Jeux indé',
@@ -278,10 +278,10 @@ class Sisme_Search_API {
                     <?php echo self::render_quick_filters_html(); ?>
                     <!-- Actions filtres -->
                     <div class="sisme-filters-actions">
-                        <button type="button" class="sisme-filter-apply" id="sismeApplyFilters">
+                        <button type="button" class="sisme-button sisme-button-vert" id="sismeApplyFilters">
                             ✅ <?php esc_html_e('Appliquer', 'sisme-games-editor'); ?>
                         </button>
-                        <button type="button" class="sisme-filter-reset" id="sismeResetFilters">
+                        <button type="button" class="sisme-button sisme-button-orange" id="sismeResetFilters">
                             🔄 <?php esc_html_e('Réinitialiser', 'sisme-games-editor'); ?>
                         </button>
                     </div>
@@ -321,11 +321,14 @@ class Sisme_Search_API {
                     <span class="sisme-view-icon">🔲</span>
                     <span class="sisme-view-text"><?php esc_html_e('Grille', 'sisme-games-editor'); ?></span>
                 </button>
+                
+                <!-- 🚫 DÉSACTIVÉ TEMPORAIREMENT
                 <button class="sisme-view-btn <?php echo ($current_view === 'list') ? 'sisme-view-btn--active' : ''; ?>" 
                         data-view="list">
                     <span class="sisme-view-icon">📋</span>
                     <span class="sisme-view-text"><?php esc_html_e('Liste', 'sisme-games-editor'); ?></span>
                 </button>
+                -->
             </div>
             
         </div>
@@ -533,19 +536,7 @@ class Sisme_Search_API {
         <div class="<?php echo esc_attr($grid_class); ?>" id="sismeSearchGrid">
             <?php foreach ($games as $index => $game): ?>
                 <div class="sisme-search-card">
-                    <?php 
-                    // DEBUG: Afficher dans la console du navigateur
-                    if (defined('WP_DEBUG') && WP_DEBUG) {
-                        ?>
-                        <script>
-                        console.group('🎮 Sisme Search Debug - Jeu #<?php echo $index; ?>');
-                        console.log('Type:', <?php echo json_encode(gettype($game)); ?>);
-                        console.log('Contenu:', <?php echo json_encode($game); ?>);
-                        console.groupEnd();
-                        </script>
-                        <?php
-                    }
-                    
+                    <?php                     
                     echo Sisme_Cards_API::render_card($game, $card_type);
                     ?>
                 </div>

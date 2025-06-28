@@ -58,11 +58,11 @@
         
             // ✅ Lire les paramètres par défaut
             const $interface = $('#sismeSearchInterface');
-            const defaultView = $interface.data('default-view') || 'list';
+            const defaultView = $interface.data('default-view') || 'grid';
             const filtersCollapsed = $interface.data('filters-collapsed') !== false;
             
             // Initialiser la vue par défaut
-            this.state.currentFilters.view = defaultView;
+            this.state.currentFilters.view = 'grid';
             
             // ✅ Replier les filtres si demandé (toujours au début)
             if (filtersCollapsed) {

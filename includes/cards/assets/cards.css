@@ -74,11 +74,29 @@
 
 /* ===🏷️ GENRES ======================= */
 
+
+
 .sisme-card-genres {
     display: flex;
     flex-wrap: wrap;
     gap: var(--sisme-space-xs);
     margin-bottom: var(--sisme-space-md);
+}
+
+.sisme-search-grid .sisme-card-genres {
+    flex-wrap: nowrap;
+    overflow-x: hidden;
+}
+
+.sisme-search-grid .sisme-card-genres::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(to right, transparent, var(--sisme-gaming-dark-light));
+    pointer-events: none;
 }
 
 .sisme-card-genre {
@@ -142,6 +160,7 @@
    📋 NORMAL-CARD
 ======================================== */
 
+
 .sisme-game-card {
     display: flex;
     height: 100%;
@@ -154,7 +173,6 @@
     position: relative;
     max-width: 350px;
     margin: 0 auto;
-    min-height: 460px;
 }
 
 .sisme-game-card:hover {
