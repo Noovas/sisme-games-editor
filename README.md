@@ -13,7 +13,7 @@ Documentation technique condensée pour tous les modules du plugin Sisme Games E
   - [⚙️ User Preferences](docs/user/user-preferences-readme.md) - Préférences gaming
   - [📊 User Dashboard](docs/user/user-dashboard-readme.md) - Tableau de bord utilisateur
   - [🖼️ User Profile](docs/user/user-profile-readme.md) - Gestion profils et avatars
-  - [⚡ User Actions](docs/user-actions/user-actions-readme.md)** - Actions utilisateur (favoris, owned, etc.)
+  - [⚡ User Actions](docs/user/user-actions-readme.md) - Actions utilisateur (favoris, owned, etc.)
 
 - **[🎴 Cards](docs/cards/cards-readme.md)** - Rendu cartes de jeux
 
