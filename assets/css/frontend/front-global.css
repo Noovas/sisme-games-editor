@@ -33,6 +33,15 @@ body,
     position: relative;
 }
 
+.sisme-game-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0 0 var(--sisme-dashboard-space-xs) 0;
+    color: var(--sisme-dashboard-text-primary);
+    line-height: 1.3;
+    align-self: center;
+}
+
 /* ========================================
    🎯 BOUTONS 
 ======================================== */
@@ -57,26 +66,32 @@ body,
 }
 
 .sisme-button-vert {
+    color: white !important;
     background: linear-gradient(90deg, var(--sisme-button-bg-vert), var(--sisme-button-bg-hover-vert));
 }
 
 .sisme-button-vert:hover {
+    color: white !important;
     box-shadow: var(--sisme-shadow-neon-vert);
 }
 
 .sisme-button-bleu {
+    color: white !important;
     background: linear-gradient(90deg, var(--sisme-button-bg-bleu), var(--sisme-button-bg-hover-bleu));
 }
 
 .sisme-button-bleu:hover {
+    color: white !important;
     box-shadow: var(--sisme-shadow-neon-bleu);
 }
     
 .sisme-button-orange {
+    color: white !important;
     background: linear-gradient(90deg, var(--sisme-button-bg-orange), var(--sisme-button-bg-hover-orange));
 }
 
 .sisme-button-orange:hover {
+    color: white !important;
     box-shadow: var(--sisme-shadow-neon-orange);
 } 
 

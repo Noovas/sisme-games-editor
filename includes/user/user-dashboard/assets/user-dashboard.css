@@ -1,12 +1,13 @@
 /**
  * File: /sisme-games-editor/includes/user/user-dashboard/assets/user-dashboard.css
- * Styles pour le dashboard utilisateur gaming
+ * Styles pour le dashboard utilisateur gaming avec système d'onglets
  * 
  * RESPONSABILITÉ:
  * - Thème gaming dark moderne
  * - Layout responsive 3 colonnes
- * - Animations et transitions fluides
- * - Support mobile complet
+ * - Système d'onglets dynamique avec animations
+ * - Support mobile complet avec sidebar overlay
+ * - Notifications toast
  * - Cohérence avec l'écosystème Sisme
  */
 
@@ -75,19 +76,17 @@
 .sisme-dashboard-header {
     background: var(--sisme-dashboard-bg-secondary);
     border-bottom: 1px solid var(--sisme-dashboard-border-color);
-    padding: var(--sisme-dashboard-space-lg);
+    padding: var(--sisme-dashboard-space-lg) 0;
     position: relative;
-    top: 0;
-    z-index: 100;
-    backdrop-filter: blur(10px);
 }
 
 .sisme-profile-card {
     display: flex;
     align-items: center;
     gap: var(--sisme-dashboard-space-lg);
-    margin-bottom: var(--sisme-dashboard-space-lg);
-    flex-wrap: wrap;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--sisme-dashboard-space-lg);
 }
 
 .sisme-profile-avatar {
@@ -95,7 +94,7 @@
     flex-shrink: 0;
 }
 
-.sisme-profile-avatar .sisme-avatar {
+.sisme-avatar {
     width: 80px;
     height: 80px;
     border-radius: 50%;
@@ -103,9 +102,9 @@
     transition: var(--sisme-dashboard-transition-fast);
 }
 
-.sisme-profile-avatar:hover .sisme-avatar {
-    border-color: var(--sisme-dashboard-accent-success);
+.sisme-avatar:hover {
     transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(88, 166, 255, 0.5);
 }
 
 .sisme-status-indicator {
@@ -114,186 +113,81 @@
     right: 5px;
     width: 16px;
     height: 16px;
+    background: var(--sisme-dashboard-accent-success);
+    border: 2px solid var(--sisme-dashboard-bg-secondary);
     border-radius: 50%;
-    border: 3px solid var(--sisme-dashboard-bg-secondary);
 }
 
 .sisme-status-indicator.online {
-    background: var(--sisme-dashboard-accent-success);
     animation: pulse-online 2s infinite;
 }
 
 @keyframes pulse-online {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
+    0% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.7); }
+    70% { box-shadow: 0 0 0 5px rgba(63, 185, 80, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0); }
 }
 
 .sisme-profile-info {
     flex: 1;
-    min-width: 200px;
+    min-width: 0;
 }
 
 .sisme-profile-name {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
     margin: 0 0 var(--sisme-dashboard-space-xs) 0;
     color: var(--sisme-dashboard-text-primary);
 }
 
+.sisme-profile-tagline {
+    color: var(--sisme-dashboard-text-secondary);
+    margin: 0 0 var(--sisme-dashboard-space-md) 0;
+    font-size: 0.875rem;
+}
+
 .sisme-profile-stats {
     display: flex;
     gap: var(--sisme-dashboard-space-lg);
-    color: var(--sisme-dashboard-text-secondary);
     flex-wrap: wrap;
-    margin: 0;
 }
 
-.sisme-stat {
-    font-size: 0.875rem;
-    font-weight: 500;
+.sisme-stat-bubble {
+    text-align: center;
+    padding: var(--sisme-dashboard-space-xs) var(--sisme-dashboard-space-sm);
+    background: var(--sisme-dashboard-bg-tertiary);
+    border-radius: var(--sisme-dashboard-radius-md);
+    border: 1px solid var(--sisme-dashboard-border-color);
+    min-width: 60px;
     transition: var(--sisme-dashboard-transition-fast);
 }
 
-.sisme-stat:hover {
+.sisme-stat-bubble:hover {
+    background: var(--sisme-dashboard-hover-bg);
+    transform: translateY(-2px);
+}
+
+.sisme-stat-number {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 700;
     color: var(--sisme-dashboard-accent-primary);
-    transform: translateY(-1px);
+    line-height: 1;
+}
+
+.sisme-stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--sisme-dashboard-text-secondary);
+    margin-top: 2px;
 }
 
 .sisme-profile-actions {
     display: flex;
-    gap: var(--sisme-dashboard-space-sm);
-    flex-shrink: 0;
-}
-
-/* ===🔘 BOUTONS DASHBOARD ================= */
-.sisme-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sisme-dashboard-space-xs);
-    padding: var(--sisme-dashboard-space-sm) var(--sisme-dashboard-space-md);
-    border: 1px solid var(--sisme-dashboard-border-color);
-    border-radius: var(--sisme-dashboard-radius-md);
-    background: var(--sisme-dashboard-bg-tertiary);
-    color: var(--sisme-dashboard-text-primary);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: var(--sisme-dashboard-transition-fast);
-    position: relative;
-    overflow: hidden;
-}
-
-.sisme-btn:hover {
-    background: var(--sisme-dashboard-hover-bg);
-    border-color: var(--sisme-dashboard-accent-primary);
-    transform: translateY(-2px);
-    box-shadow: var(--sisme-dashboard-shadow-md);
-}
-
-.sisme-btn:active {
-    transform: translateY(0);
-}
-
-.sisme-btn-primary {
-    background: var(--sisme-dashboard-accent-primary);
-    border-color: var(--sisme-dashboard-accent-primary);
-    color: white;
-}
-
-.sisme-btn-primary:hover {
-    background: #1f6feb;
-    border-color: #1f6feb;
-}
-
-.sisme-btn-secondary {
-    background: var(--sisme-dashboard-bg-tertiary);
-    border-color: var(--sisme-dashboard-border-color);
-}
-
-.sisme-btn.btn-loading {
-    opacity: 0.7;
-    pointer-events: none;
-}
-
-.sisme-btn.clicked {
-    animation: btn-click 0.2s ease;
-}
-
-@keyframes btn-click {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.95); }
-    100% { transform: scale(1); }
-}
-
-/* ===⚡ ACTIONS RAPIDES ================== */
-.sisme-quick-actions {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: var(--sisme-dashboard-space-md);
-}
-
-.sisme-quick-btn {
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    padding: var(--sisme-dashboard-space-md);
-    background: var(--sisme-dashboard-bg-tertiary);
-    border: 1px solid var(--sisme-dashboard-border-color);
-    border-radius: var(--sisme-dashboard-radius-md);
-    text-decoration: none;
-    color: var(--sisme-dashboard-text-primary);
-    transition: var(--sisme-dashboard-transition-fast);
-    position: relative;
-    overflow: hidden;
-}
-
-.sisme-quick-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(88, 166, 255, 0.2), transparent);
-    transition: left 0.5s ease;
-}
-
-.sisme-quick-btn:hover::before {
-    left: 100%;
-}
-
-.sisme-quick-btn:hover {
-    background: var(--sisme-dashboard-hover-bg);
-    border-color: var(--sisme-dashboard-accent-primary);
-    transform: translateY(-4px);
-    box-shadow: var(--sisme-dashboard-shadow-lg);
-}
-
-.sisme-quick-btn.clicked {
-    animation: quick-btn-pulse 0.3s ease;
-}
-
-@keyframes quick-btn-pulse {
-    0% { transform: translateY(-4px) scale(1); }
-    50% { transform: translateY(-4px) scale(1.05); }
-    100% { transform: translateY(-4px) scale(1); }
-}
-
-.sisme-quick-btn .sisme-icon {
-    font-size: 1.5rem;
-    margin-bottom: var(--sisme-dashboard-space-xs);
-    transition: var(--sisme-dashboard-transition-fast);
-}
-
-.sisme-quick-btn:hover .sisme-icon {
-    transform: scale(1.2);
-}
-
-.sisme-quick-btn .sisme-label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-align: center;
+    flex-shrink: 0;
+    flex-direction: row-reverse;
 }
 
 /* ===🏗️ GRILLE DASHBOARD ================= */
@@ -366,7 +260,7 @@
 .sisme-nav-link:hover,
 .sisme-nav-link.active {
     background: var(--sisme-dashboard-accent-primary);
-    color: white;
+    color: white !important;
     transform: translateX(5px);
 }
 
@@ -383,6 +277,21 @@
 .sisme-nav-text {
     flex: 1;
     font-weight: 500;
+}
+
+.sisme-nav-badge {
+    background: var(--sisme-dashboard-accent-warning);
+    color: var(--sisme-dashboard-bg-primary);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    animation: badge-pulse 2s infinite;
+}
+
+@keyframes badge-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
 }
 
 .sisme-nav-count {
@@ -453,13 +362,25 @@
     flex: 1;
 }
 
-/* ===🎯 CONTENU PRINCIPAL ================ */
+/* ===🎯 CONTENU PRINCIPAL AVEC ONGLETS ==== */
 .sisme-dashboard-main {
     background: var(--sisme-dashboard-bg-secondary);
     border-radius: var(--sisme-dashboard-radius-lg);
     padding: var(--sisme-dashboard-space-xl);
     border: 1px solid var(--sisme-dashboard-border-color);
     box-shadow: var(--sisme-dashboard-shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ✨ SECTIONS DYNAMIQUES ✨ */
+.sisme-dashboard-section {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.sisme-dashboard-section[style*="display: none"] {
+    opacity: 0;
 }
 
 .sisme-section-header {
@@ -483,6 +404,574 @@
 
 .sisme-title-icon {
     font-size: 1.25rem;
+}
+ /* === SECTION CARDS ===================*/
+
+ .sisme-game-cover {
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(135deg, var(--sisme-dashboard-accent-primary), var(--sisme-dashboard-accent-secondary));
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-game-overlay {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+}
+
+.sisme-favorite-badge,
+.sisme-owned-badge {
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    backdrop-filter: blur(4px);
+}
+
+/* ===❤️ SECTION FAVORIS ================== */
+.sisme-library-section {
+    animation: section-fade-in 0.5s ease;
+}
+
+.sisme-favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--sisme-dashboard-space-lg);
+}
+
+.sisme-favorites-grid .sisme-game-card {
+    max-width: 200px !important;
+    align-items: center !important;
+    min-height: 0px !important;
+
+}
+
+.sisme-favorites-grid .sisme-game-info {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+.sisme-favorites-grid .sisme-game-title {
+    font-size: 15px !important;
+    margin: 0 !important;
+}
+
+.sisme-game-card {
+    background: var(--sisme-dashboard-bg-tertiary);
+    border-radius: var(--sisme-dashboard-radius-md);
+    overflow: hidden;
+    transition: var(--sisme-dashboard-transition-fast);
+    border: 1px solid var(--sisme-dashboard-border-color);
+    cursor: pointer;
+    position: relative;
+}
+
+.sisme-game-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--sisme-dashboard-accent-primary);
+    box-shadow: var(--sisme-dashboard-shadow-lg);
+}
+
+.sisme-game-card.game-clicked {
+    animation: game-click-feedback 0.3s ease;
+}
+
+@keyframes game-click-feedback {
+    0% { transform: translateY(-4px) scale(1); }
+    50% { transform: translateY(-4px) scale(1.02); }
+    100% { transform: translateY(-4px) scale(1); }
+}
+
+.sisme-favorites-grid .sisme-game-info {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    padding: 10px;
+}
+
+/* ===📚 SECTION SISMOTHÈQUE ============== */
+.sisme-library-section {
+    animation: section-fade-in 0.5s ease;
+}
+
+.sisme-library-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--sisme-dashboard-space-lg);
+}
+
+.sisme-library-grid .sisme-game-card {
+    max-width: 200px !important;
+    align-items: center !important;
+    min-height: 0px !important;
+
+}
+
+.sisme-library-grid .sisme-game-info {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    padding: 10px;
+}
+
+.sisme-library-grid .sisme-game-title {
+    font-size: 15px !important;
+    margin: 0 !important;
+}
+
+/* ===⚡ SECTION JEUX RECENTS ========== */
+
+/* Container principal récents */
+.sisme-recent-games.sisme-recent-grid {
+    margin-bottom: var(--sisme-dashboard-space-xl);
+}
+
+/* Titre de la section récents */
+.sisme-widget-title.sisme-recent-grid {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-dashboard-space-sm);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: var(--sisme-dashboard-space-lg);
+    color: var(--sisme-dashboard-text-primary);
+}
+
+/* ✨ GRILLE UNE SEULE COLONNE PLEINE LARGEUR ✨ */
+.sisme-games-grid.sisme-recent-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-dashboard-space-lg);
+    width: 100%;
+}
+
+/* Cartes de jeux récents en ligne horizontale */
+.sisme-game-card.sisme-recent-grid {
+    background: var(--sisme-dashboard-bg-tertiary);
+    border-radius: var(--sisme-dashboard-radius-md);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid var(--sisme-dashboard-border-color);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    min-height: 120px;
+    max-width: none;
+}
+
+.sisme-game-card.sisme-recent-grid:hover {
+    transform: translateY(-4px) !important;
+    border-color: var(--sisme-dashboard-accent-primary);
+    box-shadow: var(--sisme-dashboard-shadow-lg);
+}
+
+/* Cover image des récents - format horizontal */
+.sisme-game-cover.sisme-recent-grid {
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(135deg, var(--sisme-dashboard-accent-primary), var(--sisme-dashboard-accent-secondary));
+    background-size: contain;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* Overlay avec badge */
+.sisme-game-overlay.sisme-recent-grid {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+}
+
+/* Badge spécifique récents */
+.sisme-owned-badge.sisme-recent-grid {
+    background: rgba(255, 193, 7, 0.9);
+    color: var(--sisme-dashboard-bg-primary);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: bold;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Infos du jeu récents - layout horizontal */
+.sisme-game-info.sisme-recent-grid {
+    padding: var(--sisme-dashboard-space-md);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--sisme-dashboard-space-sm);
+    min-height: 120px;
+}
+
+/* Titre du jeu récents */
+.sisme-game-title.sisme-recent-grid {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--sisme-dashboard-text-primary);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* ✨ DESCRIPTION SPÉCIFIQUE RÉCENTS ✨ */
+.sisme-game-description.sisme-recent-grid {
+    font-size: 0.875rem;
+    color: var(--sisme-dashboard-text-secondary);
+    line-height: 1.4;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    flex: 1;
+}
+
+/* Genres des récents */
+.sisme-game-genres.sisme-recent-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sisme-dashboard-space-xs);
+    margin-top: auto;
+}
+
+.sisme-genre-tag.sisme-recent-grid {
+    background: var(--sisme-dashboard-bg-primary);
+    color: var(--sisme-dashboard-text-secondary);
+    padding: 3px 8px;
+    border-radius: var(--sisme-dashboard-radius-sm);
+    font-size: 0.75rem;
+    border: 1px solid var(--sisme-dashboard-border-color);
+    font-weight: 500;
+}
+
+/* ✨ DATE DE SORTIE SPÉCIFIQUE RÉCENTS ✨ */
+.sisme-game-release-date.sisme-recent-grid {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-dashboard-space-xs);
+    background: var(--sisme-dashboard-bg-primary);
+    padding: var(--sisme-dashboard-space-xs) var(--sisme-dashboard-space-sm);
+    border-radius: var(--sisme-dashboard-radius-sm);
+    border: 1px solid var(--sisme-dashboard-border-color);
+    font-size: 0.8rem;
+    margin-top: var(--sisme-dashboard-space-xs);
+}
+
+.sisme-date-icon.sisme-recent-grid {
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
+
+.sisme-date-text.sisme-recent-grid {
+    color: var(--sisme-dashboard-text-secondary);
+    font-weight: 500;
+}
+
+/* ===📱 RESPONSIVE BREAKPOINTS ============ */
+
+/* Tablet Portrait (≥768px) : 2 colonnes */
+@media (min-width: 768px) {
+    .sisme-games-grid.sisme-recent-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Tablet Landscape (≥992px) : 3 colonnes */
+@media (min-width: 992px) {
+    .sisme-games-grid.sisme-recent-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Desktop (≥1200px) : 4 colonnes */
+@media (min-width: 1200px) {
+    .sisme-games-grid.sisme-recent-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .sisme-game-cover.sisme-recent-grid {
+        height: 140px;
+    }
+}
+
+/* Large Desktop (≥1400px) : 5 colonnes */
+@media (min-width: 1400px) {
+    .sisme-games-grid.sisme-recent-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+/* Extra Large (≥1600px) : 6 colonnes */
+@media (min-width: 1600px) {
+    .sisme-games-grid.sisme-recent-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    
+    .sisme-game-cover.sisme-recent-grid {
+        height: 120px;
+    }
+    
+    .sisme-game-info.sisme-recent-grid {
+        padding: var(--sisme-dashboard-space-sm) var(--sisme-dashboard-space-md);
+    }
+}
+
+/* ===🎨 ANIMATIONS SPÉCIFIQUES RÉCENTS ==== */
+.sisme-game-card.sisme-recent-grid {
+    animation: recent-card-appear 0.5s ease forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.sisme-game-card.sisme-recent-grid:nth-child(1) { animation-delay: 0.1s; }
+.sisme-game-card.sisme-recent-grid:nth-child(2) { animation-delay: 0.2s; }
+.sisme-game-card.sisme-recent-grid:nth-child(3) { animation-delay: 0.3s; }
+.sisme-game-card.sisme-recent-grid:nth-child(4) { animation-delay: 0.4s; }
+.sisme-game-card.sisme-recent-grid:nth-child(5) { animation-delay: 0.5s; }
+.sisme-game-card.sisme-recent-grid:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes recent-card-appear {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===⚡ HOVER EFFECTS RÉCENTS ============= */
+.sisme-game-card.sisme-recent-grid:hover .sisme-owned-badge.sisme-recent-grid {
+    background: rgba(255, 193, 7, 1);
+}
+
+.sisme-game-card.sisme-recent-grid:hover .sisme-game-title.sisme-recent-grid {
+    color: var(--sisme-dashboard-accent-primary);
+}
+
+.sisme-game-card.sisme-recent-grid:hover .sisme-genre-tag.sisme-recent-grid {
+    border-color: var(--sisme-dashboard-accent-primary);
+}
+
+/* ===📏 OPTIMISATION HAUTEUR RESPONSIVE === */
+@media (max-width: 767px) {
+    .sisme-game-cover.sisme-recent-grid {
+        height: 180px;
+    }
+    
+    .sisme-game-info.sisme-recent-grid {
+        padding: var(--sisme-dashboard-space-lg);
+    }
+    
+    .sisme-game-title.sisme-recent-grid {
+        font-size: 1.1rem;
+    }
+    
+    .sisme-game-description.sisme-recent-grid {
+        font-size: 0.9rem;
+        -webkit-line-clamp: 4;
+    }
+}
+
+
+/* ===📈 SECTION ACTIVITÉ ================= */
+.sisme-activity-section {
+    animation: section-fade-in 0.5s ease;
+}
+
+.sisme-activity-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-dashboard-space-md);
+}
+
+.sisme-activity-item--detailed {
+    background: var(--sisme-dashboard-bg-tertiary);
+    border-radius: var(--sisme-dashboard-radius-md);
+    padding: var(--sisme-dashboard-space-lg);
+    border-left: 4px solid var(--sisme-dashboard-accent-primary);
+    position: relative;
+}
+
+.sisme-activity-item--detailed::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    background: var(--sisme-dashboard-accent-primary);
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+
+/* ===🚧 SECTION EN CONSTRUCTION ========== */
+.sisme-under-construction {
+    text-align: center;
+    padding: var(--sisme-dashboard-space-xl) var(--sisme-dashboard-space-lg);
+    animation: section-fade-in 0.5s ease;
+}
+
+.sisme-construction-icon {
+    font-size: 4rem;
+    margin-bottom: var(--sisme-dashboard-space-lg);
+    opacity: 0.8;
+}
+
+.sisme-under-construction h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--sisme-dashboard-space-md);
+    color: var(--sisme-dashboard-text-primary);
+}
+
+.sisme-under-construction p {
+    color: var(--sisme-dashboard-text-secondary);
+    margin-bottom: var(--sisme-dashboard-space-lg);
+}
+
+.sisme-construction-features ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--sisme-dashboard-space-sm);
+    text-align: left;
+}
+
+.sisme-construction-features li {
+    background: var(--sisme-dashboard-bg-tertiary);
+    padding: var(--sisme-dashboard-space-sm) var(--sisme-dashboard-space-md);
+    border-radius: var(--sisme-dashboard-radius-sm);
+    border: 1px solid var(--sisme-dashboard-border-color);
+}
+
+/* ===🔄 ÉTATS VIDES ==================== */
+.sisme-empty-state {
+    text-align: center;
+    padding: var(--sisme-dashboard-space-xl);
+    color: var(--sisme-dashboard-text-secondary);
+}
+
+.sisme-empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--sisme-dashboard-space-md);
+    opacity: 0.6;
+}
+
+.sisme-empty-state h3 {
+    font-size: 1.25rem;
+    margin-bottom: var(--sisme-dashboard-space-sm);
+    color: var(--sisme-dashboard-text-primary);
+}
+
+.sisme-empty-state p {
+    color: var(--sisme-dashboard-text-secondary);
+    font-size: 0.9rem;
+}
+
+/* ===🔔 SYSTÈME DE NOTIFICATIONS ========= */
+.sisme-notifications-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    max-width: 350px;
+}
+
+.sisme-notification {
+    display: none;
+    background: var(--sisme-dashboard-bg-secondary);
+    border: 1px solid var(--sisme-dashboard-border-color);
+    border-radius: var(--sisme-dashboard-radius-md);
+    padding: var(--sisme-dashboard-space-md);
+    margin-bottom: var(--sisme-dashboard-space-sm);
+    box-shadow: var(--sisme-dashboard-shadow-lg);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-notification::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--sisme-dashboard-accent-primary);
+}
+
+.sisme-notification--success::before {
+    background: var(--sisme-dashboard-accent-success);
+}
+
+.sisme-notification--error::before {
+    background: var(--sisme-dashboard-accent-secondary);
+}
+
+.sisme-notification--warning::before {
+    background: var(--sisme-dashboard-accent-warning);
+}
+
+.sisme-notification {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-dashboard-space-sm);
+}
+
+.sisme-notification-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.sisme-notification-message {
+    flex: 1;
+    color: var(--sisme-dashboard-text-primary);
+    font-size: 0.875rem;
+}
+
+.sisme-notification-close {
+    background: none;
+    border: none;
+    color: var(--sisme-dashboard-text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--sisme-dashboard-transition-fast);
+}
+
+.sisme-notification-close:hover {
+    background: var(--sisme-dashboard-hover-bg);
+    color: var(--sisme-dashboard-text-primary);
 }
 
 /* ===🔥 FEED D'ACTIVITÉ ================== */
@@ -563,7 +1052,7 @@
     font-style: italic;
 }
 
-/* ===🎮 GRILLE DE JEUX =================== */
+/* ===🎮 GRILLE DE JEUX (VUE D'ENSEMBLE) == */
 .sisme-recent-games {
     margin-bottom: var(--sisme-dashboard-space-xl);
 }
@@ -574,134 +1063,31 @@
     gap: var(--sisme-dashboard-space-lg);
 }
 
-.sisme-game-card {
-    background: var(--sisme-dashboard-bg-tertiary);
-    border-radius: var(--sisme-dashboard-radius-md);
-    overflow: hidden;
-    transition: var(--sisme-dashboard-transition-fast);
-    border: 1px solid var(--sisme-dashboard-border-color);
-    cursor: pointer;
-    position: relative;
-}
-
-.sisme-game-card:hover {
-    transform: translateY(-1px);
-    border-color: var(--sisme-dashboard-accent-primary);
-    box-shadow: var(--sisme-dashboard-shadow-lg);
-}
-
-.sisme-game-cover {
-    width: 100%;
-    height: 120px;
-    background: linear-gradient(135deg, var(--sisme-dashboard-accent-primary), var(--sisme-dashboard-accent-secondary));
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.sisme-game-cover::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    transition: var(--sisme-dashboard-transition-fast);
-}
-
-.sisme-game-card:hover .sisme-game-cover::before {
-    opacity: 1;
-}
-
-.sisme-game-placeholder {
-    font-size: 2rem;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.sisme-game-info {
-    padding: var(--sisme-dashboard-space-md);
-}
-
-.sisme-game-name {
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0 0 var(--sisme-dashboard-space-xs) 0;
-    color: var(--sisme-dashboard-text-primary);
-}
-
-.sisme-game-name a {
-    color: inherit;
-    text-decoration: none;
-    transition: var(--sisme-dashboard-transition-fast);
-}
-
-.sisme-game-name a:hover {
-    color: var(--sisme-dashboard-accent-primary);
-}
-
-.sisme-game-meta {
-    font-size: 0.875rem;
-    color: var(--sisme-dashboard-text-secondary);
-    margin: 0;
-}
-
-.sisme-games-empty {
-    text-align: center;
-    padding: var(--sisme-dashboard-space-xl);
-    color: var(--sisme-dashboard-text-secondary);
-    font-style: italic;
-}
-
-/* ===📋 WIDGETS SIDEBAR ================== */
+/* ===🏆 WIDGETS SIDEBAR ================== */
 .sisme-dashboard-widgets {
     display: flex;
     flex-direction: column;
     gap: var(--sisme-dashboard-space-lg);
 }
 
-.sisme-widget {
+.sisme-favorites-widget,
+.sisme-stats-widget {
     background: var(--sisme-dashboard-bg-secondary);
     border-radius: var(--sisme-dashboard-radius-lg);
     padding: var(--sisme-dashboard-space-lg);
     border: 1px solid var(--sisme-dashboard-border-color);
     box-shadow: var(--sisme-dashboard-shadow-sm);
-    transition: var(--sisme-dashboard-transition-fast);
 }
 
-.sisme-widget:hover {
-    box-shadow: var(--sisme-dashboard-shadow-md);
-}
-
-.sisme-widget-title {
-    display: flex;
-    align-items: center;
-    gap: var(--sisme-dashboard-space-sm);
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: var(--sisme-dashboard-space-lg);
-    color: var(--sisme-dashboard-text-primary);
-}
-
-.sisme-widget-icon {
-    font-size: 1.125rem;
-}
-
-.sisme-widget-content {
+.sisme-favorites-preview {
     display: flex;
     flex-direction: column;
-    gap: var(--sisme-dashboard-space-md);
+    gap: var(--sisme-dashboard-space-sm);
 }
 
-/* ===⭐ WIDGET FAVORIS =================== */
 .sisme-favorite-item {
     display: flex;
+    align-items: center;
     gap: var(--sisme-dashboard-space-sm);
     padding: var(--sisme-dashboard-space-sm);
     background: var(--sisme-dashboard-bg-tertiary);
@@ -716,388 +1102,258 @@
 }
 
 .sisme-favorite-item.favorite-clicked {
-    animation: favorite-pulse 0.3s ease;
+    animation: favorite-click-feedback 0.3s ease;
 }
 
-@keyframes favorite-pulse {
+@keyframes favorite-click-feedback {
     0% { transform: translateX(3px) scale(1); }
     50% { transform: translateX(3px) scale(1.02); }
     100% { transform: translateX(3px) scale(1); }
 }
 
 .sisme-favorite-cover {
-    width: 50px;
-    height: 50px;
-    background: var(--sisme-dashboard-accent-primary);
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--sisme-dashboard-accent-primary), var(--sisme-dashboard-accent-secondary));
     border-radius: var(--sisme-dashboard-radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background-size: cover;
+    background-position: center;
     flex-shrink: 0;
-    overflow: hidden;
-}
-
-.sisme-favorite-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.sisme-favorite-placeholder {
-    color: white;
-    font-size: 1.2rem;
-}
-
-.sisme-favorite-info {
-    flex: 1;
-    display: flex;
-    align-items: center;
 }
 
 .sisme-favorite-name {
     font-size: 0.875rem;
     font-weight: 500;
-    margin: 0;
-}
-
-.sisme-favorite-name a {
     color: var(--sisme-dashboard-text-primary);
-    text-decoration: none;
-    transition: var(--sisme-dashboard-transition-fast);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.sisme-favorite-name a:hover {
-    color: var(--sisme-dashboard-accent-primary);
-}
-
-.sisme-favorites-more {
-    text-align: center;
-    margin-top: var(--sisme-dashboard-space-sm);
-}
-
-.sisme-favorites-more a {
+.sisme-view-all {
+    display: block;
     color: var(--sisme-dashboard-accent-primary);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 500;
+    text-align: center;
+    padding: var(--sisme-dashboard-space-sm);
+    margin-top: var(--sisme-dashboard-space-sm);
+    border-top: 1px solid var(--sisme-dashboard-border-color);
     transition: var(--sisme-dashboard-transition-fast);
 }
 
-.sisme-favorites-more a:hover {
-    text-decoration: underline;
+.sisme-view-all:hover {
+    color: var(--sisme-dashboard-accent-success);
+    background: var(--sisme-dashboard-hover-bg);
+    border-radius: var(--sisme-dashboard-radius-sm);
 }
 
-.sisme-favorites-empty {
+.sisme-widget-empty {
     text-align: center;
-    padding: var(--sisme-dashboard-space-lg);
     color: var(--sisme-dashboard-text-secondary);
     font-style: italic;
-    font-size: 0.875rem;
+    padding: var(--sisme-dashboard-space-lg);
 }
 
-/* ===📊 WIDGET STATS ==================== */
-.sisme-stat-circle {
+/* ===📊 WIDGET STATISTIQUES ============== */
+.sisme-stats-overview {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    justify-content: space-around;
     margin-bottom: var(--sisme-dashboard-space-lg);
 }
 
-.sisme-stat-circle-inner {
+.sisme-stat-circle {
+    text-align: center;
+    padding: var(--sisme-dashboard-space-md);
+    background: var(--sisme-dashboard-bg-tertiary);
+    border-radius: 50%;
+    border: 2px solid var(--sisme-dashboard-border-color);
     width: 80px;
     height: 80px;
-    border: 4px solid var(--sisme-dashboard-accent-primary);
-    border-radius: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    transition: var(--sisme-dashboard-transition-fast);
     position: relative;
-    background: var(--sisme-dashboard-bg-tertiary);
+    overflow: hidden;
 }
 
-.sisme-stat-circle-value {
-    font-size: 1.5rem;
+.sisme-stat-circle::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, transparent 0deg, var(--sisme-dashboard-accent-primary) 90deg, transparent 90deg);
+    opacity: 0;
+    transition: var(--sisme-dashboard-transition-fast);
+    animation: stat-circle-rotate 2s linear infinite;
+}
+
+.sisme-stat-circle:hover::before {
+    opacity: 0.1;
+}
+
+@keyframes stat-circle-rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.sisme-stat-circle:hover {
+    border-color: var(--sisme-dashboard-accent-primary);
+    transform: scale(1.1);
+}
+
+.sisme-stat-number {
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--sisme-dashboard-accent-primary);
     line-height: 1;
+    position: relative;
+    z-index: 2;
 }
 
-.sisme-stat-circle-label {
-    font-size: 0.625rem;
+.sisme-stat-text {
+    font-size: 0.7rem;
     color: var(--sisme-dashboard-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    margin-top: 2px;
+    position: relative;
+    z-index: 2;
 }
 
-.sisme-stats-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sisme-dashboard-space-sm);
-}
-
-.sisme-stat-line {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--sisme-dashboard-space-xs) 0;
-    border-bottom: 1px solid var(--sisme-dashboard-border-color);
-}
-
-.sisme-stat-line:last-child {
-    border-bottom: none;
-}
-
-.sisme-stat-line-label {
-    font-size: 0.875rem;
-    color: var(--sisme-dashboard-text-secondary);
-}
-
-.sisme-stat-line-value {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--sisme-dashboard-accent-primary);
-}
-
-/* ===🔔 NOTIFICATIONS (suite) ============== */
-.sisme-notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    max-width: 350px;
-    border-radius: var(--sisme-dashboard-radius-md);
-    box-shadow: var(--sisme-dashboard-shadow-xl);
-    overflow: hidden;
-    transform: translateX(100%);
-    transition: var(--sisme-dashboard-transition-normal);
-}
-
-.sisme-notification-content {
-    display: flex;
-    align-items: center;
-    gap: var(--sisme-dashboard-space-sm);
-    padding: var(--sisme-dashboard-space-md);
-}
-
-.sisme-notification-icon {
-    font-size: 1.2rem;
-    flex-shrink: 0;
-}
-
-.sisme-notification-text {
-    flex: 1;
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.sisme-notification-close {
-    background: none;
-    border: none;
-    color: inherit;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0;
-    width: 24px;
-    height: 24px;
+.sisme-level-badge {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+    gap: var(--sisme-dashboard-space-sm);
+    background: linear-gradient(135deg, var(--sisme-dashboard-accent-primary), var(--sisme-dashboard-accent-success));
+    color: white;
+    padding: var(--sisme-dashboard-space-sm) var(--sisme-dashboard-space-md);
+    border-radius: var(--sisme-dashboard-radius-md);
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-align: center;
+    box-shadow: var(--sisme-dashboard-shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-level-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.sisme-level-badge:hover::before {
+    left: 100%;
+}
+
+.sisme-level-icon {
+    font-size: 1rem;
+}
+
+
+
+.sisme-btn.btn-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.sisme-btn.clicked {
+    animation: btn-click 0.2s ease;
+}
+
+@keyframes btn-click {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+/* ===📱 SUPPORT MOBILE =================== */
+.sisme-mobile-toggle {
+    display: none;
+    background: var(--sisme-dashboard-bg-tertiary);
+    border: 1px solid var(--sisme-dashboard-border-color);
+    border-radius: var(--sisme-dashboard-radius-sm);
+    padding: var(--sisme-dashboard-space-sm);
+    cursor: pointer;
+    position: relative;
+    width: 44px;
+    height: 44px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
     transition: var(--sisme-dashboard-transition-fast);
 }
 
-.sisme-notification-close:hover {
-    background: rgba(255, 255, 255, 0.2);
+.sisme-mobile-toggle:hover {
+    background: var(--sisme-dashboard-hover-bg);
+    border-color: var(--sisme-dashboard-accent-primary);
 }
 
-/* ===❌ MESSAGES D'ERREUR ================= */
-.sisme-dashboard-login-required,
-.sisme-dashboard-access-denied,
-.sisme-dashboard-error {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 60vh;
-    padding: var(--sisme-dashboard-space-xl);
+.sisme-hamburger {
+    width: 18px;
+    height: 2px;
+    background: var(--sisme-dashboard-text-primary);
+    border-radius: 1px;
+    transition: var(--sisme-dashboard-transition-fast);
+    transform-origin: center;
 }
 
-.sisme-login-card,
-.sisme-error-card {
-    background: var(--sisme-dashboard-bg-secondary);
-    border: 1px solid var(--sisme-dashboard-border-color);
-    border-radius: var(--sisme-dashboard-radius-lg);
-    padding: var(--sisme-dashboard-space-xl);
-    text-align: center;
-    max-width: 400px;
+.sisme-mobile-toggle.active .sisme-hamburger:first-child {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.sisme-mobile-toggle.active .sisme-hamburger:nth-child(2) {
+    opacity: 0;
+    transform: scale(0);
+}
+
+.sisme-mobile-toggle.active .sisme-hamburger:last-child {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
+.sisme-mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    box-shadow: var(--sisme-dashboard-shadow-lg);
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.sisme-login-title,
-.sisme-error-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--sisme-dashboard-space-sm);
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: var(--sisme-dashboard-space-lg);
-    color: var(--sisme-dashboard-text-primary);
+.sisme-mobile-overlay.active {
+    opacity: 1;
 }
 
-.sisme-login-icon,
-.sisme-error-icon {
-    font-size: 1.75rem;
-}
-
-.sisme-login-message,
-.sisme-error-message {
-    color: var(--sisme-dashboard-text-secondary);
-    margin-bottom: var(--sisme-dashboard-space-xl);
-    line-height: 1.6;
-}
-
-.sisme-login-actions {
-    display: flex;
-    gap: var(--sisme-dashboard-space-md);
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-/* ===📱 MOBILE RESPONSIVE ================ */
-@media (max-width: 767px) {
-    .sisme-dashboard-header {
-        position: relative;
-        padding: var(--sisme-dashboard-space-md);
+/* ===🔄 ÉTATS ET ANIMATIONS ============== */
+@keyframes section-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
-    
-    .sisme-profile-card {
-        flex-direction: column;
-        text-align: center;
-        gap: var(--sisme-dashboard-space-md);
-    }
-    
-    .sisme-profile-avatar .sisme-avatar {
-        width: 60px;
-        height: 60px;
-    }
-    
-    .sisme-profile-actions {
-        justify-content: center;
-    }
-    
-    .sisme-profile-stats {
-        justify-content: center;
-        gap: var(--sisme-dashboard-space-md);
-    }
-    
-    .sisme-quick-actions {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--sisme-dashboard-space-sm);
-    }
-    
-    .sisme-quick-btn {
-        flex-direction: row;
-        justify-content: flex-start;
-        gap: var(--sisme-dashboard-space-sm);
-        padding: var(--sisme-dashboard-space-sm);
-    }
-    
-    .sisme-quick-btn .sisme-icon {
-        font-size: 1.25rem;
-        margin-bottom: 0;
-    }
-    
-    .sisme-dashboard-grid {
-        padding: var(--sisme-dashboard-space-md);
-        gap: var(--sisme-dashboard-space-md);
-    }
-    
-    .sisme-dashboard-main {
-        padding: var(--sisme-dashboard-space-lg);
-    }
-    
-    .sisme-section-title {
-        font-size: 1.25rem;
-    }
-    
-    .sisme-games-grid {
-        grid-template-columns: 1fr;
-        gap: var(--sisme-dashboard-space-md);
-    }
-    
-    .sisme-dashboard-sidebar {
-        position: fixed;
-        top: 0;
-        left: -100%;
-        width: 280px;
-        height: 100vh;
-        z-index: 1000;
-        overflow-y: auto;
-        transition: left var(--sisme-dashboard-transition-normal);
-        border-radius: 0;
-        border-right: 1px solid var(--sisme-dashboard-border-color);
-    }
-    
-    .sisme-dashboard-sidebar.mobile-open {
-        z-index: 999;
-        left: 0px;
-        top: 0px;
-        position: fixed;
-        overflow-y: auto;
-        height: 100vh;
-        width: 100%;
-        border-radius: var(--sisme-radius-md);
-    }
-    
-    .sisme-notification {
-        left: 10px;
-        right: 10px;
-        max-width: none;
-        top: 10px;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* ===💻 TABLET RESPONSIVE ================ */
-@media (min-width: 768px) and (max-width: 1199px) {
-    .sisme-dashboard-grid {
-        grid-template-columns: 250px 1fr;
-    }
-    
-    .sisme-dashboard-widgets {
-        position: sticky;
-        top: calc(120px + var(--sisme-dashboard-space-lg));
-        height: fit-content;
-    }
-    
-    .sisme-games-grid {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    }
-}
-
-/* ===🖥️ DESKTOP RESPONSIVE =============== */
-@media (min-width: 1200px) {
-    .sisme-dashboard-grid {
-        grid-template-columns: 280px 1fr 320px;
-    }
-    
-    .sisme-dashboard-widgets {
-        position: sticky;
-        top: calc(120px + var(--sisme-dashboard-space-lg));
-        height: fit-content;
-    }
-    
-    .sisme-games-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    }
-    
-    .sisme-quick-actions {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-
-/* ===🎮 ANIMATIONS SPÉCIALES ============== */
 @keyframes dashboard-slide-in {
     from {
         opacity: 0;
@@ -1168,120 +1424,276 @@
     animation: stat-counter-up 0.8s ease forwards;
 }
 
-/* ===🎨 THEMES & VARIATIONS ============== */
+/* ===📱 MOBILE RESPONSIVE ================ */
+@media (max-width: 767px) {
+    .sisme-mobile-toggle {
+        display: flex;
+    }
+    
+    .sisme-dashboard-header {
+        position: relative;
+        padding: var(--sisme-dashboard-space-md);
+    }
+    
+    .sisme-profile-card {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--sisme-dashboard-space-md);
+        padding: 0 var(--sisme-dashboard-space-md);
+    }
+    
+    .sisme-profile-avatar .sisme-avatar {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .sisme-profile-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .sisme-profile-stats {
+        justify-content: center;
+        gap: var(--sisme-dashboard-space-md);
+    }
+    
+    .sisme-dashboard-grid {
+        padding: var(--sisme-dashboard-space-md);
+        gap: var(--sisme-dashboard-space-md);
+        grid-template-columns: 1fr;
+    }
+    
+    .sisme-dashboard-main {
+        padding: var(--sisme-dashboard-space-lg);
+        order: 1;
+    }
+    
+    .sisme-dashboard-widgets {
+        order: 2;
+    }
+    
+    .sisme-dashboard-sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 280px;
+        height: 100vh;
+        z-index: 1000;
+        overflow-y: auto;
+        transition: left var(--sisme-dashboard-transition-normal);
+        border-radius: 0;
+        border-right: 1px solid var(--sisme-dashboard-border-color);
+        order: 3;
+    }
+    
+    .sisme-dashboard-sidebar.mobile-open {
+        left: 0;
+    }
+    
+    body.sidebar-open {
+        overflow: hidden;
+    }
+    
+    .sisme-section-title {
+        font-size: 1.25rem;
+    }
+    
+    .sisme-games-grid,
+    .sisme-favorites-grid,
+    .sisme-library-grid {
+        grid-template-columns: 1fr;
+        gap: var(--sisme-dashboard-space-md);
+    }
+    
+    .sisme-game-card {
+        max-width: 100%;
+    }
+    
+    .sisme-stats-overview {
+        flex-direction: column;
+        gap: var(--sisme-dashboard-space-md);
+        align-items: center;
+    }
+    
+    .sisme-notifications-container {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+        top: 10px;
+    }
+    
+    .sisme-notification {
+        margin-bottom: var(--sisme-dashboard-space-xs);
+    }
+    
+    .sisme-construction-features ul {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===💻 TABLET RESPONSIVE ================ */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .sisme-dashboard-grid {
+        grid-template-columns: 250px 1fr;
+    }
+    
+    .sisme-dashboard-widgets {
+        display: none; /* Masquer widgets sur tablette pour plus d'espace */
+    }
+    
+    .sisme-games-grid,
+    .sisme-favorites-grid,
+    .sisme-library-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+    
+    .sisme-profile-stats {
+        gap: var(--sisme-dashboard-space-sm);
+    }
+    
+    .sisme-stat-bubble {
+        min-width: 50px;
+    }
+    
+    .sisme-stat-number {
+        font-size: 1.1rem;
+    }
+    
+    .sisme-stat-label {
+        font-size: 0.7rem;
+    }
+}
+
+/* ===🖥️ DESKTOP RESPONSIVE =============== */
+@media (min-width: 1200px) {
+    .sisme-dashboard-grid {
+        grid-template-columns: 280px 1fr 320px;
+    }
+    
+    .sisme-dashboard-widgets {
+        position: sticky;
+        top: calc(120px + var(--sisme-dashboard-space-lg));
+        height: fit-content;
+    }
+    
+    .sisme-games-grid,
+    .sisme-favorites-grid,
+    .sisme-library-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    
+    .sisme-profile-stats {
+        gap: var(--sisme-dashboard-space-lg);
+    }
+    
+    .sisme-dashboard-main {
+        padding: var(--sisme-dashboard-space-xl) calc(var(--sisme-dashboard-space-xl) * 1.5);
+    }
+    
+    .sisme-notifications-container {
+        max-width: 400px;
+    }
+}
+
+/* ===🌙 DARK MODE ENHANCEMENTS =========== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --sisme-dashboard-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+        --sisme-dashboard-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.6);
+        --sisme-dashboard-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.7);
+        --sisme-dashboard-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.8);
+    }
+}
+
+/* ===🎨 THEMES ALTERNATIFS =============== */
 .sisme-dashboard-compact .sisme-dashboard-grid {
     gap: var(--sisme-dashboard-space-md);
 }
 
-.sisme-dashboard-compact .sisme-widget {
+.sisme-dashboard-compact .sisme-dashboard-main,
+.sisme-dashboard-compact .sisme-dashboard-sidebar,
+.sisme-dashboard-compact .sisme-dashboard-widgets > * {
     padding: var(--sisme-dashboard-space-md);
 }
 
-.sisme-dashboard-compact .sisme-dashboard-main {
-    padding: var(--sisme-dashboard-space-lg);
+.sisme-dashboard-compact .sisme-section-header {
+    margin-bottom: var(--sisme-dashboard-space-md);
+    padding-bottom: var(--sisme-dashboard-space-md);
 }
 
-/* ===🌙 DARK MODE ENHANCEMENTS ========== */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --sisme-dashboard-bg-primary: #0a0c10;
-        --sisme-dashboard-bg-secondary: #0f1419;
-        --sisme-dashboard-bg-tertiary: #1c2128;
-    }
+/* ===✨ ANIMATIONS AVANCÉES ============== */
+.sisme-dashboard-section {
+    will-change: opacity;
 }
 
-/* ===♿ ACCESSIBILITÉ ==================== */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-@media (prefers-contrast: high) {
-    :root {
-        --sisme-dashboard-border-color: #ffffff;
-        --sisme-dashboard-text-secondary: #ffffff;
-        --sisme-dashboard-accent-primary: #66d9ff;
-    }
-}
-
-/* ===🔍 FOCUS STATES ==================== */
-.sisme-nav-link:focus,
-.sisme-quick-btn:focus,
-.sisme-btn:focus,
-.sisme-game-card:focus {
-    outline: 2px solid var(--sisme-dashboard-accent-primary);
-    outline-offset: 2px;
-}
-
-/* ===🎯 PERFORMANCE OPTIMIZATIONS ======= */
-.sisme-game-cover,
-.sisme-favorite-cover,
-.sisme-profile-avatar img {
+.sisme-game-card,
+.sisme-activity-item,
+.sisme-favorite-item {
     will-change: transform;
 }
 
-.sisme-dashboard-sidebar {
+.sisme-nav-link {
+    will-change: transform, background-color;
+}
+
+/* Performance optimization pour les animations */
+.sisme-user-dashboard {
     contain: layout style paint;
 }
 
 .sisme-dashboard-main {
+    contain: layout style;
+}
+
+.sisme-notifications-container {
     contain: layout style paint;
 }
 
-/* ===📐 PRINT STYLES ==================== */
+/* ===🔍 ACCÈS AMÉLIORÉ =================== */
+.sisme-nav-link:focus,
+.sisme-btn:focus,
+.sisme-game-card:focus,
+.sisme-notification-close:focus {
+    outline: 2px solid var(--sisme-dashboard-accent-primary);
+    outline-offset: 2px;
+}
+
+.sisme-nav-link:focus:not(:focus-visible),
+.sisme-btn:focus:not(:focus-visible),
+.sisme-game-card:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* ===📺 LARGE SCREENS ==================== */
+@media (min-width: 1600px) {
+    .sisme-dashboard-grid {
+        max-width: 1600px;
+        grid-template-columns: 320px 1fr 360px;
+    }
+    
+    .sisme-games-grid,
+    .sisme-favorites-grid,
+    .sisme-library-grid {
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    }
+}
+
+/* ===🎯 PRINT STYLES ===================== */
 @media print {
-    .sisme-dashboard-header,
     .sisme-dashboard-sidebar,
     .sisme-dashboard-widgets,
-    .sisme-notification {
+    .sisme-mobile-toggle,
+    .sisme-notifications-container {
         display: none !important;
     }
     
     .sisme-dashboard-grid {
         grid-template-columns: 1fr !important;
-        gap: 0 !important;
+        gap: var(--sisme-dashboard-space-md) !important;
     }
     
     .sisme-dashboard-main {
         box-shadow: none !important;
-        border: 1px solid #000 !important;
-    }
-}
-
-
-/* ===📐 GRILLE DE CARTES ==================== */
-
-.sisme-dashboard-card {
-    width: 100%;
-}
-
-.sisme-game-card {
-    max-width: none !important;
-    min-height: 0px !important;
-}
-
-.sisme-dashboard-card .sisme-card-image {
-    height: 160px;
-}
-
-.sisme-dashboard-recent-games-grid {
-    display: grid !important;
-    grid-template-columns: repeat(1, 1fr) !important;
-    gap: 16px !important;
-    margin: 20px 0;
-}
-
-.sisme-dashboard-card .sisme-card-description,
-.sisme-dashboard-card .sisme-card-genres,
-.sisme-dashboard-card .sisme-card-modes {
-    display: none !important;
-}
-
-@media (max-width: 768px) {
-    .sisme-dashboard-recent-games-grid {
-        grid-template-columns: 1fr !important;
+        border: 1px solid #ccc !important;
     }
 }

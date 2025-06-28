@@ -1,13 +1,14 @@
 <?php
 /**
  * File: /sisme-games-editor/includes/user/user-dashboard/user-dashboard-api.php
- * API et shortcode pour le dashboard utilisateur
+ * API et shortcode pour le dashboard utilisateur avec système d'onglets
  * 
  * RESPONSABILITÉ:
- * - Shortcode unique [sisme_user_dashboard]
+ * - Shortcode [sisme_user_dashboard]
  * - Rendu HTML complet du dashboard
- * - Intégration avec data-manager
- * - Gestion authentification et erreurs
+ * - Système de navigation par onglets dynamique
+ * - Gestion des sections : overview, favorites, library, activity
+ * - Vérifications de sécurité et permissions
  */
 
 if (!defined('ABSPATH')) {
@@ -15,41 +16,25 @@ if (!defined('ABSPATH')) {
 }
 
 class Sisme_User_Dashboard_API {
-
-    const REGISTER_URL = '/sisme-user-register/';
-    const LOGIN_URL = '/sisme-user-login/';
     
     /**
-     * Initialisation de l'API
-     */
-    public static function init() {
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[Sisme User Dashboard API] API dashboard utilisateur initialisée');
-        }
-    }
-    
-    /**
-     * Shortcode [sisme_user_dashboard] - Dashboard complet
-     * 
-     * @param array $atts Attributs du shortcode
-     * @return string HTML du dashboard
+     * Shortcode principal [sisme_user_dashboard]
      */
     public static function render_dashboard($atts = []) {
-        // Valeurs par défaut (version simplifiée)
-        $defaults = [
-            'container_class' => 'sisme-user-dashboard',
-            'user_id' => '', // Vide = utilisateur courant
-            'title' => 'Ma Sismothèque'
-        ];
-        
-        $atts = shortcode_atts($defaults, $atts, 'sisme_user_dashboard');
-        
-        // Vérifier si connecté
+        // Vérifier si l'utilisateur est connecté
         if (!is_user_logged_in()) {
             return self::render_login_required();
         }
         
-        // Déterminer l'utilisateur
+        $defaults = [
+            'container_class' => 'sisme-user-dashboard',
+            'user_id' => '',
+            'title' => 'Mon Dashboard Gaming'
+        ];
+        
+        $atts = shortcode_atts($defaults, $atts, 'sisme_user_dashboard');
+        
+        // ID utilisateur (utilisateur courant par défaut)
         $user_id = !empty($atts['user_id']) ? intval($atts['user_id']) : get_current_user_id();
         
         // Vérification permissions
@@ -91,10 +76,6 @@ class Sisme_User_Dashboard_API {
     
     /**
      * Rendu du header du dashboard
-     * 
-     * @param array $user_info Infos utilisateur
-     * @param array $gaming_stats Stats gaming
-     * @return string HTML header
      */
     private static function render_dashboard_header($user_info, $gaming_stats) {
         ob_start();
@@ -110,37 +91,36 @@ class Sisme_User_Dashboard_API {
                     <h1 class="sisme-profile-name">
                         👋 Salut, <?php echo esc_html($user_info['display_name']); ?>!
                     </h1>
-                    <p class="sisme-profile-stats">
-                        <span class="sisme-stat">🎮 <?php echo esc_html($gaming_stats['total_games']); ?> jeux</span>
-                        <span class="sisme-stat">❤️ <?php echo esc_html($gaming_stats['favorite_games']); ?> favoris</span>
-                        <span class="sisme-stat">🏆 Niveau <?php echo esc_html($gaming_stats['level']); ?></span>
+                    <p class="sisme-profile-tagline">
+                        Membre depuis le <?php echo esc_html($user_info['member_since']); ?>
                     </p>
+                    
+                    <div class="sisme-profile-stats">
+                        <div class="sisme-stat-bubble">
+                            <span class="sisme-stat-number"><?php echo esc_html($gaming_stats['total_games']); ?></span>
+                            <span class="sisme-stat-label">Jeux</span>
+                        </div>
+                        <div class="sisme-stat-bubble">
+                            <span class="sisme-stat-number"><?php echo esc_html($gaming_stats['favorite_games']); ?></span>
+                            <span class="sisme-stat-label">Favoris</span>
+                        </div>
+                        <div class="sisme-stat-bubble">
+                            <span class="sisme-stat-number"><?php echo esc_html($gaming_stats['level']); ?></span>
+                            <span class="sisme-stat-label">Niveau</span>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="sisme-profile-actions">
-                    <a href="<?php echo esc_url(wp_logout_url(home_url())); ?>" class="sisme-btn sisme-btn-secondary">
-                        <span>🚪</span> Déconnexion
+                    <a href="<?php echo wp_logout_url(); ?>" class="sisme-button sisme-btn--secondary">
+                        <span class="sisme-icon">🚪</span>
+                        <span class="sisme-label">Déconnexion</span>
+                    </a>
+                    <a href="#stats" class="sisme-button sisme-button-bleu">
+                        <span class="sisme-icon">🏆</span>
+                        <span class="sisme-label">Statistiques</span>
                     </a>
                 </div>
-            </div>
-            
-            <div class="sisme-quick-actions">
-                <a href="#library" class="sisme-quick-btn " data-section="library">
-                    <span class="sisme-icon">📚</span>
-                    <span class="sisme-label">Ma Sismothèque</span>
-                </a>
-                <a href="#favorites" class="sisme-quick-btn" data-section="favorites">
-                    <span class="sisme-icon">❤️</span>
-                    <span class="sisme-label">Favoris</span>
-                </a>
-                <a href="#activity" class="sisme-quick-btn" data-section="activity">
-                    <span class="sisme-icon">📊</span>
-                    <span class="sisme-label">Activité</span>
-                </a>
-                <a href="#stats" class="sisme-quick-btn" data-section="stats">
-                    <span class="sisme-icon">🏆</span>
-                    <span class="sisme-label">Statistiques</span>
-                </a>
             </div>
         </header>
         <?php
@@ -148,10 +128,7 @@ class Sisme_User_Dashboard_API {
     }
     
     /**
-     * Rendu de la grille principale du dashboard
-     * 
-     * @param array $dashboard_data Toutes les données
-     * @return string HTML grid
+     * Rendu de la grille principale du dashboard avec système d'onglets
      */
     private static function render_dashboard_grid($dashboard_data) {
         ob_start();
@@ -163,17 +140,63 @@ class Sisme_User_Dashboard_API {
                 <?php echo self::render_quick_stats($dashboard_data['gaming_stats']); ?>
             </aside>
 
-            <!-- Main Content -->
+            <!-- Main Content avec sections dynamiques -->
             <main class="sisme-dashboard-main">
-                <div class="sisme-section-header">
-                    <h2 class="sisme-section-title">
-                        <span class="sisme-title-icon">📊</span>
-                        Vue d'ensemble
-                    </h2>
+                <!-- Section Vue d'ensemble -->
+                <div class="sisme-dashboard-section" data-section="overview">
+                    <div class="sisme-section-header">
+                        <h2 class="sisme-section-title">
+                            <span class="sisme-title-icon">📊</span>
+                            Vue d'ensemble
+                        </h2>
+                    </div>
+                    <?php echo self::render_activity_feed($dashboard_data['activity_feed']); ?>
+                    <?php echo self::render_recent_games($dashboard_data['recent_games']); ?>
                 </div>
-                
-                <?php echo self::render_activity_feed($dashboard_data['activity_feed']); ?>
-                <?php echo self::render_recent_games($dashboard_data['recent_games']); ?>
+
+                <!-- Section Favoris -->
+                <div class="sisme-dashboard-section" data-section="favorites" style="display: none;">
+                    <div class="sisme-section-header">
+                        <h2 class="sisme-section-title">
+                            <span class="sisme-title-icon">❤️</span>
+                            Mes Favoris
+                        </h2>
+                    </div>
+                    <?php echo self::render_favorites_section($dashboard_data['favorite_games']); ?>
+                </div>
+
+                <!-- Section Sismothèque -->
+                <div class="sisme-dashboard-section" data-section="library" style="display: none;">
+                    <div class="sisme-section-header">
+                        <h2 class="sisme-section-title">
+                            <span class="sisme-title-icon">📚</span>
+                            La Sismothèque
+                        </h2>
+                    </div>
+                    <?php echo self::render_library_section($dashboard_data['owned_games']); ?>
+                </div>
+
+                <!-- Section Activité -->
+                <div class="sisme-dashboard-section" data-section="activity" style="display: none;">
+                    <div class="sisme-section-header">
+                        <h2 class="sisme-section-title">
+                            <span class="sisme-title-icon">📈</span>
+                            Mon Activité
+                        </h2>
+                    </div>
+                    <?php echo self::render_activity_section($dashboard_data['activity_feed']); ?>
+                </div>
+
+                <!-- Section En construction (pour futures sections) -->
+                <div class="sisme-dashboard-section" data-section="settings" style="display: none;">
+                    <div class="sisme-section-header">
+                        <h2 class="sisme-section-title">
+                            <span class="sisme-title-icon">⚙️</span>
+                            Paramètres
+                        </h2>
+                    </div>
+                    <?php echo self::render_under_construction(); ?>
+                </div>
             </main>
 
             <!-- Widgets Sidebar -->
@@ -199,17 +222,22 @@ class Sisme_User_Dashboard_API {
                     <span class="sisme-nav-icon">📊</span>
                     <span class="sisme-nav-text">Vue d'ensemble</span>
                 </a></li>
-                <li><a href="#library" class="sisme-nav-link" data-section="library">
-                    <span class="sisme-nav-icon">📚</span>
-                    <span class="sisme-nav-text">Ma Sismethèque</span>
-                </a></li>
                 <li><a href="#favorites" class="sisme-nav-link" data-section="favorites">
                     <span class="sisme-nav-icon">❤️</span>
                     <span class="sisme-nav-text">Favoris</span>
                 </a></li>
-                <li class=""><a href="#activity" class="sisme-nav-link" data-section="activity">
+                <li><a href="#library" class="sisme-nav-link" data-section="library">
+                    <span class="sisme-nav-icon">📚</span>
+                    <span class="sisme-nav-text">La Sismothèque</span>
+                </a></li>
+                <li><a href="#activity" class="sisme-nav-link" data-section="activity">
                     <span class="sisme-nav-icon">📈</span>
                     <span class="sisme-nav-text">Activité</span>
+                </a></li>
+                <li><a href="#settings" class="sisme-nav-link" data-section="settings">
+                    <span class="sisme-nav-icon">⚙️</span>
+                    <span class="sisme-nav-text">Paramètres</span>
+                    <span class="sisme-nav-badge">Bientôt</span>
                 </a></li>
             </ul>
         </nav>
@@ -227,13 +255,8 @@ class Sisme_User_Dashboard_API {
             <h3 class="sisme-stats-title">📈 Mes Stats</h3>
             <div class="sisme-stat-item">
                 <span class="sisme-stat-icon">🎮</span>
-                <span class="sisme-stat-value"><?php echo esc_html($gaming_stats['total_games']); ?></span>
+                <span class="sisme-stat-value"><?php echo esc_html($gaming_stats['owned_games'] ?? 0); ?></span>
                 <span class="sisme-stat-label">Jeux possédés</span>
-            </div>
-            <div class="sisme-stat-item">
-                <span class="sisme-stat-icon">🎯</span>
-                <span class="sisme-stat-value"><?php echo esc_html($gaming_stats['owned_games']); ?></span>
-                <span class="sisme-stat-label">Favoris</span>
             </div>
             <div class="sisme-stat-item">
                 <span class="sisme-stat-icon">❤️</span>
@@ -249,9 +272,149 @@ class Sisme_User_Dashboard_API {
         <?php
         return ob_get_clean();
     }
+
+    /**
+     * Section Favoris (lecture seule) avec liens
+     */
+    private static function render_favorites_section($favorite_games) {
+        ob_start();
+        ?>
+        <div class="sisme-favorites-section">
+            <?php if (empty($favorite_games)): ?>
+                <div class="sisme-empty-state">
+                    <div class="sisme-empty-icon">❤️</div>
+                    <h3>Aucun jeu favori</h3>
+                    <p>Explorez des jeux et ajoutez-les à vos favoris pour les retrouver ici !</p>
+                </div>
+            <?php else: ?>
+                <div class="sisme-games-grid sisme-favorites-grid">
+                    <?php foreach ($favorite_games as $game): ?>
+                        <a href="<?php echo esc_url(self::get_game_url($game['id'])); ?>" class="sisme-game-card">
+                            <div class="sisme-game-cover" style="background-image: url('<?php echo esc_url($game['cover_url'] ?? ''); ?>');">
+                                <div class="sisme-game-overlay">
+                                    <span class="sisme-favorite-badge">❤️</span>
+                                </div>
+                            </div>
+                            <div class="sisme-game-info">
+                                <h4 class="sisme-game-title"><?php echo esc_html($game['name']); ?></h4>
+                                <?php if (!empty($game['genres'])): ?>
+                                    <div class="sisme-game-genres">
+                                        <?php foreach (array_slice($game['genres'], 0, 2) as $genre): ?>
+                                            <span class="sisme-genre-tag"><?php echo esc_html($genre['name']); ?></span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Section La Sismothèque (jeux possédés) avec liens
+     */
+    private static function render_library_section($owned_games) {
+        ob_start();
+        ?>
+        <div class="sisme-library-section">
+            <?php if (empty($owned_games)): ?>
+                <div class="sisme-empty-state">
+                    <div class="sisme-empty-icon">📚</div>
+                    <h3>Sismothèque vide</h3>
+                    <p>Commencez à construire votre collection de jeux !</p>
+                </div>
+            <?php else: ?>
+                <div class="sisme-games-grid sisme-library-grid">
+                    <?php foreach ($owned_games as $game): ?>
+                        <a href="<?php echo esc_url(self::get_game_url($game['id'])); ?>" class="sisme-game-card">
+                            <div class="sisme-game-cover" style="background-image: url('<?php echo esc_url($game['cover_url'] ?? ''); ?>');">
+                                <div class="sisme-game-overlay">
+                                    <span class="sisme-owned-badge">📚</span>
+                                </div>
+                            </div>
+                            <div class="sisme-game-info">
+                                <h4 class="sisme-game-title"><?php echo esc_html($game['name']); ?></h4>
+                                <?php if (!empty($game['genres'])): ?>
+                                    <div class="sisme-game-genres">
+                                        <?php foreach (array_slice($game['genres'], 0, 2) as $genre): ?>
+                                            <span class="sisme-genre-tag"><?php echo esc_html($genre['name']); ?></span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Section Activité détaillée
+     */
+    private static function render_activity_section($activity_feed) {
+        ob_start();
+        ?>
+        <div class="sisme-activity-section">
+            <?php if (empty($activity_feed)): ?>
+                <div class="sisme-empty-state">
+                    <div class="sisme-empty-icon">📈</div>
+                    <h3>Aucune activité</h3>
+                    <p>Votre historique d'activité apparaîtra ici.</p>
+                </div>
+            <?php else: ?>
+                <div class="sisme-activity-timeline">
+                    <?php foreach ($activity_feed as $activity): ?>
+                        <div class="sisme-activity-item sisme-activity-item--detailed">
+                            <div class="sisme-activity-icon"><?php echo esc_html($activity['icon']); ?></div>
+                            <div class="sisme-activity-content">
+                                <p class="sisme-activity-text"><?php echo esc_html($activity['message']); ?></p>
+                                <time class="sisme-activity-time" datetime="<?php echo esc_attr($activity['date']); ?>">
+                                    <?php echo esc_html(self::format_time_ago($activity['date'])); ?>
+                                </time>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Placeholder pour sections en construction
+     */
+    private static function render_under_construction() {
+        ob_start();
+        ?>
+        <div class="sisme-under-construction">
+            <div class="sisme-construction-icon">🚧</div>
+            <h3>Section en construction</h3>
+            <p>Cette fonctionnalité sera bientôt disponible !</p>
+            <div class="sisme-construction-features">
+                <ul>
+                    <li>🔧 Configuration du profil</li>
+                    <li>🎨 Personnalisation de l'interface</li>
+                    <li>🔔 Gestion des notifications</li>
+                    <li>🎯 Préférences gaming avancées</li>
+                </ul>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    // [KEEP ALL EXISTING METHODS BELOW - unchanged]
     
     /**
-     * Feed d'activité
+     * Feed d'activité (version originale pour Vue d'ensemble)
      */
     private static function render_activity_feed($activity_feed) {
         ob_start();
@@ -263,7 +426,7 @@ class Sisme_User_Dashboard_API {
                 <p class="sisme-activity-empty">Aucune activité récente. Commencez à explorer des jeux !</p>
             <?php else: ?>
                 <div class="sisme-activity-list">
-                    <?php foreach ($activity_feed as $activity): ?>
+                    <?php foreach (array_slice($activity_feed, 0, 3) as $activity): ?>
                         <div class="sisme-activity-item">
                             <div class="sisme-activity-icon"><?php echo esc_html($activity['icon']); ?></div>
                             <div class="sisme-activity-content">
@@ -280,253 +443,314 @@ class Sisme_User_Dashboard_API {
     }
     
     /**
-     * 🆕 Jeux actifs en grille triés par date de mise à jour - VERSION CORRIGÉE
+     * Grille des derniers jeux mis en ligne avec description et date de sortie
+     * 
+     * @param array $recent_games_data Données des jeux récents (non utilisé, on récupère direct)
+     * @return string HTML de la grille
      */
     private static function render_recent_games($recent_games_data) {
         ob_start();
         ?>
         <div class="sisme-recent-games">
-            <div class="sisme-section-header">
-                <h3 class="sisme-section-title">
-                    <span class="sisme-title-icon">🆕</span>
-                    News
-                </h3>
-            </div>
-            <h3 class="sisme-widget-title">Les derniers ajouts</h3>
+            <h3 class="sisme-widget-title">⚡ Les derniers ajouts</h3>
             
             <?php
-            if (class_exists('Sisme_Cards_API') && class_exists('Sisme_Cards_Functions')) {
-                
-                // ✅ ÉTAPE 1 : Récupérer manuellement les jeux triés par last_update
-                $terms = get_terms([
-                    'taxonomy' => 'post_tag',
-                    'hide_empty' => false,
-                    'fields' => 'ids',
-                    'number' => 50, // Limite directement
-                    'meta_query' => [
-                        [
-                            'key' => 'game_description',
-                            'compare' => 'EXISTS'
-                        ],
-                        [
-                            'key' => 'last_update',
-                            'compare' => 'EXISTS'
-                        ]
-                    ],
-                    'meta_key' => 'last_update',
-                    'orderby' => 'meta_value',
-                    'order' => 'DESC' // Plus récents en premier
-                ]);
-                
-                if (!is_wp_error($terms) && !empty($terms)) {
-                    
-                    // ✅ ÉTAPE 2 : Générer manuellement la grille avec les bonnes options
-                    echo '<div class="sisme-cards-grid sisme-cards-grid--normal sisme-cards-grid--cols-2 sisme-dashboard-recent-games-grid" style="--cards-per-row: 2;" data-cards-count="' . count($terms) . '">';
-                    
-                    // ✅ ÉTAPE 3 : Générer chaque carte avec les bonnes options
-                    foreach ($terms as $game_id) {
-                        $card_options = [
-                            'show_description' => false,
-                            'show_genres' => false,       
-                            'show_platforms' => false,
-                            'max_modes' => 0, 
-                            'show_date' => true,    
-                            'date_format' => 'short',
-                            'css_class' => 'sisme-cards-grid__item sisme-dashboard-card'
-                        ];
+            // Récupérer les derniers jeux triés par ID décroissant (plus récents en premier)
+            $recent_terms = get_terms([
+                'taxonomy' => 'post_tag',
+                'hide_empty' => false,
+                'number' => 12, // Limiter à 12 jeux récents
+                'meta_query' => [
+                    [
+                        'key' => 'game_description',
+                        'compare' => 'EXISTS'
+                    ]
+                ],
+                'orderby' => 'term_id',
+                'order' => 'DESC' // Du plus récent (ID le plus élevé) au plus ancien
+            ]);
+            
+            if (!is_wp_error($recent_terms) && !empty($recent_terms)): ?>
+                <div class="sisme-games-grid sisme-recent-grid">
+                    <?php foreach ($recent_terms as $term): 
+                        // Récupérer les métadonnées du jeu
+                        $game_description = get_term_meta($term->term_id, 'game_description', true);
+                        $release_date = get_term_meta($term->term_id, 'release_date', true);
+                        $cover_main = get_term_meta($term->term_id, 'cover_main', true);
+                        $game_genres = get_term_meta($term->term_id, 'game_genres', true) ?: [];
                         
-                        echo Sisme_Cards_API::render_card($game_id, 'normal', $card_options);
-                    }
-                    
-                    echo '</div>';
-                    
-                } else {
-                    ?>
-                    <p class="sisme-games-empty">Sisme a trouvé dégun par ici, sans donc un bug</p>
-                    <?php
-                }
-            } else {
-                ?>
-                <p class="sisme-games-empty">Module Cards non disponible</p>
-                <?php
-            }
-            ?>
+                        // URL de l'image de couverture
+                        $cover_url = '';
+                        if ($cover_main) {
+                            $cover_url = wp_get_attachment_image_url($cover_main, 'medium');
+                        }
+                        
+                        // Formater la date de sortie
+                        $formatted_date = '';
+                        if ($release_date) {
+                            $formatted_date = date_i18n('j M Y', strtotime($release_date));
+                        }
+                        
+                        // Récupérer les genres pour affichage
+                        $genres_display = [];
+                        if (!empty($game_genres)) {
+                            $genres_terms = get_terms([
+                                'taxonomy' => 'game_genre',
+                                'include' => array_slice($game_genres, 0, 2), // Max 2 genres pour l'affichage
+                                'hide_empty' => false
+                            ]);
+                            
+                            if (!is_wp_error($genres_terms)) {
+                                foreach ($genres_terms as $genre) {
+                                    $genres_display[] = $genre->name;
+                                }
+                            }
+                        }
+                        
+                        // Utiliser la fonction helper pour l'URL du jeu
+                        $game_url = self::get_game_url($term->term_id);
+                        ?>
+                        <div class="sisme-game-card sisme-recent-grid">
+                            <a href="<?php echo esc_url($game_url); ?>" class="sisme-game-link sisme-recent-grid">
+                                <div class="sisme-game-cover sisme-recent-grid" style="<?php echo $cover_url ? 'background-image: url(' . esc_url($cover_url) . ');' : ''; ?>">
+                                    <div class="sisme-game-overlay sisme-recent-grid">
+                                        <span class="sisme-owned-badge sisme-recent-grid">⚡</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="sisme-game-info sisme-recent-grid">
+                                    <h4 class="sisme-game-title sisme-recent-grid"><?php echo esc_html($term->name); ?></h4>
+                                    
+                                    <?php if (!empty($game_description)): ?>
+                                        <p class="sisme-game-description sisme-recent-grid">
+                                            <?php echo esc_html(wp_trim_words($game_description, 15, '...')); ?>
+                                        </p>
+                                    <?php endif; ?>
+                                    
+                                    <?php if (!empty($genres_display)): ?>
+                                        <div class="sisme-game-genres sisme-recent-grid">
+                                            <?php foreach ($genres_display as $genre): ?>
+                                                <span class="sisme-genre-tag sisme-recent-grid"><?php echo esc_html($genre); ?></span>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($formatted_date): ?>
+                                        <div class="sisme-game-release-date sisme-recent-grid">
+                                            <span class="sisme-date-icon sisme-recent-grid">📅</span>
+                                            <span class="sisme-date-text sisme-recent-grid">Date de sortie : <?php echo esc_html($formatted_date); ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                
+            <?php else: ?>
+                <div class="sisme-empty-state">
+                    <div class="sisme-empty-icon">⚡</div>
+                    <h3>Aucun jeu récent</h3>
+                    <p>Les derniers jeux ajoutés à Sisme Games apparaîtront ici.</p>
+                </div>
+            <?php endif; ?>
         </div>
         <?php
         return ob_get_clean();
     }
-    
+
     /**
-     * Widget favoris
+     * Récupérer l'URL d'un jeu (fiche en priorité, sinon tag)
+     * 
+     * @param int $game_id ID du jeu (term_id)
+     * @return string URL du jeu
+     */
+    private static function get_game_url($game_id) {
+        // Vérifier que le term existe
+        $term = get_term($game_id, 'post_tag');
+        if (!$term || is_wp_error($term)) {
+            return '#';
+        }
+        
+        // Chercher l'article de fiche associé au jeu
+        $fiche_post = get_posts([
+            'tag_id' => $game_id,
+            'post_type' => 'post',
+            'post_status' => ['publish'],
+            'posts_per_page' => 1,
+            'meta_query' => [
+                [
+                    'key' => '_sisme_game_sections',
+                    'compare' => 'EXISTS'
+                ]
+            ]
+        ]);
+        
+        // URL finale : si fiche existe = URL de l'article, sinon = URL du tag
+        if (!empty($fiche_post)) {
+            // Lien vers la fiche (article)
+            return get_permalink($fiche_post[0]->ID);
+        } else {
+            // Fallback : lien vers la page tag
+            return get_term_link($term);
+        }
+    }
+
+    /**
+     * Widget favoris sidebar avec liens vers les fiches (version simplifiée)
      */
     private static function render_favorites_widget($favorite_games) {
         ob_start();
         ?>
-        <div class="sisme-widget sisme-favorites">
-            <h3 class="sisme-widget-title">
-                <span class="sisme-widget-icon">⭐</span>
-                Mes Favoris
-            </h3>
+        <div class="sisme-favorites-widget">
+            <h3 class="sisme-widget-title">❤️ Favoris récents</h3>
             
-            <div class="sisme-widget-content">
-                <?php if (empty($favorite_games)): ?>
-                    <p class="sisme-favorites-empty">Aucun favori pour le moment. Découvrez des jeux à aimer !</p>
-                <?php else: ?>
-                    <?php foreach (array_slice($favorite_games, 0, 5) as $game): ?>
-                        <div class="sisme-favorite-item">
-                            <div class="sisme-favorite-cover">
-                                <?php if (!empty($game['cover_url'])): ?>
-                                    <img src="<?php echo esc_url($game['cover_url']); ?>" alt="<?php echo esc_attr($game['name']); ?>">
-                                <?php else: ?>
-                                    <span class="sisme-favorite-placeholder">🎮</span>
-                                <?php endif; ?>
-                            </div>
-                            <div class="sisme-favorite-info">
-                                <h4 class="sisme-favorite-name">
-                                    <a href="<?php echo esc_url($game['game_url']); ?>">
-                                        <?php echo esc_html($game['name']); ?>
-                                    </a>
-                                </h4>
-                            </div>
-                        </div>
+            <?php 
+            // Récupérer les IDs des jeux favoris depuis les user_meta
+            $current_user_id = get_current_user_id();
+            $favorite_game_ids = get_user_meta($current_user_id, 'sisme_user_favorite_games', true);
+            
+            if (empty($favorite_game_ids) || !is_array($favorite_game_ids)): ?>
+                <p class="sisme-widget-empty">Aucun favori ajouté.</p>
+            <?php else: ?>
+                <div class="sisme-favorites-preview">
+                    <?php 
+                    // Prendre seulement les 3 premiers favoris
+                    $limited_favorites = array_slice($favorite_game_ids, 0, 3);
+                    
+                    foreach ($limited_favorites as $game_id): 
+                        // Récupérer le term du jeu
+                        $term = get_term($game_id, 'post_tag');
+                        if (!$term || is_wp_error($term)) continue;
+                        
+                        // Récupérer la cover
+                        $cover_main = get_term_meta($term->term_id, 'cover_main', true);
+                        $cover_url = '';
+                        if ($cover_main) {
+                            $cover_url = wp_get_attachment_image_url($cover_main, 'medium');
+                        }
+                        
+                        // Utiliser la fonction helper pour l'URL
+                        $game_url = self::get_game_url($game_id);
+                    ?>
+                        <a href="<?php echo esc_url($game_url); ?>" class="sisme-favorite-item">
+                            <div class="sisme-favorite-cover" style="background-image: url('<?php echo esc_url($cover_url); ?>');"></div>
+                            <span class="sisme-favorite-name"><?php echo esc_html($term->name); ?></span>
+                        </a>
                     <?php endforeach; ?>
                     
-                    <?php if (count($favorite_games) > 5): ?>
-                        <p class="sisme-favorites-more">
-                            <a href="#favorites" data-section="favorites">
-                                Voir tous les favoris (<?php echo count($favorite_games); ?>)
-                            </a>
-                        </p>
+                    <?php if (count($favorite_game_ids) > 3): ?>
+                        <a href="#favorites" class="sisme-view-all" data-section="favorites">
+                            Voir tous les favoris (<?php echo count($favorite_game_ids); ?>)
+                        </a>
                     <?php endif; ?>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php endif; ?>
         </div>
         <?php
         return ob_get_clean();
     }
-    
+
     /**
      * Widget statistiques
      */
     private static function render_stats_widget($gaming_stats) {
         ob_start();
         ?>
-        <div class="sisme-widget sisme-stats" id="stats">
-            <h3 class="sisme-widget-title">
-                <span class="sisme-widget-icon">📊</span>
-                Statistiques
-            </h3>
-            
-            <div class="sisme-widget-content">
+        <div class="sisme-stats-widget">
+            <h3 class="sisme-widget-title">🏆 Mes Statistiques</h3>
+            <div class="sisme-stats-overview">
                 <div class="sisme-stat-circle">
-                    <div class="sisme-stat-circle-inner">
-                        <span class="sisme-stat-circle-value"><?php echo esc_html($gaming_stats['total_games']); ?></span>
-                        <span class="sisme-stat-circle-label">Jeux total</span>
-                    </div>
+                    <div class="sisme-stat-number"><?php echo esc_html($gaming_stats['favorite_games']); ?></div>
+                    <div class="sisme-stat-text">Favoris</div>
                 </div>
-                
-                <div class="sisme-stats-list">
-                    <div class="sisme-stat-line">
-                        <span class="sisme-stat-line-label">Niveau actuel</span>
-                        <span class="sisme-stat-line-value"><?php echo esc_html($gaming_stats['level']); ?></span>
-                    </div>
-                    <div class="sisme-stat-line">
-                        <span class="sisme-stat-line-label">Favoris</span>
-                        <span class="sisme-stat-line-value"><?php echo esc_html($gaming_stats['favorite_games']); ?></span>
-                    </div>
-                    <div class="sisme-stat-line">
-                        <span class="sisme-stat-line-label">Articles créés</span>
-                        <span class="sisme-stat-line-value"><?php echo esc_html($gaming_stats['user_posts']); ?></span>
-                    </div>
+                <div class="sisme-stat-circle">
+                    <div class="sisme-stat-number"><?php echo esc_html($gaming_stats['owned_games'] ?? 0); ?></div>
+                    <div class="sisme-stat-text">Possédés</div>
                 </div>
+            </div>
+            <div class="sisme-level-badge">
+                <span class="sisme-level-icon">🎯</span>
+                <span class="sisme-level-text">Niveau <?php echo esc_html($gaming_stats['level']); ?></span>
             </div>
         </div>
         <?php
         return ob_get_clean();
     }
-    
+
     /**
-     * Formater le temps écoulé
-     */
-    private static function format_time_ago($date) {
-        $time = time() - strtotime($date);
-        
-        if ($time < 60) return 'Il y a moins d\'une minute';
-        if ($time < 3600) return 'Il y a ' . floor($time/60) . ' minute' . (floor($time/60) > 1 ? 's' : '');
-        if ($time < 86400) return 'Il y a ' . floor($time/3600) . ' heure' . (floor($time/3600) > 1 ? 's' : '');
-        if ($time < 2592000) return 'Il y a ' . floor($time/86400) . ' jour' . (floor($time/86400) > 1 ? 's' : '');
-        
-        return date_i18n('j F Y', strtotime($date));
-    }
-    
-    /**
-     * Message si utilisateur non connecté
+     * Affichage si utilisateur non connecté
      */
     private static function render_login_required() {
         ob_start();
         ?>
-        <div class="sisme-dashboard-login-required">
+        <div class="sisme-user-dashboard sisme-login-required">
             <div class="sisme-login-card">
-                <h2 class="sisme-login-title">
-                    <span class="sisme-login-icon">🔐</span>
-                    Connexion requise
-                </h2>
-                <p class="sisme-login-message">
-                    Vous devez être connecté pour accéder à votre dashboard gaming.
-                </p>
+                <span class="sisme-login-icon">🔐</span>
+                <h2 class="sisme-login-title">Connexion requise</h2>
+                <p class="sisme-login-message">Vous devez être connecté pour accéder à votre dashboard gaming.</p>
                 <div class="sisme-login-actions">
-                    <a href="<?php echo esc_url(home_url(self::LOGIN_URL)); ?>" class="sisme-btn sisme-btn-primary">
-                        Se connecter
-                    </a>
-                    <a href="<?php echo esc_url(home_url(self::REGISTER_URL)); ?>" class="sisme-btn sisme-btn-secondary">
-                        S'inscrire
-                    </a>
+                    <a href="<?php echo wp_login_url(); ?>" class="sisme-button ssisme-button-vert">Se connecter</a>
+                    <a href="<?php echo wp_registration_url(); ?>" class="sisme-button sisme-button-bleu">S'inscrire</a>
                 </div>
             </div>
         </div>
         <?php
         return ob_get_clean();
     }
-    
+
     /**
-     * Message d'accès refusé
+     * Affichage en cas d'accès refusé
      */
     private static function render_access_denied() {
         ob_start();
         ?>
-        <div class="sisme-dashboard-access-denied">
+        <div class="sisme-user-dashboard sisme-access-denied">
             <div class="sisme-error-card">
-                <h2 class="sisme-error-title">
-                    <span class="sisme-error-icon">❌</span>
-                    Accès refusé
-                </h2>
-                <p class="sisme-error-message">
-                    Vous n'avez pas l'autorisation d'accéder à ce dashboard.
-                </p>
+                <span class="sisme-error-icon">❌</span>
+                <h2 class="sisme-error-title">Accès refusé</h2>
+                <p class="sisme-error-message">Vous n'avez pas les permissions nécessaires pour voir ce dashboard.</p>
             </div>
         </div>
         <?php
         return ob_get_clean();
     }
-    
+
     /**
-     * Message d'erreur générique
+     * Affichage en cas d'erreur
      */
     private static function render_error($message) {
         ob_start();
         ?>
-        <div class="sisme-dashboard-error">
+        <div class="sisme-user-dashboard sisme-error">
             <div class="sisme-error-card">
-                <h2 class="sisme-error-title">
-                    <span class="sisme-error-icon">⚠️</span>
-                    Erreur
-                </h2>
-                <p class="sisme-error-message">
-                    <?php echo esc_html($message); ?>
-                </p>
+                <span class="sisme-error-icon">⚠️</span>
+                <h2 class="sisme-error-title">Erreur</h2>
+                <p class="sisme-error-message"><?php echo esc_html($message); ?></p>
             </div>
         </div>
         <?php
         return ob_get_clean();
     }
+
+    /**
+     * Formatter le temps relatif
+     */
+    private static function format_time_ago($date) {
+        if (empty($date)) {
+            return 'Date inconnue';
+        }
+        
+        $time = time() - strtotime($date);
+        
+        if ($time < 60) return 'Il y a quelques secondes';
+        if ($time < 3600) return 'Il y a ' . floor($time/60) . ' minutes';
+        if ($time < 86400) return 'Il y a ' . floor($time/3600) . ' heures';
+        if ($time < 2592000) return 'Il y a ' . floor($time/86400) . ' jours';
+        
+        return date('j M Y', strtotime($date));
+    }
 }
+
+// Initialiser l'API
+add_shortcode('sisme_user_dashboard', ['Sisme_User_Dashboard_API', 'render_dashboard']);

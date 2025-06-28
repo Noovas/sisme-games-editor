@@ -1,13 +1,14 @@
 /**
  * File: /sisme-games-editor/includes/user/user-dashboard/assets/user-dashboard.js
- * JavaScript pour le dashboard utilisateur
+ * JavaScript pour le dashboard utilisateur avec système d'onglets
  * 
  * RESPONSABILITÉ:
- * - Navigation entre sections du dashboard
- * - Interactions avec les boutons et liens
- * - Système de notifications simple
+ * - Navigation dynamique entre sections du dashboard
+ * - Gestion de l'affichage/masquage des sections
+ * - Deep linking avec hash URL
+ * - Système de notifications toast
+ * - Support mobile responsive
  * - Animations et transitions fluides
- * - Mobile responsive behavior
  */
 
 (function($) {
@@ -17,7 +18,8 @@
     window.SismeDashboard = {
         config: window.sismeUserDashboard || {},
         currentSection: 'overview',
-        isInitialized: false
+        isInitialized: false,
+        validSections: ['overview', 'favorites', 'library', 'activity', 'settings']
     };
     
     /**
@@ -36,9 +38,9 @@
         this.isInitialized = true;
         this.log('Dashboard JavaScript initialisé');
         
-        // Message de bienvenue
+        // Message de bienvenue après un délai
         setTimeout(() => {
-            this.showNotification('Bienvenue sur votre dashboard gaming ! 🎮', 'success');
+            this.showNotification('Bienvenue sur votre dashboard gaming ! 🎮', 'success', 3000);
         }, 1000);
     };
     
@@ -46,49 +48,48 @@
      * Liaison des événements
      */
     SismeDashboard.bindEvents = function() {
-        // Navigation principale
+        // Navigation principale entre sections
         $(document).on('click', '.sisme-nav-link', this.handleNavigation.bind(this));
+        
+        // Liens "Voir tous" dans les widgets
+        $(document).on('click', '.sisme-view-all', this.handleViewAll.bind(this));
+        
+        // Actions rapides du header
         $(document).on('click', '.sisme-quick-btn', this.handleQuickAction.bind(this));
         
         // Actions sur les jeux
         $(document).on('click', '.sisme-game-card', this.handleGameClick.bind(this));
         $(document).on('click', '.sisme-favorite-item', this.handleFavoriteClick.bind(this));
         
-        // Actions diverses
-        $(document).on('click', '.sisme-btn', this.handleButtonClick.bind(this));
-        
         // Fermeture notifications
         $(document).on('click', '.sisme-notification-close', this.closeNotification.bind(this));
+        
+        // Gestion du changement d'hash dans l'URL
+        $(window).on('hashchange', this.handleHashChange.bind(this));
         
         this.log('Événements liés');
     };
     
     /**
-     * Initialisation de la navigation
+     * Initialisation de la navigation par onglets
      */
     SismeDashboard.initNavigation = function() {
         // Récupérer la section active depuis l'URL ou localStorage
         const urlHash = window.location.hash.replace('#', '');
         const savedSection = localStorage.getItem('sisme_dashboard_section');
         
+        let initialSection = 'overview';
+        
         if (urlHash && this.isValidSection(urlHash)) {
-            this.currentSection = urlHash;
+            initialSection = urlHash;
         } else if (savedSection && this.isValidSection(savedSection)) {
-            this.currentSection = savedSection;
+            initialSection = savedSection;
         }
         
         // Appliquer la section active
-        this.setActiveSection(this.currentSection);
+        this.setActiveSection(initialSection, false);
         
-        // Gérer les changements d'URL
-        $(window).on('hashchange', () => {
-            const newSection = window.location.hash.replace('#', '') || 'overview';
-            if (this.isValidSection(newSection)) {
-                this.setActiveSection(newSection);
-            }
-        });
-        
-        this.log('Navigation initialisée, section active:', this.currentSection);
+        this.log('Navigation initialisée, section active:', initialSection);
     };
     
     /**
@@ -104,159 +105,31 @@
         // Fermer sidebar au clic sur overlay (mobile)
         $(document).on('click', '.sisme-mobile-overlay', this.closeMobileSidebar.bind(this));
         
-        this.log('Support mobile initialisé');
-    };
-    
-    /**
-     * Créer le bouton toggle mobile
-     */
-    SismeDashboard.createMobileToggle = function() {
-        if ($(window).width() <= 767 && !$('.sisme-mobile-toggle').length) {
-            const $toggle = $(`
-                <button class="sisme-mobile-toggle" aria-label="Menu">
-                    <span class="sisme-toggle-icon">☰</span>
-                </button>
-            `);
-            
-            $toggle.css({
-                position: 'fixed',
-                top: '10px',
-                left: '20px',
-                background: 'var(--sisme-gaming-accent, #58a6ff)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '50%',
-                width: '50px',
-                height: '50px',
-                fontSize: '1.2rem',
-                cursor: 'pointer',
-                zIndex: '1001',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                transition: 'all 0.3s ease'
-            });
-            
-            $toggle.on('click', this.toggleMobileSidebar.bind(this));
-            $('body').append($toggle);
-        }
-    };
-    
-    /**
-     * Toggle sidebar mobile
-     */
-    SismeDashboard.toggleMobileSidebar = function() {
-        const $sidebar = $('.sisme-dashboard-sidebar');
-        const $toggle = $('.sisme-mobile-toggle');
-        const $overlay = $('.sisme-mobile-overlay');
+        // Fermer sidebar après navigation sur mobile
+        $(document).on('sisme:dashboard:section-changed', (e, section) => {
+            if (this.utils.isMobile()) {
+                this.closeMobileSidebar();
+            }
+        });
         
-        if ($sidebar.hasClass('mobile-open')) {
-            // Fermer
-            $sidebar.removeClass('mobile-open');
-            $toggle.find('.sisme-toggle-icon').text('☰');
-            $overlay.remove();
-        } else {
-            // Ouvrir
-            $sidebar.addClass('mobile-open');
-            $toggle.find('.sisme-toggle-icon').text('×');
-            
-            // Créer overlay
-            const $newOverlay = $('<div class="sisme-mobile-overlay"></div>');
-            $newOverlay.css({
-                position: 'fixed',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '100%',
-                background: 'rgba(0, 0, 0, 0.5)',
-                zIndex: '-1',
-                display: 'block'
-            });
-            $('body').append($newOverlay);
-        }
-    };
-    
-    /**
-     * Fermer sidebar mobile
-     */
-    SismeDashboard.closeMobileSidebar = function() {
-        $('.sisme-dashboard-sidebar').removeClass('mobile-open');
-        $('.sisme-mobile-toggle .sisme-toggle-icon').text('☰');
-        $('.sisme-mobile-overlay').remove();
-    };
-    
-    /**
-     * Gestion du redimensionnement
-     */
-    SismeDashboard.handleResize = function() {
-        if ($(window).width() > 767) {
-            // Desktop: nettoyer mobile
-            $('.sisme-mobile-toggle').remove();
-            $('.sisme-mobile-overlay').remove();
-            $('.sisme-dashboard-sidebar').removeClass('mobile-open');
-        } else {
-            // Mobile: créer toggle si nécessaire
-            this.createMobileToggle();
-        }
+        this.log('Support mobile initialisé');
     };
     
     /**
      * Initialisation des animations
      */
     SismeDashboard.initAnimations = function() {
-        // Fade in du dashboard
+        // Animation d'apparition du dashboard
         $('.sisme-user-dashboard').addClass('dashboard-loaded');
         
-        // Animation des statistiques (compteurs)
-        this.animateCounters();
-        
-        // Lazy loading des images si nécessaire
-        this.initLazyLoading();
+        // Animations au scroll (si nécessaire)
+        this.initScrollAnimations();
         
         this.log('Animations initialisées');
     };
     
     /**
-     * Animation des compteurs de stats
-     */
-    SismeDashboard.animateCounters = function() {
-        $('.sisme-stat-value').each(function() {
-            const $this = $(this);
-            const finalValue = $this.text();
-            const numericValue = parseInt(finalValue);
-            
-            if (isNaN(numericValue)) return;
-            
-            let currentValue = 0;
-            const increment = Math.ceil(numericValue / 20);
-            const duration = 1000;
-            const stepTime = duration / (numericValue / increment);
-            
-            const timer = setInterval(() => {
-                currentValue += increment;
-                if (currentValue >= numericValue) {
-                    $this.text(finalValue);
-                    clearInterval(timer);
-                } else {
-                    $this.text(currentValue);
-                }
-            }, stepTime);
-        });
-    };
-    
-    /**
-     * Lazy loading simple
-     */
-    SismeDashboard.initLazyLoading = function() {
-        $('img[data-src]').each(function() {
-            const $img = $(this);
-            $img.attr('src', $img.data('src')).removeAttr('data-src');
-        });
-    };
-    
-    /**
-     * Gestion de la navigation
+     * ✨ FONCTION PRINCIPALE - Gestion de la navigation entre sections
      */
     SismeDashboard.handleNavigation = function(e) {
         e.preventDefault();
@@ -265,15 +138,100 @@
         const section = $link.data('section') || $link.attr('href').replace('#', '');
         
         if (this.isValidSection(section)) {
-            this.setActiveSection(section);
-            
-            // Fermer sidebar mobile après navigation
-            if ($(window).width() <= 767) {
-                this.closeMobileSidebar();
-            }
+            this.setActiveSection(section, true);
         }
         
         this.log('Navigation vers:', section);
+    };
+    
+    /**
+     * ✨ FONCTION PRINCIPALE - Définir la section active avec animation
+     */
+    SismeDashboard.setActiveSection = function(section, animate = true) {
+        if (!this.isValidSection(section)) {
+            section = 'overview';
+        }
+        
+        const previousSection = this.currentSection;
+        this.currentSection = section;
+        
+        // 1. Mettre à jour les liens de navigation
+        $('.sisme-nav-link').removeClass('active');
+        $(`.sisme-nav-link[data-section="${section}"]`).addClass('active');
+        
+        // 2. Masquer toutes les sections avec animation
+        $('.sisme-dashboard-section').each(function() {
+            const $section = $(this);
+            if ($section.data('section') !== section && $section.is(':visible')) {
+                if (animate) {
+                    $section.fadeOut(200);
+                } else {
+                    $section.hide();
+                }
+            }
+        });
+        
+        // 3. Afficher la section cible avec animation
+        const $targetSection = $(`.sisme-dashboard-section[data-section="${section}"]`);
+        if ($targetSection.length) {
+            if (animate) {
+                setTimeout(() => {
+                    $targetSection.fadeIn(300);
+                }, animate ? 200 : 0);
+            } else {
+                $targetSection.show();
+            }
+        }
+        
+        // 4. Mettre à jour l'URL sans déclencher hashchange
+        if (window.location.hash !== '#' + section) {
+            history.replaceState(null, null, '#' + section);
+        }
+        
+        // 5. Sauvegarder dans localStorage
+        localStorage.setItem('sisme_dashboard_section', section);
+        
+        // 6. Émettre un événement personnalisé
+        $(document).trigger('sisme:dashboard:section-changed', [section, previousSection]);
+        
+        // 7. Notification de changement de section
+        if (animate && section !== previousSection) {
+            const sectionNames = {
+                'overview': 'Vue d\'ensemble',
+                'favorites': 'Mes Favoris',
+                'library': 'La Sismothèque',
+                'activity': 'Mon Activité',
+                'settings': 'Paramètres'
+            };
+            
+            this.showNotification(`Section ${sectionNames[section] || section}`, 'info', 2000);
+        }
+        
+        this.log('Section active:', section);
+    };
+    
+    /**
+     * Gestion du changement d'hash dans l'URL
+     */
+    SismeDashboard.handleHashChange = function() {
+        const newSection = window.location.hash.replace('#', '') || 'overview';
+        if (this.isValidSection(newSection) && newSection !== this.currentSection) {
+            this.setActiveSection(newSection, true);
+        }
+    };
+    
+    /**
+     * Gestion des liens "Voir tous" dans les widgets
+     */
+    SismeDashboard.handleViewAll = function(e) {
+        e.preventDefault();
+        
+        const $link = $(e.currentTarget);
+        const section = $link.data('section');
+        
+        if (section && this.isValidSection(section)) {
+            this.setActiveSection(section, true);
+        }
     };
     
     /**
@@ -291,10 +249,10 @@
         setTimeout(() => $btn.removeClass('clicked'), 200);
         
         if (section && this.isValidSection(section)) {
-            this.setActiveSection(section);
+            this.setActiveSection(section, true);
         }
         
-        this.showNotification(`Accès à ${label}`, 'info');
+        this.showNotification(`Accès à ${label}`, 'info', 2000);
         this.log('Action rapide:', label);
     };
     
@@ -304,14 +262,14 @@
     SismeDashboard.handleGameClick = function(e) {
         const $card = $(e.currentTarget);
         const $link = $card.find('a').first();
-        const gameName = $card.find('.sisme-game-name').text() || 'ce jeu';
+        const gameName = $card.find('.sisme-game-title, .sisme-game-name').text() || 'ce jeu';
         
         // Animation de clic
         $card.addClass('game-clicked');
         setTimeout(() => $card.removeClass('game-clicked'), 300);
         
         if ($link.length) {
-            this.showNotification(`Ouverture de la fiche : ${gameName}`, 'info');
+            this.showNotification(`Ouverture de la fiche : ${gameName}`, 'info', 2000);
             // Laisser le navigateur suivre le lien naturellement
         }
         
@@ -329,207 +287,175 @@
         $item.addClass('favorite-clicked');
         setTimeout(() => $item.removeClass('favorite-clicked'), 300);
         
-        this.showNotification(`Accès au favori : ${gameName}`, 'info');
+        this.showNotification(`Accès au favori : ${gameName}`, 'info', 2000);
         this.log('Clic sur favori:', gameName);
-    };
-    
-    /**
-     * Gestion des boutons génériques
-     */
-    SismeDashboard.handleButtonClick = function(e) {
-        const $btn = $(e.currentTarget);
-        
-        // Ignorer si c'est un lien externe ou avec href
-        if ($btn.attr('href') && $btn.attr('href') !== '#') {
-            return; // Laisser le comportement normal
-        }
-        
-        // Animation pour les boutons sans action spécifique
-        $btn.addClass('btn-loading');
-        $btn.find('span').first().text('⏳');
-        
-        setTimeout(() => {
-            $btn.removeClass('btn-loading');
-            $btn.find('span').first().text($btn.data('original-icon') || '');
-        }, 1500);
-        
-        this.log('Clic sur bouton:', $btn.text().trim());
-    };
-    
-    /**
-     * Définir la section active
-     */
-    SismeDashboard.setActiveSection = function(section) {
-        if (!this.isValidSection(section)) {
-            section = 'overview';
-        }
-        
-        this.currentSection = section;
-        
-        // Mettre à jour les liens de navigation
-        $('.sisme-nav-link').removeClass('active');
-        $(`.sisme-nav-link[data-section="${section}"]`).addClass('active');
-        
-        // Mettre à jour l'URL
-        window.location.hash = section;
-        
-        // Sauvegarder dans localStorage
-        localStorage.setItem('sisme_dashboard_section', section);
-        
-        // Émettre un événement personnalisé
-        $(document).trigger('sisme:dashboard:section-changed', [section]);
-        
-        this.log('Section active:', section);
     };
     
     /**
      * Vérifier si une section est valide
      */
     SismeDashboard.isValidSection = function(section) {
-        const validSections = ['overview', 'library', 'favorites', 'activity', 'stats'];
-        return validSections.includes(section);
+        return this.validSections.includes(section);
     };
     
     /**
-     * Système de notifications
+     * ✨ Système de notifications toast
      */
     SismeDashboard.showNotification = function(message, type = 'info', duration = 3000) {
-        if (!this.config.notifications) {
-            return;
-        }
-        
         const icons = {
-            success: '✅',
-            error: '❌',
-            warning: '⚠️',
-            info: 'ℹ️'
+            'success': '✅',
+            'error': '❌',
+            'warning': '⚠️',
+            'info': 'ℹ️'
         };
         
+        const icon = icons[type] || icons.info;
         const $notification = $(`
-            <div class="sisme-notification sisme-notification-${type}">
-                <div class="sisme-notification-content">
-                    <span class="sisme-notification-icon">${icons[type] || icons.info}</span>
-                    <span class="sisme-notification-text">${message}</span>
-                    <button class="sisme-notification-close" aria-label="Fermer">×</button>
-                </div>
+            <div class="sisme-notification sisme-notification--${type}">
+                <span class="sisme-notification-icon">${icon}</span>
+                <span class="sisme-notification-message">${message}</span>
+                <button class="sisme-notification-close">×</button>
             </div>
         `);
         
-        // Styles inline pour assurer l'affichage
-        $notification.css({
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            background: this.getNotificationColor(type),
-            color: 'white',
-            padding: '12px 16px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-            zIndex: '1000',
-            transform: 'translateX(100%)',
-            transition: 'transform 0.3s ease',
-            maxWidth: '300px',
-            fontSize: '14px'
-        });
+        // Container des notifications
+        let $container = $('.sisme-notifications-container');
+        if (!$container.length) {
+            $container = $('<div class="sisme-notifications-container"></div>');
+            $('body').append($container);
+        }
         
-        $notification.find('.sisme-notification-content').css({
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-        });
+        // Ajouter et animer
+        $container.append($notification);
+        $notification.slideDown(300);
         
-        $notification.find('.sisme-notification-close').css({
-            background: 'none',
-            border: 'none',
-            color: 'white',
-            fontSize: '16px',
-            cursor: 'pointer',
-            padding: '0',
-            marginLeft: 'auto'
-        });
-        
-        $('body').append($notification);
-        
-        // Animer l'entrée
+        // Auto-fermeture
         setTimeout(() => {
-            $notification.css('transform', 'translateX(0)');
-        }, 100);
-        
-        // Auto-suppression
-        setTimeout(() => {
-            this.removeNotification($notification);
+            this.closeNotification($notification);
         }, duration);
         
-        this.log('Notification affichée:', message, type);
-    };
-    
-    /**
-     * Couleur des notifications
-     */
-    SismeDashboard.getNotificationColor = function(type) {
-        const colors = {
-            success: '#3fb950',
-            error: '#f85149',
-            warning: '#d29922',
-            info: '#58a6ff'
-        };
-        return colors[type] || colors.info;
+        this.log('Notification:', message, type);
     };
     
     /**
      * Fermer une notification
      */
-    SismeDashboard.closeNotification = function(e) {
-        e.preventDefault();
-        const $notification = $(e.currentTarget).closest('.sisme-notification');
-        this.removeNotification($notification);
+    SismeDashboard.closeNotification = function(target) {
+        let $notification;
+        
+        if (target instanceof jQuery) {
+            $notification = target;
+        } else {
+            $notification = $(target.currentTarget).closest('.sisme-notification');
+        }
+        
+        $notification.slideUp(200, function() {
+            $(this).remove();
+        });
     };
     
     /**
-     * Supprimer une notification
+     * ✨ Support mobile - Créer le toggle sidebar
      */
-    SismeDashboard.removeNotification = function($notification) {
-        $notification.css('transform', 'translateX(100%)');
-        setTimeout(() => {
-            $notification.remove();
-        }, 300);
+    SismeDashboard.createMobileToggle = function() {
+        if ($('.sisme-mobile-toggle').length) {
+            return; // Déjà créé
+        }
+        
+        const $toggle = $(`
+            <button class="sisme-mobile-toggle">
+                <span class="sisme-hamburger"></span>
+                <span class="sisme-hamburger"></span>
+                <span class="sisme-hamburger"></span>
+            </button>
+        `);
+        
+        const $overlay = $('<div class="sisme-mobile-overlay"></div>');
+        
+        $('.sisme-dashboard-header').prepend($toggle);
+        $('.sisme-user-dashboard').append($overlay);
+        
+        // Événement toggle
+        $toggle.on('click', this.toggleMobileSidebar.bind(this));
+        
+        this.log('Toggle mobile créé');
     };
     
     /**
-     * Logging conditionnel
+     * Toggle sidebar mobile
      */
-    SismeDashboard.log = function(...args) {
-        if (this.config.debug) {
-            console.log('[Sisme Dashboard]', ...args);
+    SismeDashboard.toggleMobileSidebar = function() {
+        const $sidebar = $('.sisme-dashboard-sidebar');
+        const $overlay = $('.sisme-mobile-overlay');
+        const $toggle = $('.sisme-mobile-toggle');
+        
+        if ($sidebar.hasClass('mobile-open')) {
+            this.closeMobileSidebar();
+        } else {
+            $sidebar.addClass('mobile-open');
+            $overlay.addClass('active');
+            $toggle.addClass('active');
+            $('body').addClass('sidebar-open');
         }
     };
     
     /**
-     * Utilitaires publiques
+     * Fermer sidebar mobile
+     */
+    SismeDashboard.closeMobileSidebar = function() {
+        $('.sisme-dashboard-sidebar').removeClass('mobile-open');
+        $('.sisme-mobile-overlay').removeClass('active');
+        $('.sisme-mobile-toggle').removeClass('active');
+        $('body').removeClass('sidebar-open');
+    };
+    
+    /**
+     * Gestion du redimensionnement
+     */
+    SismeDashboard.handleResize = function() {
+        // Fermer sidebar mobile si on passe en desktop
+        if ($(window).width() > 767) {
+            this.closeMobileSidebar();
+        }
+    };
+    
+    /**
+     * Animations au scroll
+     */
+    SismeDashboard.initScrollAnimations = function() {
+        // Animation simple des éléments qui entrent dans le viewport
+        const $elements = $('.sisme-game-card, .sisme-activity-item, .sisme-stat-item');
+        
+        $elements.each(function(index) {
+            const $element = $(this);
+            setTimeout(() => {
+                $element.addClass('animated');
+            }, index * 50);
+        });
+    };
+    
+    /**
+     * Utilitaires
      */
     SismeDashboard.utils = {
-        /**
-         * Détecter si on est sur mobile
-         */
         isMobile: function() {
             return $(window).width() <= 767;
         },
         
-        /**
-         * Smooth scroll vers un élément
-         */
-        scrollTo: function(selector) {
-            const $target = $(selector);
-            if ($target.length) {
-                $('html, body').animate({
-                    scrollTop: $target.offset().top - 100
-                }, 500);
-            }
+        isTablet: function() {
+            return $(window).width() >= 768 && $(window).width() <= 1199;
         },
         
-        /**
-         * Débounce pour les événements
-         */
+        isDesktop: function() {
+            return $(window).width() >= 1200;
+        },
+        
+        scrollTo: function(target, duration = 500) {
+            $('html, body').animate({
+                scrollTop: $(target).offset().top - 100
+            }, duration);
+        },
+        
         debounce: function(func, wait) {
             let timeout;
             return function executedFunction(...args) {
@@ -543,15 +469,50 @@
         }
     };
     
-    // Initialisation automatique au chargement du DOM
+    /**
+     * Debug et logging
+     */
+    SismeDashboard.log = function(...args) {
+        if (this.config.debug || (typeof window.WP_DEBUG !== 'undefined' && window.WP_DEBUG)) {
+            console.log('[Sisme Dashboard]', ...args);
+        }
+    };
+    
+    /**
+     * API publique pour interactions externes
+     */
+    SismeDashboard.api = {
+        // Changer de section programmatiquement
+        goToSection: function(section) {
+            if (SismeDashboard.isValidSection(section)) {
+                SismeDashboard.setActiveSection(section, true);
+                return true;
+            }
+            return false;
+        },
+        
+        // Afficher une notification
+        notify: function(message, type = 'info', duration = 3000) {
+            SismeDashboard.showNotification(message, type, duration);
+        },
+        
+        // Obtenir la section actuelle
+        getCurrentSection: function() {
+            return SismeDashboard.currentSection;
+        },
+        
+        // Vérifier si initialisé
+        isReady: function() {
+            return SismeDashboard.isInitialized;
+        }
+    };
+    
+    // ✨ INITIALISATION AUTOMATIQUE
     $(document).ready(function() {
-        // Vérifier qu'on est bien sur une page avec dashboard
+        // Vérifier si on est sur une page avec dashboard
         if ($('.sisme-user-dashboard').length) {
             SismeDashboard.init();
         }
     });
-    
-    // API publique pour extensions futures
-    window.SismeDashboard = SismeDashboard;
     
 })(jQuery);
