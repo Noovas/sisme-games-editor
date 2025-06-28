@@ -29,7 +29,7 @@ class Sisme_User_Dashboard_API {
         $defaults = [
             'container_class' => 'sisme-user-dashboard',
             'user_id' => '',
-            'title' => 'Mon Dashboard Gaming'
+            'title' => 'Mon Dashboard'
         ];
         
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_dashboard');
@@ -128,9 +128,9 @@ class Sisme_User_Dashboard_API {
     }
     
     /**
-     * Rendu de la grille principale du dashboard avec système d'onglets
+     * Grille principale du dashboard
      */
-    private static function render_dashboard_grid($dashboard_data) {
+    public static function render_dashboard_grid($dashboard_data) {
         ob_start();
         ?>
         <div class="sisme-dashboard-grid">
@@ -187,7 +187,7 @@ class Sisme_User_Dashboard_API {
                     <?php echo self::render_activity_section($dashboard_data['activity_feed']); ?>
                 </div>
 
-                <!-- Section En construction (pour futures sections) -->
+                <!-- Section paramètres -->
                 <div class="sisme-dashboard-section" data-section="settings" style="display: none;">
                     <div class="sisme-section-header">
                         <h2 class="sisme-section-title">
@@ -195,7 +195,7 @@ class Sisme_User_Dashboard_API {
                             Paramètres
                         </h2>
                     </div>
-                    <?php echo self::render_under_construction(); ?>
+                    <?php echo self::render_settings_section($dashboard_data['user_info']['id']); ?>
                 </div>
             </main>
 
@@ -237,7 +237,7 @@ class Sisme_User_Dashboard_API {
                 <li><a href="#settings" class="sisme-nav-link" data-section="settings">
                     <span class="sisme-nav-icon">⚙️</span>
                     <span class="sisme-nav-text">Paramètres</span>
-                    <span class="sisme-nav-badge">Bientôt</span>
+                    <!--<span class="sisme-nav-badge">Bientôt</span>-->
                 </a></li>
             </ul>
         </nav>
@@ -375,29 +375,71 @@ class Sisme_User_Dashboard_API {
     }
 
     /**
-     * Placeholder pour sections en construction
+     * Rendu de la section paramètres avec préférences utilisateur
      */
-    private static function render_under_construction() {
+    private static function render_settings_section($user_id) {
+        // Vérifier que le module User Preferences est disponible
+        if (!class_exists('Sisme_User_Preferences_Loader')) {
+            return self::render_preferences_unavailable();
+        }
+        
+        // Intégrer avec le module préférences
+        $preferences_loader = Sisme_User_Preferences_Loader::get_instance();
+        
+        // S'assurer que le module est prêt
+        if (!$preferences_loader->integrate_with_dashboard()) {
+            return self::render_preferences_error();
+        }
+        
+        // Utiliser le shortcode préférences dans le dashboard
         ob_start();
         ?>
-        <div class="sisme-under-construction">
-            <div class="sisme-construction-icon">🚧</div>
-            <h3>Section en construction</h3>
-            <p>Cette fonctionnalité sera bientôt disponible !</p>
-            <div class="sisme-construction-features">
-                <ul>
-                    <li>🔧 Configuration du profil</li>
-                    <li>🎨 Personnalisation de l'interface</li>
-                    <li>🔔 Gestion des notifications</li>
-                    <li>🎯 Préférences gaming avancées</li>
-                </ul>
+        <div class="sisme-dashboard-preferences">
+            <?php 
+            // Intégrer le formulaire de préférences sans titre (car déjà dans le header de section)
+            echo do_shortcode('[sisme_user_preferences sections="gaming,notifications,privacy" title=""]'); 
+            ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Message si le module préférences n'est pas disponible
+     */
+    private static function render_preferences_unavailable() {
+        ob_start();
+        ?>
+        <div class="sisme-preferences-unavailable">
+            <div class="sisme-empty-state">
+                <div class="sisme-empty-icon">⚙️</div>
+                <h3>Module Préférences non disponible</h3>
+                <p>Le module de gestion des préférences n'est pas encore chargé. Veuillez contacter l'administrateur.</p>
             </div>
         </div>
         <?php
         return ob_get_clean();
     }
 
-    // [KEEP ALL EXISTING METHODS BELOW - unchanged]
+    /**
+     * Message d'erreur d'intégration des préférences
+     */
+    private static function render_preferences_error() {
+        ob_start();
+        ?>
+        <div class="sisme-preferences-error">
+            <div class="sisme-empty-state">
+                <div class="sisme-empty-icon">❌</div>
+                <h3>Erreur de chargement</h3>
+                <p>Impossible d'initialiser le module de préférences. Veuillez recharger la page.</p>
+                <button onclick="location.reload()" class="sisme-btn sisme-btn--primary" style="margin-top: 1rem;">
+                    🔄 Recharger la page
+                </button>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
     
     /**
      * Feed d'activité (version originale pour Vue d'ensemble)
@@ -670,14 +712,21 @@ class Sisme_User_Dashboard_API {
     private static function render_login_required() {
         ob_start();
         ?>
-        <div class="sisme-user-dashboard sisme-login-required">
-            <div class="sisme-login-card">
-                <span class="sisme-login-icon">🔐</span>
-                <h2 class="sisme-login-title">Connexion requise</h2>
-                <p class="sisme-login-message">Vous devez être connecté pour accéder à votre dashboard gaming.</p>
-                <div class="sisme-login-actions">
-                    <a href="<?php echo wp_login_url(); ?>" class="sisme-button ssisme-button-vert">Se connecter</a>
-                    <a href="<?php echo wp_registration_url(); ?>" class="sisme-button sisme-button-bleu">S'inscrire</a>
+        <div class="sisme-auth-card sisme-auth-card--login-required">
+            <div class="sisme-auth-content">
+                <div class="sisme-auth-message sisme-auth-message--warning">
+                    <span class="sisme-message-icon">🔒</span>
+                    <p>Vous devez être connecté pour accéder à votre dashboard.</p>
+                </div>
+                <div class="sisme-auth-actions">
+                    <a href="https://games.sisme.fr/sisme-user-login/" class="sisme-button sisme-button-vert">
+                        <span class="sisme-btn-icon">🔐</span>
+                        Se connecter
+                    </a>
+                    <a href="https://games.sisme.fr/sisme-user-register/" class="sisme-button sisme-button-bleu">
+                        <span class="sisme-btn-icon">📝</span>
+                        S'inscrire
+                    </a>
                 </div>
             </div>
         </div>

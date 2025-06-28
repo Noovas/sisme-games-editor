@@ -1,0 +1,577 @@
+/**
+ * File: /sisme-games-editor/includes/user/user-preferences/assets/user-preferences.css
+ * Styles pour les préférences utilisateur avec toggles iOS
+ * 
+ * RESPONSABILITÉ:
+ * - Toggles iOS style modernes et animés
+ * - Grilles multi-sélection responsive
+ * - Formulaires de préférences structurés
+ * - Indicateurs de sauvegarde et états visuels
+ * 
+ * DÉPENDANCES:
+ * - Design tokens frontend (variables CSS)
+ * - Reset CSS de base
+ */
+
+/* ========================================
+   CONTENEUR PRINCIPAL
+======================================== */
+
+.sisme-user-preferences {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--sisme-spacing-lg);
+    background: var(--sisme-color-bg-primary, #ffffff);
+    border-radius: var(--sisme-border-radius-lg, 12px);
+    box-shadow: var(--sisme-shadow-soft, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.sisme-preferences-header {
+    margin-bottom: var(--sisme-spacing-xl, 2rem);
+    text-align: center;
+}
+
+.sisme-preferences-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sisme-spacing-sm, 0.5rem);
+    font-size: var(--sisme-font-size-xl, 1.5rem);
+    font-weight: var(--sisme-font-weight-bold, 700);
+    color: var(--sisme-color-text-primary, #1a1a1a);
+    margin: 0;
+}
+
+.sisme-title-icon {
+    font-size: 1.2em;
+}
+
+/* ========================================
+   FORMULAIRE ET SECTIONS
+======================================== */
+
+.sisme-preferences-form {
+    position: relative;
+}
+
+.sisme-preferences-section {
+    margin-bottom: var(--sisme-spacing-xl, 2rem);
+    padding: var(--sisme-spacing-lg, 1.5rem);
+    background: var(--sisme-color-bg-secondary, #f8f9fa);
+    border-radius: var(--sisme-border-radius-md, 8px);
+    border: 1px solid var(--sisme-color-border-light, #e9ecef);
+}
+
+.sisme-section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-spacing-sm, 0.5rem);
+    font-size: var(--sisme-font-size-lg, 1.25rem);
+    font-weight: var(--sisme-font-weight-semibold, 600);
+    color: var(--sisme-color-text-primary, #1a1a1a);
+    margin: 0 0 var(--sisme-spacing-lg, 1.5rem) 0;
+    padding-bottom: var(--sisme-spacing-sm, 0.5rem);
+    border-bottom: 2px solid var(--sisme-color-primary, #007cba);
+}
+
+.sisme-section-icon {
+    font-size: 1.1em;
+}
+
+.sisme-section-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-spacing-lg, 1.5rem);
+}
+
+.sisme-preference-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-spacing-sm, 0.5rem);
+}
+
+.sisme-preference-label {
+    font-weight: var(--sisme-font-weight-semibold, 600);
+    color: var(--sisme-color-text-primary, #1a1a1a);
+    font-size: var(--sisme-font-size-md, 1rem);
+}
+
+.sisme-preference-description {
+    color: var(--sisme-color-text-secondary, #6c757d);
+    font-size: var(--sisme-font-size-sm, 0.875rem);
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* ========================================
+   TOGGLES iOS STYLE
+======================================== */
+
+.sisme-preference-toggle-group {
+    padding: var(--sisme-spacing-md, 1rem);
+    background: var(--sisme-color-bg-primary, #ffffff);
+    border-radius: var(--sisme-border-radius-md, 8px);
+    border: 1px solid var(--sisme-color-border-light, #e9ecef);
+    transition: all 0.2s ease;
+}
+
+.sisme-preference-toggle-group:hover {
+    border-color: var(--sisme-color-primary, #007cba);
+    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+}
+
+.sisme-toggle-container {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-spacing-md, 1rem);
+}
+
+/* Masquer le checkbox natif */
+.sisme-preference-toggle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Label du toggle iOS */
+.sisme-toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+    background-color: #ccc;
+    border-radius: 28px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    flex-shrink: 0;
+}
+
+.sisme-toggle-label:hover {
+    background-color: #bbb;
+}
+
+/* Slider du toggle */
+.sisme-toggle-slider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* État activé du toggle */
+.sisme-preference-toggle:checked + .sisme-toggle-label {
+    background-color: var(--sisme-color-primary, #007cba);
+}
+
+.sisme-preference-toggle:checked + .sisme-toggle-label:hover {
+    background-color: var(--sisme-color-primary-dark, #005a8b);
+}
+
+.sisme-preference-toggle:checked + .sisme-toggle-label .sisme-toggle-slider {
+    transform: translateX(24px);
+    box-shadow: 0 2px 8px rgba(0, 124, 186, 0.3);
+}
+
+/* Focus du toggle */
+.sisme-preference-toggle:focus + .sisme-toggle-label {
+    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.2);
+    outline: none;
+}
+
+/* Texte du toggle */
+.sisme-toggle-text {
+    font-weight: var(--sisme-font-weight-medium, 500);
+    color: var(--sisme-color-text-primary, #1a1a1a);
+    user-select: none;
+    cursor: pointer;
+    flex: 1;
+}
+
+/* Description sous le toggle */
+.sisme-toggle-description {
+    margin: var(--sisme-spacing-sm, 0.5rem) 0 0 68px;
+    color: var(--sisme-color-text-secondary, #6c757d);
+    font-size: var(--sisme-font-size-sm, 0.875rem);
+    line-height: 1.4;
+}
+
+/* Animation du toggle en cours de modification */
+.sisme-toggle-animating .sisme-toggle-slider {
+    transition: transform 0.15s ease;
+}
+
+/* État désactivé */
+.sisme-preference-toggle:disabled + .sisme-toggle-label {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.sisme-preference-toggle:disabled + .sisme-toggle-label .sisme-toggle-slider {
+    background-color: #f8f9fa;
+}
+
+/* ========================================
+   MULTI-SÉLECTION
+======================================== */
+
+.sisme-multi-select {
+    background: var(--sisme-color-bg-primary, #ffffff);
+    border-radius: var(--sisme-border-radius-md, 8px);
+    border: 1px solid var(--sisme-color-border-light, #e9ecef);
+    padding: var(--sisme-spacing-md, 1rem);
+}
+
+.sisme-multi-select-grid {
+    display: grid;
+    gap: var(--sisme-spacing-sm, 0.5rem);
+    margin-bottom: var(--sisme-spacing-md, 1rem);
+}
+
+/* Responsive des grilles */
+.sisme-multi-select-grid[style*="grid-template-columns: repeat(3"] {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.sisme-multi-select-grid[style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.sisme-multi-select-item {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-spacing-sm, 0.5rem);
+    padding: var(--sisme-spacing-sm, 0.5rem) var(--sisme-spacing-md, 1rem);
+    background: var(--sisme-color-bg-secondary, #f8f9fa);
+    border: 2px solid transparent;
+    border-radius: var(--sisme-border-radius-sm, 6px);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.sisme-multi-select-item:hover {
+    background: var(--sisme-color-bg-hover, #e9ecef);
+    border-color: var(--sisme-color-primary-light, #b3d9f2);
+}
+
+.sisme-multi-select-item.selected {
+    background: var(--sisme-color-primary-light, #b3d9f2);
+    border-color: var(--sisme-color-primary, #007cba);
+    color: var(--sisme-color-primary-dark, #005a8b);
+}
+
+.sisme-multi-select-item.selected:hover {
+    background: var(--sisme-color-primary, #007cba);
+    color: white;
+}
+
+/* Masquer les checkboxes natifs */
+.sisme-multi-select-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sisme-multi-select-label {
+    font-weight: var(--sisme-font-weight-medium, 500);
+    font-size: var(--sisme-font-size-sm, 0.875rem);
+    line-height: 1.2;
+}
+
+/* Actions multi-select */
+.sisme-multi-select-actions {
+    display: flex;
+    gap: var(--sisme-spacing-sm, 0.5rem);
+    padding-top: var(--sisme-spacing-sm, 0.5rem);
+    border-top: 1px solid var(--sisme-color-border-light, #e9ecef);
+}
+
+/* ========================================
+   INDICATEUR DE SAUVEGARDE
+======================================== */
+
+.sisme-save-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    padding: var(--sisme-spacing-sm, 0.5rem) var(--sisme-spacing-md, 1rem);
+    border-radius: var(--sisme-border-radius-sm, 6px);
+    font-size: var(--sisme-font-size-sm, 0.875rem);
+    font-weight: var(--sisme-font-weight-medium, 500);
+    box-shadow: var(--sisme-shadow-soft, 0 4px 6px rgba(0, 0, 0, 0.1));
+    transition: all 0.3s ease;
+}
+
+.sisme-save-indicator.sisme-save-saving {
+    background: var(--sisme-color-info, #17a2b8);
+    color: white;
+}
+
+.sisme-save-indicator.sisme-save-success {
+    background: var(--sisme-color-success, #28a745);
+    color: white;
+}
+
+.sisme-save-indicator.sisme-save-error {
+    background: var(--sisme-color-danger, #dc3545);
+    color: white;
+}
+
+.sisme-save-text {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-spacing-xs, 0.25rem);
+}
+
+.sisme-save-text::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.sisme-save-saving .sisme-save-text::before {
+    background: rgba(255, 255, 255, 0.3);
+    animation: sisme-pulse 1.5s infinite;
+}
+
+.sisme-save-success .sisme-save-text::before {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.sisme-save-error .sisme-save-text::before {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+@keyframes sisme-pulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ========================================
+   ACTIONS GLOBALES
+======================================== */
+
+.sisme-preferences-actions {
+    margin-top: var(--sisme-spacing-xl, 2rem);
+    padding-top: var(--sisme-spacing-lg, 1.5rem);
+    border-top: 2px solid var(--sisme-color-border-light, #e9ecef);
+    text-align: center;
+}
+
+.sisme-reset-preferences {
+    background: var(--sisme-color-warning, #ffc107);
+    color: var(--sisme-color-text-primary, #1a1a1a);
+    border: none;
+    padding: var(--sisme-spacing-sm, 0.5rem) var(--sisme-spacing-lg, 1.5rem);
+    border-radius: var(--sisme-border-radius-sm, 6px);
+    font-weight: var(--sisme-font-weight-semibold, 600);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sisme-spacing-sm, 0.5rem);
+}
+
+.sisme-reset-preferences:hover {
+    background: var(--sisme-color-warning-dark, #e0a800);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+.sisme-reset-preferences:active {
+    transform: translateY(0);
+}
+
+/* ========================================
+   BOUTONS GÉNÉRIQUES
+======================================== */
+
+.sisme-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sisme-spacing-xs, 0.25rem);
+    padding: var(--sisme-spacing-xs, 0.25rem) var(--sisme-spacing-sm, 0.5rem);
+    border: 1px solid transparent;
+    border-radius: var(--sisme-border-radius-sm, 6px);
+    font-size: var(--sisme-font-size-sm, 0.875rem);
+    font-weight: var(--sisme-font-weight-medium, 500);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.sisme-btn--small {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.sisme-btn--primary {
+    background: var(--sisme-color-primary, #007cba);
+    color: white;
+}
+
+.sisme-btn--primary:hover {
+    background: var(--sisme-color-primary-dark, #005a8b);
+}
+
+.sisme-btn--secondary {
+    background: var(--sisme-color-secondary, #6c757d);
+    color: white;
+}
+
+.sisme-btn--secondary:hover {
+    background: var(--sisme-color-secondary-dark, #545b62);
+}
+
+.sisme-btn-icon {
+    font-size: 0.9em;
+}
+
+/* ========================================
+   MESSAGES D'ÉTAT
+======================================== */
+
+.sisme-preferences-card {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: var(--sisme-spacing-xl, 2rem);
+    background: var(--sisme-color-bg-primary, #ffffff);
+    border-radius: var(--sisme-border-radius-lg, 12px);
+    box-shadow: var(--sisme-shadow-soft, 0 4px 6px rgba(0, 0, 0, 0.1));
+    text-align: center;
+}
+
+.sisme-preferences-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sisme-spacing-md, 1rem);
+    margin-bottom: var(--sisme-spacing-lg, 1.5rem);
+}
+
+.sisme-message-icon {
+    font-size: 2rem;
+}
+
+.sisme-preferences-message--warning {
+    color: var(--sisme-color-warning, #ffc107);
+}
+
+.sisme-preferences-message--error {
+    color: var(--sisme-color-danger, #dc3545);
+}
+
+.sisme-preferences-actions {
+    display: flex;
+    gap: var(--sisme-spacing-sm, 0.5rem);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 768px) {
+    .sisme-user-preferences {
+        margin: 0;
+        padding: var(--sisme-spacing-md, 1rem);
+        border-radius: 0;
+    }
+    
+    .sisme-preferences-section {
+        padding: var(--sisme-spacing-md, 1rem);
+    }
+    
+    .sisme-multi-select-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .sisme-toggle-description {
+        margin-left: 0;
+        margin-top: var(--sisme-spacing-sm, 0.5rem);
+    }
+    
+    .sisme-save-indicator {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-bottom: var(--sisme-spacing-md, 1rem);
+    }
+    
+    .sisme-preferences-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-toggle-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--sisme-spacing-sm, 0.5rem);
+    }
+    
+    .sisme-toggle-text {
+        order: -1;
+    }
+}
+
+/* ========================================
+   ANIMATIONS ET TRANSITIONS
+======================================== */
+
+.sisme-preferences-section {
+    animation: sisme-fadeInUp 0.3s ease-out;
+}
+
+@keyframes sisme-fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animation lors du changement d'état */
+.sisme-multi-select-item {
+    transform: scale(1);
+}
+
+.sisme-multi-select-item:active {
+    transform: scale(0.98);
+}
+
+/* Focus visible pour accessibilité */
+.sisme-preference-toggle:focus-visible + .sisme-toggle-label,
+.sisme-multi-select-checkbox:focus-visible + .sisme-multi-select-label {
+    outline: 2px solid var(--sisme-color-primary, #007cba);
+    outline-offset: 2px;
+}
+
+/* États de chargement */
+.sisme-preferences-form[data-loading="true"] {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.sisme-preferences-form[data-loading="true"]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: inherit;
+}

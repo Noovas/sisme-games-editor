@@ -270,7 +270,7 @@ class Sisme_User_Dashboard_Data_Manager {
             $activities[] = [
                 'type' => 'register',
                 'icon' => '🎮',
-                'message' => 'Vous avez créé votre compte gaming',
+                'message' => 'Vous avez créé votre compte Sisme Games',
                 'date' => $user->user_registered,
                 'timestamp' => strtotime($user->user_registered)
             ];
@@ -282,7 +282,7 @@ class Sisme_User_Dashboard_Data_Manager {
             $activities[] = [
                 'type' => 'profile_created',
                 'icon' => '👤',
-                'message' => 'Profil gaming initialisé',
+                'message' => 'Profil initialisé',
                 'date' => $profile_created,
                 'timestamp' => strtotime($profile_created)
             ];

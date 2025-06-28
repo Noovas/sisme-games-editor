@@ -1697,3 +1697,84 @@
         border: 1px solid #ccc !important;
     }
 }
+
+/*
+=== PRÉFÉRENCES DASHBOARD ===
+*/
+
+.sisme-dashboard-preferences {
+    /* Adapter les préférences au thème dashboard */
+}
+
+.sisme-dashboard-preferences .sisme-user-preferences {
+    background: transparent; /* Utiliser le background de la section dashboard */
+    box-shadow: none; /* Pas d'ombre dans le dashboard */
+    border-radius: 0; /* Utiliser le radius de la section dashboard */
+    padding: 0; /* Pas de padding supplémentaire */
+    max-width: none; /* Utiliser toute la largeur disponible */
+}
+
+.sisme-dashboard-preferences .sisme-preferences-header {
+    display: none; /* Masquer le header car déjà dans section-header */
+}
+
+.sisme-dashboard-preferences .sisme-preferences-section {
+    background: var(--sisme-dashboard-bg-tertiary);
+    border-color: var(--sisme-dashboard-border-color);
+}
+
+.sisme-dashboard-preferences .sisme-section-title {
+    color: var(--sisme-dashboard-text-primary);
+}
+
+.sisme-dashboard-preferences .sisme-preference-label {
+    color: var(--sisme-dashboard-text-primary);
+}
+
+.sisme-dashboard-preferences .sisme-preference-description {
+    color: var(--sisme-dashboard-text-secondary);
+}
+
+/* Adapter les toggles au thème dashboard */
+.sisme-dashboard-preferences .sisme-preference-toggle:checked + .sisme-toggle-label {
+    background-color: var(--sisme-dashboard-accent-primary);
+}
+
+.sisme-dashboard-preferences .sisme-multi-select-item.selected {
+    background: var(--sisme-dashboard-accent-primary);
+    border-color: var(--sisme-dashboard-accent-primary);
+    color: var(--sisme-dashboard-bg-primary);
+}
+
+/* Adapter l'indicateur de sauvegarde au dashboard */
+.sisme-dashboard-preferences .sisme-save-indicator {
+    background: var(--sisme-dashboard-bg-secondary);
+    border: 1px solid var(--sisme-dashboard-border-color);
+    color: var(--sisme-dashboard-text-primary);
+}
+
+.sisme-dashboard-preferences .sisme-save-indicator.sisme-save-success {
+    background: var(--sisme-dashboard-accent-success);
+}
+
+.sisme-dashboard-preferences .sisme-save-indicator.sisme-save-error {
+    background: var(--sisme-dashboard-accent-secondary);
+}
+
+/* Messages d'erreur préférences dans dashboard */
+.sisme-preferences-unavailable,
+.sisme-preferences-error {
+    background: var(--sisme-dashboard-bg-tertiary);
+    border-radius: var(--sisme-dashboard-radius-md);
+    padding: var(--sisme-dashboard-space-xl);
+}
+
+.sisme-preferences-unavailable .sisme-empty-state,
+.sisme-preferences-error .sisme-empty-state {
+    color: var(--sisme-dashboard-text-secondary);
+}
+
+.sisme-preferences-unavailable .sisme-empty-state h3,
+.sisme-preferences-error .sisme-empty-state h3 {
+    color: var(--sisme-dashboard-text-primary);
+}
