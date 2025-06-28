@@ -13,24 +13,13 @@ Documentation technique condensée pour tous les modules du plugin Sisme Games E
   - [⚙️ User Preferences](docs/user/user-preferences-readme.md) - Préférences gaming
   - [📊 User Dashboard](docs/user/user-dashboard-readme.md) - Tableau de bord utilisateur
   - [🖼️ User Profile](docs/user/user-profile-readme.md) - Gestion profils et avatars
+  - [⚡ User Actions](docs/user-actions/user-actions-readme.md)** - Actions utilisateur (favoris, owned, etc.)
 
 - **[🎴 Cards](docs/cards/cards-readme.md)** - Rendu cartes de jeux
-- **[🎮 Game Management](docs/game-management/game-management-readme.md)** - Gestion jeux et métadonnées
-- **[🏷️ Taxonomies](docs/taxonomies/taxonomies-readme.md)** - Genres, plateformes, étiquettes
-- **[⚡ User Actions](docs/user-actions/user-actions-readme.md)** - Actions utilisateur (favoris, owned, etc.)
-
-### Modules Utilitaires
-- **[🎨 Frontend Assets](docs/frontend/frontend-readme.md)** - Design tokens et CSS
-- **[🔧 Admin Interface](docs/admin/admin-readme.md)** - Interface d'administration
-- **[📡 API Integration](docs/api/api-readme.md)** - Intégrations externes
 
 ---
 
 ## 📖 Conventions
-
-**Format :** Documentation technique condensée  
-**Public :** Développeurs intégrant/étendant le plugin  
-**Objectif :** Comprendre + utiliser en < 5 minutes  
 
 **Structure standard :**
 - 📂 Architecture des fichiers
