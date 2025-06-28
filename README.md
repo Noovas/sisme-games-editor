@@ -11,24 +11,35 @@ Documentation technique condensée pour tous les modules du plugin Sisme Games E
 ```
 📁 sisme-games-editor/
 ├── 👤 user/                          # Système utilisateur modulaire
-│   ├── 📄 user-readme.md             # → [Master loader + sous-modules](docs/user/user-readme.md)
-│   ├── 🔐 user-auth-readme.md        # → [Authentification & sécurité](docs/user/user-auth-readme.md)
-│   ├── 👤 user-profile-readme.md     # → [Profil complet + avatar](docs/user/user-profile-readme.md)
-│   ├── ⚙️ user-preferences-readme.md # → [Préférences gaming](docs/user/user-preferences-readme.md)
-│   └── 📊 user-dashboard-readme.md   # → [Dashboard unifié](docs/user/user-dashboard-readme.md)
+│   ├── 📄 user-readme.md             # → Master loader + sous-modules
+│   ├── 🔐 user-auth-readme.md        # → Authentification & sécurité
+│   ├── 👤 user-profile-readme.md     # → Profil complet + avatar
+│   ├── ⚙️ user-preferences-readme.md # → Préférences gaming
+│   └── 📊 user-dashboard-readme.md   # → Dashboard unifié
 │
 ├── 🎴 cards/                         # Système de cartes de jeux
-│   └── 📄 cards-readme.md           # → [Cartes, grilles, carrousels](docs/cards/cards-readme.md)
+│   └── 📄 cards-readme.md           # → Cartes, grilles, carrousels
 │
 ├── 🏷️ taxonomies/                   # Classification jeux & contenus
-│   └── 📄 taxonomies-readme.md      # → [Genres, plateformes, modes](docs/taxonomies/taxonomies-readme.md)
+│   └── 📄 taxonomies-readme.md      # → Genres, plateformes, modes
 │
 ├── 🎮 game-management/              # Gestion jeux & métadonnées
-│   └── 📄 game-management-readme.md # → [CRUD jeux, validation](docs/game-management/game-management-readme.md)
+│   └── 📄 game-management-readme.md # → CRUD jeux, validation
 │
 └── 🔧 utils/                        # Utilitaires transversaux
-    └── 📄 utils-readme.md           # → [Helpers, formatage, cache](docs/utils/utils-readme.md)
+    └── 📄 utils-readme.md           # → Helpers, formatage, cache
 ```
+
+## 🚀 Accès Rapide
+
+### Modules Core
+- **[👤 User](docs/user/user-readme.md)** - Système utilisateur complet
+- **[🎴 Cards](docs/cards/cards-readme.md)** - Rendu cartes de jeux
+
+### Modules Support  
+- **[🏷️ Taxonomies](docs/taxonomies/taxonomies-readme.md)** - Classification & métadonnées
+- **[🎮 Game Management](docs/game-management/game-management-readme.md)** - Gestion contenus jeux
+- **[🔧 Utils](docs/utils/utils-readme.md)** - Utilitaires & helpers
 
 ---
 
