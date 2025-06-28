@@ -112,7 +112,7 @@ class Sisme_User_Preferences_API {
         }
         
         switch ($section_name) {
-            
+
             case 'profile':
                 return self::render_profile_section($user_preferences);
 
@@ -264,7 +264,7 @@ class Sisme_User_Preferences_API {
     }
 
     /**
-     * Rendu de la section profile
+     * Rendu de la section profil
      */
     private static function render_profile_section($preferences) {
         ob_start();
@@ -279,7 +279,29 @@ class Sisme_User_Preferences_API {
                 
                 <!-- Avatar -->
                 <div class="sisme-preference-group">
-                    <?php echo self::render_avatar_field(get_current_user_id()); ?>
+                    <label class="sisme-preference-label">Avatar</label>
+                    <p class="sisme-preference-description">Votre photo de profil</p>
+                    
+                    <div class="sisme-avatar-uploader" data-user-id="<?php echo esc_attr(get_current_user_id()); ?>">
+                        <div class="sisme-avatar-preview">
+                            <?php 
+                            $current_avatar = Sisme_User_Preferences_Data_Manager::get_user_avatar_url(get_current_user_id(), 'thumbnail');
+                            if ($current_avatar): ?>
+                                <img src="<?php echo esc_url($current_avatar); ?>" alt="Avatar" class="sisme-avatar-current">
+                                <button type="button" class="sisme-avatar-delete" title="Supprimer">❌</button>
+                            <?php else: ?>
+                                <div class="sisme-avatar-placeholder">👤</div>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <div class="sisme-avatar-controls">
+                            <input type="file" id="sisme-avatar-input" accept="image/*" style="display: none;">
+                            <button type="button" class="sisme-avatar-upload-btn sisme-button sisme-button-bleu">
+                                <?php echo $current_avatar ? 'Changer' : 'Ajouter'; ?>
+                            </button>
+                            <small>JPG, PNG ou GIF - Max 2Mo</small>
+                        </div>
+                    </div>
                 </div>
                 
             </div>
@@ -288,43 +310,6 @@ class Sisme_User_Preferences_API {
         return ob_get_clean();
     }
 
-    /**
-     * Rendu du champ avatar
-     */
-    private static function render_avatar_field($user_id) {
-        $current_avatar = Sisme_User_Preferences_Data_Manager::get_user_avatar_url($user_id, 'thumbnail');
-        
-        ob_start();
-        ?>
-        <div class="sisme-preference-field sisme-avatar-field">
-            <label class="sisme-preference-label">
-                <span class="sisme-preference-icon">🖼️</span>
-                Avatar
-            </label>
-            <p class="sisme-preference-description">Votre photo de profil</p>
-            
-            <div class="sisme-avatar-uploader" data-user-id="<?php echo esc_attr($user_id); ?>">
-                <div class="sisme-avatar-preview">
-                    <?php if ($current_avatar): ?>
-                        <img src="<?php echo esc_url($current_avatar); ?>" alt="Avatar" class="sisme-avatar-current">
-                        <button type="button" class="sisme-avatar-delete" title="Supprimer">❌</button>
-                    <?php else: ?>
-                        <div class="sisme-avatar-placeholder">👤</div>
-                    <?php endif; ?>
-                </div>
-                
-                <div class="sisme-avatar-controls">
-                    <input type="file" id="sisme-avatar-input" accept="image/*" style="display: none;">
-                    <button type="button" class="sisme-avatar-upload-btn sisme-button sisme-button-bleu">
-                        <?php echo $current_avatar ? 'Changer' : 'Ajouter'; ?>
-                    </button>
-                    <small>JPG, PNG ou GIF - Max 2Mo</small>
-                </div>
-            </div>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
     
     /**
      * Rendu d'un toggle iOS style

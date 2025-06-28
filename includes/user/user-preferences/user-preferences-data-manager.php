@@ -389,6 +389,9 @@ class Sisme_User_Preferences_Data_Manager {
                 
             case 'privacy_public':
                 return is_bool($value) || in_array($value, ['0', '1', 0, 1, true, false]);
+
+            case 'avatar':
+                return is_numeric($value) && intval($value) >= 0;
                 
             default:
                 return false;
@@ -441,7 +444,8 @@ class Sisme_User_Preferences_Data_Manager {
             'genres' => self::META_GENRES,
             'player_types' => self::META_PLAYER_TYPES,
             'notifications' => self::META_NOTIFICATIONS,
-            'privacy_public' => self::META_PRIVACY_PUBLIC
+            'privacy_public' => self::META_PRIVACY_PUBLIC,
+            'avatar' => self::META_AVATAR
         ];
         
         return isset($mapping[$key]) ? $mapping[$key] : '';

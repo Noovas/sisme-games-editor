@@ -45,11 +45,6 @@
             return;
         }
         
-        // Vérifier la présence du formulaire
-        if (!$('.sisme-preferences-form').length) {
-            return;
-        }
-        
         // Initialiser les composants
         initSaveIndicator();
         initToggleHandlers();
@@ -703,7 +698,7 @@
     // ✨ INITIALISATION AUTOMATIQUE
     $(document).ready(function() {
         // Vérifier si on est sur une page avec préférences
-        if ($('.sisme-user-preferences, .sisme-preferences-form').length) {
+        if ($('.sisme-user-preferences').length) {
             init();
         }
     });
