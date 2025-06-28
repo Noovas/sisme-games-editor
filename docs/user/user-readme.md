@@ -8,10 +8,10 @@
 
 | Module | Status | Description | Documentation |
 |--------|--------|-------------|---------------|
-| **user-auth** | ✅ Production | Authentification, sessions, sécurité | [`user-auth-readme.md`](docs/user/user-auth-readme.md) |
-| **user-profile** | ✅ Production | Profil complet, avatar, formulaires | [`user-profile-readme.md`](docs/user/user-profile-readme.md) |
-| **user-preferences** | ✅ Production | Préférences gaming, notifications | [`user-preferences-readme.md`](docs/user/user-preferences-readme.md) |
-| **user-dashboard** | ✅ Production | Dashboard unifié, intégration modules | [`user-dashboard-readme.md`](docs/user/user-dashboard-readme.md) |
+| **user-auth** | ✅ Production | Authentification, sessions, sécurité | [`user-auth-readme.md`](user-auth-readme.md) |
+| **user-profile** | ✅ Production | Profil complet, avatar, formulaires | [`user-profile-readme.md`](user-profile-readme.md) |
+| **user-preferences** | ✅ Production | Préférences gaming, notifications | [`user-preferences-readme.md`](user-preferences-readme.md) |
+| **user-dashboard** | ✅ Production | Dashboard unifié, intégration modules | [`user-dashboard-readme.md`](user-dashboard-readme.md) |
 | **user-library** | 🚧 Planifié | Collection jeux, wishlist, progression | *À venir* |
 | **user-social** | 🚧 Planifié | Profils publics, amis, communauté | *À venir* |
 
@@ -58,7 +58,7 @@ register_hooks()                    // void - Hooks WordPress globaux
 ## 🎯 Sous-Modules Disponibles
 
 ### ✅ **user-auth** - Authentification
-**Status:** Production Ready | **Documentation:** [`📄 user-auth-readme.md`](docs/user/user-auth-readme.md)
+**Status:** Production Ready | **Documentation:** [`📄 user-auth-readme.md`](user-auth-readme.md)
 
 **Fonctionnalités:**
 - Formulaires login/register frontend
@@ -85,7 +85,7 @@ Sisme_User_Auth_Security::check_rate_limit($action, $user)
 ---
 
 ### ✅ **user-profile** - Gestion Profil Complet
-**Status:** Production Ready | **Documentation:** [`📄 user-profile-readme.md`](docs/user/user-profile-readme.md)
+**Status:** Production Ready | **Documentation:** [`📄 user-profile-readme.md`](user-profile-readme.md)
 
 **Fonctionnalités:**
 - Édition profil complète (basic/gaming/privacy)
@@ -113,7 +113,7 @@ Sisme_User_Profile_Forms::new($components, $options)
 ---
 
 ### ✅ **user-preferences** - Préférences Utilisateur
-**Status:** Production Ready | **Documentation:** [`📄 user-preferences-readme.md`](docs/user/user-preferences-readme.md)
+**Status:** Production Ready | **Documentation:** [`📄 user-preferences-readme.md`](user-preferences-readme.md)
 
 **Fonctionnalités:**
 - Préférences gaming (plateformes/genres/skill)
@@ -137,7 +137,7 @@ Sisme_User_Preferences_API::render_preferences_shortcode($atts)
 ---
 
 ### ✅ **user-dashboard** - Dashboard Utilisateur
-**Status:** Production Ready | **Documentation:** [`📄 user-dashboard-readme.md`](docs/user/user-dashboard-readme.md)
+**Status:** Production Ready | **Documentation:** [`📄 user-dashboard-readme.md`](user-dashboard-readme.md)
 
 **Fonctionnalités:**
 - Dashboard unifié multi-sections
@@ -333,10 +333,10 @@ $stats = [
 
 | Module | Status | Documentation |
 |--------|--------|---------------|
-| **user-auth** | ✅ Prod | [`user-auth-readme.md`](docs/user/user-auth-readme.md) |
-| **user-profile** | ✅ Prod | [`user-profile-readme.md`](docs/user/user-profile-readme.md) |
-| **user-preferences** | ✅ Prod | [`user-preferences-readme.md`](docs/user/user-preferences-readme.md) |
-| **user-dashboard** | ✅ Prod | [`user-dashboard-readme.md`](docs/user/user-dashboard-readme.md) |
+| **user-auth** | ✅ Prod | [`user-auth-readme.md`](user-auth-readme.md) |
+| **user-profile** | ✅ Prod | [`user-profile-readme.md`](user-profile-readme.md) |
+| **user-preferences** | ✅ Prod | [`user-preferences-readme.md`](user-preferences-readme.md) |
+| **user-dashboard** | ✅ Prod | [`user-dashboard-readme.md`](user-dashboard-readme.md) |
 | **user-library** | 🚧 Planifié | *Documentation à venir* |
 | **user-social** | 🚧 Planifié | *Documentation à venir* |
 
