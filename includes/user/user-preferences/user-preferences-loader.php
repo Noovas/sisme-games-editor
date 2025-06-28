@@ -120,9 +120,9 @@ class Sisme_User_Preferences_Loader {
         }
         
         // Design tokens (base) - Réutilise les tokens frontend existants
-        if (!wp_style_is('sisme-frontend-tokens', 'enqueued')) {
+        if (!wp_style_is('sisme-frontend-tokens-global', 'enqueued')) {
             wp_enqueue_style(
-                'sisme-frontend-tokens',
+                'sisme-frontend-tokens-global',
                 SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/tokens.css',
                 array(),
                 SISME_GAMES_EDITOR_VERSION
@@ -130,15 +130,15 @@ class Sisme_User_Preferences_Loader {
         }
         
         wp_enqueue_style(
-            'sisme-user-preferences',
+            'sisme-user-preferences-css',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-preferences/assets/user-preferences.css',
-            array('sisme-frontend-tokens'),
+            array('sisme-frontend-tokens-global'),
             SISME_GAMES_EDITOR_VERSION
         );
         
         // JavaScript des préférences avec auto-save
         wp_enqueue_script(
-            'sisme-user-preferences',
+            'sisme-user-preferences-js',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-preferences/assets/user-preferences.js',
             array('jquery'),
             SISME_GAMES_EDITOR_VERSION,

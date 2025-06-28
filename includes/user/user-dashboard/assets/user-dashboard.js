@@ -40,7 +40,7 @@
         
         // Message de bienvenue après un délai
         setTimeout(() => {
-            this.showNotification('Bienvenue sur votre dashboard gaming ! 🎮', 'success', 3000);
+            this.showNotification('Bienvenue sur votre dashboard ! 🎮', 'success', 3000);
         }, 1000);
     };
     
