@@ -584,80 +584,74 @@
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
         
         if (file.size > maxSize) {
-            showNotification('Fichier trop volumineux (max 2Mo)', 'error');
+            showSaveIndicator('error', 'Fichier trop volumineux (max 2Mo)');
             return;
         }
         
         if (!allowedTypes.includes(file.type)) {
-            showNotification('Type de fichier non autorisé (JPG, PNG, GIF)', 'error');
+            showSaveIndicator('error', 'Type de fichier non autorisé (JPG, PNG, GIF)');
             return;
         }
 
         // Afficher indicateur de chargement
-        showSaveIndicator('Upload en cours...');
+        showSaveIndicator('saving', 'Upload en cours...');
         
         const formData = new FormData();
         formData.append('action', 'sisme_upload_user_avatar');
-        formData.append('security', sismeUserPreferences.security);
+        formData.append('security', config.security);
         formData.append('avatar_file', file);
 
         $.ajax({
-            url: sismeUserPreferences.ajax_url,
+            url: config.ajax_url,
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
             success: function(response) {
-                hideSaveIndicator();
-                
                 if (response.success) {
+                    forceAvatarReload();
                     updateAvatarPreview(response.data.url);
-                    showNotification(response.data.message, 'success');
+                    showSaveIndicator('success', response.data.message || 'Avatar mis à jour !');
                     
                     // Déclencher événement custom
                     $(document).trigger('sisme_avatar_updated', [response.data.attachment_id, response.data.url]);
                 } else {
-                    showNotification(response.data.message || 'Erreur lors de l\'upload', 'error');
+                    showSaveIndicator('error', response.data.message || 'Erreur lors de l\'upload');
                 }
             },
             error: function(xhr, status, error) {
-                hideSaveIndicator();
                 console.error('Erreur AJAX avatar upload:', error);
-                showNotification('Erreur de connexion lors de l\'upload', 'error');
+                showSaveIndicator('error', 'Erreur de connexion lors de l\'upload');
             }
         });
     }
 
     /**
-     * Suppression d'avatar via AJAX
+     * Suppression d'avatar via AJAX avec mise à jour temps réel
      */
     function deleteAvatar() {
-        showSaveIndicator('Suppression...');
+        showSaveIndicator('saving', 'Suppression...');
         
         $.ajax({
-            url: sismeUserPreferences.ajax_url,
+            url: config.ajax_url,
             type: 'POST',
             data: {
                 action: 'sisme_delete_user_avatar',
-                security: sismeUserPreferences.security
+                security: config.security
             },
             success: function(response) {
-                hideSaveIndicator();
-                
                 if (response.success) {
                     updateAvatarPreview(null);
-                    showNotification(response.data.message, 'success');
-                    
-                    // Déclencher événement custom
+                    showSaveIndicator('success', response.data.message || 'Avatar supprimé !');
+
                     $(document).trigger('sisme_avatar_deleted');
                 } else {
-                    showNotification(response.data.message || 'Erreur lors de la suppression', 'error');
+                    showSaveIndicator('error', response.data.message || 'Erreur lors de la suppression');
                 }
             },
             error: function(xhr, status, error) {
-                hideSaveIndicator();
                 console.error('Erreur AJAX avatar delete:', error);
-                showNotification('Erreur de connexion lors de la suppression', 'error');
+                showSaveIndicator('error', 'Erreur de connexion lors de la suppression');
             }
         });
     }
@@ -670,15 +664,93 @@
         const $uploadBtn = $('.sisme-avatar-upload-btn');
         
         if (url) {
-            $preview.html(`
-                <img src="${url}" alt="Avatar" class="sisme-avatar-current">
-                <button type="button" class="sisme-avatar-delete" title="Supprimer">❌</button>
-            `);
-            $uploadBtn.text('Changer');
+            // ✨ CACHE BUSTING - Ajouter timestamp pour forcer le rechargement
+            const cacheBustedUrl = url + '?v=' + Date.now();
+            
+            // AVATAR AJOUTÉ avec URL unique
+            $preview.fadeOut(200, function() {
+                $preview.html(`
+                    <img src="${cacheBustedUrl}" alt="Avatar" class="sisme-avatar-current">
+                    <button type="button" class="sisme-avatar-delete" title="Supprimer">❌</button>
+                `).fadeIn(300);
+            });
+            
+            $uploadBtn.fadeOut(100, function() {
+                $uploadBtn.text('Changer').fadeIn(100);
+            });
+            
+            // ✨ FORCER aussi le rechargement dans le header du dashboard
+            updateDashboardHeaderAvatar(cacheBustedUrl);
+            
         } else {
-            $preview.html('<div class="sisme-avatar-placeholder">👤</div>');
-            $uploadBtn.text('Ajouter');
+            // AVATAR SUPPRIMÉ
+            $preview.fadeOut(200, function() {
+                $preview.html('<div class="sisme-avatar-placeholder">👤</div>').fadeIn(300);
+            });
+            
+            $uploadBtn.fadeOut(100, function() {
+                $uploadBtn.text('Ajouter').fadeIn(100);
+            });
+            
+            // Remettre placeholder dans le header aussi
+            updateDashboardHeaderAvatar(null);
         }
+    }
+
+    /**
+     * Mettre à jour l'avatar dans le header du dashboard
+     */
+    function updateDashboardHeaderAvatar(url) {
+        const $headerAvatar = $('.sisme-dashboard-header .sisme-avatar');
+        
+        if ($headerAvatar.length) {
+            if (url) {
+                // ✨ MÉTHODE AGRESSIVE - Forcer le rechargement complet
+                $headerAvatar.fadeOut(200, function() {
+                    // Supprimer l'ancienne image du DOM
+                    $headerAvatar.attr('src', '').off('load error');
+                    
+                    // Créer une nouvelle image et attendre qu'elle charge
+                    const newImg = new Image();
+                    newImg.onload = function() {
+                        $headerAvatar.attr('src', url).fadeIn(300);
+                    };
+                    newImg.onerror = function() {
+                        console.error('Erreur chargement avatar header');
+                        $headerAvatar.fadeIn(300); // Afficher quand même
+                    };
+                    newImg.src = url;
+                });
+            } else {
+                // Pas d'avatar = placeholder
+                $headerAvatar.fadeOut(200, function() {
+                    $headerAvatar.replaceWith('<div class="sisme-avatar sisme-avatar-placeholder">👤</div>');
+                    $('.sisme-avatar-placeholder').fadeIn(300);
+                });
+            }
+        }
+    }
+
+    /**
+     * ✨ ALTERNATIVE - Method nucléaire si ça marche toujours pas
+     */
+    function forceAvatarReload() {
+        // Vider le cache des images avatar
+        $('img[src*="avatar"]').each(function() {
+            const $img = $(this);
+            const originalSrc = $img.attr('src');
+            
+            if (originalSrc) {
+                // Supprimer l'image du cache en changeant src
+                $img.attr('src', '');
+                
+                // Remettre avec timestamp pour forcer rechargement
+                setTimeout(() => {
+                    const cacheBustedSrc = originalSrc.split('?')[0] + '?v=' + Date.now();
+                    $img.attr('src', cacheBustedSrc);
+                }, 100);
+            }
+        });
     }
     
     /**

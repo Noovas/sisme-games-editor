@@ -74,18 +74,45 @@ class Sisme_User_Dashboard_Data_Manager {
     public static function get_user_info($user_id) {
         $user = get_userdata($user_id);
         if (!$user) {
-            return [];
+            return false;
         }
+        
+        // ✨ AVATAR CUSTOM UNIQUEMENT - pas de Gravatar
+        $avatar_url = self::get_user_custom_avatar_url($user_id);
         
         return [
             'id' => $user_id,
-            'display_name' => $user->display_name,
+            'display_name' => $user->display_name ?: $user->user_login,
             'email' => $user->user_email,
-            'avatar_url' => get_avatar_url($user_id, ['size' => 80]),
+            'avatar_url' => $avatar_url, // ← Seulement avatar custom ou placeholder
             'member_since' => date_i18n('j F Y', strtotime($user->user_registered)),
             'last_login' => get_user_meta($user_id, 'sisme_user_last_login', true),
             'profile_created' => get_user_meta($user_id, 'sisme_user_profile_created', true)
         ];
+    }
+
+    /**
+     *  AVATAR CUSTOM
+     */
+    private static function get_user_custom_avatar_url($user_id, $size = 'medium') {
+        // Vérifier d'abord le module user-preferences
+        if (class_exists('Sisme_User_Preferences_Data_Manager')) {
+            $custom_avatar = Sisme_User_Preferences_Data_Manager::get_user_avatar_url($user_id, $size);
+            if ($custom_avatar) {
+                return $custom_avatar;
+            }
+        }
+        
+        // Fallback sur user-profile si disponible
+        if (class_exists('Sisme_User_Profile_Avatar')) {
+            $profile_avatar = Sisme_User_Profile_Avatar::get_user_avatar_url($user_id, $size);
+            if ($profile_avatar) {
+                return $profile_avatar;
+            }
+        }
+        
+
+        return "https://games.sisme.fr/images/sisme%20icon%20medaille%201%20%28500x500%29.png";
     }
     
     /**

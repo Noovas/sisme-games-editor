@@ -420,7 +420,7 @@ class Sisme_User_Dashboard_API {
             <?php 
             // Rendu direct via l'API user-preferences
             $preferences_html = Sisme_User_Preferences_API::render_preferences_shortcode([
-                'sections' => 'gaming,notifications,privacy',
+                'sections' => 'profile,gaming,notifications,privacy',
                 'title' => '',
                 'user_id' => $user_id,
                 'container_class' => 'sisme-user-preferences sisme-dashboard-integration'

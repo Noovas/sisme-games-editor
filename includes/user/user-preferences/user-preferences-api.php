@@ -38,11 +38,20 @@ class Sisme_User_Preferences_API {
         ];
         
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_preferences');
+
+        ?>
+        <script>
+            console.log('=== APRÈS shortcode_atts ===');
+            console.log('$atts[sections] final:', '<?php echo esc_js($atts['sections']); ?>');
+            console.log('Tous les $atts finaux:', <?php echo json_encode($atts); ?>);
+            console.log('Stack trace:', '<?php echo esc_js(wp_debug_backtrace_summary()); ?>');
+        </script>
+        <?php
         
         // ID utilisateur (utilisateur courant par défaut)
         $user_id = !empty($atts['user_id']) ? intval($atts['user_id']) : get_current_user_id();
         
-        // Vérification permissions (seul l'utilisateur peut modifier ses préférences)
+        // Vérification permissions
         if ($user_id !== get_current_user_id() && !current_user_can('manage_users')) {
             return self::render_access_denied();
         }
@@ -60,10 +69,20 @@ class Sisme_User_Preferences_API {
         
         // Récupérer les préférences utilisateur
         $user_preferences = Sisme_User_Preferences_Data_Manager::get_user_preferences($user_id);
+
+
+
         
         // Parser les sections à afficher
         $sections_to_show = array_map('trim', explode(',', $atts['sections']));
-        
+
+        // Debug : voir d'où viennent les sections
+        ?>
+        <script>
+            console.log('$atts[sections] original:', '<?php echo esc_js($atts['sections']); ?>');
+            console.log('$sections_to_show après parsing:', <?php echo json_encode($sections_to_show); ?>);
+        </script>
+        <?php
         // Rendu complet
         ob_start();
         ?>
@@ -86,6 +105,9 @@ class Sisme_User_Preferences_API {
                 </div>
                 
                 <?php foreach ($sections_to_show as $section): ?>
+                    <script>
+                        console.log('Section à traiter:', '<?php echo esc_js($section); ?>');
+                    </script>
                     <?php echo self::render_section($section, $user_id, $user_preferences); ?>
                 <?php endforeach; ?>
                 
@@ -299,7 +321,7 @@ class Sisme_User_Preferences_API {
                             <button type="button" class="sisme-avatar-upload-btn sisme-button sisme-button-bleu">
                                 <?php echo $current_avatar ? 'Changer' : 'Ajouter'; ?>
                             </button>
-                            <small>JPG, PNG ou GIF - Max 2Mo</small>
+                            <small>JPG, PNG ou GIF - Max 2Mo. Quelques minutes peuvent être nécessaires</small>
                         </div>
                     </div>
                 </div>

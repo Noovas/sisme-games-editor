@@ -12,10 +12,19 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+define('SISME_PLUGIN_PATH', plugin_dir_path(__FILE__));
+
+define('SISME_PLUGIN_URL', plugin_dir_url(__FILE__));
+
+require_once SISME_PLUGIN_PATH . 'includes/sisme-constants.php';
+require_once SISME_PLUGIN_PATH . 'includes/sisme-loader.php';
 
 define('SISME_GAMES_EDITOR_VERSION', '1.0.0');
+
 define('SISME_GAMES_EDITOR_PLUGIN_DIR', plugin_dir_path(__FILE__));
+
 define('SISME_GAMES_EDITOR_PLUGIN_URL', plugin_dir_url(__FILE__));
+
 define('SISME_GAMES_MODULES', array(
     "vedettes", 
     "cards",
