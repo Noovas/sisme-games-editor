@@ -60,6 +60,11 @@ class Sisme_User_Actions_API {
         // Vérifier si l'utilisateur est connecté
         $user_id = get_current_user_id();
         $is_logged_in = ($user_id > 0);
+
+        // BETA
+        if (!$is_logged_in) {
+            return '';
+        }
         
         // Déterminer l'état actuel et les classes CSS
         $is_active = false;

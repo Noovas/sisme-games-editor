@@ -48,10 +48,16 @@
         console.log('🎯 Clic bouton:', {gameId, actionType, logged: config.is_logged_in});
         
         // Si utilisateur non connecté, rediriger vers login
-        if (!config.is_logged_in) {
+        /*if (!config.is_logged_in) {
             window.location.href = config.login_url;
             return;
+        }*/
+        // BETA
+        if (!config.is_logged_in) {
+            console.log('❌ Utilisateur non connecté - action ignorée (version béta)');
+            return; // Simplement retourner sans rien faire
         }
+
         
         // Ajouter classe pour animation
         $button.addClass('clicked');

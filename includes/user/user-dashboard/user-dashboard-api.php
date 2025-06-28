@@ -274,7 +274,7 @@ class Sisme_User_Dashboard_API {
     }
 
     /**
-     * Section Favoris (lecture seule) avec liens
+     * Section Favoris avec liens
      */
     private static function render_favorites_section($favorite_games) {
         ob_start();
@@ -297,13 +297,6 @@ class Sisme_User_Dashboard_API {
                             </div>
                             <div class="sisme-game-info">
                                 <h4 class="sisme-game-title"><?php echo esc_html($game['name']); ?></h4>
-                                <?php if (!empty($game['genres'])): ?>
-                                    <div class="sisme-game-genres">
-                                        <?php foreach (array_slice($game['genres'], 0, 2) as $genre): ?>
-                                            <span class="sisme-genre-tag"><?php echo esc_html($genre['name']); ?></span>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php endif; ?>
                             </div>
                         </a>
                     <?php endforeach; ?>
@@ -338,13 +331,6 @@ class Sisme_User_Dashboard_API {
                             </div>
                             <div class="sisme-game-info">
                                 <h4 class="sisme-game-title"><?php echo esc_html($game['name']); ?></h4>
-                                <?php if (!empty($game['genres'])): ?>
-                                    <div class="sisme-game-genres">
-                                        <?php foreach (array_slice($game['genres'], 0, 2) as $genre): ?>
-                                            <span class="sisme-genre-tag"><?php echo esc_html($genre['name']); ?></span>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php endif; ?>
                             </div>
                         </a>
                     <?php endforeach; ?>
