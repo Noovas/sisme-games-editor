@@ -66,13 +66,19 @@
     }
     
     /**
-     * Initialiser l'indicateur de sauvegarde
+     * Masquer l'ancien indicateur de sauvegarde dans le dashboard
      */
     function initSaveIndicator() {
+        // Dans le dashboard, on masque l'ancien indicateur
+        if (typeof window.SismeDashboard !== 'undefined') {
+            $('.sisme-save-indicator').hide();
+            return;
+        }
+        
+        // Garder l'ancien comportement si pas dans le dashboard
         saveIndicator = $('.sisme-save-indicator');
         
         if (!saveIndicator.length) {
-            // Créer l'indicateur s'il n'existe pas
             saveIndicator = $('<div class="sisme-save-indicator" style="display: none;"><span class="sisme-save-text"></span></div>');
             $('.sisme-preferences-form').prepend(saveIndicator);
         }
@@ -113,9 +119,13 @@
         $(document).on('change', '.sisme-multi-select-checkbox', function() {
             const $checkbox = $(this);
             const $multiSelect = $checkbox.closest('.sisme-multi-select');
+            const checkedCount = $multiSelect.find('.sisme-multi-select-checkbox:checked').length;
+            if (checkedCount === 0) {
+                $checkbox.prop('checked', true);
+                alert('Vous devez sélectionner au moins un élément');
+                return;
+            }
             const key = $multiSelect.data('preference-key');
-            
-            // Mettre à jour l'état visuel
             updateMultiSelectItem($checkbox);
             
             // Récupérer toutes les valeurs sélectionnées
@@ -201,7 +211,6 @@
     function savePreference(key, value) {
         log('💾 Sauvegarde préférence:', {key, value});
         
-        // Traitement spécial pour les notifications (clé avec point)
         let ajaxData = {
             action: 'sisme_update_user_preference',
             security: config.security,
@@ -209,11 +218,9 @@
             preference_value: value
         };
         
-        // Si c'est une notification (clé avec point), traiter différemment
+        // Traitement spécial pour les notifications
         if (key.includes('.')) {
             const [mainKey, subKey] = key.split('.');
-            
-            // Récupérer toutes les notifications actuelles
             const currentNotifications = getCurrentNotificationValues();
             currentNotifications[subKey] = value;
             
@@ -230,23 +237,21 @@
                 log('✅ Sauvegarde réussie:', response);
                 
                 if (response.success) {
-                    showSaveIndicator('success');
+                    // Message de succès plus discret pour les sauvegardes auto
+                    showSaveIndicator('success', 'Sauvegardé');
                     
-                    // Déclencher événement de succès
                     $(document).trigger('sisme_preference_saved', [key, value, true]);
                 } else {
-                    showSaveIndicator('error');
+                    showSaveIndicator('error', 'Erreur de sauvegarde');
                     log('❌ Erreur serveur:', response.data);
                     
-                    // Déclencher événement d'erreur
                     $(document).trigger('sisme_preference_error', [key, response.data.message || 'Erreur inconnue']);
                 }
             },
             error: function(xhr, status, error) {
                 log('❌ Erreur AJAX:', {xhr, status, error});
-                showSaveIndicator('error');
+                showSaveIndicator('error', 'Erreur de connexion');
                 
-                // Déclencher événement d'erreur
                 $(document).trigger('sisme_preference_error', [key, error]);
             }
         });
@@ -274,7 +279,7 @@
     function resetAllPreferences() {
         log('🔄 Reset toutes les préférences');
         
-        showSaveIndicator('saving');
+        showSaveIndicator('saving', 'Réinitialisation en cours...');
         
         $.ajax({
             url: config.ajax_url,
@@ -285,26 +290,28 @@
                 security: config.security
             },
             success: function(response) {
-                log('✅ Reset réussi:', response);
-                
                 if (response.success) {
-                    // Mettre à jour l'interface avec les nouvelles valeurs
-                    updateInterfaceWithPreferences(response.data.preferences);
-                    showSaveIndicator('success', config.i18n.reset_success);
+                    showSaveIndicator('success', 'Préférences réinitialisées !');
                     
-                    // Déclencher événement
+                    // Refresh après 1.5 secondes si on est dans le dashboard
+                    if (typeof window.SismeDashboard !== 'undefined') {
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        // Mise à jour interface si pas dans dashboard
+                        updateInterfaceWithPreferences(response.data.preferences);
+                    }
+                    
                     $(document).trigger('sisme_preferences_reset', [true, response.data.preferences]);
                 } else {
-                    showSaveIndicator('error');
-                    log('❌ Erreur reset:', response.data);
-                    
+                    showSaveIndicator('error', 'Erreur lors de la réinitialisation');
                     $(document).trigger('sisme_preferences_reset', [false, response.data.message]);
                 }
             },
             error: function(xhr, status, error) {
+                showSaveIndicator('error', 'Erreur de connexion');
                 log('❌ Erreur AJAX reset:', {xhr, status, error});
-                showSaveIndicator('error');
-                
                 $(document).trigger('sisme_preferences_reset', [false, error]);
             }
         });
@@ -314,36 +321,53 @@
      * Mettre à jour l'interface avec de nouvelles préférences
      */
     function updateInterfaceWithPreferences(preferences) {
-        // Mettre à jour les toggles
+        log('🔄 Mise à jour interface avec:', preferences);
+        
+        // 1. Mettre à jour les toggles (notifications + privacy)
         $('.sisme-preference-toggle').each(function() {
             const $toggle = $(this);
             const key = $toggle.data('preference-key');
             
             if (key.includes('.')) {
+                // Cas des notifications (key = "notifications.newsletter")
                 const [mainKey, subKey] = key.split('.');
                 const value = preferences[mainKey] && preferences[mainKey][subKey];
                 $toggle.prop('checked', !!value);
             } else {
+                // Cas des autres toggles (key = "privacy_public")
                 const value = preferences[key];
                 $toggle.prop('checked', !!value);
             }
         });
         
-        // Mettre à jour les multi-sélections
+        // 2. Mettre à jour les multi-sélections (plateformes, genres, types)
         $('.sisme-multi-select').each(function() {
             const $multiSelect = $(this);
             const key = $multiSelect.data('preference-key');
             const selectedValues = preferences[key] || [];
             
+            log(`📋 Mise à jour multi-select ${key}:`, selectedValues);
+            
+            // Réinitialiser tous les checkboxes
             $multiSelect.find('.sisme-multi-select-checkbox').each(function() {
                 const $checkbox = $(this);
                 const value = $checkbox.val();
-                const isSelected = selectedValues.includes(value) || selectedValues.includes(parseInt(value));
                 
+                // Vérifier si cette valeur est dans les sélectionnées
+                const isSelected = selectedValues.includes(value) || 
+                                 selectedValues.includes(parseInt(value)) ||
+                                 selectedValues.includes(String(value));
+                
+                // Mettre à jour le checkbox ET l'état visuel
                 $checkbox.prop('checked', isSelected);
                 updateMultiSelectItem($checkbox);
             });
         });
+        
+        // 3. Mettre à jour les compteurs/statistiques si présents
+        updateInterfaceStats(preferences);
+        
+        log('✅ Interface mise à jour complète');
     }
     
     /**
@@ -372,6 +396,22 @@
         });
         
         return values;
+    }
+
+    /**
+     * Mettre à jour les statistiques/compteurs de l'interface (optionnel)
+     */
+    function updateInterfaceStats(preferences) {
+        // Compter les sélections pour affichage
+        Object.keys(preferences).forEach(key => {
+            if (Array.isArray(preferences[key])) {
+                const count = preferences[key].length;
+                const $counter = $(`.sisme-${key}-counter`);
+                if ($counter.length) {
+                    $counter.text(count);
+                }
+            }
+        });
     }
     
     /**
@@ -413,37 +453,46 @@
     /**
      * Afficher l'indicateur de sauvegarde
      */
-    function showSaveIndicator(type, customMessage = null) {
-        if (!saveIndicator || !saveIndicator.length) {
+    function showSaveIndicator(type, message) {
+        // Essayer d'utiliser le système de notifications du dashboard
+        if (typeof window.SismeDashboard !== 'undefined' && window.SismeDashboard.showNotification) {
+            const messages = {
+                'saving': 'Sauvegarde en cours...',
+                'success': 'Préférences sauvegardées !',
+                'error': 'Erreur lors de la sauvegarde'
+            };
+            
+            const finalMessage = message || messages[type] || messages['success'];
+            
+            // Mapper les types pour le dashboard
+            const dashboardType = type === 'saving' ? 'info' : type;
+            const duration = type === 'saving' ? 2000 : 3000;
+            
+            window.SismeDashboard.showNotification(finalMessage, dashboardType, duration);
             return;
         }
         
-        let message = customMessage;
-        if (!message) {
-            switch (type) {
-                case 'saving':
-                    message = config.i18n.saving;
-                    break;
-                case 'success':
-                    message = config.i18n.saved;
-                    break;
-                case 'error':
-                    message = config.i18n.error;
-                    break;
-                default:
-                    message = '';
-            }
-        }
+        // Fallback: utiliser l'ancien système si pas dans le dashboard
+        const indicator = $('.sisme-save-indicator');
+        if (!indicator.length) return;
         
-        saveIndicator.removeClass('sisme-save-success sisme-save-error sisme-save-saving');
-        saveIndicator.addClass(`sisme-save-${type}`);
-        saveIndicator.find('.sisme-save-text').text(message);
-        saveIndicator.fadeIn(200);
+        const text = indicator.find('.sisme-save-text');
+        const messages = {
+            'saving': config.i18n.saving || 'Sauvegarde...',
+            'success': config.i18n.saved || 'Sauvegardé !',
+            'error': config.i18n.error || 'Erreur'
+        };
         
-        // Masquer automatiquement après succès ou erreur
-        if (type === 'success' || type === 'error') {
+        text.text(message || messages[type] || messages['success']);
+        
+        indicator
+            .removeClass('sisme-save-saving sisme-save-success sisme-save-error')
+            .addClass(`sisme-save-${type}`)
+            .fadeIn(200);
+        
+        if (type !== 'saving') {
             setTimeout(() => {
-                saveIndicator.fadeOut(200);
+                indicator.fadeOut(300);
             }, 3000);
         }
     }

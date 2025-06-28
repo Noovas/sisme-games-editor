@@ -202,13 +202,9 @@ class Sisme_User_Preferences_Data_Manager {
         }
         
         $defaults = self::get_default_preferences();
-        $success = self::update_multiple_preferences($user_id, $defaults);
+        self::update_multiple_preferences($user_id, $defaults);
         
-        if ($success && defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("[Sisme User Preferences] Préférences réinitialisées pour utilisateur {$user_id}");
-        }
-        
-        return $success;
+        return true;
     }
     
     /**
@@ -328,15 +324,24 @@ class Sisme_User_Preferences_Data_Manager {
      * @return array Préférences par défaut
      */
     public static function get_default_preferences() {
+        // Récupérer TOUTES les plateformes disponibles
+        $all_platforms = array_column(self::get_available_platforms(), 'slug');
+        
+        // Récupérer TOUS les genres disponibles  
+        $all_genres = array_column(self::get_available_genres(), 'id');
+        
+        // Récupérer TOUS les types de joueur disponibles
+        $all_player_types = array_column(self::get_available_player_types(), 'slug');
+        
         return [
-            'platforms' => [], // Aucune plateforme sélectionnée par défaut
-            'genres' => [], // Aucun genre sélectionné par défaut
-            'player_types' => [], // Aucun type sélectionné par défaut
+            'platforms' => $all_platforms,        // TOUTES les plateformes sélectionnées
+            'genres' => $all_genres,              // TOUS les genres sélectionnés  
+            'player_types' => $all_player_types,  // TOUS les types sélectionnés
             'notifications' => [
-                'new_games_in_genres' => false,
-                'favorite_games_updates' => true, // Activé par défaut
-                'new_indie_releases' => false,
-                'newsletter' => false
+                'new_games_in_genres' => true,     // Toutes activées par défaut
+                'favorite_games_updates' => true,
+                'new_indie_releases' => true,
+                'newsletter' => true
             ],
             'privacy_public' => true // Profil public par défaut
         ];
@@ -467,7 +472,6 @@ class Sisme_User_Preferences_Data_Manager {
      * @return bool True si valides
      */
     private static function validate_genre_ids($genre_ids) {
-        // Tableau vide = OK (aucune sélection)
         if (empty($genre_ids)) {
             return true;
         }
@@ -516,7 +520,7 @@ class Sisme_User_Preferences_Data_Manager {
         if (empty($notifications)) {
             return true;
         }
-    
+
         $valid_keys = array_keys(self::get_notification_types());
         
         foreach ($notifications as $key => $value) {
