@@ -1,169 +1,151 @@
-# 📊 User Dashboard - API Reference
+# 📊 User Dashboard - REF API
 
-**Version:** 1.0.0  
-**Module:** `includes/user/user-dashboard/`
+**Module:** `includes/user/user-dashboard/` | **Version:** 1.0.0 | **Status:** ✅ Production
 
 ---
 
 ## 📂 Architecture
 
 ```
-includes/user/user-dashboard/
-├── user-dashboard-loader.php        # Singleton + chargement assets
-├── user-dashboard-data-manager.php  # Gestion données + cache
-├── user-dashboard-api.php           # Shortcode + rendu HTML
+user-dashboard/
+├── user-dashboard-loader.php        # Singleton + assets
+├── user-dashboard-data-manager.php  # Données + cache
+├── user-dashboard-api.php           # Shortcode + rendu
 └── assets/
-    ├── user-dashboard.css           # Styles dashboard
-    └── user-dashboard.js            # Navigation + interactions
+    ├── user-dashboard.css           # Styles responsive
+    └── user-dashboard.js            # Navigation + sections
 ```
 
 ---
 
-## 🔧 Classes & Méthodes
+## 🔧 API Principale
 
-### `Sisme_User_Dashboard_Loader` (Singleton)
-
-**Instance & Assets**
+### Data Manager (Données & Cache)
 ```php
-$loader = Sisme_User_Dashboard_Loader::get_instance()
-$loader->force_load_assets()         // Force chargement CSS/JS
-$loader->are_assets_loaded()         // bool - Vérifier si assets chargés
-$loader->get_version()               // string - Version module
+// Données complètes
+Sisme_User_Dashboard_Data_Manager::get_dashboard_data($user_id)     // array|false complet
+Sisme_User_Dashboard_Data_Manager::get_user_info($user_id)          // array infos user
+Sisme_User_Dashboard_Data_Manager::get_gaming_stats($user_id)       // array stats gaming
+
+// Collections utilisateur
+Sisme_User_Dashboard_Data_Manager::get_favorite_games($user_id)     // array IDs favoris
+Sisme_User_Dashboard_Data_Manager::get_owned_games($user_id)        // array IDs possédés
+Sisme_User_Dashboard_Data_Manager::get_recent_games($user_id, $limit) // array via Cards
+Sisme_User_Dashboard_Data_Manager::get_activity_feed($user_id, $limit) // array activité
+
+// Gestion collections
+Sisme_User_Dashboard_Data_Manager::add_favorite_game($user_id, $game_id)    // bool
+Sisme_User_Dashboard_Data_Manager::remove_favorite_game($user_id, $game_id) // bool
+Sisme_User_Dashboard_Data_Manager::add_owned_game($user_id, $game_id)       // bool
+Sisme_User_Dashboard_Data_Manager::remove_owned_game($user_id, $game_id)    // bool
+
+// Cache & système
+Sisme_User_Dashboard_Data_Manager::clear_user_dashboard_cache($user_id)     // bool
+Sisme_User_Dashboard_Data_Manager::update_last_dashboard_visit($user_id)    // bool
+Sisme_User_Dashboard_Data_Manager::init_user_dashboard_data($user_id)       // bool
 ```
 
-**Hooks WordPress**
+### API Rendu
 ```php
-$loader->on_user_login($login, $user)   // Hook connexion utilisateur
-$loader->on_profile_update($user_id)    // Hook mise à jour profil
+// Shortcode principal
+[sisme_user_dashboard container_class="custom-class" user_id="123"]
+
+// Rendu direct
+Sisme_User_Dashboard_API::render_dashboard($atts)                    // string complet
+```
+
+### Loader (Singleton)
+```php
+$loader = Sisme_User_Dashboard_Loader::get_instance();
+$loader->force_load_assets()              // Force CSS/JS
+$loader->are_assets_loaded()              // bool status
+$loader->get_version()                    // string version
+$loader->on_user_login($login, $user)     // Hook connexion
+$loader->on_profile_update($user_id)      // Hook mise à jour
 ```
 
 ---
 
-### `Sisme_User_Dashboard_Data_Manager`
+## ⚡ JavaScript API
 
-**Données Dashboard**
-```php
-get_dashboard_data($user_id)         // array|false - Données complètes dashboard
-get_user_info($user_id)              // array - Infos utilisateur (nom, avatar, dates)
-get_gaming_stats($user_id)           // array - Stats gaming (favoris, owned, niveau)
-get_recent_games($user_id, $limit)   // array - Jeux récents avec module Cards
-get_favorite_games($user_id)         // array - Collection favoris utilisateur
-get_owned_games($user_id)            // array - Collection possession utilisateur
-get_activity_feed($user_id, $limit)  // array - Feed activité utilisateur
-```
-
-**Gestion Collections**
-```php
-add_favorite_game($user_id, $game_id)      // bool - Ajouter aux favoris
-remove_favorite_game($user_id, $game_id)   // bool - Retirer des favoris
-add_owned_game($user_id, $game_id)         // bool - Ajouter aux possessions
-remove_owned_game($user_id, $game_id)      // bool - Retirer des possessions
-```
-
-**Cache & Utilitaires**
-```php
-clear_user_dashboard_cache($user_id)       // bool - Nettoyer cache utilisateur
-clear_all_dashboard_caches()               // bool - Nettoyer tous les caches
-update_last_dashboard_visit($user_id)      // bool - MAJ dernière visite
-init_user_dashboard_data($user_id)         // bool - Initialiser données utilisateur
-```
-
-**Système & Debug**
-```php
-get_system_stats()                          // array - Stats système dashboard
-format_time_ago($date)                      // string - "Il y a X minutes"
-```
-
----
-
-### `Sisme_User_Dashboard_API`
-
-**Shortcode & Rendu**
-```php
-render_dashboard($atts)                     // string - Shortcode [sisme_user_dashboard]
-```
-
-**Méthodes Privées de Rendu**
-```php
-render_dashboard_header($user_info, $stats) // string - Header profil utilisateur
-render_dashboard_grid($dashboard_data)       // string - Grille principale + sidebar
-render_sidebar_navigation()                 // string - Menu navigation sidebar
-render_quick_stats($gaming_stats)           // string - Widget statistiques
-render_activity_feed($activity_feed)        // string - Feed activité utilisateur
-render_recent_games($recent_games)          // string - Jeux récents via Cards
-render_favorites_section($favorite_games)   // string - Section favoris
-render_login_required()                     // string - Message connexion requise
-render_access_denied()                      // string - Message accès refusé
-render_error($message)                      // string - Message d'erreur
-```
-
----
-
-## 🎮 JavaScript API (`user-dashboard.js`)
-
-**Objet Principal**
+### Configuration Auto-injectée
 ```javascript
-SismeDashboard.init()                       // Initialisation automatique
-SismeDashboard.currentSection               // string - Section active actuelle
-SismeDashboard.isInitialized                // bool - État initialisation
+window.sismeUserDashboard = {
+    ajax_url: '/wp-admin/admin-ajax.php',
+    user_id: 123,
+    i18n: {/* messages traduits */},
+    debug: false
+}
 ```
 
-**Navigation**
+### Objet Principal
 ```javascript
-SismeDashboard.setActiveSection(section, scroll) // Changer section active
-SismeDashboard.isValidSection(section)      // bool - Vérifier section valide
-SismeDashboard.updateURL(section)           // MAJ URL sans reload
+SismeDashboard.init()                        // Init automatique
+SismeDashboard.currentSection                // string section active
+SismeDashboard.isInitialized                // bool état init
+SismeDashboard.validSections                // array sections valides ['overview', 'favorites', 'library', 'activity', 'settings']
 ```
 
-**Interface**
+### Navigation Entre Sections
 ```javascript
-SismeDashboard.updateMobileNav()            // MAJ navigation mobile
-SismeDashboard.showNotification(msg, type)  // Afficher notification toast
-SismeDashboard.updateStats(stats)           // MAJ statistiques sidebar
+SismeDashboard.setActiveSection(section, animate)  // Changer section avec animation
+SismeDashboard.isValidSection(section)             // bool validation
+SismeDashboard.updateURL(section)                  // MAJ URL sans reload
+SismeDashboard.handleNavigation(event)             // Handler clic navigation
+SismeDashboard.handleHashChange()                  // Handler changement URL
 ```
 
-**API Publique**
+### Interface & Notifications
 ```javascript
-SismeDashboard.api.goToSection(section)     // Changer section programmatiquement
+SismeDashboard.showNotification(msg, type, duration)  // Toast notification
+SismeDashboard.closeNotification(event)               // Fermer notification
+SismeDashboard.updateMobileNav()                      // MAJ nav mobile
+SismeDashboard.createMobileToggle()                   // Toggle sidebar mobile
+```
+
+### API Publique
+```javascript
+SismeDashboard.api.goToSection(section)        // Navigation externe
 SismeDashboard.api.notify(msg, type, duration) // Notification externe
-SismeDashboard.api.getCurrentSection()      // string - Section courante
-SismeDashboard.api.isReady()                // bool - Dashboard prêt
+SismeDashboard.api.getCurrentSection()         // string section courante
+SismeDashboard.api.isReady()                   // bool dashboard prêt
 ```
 
-**Utilitaires**
+### Utilitaires
 ```javascript
-SismeDashboard.utils.isMobile()             // bool - Détection mobile
-SismeDashboard.utils.scrollTo(target, duration) // Scroll animé
-SismeDashboard.utils.debounce(func, wait)   // Fonction debounce
+SismeDashboard.utils.isMobile()                    // bool détection mobile
+SismeDashboard.utils.scrollTo(target, duration)    // Scroll animé
+SismeDashboard.utils.debounce(func, wait)          // Debouncing
+SismeDashboard.log(message)                        // Logging conditionnel
 ```
 
 ---
 
-## 📊 Structure des Données
+## 🗂️ Structure Données
 
-### Données Dashboard Complètes
+### Dashboard Complet
 ```php
 [
     'user_info' => [
         'id' => 123,
-        'display_name' => 'Nom Utilisateur',
+        'display_name' => 'Username',
         'email' => 'user@example.com',
         'avatar_url' => 'https://...',
-        'member_since' => 'j F Y',
+        'member_since' => 'j F Y',            // Format français
         'last_login' => 'timestamp',
         'profile_created' => 'Y-m-d H:i:s'
     ],
     'gaming_stats' => [
         'favorite_count' => 15,
         'owned_count' => 8,
-        'total_games' => 23,
-        'level' => 'Expérimenté',
-        'level_points' => 25,
+        'total_games' => 23,                  // favorite + owned
+        'level' => 'Expérimenté',             // Basé sur points
+        'level_points' => 25,                 // 1pt/favori + 2pts/article
         'articles_count' => 3
     ],
-    'recent_games' => [/* Données module Cards */],
-    'favorite_games' => [/* IDs jeux favoris */],
-    'owned_games' => [/* IDs jeux possédés */],
+    'recent_games' => [],                     // Via module Cards
+    'favorite_games' => [1, 5, 12],         // Array IDs
+    'owned_games' => [2, 8, 15],            // Array IDs
     'activity_feed' => [
         [
             'type' => 'favorite_added',
@@ -178,63 +160,205 @@ SismeDashboard.utils.debounce(func, wait)   // Fonction debounce
 
 ### Système de Niveaux
 ```php
-'Nouveau' => 0-4 points      // Utilisateur récent
-'Débutant' => 5-9 points     // Premiers favoris
-'Intermédiaire' => 10-19     // Utilisateur actif
-'Expérimenté' => 20-49       // Utilisateur régulier  
-'Expert' => 50+ points       // Power user
+'Nouveau' => 0-4 points        // Utilisateur récent
+'Débutant' => 5-9 points       // Premiers favoris
+'Intermédiaire' => 10-19       // Utilisateur actif
+'Expérimenté' => 20-49         // Utilisateur régulier
+'Expert' => 50+ points         // Power user
+```
 
-// Calcul: 1 pt/favori + 2 pts/article
+### Meta Keys WordPress
+```php
+'sisme_user_favorite_games'      // Array IDs favoris
+'sisme_user_owned_games'         // Array IDs possédés
+'sisme_user_last_login'          // Timestamp dernière connexion
+'sisme_user_dashboard_created'   // Date création dashboard
 ```
 
 ---
 
-## 🚀 Utilisation
+## 🎨 CSS Classes
 
-### Shortcode
-```html
-[sisme_user_dashboard]                              <!-- Basique -->
-[sisme_user_dashboard container_class="ma-classe"] <!-- Classes custom -->
-[sisme_user_dashboard user_id="123"]               <!-- Autre utilisateur (admin) -->
+### Structure Principale
+```css
+.sisme-user-dashboard            /* Container principal */
+.sisme-dashboard-header          /* Header avec profil */
+.sisme-dashboard-grid            /* Grille principale + sidebar */
+.sisme-dashboard-content         /* Zone contenu principal */
+.sisme-dashboard-sidebar         /* Sidebar navigation + stats */
 ```
 
-### PHP
+### Navigation
+```css
+.sisme-nav-list                  /* Liste navigation */
+.sisme-nav-link                  /* Lien navigation avec icônes */
+.sisme-nav-link.active           /* Lien actif avec animation */
+.sisme-nav-badge                 /* Badge notifications */
+.sisme-nav-count                 /* Compteur éléments */
+```
+
+### Sections & Widgets
+```css
+.sisme-dashboard-section         /* Section contenu (overview, favorites, etc.) */
+.sisme-profile-card              /* Carte profil header */
+.sisme-quick-stats               /* Widget statistiques rapides */
+.sisme-activity-feed             /* Feed d'activité */
+.sisme-game-grid                 /* Grille jeux favoris/possédés */
+```
+
+### Mobile & Responsive
+```css
+.sisme-mobile-toggle             /* Bouton toggle sidebar mobile */
+.sisme-mobile-overlay            /* Overlay fermeture sidebar */
+@media (max-width: 768px)        /* Adaptations tablette */
+@media (max-width: 480px)        /* Adaptations mobile */
+```
+
+---
+
+## 🚀 Usage Patterns
+
+### Shortcode Simple
 ```php
-// Chargement forcé
-$loader = Sisme_User_Dashboard_Loader::get_instance();
-$loader->force_load_assets();
-
-// Données utilisateur
-$data = Sisme_User_Dashboard_Data_Manager::get_dashboard_data($user_id);
-
-// Gestion favoris
-Sisme_User_Dashboard_Data_Manager::add_favorite_game($user_id, $game_id);
+echo do_shortcode('[sisme_user_dashboard]');
 ```
 
-### JavaScript
+### Récupération Données
+```php
+$data = Sisme_User_Dashboard_Data_Manager::get_dashboard_data($user_id);
+$favorites = $data['favorite_games'];
+$stats = $data['gaming_stats'];
+```
+
+### Gestion Collections
+```php
+// Ajouter aux favoris
+$success = Sisme_User_Dashboard_Data_Manager::add_favorite_game($user_id, $game_id);
+
+// Nettoyer cache après modification
+Sisme_User_Dashboard_Data_Manager::clear_user_dashboard_cache($user_id);
+```
+
+### Navigation JavaScript
 ```javascript
-// Navigation programmatique
+// Changer de section
 SismeDashboard.api.goToSection('favorites');
 
-// Notifications
-SismeDashboard.api.notify('Favori ajouté !', 'success');
+// Notification utilisateur
+SismeDashboard.api.notify('Jeu ajouté aux favoris !', 'success', 3000);
+
+// Écouter changements section
+$(document).on('sisme:dashboard:section-changed', function(e, section, previous) {
+    console.log(`Navigation: ${previous} → ${section}`);
+});
 ```
 
 ---
 
-## ⚡ Performance
+## ⚡ Performance & Cache
 
-**Cache**
-- Durée: 5 minutes par utilisateur
-- Invalidation auto: Mise à jour profil
-- Clé: `sisme_dashboard_data_{user_id}`
+### Cache Système
+```php
+// Cache automatique 5 minutes par utilisateur
+const CACHE_DURATION = 300;
+$cache_key = "sisme_dashboard_data_{$user_id}";
 
-**Assets Conditionnels**
-- Chargement sur détection shortcode
-- URLs dashboard connues
-- Forçage manuel possible
+// Invalidation auto sur :
+- Mise à jour profil utilisateur
+- Ajout/suppression favoris ou possédés
+- Hooks WordPress profile_update
+```
 
-**Optimisations CSS/JS**
-- GPU acceleration (`will-change`)
-- Debouncing des interactions
-- Navigation sans reload
+### Assets Conditionnels
+```php
+// Chargement automatique si :
+- Shortcode [sisme_user_dashboard] détecté
+- URLs dashboard : /tableau-de-bord/, /dashboard/, /mon-profil/
+- Intégration autres modules user
+
+// Forçage manuel
+$loader->force_load_assets();
+```
+
+### Optimisations JavaScript
+```javascript
+// Navigation fluide sans reload
+- Deep linking avec hash URL
+- Sauvegarde section dans localStorage
+- Animations CSS transitions
+- Debouncing interactions utilisateur
+```
+
+---
+
+## 🐛 Debug & Hooks
+
+### Debug PHP
+```php
+// Logs WP_DEBUG
+$data = Sisme_User_Dashboard_Data_Manager::get_dashboard_data($user_id);
+// [Sisme Dashboard Data] Cache hit pour utilisateur 123
+
+// Stats système
+$stats = Sisme_User_Dashboard_Data_Manager::get_system_stats();
+```
+
+### Debug JavaScript
+```javascript
+// Config debug
+SismeDashboard.config.debug = true;
+
+// Logs conditionnels
+SismeDashboard.log('Navigation vers:', section);
+```
+
+### Hooks WordPress
+```php
+// Hooks internes
+add_action('wp_login', [$loader, 'on_user_login'], 20, 2);
+add_action('profile_update', [$loader, 'on_profile_update'], 10, 1);
+
+// Événements personnalisés
+do_action('sisme_dashboard_data_updated', $user_id, $dashboard_data);
+```
+
+### Événements JavaScript
+```javascript
+// Section changée
+$(document).on('sisme:dashboard:section-changed', function(e, section, previous) {
+    // Logique personnalisée
+});
+
+// Dashboard initialisé
+$(document).on('sisme:dashboard:ready', function() {
+    // Actions post-initialisation
+});
+```
+
+---
+
+## 🔗 Intégrations
+
+### Module Cards
+```php
+// Récupération jeux récents via Cards
+$recent_games = Sisme_User_Dashboard_Data_Manager::get_recent_games($user_id, 6);
+// Utilise Sisme_Cards_Functions::get_games_by_criteria()
+```
+
+### Module User-Auth
+```php
+// Synchronisation automatique
+- Hook wp_login pour màj last_login
+- Hook profile_update pour cache invalidation
+- Permissions via get_current_user_id()
+```
+
+### Modules Externes
+```php
+// Récupérer données dashboard depuis autre module
+$loader = Sisme_User_Dashboard_Loader::get_instance();
+if ($loader->are_assets_loaded()) {
+    $data = Sisme_User_Dashboard_Data_Manager::get_dashboard_data($user_id);
+}
+```
