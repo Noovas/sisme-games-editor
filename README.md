@@ -36,11 +36,6 @@ Documentation technique condensée pour tous les modules du plugin Sisme Games E
 - **[👤 User](docs/user/user-readme.md)** - Système utilisateur complet
 - **[🎴 Cards](docs/cards/cards-readme.md)** - Rendu cartes de jeux
 
-### Modules Support  
-- **[🏷️ Taxonomies](docs/taxonomies/taxonomies-readme.md)** - Classification & métadonnées
-- **[🎮 Game Management](docs/game-management/game-management-readme.md)** - Gestion contenus jeux
-- **[🔧 Utils](docs/utils/utils-readme.md)** - Utilitaires & helpers
-
 ---
 
 ## 📖 Conventions
