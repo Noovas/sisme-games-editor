@@ -108,11 +108,15 @@
      * Ouvrir le panel de notifications
      */
     function openPanel() {
-        if (panelOpen || $panel.length === 0) {
+        if (panelOpen) {
             return;
         }
         
-        // Créer le panel s'il n'existe pas
+        if ($('.sisme-notifications-panel').length === 0) {
+            createPanel();
+            $panel = $('.sisme-notifications-panel'); // Re-sélectionner
+        }
+        
         if ($panel.length === 0) {
             createPanel();
         }

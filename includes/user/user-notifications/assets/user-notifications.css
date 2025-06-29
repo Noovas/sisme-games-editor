@@ -94,7 +94,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--sisme-gaming-dark-light);
+    background: var(--sisme-dashboard-bg-secondary);
 }
 
 .sisme-notifications-header h3 {
@@ -141,14 +141,15 @@
     transition: var(--sisme-transition-fast);
     cursor: pointer;
     position: relative;
+    background: var(--sisme-dashboard-bg-primary);
 }
 
 .sisme-notification-item:hover {
-    background: var(--sisme-hover-bg);
+    background: var(--sisme-dashboard-bg-tertiary);
 }
 
 .sisme-notification-item--unread {
-    background: rgba(var(--sisme-gaming-accent-rgb), 0.05);
+    background: var(--sisme-dashboard-bg-primary);
     border-left: 3px solid var(--sisme-gaming-accent);
 }
 
@@ -225,6 +226,7 @@
     text-align: center;
     padding: var(--sisme-space-xl);
     color: var(--sisme-gaming-text-muted);
+    background: var(--sisme-dashboard-bg-primary);
 }
 
 .sisme-empty-icon {

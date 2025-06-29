@@ -12,6 +12,7 @@
 | **user-profile** | ✅ Production | Profil complet, avatar, formulaires | [`user-profile-readme.md`](user-profile-readme.md) |
 | **user-preferences** | ✅ Production | Préférences gaming, notifications | [`user-preferences-readme.md`](user-preferences-readme.md) |
 | **user-dashboard** | ✅ Production | Dashboard unifié, intégration modules | [`user-dashboard-readme.md`](user-dashboard-readme.md) |
+| **user-notifications** | 🚧 En cours | Notifications volante, Dashboard | [`user-notifications-readme.md`](user-notifications-readme.md) |
 | **user-library** | 🚧 Planifié | Collection jeux, wishlist, progression | *À venir* |
 | **user-social** | 🚧 Planifié | Profils publics, amis, communauté | *À venir* |
 
@@ -26,6 +27,7 @@ includes/user/
 └── user-profile/           # ✅ Gestion profil (Production)
 └── user-preferences/       # ✅ Préférences utilisateur (Production)
 └── user-dashboard/         # ✅ Dashboard utilisateur (Production)
+└── user-notifications/     # 🚧 Notifications volantes (En cours)
 └── user-library/           # 🚧 Ludothèque personnelle (Planifié)
 └── user-social/            # 🚧 Fonctionnalités sociales (Planifié)
 ```

@@ -75,7 +75,7 @@ class Sisme_User_Notifications_API {
         $unread_count = Sisme_User_Notifications_Data_Manager::get_unread_count($user_id);
         
         if ($unread_count === 0 && !$show_zero) {
-            return '<div class="sisme-notifications-badge" data-count="0" style="display: none;"></div>';
+            $show_zero = true;
         }
         
         $badge_class = 'sisme-notifications-badge';
