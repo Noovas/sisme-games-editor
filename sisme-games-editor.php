@@ -26,7 +26,55 @@ define('SISME_GAMES_MODULES', array(
 
 // Charger les fichiers
 require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/sisme-constants.php';
-require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/sisme-loader.php';
+require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/assets-loader.php';
+
+/**
+ * Charger automatiquement tous les fichiers utilitaires
+ */
+function sisme_load_utils() {
+    $utils_dir = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/utils/';
+    
+    // Vérifier que le dossier existe
+    if (!is_dir($utils_dir)) {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[Sisme Games Editor] Dossier utils non trouvé: ' . $utils_dir);
+        }
+        return;
+    }
+    
+    // Scanner le dossier pour les fichiers PHP
+    $files = glob($utils_dir . '*.php');
+    
+    if (empty($files)) {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[Sisme Games Editor] Aucun fichier PHP trouvé dans utils/');
+        }
+        return;
+    }
+    
+    $loaded_count = 0;
+    
+    foreach ($files as $file) {
+        $filename = basename($file);
+        
+        // Exclure les fichiers commençant par un point ou underscore (convention fichiers privés)
+        if (strpos($filename, '.') === 0 || strpos($filename, '_') === 0) {
+            continue;
+        }
+        
+        require_once $file;
+        $loaded_count++;
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("[Sisme Games Editor] Utilitaire chargé: {$filename}");
+        }
+    }
+    
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log("[Sisme Games Editor] {$loaded_count} utilitaires chargés depuis utils/");
+    }
+}
+
 
 class SismeGamesEditor {
     
@@ -53,6 +101,7 @@ class SismeGamesEditor {
         add_action('init', array($this, 'init_modules_system'));
 
         $this->include_files();
+        sisme_load_utils();
 
         new Sisme_Assets_Loader();
         new Sisme_Content_Filter();

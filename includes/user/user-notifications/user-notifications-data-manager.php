@@ -22,7 +22,7 @@ class Sisme_User_Notifications_Data_Manager {
     
     const TYPE_NEW_GAME = 'new_game';
     const MAX_NOTIFICATIONS = 99;
-    const META_KEY = 'sisme_user_notifications';
+    const META_KEY = 'sisme_user_notifications_list';
     
     /**
      * Ajouter une notification à un utilisateur
