@@ -2,6 +2,16 @@
 
 ## utils-formatting.php
 
+**Constantes:**
+```php
+DEFAULT_TRUNCATE_LENGTH = 150
+DEFAULT_DATE_FORMAT = 'j F Y'
+DEFAULT_PLATEFORM_PC = '🖥️'
+DEFAULT_PLATEFORM_CONSOLE = '🎮'
+DEFAULT_PLATEFORM_MOBILE = '📱'
+DEFAULT_PLATEFORM_WEB = '🌐'
+```
+
 <details>
 <summary><code>truncate_smart($text, $max_length = 150)</code></summary>
 
