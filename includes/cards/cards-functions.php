@@ -19,10 +19,6 @@ if (!defined('DAY_IN_SECONDS')) {
 
 class Sisme_Cards_Functions {   
 
-    public static function get_games_by_criteria($criteria = array()) {
-		return Sisme_Utils_Games::get_games_by_criteria($criteria);
-    }
-
     /**
 	 * 🛠️ FONCTION UTILITAIRE : Déterminer le statut depuis une date
 	 * 

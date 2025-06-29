@@ -129,7 +129,7 @@ class Sisme_Search_Suggestions {
         // Récupérer les jeux les plus populaires (si système de tracking disponible)
         if (class_exists('Sisme_Cards_Functions')) {
             try {
-                $popular_games = Sisme_Cards_Functions::get_games_by_criteria(array(
+                $popular_games = Sisme_Utils_Games::get_games_by_criteria(array(
                     'is_team_choice' => true,
                     'limit' => 3
                 ));

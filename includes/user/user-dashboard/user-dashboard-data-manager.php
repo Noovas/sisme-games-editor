@@ -188,7 +188,7 @@ class Sisme_User_Dashboard_Data_Manager {
                 'order' => 'DESC'
             ];
             
-            $games = Sisme_Cards_Functions::get_games_by_criteria($criteria);
+            $games = Sisme_Utils_Games::get_games_by_criteria($criteria);
             return is_array($games) ? $games : [];
             
         } catch (Exception $e) {
@@ -680,7 +680,7 @@ class Sisme_User_Dashboard_Data_Manager {
                 'sort_by_date' => true
             ];
             
-            $filtered_game_ids = Sisme_Cards_Functions::get_games_by_criteria($criteria);
+            $filtered_game_ids = Sisme_Utils_Games::get_games_by_criteria($criteria);
             
             // CONVERTIR LES IDS EN DONNÉES COMPLÈTES
             return self::build_games_array($filtered_game_ids);
@@ -694,7 +694,7 @@ class Sisme_User_Dashboard_Data_Manager {
      */
     private static function get_recent_games_fallback($limit = 12) {
         if (class_exists('Sisme_Cards_Functions')) {
-            $fallback_ids = Sisme_Cards_Functions::get_games_by_criteria([
+            $fallback_ids = Sisme_Utils_Games::get_games_by_criteria([
                 'max_results' => $limit,
                 'sort_by_date' => true
             ]);

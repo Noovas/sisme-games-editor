@@ -133,11 +133,7 @@ class Sisme_Search_Filters {
                 'error' => 'Module Cards non disponible'
             );
         }
-        
-        // Récupérer tous les jeux correspondants
-        $all_games = Sisme_Cards_Functions::get_games_by_criteria($criteria);
-        
-        // Appliquer les filtres personnalisés
+        $all_games = Sisme_Utils_Games::get_games_by_criteria($criteria);
         $filtered_games = self::apply_custom_filters($all_games, $params);
         
         // Appliquer le tri
@@ -272,21 +268,11 @@ class Sisme_Search_Filters {
         if (!defined('WP_DEBUG') || !WP_DEBUG) {
             return;
         }
-        
-        error_log('=== DEBUG CONVERSION GENRES ===');
-        error_log('IDs reçus: ' . implode(', ', $genre_ids));
-        
         $slugs = self::convert_genre_ids_to_slugs($genre_ids);
-        error_log('Slugs générés: ' . implode(', ', $slugs));
-        
-        // Tester avec Cards Functions
         if (class_exists('Sisme_Cards_Functions')) {
             $criteria = array('genres' => $slugs);
-            $games = Sisme_Cards_Functions::get_games_by_criteria($criteria);
-            error_log('Jeux trouvés avec les slugs: ' . count($games));
+            $games = Sisme_Utils_Games::get_games_by_criteria($criteria);
         }
-        
-        error_log('=== FIN DEBUG CONVERSION ===');
     }
     
     /**
