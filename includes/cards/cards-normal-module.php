@@ -83,6 +83,7 @@ class Sisme_Cards_Normal_Module {
      */
     private static function render_content_block($game_data, $options) {
         $output = '<div class="sisme-card-content">';
+        $output .= '<a href="' . esc_url($game_data['game_url']) . '">';
         
         // Titre cliquable
         $output .= self::render_title($game_data);
@@ -110,6 +111,7 @@ class Sisme_Cards_Normal_Module {
         // Meta footer
         $output .= self::render_meta_footer($game_data, $options);
         
+        $output.= '</a>';
         $output .= '</div>';
         
         return $output;
@@ -125,7 +127,6 @@ class Sisme_Cards_Normal_Module {
         $output .= esc_html($game_data['name']);
         $output .= '</a>';
         $output .= '</h3>';
-        
         return $output;
     }
     

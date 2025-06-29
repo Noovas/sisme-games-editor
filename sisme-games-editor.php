@@ -402,8 +402,8 @@ class Sisme_Beta_Indicator {
     const FEATURES_UPCOMING = [
         'Vue profil utilisateur',
         'Système amis et communauté',
-        'Espace testeur/guide',
-        'Espace développeur/éditeurs',
+        'Espace testeurs/guides',
+        'Espace développeurs/éditeurs',
         'Et plein d\'autres bricoles'
     ];
     
@@ -438,7 +438,7 @@ class Sisme_Beta_Indicator {
                 betaIndicator.innerHTML = `
                     <div class="sisme-beta-content">
                         <span class="sisme-beta-icon">🚧</span>
-                        <span class="sisme-beta-text">BETA</span>
+                        <span class="sisme-beta-text">ALPHA</span>
                     </div>
                     <div class="sisme-beta-tooltip">
                         <div class="sisme-beta-tooltip-content">

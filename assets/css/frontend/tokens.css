@@ -277,6 +277,10 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    max-width: 80%;
+}
+
+.sisme-favorites-section h4.sisme-game-title {
     max-width: 50%;
 }
 
