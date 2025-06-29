@@ -134,7 +134,7 @@ class Sisme_Cards_Normal_Module {
      * 📝 Description tronquée
      */
     private static function render_description($game_data) {
-        $short_description = Sisme_Cards_Functions::truncate_smart($game_data['description'], 90);
+        $short_description = Sisme_Utils_Formatting::truncate_smart($game_data['description'], 90);
         
         return '<p class="sisme-card-description">' . esc_html($short_description) . '</p>';
     }

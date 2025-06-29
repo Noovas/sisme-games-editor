@@ -17,10 +17,7 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 24 * 60 * 60); // 86400 secondes
 }
 
-class Sisme_Cards_Functions {
-
-
-    
+class Sisme_Cards_Functions {    
     /**
      * 📊 Récupérer les données complètes d'un jeu
      * 
@@ -395,25 +392,7 @@ class Sisme_Cards_Functions {
 	        return 'Il y a ' . floor($diff / (30 * DAY_IN_SECONDS)) . ' mois';
 	    }
 	}
-    
-    /**
-     * ✂️ Tronquer intelligemment un texte sur les mots
-     */
-    public static function truncate_smart($text, $max_length) {
-        if (strlen($text) <= $max_length) {
-            return $text;
-        }
-        
-        $truncated = substr($text, 0, $max_length);
-        $last_space = strrpos($truncated, ' ');
-        
-        if ($last_space !== false) {
-            $truncated = substr($truncated, 0, $last_space);
-        }
-        
-        return rtrim($truncated, '.,;:!?') . '...';
-    }
-    
+   
     /**
      * 🎮 Obtenir l'icône d'une plateforme
      */
