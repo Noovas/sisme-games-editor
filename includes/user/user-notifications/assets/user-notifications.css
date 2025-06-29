@@ -1,0 +1,318 @@
+/**
+ * File: /sisme-games-editor/includes/user/user-notifications/assets/user-notifications.css
+ * Styles pour le système de notifications utilisateur
+ * 
+ * RESPONSABILITÉ:
+ * - Badge de notification avec compteur
+ * - Panel latéral des notifications
+ * - Items de notification individuels
+ * - États hover et animations
+ * - Responsive design
+ * 
+ * DÉPENDANCES:
+ * - Design tokens frontend (tokens.css)
+ * - Variables CSS personnalisées
+ */
+
+/* ===🔔 BADGE NOTIFICATION ============= */
+.sisme-notifications-badge {
+    position: relative;
+    display: inline-block;
+}
+
+.sisme-notifications-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    padding: var(--sisme-space-sm);
+    border-radius: var(--sisme-radius-md);
+    transition: var(--sisme-transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sisme-notifications-toggle:hover {
+    background: var(--sisme-hover-bg);
+}
+
+.sisme-notification-icon {
+    font-size: 1.5rem;
+    display: block;
+}
+
+.sisme-notification-count {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: var(--sisme-gaming-accent);
+    color: var(--sisme-gaming-bg);
+    font-size: 0.75rem;
+    font-weight: var(--sisme-font-bold);
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border: 2px solid var(--sisme-gaming-bg);
+}
+
+.sisme-notifications-badge--active .sisme-notification-icon {
+    animation: notification-pulse 2s infinite;
+}
+
+@keyframes notification-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* ===📋 PANEL NOTIFICATIONS ============ */
+.sisme-notifications-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 380px;
+    height: 100vh;
+    background: var(--sisme-gaming-bg);
+    border-left: 1px solid var(--sisme-gaming-border);
+    box-shadow: var(--sisme-shadow-xl);
+    z-index: 9999;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.sisme-notifications-panel--open {
+    transform: translateX(0);
+}
+
+.sisme-notifications-header {
+    padding: var(--sisme-space-lg);
+    border-bottom: 1px solid var(--sisme-gaming-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--sisme-gaming-dark-light);
+}
+
+.sisme-notifications-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: var(--sisme-font-semibold);
+    color: var(--sisme-gaming-text-bright);
+}
+
+.sisme-notifications-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--sisme-gaming-text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--sisme-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-notifications-close:hover {
+    background: var(--sisme-hover-bg);
+    color: var(--sisme-gaming-text-bright);
+}
+
+.sisme-notifications-content {
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+/* ===📜 LISTE NOTIFICATIONS ============ */
+.sisme-notifications-list {
+    padding: 0;
+}
+
+.sisme-notification-item {
+    display: flex;
+    padding: var(--sisme-space-md);
+    border-bottom: 1px solid var(--sisme-gaming-border);
+    transition: var(--sisme-transition-fast);
+    cursor: pointer;
+    position: relative;
+}
+
+.sisme-notification-item:hover {
+    background: var(--sisme-hover-bg);
+}
+
+.sisme-notification-item--unread {
+    background: rgba(var(--sisme-gaming-accent-rgb), 0.05);
+    border-left: 3px solid var(--sisme-gaming-accent);
+}
+
+.sisme-notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.sisme-notification-game {
+    margin-bottom: var(--sisme-space-xs);
+}
+
+.sisme-notification-game-link {
+    color: var(--sisme-gaming-text-bright);
+    text-decoration: none;
+    font-weight: var(--sisme-font-medium);
+    transition: var(--sisme-transition-fast);
+}
+
+.sisme-notification-game-link:hover {
+    color: var(--sisme-gaming-accent);
+}
+
+.sisme-notification-message {
+    color: var(--sisme-gaming-text-muted);
+    font-size: 0.875rem;
+    margin-bottom: var(--sisme-space-xs);
+}
+
+.sisme-notification-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-space-sm);
+}
+
+.sisme-notification-time {
+    color: var(--sisme-gaming-text-muted);
+    font-size: 0.8rem;
+}
+
+.sisme-notification-actions {
+    display: flex;
+    align-items: center;
+    margin-left: var(--sisme-space-sm);
+}
+
+.sisme-notification-mark-read {
+    background: none;
+    border: none;
+    color: var(--sisme-gaming-text-muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--sisme-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--sisme-transition-fast);
+    opacity: 0;
+}
+
+.sisme-notification-item:hover .sisme-notification-mark-read {
+    opacity: 1;
+}
+
+.sisme-notification-mark-read:hover {
+    background: var(--sisme-gaming-accent);
+    color: var(--sisme-gaming-bg);
+}
+
+/* ===🔄 ÉTAT VIDE ==================== */
+.sisme-notifications-empty {
+    text-align: center;
+    padding: var(--sisme-space-xl);
+    color: var(--sisme-gaming-text-muted);
+}
+
+.sisme-empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--sisme-space-md);
+    opacity: 0.6;
+}
+
+.sisme-notifications-empty h4 {
+    font-size: 1.125rem;
+    margin-bottom: var(--sisme-space-sm);
+    color: var(--sisme-gaming-text-bright);
+}
+
+.sisme-notifications-empty p {
+    color: var(--sisme-gaming-text-muted);
+    font-size: 0.9rem;
+}
+
+/* ===🔐 CONNEXION REQUISE ============= */
+.sisme-notifications-login-required {
+    padding: var(--sisme-space-lg);
+    text-align: center;
+    color: var(--sisme-gaming-text-muted);
+}
+
+/* ===📱 RESPONSIVE =================== */
+@media (max-width: 768px) {
+    .sisme-notifications-panel {
+        width: 100vw;
+        left: 0;
+        right: 0;
+        transform: translateX(100%);
+    }
+    
+    .sisme-notifications-panel--open {
+        transform: translateX(0);
+    }
+    
+    .sisme-notification-item {
+        padding: var(--sisme-space-lg) var(--sisme-space-md);
+    }
+    
+    .sisme-notification-mark-read {
+        opacity: 1;
+    }
+}
+
+/* ===⚡ ANIMATIONS ================== */
+.sisme-notification-item {
+    animation: notification-slide-in 0.3s ease-out;
+}
+
+@keyframes notification-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Overlay pour fermer le panel en cliquant à côté */
+.sisme-notifications-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.sisme-notifications-overlay--visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ===🎨 INTÉGRATION DASHBOARD ======== */
+.sisme-user-dashboard .sisme-notifications-badge {
+    /* Styles spécifiques dashboard si nécessaire */
+}
+
+.sisme-dashboard-header .sisme-notifications-badge {
+    margin-left: var(--sisme-space-md);
+}

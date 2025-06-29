@@ -47,13 +47,6 @@ class SismeCarousel {
         this.bindResizeEvent();
         this.updateButtonsState();
         this.updatePagination();
-        
-        this.debug('🎠 Carrousel scroll simple initialisé:', {
-            cardsPerView: this.currentCardsPerView,
-            slideWidth: this.slideWidth,
-            totalCards: this.totalCards,
-            totalPages: this.totalPages
-        });
     }
     
     // ========================================
@@ -85,8 +78,6 @@ class SismeCarousel {
                 this.currentCardsPerView = initial;
                 break;
         }
-        
-        this.debug(`📱 Responsive: ${breakpoint} → ${this.currentCardsPerView} cartes`);
     }
     
     setupScrollContainer() {
@@ -137,8 +128,6 @@ class SismeCarousel {
             slide.style.minWidth = `${this.slideWidth}px`;
             slide.style.maxWidth = `${this.slideWidth}px`;
         });
-        
-        this.debug(`📐 Dimensions: container=${containerWidth}px, slide=${this.slideWidth}px, pages=${this.totalPages}`);
     }
     
     bindResizeEvent() {
@@ -185,8 +174,6 @@ class SismeCarousel {
             left: -scrollAmount,
             behavior: 'smooth'
         });
-        
-        this.debug(`⬅️ Scroll previous: -${scrollAmount}px`);
     }
     
     scrollToNext() {
@@ -195,8 +182,6 @@ class SismeCarousel {
             left: scrollAmount,
             behavior: 'smooth'
         });
-        
-        this.debug(`➡️ Scroll next: +${scrollAmount}px`);
     }
     
     // ========================================
@@ -250,8 +235,6 @@ class SismeCarousel {
             dot.addEventListener('click', () => this.goToPage(i));
             this.paginationContainer.appendChild(dot);
         }
-        
-        this.debug(`🔘 Pagination créée: ${this.totalPages} dots`);
     }
     
     updatePagination() {
@@ -276,8 +259,6 @@ class SismeCarousel {
                 dot.setAttribute('aria-selected', 'false');
             }
         });
-        
-        this.debug(`🎯 Page courante: ${this.currentPage + 1}/${this.totalPages}`);
     }
     
     goToPage(pageIndex) {
@@ -288,8 +269,6 @@ class SismeCarousel {
             left: scrollPosition,
             behavior: 'smooth'
         });
-        
-        this.debug(`📄 Aller à la page: ${pageIndex + 1}`);
     }
     
     // ========================================
@@ -309,8 +288,6 @@ class SismeCarousel {
         // Classes pour le style
         this.prevBtn.classList.toggle('disabled', scrollLeft <= 0);
         this.nextBtn.classList.toggle('disabled', scrollLeft >= maxScroll);
-        
-        this.debug(`🎯 Scroll: ${scrollLeft.toFixed(0)}px / ${maxScroll.toFixed(0)}px`);
     }
     
     // ========================================
@@ -347,8 +324,6 @@ document.addEventListener('DOMContentLoaded', function() {
         carousels.forEach(carousel => {
             new SismeCarousel(carousel);
         });
-        
-        console.log(`✅ ${carousels.length} carrousel(s) scroll simple initialisé(s)`);
     } catch (error) {
         console.error('❌ Erreur initialisation carrousels:', error);
     }

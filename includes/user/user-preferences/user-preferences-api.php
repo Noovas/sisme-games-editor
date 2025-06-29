@@ -153,6 +153,7 @@ class Sisme_User_Preferences_API {
             <div class="sisme-section-content">
 
                 <!-- Plateformes préférées -->
+                <?php /*
                 <div class="sisme-preference-group">
                     <label class="sisme-preference-label">Plateformes préférées</label>
                     <p class="sisme-preference-description">Sélectionnez vos plateformes de jeu favorites</p>
@@ -165,6 +166,7 @@ class Sisme_User_Preferences_API {
                     ); 
                     ?>
                 </div>
+                */?>
                 
                 <!-- Genres favoris -->
                 <div class="sisme-preference-group">
@@ -180,6 +182,7 @@ class Sisme_User_Preferences_API {
                     ?>
                 </div>
                 
+                <?php /*
                 <!-- Types de joueur -->
                 <div class="sisme-preference-group">
                     <label class="sisme-preference-label">Types de jeu</label>
@@ -191,9 +194,8 @@ class Sisme_User_Preferences_API {
                         $preferences['player_types'],
                         ['display_key' => 'name', 'value_key' => 'slug', 'columns' => 2]
                     ); 
-                    ?>
                 </div>
-                
+                */?>
             </div>
         </section>
         <?php

@@ -29,9 +29,6 @@
         $(document).on('click', '.sisme-action-btn', handleActionButtonClick);
         
         // Debug: vérifier la configuration
-        if (window.console && window.console.log) {
-            console.log('🎮 Sisme User Actions: Initialisé', config);
-        }
     }
     
     /**
@@ -44,8 +41,6 @@
         const gameId = $button.data('game-id');
         const actionType = $button.data('action-type');
         
-        // Debug
-        console.log('🎯 Clic bouton:', {gameId, actionType, logged: config.is_logged_in});
         
         // Si utilisateur non connecté, rediriger vers login
         /*if (!config.is_logged_in) {
@@ -54,8 +49,7 @@
         }*/
         // BETA
         if (!config.is_logged_in) {
-            console.log('❌ Utilisateur non connecté - action ignorée (version béta)');
-            return; // Simplement retourner sans rien faire
+            return;
         }
 
         
@@ -77,7 +71,6 @@
                 collection_type: actionType
             },
             success: function(response) {
-                console.log('✅ Réponse AJAX:', response);
                 
                 if (response.success) {
                     // ✅ FIX: Convertir response.status en boolean
@@ -98,9 +91,7 @@
                         isActive
                     ]);
                     
-                    console.log('🔄 Bouton mis à jour:', {gameId, actionType, isActive});
                 } else {
-                    console.error('❌ Erreur serveur:', response.data.message);
                 }
             },
             error: function(xhr, status, error) {
@@ -116,12 +107,6 @@
      * ✅ FIX: Mettre à jour l'état visuel du bouton
      */
     function updateButtonState($button, isActive) {
-        console.log('🔄 updateButtonState:', {
-            gameId: $button.data('game-id'),
-            actionType: $button.data('action-type'),
-            isActive: isActive,
-            type: typeof isActive
-        });
         
         // ✅ FIX: S'assurer qu'on a un boolean
         const active = Boolean(isActive);
@@ -170,14 +155,6 @@
         const dataActive = $button.data('is-active');
         const hasActive = $button.hasClass('sisme-action-active');
         const hasInactive = $button.hasClass('sisme-action-inactive');
-        
-        console.log('🔍 Debug bouton:', {
-            gameId: $button.data('game-id'),
-            classes: classes,
-            dataActive: dataActive,
-            hasActive: hasActive,
-            hasInactive: hasInactive
-        });
     }
     
     // Initialiser au chargement du DOM

@@ -515,29 +515,7 @@ class Sisme_User_Dashboard_API {
                <?php if ($has_personalized): ?>
                    <span class="sisme-filter-badge">🎯 personnalisés</span>
                <?php endif; ?>
-           </h3>
-
-           <?php if ($has_personalized): ?>
-               <script>
-                   console.group('🎯 DASHBOARD FILTRAGE');
-                   console.log('Utilisateur a des préférences personnalisées:', <?php echo json_encode($has_personalized); ?>);
-                   
-                   <?php 
-                   $preferences = Sisme_User_Preferences_Data_Manager::get_user_preferences(get_current_user_id());
-                   ?>
-                   console.log('Genres favoris:', <?php echo json_encode($preferences['genres'] ?? []); ?>);
-                   console.log('Nombre de jeux récents filtrés:', <?php echo count($recent_games_data); ?>);
-                   console.log('Jeux récents récupérés:', <?php echo json_encode(array_map(function($game) {
-                       return ['id' => $game['id'], 'name' => $game['name']];
-                   }, array_slice($recent_games_data, 0, 5))); ?>);
-                   console.groupEnd();
-               </script>
-           <?php else: ?>
-               <script>
-                   console.log('🎮 Dashboard: Aucun filtrage appliqué, préférences par défaut');
-               </script>
-           <?php endif; ?>
-           
+           </h3>           
            <?php if (!empty($recent_games_data)): ?>
                <div class="sisme-games-grid sisme-recent-grid">
                    <?php foreach ($recent_games_data as $game): 

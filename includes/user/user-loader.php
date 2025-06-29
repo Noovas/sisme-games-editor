@@ -62,6 +62,7 @@ class Sisme_User_Loader {
             'user-auth'     => 'Authentification',
             'user-preferences'  => 'Preferences utilisateur', 
             'user-actions'  => 'Actions utilisateur',
+            'user-notifications' => 'Notifications utilisateur',
             'user-dashboard' => 'Dashboard utilisateur',
             'user-library'  => 'Ludothèque personnelle'
         ];
@@ -170,7 +171,10 @@ class Sisme_User_Loader {
      */
     public function get_active_modules() {
         $modules = [];
-        $available_modules = ['user-auth', 'user-profile', 'user-library'];
+        $available_modules = [
+            'user-auth', 'user-profile', 'user-preferences', 
+            'user-actions', 'user-notifications', 'user-dashboard', 'user-library'
+        ];
         
         foreach ($available_modules as $module_name) {
             if ($this->is_module_loaded($module_name)) {
