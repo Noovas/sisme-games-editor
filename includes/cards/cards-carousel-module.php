@@ -61,11 +61,6 @@ class Sisme_Cards_Carousel_Module {
             error_log('[Sisme Carousel] Sort order: ' . $grid_args['sort_order']);
         }
         
-        // Récupérer les IDs des jeux
-        if (!class_exists('Sisme_Cards_Functions')) {
-            return self::render_error('Module Cards Functions non disponible');
-        }
-        
         $criteria = array(
             'genres' => $grid_args['genres'],
             'is_team_choice' => $grid_args['is_team_choice'],

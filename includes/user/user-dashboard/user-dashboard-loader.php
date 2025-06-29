@@ -264,12 +264,12 @@ class Sisme_User_Dashboard_Loader {
         
         // Vérifier que user-auth est chargé
         if (!class_exists('Sisme_User_Auth_Loader')) {
-            $requirements[] = 'Module user-auth requis mais non trouvé';
+            $requirements[] = 'Sisme_User_Auth_Loader requis mais non trouvé';
         }
         
         // Vérifier que le module cards est disponible
-        if (!class_exists('Sisme_Cards_Functions')) {
-            $requirements[] = 'Module cards requis mais non trouvé';
+        if (!class_exists('Sisme_Utils_Games')) {
+            $requirements[] = 'Sisme_Utils_Games requis mais non trouvé';
         }
         
         // Vérifier WordPress version

@@ -94,7 +94,6 @@ class Sisme_Utils_Games {
     
     /**
      * 🎮 Récupérer les plateformes groupées par famille
-     * Migration depuis: Sisme_Cards_Functions::get_game_platforms_grouped()
      * 
      * @param int $term_id ID du jeu (term_id)
      * @return array Plateformes groupées avec icônes et tooltips

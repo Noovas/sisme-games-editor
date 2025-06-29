@@ -125,9 +125,7 @@ class Sisme_Search_Suggestions {
      */
     private static function get_dynamic_suggestions() {
         $suggestions = array();
-        
-        // Récupérer les jeux les plus populaires (si système de tracking disponible)
-        if (class_exists('Sisme_Cards_Functions')) {
+        if (class_exists('Sisme_Utils_Games')) {
             try {
                 $popular_games = Sisme_Utils_Games::get_games_by_criteria(array(
                     'is_team_choice' => true,

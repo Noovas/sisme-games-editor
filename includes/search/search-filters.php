@@ -124,15 +124,7 @@ class Sisme_Search_Filters {
     private static function execute_search($params) {
         // Construire les critères pour le système Cards
         $criteria = self::build_cards_criteria($params);
-        
-        // Utiliser le système Cards pour récupérer les jeux
-        if (!class_exists('Sisme_Cards_Functions')) {
-            return array(
-                'games' => array(),
-                'total' => 0,
-                'error' => 'Module Cards non disponible'
-            );
-        }
+    
         $all_games = Sisme_Utils_Games::get_games_by_criteria($criteria);
         $filtered_games = self::apply_custom_filters($all_games, $params);
         
@@ -269,10 +261,8 @@ class Sisme_Search_Filters {
             return;
         }
         $slugs = self::convert_genre_ids_to_slugs($genre_ids);
-        if (class_exists('Sisme_Cards_Functions')) {
-            $criteria = array('genres' => $slugs);
-            $games = Sisme_Utils_Games::get_games_by_criteria($criteria);
-        }
+        $criteria = array('genres' => $slugs);
+        $games = Sisme_Utils_Games::get_games_by_criteria($criteria);
     }
     
     /**
@@ -495,21 +485,14 @@ class Sisme_Search_Filters {
         if ($cached_stats !== false) {
             return $cached_stats;
         }
-        
-        // Calculer les statistiques
-        if (class_exists('Sisme_Cards_Functions')) {
-            $stats['popular'] = 0; // Métrique à créer plus tard
-            $stats['is_team_choice'] = 0; // Bientôt Dispo
-            
-        } else {
-            // Valeurs par défaut si Cards non disponible
-            $stats = array(
-                'popular' => 0,
-                'new' => 12,
-                'is_team_choice' => 8,
-                'is_comming' => 6
-            );
-        }
+
+
+        $stats = array(
+            'popular' => 0,
+            'new' => 12,
+            'is_team_choice' => 8,
+            'is_comming' => 6
+        );
         
         // Mettre en cache pour 1 heure
         set_transient($cache_key, $stats, 3600);

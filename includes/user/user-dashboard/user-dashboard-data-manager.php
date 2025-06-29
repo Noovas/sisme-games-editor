@@ -171,26 +171,15 @@ class Sisme_User_Dashboard_Data_Manager {
      * @param int $limit Nombre de jeux à récupérer
      * @return array Jeux récents
      */
-    public static function get_recent_games($user_id, $limit = 6) {
-        // Vérifier si le module Cards est disponible
-        if (!class_exists('Sisme_Cards_Functions')) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('[Sisme Dashboard Data] Module Cards non disponible pour recent_games');
-            }
-            return [];
-        }
-        
-        // Utiliser Cards pour récupérer les jeux récents
+    public static function get_recent_games($user_id, $limit = 6) {        
         try {
             $criteria = [
                 'limit' => $limit,
                 'orderby' => 'last_update',
                 'order' => 'DESC'
             ];
-            
             $games = Sisme_Utils_Games::get_games_by_criteria($criteria);
-            return is_array($games) ? $games : [];
-            
+            return is_array($games) ? $games : [];  
         } catch (Exception $e) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 error_log('[Sisme Dashboard Data] Erreur récupération recent_games: ' . $e->getMessage());
@@ -251,9 +240,8 @@ class Sisme_User_Dashboard_Data_Manager {
         foreach ($game_ids as $term_id) {
             $term = get_term($term_id, 'post_tag');
             if ($term && !is_wp_error($term)) {
-                // Récupérer les données via Cards si disponible
-                if (class_exists('Sisme_Cards_Functions')) {
-                    $game_data = Sisme_Cards_Functions::get_game_data($term_id);
+                if (class_exists('Sisme_Utils_Games')) {
+                    $game_data = Sisme_Utils_Games::get_game_data($term_id);
                     if ($game_data) {
                         $games[] = [
                             'id' => $term_id,
@@ -265,7 +253,6 @@ class Sisme_User_Dashboard_Data_Manager {
                         ];
                     }
                 } else {
-                    // Fallback simple sans Cards
                     $games[] = [
                         'id' => $term_id,
                         'name' => $term->name,
@@ -652,7 +639,7 @@ class Sisme_User_Dashboard_Data_Manager {
             'total_favorite_entries' => intval($total_favorites),
             'total_owned_entries' => intval($total_owned),
             'cache_duration_minutes' => self::CACHE_DURATION / 60,
-            'cards_module_available' => class_exists('Sisme_Cards_Functions')
+            'cards_module_available' => class_exists('Sisme_Utils_Games')
         ];
     }
 
@@ -673,7 +660,7 @@ class Sisme_User_Dashboard_Data_Manager {
         }
         
         // Utiliser Cards avec critères
-        if (class_exists('Sisme_Cards_Functions')) {
+        if (class_exists('Sisme_Utils_Games')) {
             $criteria = [
                 'genres' => $preferences['genres'],
                 'max_results' => $limit,
@@ -693,7 +680,7 @@ class Sisme_User_Dashboard_Data_Manager {
      * 🔄 Fallback jeux récents sans filtre
      */
     private static function get_recent_games_fallback($limit = 12) {
-        if (class_exists('Sisme_Cards_Functions')) {
+        if (class_exists('Sisme_Utils_Games')) {
             $fallback_ids = Sisme_Utils_Games::get_games_by_criteria([
                 'max_results' => $limit,
                 'sort_by_date' => true

@@ -14,7 +14,6 @@ if (!defined('ABSPATH')) {
 }
 
 // Inclure les dépendances
-require_once dirname(__FILE__) . '/cards-functions.php';
 require_once dirname(__FILE__) . '/cards-normal-module.php';
 
 class Sisme_Cards_API {
@@ -305,52 +304,9 @@ class Sisme_Cards_API {
                '</div>';
     }
 
-    /**
-     * 🔧 Fonction utilitaire pour débugger une grille
-     * 
-     * @param array $args Arguments de grille
-     * @return string HTML avec informations de debug
-     */
-    public static function debug_grid($args = array()) {
-        if (!defined('WP_DEBUG') || !WP_DEBUG) {
-            return self::render_error('Debug mode non activé');
-        }
-        
-        $args['debug'] = true;
-        
-        // Tester les critères
-        $criteria = array(
-            'genres' => $args['genres'] ?? array(),
-            'is_team_choice' => $args['is_team_choice'] ?? false,
-            'sort_by_date' => $args['sort_by_date'] ?? true,
-            'max_results' => $args['max_cards'] ?? -1,
-            'debug' => true
-        );
-        
-        $test_result = Sisme_Cards_Functions::test_criteria($criteria);
-        $stats = Sisme_Cards_Functions::get_games_stats_by_criteria($criteria);
-        
-        $debug_html = '<div class="sisme-cards-debug" style="background: #f8f9fa; padding: 1rem; margin: 1rem 0; border-left: 4px solid #007cba;">';
-        $debug_html .= '<h4>🐛 Debug Grille de Cartes</h4>';
-        $debug_html .= '<p><strong>Jeux trouvés:</strong> ' . $test_result['stats']['found_count'] . '</p>';
-        $debug_html .= '<p><strong>Temps d\'exécution:</strong> ' . $test_result['execution_time'] . '</p>';
-        $debug_html .= '<p><strong>Statistiques globales:</strong> ' . $stats['games_with_data'] . '/' . $stats['total_games'] . ' jeux avec données complètes</p>';
-        
-        if (!empty($test_result['sample_games'])) {
-            $debug_html .= '<p><strong>Échantillon:</strong></p><ul>';
-            foreach ($test_result['sample_games'] as $game) {
-                $debug_html .= '<li>' . esc_html($game['name']) . ' (' . esc_html($game['release_date']) . ') - Genres: ' . implode(', ', $game['genres']) . '</li>';
-            }
-            $debug_html .= '</ul>';
-        }
-        
-        $debug_html .= '</div>';
-        
-        return $debug_html . self::render_cards_grid($args);
-    }
 
     /**
-     * 🎠 Rendre un carrousel de cartes - NOUVEAU POINT D'ENTRÉE
+     * 🎠 Rendre un carrousel de cartes 
      * 
      * @param array $args Paramètres du carrousel
      * @return string HTML du carrousel ou message d'erreur
@@ -480,45 +436,4 @@ add_shortcode('game_cards_carousel', function($atts) {
     );
     
     return Sisme_Cards_API::render_cards_carousel($args);
-});
-
-// 📊 SHORTCODE pour afficher les statistiques
-add_shortcode('cards_stats', function($atts) {
-    if (!defined('WP_DEBUG') || !WP_DEBUG) {
-        return '<p style="color: #dc3232;">Shortcode stats disponible uniquement en mode WP_DEBUG</p>';
-    }
-    
-    $atts = shortcode_atts(array(
-        'genres' => '',
-        'is_team_choice' => 'false'
-    ), $atts);
-    
-    $criteria = array(
-        'genres' => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
-        'is_team_choice' => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN)
-    );
-    
-    $stats = Sisme_Cards_Functions::get_games_stats_by_criteria($criteria);
-    
-    $output = '<div class="sisme-cards-stats" style="background: #f0f8ff; padding: 1rem; margin: 1rem 0; border-radius: 8px;">';
-    $output .= '<h4>📊 Statistiques des Jeux</h4>';
-    $output .= '<p><strong>Total jeux:</strong> ' . $stats['total_games'] . '</p>';
-    $output .= '<p><strong>Jeux avec données complètes:</strong> ' . $stats['games_with_data'] . '</p>';
-    
-    if (!empty($stats['games_by_genre'])) {
-        $output .= '<p><strong>Répartition par genre:</strong></p><ul>';
-        arsort($stats['games_by_genre']);
-        foreach (array_slice($stats['games_by_genre'], 0, 10) as $genre => $count) {
-            $output .= '<li>' . esc_html($genre) . ': ' . $count . ' jeux</li>';
-        }
-        $output .= '</ul>';
-    }
-    
-    if (!empty($stats['date_range']['oldest']) && !empty($stats['date_range']['newest'])) {
-        $output .= '<p><strong>Période:</strong> ' . $stats['date_range']['oldest'] . ' → ' . $stats['date_range']['newest'] . '</p>';
-    }
-    
-    $output .= '</div>';
-    
-    return $output;
 });

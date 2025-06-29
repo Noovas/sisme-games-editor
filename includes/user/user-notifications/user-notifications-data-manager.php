@@ -37,11 +37,7 @@ class Sisme_User_Notifications_Data_Manager {
             return false;
         }
         
-        if (!class_exists('Sisme_Cards_Functions')) {
-            return false;
-        }
-        
-        $game_data = Sisme_Cards_Functions::get_game_data($game_id);
+        $game_data = Sisme_Utils_Games::get_game_data($game_id);
         if (!$game_data) {
             return false;
         }
@@ -213,11 +209,7 @@ class Sisme_User_Notifications_Data_Manager {
             return false;
         }
         
-        if (!class_exists('Sisme_Cards_Functions')) {
-            return false;
-        }
-        
-        $game_data = Sisme_Cards_Functions::get_game_data($notification['game_id']);
+        $game_data = Sisme_Utils_Games::get_game_data($notification['game_id']);
         if (!$game_data) {
             return false;
         }

@@ -269,8 +269,7 @@ class Sisme_Notification_Utils {
         return [
             'users_found' => count($user_ids),
             'user_ids' => $user_ids,
-            'game_exists' => class_exists('Sisme_Cards_Functions') ? 
-                (Sisme_Cards_Functions::get_game_data($game_id) !== false) : 'Module Cards non disponible',
+            'game_exists' => Sisme_Utils_Games::get_game_data($game_id),
             'notification_module_loaded' => class_exists('Sisme_User_Notifications_Data_Manager')
         ];
     }

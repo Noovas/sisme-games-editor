@@ -342,7 +342,6 @@ class Sisme_Search_Loader {
      */
     private function check_dependencies() {
         $dependencies = array(
-            'Sisme_Cards_Functions' => 'Module Cards Functions requis',
             'Sisme_Cards_API' => 'Module Cards API requis'
         );
         

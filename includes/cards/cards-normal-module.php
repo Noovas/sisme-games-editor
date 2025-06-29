@@ -33,7 +33,7 @@ class Sisme_Cards_Normal_Module {
     /**
      * Rendre une carte normale
      * 
-     * @param array $game_data Données du jeu (depuis cards-functions.php)
+     * @param array $game_data Données du jeu
      * @param array $options Options d'affichage
      * @return string HTML de la carte
      */

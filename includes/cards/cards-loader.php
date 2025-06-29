@@ -37,11 +37,7 @@ class Sisme_Cards_Loader {
         if (self::$modules_loaded) {
             return;
         }
-        $cards_dir = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/cards/';
-        
-        // 1. Fonctions utilitaires (doit être chargé en premier)
-        require_once $cards_dir . 'cards-functions.php';
-        
+        $cards_dir = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/cards/';        
         // 2. Modules de rendu
         require_once $cards_dir . 'cards-normal-module.php';
         require_once $cards_dir . 'cards-carousel-module.php';
