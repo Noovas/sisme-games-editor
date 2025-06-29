@@ -19,6 +19,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/sisme-constants.php';
+
 class Sisme_User_Preferences_API {
     
     /**
@@ -38,15 +40,6 @@ class Sisme_User_Preferences_API {
         ];
         
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_preferences');
-
-        ?>
-        <script>
-            console.log('=== APRÈS shortcode_atts ===');
-            console.log('$atts[sections] final:', '<?php echo esc_js($atts['sections']); ?>');
-            console.log('Tous les $atts finaux:', <?php echo json_encode($atts); ?>);
-            console.log('Stack trace:', '<?php echo esc_js(wp_debug_backtrace_summary()); ?>');
-        </script>
-        <?php
         
         // ID utilisateur (utilisateur courant par défaut)
         $user_id = !empty($atts['user_id']) ? intval($atts['user_id']) : get_current_user_id();
@@ -76,13 +69,6 @@ class Sisme_User_Preferences_API {
         // Parser les sections à afficher
         $sections_to_show = array_map('trim', explode(',', $atts['sections']));
 
-        // Debug : voir d'où viennent les sections
-        ?>
-        <script>
-            console.log('$atts[sections] original:', '<?php echo esc_js($atts['sections']); ?>');
-            console.log('$sections_to_show après parsing:', <?php echo json_encode($sections_to_show); ?>);
-        </script>
-        <?php
         // Rendu complet
         ob_start();
         ?>
@@ -105,9 +91,6 @@ class Sisme_User_Preferences_API {
                 </div>
                 
                 <?php foreach ($sections_to_show as $section): ?>
-                    <script>
-                        console.log('Section à traiter:', '<?php echo esc_js($section); ?>');
-                    </script>
                     <?php echo self::render_section($section, $user_id, $user_preferences); ?>
                 <?php endforeach; ?>
                 
@@ -289,41 +272,100 @@ class Sisme_User_Preferences_API {
      * Rendu de la section profil
      */
     private static function render_profile_section($preferences) {
+        
         ob_start();
         ?>
-        <section class="sisme-preferences-section" data-section="profile">
+
+        <?php
+        if (!class_exists('Sisme_Constants')) {
+            return '<div class="sisme-preferences-error">
+                <p>❌ Librairie d\'avatars non disponible</p>
+            </div>';
+        }
+        
+        $user_id = get_current_user_id();
+
+        $current_avatar_key = get_user_meta($user_id, 'sisme_user_avatar', true);
+
+        if (!$current_avatar_key) {
+            $current_avatar_key = 'default';
+        }
+
+        $current_avatar_url = Sisme_User_Preferences_Data_Manager::get_user_avatar_url($user_id);
+        $available_avatars = Sisme_Constants::get_avatars();
+
+        ?>
+        <section class="sisme-preferences-section">
             <h3 class="sisme-section-title">
-                <span class="sisme-section-icon">👤</span>
-                Profil
+                <span class="sisme-section-icon">🖼️</span>
+                Avatar
             </h3>
             
             <div class="sisme-section-content">
                 
-                <!-- Avatar -->
+                <!-- Aperçu avatar actuel -->
                 <div class="sisme-preference-group">
-                    <label class="sisme-preference-label">Avatar</label>
-                    <p class="sisme-preference-description">Votre photo de profil</p>
-                    
-                    <div class="sisme-avatar-uploader" data-user-id="<?php echo esc_attr(get_current_user_id()); ?>">
+                    <label class="sisme-preference-label">Avatar actuel</label>
+                    <div class="sisme-avatar-current-preview" data-user-id="<?php echo esc_attr($user_id); ?>">
                         <div class="sisme-avatar-preview">
-                            <?php 
-                            $current_avatar = Sisme_User_Preferences_Data_Manager::get_user_avatar_url(get_current_user_id(), 'thumbnail');
-                            if ($current_avatar): ?>
-                                <img src="<?php echo esc_url($current_avatar); ?>" alt="Avatar" class="sisme-avatar-current">
-                                <button type="button" class="sisme-avatar-delete" title="Supprimer">❌</button>
+                            <?php if ($current_avatar_url): ?>
+                                <img src="<?php echo esc_url($current_avatar_url); ?>" 
+                                     alt="Avatar actuel" 
+                                     class="sisme-avatar-current"
+                                     data-avatar-key="<?php echo esc_attr($current_avatar_key); ?>">
                             <?php else: ?>
                                 <div class="sisme-avatar-placeholder">👤</div>
                             <?php endif; ?>
                         </div>
                         
                         <div class="sisme-avatar-controls">
-                            <input type="file" id="sisme-avatar-input" accept="image/*" style="display: none;">
-                            <button type="button" class="sisme-avatar-upload-btn sisme-button sisme-button-bleu">
-                                <?php echo $current_avatar ? 'Changer' : 'Ajouter'; ?>
+                            <button type="button" 
+                                    class="sisme-avatar-reset-btn sisme-button sisme-button-bleu"
+                                    title="Remettre avatar par défaut">
+                                🔄 Par défaut
                             </button>
-                            <small>JPG, PNG ou GIF - Max 2Mo. Quelques minutes peuvent être nécessaires</small>
                         </div>
                     </div>
+                    <p class="sisme-preference-description">
+                        Choisissez un avatar parmi notre collection ou remettez celui par défaut.
+                    </p>
+                </div>
+                
+                <!-- Sélecteur d'avatars -->
+                <div class="sisme-preference-group">
+                    <label class="sisme-preference-label">Choisir un nouvel avatar</label>
+                    
+                    <div class="sisme-avatar-selector-grid">
+                        <?php foreach ($available_avatars as $avatar_key => $avatar_url): ?>
+                            <?php 
+                            $is_current = ($avatar_key === $current_avatar_key);
+                            $filename = basename($avatar_url, '.png');
+                            $display_name = ucfirst(str_replace(['avatar-user-', '-'], ['', ' '], $filename));
+                            ?>
+                            
+                            <div class="sisme-avatar-option" data-avatar-key="<?php echo esc_attr($avatar_key)?>" title="<?php echo esc_attr($display_name); ?>">
+                                <?php if ($is_current): ?>
+                                    <div class="sisme-avatar-option-badge">✓</div>
+                                <?php endif; ?>
+                                <div class="sisme-avatar-option-image">
+                                    <img src="<?php echo esc_url($avatar_url); ?>" 
+                                         alt="<?php echo esc_attr($display_name); ?>"
+                                         loading="lazy">
+                                    
+
+                                </div>
+                                
+                                <div class="sisme-avatar-option-name">
+                                    <?php echo esc_html($display_name); ?>
+                                </div>
+                            </div>
+                            
+                        <?php endforeach; ?>
+                    </div>
+                    
+                    <p class="sisme-preference-description">
+                        Cliquez sur un avatar pour le sélectionner. Le changement est immédiat.
+                    </p>
                 </div>
                 
             </div>

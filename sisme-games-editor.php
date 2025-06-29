@@ -8,23 +8,14 @@
  * 
  * File: /sisme-games-editor/sisme-games-editor.php
  */
-
 if (!defined('ABSPATH')) {
     exit;
 }
-define('SISME_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
-define('SISME_PLUGIN_URL', plugin_dir_url(__FILE__));
-
-require_once SISME_PLUGIN_PATH . 'includes/sisme-constants.php';
-require_once SISME_PLUGIN_PATH . 'includes/sisme-loader.php';
-
+// Définir TOUTES les constantes AVANT de charger les fichiers
 define('SISME_GAMES_EDITOR_VERSION', '1.0.0');
-
 define('SISME_GAMES_EDITOR_PLUGIN_DIR', plugin_dir_path(__FILE__));
-
 define('SISME_GAMES_EDITOR_PLUGIN_URL', plugin_dir_url(__FILE__));
-
 define('SISME_GAMES_MODULES', array(
     "vedettes", 
     "cards",
@@ -32,6 +23,10 @@ define('SISME_GAMES_MODULES', array(
     "team-choice",
     "user"
 ));
+
+// Charger les fichiers
+require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/sisme-constants.php';
+require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/sisme-loader.php';
 
 class SismeGamesEditor {
     

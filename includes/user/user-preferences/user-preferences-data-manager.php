@@ -348,7 +348,7 @@ class Sisme_User_Preferences_Data_Manager {
                 'newsletter' => true
             ],
             'privacy_public' => true,
-            'avatar' => 0
+            'avatar' => 'default'
         ];
     }
     
@@ -391,7 +391,16 @@ class Sisme_User_Preferences_Data_Manager {
                 return is_bool($value) || in_array($value, ['0', '1', 0, 1, true, false]);
 
             case 'avatar':
-                return is_numeric($value) && intval($value) >= 0;
+                if (empty($value)) return true;
+                if (is_numeric($value)) return true; // Ancien système
+                if (is_string($value)) {
+                    if ($value === 'default') return true;
+                    if (class_exists('Sisme_Constants')) {
+                        return Sisme_Constants::is_valid_avatar($value); // ← Ça doit valider 'borne-arcade' !
+                    }
+                    return true;
+                }
+                return false;
                 
             default:
                 return false;
@@ -426,6 +435,15 @@ class Sisme_User_Preferences_Data_Manager {
                 
             case 'privacy_public':
                 return (bool) $value;
+
+            case 'avatar':
+                if (empty($value)) return 'default';
+                if (is_numeric($value)) return intval($value);
+                $clean_value = sanitize_text_field($value);
+                if (class_exists('Sisme_Constants') && !Sisme_Constants::is_valid_avatar($clean_value)) {
+                    return 'default';
+                }
+                return $clean_value;
                 
             default:
                 return $value;
@@ -545,31 +563,53 @@ class Sisme_User_Preferences_Data_Manager {
     }
 
     /**
-     * Sauvegarder l'ID d'attachment de l'avatar
+     * Mettre à jour l'avatar utilisateur (clé de librairie)
+     * 
+     * @param int $user_id ID utilisateur
+     * @param string $avatar_key Clé d'avatar de la librairie ('borne-arcade', 'cd-rom', etc.)
+     * @return bool Succès de la sauvegarde
      */
-    public static function update_user_avatar($user_id, $attachment_id) {
-        return update_user_meta($user_id, self::META_AVATAR, intval($attachment_id));
-    }
-
-    /**
-     * Supprimer l'avatar utilisateur
-     */
-    public static function delete_user_avatar($user_id) {
-        $old_avatar = get_user_meta($user_id, self::META_AVATAR, true);
-        if ($old_avatar) {
-            wp_delete_attachment($old_avatar, true);
+    public static function update_user_avatar($user_id, $avatar_key) {
+        // Valider que la clé d'avatar existe dans la librairie
+        if (!class_exists('Sisme_Constants') || !Sisme_Constants::is_valid_avatar($avatar_key)) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme User Preferences] ERREUR - Clé d'avatar invalide: {$avatar_key}");
+            }
+            return false;
         }
-        return delete_user_meta($user_id, self::META_AVATAR);
+        
+        // Sauvegarder la clé d'avatar (STRING, pas intval !)
+        $success = update_user_meta($user_id, self::META_AVATAR, sanitize_text_field($avatar_key));
+        
+        if ($success && defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("[Sisme User Preferences] Avatar mis à jour - Utilisateur {$user_id} - Clé: {$avatar_key}");
+        }
+        
+        return $success !== false;
     }
 
     /**
      * Récupérer l'URL de l'avatar utilisateur
      */
     public static function get_user_avatar_url($user_id, $size = 'thumbnail') {
-        $avatar_id = get_user_meta($user_id, self::META_AVATAR, true);
-        if ($avatar_id) {
-            return wp_get_attachment_image_url($avatar_id, $size);
+        $avatar_key = get_user_meta($user_id, self::META_AVATAR, true);
+        if (!$avatar_key) {
+            $avatar_key = 'default';
         }
+        if (is_numeric($avatar_key)) {
+            $attachment_url = wp_get_attachment_image_url($avatar_key, $size);
+            if ($attachment_url) {
+                return $attachment_url;
+            } else {
+                // Attachment n'existe plus, migrer vers default
+                self::update_user_avatar($user_id, 'default');
+                $avatar_key = 'default';
+            }
+        }
+        if (class_exists('Sisme_Constants')) {
+            $avatar_url = Sisme_Constants::get_avatar_url($avatar_key);        
+            return $avatar_url;
+        }    
         return false;
     }
 }

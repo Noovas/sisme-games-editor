@@ -55,8 +55,6 @@
         
         isInitialized = true;
         
-        log('✅ Sisme User Preferences initialisé', config);
-        
         // Déclencher événement d'initialisation
         $(document).trigger('sisme_preferences_initialized');
     }
@@ -88,8 +86,6 @@
             const $toggle = $(this);
             const key = $toggle.data('preference-key');
             const value = $toggle.is(':checked');
-            
-            log('🔄 Toggle modifié:', {key, value});
             
             // Animation du toggle
             $toggle.closest('.sisme-toggle-container').addClass('sisme-toggle-animating');
@@ -126,8 +122,6 @@
             
             // Récupérer toutes les valeurs sélectionnées
             const selectedValues = getMultiSelectValues($multiSelect);
-            
-            log('🔄 Multi-select modifié:', {key, selectedValues});
             
             // Auto-save
             if (config.auto_save) {
@@ -204,9 +198,7 @@
     /**
      * Sauvegarder une préférence via AJAX
      */
-    function savePreference(key, value) {
-        log('💾 Sauvegarde préférence:', {key, value});
-        
+    function savePreference(key, value) {        
         let ajaxData = {
             action: 'sisme_update_user_preference',
             security: config.security,
@@ -230,7 +222,6 @@
             dataType: 'json',
             data: ajaxData,
             success: function(response) {
-                log('✅ Sauvegarde réussie:', response);
                 
                 if (response.success) {
                     // Message de succès plus discret pour les sauvegardes auto
@@ -239,13 +230,11 @@
                     $(document).trigger('sisme_preference_saved', [key, value, true]);
                 } else {
                     showSaveIndicator('error', 'Erreur de sauvegarde');
-                    log('❌ Erreur serveur:', response.data);
                     
                     $(document).trigger('sisme_preference_error', [key, response.data.message || 'Erreur inconnue']);
                 }
             },
             error: function(xhr, status, error) {
-                log('❌ Erreur AJAX:', {xhr, status, error});
                 showSaveIndicator('error', 'Erreur de connexion');
                 
                 $(document).trigger('sisme_preference_error', [key, error]);
@@ -273,7 +262,6 @@
      * Réinitialiser toutes les préférences
      */
     function resetAllPreferences() {
-        log('🔄 Reset toutes les préférences');
         
         showSaveIndicator('saving', 'Réinitialisation en cours...');
         
@@ -307,7 +295,6 @@
             },
             error: function(xhr, status, error) {
                 showSaveIndicator('error', 'Erreur de connexion');
-                log('❌ Erreur AJAX reset:', {xhr, status, error});
                 $(document).trigger('sisme_preferences_reset', [false, error]);
             }
         });
@@ -317,7 +304,6 @@
      * Mettre à jour l'interface avec de nouvelles préférences
      */
     function updateInterfaceWithPreferences(preferences) {
-        log('🔄 Mise à jour interface avec:', preferences);
         
         // 1. Mettre à jour les toggles (notifications + privacy)
         $('.sisme-preference-toggle').each(function() {
@@ -342,7 +328,6 @@
             const key = $multiSelect.data('preference-key');
             const selectedValues = preferences[key] || [];
             
-            log(`📋 Mise à jour multi-select ${key}:`, selectedValues);
             
             // Réinitialiser tous les checkboxes
             $multiSelect.find('.sisme-multi-select-checkbox').each(function() {
@@ -363,7 +348,6 @@
         // 3. Mettre à jour les compteurs/statistiques si présents
         updateInterfaceStats(preferences);
         
-        log('✅ Interface mise à jour complète');
     }
     
     /**
@@ -497,7 +481,6 @@
      * Sauvegarde manuelle (Ctrl+S)
      */
     function manualSave() {
-        log('💾 Sauvegarde manuelle déclenchée');
         
         // Déclencher la sauvegarde immédiatement si une est en attente
         if (saveTimeout) {
@@ -538,14 +521,8 @@
         }
     };
     
-    /**
-     * Debug et logging
-     */
-    function log(...args) {
-        if (config.debug || (typeof window.WP_DEBUG !== 'undefined' && window.WP_DEBUG)) {
-            console.log('[Sisme User Preferences]', ...args);
-        }
-    }
+
+
 
     /**
      * Initialiser l'uploader d'avatar
@@ -620,7 +597,6 @@
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Erreur AJAX avatar upload:', error);
                 showSaveIndicator('error', 'Erreur de connexion lors de l\'upload');
             }
         });
@@ -650,7 +626,6 @@
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Erreur AJAX avatar delete:', error);
                 showSaveIndicator('error', 'Erreur de connexion lors de la suppression');
             }
         });
@@ -716,7 +691,6 @@
                         $headerAvatar.attr('src', url).fadeIn(300);
                     };
                     newImg.onerror = function() {
-                        console.error('Erreur chargement avatar header');
                         $headerAvatar.fadeIn(300); // Afficher quand même
                     };
                     newImg.src = url;
@@ -756,23 +730,153 @@
     /**
      * Fonction de debug globale
      */
-    window.debugUserPreferences = function() {
-        console.log('=== DEBUG SISME USER PREFERENCES ===');
-        console.log('Config:', config);
-        console.log('Initialisé:', isInitialized);
-        console.log('Save timeout actif:', !!saveTimeout);
-        console.log('Nombre de toggles:', $('.sisme-preference-toggle').length);
-        console.log('Nombre de multi-selects:', $('.sisme-multi-select').length);
-        console.log('Notifications actuelles:', getCurrentNotificationValues());
-        console.log('=== FIN DEBUG ===');
-    };
-    
-    // ✨ INITIALISATION AUTOMATIQUE
     $(document).ready(function() {
-        // Vérifier si on est sur une page avec préférences
         if ($('.sisme-user-preferences').length) {
             init();
         }
     });
+
+    /**
+     * Extension pour gestion avatars
+     */
+    if (typeof window.SismeUserPreferences !== 'undefined') {
+        
+        $.extend(window.SismeUserPreferences, {
+            
+            initAvatarHandlers: function() {
+                $(document).on('click', '.sisme-avatar-option', this.handleAvatarSelection.bind(this));
+                $(document).on('click', '.sisme-avatar-reset-btn', this.handleAvatarReset.bind(this));
+            },
+            
+            handleAvatarSelection: function(e) {
+                e.preventDefault();
+                
+                const $option = $(e.currentTarget);
+                const avatarKey = $option.data('avatar-key');
+                
+                if ($option.hasClass('sisme-avatar-option--current')) {
+                    return;
+                }
+                
+                $option.addClass('sisme-avatar-selecting');
+                $('.sisme-avatar-selector-grid').attr('data-loading', 'true');
+                
+                this.selectAvatar(avatarKey, $option);
+            },
+            
+            selectAvatar: function(avatarKey, $option) {
+                $.ajax({
+                    url: config.ajax_url,
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        action: 'sisme_select_user_avatar',
+                        avatar_key: avatarKey,
+                        security: config.security
+                    },
+                    success: (response) => {
+                        if (response.success) {
+                            this.updateAvatarInterface(avatarKey, response.data.url);
+                            showSaveIndicator('success', 'Avatar mis à jour !');
+                            $(document).trigger('sisme_avatar_changed', [avatarKey, response.data.url]);
+                        } else {
+                            showSaveIndicator('error', response.data.message || 'Erreur de sélection');
+                        }
+                    },
+                    error: (xhr, status, error) => {
+                        showSaveIndicator('error', 'Erreur de connexion');
+                    },
+                    complete: () => {
+                        $('.sisme-avatar-selector-grid').removeAttr('data-loading');
+                        $option.removeClass('sisme-avatar-selecting');
+                    }
+                });
+            },
+            
+            handleAvatarReset: function(e) {
+                e.preventDefault();
+                
+                if (!confirm('Remettre l\'avatar par défaut ?')) {
+                    return;
+                }
+                
+                const $btn = $(e.currentTarget);
+                $btn.prop('disabled', true).text('⏳ Reset...');
+                
+                $.ajax({
+                    url: config.ajax_url,
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        action: 'sisme_delete_user_avatar',
+                        security: config.security
+                    },
+                    success: (response) => {
+                        if (response.success) {
+                            this.updateAvatarInterface('default', response.data.url);
+                            showSaveIndicator('success', 'Avatar remis par défaut');
+                            $(document).trigger('sisme_avatar_reset', ['default', response.data.url]);
+                        } else {
+                            showSaveIndicator('error', response.data.message || 'Erreur de reset');
+                        }
+                    },
+                    error: (xhr, status, error) => {
+                        showSaveIndicator('error', 'Erreur de connexion');
+                    },
+                    complete: () => {
+                        $btn.prop('disabled', false).html('🔄 Par défaut');
+                    }
+                });
+            },
+            
+            updateAvatarInterface: function(avatarKey, avatarUrl) {
+                // Mettre à jour l'aperçu actuel
+                const $preview = $('.sisme-avatar-current-preview');
+                const $currentImg = $preview.find('.sisme-avatar-current');
+                const $placeholder = $preview.find('.sisme-avatar-placeholder');
+                
+                if (avatarUrl && avatarUrl !== '') {
+                    if ($currentImg.length) {
+                        $currentImg.attr('src', avatarUrl).attr('data-avatar-key', avatarKey);
+                    } else {
+                        $placeholder.replaceWith(
+                            `<img src="${avatarUrl}" alt="Avatar actuel" class="sisme-avatar-current" data-avatar-key="${avatarKey}">`
+                        );
+                    }
+                    $placeholder.hide();
+                } else {
+                    $currentImg.hide();
+                    $placeholder.show();
+                }
+                
+                // Mettre à jour la sélection dans la grille
+                $('.sisme-avatar-option').removeClass('sisme-avatar-option--current');
+                $('.sisme-avatar-option-badge').remove();
+                
+                const $newSelection = $(`.sisme-avatar-option[data-avatar-key="${avatarKey}"]`);
+                if ($newSelection.length) {
+                    $newSelection.addClass('sisme-avatar-option--current');
+                    $newSelection.append(
+                        '<div class="sisme-avatar-option-badge">✓</div>'
+                    );
+                }
+            }
+        });
+        
+        // Initialiser au chargement
+        $(document).ready(function() {
+            if ($('.sisme-avatar-selector-grid').length) {
+                window.SismeUserPreferences.initAvatarHandlers();
+            }
+        });
+        
+
+        
+        function showSaveIndicator(type, message) {
+            if (window.SismeUserPreferences && typeof window.SismeUserPreferences.showSaveIndicator === 'function') {
+                window.SismeUserPreferences.showSaveIndicator(type, message);
+            }
+        }
+    }
     
 })(jQuery);

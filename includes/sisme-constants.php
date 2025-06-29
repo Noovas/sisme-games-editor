@@ -12,20 +12,21 @@ if (!defined('ABSPATH')) {
 }
 
 class Sisme_Constants {
+
     const SISME_ROOT_URL = 'https://games.sisme.fr/';  // ← Ajout point-virgule
     
     // ===== AVATARS DISPONIBLES =====
-    const SISME_AVATARS_URL = self::SISME_ROOT_URL . 'avatar/';  // ← Utiliser self::
+    const SISME_AVATARS_URL = self::SISME_ROOT_URL . 'images/avatar/';  // ← Utiliser self::
     const SISME_AVATARS_USER = [
-        'default' => self::SISME_AVATARS_URL . 'avatar user borne arcade.png',
-        '1' => self::SISME_AVATARS_URL . 'avatar user borne arcade.png',
-        '2' => self::SISME_AVATARS_URL . 'avatar user cd-rom.png',
-        '3' => self::SISME_AVATARS_URL . 'avatar user clavier.png',
-        '4' => self::SISME_AVATARS_URL . 'avatar user filpper.png',
-        '5' => self::SISME_AVATARS_URL . 'avatar user gameboy.png',
-        '6' => self::SISME_AVATARS_URL . 'avatar user joystick.png',
-        '7' => self::SISME_AVATARS_URL . 'avatar user manette.png',
-        '8' => self::SISME_AVATARS_URL . 'avatar user tourne disque.png'
+        'default' => 'https://games.sisme.fr/images/avatar/avatar-user-borne-arcade.png',
+        'borne-arcade' => 'https://games.sisme.fr/images/avatar/avatar-user-borne-arcade.png',
+        'cd-rom' => 'https://games.sisme.fr/images/avatar/avatar-user-cd-rom.png',
+        'clavier' => 'https://games.sisme.fr/images/avatar/avatar-user-clavier.png',
+        'flipper' => 'https://games.sisme.fr/images/avatar/avatar-user-flipper.png',
+        'gameboy' => 'https://games.sisme.fr/images/avatar/avatar-user-gameboy.png',
+        'joystick' => 'https://games.sisme.fr/images/avatar/avatar-user-joystick.png',
+        'manette' => 'https://games.sisme.fr/images/avatar/avatar-user-manette.png',
+        'tourne-disque' => 'https://games.sisme.fr/images/avatar/avatar-user-tourne-disque.png'
     ];
     
     /**
@@ -39,13 +40,14 @@ class Sisme_Constants {
      * Vérifier si un avatar existe
      */
     public static function is_valid_avatar($avatar_key) {
-        return array_key_exists($avatar_key, self::SISME_AVATARS_USER);  // ← Correction variable
+        return array_key_exists($avatar_key, self::SISME_AVATARS_USER);
     }
     
     /**
      * Obtenir l'URL d'un avatar
      */
     public static function get_avatar_url($avatar_key) {
-        return self::SISME_AVATARS_USER[$avatar_key] ?? self::SISME_AVATARS_USER['default'];  // ← Correction variables + default
+        $url = self::SISME_AVATARS_USER[$avatar_key] ?? self::SISME_AVATARS_USER['default'];
+        return str_replace(' ', '%20', $url);
     }
 }
