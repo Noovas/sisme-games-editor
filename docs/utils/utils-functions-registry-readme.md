@@ -130,3 +130,44 @@ META_MODES = 'game_modes'
 // @return array|false - Données complètes du jeu ou false si incomplet
 ```
 </details>
+
+<details>
+<summary><code>get_game_release_status($term_id)</code></summary>
+
+```php
+// Détermine le statut de sortie d'un jeu
+// @param int $term_id - ID du jeu
+// @return array - Statut avec is_released, release_date, days_diff, status_text
+```
+</details>
+
+<details>
+<summary><code>get_game_badge($game_data)</code></summary>
+
+```php
+// Détermine le badge d'un jeu selon sa fraîcheur
+// @param array $game_data - Données complètes du jeu
+// @return array - Badge avec class et text ou array vide
+```
+</details>
+
+<details>
+<summary><code>sort_games_by_release_date($term_ids, $order = 'desc')</code></summary>
+
+```php
+// Trie les jeux par date de sortie
+// @param array $term_ids - IDs des termes
+// @param string $order - Ordre de tri : 'desc' ou 'asc'
+// @return array - IDs triés par date
+```
+</details>
+
+<details>
+<summary><code>get_games_by_criteria($criteria = [])</code></summary>
+
+```php
+// Récupère les IDs des jeux selon les critères
+// @param array $criteria - Critères de recherche (genres, released, sort_order, etc.)
+// @return array - IDs des jeux trouvés
+```
+</details>

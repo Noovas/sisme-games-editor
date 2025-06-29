@@ -17,7 +17,23 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 24 * 60 * 60); // 86400 secondes
 }
 
-class Sisme_Cards_Functions {    
+class Sisme_Cards_Functions {   
+
+	public static function get_game_release_status($term_id) {
+	    return Sisme_Utils_Games::get_game_release_status($term_id);
+	}
+
+	public static function get_game_badge($game_data) {
+    	return Sisme_Utils_Games::get_game_badge($game_data);
+	} 
+
+	private static function sort_games_by_release_date($term_ids, $order = 'desc') {
+		return Sisme_Utils_Games::sort_games_by_release_date($term_ids, $order);
+    }
+
+    public static function get_games_by_criteria($criteria = array()) {
+		return Sisme_Utils_Games::get_games_by_criteria($criteria);
+    }
 
     /**
 	 * 🛠️ FONCTION UTILITAIRE : Déterminer le statut depuis une date
@@ -39,213 +55,10 @@ class Sisme_Cards_Functions {
 	    );
 	}
     
-    /**
-	 * 🏷️ Déterminer le badge du jeu selon sa fraîcheur
-	 */
-	public static function get_game_badge($game_data) {
-	    $now = time();
-	    $release_time = strtotime($game_data['release_date']); 
-	    $last_update_time = strtotime($game_data['last_update']);
-	    
-	    // Calcul basé sur la date de sortie
-	    $diff_days = floor(($now - $release_time) / 86400);
-	    
-	    if ($diff_days > 0 && $diff_days <= 7) {
-	        return array('class' => 'sisme-badge-new', 'text' => 'NOUVEAU');
-	    } elseif ($diff_days < 0) {
-	        return array('class' => 'sisme-badge-futur', 'text' => 'À VENIR');
-	    } elseif ($diff_days == 0) {
-	        return array('class' => 'sisme-badge-today', 'text' => 'AUJOURD\'HUI');
-	    }
-	    
-	    // Vérifier les mises à jour séparément
-	    if ($last_update_time) {
-	        $update_diff = floor(($now - $last_update_time) / 86400);
-	        if ($update_diff <= 30) {
-	            return array('class' => 'sisme-badge-updated', 'text' => 'MIS À JOUR');
-	        }
-	    }
-	    
-	    return array('class' => 'sisme-display__none', 'text' => '');
-	}
 
-    /**
-	 * 🔍 Récupérer les IDs des jeux selon les critères
-	 * 
-	 * @param array $criteria Critères de recherche
-	 * @return array IDs des jeux trouvés
-	 */
-	public static function get_games_by_criteria($criteria = array()) {
+	
 
-        $default_criteria = array(
-            'genres' => array(),
-            'is_team_choice' => false,
-            'sort_by_date' => true,
-            'sort_order' => 'desc',
-            'max_results' => -1,
-            'released' => 0,
-            'debug' => false
-        );
-        
-        $criteria = array_merge($default_criteria, $criteria);
-        
-        if (!in_array($criteria['sort_order'], ['asc', 'desc'])) {
-            $criteria['sort_order'] = 'desc';
-        }
-        
-        if ($criteria['debug']) {
-            error_log('[Sisme Cards Functions] Critères reçus: ' . print_r($criteria, true));
-        }
-        
-        // Récupérer tous les jeux avec métadonnées
-        $all_games = get_terms(array(
-            'taxonomy' => 'post_tag',
-            'hide_empty' => false,
-            'fields' => 'ids',
-            'meta_query' => array(
-                array(
-                    'key' => 'game_description',
-                    'compare' => 'EXISTS'
-                )
-            )
-        ));
-        
-        if (is_wp_error($all_games) || empty($all_games)) {
-            return array();
-        }
-        
-        // Filtrer par genres si spécifiés
-        if (!empty($criteria['genres'])) {
-            $genre_query = self::build_genres_meta_query($criteria['genres']);
-            if (!empty($genre_query)) {
-                $genre_filtered = get_terms(array(
-                    'taxonomy' => 'post_tag',
-                    'hide_empty' => false,
-                    'fields' => 'ids',
-                    'meta_query' => $genre_query
-                ));
-                
-                // Intersection des deux résultats
-                $all_games = array_intersect($all_games, $genre_filtered);
-            }
-        }
-        
-        // Filtrer par choix équipe
-        if ($criteria['is_team_choice']) {
-            $team_choice_games = array();
-            foreach ($all_games as $game_id) {
-                $is_team_choice = get_term_meta($game_id, 'is_team_choice', true);
-                if ($is_team_choice) {
-                    $team_choice_games[] = $game_id;
-                }
-            }
-            $all_games = $team_choice_games;
-        }
-        
-        // Filtrer par statut de sortie
-        $filtered_games = array();
-        foreach ($all_games as $game_id) {
-            $should_include = true;
-            
-            if ($criteria['released'] !== 0) {
-                $release_status = self::get_game_release_status($game_id);
-                
-                if ($criteria['released'] === 1 && !$release_status['is_released']) {
-                    $should_include = false;
-                } elseif ($criteria['released'] === -1 && $release_status['is_released']) {
-                    $should_include = false;
-                }
-                
-                if ($criteria['debug'] && $should_include) {
-                    error_log('[Sisme Cards Functions] Jeu ' . $game_id . ' inclus: ' . 
-                             ($release_status['is_released'] ? 'SORTI' : 'PAS ENCORE SORTI') . 
-                             " (date: {$release_status['release_date']})");
-                }
-            }
 
-            if ($should_include) {
-                $game_data = Sisme_Utils_Games::get_game_data($game_id);
-                if ($game_data) {
-                    $filtered_games[] = $game_id;
-                }
-            }
-        }
-        
-        if ($criteria['debug']) {
-            error_log('[Sisme Cards Functions] ' . count($filtered_games) . ' jeux après filtrage (released=' . $criteria['released'] . ')');
-        }
-        
-        if ($criteria['sort_by_date']) {
-            $filtered_games = self::sort_games_by_release_date($filtered_games, $criteria['sort_order']);
-            
-            if ($criteria['debug']) {
-                error_log('[Sisme Cards Functions] Tri appliqué: ordre ' . $criteria['sort_order']);
-            }
-        }
-        
-        // Limite si spécifiée
-        if ($criteria['max_results'] > 0) {
-            $filtered_games = array_slice($filtered_games, 0, $criteria['max_results']);
-        }
-        
-        return $filtered_games;
-    }
-
-	/**
-	 * Déterminer le statut de sortie d'un jeu
-	 * 
-	 * @param int $term_id ID du jeu
-	 * @return array ['is_released' => bool, 'release_date' => string, 'days_diff' => int]
-	 */
-	public static function get_game_release_status($term_id) {
-	    $release_date = get_term_meta($term_id, 'release_date', true);
-	    
-	    // Valeurs par défaut si pas de date
-	    if (empty($release_date)) {
-	        return array(
-	            'is_released' => true,      // Par défaut, considérer comme sorti
-	            'release_date' => '',
-	            'days_diff' => 0,
-	            'status_text' => 'Date inconnue'
-	        );
-	    }
-	    
-	    // Convertir en timestamp
-	    $release_timestamp = strtotime($release_date);
-	    $current_timestamp = current_time('timestamp');
-	    
-	    // Calculer la différence en jours
-	    $days_diff = floor(($current_timestamp - $release_timestamp) / DAY_IN_SECONDS);
-	    
-	    $is_released = $current_timestamp >= $release_timestamp;
-	    
-	    // Texte de statut pour debug/affichage
-	    if ($is_released) {
-	        if ($days_diff === 0) {
-	            $status_text = 'Sorti aujourd\'hui';
-	        } elseif ($days_diff === 1) {
-	            $status_text = 'Sorti hier';
-	        } else {
-	            $status_text = "Sorti il y a {$days_diff} jours";
-	        }
-	    } else {
-	        $abs_days = abs($days_diff);
-	        if ($abs_days === 0) {
-	            $status_text = 'Sort aujourd\'hui';
-	        } elseif ($abs_days === 1) {
-	            $status_text = 'Sort demain';
-	        } else {
-	            $status_text = "Sort dans {$abs_days} jours";
-	        }
-	    }
-	    
-	    return array(
-	        'is_released' => $is_released,
-	        'release_date' => $release_date,
-	        'days_diff' => $days_diff,
-	        'status_text' => $status_text
-	    );
-	}
 
 	/**
 	 * Obtenir des statistiques par statut de sortie
@@ -526,53 +339,6 @@ class Sisme_Cards_Functions {
 	    
 	    return $valid_games;
 	}
-
-	/**
-     * 📅 Trier les jeux par date de sortie
-     * 
-     * @param array $term_ids IDs des termes
-     * @param string $order Ordre de tri : 'desc' (défaut) ou 'asc'
-     * @return array IDs triés par date
-     */
-    private static function sort_games_by_release_date($term_ids, $order = 'desc') {
-        
-        // Récupérer les dates pour chaque jeu
-        $games_with_dates = array();
-        
-        foreach ($term_ids as $term_id) {
-            $release_date = get_term_meta($term_id, 'release_date', true);
-            
-            // Convertir en timestamp pour le tri
-            if (!empty($release_date)) {
-                $timestamp = strtotime($release_date);
-            } else {
-                // Si pas de date, utiliser une date très ancienne/récente selon l'ordre
-                $timestamp = ($order === 'desc') ? 0 : PHP_INT_MAX;
-            }
-            
-            $games_with_dates[] = array(
-                'term_id' => $term_id,
-                'timestamp' => $timestamp,
-                'release_date' => $release_date // Pour debug
-            );
-        }
-        
-        // Trier selon l'ordre demandé
-        if ($order === 'asc') {
-            // Tri croissant (plus anciens en premier)
-            usort($games_with_dates, function($a, $b) {
-                return $a['timestamp'] - $b['timestamp'];
-            });
-        } else {
-            // Tri décroissant (plus récents en premier) - COMPORTEMENT ACTUEL
-            usort($games_with_dates, function($a, $b) {
-                return $b['timestamp'] - $a['timestamp'];
-            });
-        }
-        
-        // Extraire les IDs triés
-        return array_column($games_with_dates, 'term_id');
-    }
 
 	/**
 	 * 📊 Obtenir les statistiques des jeux selon critères (pour debug)
