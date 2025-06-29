@@ -276,6 +276,7 @@
 
 .sisme-multi-select-item.selected:hover {
     background-color: rgb(252 163 163 / 50%) !important;
+    border-color: rgb(252 163 163 / 100%) !important;
     color: white !important;
 }
 
