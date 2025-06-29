@@ -76,7 +76,7 @@ class Sisme_Cards_Carousel_Module {
             'debug' => $grid_args['debug']
         );
         
-        $game_ids = Sisme_Cards_Functions::get_games_by_criteria($criteria);
+        $game_ids = Sisme_Utils_Games::get_games_by_criteria($criteria);
         
         if (empty($game_ids)) {
             return self::render_empty_carousel($carousel_options);

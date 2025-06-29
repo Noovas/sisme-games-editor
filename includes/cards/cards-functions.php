@@ -19,18 +19,6 @@ if (!defined('DAY_IN_SECONDS')) {
 
 class Sisme_Cards_Functions {   
 
-	public static function get_game_release_status($term_id) {
-	    return Sisme_Utils_Games::get_game_release_status($term_id);
-	}
-
-	public static function get_game_badge($game_data) {
-    	return Sisme_Utils_Games::get_game_badge($game_data);
-	} 
-
-	private static function sort_games_by_release_date($term_ids, $order = 'desc') {
-		return Sisme_Utils_Games::sort_games_by_release_date($term_ids, $order);
-    }
-
     public static function get_games_by_criteria($criteria = array()) {
 		return Sisme_Utils_Games::get_games_by_criteria($criteria);
     }
@@ -55,11 +43,6 @@ class Sisme_Cards_Functions {
 	    );
 	}
     
-
-	
-
-
-
 	/**
 	 * Obtenir des statistiques par statut de sortie
 	 * 
@@ -97,7 +80,7 @@ class Sisme_Cards_Functions {
 	    foreach ($all_games as $game) {
 	        $stats['total']++;
 	        
-	        $status = self::get_game_release_status($game->term_id);
+	        $status = Sisme_Utils_Games::get_game_release_status($game->term_id);
 	        
 	        if (empty($status['release_date'])) {
 	            $stats['no_date']++;
@@ -355,7 +338,7 @@ class Sisme_Cards_Functions {
 	        'date_range' => array('oldest' => null, 'newest' => null)
 	    );
 	    
-	    // ✅ Récupérer tous les jeux avec game_description (comme dans get_games_by_criteria)
+
 	    $all_terms = get_terms(array(
 	        'taxonomy' => 'post_tag',
 	        'hide_empty' => false,
@@ -425,7 +408,7 @@ class Sisme_Cards_Functions {
 	    
 	    $result = array(
 	        'criteria' => $criteria,
-	        'game_ids' => self::get_games_by_criteria($criteria),
+	        'game_ids' => Sisme_Utils_Games::get_games_by_criteria($criteria),
 	        'execution_time' => 0,
 	        'stats' => array()
 	    );

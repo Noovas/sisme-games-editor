@@ -204,7 +204,7 @@ class Sisme_Cards_Details_Module {
         $output .= '<div class="sisme-card-date-badge--details">';
         
         // Badge selon la fraîcheur (réutilise la logique existante)
-        $badge = Sisme_Cards_Functions::get_game_badge($game_data);
+        $badge = Sisme_Utils_Games::get_game_badge($game_data);
         if ($badge) {
             $output .= '<span class="sisme-card-badge--footer sisme-badge ' . $badge['class'] . '">' . $badge['text'] . '</span>';
         }

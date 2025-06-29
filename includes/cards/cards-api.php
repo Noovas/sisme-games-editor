@@ -151,7 +151,7 @@ class Sisme_Cards_API {
             'debug' => $args['debug'] ?? false
         );
         
-        $game_ids = Sisme_Cards_Functions::get_games_by_criteria($criteria);
+        $game_ids = Sisme_Utils_Games::get_games_by_criteria($criteria);
         
         if (empty($game_ids)) {
             return self::render_grid_empty($args);

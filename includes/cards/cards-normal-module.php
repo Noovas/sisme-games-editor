@@ -68,7 +68,7 @@ class Sisme_Cards_Normal_Module {
         $output = '<div class="sisme-card-image" style="background-image: url(\'' . esc_url($game_data['cover_url']) . '\')">';
         
         // Badge selon la fraîcheur
-        $badge = Sisme_Cards_Functions::get_game_badge($game_data);
+        $badge = Sisme_Utils_Games::get_game_badge($game_data);
         if ($badge) {
             $output .= '<span class="sisme-card-badge ' . $badge['class'] . '">' . $badge['text'] . '</span>';
         }
@@ -168,7 +168,7 @@ class Sisme_Cards_Normal_Module {
 
     /**
      * 🎯 Modes de jeu
-     * CORRECTION: Paramètre $options maintenant requis et utilisé correctement
+     * Paramètre $options maintenant requis et utilisé correctement
      */
     private static function render_modes($game_data, $options) {
         $output = '<div class="sisme-card-modes">';

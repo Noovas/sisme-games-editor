@@ -393,7 +393,7 @@ SismeGamesEditor::get_instance();
 class Sisme_Beta_Indicator {
     
     const FEATURES_COMPLETED = [
-        'Recherche de jeux',
+        'Recherche de jeux (en cours)',
         'Tableau de bord (structure)',
         'Notifications nouveaux jeux',
         'Gestion préférences',
