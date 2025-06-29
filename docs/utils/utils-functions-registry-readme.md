@@ -75,3 +75,58 @@ DEFAULT_PLATEFORM_WEB = '🌐'
 // @return string - Date avec statut optionnel
 ```
 </details>
+
+## utils-games.php
+
+**Constantes:**
+```php
+COLLECTION_FAVORITE = 'favorite'
+COLLECTION_OWNED = 'owned'
+META_DESCRIPTION = 'game_description'
+META_COVER_MAIN = 'cover_main'
+META_RELEASE_DATE = 'release_date'
+META_LAST_UPDATE = 'last_update'
+META_PLATFORMS = 'game_platforms'
+META_GENRES = 'game_genres'
+META_MODES = 'game_modes'
+```
+
+<details>
+<summary><code>get_game_genres($term_id)</code></summary>
+
+```php
+// Récupère les genres d'un jeu
+// @param int $term_id - ID du jeu (term_id)
+// @return array - Genres formatés avec id, name, slug
+```
+</details>
+
+<details>
+<summary><code>get_game_modes($term_id)</code></summary>
+
+```php
+// Récupère les modes de jeu
+// @param int $term_id - ID du jeu (term_id)
+// @return array - Modes formatés avec key et label
+```
+</details>
+
+<details>
+<summary><code>get_game_platforms_grouped($term_id)</code></summary>
+
+```php
+// Récupère les plateformes groupées par famille
+// @param int $term_id - ID du jeu (term_id)
+// @return array - Plateformes groupées avec icônes et tooltips
+```
+</details>
+
+<details>
+<summary><code>get_game_data($term_id)</code></summary>
+
+```php
+// Récupère les données complètes d'un jeu
+// @param int $term_id - ID du jeu (term_id)
+// @return array|false - Données complètes du jeu ou false si incomplet
+```
+</details>

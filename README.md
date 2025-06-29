@@ -18,10 +18,7 @@ Documentation technique condensée pour tous les modules du plugin Sisme Games E
 
 - **[🎴 Cards](docs/cards/cards-readme.md)** - Rendu cartes de jeux
 
-### 🔧 Système Utils
-- **🔥 Auto-loader Utils** - Chargement automatique dossier `includes/utils/`
-- **📦 Notification Utils** - Automatisation notifications publication jeux
-- **⚡ Hooks System** - Système de hooks automatiques cross-modules
+- **[🔧 Utils Registry](docs/utils/utils-functions-registry-readme.md)** Dictionnaire des fonctions 
 
 ---
 

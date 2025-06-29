@@ -51,7 +51,7 @@ class Sisme_Cards_API {
         }
         
         // Récupérer les données du jeu
-        $game_data = Sisme_Cards_Functions::get_game_data($game_id);
+        $game_data = Sisme_Utils_Games::get_game_data($game_id);
         if (!$game_data) {
             return self::render_error("Données du jeu incomplètes");
         }

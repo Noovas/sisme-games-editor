@@ -18,59 +18,6 @@ if (!defined('DAY_IN_SECONDS')) {
 }
 
 class Sisme_Cards_Functions {    
-    /**
-     * 📊 Récupérer les données complètes d'un jeu
-     * 
-     * @param int $term_id ID du jeu
-     * @return array|false Données du jeu ou false si incomplet
-     */
-    public static function get_game_data($term_id) {
-        
-        // Vérifications de base
-        $description = get_term_meta($term_id, 'game_description', true);
-        $cover_id = get_term_meta($term_id, 'cover_main', true);
-
-        $release_date = get_term_meta($term_id, 'release_date', true);
-    	$game_data['release_date'] = $release_date ?: '';
-
-    	if (!empty($release_date)) {
-	        $game_data['timestamp'] = strtotime($release_date);
-	    } else {
-	        $game_data['timestamp'] = 0;
-	    }
-	        
-        if (empty($description) || empty($cover_id)) {
-            return false;
-        }
-        
-        // URL de la cover
-        $cover_url = wp_get_attachment_image_url($cover_id, 'full');
-        if (!$cover_url) {
-            return false;
-        }
-        
-        // Récupérer les infos de base
-        $term = get_term($term_id);
-        
-        // Construire les données
-        $game_data = array(
-            'term_id' => $term_id,
-            'name' => $term->name,
-            'slug' => $term->slug,
-            'description' => wp_strip_all_tags($description),
-            'cover_url' => $cover_url,
-            'game_url' => home_url($term->slug . '/'),
-            'genres' => self::get_game_genres($term_id),
-            'modes' => self::get_game_modes($term_id),               
-        	'platforms' => self::get_game_platforms_grouped($term_id),   
-            'release_date' => get_term_meta($term_id, 'release_date', true),
-            'last_update' => get_term_meta($term_id, 'last_update', true),
-            'timestamp' => self::get_game_timestamp($term_id),
-
-        );
-        
-        return $game_data;
-    }
 
     /**
 	 * 🛠️ FONCTION UTILITAIRE : Déterminer le statut depuis une date
@@ -91,157 +38,6 @@ class Sisme_Cards_Functions {
 	        'days_diff' => floor(($current_timestamp - $release_timestamp) / DAY_IN_SECONDS)
 	    );
 	}
-
-    /**
-	 * 🎮 Récupérer les plateformes groupées par famille
-	 * Retourne un tableau avec les groupes et les détails pour tooltips
-	 */
-	public static function get_game_platforms_grouped($term_id) {
-	    $platforms = get_term_meta($term_id, 'game_platforms', true) ?: array();
-	    
-	    if (empty($platforms)) {
-	        return array();
-	    }
-	    
-	    // Définition des groupes
-	    $groups = array(
-	        'pc' => array(
-	            'platforms' => array('windows', 'mac', 'linux'),
-	            'icon' => '💻',
-	            'label' => 'PC'
-	        ),
-	        'console' => array(
-	            'platforms' => array('xbox', 'playstation', 'switch'),
-	            'icon' => '🎮', 
-	            'label' => 'Console'
-	        ),
-	        'mobile' => array(
-	            'platforms' => array('ios', 'android'),
-	            'icon' => '📱',
-	            'label' => 'Mobile'
-	        ),
-	        'web' => array(
-	            'platforms' => array('web'),
-	            'icon' => '🌐',
-	            'label' => 'Web'
-	        )
-	    );
-	    
-	    // Noms complets pour tooltips
-	    $platform_names = array(
-	        'windows' => 'Windows',
-	        'mac' => 'macOS', 
-	        'linux' => 'Linux',
-	        'xbox' => 'Xbox',
-	        'playstation' => 'PlayStation',
-	        'switch' => 'Nintendo Switch',
-	        'ios' => 'iOS',
-	        'android' => 'Android',
-	        'web' => 'Navigateur Web'
-	    );
-	    
-	    $grouped_platforms = array();
-	    
-	    foreach ($groups as $group_key => $group_data) {
-	        $found_platforms = array_intersect($platforms, $group_data['platforms']);
-	        
-	        if (!empty($found_platforms)) {
-	            $platform_details = array();
-	            foreach ($found_platforms as $platform) {
-	                if (isset($platform_names[$platform])) {
-	                    $platform_details[] = $platform_names[$platform];
-	                }
-	            }
-	            
-	            $grouped_platforms[] = array(
-	                'group' => $group_key,
-	                'icon' => $group_data['icon'],
-	                'label' => $group_data['label'],
-	                'platforms' => $found_platforms,
-	                'tooltip' => implode(', ', $platform_details)
-	            );
-	        }
-	    }
-	    
-	    return $grouped_platforms;
-	}
-
-	/**
-	 * 🎯 Récupérer les modes de jeu
-	 */
-	public static function get_game_modes($term_id) {
-	    $modes = get_term_meta($term_id, 'game_modes', true) ?: array();
-	    
-	    if (empty($modes)) {
-	        return array();
-	    }
-	    
-	    // Traduction des modes
-	    $mode_labels = array(
-	        'solo' => 'Solo',
-	        'multijoueur' => 'Multijoueur',
-	        'coop' => 'Coopération',
-	        'competitif' => 'Compétitif',
-	        'online' => 'En ligne',
-	        'local' => 'Local'
-	    );
-	    
-	    $formatted_modes = array();
-	    foreach ($modes as $mode) {
-	        if (isset($mode_labels[$mode])) {
-	            $formatted_modes[] = array(
-	                'key' => $mode,
-	                'label' => $mode_labels[$mode]
-	            );
-	        }
-	    }
-	    
-	    return $formatted_modes;
-	}
-    
-    /**
-     * 🏷️ Récupérer les genres du jeu
-     */
-    public static function get_game_genres($term_id) {
-        $genre_ids = get_term_meta($term_id, 'game_genres', true) ?: array();
-        $genres = array();
-        foreach ($genre_ids as $genre_id) {
-            $genre = get_category($genre_id);
-            if ($genre) {
-                $genres[] = array(
-                    'id' => $genre_id,
-                    'name' => str_replace('jeux-', '', $genre->name), // Nettoyer le préfixe
-                    'slug' => $genre->slug
-                );
-            }
-        }
-        
-        return $genres;
-    }
-    
-    /**
-     * 🎮 Récupérer les plateformes du jeu
-     */
-    public static function get_game_platforms($term_id) {
-        return get_term_meta($term_id, 'game_platforms', true) ?: array();
-    }
-    
-    /**
-     * ⏰ Déterminer le timestamp de référence du jeu
-     */
-    public static function get_game_timestamp($term_id) {
-        $last_update = get_term_meta($term_id, 'last_update', true);
-        $release_date = get_term_meta($term_id, 'release_date', true);
-        
-        // Priorité : last_update > release_date > maintenant
-        if ($last_update) {
-            return strtotime($last_update);
-        } elseif ($release_date) {
-            return strtotime($release_date);
-        } else {
-            return time();
-        }
-    }
     
     /**
 	 * 🏷️ Déterminer le badge du jeu selon sa fraîcheur
@@ -272,29 +68,6 @@ class Sisme_Cards_Functions {
 	    
 	    return array('class' => 'sisme-display__none', 'text' => '');
 	}
-    
-    /**
-	 * ⚠️ CONSERVER L'ANCIENNE FONCTION pour compatibilité (mais marquée comme deprecated)
-	 * 
-	 * @deprecated Utiliser format_release_date() à la place
-	 */
-	public static function format_relative_date($timestamp) {
-	    // Conserver pour compatibilité avec autres modules
-	    $now = current_time('timestamp');
-	    $diff = $now - $timestamp;
-	    
-	    if ($diff < DAY_IN_SECONDS) {
-	        return 'Aujourd\'hui';
-	    } elseif ($diff < 2 * DAY_IN_SECONDS) {
-	        return 'Hier';
-	    } elseif ($diff < 7 * DAY_IN_SECONDS) {
-	        return 'Il y a ' . floor($diff / DAY_IN_SECONDS) . ' jours';
-	    } elseif ($diff < 30 * DAY_IN_SECONDS) {
-	        return 'Il y a ' . floor($diff / (7 * DAY_IN_SECONDS)) . ' semaines';
-	    } else {
-	        return 'Il y a ' . floor($diff / (30 * DAY_IN_SECONDS)) . ' mois';
-	    }
-	}
 
     /**
 	 * 🔍 Récupérer les IDs des jeux selon les critères
@@ -303,13 +76,12 @@ class Sisme_Cards_Functions {
 	 * @return array IDs des jeux trouvés
 	 */
 	public static function get_games_by_criteria($criteria = array()) {
-        
-        // Critères par défaut (MODIFIÉ)
+
         $default_criteria = array(
             'genres' => array(),
             'is_team_choice' => false,
             'sort_by_date' => true,
-            'sort_order' => 'desc',        // ✅ NOUVEAU : ordre de tri
+            'sort_order' => 'desc',
             'max_results' => -1,
             'released' => 0,
             'debug' => false
@@ -317,7 +89,6 @@ class Sisme_Cards_Functions {
         
         $criteria = array_merge($default_criteria, $criteria);
         
-        // Validation du paramètre sort_order
         if (!in_array($criteria['sort_order'], ['asc', 'desc'])) {
             $criteria['sort_order'] = 'desc';
         }
@@ -391,10 +162,9 @@ class Sisme_Cards_Functions {
                              " (date: {$release_status['release_date']})");
                 }
             }
-            
-            // Validation données complètes
+
             if ($should_include) {
-                $game_data = self::get_game_data($game_id);
+                $game_data = Sisme_Utils_Games::get_game_data($game_id);
                 if ($game_data) {
                     $filtered_games[] = $game_id;
                 }
@@ -405,7 +175,6 @@ class Sisme_Cards_Functions {
             error_log('[Sisme Cards Functions] ' . count($filtered_games) . ' jeux après filtrage (released=' . $criteria['released'] . ')');
         }
         
-        // ✅ TRI PAR DATE avec ordre spécifique (MODIFIÉ)
         if ($criteria['sort_by_date']) {
             $filtered_games = self::sort_games_by_release_date($filtered_games, $criteria['sort_order']);
             
@@ -749,7 +518,7 @@ class Sisme_Cards_Functions {
 	    
 	    foreach ($term_ids as $term_id) {
 	        // Utiliser get_game_data pour vérifier la complétude
-	        $game_data = self::get_game_data($term_id);
+	        $game_data = Sisme_Utils_Games::get_game_data($term_id);
 	        if ($game_data !== false) {
 	            $valid_games[] = $term_id;
 	        }
@@ -841,7 +610,7 @@ class Sisme_Cards_Functions {
 	    
 	    // Analyser chaque jeu
 	    foreach ($all_terms as $term_id) {
-	        $game_data = self::get_game_data($term_id);
+	        $game_data = Sisme_Utils_Games::get_game_data($term_id);
 	        
 	        if ($game_data) {
 	            $stats['games_with_data']++;
@@ -903,7 +672,7 @@ class Sisme_Cards_Functions {
 	    $sample_ids = array_slice($result['game_ids'], 0, 3);
 	    
 	    foreach ($sample_ids as $game_id) {
-	        $game_data = self::get_game_data($game_id);
+	        $game_data = Sisme_Utils_Games::get_game_data($game_id);
 	        if ($game_data) {
 	            $result['sample_games'][] = array(
 	                'id' => $game_id,
