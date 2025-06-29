@@ -44,7 +44,7 @@ class Sisme_Cards_Details_Module {
         $options = array_merge(self::$default_options, $options);
         
         // Construire les classes CSS
-        $css_class = Sisme_Cards_Functions::build_css_class(
+        $css_class = Sisme_Utils_Formatting::build_css_class(
             'sisme-game-card',
             array('details'),
             $options['css_class']
@@ -233,9 +233,9 @@ class Sisme_Cards_Details_Module {
         $date_format = isset($options['date_format']) ? $options['date_format'] : 'short';
         
         if ($date_format === 'long') {
-            $formatted_date = Sisme_Cards_Functions::format_release_date_with_status($game_data['release_date'], true);
+            $formatted_date = Sisme_Utils_Formatting::format_release_date_with_status($game_data['release_date'], true);
         } else {
-            $formatted_date = Sisme_Cards_Functions::format_release_date($game_data['release_date']);
+            $formatted_date = Sisme_Utils_Formatting::format_release_date($game_data['release_date']);
         }
         
         $output = '<div class="sisme-card-date--details">';
