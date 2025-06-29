@@ -89,6 +89,7 @@ class SismeGamesEditor {
     
     private function __construct() {
         $this->init_hooks();
+        Sisme_Beta_Indicator::init();
     }
     
     private function init_hooks() {
@@ -386,3 +387,282 @@ class SismeGamesEditor {
 }
 
 SismeGamesEditor::get_instance();
+
+
+class Sisme_Beta_Indicator {
+    
+    const FEATURES_COMPLETED = [
+        'Recherche de jeux',
+        'Tableau de bord (structure)',
+        'Notifications nouveaux jeux',
+        'Gestion préférences',
+        'Système favoris et collection'
+    ];
+    
+    const FEATURES_UPCOMING = [
+        'Vue profil utilisateur',
+        'Système amis et communauté',
+        'Espace testeur/guide',
+        'Espace développeur/éditeurs',
+        'Et plein d\'autres bricoles'
+    ];
+    
+    /**
+     * Initialiser l'indicateur béta
+     */
+    public static function init() {
+        // Seulement sur le frontend
+        if (!is_admin()) {
+            add_action('wp_footer', [self::class, 'inject_beta_indicator']);
+        }
+    }
+    
+    /**
+     * Injecter l'indicateur béta dans le header
+     */
+    public static function inject_beta_indicator() {
+        $completed = json_encode(self::FEATURES_COMPLETED);
+        $upcoming = json_encode(self::FEATURES_UPCOMING);
+        ?>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const siteBranding = document.querySelector('.site-branding[data-id="logo"]');
+            if (siteBranding) {
+                // Données features
+                const featuresCompleted = <?php echo $completed; ?>;
+                const featuresUpcoming = <?php echo $upcoming; ?>;
+                
+                // Créer l'indicateur béta
+                const betaIndicator = document.createElement('div');
+                betaIndicator.className = 'sisme-beta-indicator';
+                betaIndicator.innerHTML = `
+                    <div class="sisme-beta-content">
+                        <span class="sisme-beta-icon">🚧</span>
+                        <span class="sisme-beta-text">BETA</span>
+                    </div>
+                    <div class="sisme-beta-tooltip">
+                        <div class="sisme-beta-tooltip-content">
+                            <div class="sisme-beta-columns">
+                                <div class="sisme-beta-column">
+                                    <h4>✅ Terminé</h4>
+                                    <ul>
+                                        ${featuresCompleted.map(f => `<li>${f}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="sisme-beta-column">
+                                    <h4>🚧 À venir</h4>
+                                    <ul>
+                                        ${featuresUpcoming.map(f => `<li>${f}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Event listeners
+                const betaContent = betaIndicator.querySelector('.sisme-beta-content');
+                const tooltip = betaIndicator.querySelector('.sisme-beta-tooltip');
+                
+                betaContent.addEventListener('mouseenter', () => {
+                    tooltip.classList.add('sisme-beta-tooltip--visible');
+                });
+                
+                betaContent.addEventListener('mouseleave', () => {
+                    tooltip.classList.remove('sisme-beta-tooltip--visible');
+                });
+                
+                // Insérer après le logo
+                siteBranding.appendChild(betaIndicator);
+            }
+        });
+        </script>
+        
+        <style>
+        /* ===🚧 INDICATEUR BETA STYLÉ =============== */
+        .sisme-beta-indicator {
+            position: absolute;
+            top: -8px;
+            right: -15px;
+            z-index: 1000;
+        }
+        
+        .sisme-beta-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #ffffff;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 
+                0 2px 8px rgba(26, 26, 46, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .sisme-beta-content:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 4px 12px rgba(26, 26, 46, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .sisme-beta-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: sisme-beta-shine 2s infinite;
+        }
+        
+        .sisme-beta-icon {
+            font-size: 9px;
+            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+            color: #ffffff;
+        }
+        
+        .sisme-beta-text {
+            font-size: 9px;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+        }
+        
+        /* ===💬 TOOLTIP FEATURES ==================== */
+        .sisme-beta-tooltip {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .sisme-beta-tooltip--visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .sisme-beta-tooltip-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            min-width: 400px;
+            position: relative;
+        }
+        
+        .sisme-beta-tooltip-content::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 20px;
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: none;
+            border-right: none;
+            transform: rotate(45deg);
+        }
+        
+        .sisme-beta-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .sisme-beta-column h4 {
+            margin: 0 0 8px 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .sisme-beta-column ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        
+        .sisme-beta-column li {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 4px;
+            line-height: 1.3;
+            position: relative;
+            padding-left: 12px;
+        }
+        
+        .sisme-beta-column li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Animation shine */
+        @keyframes sisme-beta-shine {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sisme-beta-indicator {
+                top: -6px;
+                right: -10px;
+            }
+            
+            .sisme-beta-content {
+                padding: 3px 6px;
+                border-radius: 10px;
+            }
+            
+            .sisme-beta-icon,
+            .sisme-beta-text {
+                font-size: 8px;
+            }
+            
+            .sisme-beta-tooltip-content {
+                min-width: 280px;
+                padding: 12px;
+            }
+            
+            .sisme-beta-columns {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+        }
+        
+        /* S'assurer que le logo container est relatif */
+        .site-branding[data-id="logo"] {
+            position: relative !important;
+        }
+        </style>
+        <?php
+    }
+}
