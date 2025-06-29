@@ -82,16 +82,28 @@ class Sisme_User_Dashboard_API {
         ?>
         <header class="sisme-dashboard-header">
             <div class="sisme-profile-card">
-                <div class="sisme-profile-avatar">
-                    <img src="<?php echo esc_url($user_info['avatar_url']); ?>" alt="Avatar" class="sisme-avatar">
-                    <div class="sisme-status-indicator online"></div>
+                <div class="norification-avatar-conteneur">
+                    <!-- 🖼️ Avatar -->
+                    <div class="sisme-profile-avatar">
+                        <img src="<?php echo esc_url($user_info['avatar_url']); ?>" alt="Avatar" class="sisme-avatar">
+                        <div class="sisme-status-indicator online"></div>
+                    </div>
+                    <!-- 🔔 Notifications -->
+                    <div class="sisme-profile-notifications">
+                        <?php 
+                        if (class_exists('Sisme_User_Notifications_API')) {
+                            echo do_shortcode('[sisme_user_notifications_badge]'); 
+                        }
+                        ?>
+                    </div>
                 </div>
+
                 
                 <div class="sisme-profile-info">
                     <h1 class="sisme-profile-name">
-                        👋 Salut, <?php echo esc_html($user_info['display_name']); ?>!
+                        <?php echo esc_html($user_info['display_name']); ?>
                     </h1>
-                    <p class="sisme-profile-tagline">
+                    <p class="sisme-profile-tagline sisme-display__none">
                         Membre depuis le <?php echo esc_html($user_info['member_since']); ?>
                     </p>
                     

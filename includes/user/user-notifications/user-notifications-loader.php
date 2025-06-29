@@ -130,13 +130,13 @@ class Sisme_User_Notifications_Loader {
             $should_load = true;
         }
         
-        if (is_page(['tableau-de-bord', 'dashboard', 'mon-profil'])) {
+        if (is_page(['sisme-user-tableau-de-bord'])) {
             $should_load = true;
         }
         
-        if (!$should_load) {
+        /*if (!$should_load) {
             return;
-        }
+        }*/
         
         if (!wp_style_is('sisme-frontend-tokens-global', 'enqueued')) {
             wp_enqueue_style(

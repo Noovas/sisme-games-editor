@@ -1,8 +1,6 @@
-# 🔔 User Notifications - API Reference
+# 🔔 User Notifications - REF API
 
-**Version:** 1.0.0  
-**Module:** `includes/user/user-notifications/`  
-**Status:** ✅ Production
+**Module:** `includes/user/user-notifications/` | **Version:** 1.0.0 | **Status:** ✅ Production
 
 ---
 
@@ -286,7 +284,61 @@ $notifications = Sisme_User_Notifications_Data_Manager::get_user_notifications($
 | `genre_match` | 🚧 Futur | Jeu correspond aux préférences | Filtrage avancé |
 | `friend_activity` | 🚧 Futur | Activité d'amis | Module user-social |
 
+## 🎯 Tests & Validation
+
+### Test Shortcode
+```php
+// Badge seul
+[sisme_user_notifications_badge]
+
+// Panel complet
+[sisme_user_notifications_panel]
+
+// Dans dashboard (intégration auto)
+[sisme_user_dashboard]
+```
+
+### Test Programmatique
+```php
+// Vérifier module chargé
+$loader = Sisme_User_Loader::get_instance();
+$is_loaded = $loader->is_module_loaded('user-notifications');
+
+// Ajouter notification test
+$success = Sisme_User_Notifications_Data_Manager::add_notification(
+    get_current_user_id(),
+    123, // ID jeu existant
+    Sisme_User_Notifications_Data_Manager::TYPE_NEW_GAME
+);
+
+// Vérifier compteur
+$count = Sisme_User_Notifications_Data_Manager::get_unread_count(get_current_user_id());
+```
+
+### Debug Logs
+```bash
+# Logs attendus avec WP_DEBUG = true
+[Sisme User] Module 'Notifications utilisateur' initialisé : Sisme_User_Notifications_Loader
+[Sisme User Notifications] Module notifications utilisateur initialisé
+[Sisme User Notifications] Assets CSS/JS chargés
+[Sisme User Notifications] Notification ajoutée pour utilisateur 123, jeu 125
+```
+
 ---
+
+### Module Cards
+```php
+// Récupération données jeu pour notification
+$game_data = Sisme_Cards_Functions::get_game_data($game_id);
+$game_url = home_url($game_data['slug'] . '/');
+```
+
+### Module User-Preferences
+```php
+// Future intégration filtrage par genres préférés
+$preferences = Sisme_User_Preferences_Data_Manager::get_user_preferences($user_id);
+$user_genres = $preferences['genres'] ?? [];
+```
 
 ## 🔗 Intégrations Cross-Module
 
@@ -309,3 +361,35 @@ $user_genres = $preferences['genres'] ?? [];
 // Badge intégré automatiquement dans header dashboard
 // API JavaScript exposée pour interactions externes
 ```
+
+---
+
+## 📦 Installation & Activation
+
+### Structure Fichiers Requise
+```
+includes/user/user-notifications/
+├── user-notifications-loader.php       ✅ Créé
+├── user-notifications-data-manager.php ✅ Créé  
+├── user-notifications-api.php          ✅ Créé
+├── user-notifications-ajax.php         ✅ Créé
+└── assets/
+    ├── user-notifications.css          ✅ Créé
+    └── user-notifications.js           ✅ Créé
+```
+
+### Modification Requise
+```php
+// Dans includes/user/user-loader.php
+$available_modules = [
+    'user-auth'          => 'Authentification',
+    'user-preferences'   => 'Preferences utilisateur', 
+    'user-actions'       => 'Actions utilisateur',
+    'user-notifications' => 'Notifications utilisateur', // ← Ajouter
+    'user-dashboard'     => 'Dashboard utilisateur',
+    'user-library'       => 'Ludothèque personnelle'
+];
+```
+
+### Activation Automatique
+Le module se charge automatiquement au prochain rechargement WordPress si les fichiers sont présents.

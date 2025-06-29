@@ -190,6 +190,24 @@
     flex-direction: row-reverse;
 }
 
+/* === 🔔 NOTIFICATIONS ================= */
+
+.norification-avatar-conteneur {
+    display: flex;
+    flex-direction: row;
+    gap: var(--sisme-gap-lg);
+    align-items: center;
+}
+
+.sisme-profile-notifications {
+    display: inline-block;
+}
+
+.sisme-profile-info {
+    display: flex;
+    gap: var(--sisme-dashboard-space-lg);
+}
+
 /* ===🏗️ GRILLE DASHBOARD ================= */
 .sisme-dashboard-grid {
     display: grid;
@@ -1788,3 +1806,4 @@
 .sisme-preferences-error .sisme-empty-state h3 {
     color: var(--sisme-dashboard-text-primary);
 }
+
