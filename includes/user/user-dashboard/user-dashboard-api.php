@@ -23,7 +23,7 @@ class Sisme_User_Dashboard_API {
     public static function render_dashboard($atts = []) {
         // Vérifier si l'utilisateur est connecté
         if (!is_user_logged_in()) {
-            return self::render_login_required();
+            return Sisme_Utils_Users::render_login_required();
         }
         
         $defaults = [
@@ -723,34 +723,6 @@ class Sisme_User_Dashboard_API {
             <div class="sisme-level-badge">
                 <span class="sisme-level-icon">🎯</span>
                 <span class="sisme-level-text">Niveau <?php echo esc_html($gaming_stats['level']); ?></span>
-            </div>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-
-    /**
-     * Affichage si utilisateur non connecté
-     */
-    private static function render_login_required() {
-        ob_start();
-        ?>
-        <div class="sisme-auth-card sisme-auth-card--login-required">
-            <div class="sisme-auth-content">
-                <div class="sisme-auth-message sisme-auth-message--warning">
-                    <span class="sisme-message-icon">🔒</span>
-                    <p>Vous devez être connecté pour accéder à votre dashboard.</p>
-                </div>
-                <div class="sisme-auth-actions">
-                    <a href="https://games.sisme.fr/sisme-user-login/" class="sisme-button sisme-button-vert">
-                        <span class="sisme-btn-icon">🔐</span>
-                        Se connecter
-                    </a>
-                    <a href="https://games.sisme.fr/sisme-user-register/" class="sisme-button sisme-button-bleu">
-                        <span class="sisme-btn-icon">📝</span>
-                        S'inscrire
-                    </a>
-                </div>
             </div>
         </div>
         <?php

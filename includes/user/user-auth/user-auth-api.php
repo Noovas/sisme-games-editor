@@ -59,7 +59,7 @@ class Sisme_User_Auth_API {
         $form_options = [
             'type' => 'login',
             'submit_text' => $atts['submit_text'],
-            'redirect_to' => !empty($atts['redirect_to']) ? $atts['redirect_to'] : home_url(self::DASHBOARD_URL)
+            'redirect_to' => !empty($atts['redirect_to']) ? $atts['redirect_to'] : home_url(Sisme_Utils_Users::DASHBOARD_URL)
         ];
         $components = ['user_email', 'user_password', 'remember_me', 'redirect_to'];
         $form = new Sisme_User_Auth_Forms($components, $form_options);
@@ -101,7 +101,7 @@ class Sisme_User_Auth_API {
         $form_options = [
             'type' => 'register',
             'submit_text' => $atts['submit_text'],
-            'redirect_to' => home_url(self::DASHBOARD_URL)
+            'redirect_to' => home_url(Sisme_Utils_Users::DASHBOARD_URL)
         ];
         $components = ['user_email', 'user_password', 'user_confirm_password', 'user_display_name', 'redirect_to'];
         $form = new Sisme_User_Auth_Forms($components, $form_options);
@@ -115,16 +115,18 @@ class Sisme_User_Auth_API {
     }
     
     /**
-     * Rendu d'une card d'authentification
+     * Rendu d'une card d'authentification (section entière)
+     * 
+     * @param string $type Type de card ('login' ou 'register')
+     * @param array $atts Attributs de configuration
+     * @param object $form Instance du formulaire
+     * @return string HTML de la card d'authentification
      */
     private static function render_auth_card($type, $atts, $form) {
         $icon = ($type === 'login') ? '🔐' : '📝';
-        
-        // URLs fixes selon le type
         $show_link = ($type === 'login') ? $atts['show_register_link'] : $atts['show_login_link'];
         $link_text = ($type === 'login') ? $atts['register_link_text'] : $atts['login_link_text'];
         $link_url = ($type === 'login') ? home_url(self::REGISTER_URL) : home_url(self::LOGIN_URL);
-        
         ob_start();
         ?>
         <div class="sisme-auth-card">
@@ -137,11 +139,9 @@ class Sisme_User_Auth_API {
                     <p class="sisme-auth-subtitle"><?php echo esc_html($atts['subtitle']); ?></p>
                 <?php endif; ?>
             </header>
-            
             <div class="sisme-auth-content">
                 <?php $form->render(); ?>
             </div>
-            
             <?php if ($show_link === 'true'): ?>
                 <footer class="sisme-auth-footer">
                     <p class="sisme-auth-link">
@@ -156,10 +156,11 @@ class Sisme_User_Auth_API {
     
     /**
      * Message pour utilisateur déjà connecté
+     * 
+     * @return string HTML du message pour utilisateur connecté
      */
     private static function render_already_logged_in() {
         $current_user = wp_get_current_user();
-        
         ob_start();
         ?>
         <div class="sisme-auth-card sisme-auth-card--logged-in">
@@ -169,11 +170,11 @@ class Sisme_User_Auth_API {
                     <p>Vous êtes déjà connecté en tant que <strong><?php echo esc_html($current_user->display_name); ?></strong>.</p>
                 </div>
                 <div class="sisme-auth-actions">
-                    <a href="<?php echo esc_url(home_url(self::DASHBOARD_URL)); ?>" class="sisme-button sisme-button-vert">
+                    <a href="<?php echo esc_url(home_url(Sisme_Utils_Users::DASHBOARD_URL)); ?>" class="sisme-button sisme-button-vert">
                         <span class="sisme-btn-icon">👤</span>
                         Mon tableau de bord
                     </a>
-                        <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="sisme-button sisme-button-orange">
+                    <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="sisme-button sisme-button-orange">
                         <span class="sisme-btn-icon">🚪</span>
                         Déconnexion
                     </a>
@@ -183,142 +184,5 @@ class Sisme_User_Auth_API {
         <?php
         return ob_get_clean();
     }
-    
-    /**
-     * Message pour connexion requise
-     */
-    private static function render_login_required() {
-        ob_start();
-        ?>
-        <div class="sisme-auth-card sisme-auth-card--login-required">
-            <div class="sisme-auth-content">
-                <div class="sisme-auth-message sisme-auth-message--warning">
-                    <span class="sisme-message-icon">🔒</span>
-                    <p>Vous devez être connecté pour accéder à cette page.</p>
-                </div>
-                <div class="sisme-auth-actions">
-                    <a href="<?php echo esc_url(home_url(self::LOGIN_URL)); ?>" class="sisme-button sisme-button-vert">
-                        <span class="sisme-btn-icon">🔐</span>
-                        Se connecter
-                    </a>
-                    <a href="<?php echo esc_url(home_url(self::REGISTER_URL)); ?>" class="sisme-button sisme-button-bleu">
-                        <span class="sisme-btn-icon">📝</span>
-                        S'inscrire
-                    </a>
-                </div>
-            </div>
-        </div>
-        <?php
-        return ob_get_clean();
-
-
-
-    }
-    
-    /**
-     * Rendu des jeux favoris de l'utilisateur
-     */
-    private static function render_user_favorites($user_id) {
-        $favorite_games = get_user_meta($user_id, 'sisme_favorite_games', true) ?: [];
-        
-        if (empty($favorite_games)) {
-            return '<p class="sisme-profile-empty">Aucun jeu favori pour le moment. Explorez notre catalogue pour découvrir de nouveaux jeux !</p>';
-        }
-        
-        ob_start();
-        ?>
-        <div class="sisme-favorites-grid">
-            <?php 
-            $count = 0;
-            foreach ($favorite_games as $game_id): 
-                if ($count >= 6) break; // Limiter à 6 jeux
-                $game = get_term($game_id, 'post_tag');
-                if ($game && !is_wp_error($game)):
-                    $count++;
-            ?>
-                <div class="sisme-favorite-item">
-                    <a href="<?php echo esc_url(get_term_link($game)); ?>" class="sisme-favorite-link">
-                        <?php echo esc_html($game->name); ?>
-                    </a>
-                </div>
-            <?php 
-                endif;
-            endforeach; 
-            ?>
-        </div>
-        <?php if (count($favorite_games) > 6): ?>
-            <p class="sisme-favorites-more">
-                <a href="<?php echo esc_url(home_url(self::PROFILE_URL)); ?>">
-                    Voir tous mes favoris (<?php echo count($favorite_games); ?>)
-                </a>
-            </p>
-        <?php endif; ?>
-        <?php
-        return ob_get_clean();
-    }
-    
-    /**
-     * Rendu de l'activité récente de l'utilisateur
-     */
-    private static function render_user_activity($user_id) {
-        $last_login = get_user_meta($user_id, 'sisme_last_login', true);
-        $profile_created = get_user_meta($user_id, 'sisme_profile_created', true);
-        
-        ob_start();
-        ?>
-        <div class="sisme-activity-list">
-            <?php if ($last_login): ?>
-                <div class="sisme-activity-item">
-                    <span class="sisme-activity-icon">🕐</span>
-                    <span class="sisme-activity-text">
-                        Dernière connexion : <?php echo esc_html(date_i18n('j F Y à H\hi', strtotime($last_login))); ?>
-                    </span>
-                </div>
-            <?php endif; ?>
-            
-            <?php if ($profile_created): ?>
-                <div class="sisme-activity-item">
-                    <span class="sisme-activity-icon">📅</span>
-                    <span class="sisme-activity-text">
-                        Profil créé le <?php echo esc_html(date_i18n('j F Y', strtotime($profile_created))); ?>
-                    </span>
-                </div>
-            <?php endif; ?>
-            
-            <div class="sisme-activity-item">
-                <span class="sisme-activity-icon">⭐</span>
-                <span class="sisme-activity-text">
-                    <?php 
-                    $favorites_count = count(get_user_meta($user_id, 'sisme_favorite_games', true) ?: []);
-                    echo $favorites_count . ' jeu' . ($favorites_count > 1 ? 'x' : '') . ' en favoris';
-                    ?>
-                </span>
-            </div>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-    
-    /**
-     * Rendu des recommandations pour l'utilisateur
-     */
-    private static function render_user_recommendations($user_id) {
-        // TODO: Implémenter la logique de recommandations basée sur les favoris
-        // Pour l'instant, message placeholder
-        
-        ob_start();
-        ?>
-        <div class="sisme-recommendations-placeholder">
-            <p class="sisme-profile-empty">
-                <span class="sisme-placeholder-icon">🎯</span>
-                Les recommandations personnalisées arriveront bientôt ! 
-                Ajoutez des jeux à vos favoris pour que nous puissions vous suggérer de nouveaux titres.
-            </p>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
 }
-
-// Initialiser l'API
 Sisme_User_Auth_API::init();

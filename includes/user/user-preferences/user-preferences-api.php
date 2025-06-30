@@ -27,53 +27,32 @@ class Sisme_User_Preferences_API {
      * Shortcode principal [sisme_user_preferences]
      */
     public static function render_preferences_shortcode($atts = []) {
-        // Vérifier si l'utilisateur est connecté
         if (!is_user_logged_in()) {
-            return self::render_login_required();
+            return Sisme_Utils_Users::render_login_required();
         }
-        
         $defaults = [
             'sections' => 'profile,gaming,notifications,privacy',
             'user_id' => get_current_user_id(),
             'container_class' => 'sisme-user-preferences',
             'title' => 'Mes préférences'
         ];
-        
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_preferences');
-        
-        // ID utilisateur (utilisateur courant par défaut)
         $user_id = !empty($atts['user_id']) ? intval($atts['user_id']) : get_current_user_id();
-        
-        // Vérification permissions
         if ($user_id !== get_current_user_id() && !current_user_can('manage_users')) {
             return self::render_access_denied();
         }
-        
-        // Forcer le chargement des assets
         if (class_exists('Sisme_User_Preferences_Loader')) {
             $loader = Sisme_User_Preferences_Loader::get_instance();
             $loader->force_load_assets();
         }
-        
-        // Vérifier que le Data Manager est disponible
         if (!class_exists('Sisme_User_Preferences_Data_Manager')) {
             return self::render_error('Module de données non disponible');
         }
-        
-        // Récupérer les préférences utilisateur
         $user_preferences = Sisme_User_Preferences_Data_Manager::get_user_preferences($user_id);
-
-
-
-        
-        // Parser les sections à afficher
         $sections_to_show = array_map('trim', explode(',', $atts['sections']));
-
-        // Rendu complet
         ob_start();
         ?>
         <div class="<?php echo esc_attr($atts['container_class']); ?>" data-user-id="<?php echo esc_attr($user_id); ?>">
-            
             <?php if (!empty($atts['title'])): ?>
                 <header class="sisme-preferences-header">
                     <h2 class="sisme-preferences-title">
@@ -82,26 +61,19 @@ class Sisme_User_Preferences_API {
                     </h2>
                 </header>
             <?php endif; ?>
-            
             <div class="sisme-preferences-form" data-auto-save="true">
-                
-                <!-- Indicateur de sauvegarde -->
                 <div class="sisme-save-indicator" style="display: none;">
                     <span class="sisme-save-text">Sauvegarde en cours...</span>
                 </div>
-                
                 <?php foreach ($sections_to_show as $section): ?>
                     <?php echo self::render_section($section, $user_id, $user_preferences); ?>
                 <?php endforeach; ?>
-                
-                <!-- Actions globales -->
                 <div class="sisme-preferences-actions">
                     <button type="button" class="sisme-button sisme-button-bleu sisme-reset-preferences">
                         <span class="sisme-btn-icon">🔄</span>
                         Réinitialiser mes préférences
                     </button>
                 </div>
-                
             </div>
         </div>
         <?php
@@ -470,30 +442,6 @@ class Sisme_User_Preferences_API {
                 </div>
             <?php endif; ?>
             
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-    
-    /**
-     * Message pour utilisateur non connecté
-     */
-    private static function render_login_required() {
-        ob_start();
-        ?>
-        <div class="sisme-preferences-card sisme-preferences-card--login-required">
-            <div class="sisme-preferences-content">
-                <div class="sisme-preferences-message sisme-preferences-message--warning">
-                    <span class="sisme-message-icon">🔒</span>
-                    <p>Vous devez être connecté pour accéder à vos préférences.</p>
-                </div>
-                <div class="sisme-preferences-actions">
-                    <a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>" class="sisme-btn sisme-btn--primary">
-                        <span class="sisme-btn-icon">🔐</span>
-                        Se connecter
-                    </a>
-                </div>
-            </div>
         </div>
         <?php
         return ob_get_clean();
