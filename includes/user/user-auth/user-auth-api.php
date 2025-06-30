@@ -32,50 +32,37 @@ class Sisme_User_Auth_API {
     
     /**
      * Shortcode [sisme_user_login] - Formulaire de connexion
+     * 
+     * @param array $atts Attributs du shortcode
+     * @return string HTML du formulaire de connexion
      */
     public static function render_login_form($atts = []) {
-        // Valeurs par défaut avec URLs fixes
         $defaults = [
             'container_class' => 'sisme-user-auth-container',
             'title' => 'Connexion',
             'subtitle' => 'Accédez à votre espace membre',
             'submit_text' => 'Se connecter',
-            'show_register_link' => 'true',
-            'register_link_text' => 'Pas encore de compte ? S\'inscrire',
-            'show_remember' => 'true'
+            'show_register_link' => 'true', 
+            'register_link_text' => 'Pas encore de compte ? Créer un compte',
+            'redirect_to' => ''
         ];
-        
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_login');
-        
-        // Si déjà connecté, afficher message et liens vers dashboard
         if (is_user_logged_in()) {
             return self::render_already_logged_in();
         }
-        
-        // Forcer le chargement des assets
         if (class_exists('Sisme_User_Auth_Loader')) {
             $loader = Sisme_User_Auth_Loader::get_instance();
             if (method_exists($loader, 'force_load_assets')) {
                 $loader->force_load_assets();
             }
         }
-        
-        // Créer le formulaire avec redirection vers dashboard
         $form_options = [
             'type' => 'login',
             'submit_text' => $atts['submit_text'],
-            'redirect_to' => home_url(self::DASHBOARD_URL)
+            'redirect_to' => !empty($atts['redirect_to']) ? $atts['redirect_to'] : home_url(self::DASHBOARD_URL)
         ];
-        
-        $components = ['user_email', 'user_password'];
-        if ($atts['show_remember'] === 'true') {
-            $components[] = 'remember_me';
-        }
-        $components[] = 'redirect_to';
-        
+        $components = ['user_email', 'user_password', 'remember_me', 'redirect_to'];
         $form = new Sisme_User_Auth_Forms($components, $form_options);
-        
-        // Rendu complet avec wrapper
         ob_start();
         ?>
         <div class="<?php echo esc_attr($atts['container_class']); ?>">
@@ -87,207 +74,41 @@ class Sisme_User_Auth_API {
     
     /**
      * Shortcode [sisme_user_register] - Formulaire d'inscription
+     * 
+     * @param array $atts Attributs du shortcode
+     * @return string HTML du formulaire d'inscription
      */
     public static function render_register_form($atts = []) {
-        // Valeurs par défaut avec URLs fixes
         $defaults = [
             'container_class' => 'sisme-user-auth-container',
             'title' => 'Inscription',
-            'subtitle' => 'Rejoignez la communauté gaming',
+            'subtitle' => 'Créez votre compte gamer',
             'submit_text' => 'Créer mon compte',
             'show_login_link' => 'true',
-            'login_link_text' => 'Déjà membre ? Se connecter',
+            'login_link_text' => 'Déjà un compte ? Se connecter',
             'require_email_verification' => 'false'
         ];
-        
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_register');
-        
-        // Si déjà connecté, rediriger vers dashboard
         if (is_user_logged_in()) {
             return self::render_already_logged_in();
         }
-        
-        // Forcer le chargement des assets
         if (class_exists('Sisme_User_Auth_Loader')) {
             $loader = Sisme_User_Auth_Loader::get_instance();
             if (method_exists($loader, 'force_load_assets')) {
                 $loader->force_load_assets();
             }
         }
-        
-        // Créer le formulaire avec redirection vers dashboard
         $form_options = [
             'type' => 'register',
             'submit_text' => $atts['submit_text'],
             'redirect_to' => home_url(self::DASHBOARD_URL)
         ];
-        
         $components = ['user_email', 'user_password', 'user_confirm_password', 'user_display_name', 'redirect_to'];
-        
         $form = new Sisme_User_Auth_Forms($components, $form_options);
-        
-        // Rendu complet avec wrapper
         ob_start();
         ?>
         <div class="<?php echo esc_attr($atts['container_class']); ?>">
             <?php echo self::render_auth_card('register', $atts, $form); ?>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-    
-    /**
-     * Shortcode [sisme_user_profile] - Dashboard utilisateur
-     */
-    public static function render_profile_dashboard($atts = []) {
-        // Valeurs par défaut
-        $defaults = [
-            'show_favorites' => 'true',
-            'show_activity' => 'true',
-            'show_recommendations' => 'false',
-            'container_class' => 'sisme-user-profile-container'
-        ];
-        
-        $atts = shortcode_atts($defaults, $atts, 'sisme_user_profile');
-        
-        // Vérifier si connecté, sinon rediriger vers login
-        if (!is_user_logged_in()) {
-            return self::render_login_required();
-        }
-        
-        $current_user = wp_get_current_user();
-        
-        ob_start();
-        ?>
-        <div class="<?php echo esc_attr($atts['container_class']); ?>">
-            <div class="sisme-profile-dashboard">
-                
-                <!-- Header du profil -->
-                <header class="sisme-profile-header">
-                    <div class="sisme-profile-avatar">
-                        <?php echo get_avatar($current_user->ID, 80, '', '', ['class' => 'sisme-avatar']); ?>
-                    </div>
-                    <div class="sisme-profile-info">
-                        <h2 class="sisme-profile-name">
-                            <span class="sisme-profile-icon">👋</span>
-                            Salut, <?php echo esc_html($current_user->display_name); ?> !
-                        </h2>
-                        <p class="sisme-profile-meta">
-                            Membre depuis le <?php echo esc_html(date_i18n('j F Y', strtotime($current_user->user_registered))); ?>
-                        </p>
-                    </div>
-                    <div class="sisme-profile-actions">
-                        <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="sisme-button sisme-button-orange">
-                            <span class="sisme-btn-icon">🚪</span>
-                            Déconnexion
-                        </a>
-                    </div>
-                </header>
-                
-                <!-- Contenu du dashboard -->
-                <div class="sisme-profile-content">
-                    
-                    <?php if ($atts['show_favorites'] === 'true'): ?>
-                        <section class="sisme-profile-section sisme-profile-favorites">
-                            <h3 class="sisme-profile-section-title">
-                                <span class="sisme-section-icon">⭐</span>
-                                Mes jeux favoris
-                            </h3>
-                            <div class="sisme-profile-section-content">
-                                <?php echo self::render_user_favorites($current_user->ID); ?>
-                            </div>
-                        </section>
-                    <?php endif; ?>
-                    
-                    <?php if ($atts['show_activity'] === 'true'): ?>
-                        <section class="sisme-profile-section sisme-profile-activity">
-                            <h3 class="sisme-profile-section-title">
-                                <span class="sisme-section-icon">📊</span>
-                                Activité récente
-                            </h3>
-                            <div class="sisme-profile-section-content">
-                                <?php echo self::render_user_activity($current_user->ID); ?>
-                            </div>
-                        </section>
-                    <?php endif; ?>
-                    
-                    <?php if ($atts['show_recommendations'] === 'true'): ?>
-                        <section class="sisme-profile-section sisme-profile-recommendations">
-                            <h3 class="sisme-profile-section-title">
-                                <span class="sisme-section-icon">🎯</span>
-                                Recommandations
-                            </h3>
-                            <div class="sisme-profile-section-content">
-                                <?php echo self::render_user_recommendations($current_user->ID); ?>
-                            </div>
-                        </section>
-                    <?php endif; ?>
-                    
-                </div>
-            </div>
-        </div>
-        <?php
-        return ob_get_clean();
-    }
-    
-    /**
-     * Shortcode [sisme_user_menu] - Menu utilisateur compact
-     */
-    public static function render_user_menu($atts = []) {
-        // Valeurs par défaut avec URLs fixes
-        $defaults = [
-            'show_avatar' => 'true',
-            'show_logout' => 'true',
-            'container_class' => 'sisme-user-menu',
-            'login_text' => 'Connexion',
-            'register_text' => 'Inscription',
-            'profile_text' => 'Mon profil',
-            'logout_text' => 'Déconnexion'
-        ];
-        
-        $atts = shortcode_atts($defaults, $atts, 'sisme_user_menu');
-        
-        ob_start();
-        ?>
-        <div class="<?php echo esc_attr($atts['container_class']); ?>">
-            <?php if (is_user_logged_in()): ?>
-                <?php $current_user = wp_get_current_user(); ?>
-                <div class="sisme-user-menu-logged-in">
-                    
-                    <?php if ($atts['show_avatar'] === 'true'): ?>
-                        <div class="sisme-user-menu-avatar">
-                            <?php echo get_avatar($current_user->ID, 32, '', '', ['class' => 'sisme-menu-avatar']); ?>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <div class="sisme-user-menu-info">
-                        <span class="sisme-user-menu-name"><?php echo esc_html($current_user->display_name); ?></span>
-                    </div>
-                    
-                    <div class="sisme-user-menu-actions">
-                        <a href="<?php echo esc_url(home_url(self::DASHBOARD_URL)); ?>" class="sisme-btn sisme-btn--small">
-                            <?php echo esc_html($atts['profile_text']); ?>
-                        </a>
-                        
-                        <?php if ($atts['show_logout'] === 'true'): ?>
-                            <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="sisme-btn sisme-btn--small sisme-btn--secondary">
-                                <?php echo esc_html($atts['logout_text']); ?>
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            <?php else: ?>
-                <div class="sisme-user-menu-logged-out">
-                    <div class="sisme-user-menu-actions">
-                        <a href="<?php echo esc_url(home_url(self::LOGIN_URL)); ?>" class="sisme-btn sisme-btn--small">
-                            <?php echo esc_html($atts['login_text']); ?>
-                        </a>
-                        <a href="<?php echo esc_url(home_url(self::REGISTER_URL)); ?>" class="sisme-btn sisme-btn--small sisme-btn--primary">
-                            <?php echo esc_html($atts['register_text']); ?>
-                        </a>
-                    </div>
-                </div>
-            <?php endif; ?>
         </div>
         <?php
         return ob_get_clean();
@@ -389,6 +210,9 @@ class Sisme_User_Auth_API {
         </div>
         <?php
         return ob_get_clean();
+
+
+
     }
     
     /**

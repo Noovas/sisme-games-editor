@@ -111,12 +111,9 @@ class Sisme_User_Auth_Loader {
     private function init_shortcodes() {
         if (class_exists('Sisme_User_Auth_API')) {
             add_shortcode('sisme_user_login', ['Sisme_User_Auth_API', 'render_login_form']);
-            add_shortcode('sisme_user_register', ['Sisme_User_Auth_API', 'render_register_form']);
-            add_shortcode('sisme_user_profile', ['Sisme_User_Auth_API', 'render_profile_dashboard']);
-            add_shortcode('sisme_user_menu', ['Sisme_User_Auth_API', 'render_user_menu']);
-            
+            add_shortcode('sisme_user_register', ['Sisme_User_Auth_API', 'render_register_form']);            
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('[Sisme User Auth] Shortcodes enregistrés : sisme_user_login, sisme_user_register, sisme_user_profile, sisme_user_menu');
+                error_log('[Sisme User Auth] Shortcodes enregistrés : sisme_user_login, sisme_user_register');
             }
         }
     }
@@ -133,7 +130,7 @@ class Sisme_User_Auth_Loader {
         wp_enqueue_style(
             'sisme-user-auth',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-auth/assets/user-auth.css',
-            ['sisme-frontend-tokens-global'], // Dépend de vos tokens CSS
+            ['sisme-frontend-tokens-global'],
             SISME_GAMES_EDITOR_VERSION
         );
         
@@ -158,9 +155,9 @@ class Sisme_User_Auth_Loader {
                 'logout_success' => 'Déconnexion réussie'
             ],
             'config' => [
-                'redirect_delay' => 2000, // 2 secondes avant redirection
-                'show_messages' => true,   // Afficher les messages
-                'auto_hide_messages' => 5000 // Masquer après 5 secondes
+                'redirect_delay' => 2000,
+                'show_messages' => true,
+                'auto_hide_messages' => 5000
             ],
             'debug' => defined('WP_DEBUG') && WP_DEBUG
         ]);
@@ -186,7 +183,6 @@ class Sisme_User_Auth_Loader {
      * Nettoyage lors de la déconnexion
      */
     public function handle_logout_cleanup() {
-        // Actions de nettoyage lors de la déconnexion
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('[Sisme User Auth] Nettoyage session de déconnexion');
         }

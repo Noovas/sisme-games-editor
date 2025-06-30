@@ -46,12 +46,10 @@ class Sisme_User_Preferences_Data_Manager {
      * @return array Préférences complètes avec valeurs par défaut si nécessaire
      */
     public static function get_user_preferences($user_id) {
-        if (!$user_id || !get_userdata($user_id)) {
+        if (!Sisme_Utils_Users::validate_user_id($user_id, 'get_user_preferences')) {
             return [];
         }
-        
         $defaults = self::get_default_preferences();
-        
         $preferences = [
             'platforms' => get_user_meta($user_id, self::META_PLATFORMS, true) ?: $defaults['platforms'],
             'genres' => get_user_meta($user_id, self::META_GENRES, true) ?: $defaults['genres'],
@@ -62,11 +60,9 @@ class Sisme_User_Preferences_Data_Manager {
                                (bool) get_user_meta($user_id, self::META_PRIVACY_PUBLIC, true) : 
                                $defaults['privacy_public']
         ];
-        
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log("[Sisme User Preferences] Préférences récupérées pour utilisateur {$user_id}");
         }
-        
         return $preferences;
     }
     
@@ -95,10 +91,7 @@ class Sisme_User_Preferences_Data_Manager {
      * @return bool Succès de la sauvegarde
      */
     public static function update_user_preference($user_id, $key, $value) {
-        if (!$user_id || !get_userdata($user_id)) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("[Sisme User Preferences] ERREUR - Utilisateur invalide: {$user_id}");
-            }
+        if (!Sisme_Utils_Users::validate_user_id($user_id, 'update_user_preference')) {
             return false;
         }
         
@@ -201,13 +194,11 @@ class Sisme_User_Preferences_Data_Manager {
      * @return bool Succès de la réinitialisation
      */
     public static function reset_user_preferences($user_id) {
-        if (!$user_id || !get_userdata($user_id)) {
+        if (!Sisme_Utils_Users::validate_user_id($user_id, 'reset_user_preferences')) {
             return false;
         }
-        
         $defaults = self::get_default_preferences();
         self::update_multiple_preferences($user_id, $defaults);
-        
         return true;
     }
     

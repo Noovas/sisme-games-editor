@@ -29,22 +29,17 @@ class Sisme_User_Dashboard_Data_Manager {
      * @return array|false Données complètes ou false si erreur
      */
     public static function get_dashboard_data($user_id) {
-        if (!$user_id || !get_userdata($user_id)) {
+        if (!Sisme_Utils_Users::validate_user_id($user_id, 'get_dashboard_data')) {
             return false;
         }
-        
-        // Vérifier le cache d'abord
         $cache_key = "sisme_dashboard_data_{$user_id}";
         $cached_data = get_transient($cache_key);
-        
         if ($cached_data !== false) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 error_log("[Sisme Dashboard Data] Cache hit pour utilisateur {$user_id}");
             }
             return $cached_data;
         }
-        
-        // Construire les données dashboard
         $dashboard_data = [
             'user_info' => self::get_user_info($user_id),
             'gaming_stats' => self::get_gaming_stats($user_id),
@@ -54,14 +49,10 @@ class Sisme_User_Dashboard_Data_Manager {
             'activity_feed' => self::get_activity_feed($user_id),
             'last_updated' => current_time('timestamp')
         ];
-        
-        // Mettre en cache
         set_transient($cache_key, $dashboard_data, self::CACHE_DURATION);
-        
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log("[Sisme Dashboard Data] Données générées et mises en cache pour utilisateur {$user_id}");
         }
-        
         return $dashboard_data;
     }
     
