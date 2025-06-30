@@ -344,7 +344,7 @@ class SismeGamesEditor {
                     }
                 } else {
                     if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('[Sisme] Classe introuvable : ' . class_name);
+                        error_log('[Sisme] Classe introuvable : ' . $class_name);
                     }
                 }
             } else {
