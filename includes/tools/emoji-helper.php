@@ -164,27 +164,27 @@ class Sisme_Emoji_Helper {
     public static function get_all_categories() {
         return array(
             'gaming' => array(
-                'name' => '🎮 Gaming & Jeux Vidéo',
+                Sisme_Utils_Games::KEY_NAME => '🎮 Gaming & Jeux Vidéo',
                 'emojis' => self::GAMING_EMOJIS
             ),
             'featured' => array(
-                'name' => '🌟 Mise en Avant',
+                Sisme_Utils_Games::KEY_NAME => '🌟 Mise en Avant',
                 'emojis' => self::FEATURED_EMOJIS
             ),
             'news' => array(
-                'name' => '🆕 Nouveautés & Actualités',
+                Sisme_Utils_Games::KEY_NAME => '🆕 Nouveautés & Actualités',
                 'emojis' => self::NEWS_EMOJIS
             ),
-            'genres' => array(
-                'name' => '🎨 Genres de Jeux',
+            Sisme_Utils_Games::KEY_GENRES => array(
+                Sisme_Utils_Games::KEY_NAME => '🎨 Genres de Jeux',
                 'emojis' => self::GENRE_EMOJIS
             ),
             'interface' => array(
-                'name' => '📱 Interface & Navigation',
+                Sisme_Utils_Games::KEY_NAME => '📱 Interface & Navigation',
                 'emojis' => self::INTERFACE_EMOJIS
             ),
             'events' => array(
-                'name' => '🎉 Événements & Célébrations',
+                Sisme_Utils_Games::KEY_NAME => '🎉 Événements & Célébrations',
                 'emojis' => self::EVENT_EMOJIS
             )
         );
@@ -227,7 +227,7 @@ class Sisme_Emoji_Helper {
      */
     public static function render_emoji_selector($name, $selected = '', $options = array()) {
         $defaults = array(
-            'id' => $name,
+            Sisme_Utils_Games::KEY_ID => $name,
             'class' => 'sisme-emoji-selector',
             'required' => false,
             'categories' => array(), // Vide = toutes les catégories

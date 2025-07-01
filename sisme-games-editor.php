@@ -210,8 +210,8 @@ class SismeGamesEditor {
         $existing_tag = get_term_by('name', $tag_name, 'post_tag');
         if ($existing_tag) {
             wp_send_json_success(array(
-                'term_id' => $existing_tag->term_id,
-                'name' => $existing_tag->name
+                Sisme_Utils_Games::KEY_TERM_ID => $existing_tag->term_id,
+                Sisme_Utils_Games::KEY_NAME => $existing_tag->name
             ));
         }
         
@@ -222,8 +222,8 @@ class SismeGamesEditor {
         
         $tag_info = get_term($new_tag['term_id'], 'post_tag');
         wp_send_json_success(array(
-            'term_id' => $tag_info->term_id,
-            'name' => $tag_info->name
+            Sisme_Utils_Games::KEY_TERM_ID => $tag_info->term_id,
+            Sisme_Utils_Games::KEY_NAME => $tag_info->name
         ));
     }
 
@@ -242,8 +242,8 @@ class SismeGamesEditor {
         $existing_category = get_term_by('name', $category_name, 'category');
         if ($existing_category) {
             wp_send_json_success(array(
-                'term_id' => $existing_category->term_id,
-                'name' => $existing_category->name
+                Sisme_Utils_Games::KEY_TERM_ID => $existing_category->term_id,
+                Sisme_Utils_Games::KEY_NAME => $existing_category->name
             ));
         }
         
@@ -254,8 +254,8 @@ class SismeGamesEditor {
         
         $category_info = get_term($new_category['term_id'], 'category');
         wp_send_json_success(array(
-            'term_id' => $category_info->term_id,
-            'name' => $category_info->name
+            Sisme_Utils_Games::KEY_TERM_ID => $category_info->term_id,
+            Sisme_Utils_Games::KEY_NAME => $category_info->name
         ));
     }
 
@@ -279,8 +279,8 @@ class SismeGamesEditor {
         $existing_entity = get_term_by('name', $entity_name, 'category');
         if ($existing_entity && $existing_entity->parent == $parent_category->term_id) {
             wp_send_json_success(array(
-                'term_id' => $existing_entity->term_id,
-                'name' => $existing_entity->name,
+                Sisme_Utils_Games::KEY_TERM_ID => $existing_entity->term_id,
+                Sisme_Utils_Games::KEY_NAME => $existing_entity->name,
                 'website' => get_term_meta($existing_entity->term_id, 'website_url', true)
             ));
         }
@@ -296,8 +296,8 @@ class SismeGamesEditor {
         
         $entity_info = get_term($new_entity['term_id'], 'category');
         wp_send_json_success(array(
-            'term_id' => $entity_info->term_id,
-            'name' => $entity_info->name,
+            Sisme_Utils_Games::KEY_TERM_ID => $entity_info->term_id,
+            Sisme_Utils_Games::KEY_NAME => $entity_info->name,
             'website' => $entity_website
         ));
     }
@@ -318,10 +318,10 @@ class SismeGamesEditor {
         }
         
         $meta_keys = [
-            Sisme_Utils_Games::META_DESCRIPTION, Sisme_Utils_Games::META_GENRES, 'game_modes', 'game_developers', 
-            'game_publishers', 'game_platforms', Sisme_Utils_Games::META_RELEASE_DATE, 'external_links',
-            'trailer_link', Sisme_Utils_Games::META_COVER_MAIN, 'cover_news', 'cover_patch', 'cover_test',
-            'screenshots', 'game_sections', 'last_update'
+            Sisme_Utils_Games::META_DESCRIPTION, Sisme_Utils_Games::META_GENRES, Sisme_Utils_Games::META_MODES, Sisme_Utils_Games::META_DEVELOPERS, 
+            'game_publishers', Sisme_Utils_Games::META_PLATFORMS, Sisme_Utils_Games::META_RELEASE_DATE, Sisme_Utils_Games::META_EXTERNAL_LINKS,
+            'trailer_link', Sisme_Utils_Games::META_COVER_MAIN, Sisme_Utils_Games::META_COVER_NEWS, Sisme_Utils_Games::META_COVER_PATCH, Sisme_Utils_Games::META_COVER_TEST,
+            'screenshots', 'game_sections', Sisme_Utils_Games::META_LAST_UPDATE
         ];
         
         foreach ($meta_keys as $meta_key) {
@@ -368,12 +368,12 @@ class SismeGamesEditor {
             wp_send_json_error('ID de jeu invalide');
         }
         $new_value = ($current_value === '1') ? '0' : '1';
-        $success = update_term_meta($term_id, 'is_team_choice', $new_value);
+        $success = update_term_meta($term_id, Sisme_Utils_Games::META_TEAM_CHOICE, $new_value);
         if ($success !== false) {
             wp_send_json_success(array(
                 'new_value' => $new_value,
                 'icon' => ($new_value === '1') ? '💖' : '🤍',
-                'title' => ($new_value === '1') ? 'Retirer des choix équipe' : 'Ajouter aux choix équipe',
+                Sisme_Utils_Games::KEY_TITLE => ($new_value === '1') ? 'Retirer des choix équipe' : 'Ajouter aux choix équipe',
                 'class' => ($new_value === '1') ? 'team-choice-active' : 'team-choice-inactive'
             ));
         } else {

@@ -31,7 +31,7 @@ class Sisme_User_Auth_Forms {
     private $available_components = [
         'user_email' => [
             'label' => 'Adresse email',
-            'description' => 'Votre adresse email de connexion',
+            Sisme_Utils_Games::KEY_DESCRIPTION => 'Votre adresse email de connexion',
             'required' => true,
             'output_var' => 'user_email',
             'type' => 'email',
@@ -39,7 +39,7 @@ class Sisme_User_Auth_Forms {
         ],
         'user_password' => [
             'label' => 'Mot de passe',
-            'description' => 'Votre mot de passe (8 caractères minimum)',
+            Sisme_Utils_Games::KEY_DESCRIPTION => 'Votre mot de passe (8 caractères minimum)',
             'required' => true,
             'output_var' => 'user_password',
             'type' => 'password',
@@ -47,7 +47,7 @@ class Sisme_User_Auth_Forms {
         ],
         'user_confirm_password' => [
             'label' => 'Confirmer le mot de passe',
-            'description' => 'Ressaisissez votre mot de passe',
+            Sisme_Utils_Games::KEY_DESCRIPTION => 'Ressaisissez votre mot de passe',
             'required' => true,
             'output_var' => 'user_confirm_password',
             'type' => 'password',
@@ -55,7 +55,7 @@ class Sisme_User_Auth_Forms {
         ],
         'user_display_name' => [
             'label' => 'Nom d\'affichage',
-            'description' => 'Le nom qui sera affiché publiquement (optionnel)',
+            Sisme_Utils_Games::KEY_DESCRIPTION => 'Le nom qui sera affiché publiquement (optionnel)',
             'required' => false,
             'output_var' => 'user_display_name',
             'type' => 'text',
@@ -63,7 +63,7 @@ class Sisme_User_Auth_Forms {
         ],
         'remember_me' => [
             'label' => 'Se souvenir de moi',
-            'description' => 'Rester connecté sur cet appareil',
+            Sisme_Utils_Games::KEY_DESCRIPTION => 'Rester connecté sur cet appareil',
             'required' => false,
             'output_var' => 'remember_me',
             'type' => 'checkbox',
@@ -71,7 +71,7 @@ class Sisme_User_Auth_Forms {
         ],
         'redirect_to' => [
             'label' => 'Redirection',
-            'description' => 'Page de destination après connexion',
+            Sisme_Utils_Games::KEY_DESCRIPTION => 'Page de destination après connexion',
             'required' => false,
             'output_var' => 'redirect_to',
             'type' => 'hidden',

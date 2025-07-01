@@ -153,8 +153,8 @@ class Sisme_Search_API {
     private static function get_current_search_params() {
         return array(
             'query' => get_search_query(),
-            'genres' => self::get_url_array_param('genres'),
-            'platforms' => self::get_url_array_param('platforms'),
+            Sisme_Utils_Games::KEY_GENRES => self::get_url_array_param('genres'),
+            Sisme_Utils_Games::KEY_PLATFORMS => self::get_url_array_param('platforms'),
             'status' => sanitize_text_field($_GET['status'] ?? ''),
             'sort' => sanitize_text_field($_GET['sort'] ?? 'relevance'),
             'view' => sanitize_text_field($_GET['view'] ?? ''),
@@ -360,8 +360,8 @@ class Sisme_Search_API {
         // Paramètres par défaut pour récupérer tous les jeux
         $default_search_params = array(
             'query' => '',
-            'genres' => array(),
-            'platforms' => array(),
+            Sisme_Utils_Games::KEY_GENRES => array(),
+            Sisme_Utils_Games::KEY_PLATFORMS => array(),
             'status' => '',
             'quick_filter' => '',
             'sort' => 'name_asc',  // Tri alphabétique par défaut

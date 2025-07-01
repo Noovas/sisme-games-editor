@@ -321,10 +321,10 @@ class Sisme_Vedettes_Data_Manager {
             }
             
             $featured_games[] = array(
-                'term_id' => $term->term_id,
-                'name' => $term->name,
+                Sisme_Utils_Games::KEY_TERM_ID => $term->term_id,
+                Sisme_Utils_Games::KEY_NAME => $term->name,
                 'slug' => $term->slug,
-                'description' => $term->description,
+                Sisme_Utils_Games::KEY_DESCRIPTION => $term->description,
                 'vedette_data' => $vedette_data
             );
         }
@@ -445,7 +445,7 @@ class Sisme_Vedettes_Data_Manager {
      */
     public static function debug_game_state($term_id) {
         $debug_info = array(
-            'term_id' => $term_id,
+            Sisme_Utils_Games::KEY_TERM_ID => $term_id,
             'term_exists' => term_exists($term_id, 'post_tag'),
             'has_game_description' => get_term_meta($term_id, 'game_description', true) !== '',
             'raw_meta' => array(),
@@ -532,8 +532,8 @@ class Sisme_Vedettes_Data_Manager {
             }
             
             $results[] = array(
-                'term_id' => $game->term_id,
-                'name' => $game->name,
+                Sisme_Utils_Games::KEY_TERM_ID => $game->term_id,
+                Sisme_Utils_Games::KEY_NAME => $game->name,
                 'slug' => $game->slug,
                 'is_featured' => $vedette_data['is_featured']
             );

@@ -39,7 +39,7 @@ class Sisme_User_Auth_API {
     public static function render_login_form($atts = []) {
         $defaults = [
             'container_class' => 'sisme-user-auth-container',
-            'title' => 'Connexion',
+            Sisme_Utils_Games::KEY_TITLE => 'Connexion',
             'subtitle' => 'Accédez à votre espace membre',
             'submit_text' => 'Se connecter',
             'show_register_link' => 'true', 
@@ -81,7 +81,7 @@ class Sisme_User_Auth_API {
     public static function render_register_form($atts = []) {
         $defaults = [
             'container_class' => 'sisme-user-auth-container',
-            'title' => 'Inscription',
+            Sisme_Utils_Games::KEY_TITLE => 'Inscription',
             'subtitle' => 'Créez votre compte gamer',
             'submit_text' => 'Créer mon compte',
             'show_login_link' => 'true',

@@ -146,8 +146,8 @@ $(document).on('sisme_preference_error', function(e, key, error) {
 ### Préférences Utilisateur
 ```php
 [
-    'platforms' => ['pc', 'console', 'mobile'],     // Array strings
-    'genres' => [1, 5, 12],                         // Array IDs taxonomie
+    Sisme_Utils_Games::KEY_PLATFORMS => ['pc', 'console', 'mobile'],     // Array strings
+    Sisme_Utils_Games::KEY_GENRES => [1, 5, 12],                         // Array IDs taxonomie
     'player_types' => ['solo', 'multijoueur'],      // Array strings
     'notifications' => [
         'new_games_in_genres' => false,

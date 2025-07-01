@@ -76,7 +76,7 @@ class Sisme_Fiche_Creator {
         $generated_content = Sisme_Fiche_Template::generate_fiche_content($post_id);
         if (!empty($generated_content)) {
             wp_update_post(array(
-                'ID' => $post_id,
+                Sisme_Utils_Games::KEY_ID => $post_id,
                 'post_content' => $generated_content
             ));
         }
@@ -112,7 +112,7 @@ class Sisme_Fiche_Creator {
         $generated_content = Sisme_Fiche_Template::generate_fiche_content($post_id);
         if (!empty($generated_content)) {
             wp_update_post(array(
-                'ID' => $post_id,
+                Sisme_Utils_Games::KEY_ID => $post_id,
                 'post_content' => $generated_content
             ));
         }

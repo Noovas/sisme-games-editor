@@ -233,7 +233,7 @@ class Sisme_User_Actions_API {
             'user_id' => get_current_user_id(),
             'collection' => 'favorite',
             'limit' => 10,
-            'title' => '',
+            Sisme_Utils_Games::KEY_TITLE => '',
             'view' => 'grid',
             'columns' => 4,
             'empty_text' => __('Aucun jeu dans cette collection', 'sisme-games-editor')

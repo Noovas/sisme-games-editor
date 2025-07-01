@@ -38,7 +38,7 @@ class Sisme_Carousel_Module {
             'autoplay_delay' => 5000,
             'item_type' => 'image', // 'image' ou 'custom'
             'css_class' => '',
-            'id' => null
+            Sisme_Utils_Games::KEY_ID => null
         );
         
         $options = array_merge($defaults, $options);
@@ -83,10 +83,10 @@ class Sisme_Carousel_Module {
                     if ($image_data) {
                         $processed[] = array(
                             'type' => 'image',
-                            'id' => $item,
+                            Sisme_Utils_Games::KEY_ID => $item,
                             'url' => $image_data['url'],
                             'alt' => $image_data['alt'],
-                            'title' => $image_data['title'],
+                            Sisme_Utils_Games::KEY_TITLE => $image_data['title'],
                             'caption' => $image_data['caption']
                         );
                     }
@@ -95,10 +95,10 @@ class Sisme_Carousel_Module {
                 elseif (is_array($item) && isset($item['url'])) {
                     $processed[] = array_merge(array(
                         'type' => 'image',
-                        'id' => isset($item['id']) ? $item['id'] : 0,
+                        Sisme_Utils_Games::KEY_ID => isset($item['id']) ? $item['id'] : 0,
                         'url' => '',
                         'alt' => '',
-                        'title' => '',
+                        Sisme_Utils_Games::KEY_TITLE => '',
                         'caption' => '',
                         'game_info' => null
                     ), $item);
@@ -108,7 +108,7 @@ class Sisme_Carousel_Module {
                     $processed[] = array_merge(array(
                         'type' => 'custom',
                         'html' => '',
-                        'title' => '',
+                        Sisme_Utils_Games::KEY_TITLE => '',
                         'content' => ''
                     ), $item);
                 }
@@ -130,7 +130,7 @@ class Sisme_Carousel_Module {
         return array(
             'url' => $image_url,
             'alt' => get_post_meta($image_id, '_wp_attachment_image_alt', true) ?: '',
-            'title' => get_the_title($image_id),
+            Sisme_Utils_Games::KEY_TITLE => get_the_title($image_id),
             'caption' => wp_get_attachment_caption($image_id)
         );
     }
@@ -198,9 +198,9 @@ class Sisme_Carousel_Module {
             'autoplay_delay' => 5000,
             'item_type' => 'image',
             'css_class' => '',
-            'id' => null,
+            Sisme_Utils_Games::KEY_ID => null,
             'show_title' => true,
-            'title' => 'Jeux à la Une'
+            Sisme_Utils_Games::KEY_TITLE => 'Jeux à la Une'
         );
         
         $options = array_merge($defaults, $options);

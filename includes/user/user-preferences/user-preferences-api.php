@@ -34,7 +34,7 @@ class Sisme_User_Preferences_API {
             'sections' => 'profile,gaming,notifications,privacy',
             'user_id' => get_current_user_id(),
             'container_class' => 'sisme-user-preferences',
-            'title' => 'Mes préférences'
+            Sisme_Utils_Games::KEY_TITLE => 'Mes préférences'
         ];
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_preferences');
         $user_id = !empty($atts['user_id']) ? intval($atts['user_id']) : get_current_user_id();
@@ -197,7 +197,7 @@ class Sisme_User_Preferences_API {
                             "notifications.{$key}",
                             $label,
                             isset($preferences['notifications'][$key]) ? $preferences['notifications'][$key] : false,
-                            ['description' => self::get_notification_description($key)]
+                            [Sisme_Utils_Games::KEY_DESCRIPTION => self::get_notification_description($key)]
                         ); 
                         ?>
                     </div>
@@ -230,7 +230,7 @@ class Sisme_User_Preferences_API {
                         'Profil public',
                         $preferences['privacy_public'],
                         [
-                            'description' => 'Votre profil et vos collections seront visibles par les autres utilisateurs'
+                            Sisme_Utils_Games::KEY_DESCRIPTION => 'Votre profil et vos collections seront visibles par les autres utilisateurs'
                         ]
                     ); 
                     ?>
@@ -356,7 +356,7 @@ class Sisme_User_Preferences_API {
         $defaults = [
             'classes' => '',
             'disabled' => false,
-            'description' => ''
+            Sisme_Utils_Games::KEY_DESCRIPTION => ''
         ];
         
         $options = array_merge($defaults, $options);

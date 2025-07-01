@@ -72,7 +72,7 @@ class Sisme_User_Dashboard_Data_Manager {
         $avatar_url = self::get_user_custom_avatar_url($user_id);
         
         return [
-            'id' => $user_id,
+            Sisme_Utils_Games::KEY_ID => $user_id,
             'display_name' => $user->display_name ?: $user->user_login,
             'email' => $user->user_email,
             'avatar_url' => $avatar_url, // ← Seulement avatar custom ou placeholder
@@ -225,22 +225,22 @@ class Sisme_User_Dashboard_Data_Manager {
                     $game_data = Sisme_Utils_Games::get_game_data($term_id);
                     if ($game_data) {
                         $games[] = [
-                            'id' => $term_id,
-                            'name' => $game_data['name'],
+                            Sisme_Utils_Games::KEY_ID => $term_id,
+                            Sisme_Utils_Games::KEY_NAME => $game_data['name'],
                             'slug' => $game_data['slug'],
-                            'cover_url' => $game_data['cover_url'] ?? '',
+                            Sisme_Utils_Games::KEY_COVER_URL => $game_data['cover_url'] ?? '',
                             'game_url' => $game_data['game_url'] ?? get_term_link($term),
-                            'genres' => $game_data['genres'] ?? []
+                            Sisme_Utils_Games::KEY_GENRES => $game_data['genres'] ?? []
                         ];
                     }
                 } else {
                     $games[] = [
-                        'id' => $term_id,
-                        'name' => $term->name,
+                        Sisme_Utils_Games::KEY_ID => $term_id,
+                        Sisme_Utils_Games::KEY_NAME => $term->name,
                         'slug' => $term->slug,
-                        'cover_url' => '',
+                        Sisme_Utils_Games::KEY_COVER_URL => '',
                         'game_url' => get_term_link($term),
-                        'genres' => []
+                        Sisme_Utils_Games::KEY_GENRES => []
                     ];
                 }
             }
@@ -643,7 +643,7 @@ class Sisme_User_Dashboard_Data_Manager {
         // Utiliser Cards avec critères
         if (class_exists('Sisme_Utils_Games')) {
             $criteria = [
-                'genres' => $preferences['genres'],
+                Sisme_Utils_Games::KEY_GENRES => $preferences['genres'],
                 'max_results' => $limit,
                 'sort_by_date' => true
             ];

@@ -610,8 +610,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Données des jeux featured pour affichage
     const featuredGamesData = <?php echo json_encode(array_map(function($game) {
         return [
-            'id' => $game['term_id'],
-            'name' => $game['name'],
+            Sisme_Utils_Games::KEY_ID => $game['term_id'],
+            Sisme_Utils_Games::KEY_NAME => $game['name'],
             'priority' => $game['vedette_data']['featured_priority'],
             'sponsor' => $game['vedette_data']['featured_sponsor'],
             'views' => $game['vedette_data']['featured_stats']['views'],

@@ -171,7 +171,7 @@ class Sisme_Fiche_Template {
         
         if (!empty($content)) {
             wp_update_post(array(
-                'ID' => $post_id,
+                Sisme_Utils_Games::KEY_ID => $post_id,
                 'post_content' => $content
             ));
         }

@@ -62,8 +62,8 @@ class Sisme_Article_Filter_Module {
         if ($mode === 'game_data') {
             $default_options = [
                 'search' => true,
-                'genres' => true,      // Filtrer par genres de jeux
-                'platforms' => false,   // Filtrer par plateformes  
+                Sisme_Utils_Games::KEY_GENRES => true,      // Filtrer par genres de jeux
+                Sisme_Utils_Games::KEY_PLATFORMS => false,   // Filtrer par plateformes  
                 'developers' => true,  // Filtrer par développeurs
                 'has_data' => false,    // Jeux avec/sans données
                 'has_articles' => false // Jeux avec/sans articles
@@ -157,9 +157,9 @@ class Sisme_Article_Filter_Module {
             'status' => isset($_GET['status']) && $_GET['status'] !== '' ? sanitize_text_field($_GET['status']) : '',
             'category' => isset($_GET['category']) && $_GET['category'] !== '' ? sanitize_text_field($_GET['category']) : '',
             'tag' => isset($_GET['tag']) && $_GET['tag'] !== '' ? sanitize_text_field($_GET['tag']) : '',
-            'genres' => isset($_GET['genres']) && $_GET['genres'] !== '' ? intval($_GET['genres']) : 0,
+            Sisme_Utils_Games::KEY_GENRES => isset($_GET['genres']) && $_GET['genres'] !== '' ? intval($_GET['genres']) : 0,
             'developers' => isset($_GET['developers']) && $_GET['developers'] !== '' ? intval($_GET['developers']) : 0,
-            'platforms' => isset($_GET['platforms']) && $_GET['platforms'] !== '' ? sanitize_text_field($_GET['platforms']) : '',
+            Sisme_Utils_Games::KEY_PLATFORMS => isset($_GET['platforms']) && $_GET['platforms'] !== '' ? sanitize_text_field($_GET['platforms']) : '',
             'author' => isset($_GET['author']) && $_GET['author'] !== '' ? intval($_GET['author']) : 0
         ];
     }
@@ -537,7 +537,7 @@ class Sisme_Article_Filter_Module {
         if (!$parent) {
             // Essayer par nom si le slug ne fonctionne pas
             $parents = get_categories(array(
-                'name' => $parent_name,
+                Sisme_Utils_Games::KEY_NAME => $parent_name,
                 'hide_empty' => false,
                 'number' => 1
             ));
@@ -572,7 +572,7 @@ class Sisme_Article_Filter_Module {
             $active_filters[] = sprintf(
                 '<span class="sisme-tag sisme-tag--filter">Genre: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
                 esc_html($genre_name),
-                esc_url($this->get_filtered_url(['genres' => '']))
+                esc_url($this->get_filtered_url([Sisme_Utils_Games::KEY_GENRES => '']))
             );
         }
         
@@ -604,7 +604,7 @@ class Sisme_Article_Filter_Module {
             $active_filters[] = sprintf(
                 '<span class="sisme-tag sisme-tag--filter">Plateforme: %s <a href="%s" class="sisme-tag__remove">×</a></span>',
                 esc_html($platform_name),
-                esc_url($this->get_filtered_url(['platforms' => '']))
+                esc_url($this->get_filtered_url([Sisme_Utils_Games::KEY_PLATFORMS => '']))
             );
         }
         

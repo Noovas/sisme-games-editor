@@ -44,14 +44,14 @@ class Sisme_Cards_Carousel_Module {
         $grid_args = array(
             'type' => $args['type'] ?? 'normal',
             'max_cards' => $carousel_options['total_cards'],
-            'genres' => $args['genres'] ?? array(),
-            'is_team_choice' => $args['is_team_choice'] ?? false,
+            Sisme_Utils_Games::KEY_GENRES => $args['genres'] ?? array(),
+            Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => $args['is_team_choice'] ?? false,
             'sort_by_date' => $args['sort_by_date'] ?? true,
             'sort_order' => $args['sort_order'] ?? 'desc', 
             'debug' => $args['debug'] ?? false,
             'max_genres' => $args['max_genres'] ?? -1,
             'max_modes' => $args['max_modes'] ?? -1,
-            'title' => $args['title'] ?? '',
+            Sisme_Utils_Games::KEY_TITLE => $args['title'] ?? '',
             'released' => $args['released'] ?? 0
         );
         
@@ -62,8 +62,8 @@ class Sisme_Cards_Carousel_Module {
         }
         
         $criteria = array(
-            'genres' => $grid_args['genres'],
-            'is_team_choice' => $grid_args['is_team_choice'],
+            Sisme_Utils_Games::KEY_GENRES => $grid_args['genres'],
+            Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => $grid_args['is_team_choice'],
             'sort_by_date' => $grid_args['sort_by_date'],
             'sort_order' => $grid_args['sort_order'],  //
             'max_results' => $grid_args['max_cards'],

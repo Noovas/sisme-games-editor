@@ -221,7 +221,7 @@ class Sisme_Game_Data_Table_Module {
                     
                     <?php
                     // Choix de l'équipe en bouton switch
-                    $is_team_choice = get_term_meta($game_data['id'], 'is_team_choice', true) === '1';
+                    $is_team_choice = get_term_meta($game_data['id'], Sisme_Utils_Games::META_TEAM_CHOICE, true) === '1';
                     $heart_class = $is_team_choice ? 'team-choice-active' : 'team-choice-inactive';
                     $heart_icon = $is_team_choice ? '💖' : '🤍';?>
                     <button type="button"

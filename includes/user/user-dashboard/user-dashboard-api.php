@@ -29,7 +29,7 @@ class Sisme_User_Dashboard_API {
         $defaults = [
             'container_class' => 'sisme-user-dashboard',
             'user_id' => '',
-            'title' => 'Mon Dashboard'
+            Sisme_Utils_Games::KEY_TITLE => 'Mon Dashboard'
         ];
         
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_dashboard');
@@ -433,7 +433,7 @@ class Sisme_User_Dashboard_API {
             // Rendu direct via l'API user-preferences
             $preferences_html = Sisme_User_Preferences_API::render_preferences_shortcode([
                 'sections' => 'profile,gaming,notifications,privacy',
-                'title' => '',
+                Sisme_Utils_Games::KEY_TITLE => '',
                 'user_id' => $user_id,
                 'container_class' => 'sisme-user-preferences sisme-dashboard-integration'
             ]);

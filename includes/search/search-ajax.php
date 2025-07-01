@@ -100,8 +100,8 @@ class Sisme_Search_Ajax {
     private static function extract_search_params($post_data) {
         return array(
             'query' => sanitize_text_field($post_data['query'] ?? ''),
-            'genres' => self::extract_array_param($post_data, 'genres', 'int'),
-            //'platforms' => self::extract_array_param($post_data, 'platforms', 'string'),
+            Sisme_Utils_Games::KEY_GENRES => self::extract_array_param($post_data, 'genres', 'int'),
+            //Sisme_Utils_Games::KEY_PLATFORMS => self::extract_array_param($post_data, 'platforms', 'string'),
             'status' => sanitize_text_field($post_data['status'] ?? ''),
             'quick_filter' => sanitize_text_field($post_data['quick_filter'] ?? ''),
             'sort' => sanitize_text_field($post_data['sort'] ?? 'relevance'),

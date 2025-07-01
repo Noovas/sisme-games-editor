@@ -44,8 +44,8 @@ class Sisme_Vedettes_API {
         $formatted_games = array();
         foreach ($featured_games as $game) {
             $formatted_game = array(
-                'term_id' => $game['term_id'],
-                'name' => $game['name'],
+                Sisme_Utils_Games::KEY_TERM_ID => $game['term_id'],
+                Sisme_Utils_Games::KEY_NAME => $game['name'],
                 'slug' => $game['slug'],
                 'priority' => $game['vedette_data']['featured_priority'],
                 'sponsor' => $game['vedette_data']['featured_sponsor'],
@@ -198,7 +198,7 @@ class Sisme_Vedettes_API {
             'return_shortcode' => false,
             'css_class' => 'sisme-vedettes-carousel',
             'show_title' => true,
-            'title' => 'Jeux à la Une'
+            Sisme_Utils_Games::KEY_TITLE => 'Jeux à la Une'
         );
         
         $options = array_merge($defaults, $options);
@@ -240,18 +240,18 @@ class Sisme_Vedettes_API {
                     
                     $carousel_items[] = array(
                         'type' => 'image',
-                        'id' => $cover_id,
+                        Sisme_Utils_Games::KEY_ID => $cover_id,
                         'url' => $image_url,
                         'alt' => get_post_meta($cover_id, '_wp_attachment_image_alt', true) ?: $game['name'],
-                        'title' => get_the_title($cover_id),
+                        Sisme_Utils_Games::KEY_TITLE => get_the_title($cover_id),
                         'caption' => wp_get_attachment_caption($cover_id),
                         'game_info' => array(
-                            'name' => $game['name'],
+                            Sisme_Utils_Games::KEY_NAME => $game['name'],
                             'slug' => $game['slug'],
-                            'term_id' => $game['term_id'],
+                            Sisme_Utils_Games::KEY_TERM_ID => $game['term_id'],
                             'priority' => isset($game['priority']) ? $game['priority'] : 0,
                             'sponsor' => isset($game['sponsor']) ? $game['sponsor'] : '',
-                            'description' => $game_description // NOUVEAU: Ajouter la description
+                            Sisme_Utils_Games::KEY_DESCRIPTION => $game_description // NOUVEAU: Ajouter la description
                         )
                     );
                 }
@@ -298,7 +298,7 @@ class Sisme_Vedettes_API {
             'css_class' => $options['css_class'],
             'item_type' => 'image',
             'show_title' => $options['show_title'],
-            'title' => $options['title']
+            Sisme_Utils_Games::KEY_TITLE => $options['title']
         );
         
         return Sisme_Carousel_Module::quick_render_vedettes($carousel_items, $carousel_options);
@@ -334,16 +334,16 @@ class Sisme_Vedettes_API {
         $games_with_dates = array();
         
         foreach ($all_games as $term) {
-            $release_date = get_term_meta($term->term_id, 'release_date', true);
+            $release_date = get_term_meta($term->term_id, Sisme_Utils_Games::META_RELEASE_DATE, true);
             $cover_id = get_term_meta($term->term_id, 'cover_main', true);
             
             // Vérifier que la date est valide et qu'il y a une cover
             if ($release_date && $cover_id && wp_attachment_is_image($cover_id)) {
                 $games_with_dates[] = array(
-                    'term_id' => $term->term_id,
-                    'name' => $term->name,
+                    Sisme_Utils_Games::KEY_TERM_ID => $term->term_id,
+                    Sisme_Utils_Games::KEY_NAME => $term->name,
                     'slug' => $term->slug,
-                    'release_date' => $release_date,
+                    Sisme_Utils_Games::KEY_RELEASE_DATE => $release_date,
                     'timestamp' => strtotime($release_date)
                 );
             }

@@ -101,17 +101,17 @@ window.sismeCarousel = {
 ### Format Game Data Complet
 ```php
 [
-    'term_id' => 123,
-    'name' => 'Nom du Jeu',
+    Sisme_Utils_Games::KEY_TERM_ID => 123,
+    Sisme_Utils_Games::KEY_NAME => 'Nom du Jeu',
     'slug' => 'nom-du-jeu', 
-    'description' => 'Description...',
-    'cover_url' => 'https://site.com/cover.jpg',
+    Sisme_Utils_Games::KEY_DESCRIPTION => 'Description...',
+    Sisme_Utils_Games::KEY_COVER_URL => 'https://site.com/cover.jpg',
     'game_url' => 'https://site.com/tag/nom-du-jeu/',
-    'release_date' => '2024-03-15',
+    Sisme_Utils_Games::KEY_RELEASE_DATE => '2024-03-15',
     'timestamp' => 1710460800,
-    'genres' => [['id' => 5, 'name' => 'Action', 'slug' => 'jeux-action']],
-    'modes' => ['solo', 'multijoueur'],
-    'platforms' => ['pc', 'playstation', 'xbox'],
+    Sisme_Utils_Games::KEY_GENRES => [[Sisme_Utils_Games::KEY_ID => 5, Sisme_Utils_Games::KEY_NAME => 'Action', 'slug' => 'jeux-action']],
+    Sisme_Utils_Games::KEY_MODES => ['solo', 'multijoueur'],
+    Sisme_Utils_Games::KEY_PLATFORMS => ['pc', 'playstation', 'xbox'],
     'developers' => ['Studio A'],
     'publishers' => ['Éditeur B']
 ]
@@ -136,8 +136,8 @@ Sisme_Utils_Games::META_COVER_MAIN         // int - ID attachment cover
 ### Critères de Recherche
 ```php
 [
-    'genres' => ['action', 'rpg'],        // Filtrage genres
-    'is_team_choice' => false,            // Choix équipe seulement
+    Sisme_Utils_Games::KEY_GENRES => ['action', 'rpg'],        // Filtrage genres
+    Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => false,            // Choix équipe seulement
     'sort_by_date' => true,               // Tri par date sortie
     'sort_order' => 'desc',               // 'asc' ou 'desc'
     'max_results' => 10,                  // Limite (-1 = pas de limite)
@@ -224,8 +224,8 @@ echo do_shortcode('[game_cards_carousel
 ### Recherche Avancée
 ```php
 $criteria = [
-    'genres' => ['action'],
-    'is_team_choice' => true,
+    Sisme_Utils_Games::KEY_GENRES => ['action'],
+    Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => true,
     'sort_by_date' => true,
     'sort_order' => 'desc',
     'max_results' => 5,
@@ -270,7 +270,7 @@ echo do_shortcode('[game_cards_grid debug="true"]');
 
 // Test performance critères
 $test = Sisme_Cards_Functions::test_criteria([
-    'genres' => ['action'],
+    Sisme_Utils_Games::KEY_GENRES => ['action'],
     'max_results' => 5,
     'debug' => true
 ]);

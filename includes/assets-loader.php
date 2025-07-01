@@ -264,7 +264,7 @@ class Sisme_Assets_Loader {
         if (empty($game_tags)) return false;
         
         $tag_id = $game_tags[0]->term_id;
-        $screenshots = get_term_meta($tag_id, 'screenshots', true);
+        $screenshots = get_term_meta($tag_id, Sisme_Utils_Games::META_SCREENSHOTS, true);
         
         return !empty($screenshots);
     }

@@ -51,26 +51,26 @@ class Sisme_Game_Form_Module {
     private $available_components = [
         'game_name' => [
             'label' => 'Nom du jeu',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => true,
             'output_var' => 'game_name'
         ],
-        'is_team_choice' => [
+        Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => [
             'label' => 'Choix de l\'équipe',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'is_team_choice',
             'type' => 'checkbox'
         ],
         'trailer_link' => [
             'label' => 'Trailer',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'trailer_link'
         ],
-        'description' => [
+        Sisme_Utils_Games::KEY_DESCRIPTION => [
             'label' => 'Description du jeu',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'description',
             'allowed_tags' => ['strong', 'em', 'br'],
@@ -78,7 +78,7 @@ class Sisme_Game_Form_Module {
         ],
         'game_genres' => [
             'label' => 'Genres du jeu',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'game_genres',
             'parent_category' => 'jeux',
@@ -86,14 +86,14 @@ class Sisme_Game_Form_Module {
         ],
         'game_modes' => [
             'label' => 'Modes de jeu',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'game_modes',
             'available_modes' => ['solo', 'multijoueur', 'cooperatif', 'competitif']
         ],
         'game_developers' => [
             'label' => 'Développeurs',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'game_developers',
             'parent_category' => 'editeurs-developpeurs',
@@ -101,7 +101,7 @@ class Sisme_Game_Form_Module {
         ],
         'game_publishers' => [
             'label' => 'Éditeurs',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'game_publishers',
             'parent_category' => 'editeurs-developpeurs',
@@ -109,56 +109,56 @@ class Sisme_Game_Form_Module {
         ],
         Sisme_Utils_Games::META_COVER_MAIN => [
             'label' => 'Cover principale',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => Sisme_Utils_Games::META_COVER_MAIN
         ],
         'cover_news' => [
             'label' => 'Cover news',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'cover_news'
         ],
         'cover_patch' => [
             'label' => 'Cover patch',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'cover_patch'
         ],
         'cover_test' => [
             'label' => 'Cover test',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'cover_test'
         ],
         'cover_vertical' => [
             'label' => 'Cover verticale',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'cover_vertical'
         ],
         'game_platforms' => [
             'label' => 'Plateformes',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'game_platforms'
         ],
-        'release_date' => [
+        Sisme_Utils_Games::KEY_RELEASE_DATE => [
             'label' => 'Date de sortie',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'release_date'
         ],
         'screenshots' => [
             'label' => 'Screenshots du jeu',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'screenshots',
             'component_type' => 'media_gallery'
         ],
-        'external_links' => [
+        Sisme_Utils_Games::KEY_EXTERNAL_LINKS => [
             'label' => 'Liens de vente',
-            'description' => '',
+            Sisme_Utils_Games::KEY_DESCRIPTION => '',
             'required' => false,
             'output_var' => 'external_links'
         ],
@@ -630,14 +630,14 @@ class Sisme_Game_Form_Module {
         
         foreach ($all_tags as $tag_id) {
             // Vérifier si cette entité est dans les développeurs
-            $developers = get_term_meta($tag_id, 'game_developers', true);
+            $developers = get_term_meta($tag_id, Sisme_Utils_Games::META_DEVELOPERS, true);
             if (is_array($developers) && in_array($entity_id, $developers)) {
                 $games_count++;
                 continue; // Éviter de compter 2 fois si l'entité est à la fois dev et éditeur
             }
             
             // Vérifier si cette entité est dans les éditeurs
-            $publishers = get_term_meta($tag_id, 'game_publishers', true);
+            $publishers = get_term_meta($tag_id, Sisme_Utils_Games::META_PUBLISHERS, true);
             if (is_array($publishers) && in_array($entity_id, $publishers)) {
                 $games_count++;
             }
@@ -917,7 +917,7 @@ class Sisme_Game_Form_Module {
      * Afficher tous les covers
      */
     private function render_all_covers_component() {
-        $covers = [Sisme_Utils_Games::META_COVER_MAIN, 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical'];
+        $covers = [Sisme_Utils_Games::META_COVER_MAIN, Sisme_Utils_Games::META_COVER_NEWS, Sisme_Utils_Games::META_COVER_PATCH, Sisme_Utils_Games::META_COVER_TEST, 'cover_vertical'];
         $cover_labels = [
             Sisme_Utils_Games::META_COVER_MAIN => 'Cover Principale',
             'cover_news' => 'Cover News', 

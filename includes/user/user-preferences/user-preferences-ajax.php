@@ -563,7 +563,7 @@ class Sisme_User_Preferences_Ajax {
             $formatted_avatars[] = [
                 'key' => $key,
                 'url' => $url,
-                'name' => $display_name,
+                Sisme_Utils_Games::KEY_NAME => $display_name,
                 'filename' => $filename
             ];
         }

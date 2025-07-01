@@ -119,8 +119,8 @@ class Sisme_Cards_API {
             'type' => 'normal',                    // Type des cartes
             'cards_per_row' => 4,                  // Nombre de cartes par ligne
             'max_cards' => -1,                     // Nombre max (-1 = illimité)
-            'genres' => array(),                   // Liste des genres
-            'is_team_choice' => false,             // Choix équipe (à venir)
+            Sisme_Utils_Games::KEY_GENRES => array(),                   // Liste des genres
+            Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => false,             // Choix équipe (à venir)
             'sort_by_date' => true,
             'container_class' => '',
             'debug' => false
@@ -141,8 +141,8 @@ class Sisme_Cards_API {
         
         // 1. Récupérer les IDs des jeux via cards-functions
         $criteria = array(
-            'genres' => $args['genres'] ?? array(),
-            'is_team_choice' => $args['is_team_choice'] ?? false,
+            Sisme_Utils_Games::KEY_GENRES => $args['genres'] ?? array(),
+            Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => $args['is_team_choice'] ?? false,
             'sort_by_date' => $args['sort_by_date'] ?? true,
             'sort_order' => $args['sort_order'] ?? 'desc',  // ✅ NOUVEAU
             'max_results' => ($args['max_cards'] ?? -1) > 0 ? $args['max_cards'] : -1,
@@ -266,8 +266,8 @@ class Sisme_Cards_API {
             'cards_per_row' => $args['cards_per_row'],
             'type' => $args['type'],
             'criteria' => array(
-                'genres' => $args['genres'],
-                'is_team_choice' => $args['is_team_choice'],
+                Sisme_Utils_Games::KEY_GENRES => $args['genres'],
+                Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => $args['is_team_choice'],
                 'sort_by_date' => $args['sort_by_date'],
                 'max_cards' => $args['max_cards']
             ),
@@ -292,9 +292,9 @@ class Sisme_Cards_API {
         // Ajouter des détails en mode debug
         if ($args['debug']) {
             $debug_info = array(
-                'genres' => $args['genres'],
+                Sisme_Utils_Games::KEY_GENRES => $args['genres'],
                 'max_cards' => $args['max_cards'],
-                'is_team_choice' => $args['is_team_choice']
+                Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => $args['is_team_choice']
             );
             $message .= ' (Critères: ' . wp_json_encode($debug_info) . ')';
         }
@@ -332,7 +332,7 @@ class Sisme_Cards_API {
 // 🎯 SHORTCODE
 add_shortcode('game_card', function($atts) {
     $atts = shortcode_atts(array(
-        'id' => 0,
+        Sisme_Utils_Games::KEY_ID => 0,
         'type' => 'normal',
         'show_description' => 'true',
         'show_genres' => 'true',
@@ -364,15 +364,15 @@ add_shortcode('game_cards_grid', function($atts) {
         'type' => 'normal',
         'cards_per_row' => '4',
         'max_cards' => '-1',
-        'genres' => '',
-        'is_team_choice' => 'false',
+        Sisme_Utils_Games::KEY_GENRES => '',
+        Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => 'false',
         'sort_by_date' => 'true',
         'sort_order' => 'desc',
         'container_class' => '',
         'debug' => 'false',
         'max_genres' => '3',
         'max_modes' => '4',
-        'title' => '',
+        Sisme_Utils_Games::KEY_TITLE => '',
         'released' => '0'
     ), $atts);
     
@@ -381,15 +381,15 @@ add_shortcode('game_cards_grid', function($atts) {
         'type' => sanitize_text_field($atts['type']),
         'cards_per_row' => intval($atts['cards_per_row']),
         'max_cards' => intval($atts['max_cards']),
-        'genres' => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
-        'is_team_choice' => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
+        Sisme_Utils_Games::KEY_GENRES => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
+        Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
         'sort_by_date' => filter_var($atts['sort_by_date'], FILTER_VALIDATE_BOOLEAN),
         'sort_order' => in_array($atts['sort_order'], ['asc', 'desc']) ? $atts['sort_order'] : 'desc', // ✅ VALIDATION
         'container_class' => sanitize_text_field($atts['container_class']),
         'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN),
         'max_genres' => intval($atts['max_genres']),
         'max_modes' => intval($atts['max_modes']),
-        'title' => sanitize_text_field($atts['title']),
+        Sisme_Utils_Games::KEY_TITLE => sanitize_text_field($atts['title']),
         'released' => intval($atts['released'])
     );
     
@@ -401,8 +401,8 @@ add_shortcode('game_cards_carousel', function($atts) {
     $atts = shortcode_atts(array(
         'cards_per_view' => '3',
         'total_cards' => '9',
-        'genres' => '',
-        'is_team_choice' => 'false',
+        Sisme_Utils_Games::KEY_GENRES => '',
+        Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => 'false',
         'sort_by_date' => 'true',
         'sort_order' => 'desc',
         'navigation' => 'true',
@@ -412,7 +412,7 @@ add_shortcode('game_cards_carousel', function($atts) {
         'debug' => 'false',
         'max_genres' => '3',
         'max_modes' => '4',
-        'title' => '',
+        Sisme_Utils_Games::KEY_TITLE => '',
         'released' => '0'
     ), $atts);
     
@@ -420,8 +420,8 @@ add_shortcode('game_cards_carousel', function($atts) {
     $args = array(
         'cards_per_view' => intval($atts['cards_per_view']),
         'total_cards' => intval($atts['total_cards']),
-        'genres' => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
-        'is_team_choice' => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
+        Sisme_Utils_Games::KEY_GENRES => !empty($atts['genres']) ? array_map('trim', explode(',', $atts['genres'])) : array(),
+        Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => filter_var($atts['is_team_choice'], FILTER_VALIDATE_BOOLEAN),
         'sort_by_date' => filter_var($atts['sort_by_date'], FILTER_VALIDATE_BOOLEAN),
         'sort_order' => in_array($atts['sort_order'], ['asc', 'desc']) ? $atts['sort_order'] : 'desc', // ✅ VALIDATION
         'navigation' => filter_var($atts['navigation'], FILTER_VALIDATE_BOOLEAN),
@@ -431,7 +431,7 @@ add_shortcode('game_cards_carousel', function($atts) {
         'debug' => filter_var($atts['debug'], FILTER_VALIDATE_BOOLEAN),
         'max_genres' => intval($atts['max_genres']),
         'max_modes' => intval($atts['max_modes']),
-        'title' => sanitize_text_field($atts['title']),
+        Sisme_Utils_Games::KEY_TITLE => sanitize_text_field($atts['title']),
         'released' => intval($atts['released'])
     );
     

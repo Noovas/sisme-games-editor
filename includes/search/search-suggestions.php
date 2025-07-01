@@ -128,7 +128,7 @@ class Sisme_Search_Suggestions {
         if (class_exists('Sisme_Utils_Games')) {
             try {
                 $popular_games = Sisme_Utils_Games::get_games_by_criteria(array(
-                    'is_team_choice' => true,
+                    Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => true,
                     'limit' => 3
                 ));
                 

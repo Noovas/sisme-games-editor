@@ -261,7 +261,7 @@ class Sisme_Search_Filters {
             return;
         }
         $slugs = self::convert_genre_ids_to_slugs($genre_ids);
-        $criteria = array('genres' => $slugs);
+        $criteria = array(Sisme_Utils_Games::KEY_GENRES => $slugs);
         $games = Sisme_Utils_Games::get_games_by_criteria($criteria);
     }
     
@@ -490,7 +490,7 @@ class Sisme_Search_Filters {
         $stats = array(
             'popular' => 0,
             'new' => 12,
-            'is_team_choice' => 8,
+            Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => 8,
             'is_comming' => 6
         );
         

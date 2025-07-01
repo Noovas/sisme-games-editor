@@ -164,7 +164,7 @@ window.sismeUserActions = {
     'user_id' => 123,          // int - ID utilisateur (défaut: courant)
     'collection' => 'favorite', // string - 'favorite'|'owned'
     'limit' => 10,             // int - Limite nombre jeux (-1 = tous)
-    'title' => '',             // string - Titre section
+    Sisme_Utils_Games::KEY_TITLE => '',             // string - Titre section
     'view' => 'grid',          // string - Type affichage
     'columns' => 4,            // int - Colonnes grille
     'empty_text' => 'Aucun...' // string - Message si vide

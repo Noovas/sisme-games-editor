@@ -50,9 +50,9 @@ $form_was_submitted = false;
 
 if (!empty($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme_form_action')) {
     $temp_form = new Sisme_Game_Form_Module([
-        'game_name', 'is_team_choice', Sisme_Utils_Games::META_GENRES, 'game_modes', 'game_developers', 'game_publishers', 
-        'description', 'game_platforms', Sisme_Utils_Games::META_RELEASE_DATE, 'trailer_link', 'external_links', 
-        Sisme_Utils_Games::META_COVER_MAIN, 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical', 'screenshots'
+        'game_name', Sisme_Utils_Games::META_TEAM_CHOICE, Sisme_Utils_Games::META_GENRES, Sisme_Utils_Games::META_MODES, Sisme_Utils_Games::META_DEVELOPERS, Sisme_Utils_Games::META_PUBLISHERS, 
+        'description', Sisme_Utils_Games::META_PLATFORMS, Sisme_Utils_Games::META_RELEASE_DATE, Sisme_Utils_Games::META_TRAILER_LINK, Sisme_Utils_Games::META_EXTERNAL_LINKS, 
+        Sisme_Utils_Games::META_COVER_MAIN, Sisme_Utils_Games::META_COVER_NEWS, Sisme_Utils_Games::META_COVER_PATCH, Sisme_Utils_Games::META_COVER_TEST, 'cover_vertical', Sisme_Utils_Games::META_SCREENSHOTS
     ]);
     $data = $temp_form->get_submitted_data();
     
@@ -64,7 +64,7 @@ if (!empty($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme
             }
         }
         
-        update_term_meta($data['game_name'], 'last_update', current_time('mysql'));
+        update_term_meta($data['game_name'], Sisme_Utils_Games::META_LAST_UPDATE, current_time('mysql'));
 
         if (class_exists('Sisme_Vedettes_Data_Manager')) {
             Sisme_Vedettes_Data_Manager::initialize_new_game($data['game_name']);
@@ -80,20 +80,20 @@ if ($is_edit_mode) {
     $_POST['game_name'] = $tag_id;
     $_POST['game_genres'] = get_term_meta($tag_id, Sisme_Utils_Games::META_GENRES, true) ?: array();
     $_POST['game_modes'] = get_term_meta($tag_id, Sisme_Utils_Games::META_MODES, true) ?: array();
-    $_POST['game_developers'] = get_term_meta($tag_id, 'game_developers', true) ?: array();
-    $_POST['game_publishers'] = get_term_meta($tag_id, 'game_publishers', true) ?: array();
+    $_POST['game_developers'] = get_term_meta($tag_id, Sisme_Utils_Games::META_DEVELOPERS, true) ?: array();
+    $_POST['game_publishers'] = get_term_meta($tag_id, Sisme_Utils_Games::META_PUBLISHERS, true) ?: array();
     $_POST['description'] = wp_specialchars_decode(get_term_meta($tag_id, Sisme_Utils_Games::META_DESCRIPTION, true) ?: '', ENT_QUOTES);
     $_POST[Sisme_Utils_Games::META_COVER_MAIN] = get_term_meta($tag_id, Sisme_Utils_Games::META_COVER_MAIN, true);
-    $_POST['cover_news'] = get_term_meta($tag_id, 'cover_news', true);
-    $_POST['cover_patch'] = get_term_meta($tag_id, 'cover_patch', true);
-    $_POST['cover_test'] = get_term_meta($tag_id, 'cover_test', true);
+    $_POST['cover_news'] = get_term_meta($tag_id, Sisme_Utils_Games::META_COVER_NEWS, true);
+    $_POST['cover_patch'] = get_term_meta($tag_id, Sisme_Utils_Games::META_COVER_PATCH, true);
+    $_POST['cover_test'] = get_term_meta($tag_id, Sisme_Utils_Games::META_COVER_TEST, true);
     $_POST['cover_vertical'] = get_term_meta($tag_id, 'cover_vertical', true);
-    $_POST['game_platforms'] = get_term_meta($tag_id, 'game_platforms', true) ?: array();
+    $_POST['game_platforms'] = get_term_meta($tag_id, Sisme_Utils_Games::META_PLATFORMS, true) ?: array();
     $_POST['release_date'] = get_term_meta($tag_id, Sisme_Utils_Games::META_RELEASE_DATE, true);
-    $_POST['trailer_link'] = get_term_meta($tag_id, 'trailer_link', true);
-    $_POST['external_links'] = get_term_meta($tag_id, 'external_links', true) ?: array();
-    $_POST['screenshots'] = get_term_meta($tag_id, 'screenshots', true);
-    $_POST['is_team_choice'] = get_term_meta($tag_id, 'is_team_choice', true);
+    $_POST['trailer_link'] = get_term_meta($tag_id, Sisme_Utils_Games::META_TRAILER_LINK, true);
+    $_POST['external_links'] = get_term_meta($tag_id, Sisme_Utils_Games::META_EXTERNAL_LINKS, true) ?: array();
+    $_POST['screenshots'] = get_term_meta($tag_id, Sisme_Utils_Games::META_SCREENSHOTS, true);
+    $_POST['is_team_choice'] = get_term_meta($tag_id, Sisme_Utils_Games::META_TEAM_CHOICE, true);
 }
 
 $page->render_start();
@@ -119,7 +119,7 @@ $page->render_start();
                 <span>Tag ID: <?php echo $tag_id; ?></span>
                 <span>Mode: Édition</span>
                 <?php 
-                $last_update = get_term_meta($tag_id, 'last_update', true);
+                $last_update = get_term_meta($tag_id, Sisme_Utils_Games::META_LAST_UPDATE, true);
                 if ($last_update): 
                 ?>
                     <span>Modifié: <?php echo date('d/m/Y H:i', strtotime($last_update)); ?></span>
@@ -132,9 +132,9 @@ $page->render_start();
 <!-- Formulaire EXACTEMENT comme l'original -->
 <?php
 $form = new Sisme_Game_Form_Module([
-    'game_name', 'is_team_choice', Sisme_Utils_Games::META_GENRES, 'game_modes', 'game_developers', 'game_publishers', 
-    'description', 'game_platforms', Sisme_Utils_Games::META_RELEASE_DATE, 'trailer_link', 'external_links', 
-    Sisme_Utils_Games::META_COVER_MAIN, 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical', 'screenshots'
+    'game_name', Sisme_Utils_Games::META_TEAM_CHOICE, Sisme_Utils_Games::META_GENRES, Sisme_Utils_Games::META_MODES, Sisme_Utils_Games::META_DEVELOPERS, Sisme_Utils_Games::META_PUBLISHERS, 
+    'description', Sisme_Utils_Games::META_PLATFORMS, Sisme_Utils_Games::META_RELEASE_DATE, Sisme_Utils_Games::META_TRAILER_LINK, Sisme_Utils_Games::META_EXTERNAL_LINKS, 
+    Sisme_Utils_Games::META_COVER_MAIN, Sisme_Utils_Games::META_COVER_NEWS, Sisme_Utils_Games::META_COVER_PATCH, Sisme_Utils_Games::META_COVER_TEST, 'cover_vertical', Sisme_Utils_Games::META_SCREENSHOTS
 ], [
     'submit_text' => $is_edit_mode ? 'Mettre à jour' : 'Créer le jeu',
     'nonce_action' => 'sisme_form_action'

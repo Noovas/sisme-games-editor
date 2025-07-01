@@ -179,7 +179,7 @@ class Sisme_User_Auth_Handlers {
         
         // Mettre à jour le profil utilisateur
         $user_data = [
-            'ID' => $user_id,
+            Sisme_Utils_Games::KEY_ID => $user_id,
             'display_name' => !empty($data['user_display_name']) ? $data['user_display_name'] : $data['user_email']
         ];
         

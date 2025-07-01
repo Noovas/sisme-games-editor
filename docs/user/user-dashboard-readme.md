@@ -127,7 +127,7 @@ SismeDashboard.log(message)                        // Logging conditionnel
 ```php
 [
     'user_info' => [
-        'id' => 123,
+        Sisme_Utils_Games::KEY_ID => 123,
         'display_name' => 'Username',
         'email' => 'user@example.com',
         'avatar_url' => 'https://...',

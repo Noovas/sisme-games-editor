@@ -51,8 +51,8 @@ class Sisme_User_Preferences_Data_Manager {
         }
         $defaults = self::get_default_preferences();
         $preferences = [
-            'platforms' => get_user_meta($user_id, self::META_PLATFORMS, true) ?: $defaults['platforms'],
-            'genres' => get_user_meta($user_id, self::META_GENRES, true) ?: $defaults['genres'],
+            Sisme_Utils_Games::KEY_PLATFORMS => get_user_meta($user_id, self::META_PLATFORMS, true) ?: $defaults['platforms'],
+            Sisme_Utils_Games::KEY_GENRES => get_user_meta($user_id, self::META_GENRES, true) ?: $defaults['genres'],
             'player_types' => get_user_meta($user_id, self::META_PLAYER_TYPES, true) ?: $defaults['player_types'],
             'notifications' => get_user_meta($user_id, self::META_NOTIFICATIONS, true) ?: $defaults['notifications'],
             'avatar' => get_user_meta($user_id, self::META_AVATAR, true) ?: $defaults['avatar'],
@@ -209,9 +209,9 @@ class Sisme_User_Preferences_Data_Manager {
      */
     public static function get_available_platforms() {
         return [
-            ['slug' => 'pc', 'name' => 'PC'],
-            ['slug' => 'console', 'name' => 'Console'],
-            ['slug' => 'mobile', 'name' => 'Mobile']
+            ['slug' => 'pc', Sisme_Utils_Games::KEY_NAME => 'PC'],
+            ['slug' => 'console', Sisme_Utils_Games::KEY_NAME => 'Console'],
+            ['slug' => 'mobile', Sisme_Utils_Games::KEY_NAME => 'Mobile']
         ];
     }
     
@@ -252,8 +252,8 @@ class Sisme_User_Preferences_Data_Manager {
         foreach ($categories as $category) {
             if (!in_array($category->slug, $excluded_slugs)) {
                 $genres[] = [
-                    'id' => $category->term_id,
-                    'name' => str_replace('jeux-', '', $category->name), // Nettoyer le nom
+                    Sisme_Utils_Games::KEY_ID => $category->term_id,
+                    Sisme_Utils_Games::KEY_NAME => str_replace('jeux-', '', $category->name), // Nettoyer le nom
                     'slug' => $category->slug
                 ];
             }
@@ -274,9 +274,9 @@ class Sisme_User_Preferences_Data_Manager {
     public static function get_available_player_types() {
         $player_types = [];
         $type_definitions = [
-            'solo' => ['name' => 'Solo', 'category_slug' => 'jeux-solo'],
-            'multijoueur' => ['name' => 'Multijoueur', 'category_slug' => 'jeux-multijoueur'],
-            'cooperatif' => ['name' => 'Coopératif', 'category_slug' => 'jeux-cooperatif']
+            'solo' => [Sisme_Utils_Games::KEY_NAME => 'Solo', 'category_slug' => 'jeux-solo'],
+            'multijoueur' => [Sisme_Utils_Games::KEY_NAME => 'Multijoueur', 'category_slug' => 'jeux-multijoueur'],
+            'cooperatif' => [Sisme_Utils_Games::KEY_NAME => 'Coopératif', 'category_slug' => 'jeux-cooperatif']
         ];
         
         foreach ($type_definitions as $slug => $definition) {
@@ -286,7 +286,7 @@ class Sisme_User_Preferences_Data_Manager {
             if ($category) {
                 $player_types[] = [
                     'slug' => $slug,
-                    'name' => $definition['name'],
+                    Sisme_Utils_Games::KEY_NAME => $definition['name'],
                     'category_slug' => $definition['category_slug']
                 ];
             } else {
@@ -329,8 +329,8 @@ class Sisme_User_Preferences_Data_Manager {
         $all_player_types = array_column(self::get_available_player_types(), 'slug');
         
         return [
-            'platforms' => $all_platforms,        // TOUTES les plateformes sélectionnées
-            'genres' => $all_genres,              // TOUS les genres sélectionnés  
+            Sisme_Utils_Games::KEY_PLATFORMS => $all_platforms,        // TOUTES les plateformes sélectionnées
+            Sisme_Utils_Games::KEY_GENRES => $all_genres,              // TOUS les genres sélectionnés  
             'player_types' => $all_player_types,  // TOUS les types sélectionnés
             'notifications' => [
                 'new_games_in_genres' => true,     // Toutes activées par défaut
@@ -449,8 +449,8 @@ class Sisme_User_Preferences_Data_Manager {
      */
     private static function get_meta_key_for_preference($key) {
         $mapping = [
-            'platforms' => self::META_PLATFORMS,
-            'genres' => self::META_GENRES,
+            Sisme_Utils_Games::KEY_PLATFORMS => self::META_PLATFORMS,
+            Sisme_Utils_Games::KEY_GENRES => self::META_GENRES,
             'player_types' => self::META_PLAYER_TYPES,
             'notifications' => self::META_NOTIFICATIONS,
             'privacy_public' => self::META_PRIVACY_PUBLIC,

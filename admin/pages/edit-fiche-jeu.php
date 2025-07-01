@@ -37,12 +37,12 @@ if (is_wp_error($tag_data) || !$tag_data) {
 
 // Récupérer les Game Data pour affichage
 $game_data = array(
-    'title' => $tag_data->name,
-    'description' => get_term_meta($tag_id, Sisme_Utils_Games::META_DESCRIPTION, true),
-    'genres' => get_term_meta($tag_id, Sisme_Utils_Games::META_GENRES, true) ?: array(),
-    'modes' => get_term_meta($tag_id, Sisme_Utils_Games::META_MODES, true) ?: array(),
-    'platforms' => get_term_meta($tag_id, 'game_platforms', true) ?: array(),
-    'release_date' => get_term_meta($tag_id, Sisme_Utils_Games::META_RELEASE_DATE, true),
+    Sisme_Utils_Games::KEY_TITLE => $tag_data->name,
+    Sisme_Utils_Games::KEY_DESCRIPTION => get_term_meta($tag_id, Sisme_Utils_Games::META_DESCRIPTION, true),
+    Sisme_Utils_Games::KEY_GENRES => get_term_meta($tag_id, Sisme_Utils_Games::META_GENRES, true) ?: array(),
+    Sisme_Utils_Games::KEY_MODES => get_term_meta($tag_id, Sisme_Utils_Games::META_MODES, true) ?: array(),
+    Sisme_Utils_Games::KEY_PLATFORMS => get_term_meta($tag_id, Sisme_Utils_Games::META_PLATFORMS, true) ?: array(),
+    Sisme_Utils_Games::KEY_RELEASE_DATE => get_term_meta($tag_id, Sisme_Utils_Games::META_RELEASE_DATE, true),
 );
 
 // Récupérer les sections par défaut du jeu
@@ -63,7 +63,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'create_fiche' && check_admi
         foreach ($sections as $section) {
             if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) {
                 $clean_sections[] = array(
-                    'title' => sanitize_text_field($section['title'] ?? ''),
+                    Sisme_Utils_Games::KEY_TITLE => sanitize_text_field($section['title'] ?? ''),
                     'content' => wp_kses_post($section['content'] ?? ''),
                     'image_id' => intval($section['image_id'] ?? 0)
                 );
