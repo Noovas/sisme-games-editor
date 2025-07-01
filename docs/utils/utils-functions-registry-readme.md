@@ -486,6 +486,81 @@ $summary = Sisme_Utils_Filters::get_search_summary(['query' => 'after'], 1);
 
 ---
 
+## 🔔 utils-notifications.php
+
+**Classe :** `Sisme_Utils_Notification`
+
+<details>
+<summary><code>get_users_with_notification_preference($notification_type)</code></summary>
+
+```php
+// 👥 Récupérer la liste des utilisateurs avec une préférence notification activée
+// @param string $notification_type - Type de notification ('new_indie_releases', 'new_games_in_genres', etc.)
+// @return array - IDs des utilisateurs avec cette préférence activée
+$user_ids = Sisme_Utils_Notification::get_users_with_notification_preference('new_indie_releases');
+```
+</details>
+
+<details>
+<summary><code>send_notification_to_users($user_ids, $game_id, $notification_type = 'new_game')</code></summary>
+
+```php
+// 📤 Envoyer une notification à une liste d'utilisateurs
+// @param array $user_ids - Liste des IDs utilisateurs
+// @param int $game_id - ID du jeu
+// @param string $notification_type - Type de notification
+// @return array - Résultat avec statistiques ['success', 'message', 'stats']
+$result = Sisme_Utils_Notification::send_notification_to_users([1, 2, 3], 125, 'new_game');
+```
+</details>
+
+<details>
+<summary><code>send_new_game_notification($game_id)</code></summary>
+
+```php
+// 🎮 Envoyer notification pour nouveau jeu avec logique de filtrage par genres
+// @param int $game_id - ID du jeu publié
+// @return array - Résultat de l'envoi avec statistiques
+// Logique: Users avec 'new_indie_releases' activé + filtrage optionnel par genres si 'new_games_in_genres' activé
+$result = Sisme_Utils_Notification::send_new_game_notification(125);
+```
+</details>
+
+<details>
+<summary><code>on_game_published($new_status, $old_status, $term)</code></summary>
+
+```php
+// 🔄 Hook automatique lors de la publication d'un jeu (term)
+// @param string $new_status - Nouveau statut
+// @param string $old_status - Ancien statut
+// @param WP_Term $term - Term du jeu
+// Se déclenche automatiquement via WordPress hooks
+```
+</details>
+
+<details>
+<summary><code>on_post_saved($post_id)</code></summary>
+
+```php
+// 📝 Hook automatique après sauvegarde complète d'un post (tags inclus)
+// @param int $post_id - ID du post publié
+// Envoie notifications unifiées pour nouveaux posts avec tags jeux
+// Se déclenche automatiquement via save_post hook
+```
+</details>
+
+<details>
+<summary><code>init_hooks()</code></summary>
+
+```php
+// ⚙️ Initialiser les hooks automatiques
+// Démarre automatiquement le système de notifications
+Sisme_Utils_Notification::init_hooks();
+```
+</details>
+
+---
+
 ## 🚀 Initialisation Système
 
 ### Chargement Automatique
