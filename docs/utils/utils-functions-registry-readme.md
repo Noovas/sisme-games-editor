@@ -1,19 +1,5 @@
 # Utils Functions Registry
 
-## 🎯 Vue d'ensemble
-
-Le système Utils comprend **7 modules** référencés dans `utils-loader.php` et chargés automatiquement :
-
-1. **utils-validation.php** - Validation et sanitisation *(non détaillé dans les fichiers)*
-2. **utils-formatting.php** ✅ - Formatage dates et textes
-3. **utils-cache.php** - Gestion cache WordPress *(non détaillé dans les fichiers)*
-4. **utils-wp.php** - Helpers WordPress *(non détaillé dans les fichiers)*
-5. **utils-debug.php** - Logging et debug *(non détaillé dans les fichiers)*
-6. **utils-games.php** ✅ - Données et métier jeux
-7. **utils-users.php** ✅ - Données et métier utilisateurs
-
----
-
 ## 📋 Auto-loader : utils-loader.php
 
 **Classe :** `Sisme_Utils_Loader`
