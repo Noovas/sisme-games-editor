@@ -95,7 +95,7 @@ class Sisme_Game_Data_Table_Module {
         // Traiter les données pour chaque étiquette
         $processed_data = [];
         foreach ($tags as $tag) {
-            $game_data = $this->process_tag_data($tag);
+            $game_data = Sisme_Utils_Games::get_game_data($tag->term_id);
             if ($game_data) {
                 $processed_data[] = $game_data;
             }
@@ -110,49 +110,6 @@ class Sisme_Game_Data_Table_Module {
         }
         
         $this->games_data = $processed_data;
-    }
-    
-    /**
-     * Traiter les données d'une étiquette
-     */
-    private function process_tag_data($tag) {
-        // Récupérer toutes les métadonnées du jeu
-        $meta_data = [];
-        $meta_keys = [
-            'game_description', 'game_genres', 'game_modes', 'game_developers',
-            'game_publishers', 'game_platforms', 'release_date', 'external_links',
-            'trailer_link', 'cover_main', 'cover_news', 'cover_patch', 'cover_test',
-            'screenshots', 'game_sections', 'last_update'
-        ];
-        
-        foreach ($meta_keys as $key) {
-            $meta_data[$key] = get_term_meta($tag->term_id, $key, true);
-        }
-        
-        // Compter les articles liés
-        $articles_count = $this->get_tag_posts_count($tag->term_id);
-        
-        // Préparer les données de base
-        $game_data = [
-            'id' => $tag->term_id,
-            'name' => $tag->name,
-            'slug' => $tag->slug,
-            'description' => $tag->description,
-            'articles_count' => $articles_count,
-            'meta_data' => $meta_data,
-            'last_update' => ''
-        ];
-        
-        // Traiter certaines métadonnées spécifiques
-        if (!empty($meta_data['game_description'])) {
-            $game_data['description'] = wp_trim_words($meta_data['game_description'], 15);
-        }
-        
-        if (!empty($meta_data['last_update'])) {
-            $game_data['last_update'] = $meta_data['last_update'];
-        }
-        
-        return $game_data;
     }
     
     /**

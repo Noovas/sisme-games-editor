@@ -31,25 +31,17 @@ class Sisme_Vedettes_API {
      * @return array Jeux vedettes formatés pour le frontend
      */
     public static function get_frontend_featured_games($limit = 10, $include_game_data = true) {
-        // Vérifier le cache d'abord
         $cache_key = self::CACHE_KEY . '_' . $limit . '_' . ($include_game_data ? 'full' : 'light');
         $cached_data = get_transient($cache_key);
-        
         if ($cached_data !== false) {
             error_log("Sisme Vedettes API: Données récupérées depuis le cache");
             return $cached_data;
         }
-        
-        // Récupérer les vedettes actives
         $featured_games = Sisme_Vedettes_Data_Manager::get_featured_games(true);
-        
-        // Limiter le nombre si demandé
         if ($limit > 0) {
             $featured_games = array_slice($featured_games, 0, $limit);
         }
-        
         $formatted_games = array();
-        
         foreach ($featured_games as $game) {
             $formatted_game = array(
                 'term_id' => $game['term_id'],
@@ -59,67 +51,13 @@ class Sisme_Vedettes_API {
                 'sponsor' => $game['vedette_data']['featured_sponsor'],
                 'stats' => $game['vedette_data']['featured_stats']
             );
-            
-            // Inclure les Game Data si demandé
             if ($include_game_data) {
-                $formatted_game['game_data'] = self::get_game_data_for_frontend($game['term_id']);
+                $formatted_game['game_data'] = Sisme_Utils_Games::get_game_data($game['term_id']);
             }
-            
             $formatted_games[] = $formatted_game;
         }
-        
-        // Mettre en cache
         set_transient($cache_key, $formatted_games, self::CACHE_DURATION);
-        
-        error_log("Sisme Vedettes API: " . count($formatted_games) . " jeux vedettes récupérés");
-        
         return $formatted_games;
-    }
-    
-    /**
-     * Récupérer les Game Data d'un jeu pour le frontend
-     * 
-     * @param int $term_id ID du jeu
-     * @return array Game Data formatées
-     */
-    private static function get_game_data_for_frontend($term_id) {
-        $game_data = array(
-            'description' => get_term_meta($term_id, 'game_description', true),
-            'release_date' => get_term_meta($term_id, 'release_date', true),
-            'trailer_link' => get_term_meta($term_id, 'trailer_link', true),
-            'external_links' => get_term_meta($term_id, 'external_links', true) ?: array(),
-            'covers' => array(
-                'main' => get_term_meta($term_id, 'cover_main', true),
-                'news' => get_term_meta($term_id, 'cover_news', true)
-            ),
-            'screenshots' => get_term_meta($term_id, 'screenshots', true) ?: array()
-        );
-        
-        // Convertir screenshots string vers array
-        if (is_string($game_data['screenshots'])) {
-            $game_data['screenshots'] = explode(',', $game_data['screenshots']);
-            $game_data['screenshots'] = array_map('intval', $game_data['screenshots']);
-        }
-        
-        // Récupérer les genres
-        $genres = get_term_meta($term_id, 'game_genres', true) ?: array();
-        $game_data['genres'] = array();
-        foreach ($genres as $genre_id) {
-            $genre = get_category($genre_id);
-            if ($genre) {
-                $game_data['genres'][] = array(
-                    'id' => $genre->term_id,
-                    'name' => $genre->name,
-                    'slug' => $genre->slug
-                );
-            }
-        }
-        
-        // Récupérer les plateformes
-        $platforms = get_term_meta($term_id, 'game_platforms', true) ?: array();
-        $game_data['platforms'] = $platforms;
-        
-        return $game_data;
     }
     
     /**

@@ -28,7 +28,7 @@ class Sisme_Fiche_Template {
         }
         $tag_id = $game_tags[0]->term_id;
         $game_name = $game_tags[0]->name;
-        $game_data = self::get_game_data_from_tag($tag_id);
+        $game_data = Sisme_Utils_Games::get_game_data($tag_id);
         $sections = get_post_meta($post_id, '_sisme_game_sections', true) ?: array();
         self::enqueue_frontend_styles();
         $content = Sisme_Hero_Section_Module::render($game_data, $sections);
@@ -53,32 +53,6 @@ class Sisme_Fiche_Template {
                 SISME_GAMES_EDITOR_VERSION
             );
         }
-    }
-    
-    /**
-     * Récupérer les Game Data depuis un tag
-     */
-    private static function get_game_data_from_tag($tag_id) {
-        return array(
-            'id' => $tag_id,
-            'title' => get_term($tag_id)->name,
-            'description' => get_term_meta($tag_id, 'game_description', true),
-            'genres' => get_term_meta($tag_id, 'game_genres', true) ?: array(),
-            'modes' => get_term_meta($tag_id, 'game_modes', true) ?: array(),
-            'developers' => get_term_meta($tag_id, 'game_developers', true) ?: array(),
-            'publishers' => get_term_meta($tag_id, 'game_publishers', true) ?: array(),
-            'platforms' => get_term_meta($tag_id, 'game_platforms', true) ?: array(),
-            'release_date' => get_term_meta($tag_id, 'release_date', true),
-            'external_links' => get_term_meta($tag_id, 'external_links', true) ?: array(),
-            'trailer_link' => get_term_meta($tag_id, 'trailer_link', true),
-            'screenshots' => get_term_meta($tag_id, 'screenshots', true) ?: array(),
-            'covers' => array(
-                'main' => get_term_meta($tag_id, 'cover_main', true),
-                'news' => get_term_meta($tag_id, 'cover_news', true),
-                'patch' => get_term_meta($tag_id, 'cover_patch', true),
-                'test' => get_term_meta($tag_id, 'cover_test', true)
-            )
-        );
     }
     
     /**

@@ -93,17 +93,7 @@ class Sisme_User_Dashboard_Data_Manager {
                 return $custom_avatar;
             }
         }
-        
-        // Fallback sur user-profile si disponible
-        if (class_exists('Sisme_User_Profile_Avatar')) {
-            $profile_avatar = Sisme_User_Profile_Avatar::get_user_avatar_url($user_id, $size);
-            if ($profile_avatar) {
-                return $profile_avatar;
-            }
-        }
-        
-
-        return "https://games.sisme.fr/images/sisme%20icon%20medaille%201%20%28500x500%29.png";
+        return "https://games.sisme.fr/images/avatar/avatar-user-borne-arcade.png";
     }
     
     /**

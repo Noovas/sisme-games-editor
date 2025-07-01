@@ -112,50 +112,47 @@ class Sisme_Hero_Section_Module {
     }
     
     /**
-     * Générer les informations du jeu
+     * Générer les informations du jeu avec clés compatibles utils-games
+     * 
+     * @param array $game_data Données complètes du jeu depuis utils-games
+     * @return string HTML des informations du jeu
      */
     private static function render_game_info($game_data) {
         $output = '';
-        
-        // Titre
-        $output .= '<h1 class="sisme-game-title">' . esc_html($game_data['title']) . '</h1>';
-        
-        // Description
+        $title = $game_data['title'] ?? $game_data['name'] ?? '';
+        $output .= '<h1 class="sisme-game-title">' . esc_html($title) . '</h1>';
         if (!empty($game_data['description'])) {
             $output .= '<p class="sisme-game-description">' . wp_kses_post($game_data['description']) . '</p>';
         }
-
-        // User-actions
         $output .= self::render_user_actions($game_data);
-        
-        // TITRE + MÉTADONNÉES avec ID pour le scroll
         $output .= '<div class="sisme-game-meta-container" id="sismeGameMeta">';
-        $output .= '<h2 class="sisme-meta-title">Informations du jeu</h2>'; // NOUVEAU TITRE
+        $output .= '<h2 class="sisme-meta-title">Informations du jeu</h2>';
         $output .= '<div class="sisme-game-meta">';
-        $output .= self::render_genres($game_data['genres']);
-        $output .= self::render_platforms($game_data['platforms']);
-        $output .= self::render_modes($game_data['modes']);
-        $output .= self::render_developers($game_data['developers']);
-        $output .= self::render_publishers($game_data['publishers']);
-        $output .= self::render_release_date($game_data['release_date']);
-        $output .= self::render_store_links($game_data['external_links']);
+        $output .= self::render_genres($game_data['genres'] ?? array());
+        $output .= self::render_platforms($game_data['platforms'] ?? array());
+        $output .= self::render_modes($game_data['modes'] ?? array());
+        $output .= self::render_developers($game_data['developers'] ?? array());
+        $output .= self::render_publishers($game_data['publishers'] ?? array());
+        $output .= self::render_release_date($game_data['release_date'] ?? '');
+        $output .= self::render_store_links($game_data['external_links'] ?? array());
         $output .= '</div>';
         $output .= '</div>';
-        
         return $output;
     }
 
 
     /**
-     * Générer les user-actions
+     * Générer les user-actions avec clés compatibles utils-games
+     * 
+     * @param array $game_data Données du jeu depuis utils-games
+     * @return string HTML des boutons d'actions utilisateur
      */
     private static function render_user_actions($game_data) {
         $output = '';
         $output .= '<div class="sisme-user-actions sisme-user-action-fiches">';
-        
-        
+        $game_id = $game_data['id'] ?? $game_data['term_id'] ?? 0;
         $button_html = Sisme_User_Actions_API::render_action_button(
-            $game_data['id'],
+            $game_id,
             'favorite',
             [
                 'size' => 'medium',
@@ -164,9 +161,8 @@ class Sisme_Hero_Section_Module {
             ]
         );
         $output .= $button_html;
-
         $button_html = Sisme_User_Actions_API::render_action_button(
-            $game_data['id'],
+            $game_id,
             'owned',
             [
                 'size' => 'medium',
@@ -175,137 +171,79 @@ class Sisme_Hero_Section_Module {
             ]
         );
         $output .= $button_html;
-
         $output .= '</div>';
         return $output;
     }
     
     /**
-     * Générer les genres
+     * Générer les genres avec données formatées depuis utils
+     * 
+     * @param array $genres Genres formatés depuis utils-games [{id, name, slug}, ...]
+     * @return string HTML des genres ou chaîne vide
      */
     private static function render_genres($genres) {
         if (empty($genres)) return '';
-        
         $output = '<div class="sisme-meta-row">';
         $output .= '<span class="sisme-meta-label">Genres</span>';
         $output .= '<div class="sisme-game-tags">';
-        
-        foreach ($genres as $genre_id) {
-            $genre = get_category($genre_id);
-            if ($genre) {
-                // 🔗 LIEN VERS LA PAGE D'ARCHIVE DE LA CATÉGORIE
-                $genre_url = get_category_link($genre_id);
-                $genre_name = str_replace('jeux-', '', $genre->name); // Nettoyer le nom
-                
+        foreach ($genres as $genre) {
+            if (isset($genre['id']) && isset($genre['name'])) {
+                $genre_url = get_category_link($genre['id']);
+                $genre_name = str_replace('jeux-', '', $genre['name']);
                 $output .= '<a href="' . esc_url($genre_url) . '" class="sisme-badge sisme-badge-genre" ';
                 $output .= 'title="Voir tous les jeux de type ' . esc_attr($genre_name) . '">';
                 $output .= esc_html(ucfirst($genre_name));
                 $output .= '</a>';
             }
         }
-        
         $output .= '</div>';
         $output .= '</div>';
-        
         return $output;
     }
     
     /**
-     * Générer les plateformes groupées par catégorie avec icônes et tooltips détaillés
+     * Générer les plateformes avec données formatées depuis utils
+     * 
+     * @param array $platforms Plateformes groupées depuis utils-games [{group, icon, label, platforms, tooltip}, ...]
+     * @return string HTML des plateformes ou chaîne vide
      */
     private static function render_platforms($platforms) {
         if (empty($platforms)) return '';
-        
-        // Groupement des plateformes par catégorie
-        $pc_platforms = array('windows', 'mac');
-        $console_platforms = array('xbox', 'playstation', 'switch');
-        $mobile_platforms = array('ios', 'android');
-        
-        // Noms complets pour les tooltips
-        $platform_names = array(
-            'windows' => 'Windows',
-            'mac' => 'Mac',
-            'xbox' => 'Xbox',
-            'playstation' => 'PlayStation',
-            'switch' => 'Nintendo Switch',
-            'ios' => 'iOS',
-            'android' => 'Android',
-            'web' => 'Navigateur Web'
-        );
-        
         $output = '<div class="sisme-meta-row">';
         $output .= '<span class="sisme-meta-label">Plateformes</span>';
         $output .= '<div class="sisme-platforms">';
-        
-        // Vérifier et afficher PC
-        $pc_found = array_intersect($platforms, $pc_platforms);
-        if (!empty($pc_found)) {
-            $pc_details = array_map(function($p) use ($platform_names) {
-                return $platform_names[$p];
-            }, $pc_found);
-            
-            $output .= '<span class="sisme-badge-platform" title="' . esc_attr(implode(', ', $pc_details)) . '">';
-            $output .= '💻';
-            $output .= '</span>';
+        foreach ($platforms as $platform_group) {
+            if (isset($platform_group['icon']) && isset($platform_group['tooltip'])) {
+                $output .= '<span class="sisme-badge-platform" title="' . esc_attr($platform_group['tooltip']) . '">';
+                $output .= esc_html($platform_group['icon']);
+                $output .= '</span>';
+            }
         }
-        
-        // Vérifier et afficher Console
-        $console_found = array_intersect($platforms, $console_platforms);
-        if (!empty($console_found)) {
-            $console_details = array_map(function($p) use ($platform_names) {
-                return $platform_names[$p];
-            }, $console_found);
-            
-            $output .= '<span class="sisme-badge-platform" title="' . esc_attr(implode(', ', $console_details)) . '">';
-            $output .= '🎮'; // Icône Console
-            $output .= '</span>';
-        }
-        
-        // Vérifier et afficher Mobile
-        $mobile_found = array_intersect($platforms, $mobile_platforms);
-        if (!empty($mobile_found)) {
-            $mobile_details = array_map(function($p) use ($platform_names) {
-                return $platform_names[$p];
-            }, $mobile_found);
-            
-            $output .= '<span class="sisme-badge-platform" title="' . esc_attr(implode(', ', $mobile_details)) . '">';
-            $output .= '📱'; 
-            $output .= '</span>';
-        }
-        
-        // Web à part (si présent)
-        if (in_array('web', $platforms)) {
-            $output .= '<span class="sisme-badge-platform" title="' . esc_attr($platform_names['web']) . '">';
-            $output .= '🌐';
-            $output .= '</span>';
-        }
-        
         $output .= '</div>';
         $output .= '</div>';
-        
         return $output;
     }
     
     /**
-     * Générer les modes de jeu
+     * Générer les modes de jeu avec données formatées depuis utils
+     * 
+     * @param array $modes Modes formatés depuis utils-games [{key, label}, ...]
+     * @return string HTML des modes ou chaîne vide
      */
     private static function render_modes($modes) {
         if (empty($modes)) return '';
-        
         $output = '<div class="sisme-meta-row">';
         $output .= '<span class="sisme-meta-label">Modes</span>';
         $output .= '<div class="sisme-game-modes">';
-        
         foreach ($modes as $mode) {
-            $mode_clean = strtolower(trim($mode));
-            $output .= '<span class="sisme-badge sisme-badge-mode ' . esc_attr($mode_clean) . '">';
-            $output .= esc_html(ucfirst($mode));
-            $output .= '</span>';
+            if (isset($mode['key']) && isset($mode['label'])) {
+                $output .= '<span class="sisme-badge sisme-badge-mode ' . esc_attr($mode['key']) . '">';
+                $output .= esc_html($mode['label']);
+                $output .= '</span>';
+            }
         }
-        
         $output .= '</div>';
         $output .= '</div>';
-        
         return $output;
     }
     

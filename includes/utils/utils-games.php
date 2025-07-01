@@ -160,47 +160,56 @@ class Sisme_Utils_Games {
     }
 
     /**
-     * 📊 Récupérer les données complètes d'un jeu
+     * 📊 Récupérer les données complètes d'un jeu - VERSION UNIFIÉE
      * 
      * @param int $term_id ID du jeu (term_id)
-     * @return array|false Données complètes du jeu ou false si incomplet
+     * @return array|false Données complètes du jeu ou false si terme invalide
      */
     public static function get_game_data($term_id) {
-        // Validation de base
         if (empty($term_id) || !is_numeric($term_id)) {
             return false;
         }
+        
         $term = get_term($term_id);
         if (!$term || is_wp_error($term)) {
             return false;
         }
-        $description = get_term_meta($term_id, self::META_DESCRIPTION, true);
-        $cover_id = get_term_meta($term_id, self::META_COVER_MAIN, true);
-        
-        if (empty($description) || empty($cover_id)) {
-            return false;
-        }
-        $cover_url = wp_get_attachment_image_url($cover_id, 'full');
-        if (!$cover_url) {
-            return false;
-        }
-        $release_date = get_term_meta($term_id, self::META_RELEASE_DATE, true);
+
+        $cover_id = get_term_meta($term_id, self::META_COVER_MAIN, true) ?: 0;
+        $cover_url = $cover_id ? wp_get_attachment_image_url($cover_id, 'full') : '';
+        $release_date = get_term_meta($term_id, self::META_RELEASE_DATE, true) ?: '';
         $timestamp = !empty($release_date) ? strtotime($release_date) : 0;
-        $game_data = array(
+
+        return array(
             'term_id' => $term_id,
+            'id' => $term_id,
             'name' => $term->name,
+            'title' => $term->name, 
             'slug' => $term->slug,
-            'description' => wp_strip_all_tags($description),
+            'description' => get_term_meta($term_id, self::META_DESCRIPTION, true) ?: '',
             'cover_url' => $cover_url,
+            'cover_id' => $cover_id,
             'game_url' => home_url($term->slug . '/'),
-            'release_date' => $release_date ?: '',
+            'release_date' => $release_date,
             'last_update' => get_term_meta($term_id, self::META_LAST_UPDATE, true) ?: '',
             'timestamp' => $timestamp,
-            'genres' => array(),
-            'modes' => array(),
-            'platforms' => array()
+            'genres' => self::get_game_genres($term_id),
+            'modes' => self::get_game_modes($term_id),
+            'platforms' => self::get_game_platforms_grouped($term_id),
+            'is_team_choice' => self::is_team_choice($term_id),
+            'external_links' => get_term_meta($term_id, 'external_links', true) ?: array(),
+            'trailer_link' => get_term_meta($term_id, 'trailer_link', true) ?: '',
+            'screenshots' => get_term_meta($term_id, 'screenshots', true) ?: array(),
+            'developers' => get_term_meta($term_id, 'game_developers', true) ?: array(),
+            'publishers' => get_term_meta($term_id, 'game_publishers', true) ?: array(),
+            'covers' => array(
+                'main' => $cover_id,
+                'news' => get_term_meta($term_id, 'cover_news', true) ?: 0,
+                'patch' => get_term_meta($term_id, 'cover_patch', true) ?: 0,
+                'test' => get_term_meta($term_id, 'cover_test', true) ?: 0
+            ),
+            'release_status' => self::get_game_release_status($term_id)
         );
-        return $game_data;
     }
 
     /**
@@ -363,7 +372,7 @@ class Sisme_Utils_Games {
         if ($criteria[self::META_TEAM_CHOICE]) {
             $team_choice_games = array();
             foreach ($all_games as $game_id) {
-                if (self::is_team_choice($game_id)) {  // ← UTILISER NOTRE FONCTION !
+                if (self::is_team_choice($game_id)) {
                     $team_choice_games[] = $game_id;
                 }
             }
@@ -448,22 +457,6 @@ class Sisme_Utils_Games {
             );
         }
         return $genre_query;
-    }
-
-    /**
-     * 🏆 Marquer/démarquer un jeu comme choix de l'équipe
-     * 
-     * @param int $term_id ID du jeu (term_id)
-     * @param bool $is_choice True pour marquer, false pour démarquer
-     * @return bool True si succès, false si erreur
-     */
-    public static function set_team_choice($term_id, $is_choice = true) {
-        if (!term_exists($term_id, 'post_tag')) {
-            return false;
-        }        
-        $value = $is_choice ? '1' : '0';        
-        $result = update_term_meta($term_id, self::META_TEAM_CHOICE, $value);             
-        return $result !== false;
     }
 
     /**
