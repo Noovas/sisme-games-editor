@@ -215,11 +215,11 @@ class Sisme_User_Notifications_Data_Manager {
         }
         
         return array_merge($notification, [
-            'game_name' => $game_data['name'],
+            'game_name' => $game_data[Sisme_Utils_Games::KEY_NAME],
             'game_slug' => $game_data['slug'],
-            'game_url' => $game_data['game_url'],
-            'game_cover_url' => $game_data['cover_url'],
-            Sisme_Utils_Games::META_DESCRIPTION => $game_data['description']
+            'game_url' => $game_data[Sisme_Utils_Games::KEY_GAME_URL],
+            'game_cover_url' => $game_data[Sisme_Utils_Games::KEY_COVER_URL],
+            Sisme_Utils_Games::META_DESCRIPTION => $game_data[Sisme_Utils_Games::KEY_DESCRIPTION]
         ]);
     }
     

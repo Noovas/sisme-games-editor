@@ -52,7 +52,7 @@ class Sisme_User_Preferences_Data_Manager {
         $defaults = self::get_default_preferences();
         $preferences = [
             Sisme_Utils_Games::KEY_PLATFORMS => get_user_meta($user_id, self::META_PLATFORMS, true) ?: $defaults['platforms'],
-            Sisme_Utils_Games::KEY_GENRES => get_user_meta($user_id, self::META_GENRES, true) ?: $defaults['genres'],
+            Sisme_Utils_Games::KEY_GENRES => get_user_meta($user_id, self::META_GENRES, true) ?: $defaults[Sisme_Utils_Games::KEY_GENRES],
             'player_types' => get_user_meta($user_id, self::META_PLAYER_TYPES, true) ?: $defaults['player_types'],
             'notifications' => get_user_meta($user_id, self::META_NOTIFICATIONS, true) ?: $defaults['notifications'],
             'avatar' => get_user_meta($user_id, self::META_AVATAR, true) ?: $defaults['avatar'],
@@ -286,7 +286,7 @@ class Sisme_User_Preferences_Data_Manager {
             if ($category) {
                 $player_types[] = [
                     'slug' => $slug,
-                    Sisme_Utils_Games::KEY_NAME => $definition['name'],
+                    Sisme_Utils_Games::KEY_NAME => $definition[Sisme_Utils_Games::KEY_NAME],
                     'category_slug' => $definition['category_slug']
                 ];
             } else {

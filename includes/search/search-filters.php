@@ -77,9 +77,9 @@ class Sisme_Search_Filters {
         $validated['query'] = isset($params['query']) ? sanitize_text_field($params['query']) : '';
         
         // Genres (IDs de catégories)
-        $validated['genres'] = array();
-        if (isset($params['genres']) && is_array($params['genres'])) {
-            $validated['genres'] = array_map('intval', array_filter($params['genres']));
+        $validated[Sisme_Utils_Games::KEY_GENRES] = array();
+        if (isset($params[Sisme_Utils_Games::KEY_GENRES]) && is_array($params[Sisme_Utils_Games::KEY_GENRES])) {
+            $validated[Sisme_Utils_Games::KEY_GENRES] = array_map('intval', array_filter($params[Sisme_Utils_Games::KEY_GENRES]));
         }
         /*
         // Plateformes 
@@ -162,14 +162,14 @@ class Sisme_Search_Filters {
         }
         
         // Filtres par genres - Convertir IDs en slugs
-        if (!empty($params['genres'])) {
-            $genre_slugs = self::convert_genre_ids_to_slugs($params['genres']);
+        if (!empty($params[Sisme_Utils_Games::KEY_GENRES])) {
+            $genre_slugs = self::convert_genre_ids_to_slugs($params[Sisme_Utils_Games::KEY_GENRES]);
             if (!empty($genre_slugs)) {
-                $criteria['genres'] = $genre_slugs;
+                $criteria[Sisme_Utils_Games::KEY_GENRES] = $genre_slugs;
                 
                 // Debug pour vérifier la conversion
                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('Sisme Search: Genre IDs ' . implode(',', $params['genres']) . ' → slugs ' . implode(',', $genre_slugs));
+                    error_log('Sisme Search: Genre IDs ' . implode(',', $params[Sisme_Utils_Games::KEY_GENRES]) . ' → slugs ' . implode(',', $genre_slugs));
                 }
             }
         }
@@ -194,7 +194,7 @@ class Sisme_Search_Filters {
         if (!empty($params['quick_filter'])) {
             switch ($params['quick_filter']) {
                 case 'featured':
-                    // $criteria['is_team_choice'] = true;
+                    // $criteria[Sisme_Utils_Games::KEY_IS_TEAM_CHOICE] = true;
                     break;
 
                 case 'upcoming':
@@ -428,7 +428,7 @@ class Sisme_Search_Filters {
         // Vérifier le cache en mémoire
         if (isset(self::$cache[$cache_key])) {
             $cache_data = self::$cache[$cache_key];
-            if (time() - $cache_data['timestamp'] < self::$cache_timeout) {
+            if (time() - $cache_data[Sisme_Utils_Games::KEY_TIMESTAMP] < self::$cache_timeout) {
                 return $cache_data['data'];
             } else {
                 unset(self::$cache[$cache_key]);
@@ -564,10 +564,10 @@ class Sisme_Search_Filters {
         // Filtres actifs
         $active_filters = array();
         
-        if (!empty($params['genres'])) {
+        if (!empty($params[Sisme_Utils_Games::KEY_GENRES])) {
             $active_filters[] = sprintf(
-                _n('%d genre', '%d genres', count($params['genres']), 'sisme-games-editor'),
-                count($params['genres'])
+                _n('%d genre', '%d genres', count($params[Sisme_Utils_Games::KEY_GENRES]), 'sisme-games-editor'),
+                count($params[Sisme_Utils_Games::KEY_GENRES])
             );
         }
         

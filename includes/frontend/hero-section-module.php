@@ -56,8 +56,8 @@ class Sisme_Hero_Section_Module {
         $output .= '<div class="sisme-main-media-display" id="sismeMainDisplay">';
         
         // Trailer par défaut
-        if (!empty($game_data['trailer_link'])) {
-            $youtube_id = self::extract_youtube_id($game_data['trailer_link']);
+        if (!empty($game_data[Sisme_Utils_Games::KEY_TRAILER_LINK])) {
+            $youtube_id = self::extract_youtube_id($game_data[Sisme_Utils_Games::KEY_TRAILER_LINK]);
             if ($youtube_id) {
                 $output .= '<iframe id="sismeTrailerFrame" ';
                 $output .= 'src="https://www.youtube.com/embed/' . esc_attr($youtube_id) . '?enablejsapi=1" ';
@@ -74,8 +74,8 @@ class Sisme_Hero_Section_Module {
         $output .= '<div class="sisme-media-gallery">';
         
         // TRAILER THUMBNAIL EN PREMIER (si disponible)
-        if (!empty($game_data['trailer_link'])) {
-            $youtube_id = self::extract_youtube_id($game_data['trailer_link']);
+        if (!empty($game_data[Sisme_Utils_Games::KEY_TRAILER_LINK])) {
+            $youtube_id = self::extract_youtube_id($game_data[Sisme_Utils_Games::KEY_TRAILER_LINK]);
             if ($youtube_id) {
                 $thumbnail_url = "https://img.youtube.com/vi/{$youtube_id}/maxresdefault.jpg";
                 $output .= '<div class="sisme-media-thumb trailer active" ';
@@ -86,10 +86,10 @@ class Sisme_Hero_Section_Module {
         }
         
         // SCREENSHOTS (une seule fois !)
-        if (!empty($game_data['screenshots'])) {
-            $screenshots_array = is_array($game_data['screenshots']) ? 
-                $game_data['screenshots'] : 
-                explode(',', $game_data['screenshots']);
+        if (!empty($game_data[Sisme_Utils_Games::KEY_SCREENSHOTS])) {
+            $screenshots_array = is_array($game_data[Sisme_Utils_Games::KEY_SCREENSHOTS]) ? 
+                $game_data[Sisme_Utils_Games::KEY_SCREENSHOTS] : 
+                explode(',', $game_data[Sisme_Utils_Games::KEY_SCREENSHOTS]);
             
             foreach ($screenshots_array as $screenshot_id) {
                 $screenshot_id = intval(trim($screenshot_id)); // Nettoyer l'ID
@@ -119,22 +119,22 @@ class Sisme_Hero_Section_Module {
      */
     private static function render_game_info($game_data) {
         $output = '';
-        $title = $game_data['title'] ?? $game_data['name'] ?? '';
+        $title = $game_data['title'] ?? $game_data[Sisme_Utils_Games::KEY_NAME] ?? '';
         $output .= '<h1 class="sisme-game-title">' . esc_html($title) . '</h1>';
-        if (!empty($game_data['description'])) {
-            $output .= '<p class="sisme-game-description">' . wp_kses_post($game_data['description']) . '</p>';
+        if (!empty($game_data[Sisme_Utils_Games::KEY_DESCRIPTION])) {
+            $output .= '<p class="sisme-game-description">' . wp_kses_post($game_data[Sisme_Utils_Games::KEY_DESCRIPTION]) . '</p>';
         }
         $output .= self::render_user_actions($game_data);
         $output .= '<div class="sisme-game-meta-container" id="sismeGameMeta">';
         $output .= '<h2 class="sisme-meta-title">Informations du jeu</h2>';
         $output .= '<div class="sisme-game-meta">';
-        $output .= self::render_genres($game_data['genres'] ?? array());
+        $output .= self::render_genres($game_data[Sisme_Utils_Games::KEY_GENRES] ?? array());
         $output .= self::render_platforms($game_data['platforms'] ?? array());
         $output .= self::render_modes($game_data['modes'] ?? array());
         $output .= self::render_developers($game_data['developers'] ?? array());
         $output .= self::render_publishers($game_data['publishers'] ?? array());
-        $output .= self::render_release_date($game_data['release_date'] ?? '');
-        $output .= self::render_store_links($game_data['external_links'] ?? array());
+        $output .= self::render_release_date($game_data[Sisme_Utils_Games::KEY_RELEASE_DATE] ?? '');
+        $output .= self::render_store_links($game_data[Sisme_Utils_Games::KEY_EXTERNAL_LINKS] ?? array());
         $output .= '</div>';
         $output .= '</div>';
         return $output;
@@ -150,7 +150,7 @@ class Sisme_Hero_Section_Module {
     private static function render_user_actions($game_data) {
         $output = '';
         $output .= '<div class="sisme-user-actions sisme-user-action-fiches">';
-        $game_id = $game_data['id'] ?? $game_data['term_id'] ?? 0;
+        $game_id = $game_data['id'] ?? $game_data[Sisme_Utils_Games::KEY_TERM_ID] ?? 0;
         $button_html = Sisme_User_Actions_API::render_action_button(
             $game_id,
             'favorite',
@@ -187,9 +187,9 @@ class Sisme_Hero_Section_Module {
         $output .= '<span class="sisme-meta-label">Genres</span>';
         $output .= '<div class="sisme-game-tags">';
         foreach ($genres as $genre) {
-            if (isset($genre['id']) && isset($genre['name'])) {
+            if (isset($genre['id']) && isset($genre[Sisme_Utils_Games::KEY_NAME])) {
                 $genre_url = get_category_link($genre['id']);
-                $genre_name = str_replace('jeux-', '', $genre['name']);
+                $genre_name = str_replace('jeux-', '', $genre[Sisme_Utils_Games::KEY_NAME]);
                 $output .= '<a href="' . esc_url($genre_url) . '" class="sisme-badge sisme-badge-genre" ';
                 $output .= 'title="Voir tous les jeux de type ' . esc_attr($genre_name) . '">';
                 $output .= esc_html(ucfirst($genre_name));

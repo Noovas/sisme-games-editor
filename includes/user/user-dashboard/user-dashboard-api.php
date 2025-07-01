@@ -302,13 +302,13 @@ class Sisme_User_Dashboard_API {
                 <div class="sisme-games-grid sisme-favorites-grid">
                     <?php foreach ($favorite_games as $game): ?>
                         <a href="<?php echo esc_url(self::get_game_url($game['id'])); ?>" class="sisme-game-card">
-                            <div class="sisme-game-cover" style="background-image: url('<?php echo esc_url($game['cover_url'] ?? ''); ?>');">
+                            <div class="sisme-game-cover" style="background-image: url('<?php echo esc_url($game[Sisme_Utils_Games::KEY_COVER_URL] ?? ''); ?>');">
                                 <div class="sisme-game-overlay">
                                     <span class="sisme-favorite-badge">❤️</span>
                                 </div>
                             </div>
                             <div class="sisme-game-info">
-                                <h4 class="sisme-game-title"><?php echo esc_html($game['name']); ?></h4>
+                                <h4 class="sisme-game-title"><?php echo esc_html($game[Sisme_Utils_Games::KEY_NAME]); ?></h4>
                             </div>
                         </a>
                     <?php endforeach; ?>
@@ -336,13 +336,13 @@ class Sisme_User_Dashboard_API {
                 <div class="sisme-games-grid sisme-library-grid">
                     <?php foreach ($owned_games as $game): ?>
                         <a href="<?php echo esc_url(self::get_game_url($game['id'])); ?>" class="sisme-game-card">
-                            <div class="sisme-game-cover" style="background-image: url('<?php echo esc_url($game['cover_url'] ?? ''); ?>');">
+                            <div class="sisme-game-cover" style="background-image: url('<?php echo esc_url($game[Sisme_Utils_Games::KEY_COVER_URL] ?? ''); ?>');">
                                 <div class="sisme-game-overlay">
                                     <span class="sisme-owned-badge">📚</span>
                                 </div>
                             </div>
                             <div class="sisme-game-info">
-                                <h4 class="sisme-game-title"><?php echo esc_html($game['name']); ?></h4>
+                                <h4 class="sisme-game-title"><?php echo esc_html($game[Sisme_Utils_Games::KEY_NAME]); ?></h4>
                             </div>
                         </a>
                     <?php endforeach; ?>
@@ -563,7 +563,7 @@ class Sisme_User_Dashboard_API {
                        }
                        ?>
                        <div class="sisme-game-card sisme-recent-grid">
-                           <a href="<?php echo esc_url($game['game_url']); ?>" class="sisme-game-link sisme-recent-grid">
+                           <a href="<?php echo esc_url($game[Sisme_Utils_Games::KEY_GAME_URL]); ?>" class="sisme-game-link sisme-recent-grid">
                                <div class="sisme-game-cover sisme-recent-grid" style="<?php echo $cover_url ? 'background-image: url(' . esc_url($cover_url) . ');' : ''; ?>">
                                    <div class="sisme-game-overlay sisme-recent-grid">
                                        <span class="sisme-owned-badge sisme-recent-grid">⚡</span>
@@ -571,7 +571,7 @@ class Sisme_User_Dashboard_API {
                                </div>
                                
                                <div class="sisme-game-info sisme-recent-grid">
-                                   <h4 class="sisme-game-title sisme-recent-grid"><?php echo esc_html($game['name']); ?></h4>
+                                   <h4 class="sisme-game-title sisme-recent-grid"><?php echo esc_html($game[Sisme_Utils_Games::KEY_NAME]); ?></h4>
                                    
                                    <?php if (!empty($game_description)): ?>
                                        <p class="sisme-game-description sisme-recent-grid">

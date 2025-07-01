@@ -337,7 +337,7 @@ $game_url = home_url($game_data['slug'] . '/');
 ```php
 // Future intégration filtrage par genres préférés
 $preferences = Sisme_User_Preferences_Data_Manager::get_user_preferences($user_id);
-$user_genres = $preferences['genres'] ?? [];
+$user_genres = $preferences[Sisme_Utils_Games::KEY_GENRES] ?? [];
 ```
 
 ## 🔗 Intégrations Cross-Module
@@ -353,7 +353,7 @@ $game_url = home_url($game_data['slug'] . '/');
 ```php
 // Future intégration filtrage par genres préférés
 $preferences = Sisme_User_Preferences_Data_Manager::get_user_preferences($user_id);
-$user_genres = $preferences['genres'] ?? [];
+$user_genres = $preferences[Sisme_Utils_Games::KEY_GENRES] ?? [];
 ```
 
 ### Module User-Dashboard

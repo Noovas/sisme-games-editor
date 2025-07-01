@@ -111,8 +111,8 @@ class Sisme_Article_Filter_Module {
         }
 
         // Filtrer par genre
-        if (!empty($this->filter_values['genres'])) {
-            $args['genres'] = $this->filter_values['genres'];
+        if (!empty($this->filter_values[Sisme_Utils_Games::KEY_GENRES])) {
+            $args[Sisme_Utils_Games::KEY_GENRES] = $this->filter_values[Sisme_Utils_Games::KEY_GENRES];
         }
 
         // Filtrer par développeur
@@ -157,7 +157,7 @@ class Sisme_Article_Filter_Module {
             'status' => isset($_GET['status']) && $_GET['status'] !== '' ? sanitize_text_field($_GET['status']) : '',
             'category' => isset($_GET['category']) && $_GET['category'] !== '' ? sanitize_text_field($_GET['category']) : '',
             'tag' => isset($_GET['tag']) && $_GET['tag'] !== '' ? sanitize_text_field($_GET['tag']) : '',
-            Sisme_Utils_Games::KEY_GENRES => isset($_GET['genres']) && $_GET['genres'] !== '' ? intval($_GET['genres']) : 0,
+            Sisme_Utils_Games::KEY_GENRES => isset($_GET[Sisme_Utils_Games::KEY_GENRES]) && $_GET[Sisme_Utils_Games::KEY_GENRES] !== '' ? intval($_GET[Sisme_Utils_Games::KEY_GENRES]) : 0,
             'developers' => isset($_GET['developers']) && $_GET['developers'] !== '' ? intval($_GET['developers']) : 0,
             Sisme_Utils_Games::KEY_PLATFORMS => isset($_GET['platforms']) && $_GET['platforms'] !== '' ? sanitize_text_field($_GET['platforms']) : '',
             'author' => isset($_GET['author']) && $_GET['author'] !== '' ? intval($_GET['author']) : 0
@@ -492,7 +492,7 @@ class Sisme_Article_Filter_Module {
         
         $output = '';
         foreach ($genres as $genre) {
-            $selected = selected($this->filter_values['genres'] ?? '', $genre->term_id, false);
+            $selected = selected($this->filter_values[Sisme_Utils_Games::KEY_GENRES] ?? '', $genre->term_id, false);
             $output .= sprintf(
                 '<option value="%d" %s>%s (%d jeux)</option>',
                 $genre->term_id,
@@ -565,9 +565,9 @@ class Sisme_Article_Filter_Module {
         }
         
         // Genre
-        if (!empty($this->filter_values['genres'])) {
-            $genre = get_category($this->filter_values['genres']);
-            $genre_name = $genre ? $genre->name : 'Genre #' . $this->filter_values['genres'];
+        if (!empty($this->filter_values[Sisme_Utils_Games::KEY_GENRES])) {
+            $genre = get_category($this->filter_values[Sisme_Utils_Games::KEY_GENRES]);
+            $genre_name = $genre ? $genre->name : 'Genre #' . $this->filter_values[Sisme_Utils_Games::KEY_GENRES];
             
             $active_filters[] = sprintf(
                 '<span class="sisme-tag sisme-tag--filter">Genre: %s <a href="%s" class="sisme-tag__remove">×</a></span>',

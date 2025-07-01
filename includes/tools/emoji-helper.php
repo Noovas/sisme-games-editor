@@ -263,7 +263,7 @@ class Sisme_Emoji_Helper {
         
         // Groupes par catégorie
         foreach ($categories as $cat_key => $category) {
-            $output .= '<optgroup label="' . esc_attr($category['name']) . '">';
+            $output .= '<optgroup label="' . esc_attr($category[Sisme_Utils_Games::KEY_NAME]) . '">';
             
             foreach ($category['emojis'] as $emoji => $description) {
                 $output .= '<option value="' . esc_attr($emoji) . '"' . selected($emoji, $selected, false) . '>';
@@ -464,7 +464,7 @@ $action_emojis = Sisme_Emoji_Helper::get_gaming_suggestions('action');
 // Exemple 5: Liste pour un admin
 $all_categories = Sisme_Emoji_Helper::get_all_categories();
 foreach ($all_categories as $cat_key => $category) {
-    echo '<h3>' . $category['name'] . '</h3>';
+    echo '<h3>' . $category[Sisme_Utils_Games::KEY_NAME] . '</h3>';
     foreach ($category['emojis'] as $emoji => $desc) {
         echo '<span title="' . $desc . '">' . $emoji . '</span> ';
     }

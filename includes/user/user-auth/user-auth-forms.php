@@ -293,8 +293,8 @@ class Sisme_User_Auth_Forms {
                 <?php echo esc_html($component['label'] . $required_label); ?>
             </label>
             
-            <?php if (!empty($component['description'])): ?>
-                <p class="sisme-auth-field-description"><?php echo esc_html($component['description']); ?></p>
+            <?php if (!empty($component[Sisme_Utils_Games::KEY_DESCRIPTION])): ?>
+                <p class="sisme-auth-field-description"><?php echo esc_html($component[Sisme_Utils_Games::KEY_DESCRIPTION]); ?></p>
             <?php endif; ?>
             
             <?php $this->render_field_input($component, $field_id, $current_value, $required_attr); ?>

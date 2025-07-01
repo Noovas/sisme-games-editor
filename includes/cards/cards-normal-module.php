@@ -50,7 +50,7 @@ class Sisme_Cards_Normal_Module {
         );
         
         // Commencer le rendu
-        $output = '<article class="' . $css_class . '" data-game-id="' . $game_data['term_id'] . '">';
+        $output = '<article class="' . $css_class . '" data-game-id="' . $game_data[Sisme_Utils_Games::KEY_TERM_ID] . '">';
         
         // Déléguer le rendu par blocs
         $output .= self::render_image_block($game_data);
@@ -65,7 +65,7 @@ class Sisme_Cards_Normal_Module {
      * 🖼️ Bloc image avec badge
      */
     private static function render_image_block($game_data) {
-        $output = '<div class="sisme-card-image" style="background-image: url(\'' . esc_url($game_data['cover_url']) . '\')">';
+        $output = '<div class="sisme-card-image" style="background-image: url(\'' . esc_url($game_data[Sisme_Utils_Games::KEY_COVER_URL]) . '\')">';
         
         // Badge selon la fraîcheur
         $badge = Sisme_Utils_Games::get_game_badge($game_data);
@@ -83,18 +83,18 @@ class Sisme_Cards_Normal_Module {
      */
     private static function render_content_block($game_data, $options) {
         $output = '<div class="sisme-card-content">';
-        $output .= '<a href="' . esc_url($game_data['game_url']) . '">';
+        $output .= '<a href="' . esc_url($game_data[Sisme_Utils_Games::KEY_GAME_URL]) . '">';
         
         // Titre cliquable
         $output .= self::render_title($game_data);
         
         // Description
-        if ($options['show_description'] && !empty($game_data['description'])) {
+        if ($options['show_description'] && !empty($game_data[Sisme_Utils_Games::KEY_DESCRIPTION])) {
             $output .= self::render_description($game_data);
         }
         
         // Genres
-        if ($options['show_genres'] && !empty($game_data['genres']) && $options['max_genres'] !== 0) {
+        if ($options['show_genres'] && !empty($game_data[Sisme_Utils_Games::KEY_GENRES]) && $options['max_genres'] !== 0) {
             $output .= self::render_genres($game_data, $options);
         }
 
@@ -122,9 +122,9 @@ class Sisme_Cards_Normal_Module {
      */
     private static function render_title($game_data) {
         $output = '<h3 class="sisme-card-title">';
-        $output .= '<a href="' . esc_url($game_data['game_url']) . '" ';
-        $output .= 'title="Découvrir ' . esc_attr($game_data['name']) . '">';
-        $output .= esc_html($game_data['name']);
+        $output .= '<a href="' . esc_url($game_data[Sisme_Utils_Games::KEY_GAME_URL]) . '" ';
+        $output .= 'title="Découvrir ' . esc_attr($game_data[Sisme_Utils_Games::KEY_NAME]) . '">';
+        $output .= esc_html($game_data[Sisme_Utils_Games::KEY_NAME]);
         $output .= '</a>';
         $output .= '</h3>';
         return $output;
@@ -134,7 +134,7 @@ class Sisme_Cards_Normal_Module {
      * 📝 Description tronquée
      */
     private static function render_description($game_data) {
-        $short_description = Sisme_Utils_Formatting::truncate_smart($game_data['description'], 90);
+        $short_description = Sisme_Utils_Formatting::truncate_smart($game_data[Sisme_Utils_Games::KEY_DESCRIPTION], 90);
         
         return '<p class="sisme-card-description">' . wp_kses_post($short_description) . '</p>';
     }
@@ -154,11 +154,11 @@ class Sisme_Cards_Normal_Module {
         }
         
         $genres_to_show = ($max_genres == -1) ? 
-            $game_data['genres'] :                             
-            array_slice($game_data['genres'], 0, $max_genres);  
+            $game_data[Sisme_Utils_Games::KEY_GENRES] :                             
+            array_slice($game_data[Sisme_Utils_Games::KEY_GENRES], 0, $max_genres);  
         
         foreach ($genres_to_show as $genre) {
-            $output .= '<span class="sisme-badge sisme-badge-genre">' . esc_html($genre['name']) . '</span>';
+            $output .= '<span class="sisme-badge sisme-badge-genre">' . esc_html($genre[Sisme_Utils_Games::KEY_NAME]) . '</span>';
         }
         
         $output .= '</div>';
@@ -216,25 +216,25 @@ class Sisme_Cards_Normal_Module {
      */
     private static function render_meta_footer($game_data, $options) {
         $output = '<div class="sisme-card-meta">';
-        if ($options['show_date'] && !empty($game_data['release_date'])) {
+        if ($options['show_date'] && !empty($game_data[Sisme_Utils_Games::KEY_RELEASE_DATE])) {
             $date_format = isset($options['date_format']) ? $options['date_format'] : 'short';
             switch ($date_format) {
                 case 'long':
-                    $formatted_date = Sisme_Utils_Formatting::format_release_date_long($game_data['release_date']);
+                    $formatted_date = Sisme_Utils_Formatting::format_release_date_long($game_data[Sisme_Utils_Games::KEY_RELEASE_DATE]);
                     break;
                 case 'status':
-                    $formatted_date = Sisme_Utils_Formatting::format_release_date_with_status($game_data['release_date'], true);
+                    $formatted_date = Sisme_Utils_Formatting::format_release_date_with_status($game_data[Sisme_Utils_Games::KEY_RELEASE_DATE], true);
                     break;
                 case 'short':
                 default:
-                    $formatted_date = Sisme_Utils_Formatting::format_release_date($game_data['release_date']);
+                    $formatted_date = Sisme_Utils_Formatting::format_release_date($game_data[Sisme_Utils_Games::KEY_RELEASE_DATE]);
                     break;
             }
             if (!empty($formatted_date)) {
                 $output .= '<span class="sisme-card-date">' . esc_html($formatted_date) . '</span>';
             }
         }
-        $output .= '<a href="' . esc_url($game_data['game_url']) . '" class="sisme-card-link">Découvrir →</a>';
+        $output .= '<a href="' . esc_url($game_data[Sisme_Utils_Games::KEY_GAME_URL]) . '" class="sisme-card-link">Découvrir →</a>';
         $output .= '</div>';
         return $output;
     }

@@ -207,7 +207,7 @@ class Sisme_Search_Ajax {
             <h3><?php esc_html_e('Aucun jeu trouvé', 'sisme-games-editor'); ?></h3>
             <p><?php esc_html_e('Essayez de modifier vos critères de recherche', 'sisme-games-editor'); ?></p>
             
-            <?php if (!empty($params['query']) || !empty($params['genres']) || !empty($params['platforms'])): ?>
+            <?php if (!empty($params['query']) || !empty($params[Sisme_Utils_Games::KEY_GENRES]) || !empty($params['platforms'])): ?>
             <div class="sisme-search-suggestions">
                 <p><?php esc_html_e('Suggestions :', 'sisme-games-editor'); ?></p>
                 <div class="sisme-suggestion-tags">

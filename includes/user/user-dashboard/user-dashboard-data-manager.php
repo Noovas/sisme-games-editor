@@ -226,11 +226,11 @@ class Sisme_User_Dashboard_Data_Manager {
                     if ($game_data) {
                         $games[] = [
                             Sisme_Utils_Games::KEY_ID => $term_id,
-                            Sisme_Utils_Games::KEY_NAME => $game_data['name'],
+                            Sisme_Utils_Games::KEY_NAME => $game_data[Sisme_Utils_Games::KEY_NAME],
                             'slug' => $game_data['slug'],
-                            Sisme_Utils_Games::KEY_COVER_URL => $game_data['cover_url'] ?? '',
-                            'game_url' => $game_data['game_url'] ?? get_term_link($term),
-                            Sisme_Utils_Games::KEY_GENRES => $game_data['genres'] ?? []
+                            Sisme_Utils_Games::KEY_COVER_URL => $game_data[Sisme_Utils_Games::KEY_COVER_URL] ?? '',
+                            'game_url' => $game_data[Sisme_Utils_Games::KEY_GAME_URL] ?? get_term_link($term),
+                            Sisme_Utils_Games::KEY_GENRES => $game_data[Sisme_Utils_Games::KEY_GENRES] ?? []
                         ];
                     }
                 } else {
@@ -353,7 +353,7 @@ class Sisme_User_Dashboard_Data_Manager {
         
         // Trier par timestamp décroissant (plus récent en premier)
         usort($activities, function($a, $b) {
-            return $b['timestamp'] - $a['timestamp'];
+            return $b[Sisme_Utils_Games::KEY_TIMESTAMP] - $a[Sisme_Utils_Games::KEY_TIMESTAMP];
         });
         
         // Limiter le nombre d'activités
@@ -636,14 +636,14 @@ class Sisme_User_Dashboard_Data_Manager {
         
         $preferences = Sisme_User_Preferences_Data_Manager::get_user_preferences($user_id);
         
-        if (empty($preferences['genres'])) {
+        if (empty($preferences[Sisme_Utils_Games::KEY_GENRES])) {
             return self::get_recent_games_fallback($limit);
         }
         
         // Utiliser Cards avec critères
         if (class_exists('Sisme_Utils_Games')) {
             $criteria = [
-                Sisme_Utils_Games::KEY_GENRES => $preferences['genres'],
+                Sisme_Utils_Games::KEY_GENRES => $preferences[Sisme_Utils_Games::KEY_GENRES],
                 'max_results' => $limit,
                 'sort_by_date' => true
             ];
@@ -684,6 +684,6 @@ class Sisme_User_Dashboard_Data_Manager {
         $preferences = Sisme_User_Preferences_Data_Manager::get_user_preferences($user_id);
         $defaults = Sisme_User_Preferences_Data_Manager::get_default_preferences();
         
-        return !empty($preferences['genres']) && $preferences['genres'] !== $defaults['genres'];
+        return !empty($preferences[Sisme_Utils_Games::KEY_GENRES]) && $preferences[Sisme_Utils_Games::KEY_GENRES] !== $defaults[Sisme_Utils_Games::KEY_GENRES];
     }
 }

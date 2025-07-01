@@ -133,8 +133,8 @@ class Sisme_Search_Suggestions {
                 ));
                 
                 foreach ($popular_games as $game) {
-                    if (isset($game['name']) && !empty($game['name'])) {
-                        $suggestions[$game['name']] = $game['name'];
+                    if (isset($game[Sisme_Utils_Games::KEY_NAME]) && !empty($game[Sisme_Utils_Games::KEY_NAME])) {
+                        $suggestions[$game[Sisme_Utils_Games::KEY_NAME]] = $game[Sisme_Utils_Games::KEY_NAME];
                     }
                 }
                 

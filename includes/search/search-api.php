@@ -244,7 +244,7 @@ class Sisme_Search_API {
                                    placeholder="<?php esc_attr_e('Rechercher un genre...', 'sisme-games-editor'); ?>" 
                                    autocomplete="off">
                             <div class="sisme-genres-list">
-                                <?php echo self::render_genres_checkboxes($current_params['genres']); ?>
+                                <?php echo self::render_genres_checkboxes($current_params[Sisme_Utils_Games::KEY_GENRES]); ?>
                             </div>
                         </div>
                     </div>
@@ -342,7 +342,7 @@ class Sisme_Search_API {
      */
     private static function render_initial_results_state($current_params, $default_view = 'grid') {
         // Si on a une recherche active, essayer d'afficher les résultats
-        if (!empty($current_params['query']) || !empty($current_params['genres']) || !empty($current_params['platforms'])) {
+        if (!empty($current_params['query']) || !empty($current_params[Sisme_Utils_Games::KEY_GENRES]) || !empty($current_params['platforms'])) {
             return self::render_search_results_html($current_params);
         }
         
@@ -559,8 +559,8 @@ class Sisme_Search_API {
         $game_id = self::extract_game_id($game);
         
         if (is_array($game)) {
-            $name = $game['name'] ?? $game['title'] ?? 'Jeu sans nom';
-            $description = $game['description'] ?? '';
+            $name = $game[Sisme_Utils_Games::KEY_NAME] ?? $game['title'] ?? 'Jeu sans nom';
+            $description = $game[Sisme_Utils_Games::KEY_DESCRIPTION] ?? '';
         } elseif (is_object($game)) {
             $name = $game->name ?? 'Jeu sans nom';
             $description = get_term_meta($game->term_id, Sisme_Utils_Games::META_DESCRIPTION, true) ?? '';
@@ -609,8 +609,8 @@ class Sisme_Search_API {
         }
         
         // Cas 2: Tableau avec clé 'term_id'  
-        if (is_array($game) && isset($game['term_id'])) {
-            return intval($game['term_id']);
+        if (is_array($game) && isset($game[Sisme_Utils_Games::KEY_TERM_ID])) {
+            return intval($game[Sisme_Utils_Games::KEY_TERM_ID]);
         }
         
         // Cas 3: Objet WP_Term
@@ -672,7 +672,7 @@ class Sisme_Search_API {
                         echo Sisme_Search_Filters::get_search_summary($search_params, $results['total']);
                         ?>
                     </strong>
-                    <?php if (!empty($search_params['query']) || !empty($search_params['genres'])): ?>
+                    <?php if (!empty($search_params['query']) || !empty($search_params[Sisme_Utils_Games::KEY_GENRES])): ?>
                         <button class="sisme-clear-search" onclick="window.location.reload();">
                             <?php esc_html_e('🔄 Effacer les filtres', 'sisme-games-editor'); ?>
                         </button>

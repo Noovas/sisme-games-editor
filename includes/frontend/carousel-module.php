@@ -290,9 +290,9 @@ class Sisme_Carousel_Module {
      */
     private function render_image_slide($item) {
         // Préparer les données SEO
-        $game_name = !empty($item['game_info']['name']) ? $item['game_info']['name'] : 'Jeu';
-        $game_description = !empty($item['game_info']['description']) ? 
-            strip_tags($item['game_info']['description']) : '';
+        $game_name = !empty($item['game_info'][Sisme_Utils_Games::KEY_NAME]) ? $item['game_info'][Sisme_Utils_Games::KEY_NAME] : 'Jeu';
+        $game_description = !empty($item['game_info'][Sisme_Utils_Games::KEY_DESCRIPTION]) ? 
+            strip_tags($item['game_info'][Sisme_Utils_Games::KEY_DESCRIPTION]) : '';
         
         // ALT optimisé : descriptif et riche en mots-clés
         $optimized_alt = "Cover du jeu " . $game_name . " - Jeu indépendant à découvrir";
@@ -327,15 +327,15 @@ class Sisme_Carousel_Module {
         // Overlay avec informations (SANS lien dedans)
         $output .= '<div class="sisme-ultra-overlay">';
         
-        if (!empty($item['game_info']['name'])) {
+        if (!empty($item['game_info'][Sisme_Utils_Games::KEY_NAME])) {
             $output .= '<h3 class="sisme-slide-title" itemprop="name">';
-            $output .= esc_html($item['game_info']['name']);
+            $output .= esc_html($item['game_info'][Sisme_Utils_Games::KEY_NAME]);
             $output .= '</h3>';
         }
         
         // Description tronquée intelligente
-        if (!empty($item['game_info']['description'])) {
-            $description = strip_tags($item['game_info']['description']);
+        if (!empty($item['game_info'][Sisme_Utils_Games::KEY_DESCRIPTION])) {
+            $description = strip_tags($item['game_info'][Sisme_Utils_Games::KEY_DESCRIPTION]);
             $truncated_description = self::truncate_on_word($description, 120);
             
             $output .= '<p class="sisme-slide-description" itemprop="description">';
@@ -371,14 +371,14 @@ class Sisme_Carousel_Module {
             if (!empty($item['game_info'])) {
                 $game_data = array(
                     "@type" => "VideoGame",
-                    "name" => $item['game_info']['name'],
+                    "name" => $item['game_info'][Sisme_Utils_Games::KEY_NAME],
                     "image" => $item['url'],
                     "url" => home_url('/tag/' . $item['game_info']['slug'] . '/'),
                 );
                 
-                if (!empty($item['game_info']['description'])) {
-                    $game_data['description'] = self::truncate_on_word(
-                        strip_tags($item['game_info']['description']), 
+                if (!empty($item['game_info'][Sisme_Utils_Games::KEY_DESCRIPTION])) {
+                    $game_data[Sisme_Utils_Games::KEY_DESCRIPTION] = self::truncate_on_word(
+                        strip_tags($item['game_info'][Sisme_Utils_Games::KEY_DESCRIPTION]), 
                         160
                     );
                 }
@@ -494,7 +494,7 @@ class Sisme_Carousel_Module {
         
         foreach ($items as $index => $item) {
             $active_class = $index === 0 ? ' active' : '';
-            $game_name = !empty($item['game_info']['name']) ? $item['game_info']['name'] : 'Jeu ' . ($index + 1);
+            $game_name = !empty($item['game_info'][Sisme_Utils_Games::KEY_NAME]) ? $item['game_info'][Sisme_Utils_Games::KEY_NAME] : 'Jeu ' . ($index + 1);
             
             $output .= '<button class="sisme-ultra-dot' . $active_class . '" ';
             $output .= 'role="tab" ';

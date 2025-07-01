@@ -226,7 +226,7 @@
     padding: var(--sisme-dashboard-space-lg);
     height: fit-content;
     position: sticky;
-    top: calc(120px + var(--sisme-dashboard-space-lg));
+    top: calc(0px + var(--sisme-dashboard-space-lg));
     border: 1px solid var(--sisme-dashboard-border-color);
     box-shadow: var(--sisme-dashboard-shadow-sm);
 }
@@ -1600,7 +1600,7 @@
     
     .sisme-dashboard-widgets {
         position: sticky;
-        top: calc(120px + var(--sisme-dashboard-space-lg));
+        top: calc(0px + var(--sisme-dashboard-space-lg));
         height: fit-content;
     }
     

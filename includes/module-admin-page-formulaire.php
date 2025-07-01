@@ -266,10 +266,10 @@ class Sisme_Game_Form_Module {
         }
 
         // Traitement du trailer_link
-        if (isset($_POST['trailer_link'])) {
-            $this->form_data['trailer_link'] = sanitize_text_field($_POST['trailer_link']);
+        if (isset($_POST[Sisme_Utils_Games::KEY_TRAILER_LINK])) {
+            $this->form_data[Sisme_Utils_Games::KEY_TRAILER_LINK] = sanitize_text_field($_POST[Sisme_Utils_Games::KEY_TRAILER_LINK]);
         } else {
-            $this->form_data['trailer_link'] = '';
+            $this->form_data[Sisme_Utils_Games::KEY_TRAILER_LINK] = '';
         }
 
     }
@@ -478,7 +478,7 @@ class Sisme_Game_Form_Module {
         $component = $this->available_components[$component_name];
         
         $field_id = $this->module_id . '_screenshots';
-        $value = isset($this->form_data['screenshots']) ? $this->form_data['screenshots'] : array();
+        $value = isset($this->form_data[Sisme_Utils_Games::KEY_SCREENSHOTS]) ? $this->form_data[Sisme_Utils_Games::KEY_SCREENSHOTS] : array();
         
         // Si $value est une chaîne, la convertir en array
         if (is_string($value) && !empty($value)) {
@@ -496,8 +496,8 @@ class Sisme_Game_Form_Module {
                 <div class="sisme-screenshots-selector">
                     <label class="sisme-form-label" for="<?php echo esc_attr($field_id); ?>"><?php echo esc_html($component['label']); ?></label>
                     
-                    <?php if (!empty($component['description'])): ?>
-                        <p class="sisme-form-description"><?php echo esc_html($component['description']); ?></p>
+                    <?php if (!empty($component[Sisme_Utils_Games::KEY_DESCRIPTION])): ?>
+                        <p class="sisme-form-description"><?php echo esc_html($component[Sisme_Utils_Games::KEY_DESCRIPTION]); ?></p>
                     <?php endif; ?>
                     
                     <div class="sisme-screenshots-controls" style="margin-bottom: 15px;">
@@ -736,7 +736,7 @@ class Sisme_Game_Form_Module {
                     </div>
                     
                 </div>
-                <p class="description"><?php echo esc_html($component['description']); ?></p>
+                <p class="description"><?php echo esc_html($component[Sisme_Utils_Games::KEY_DESCRIPTION]); ?></p>
             </td>
 
         </tr>
@@ -810,7 +810,7 @@ class Sisme_Game_Form_Module {
                     </div>
                     
                 </div>
-                <p class="description"><?php echo esc_html($component['description']); ?></p>
+                <p class="description"><?php echo esc_html($component[Sisme_Utils_Games::KEY_DESCRIPTION]); ?></p>
             </td>
         </tr>
         <?php
@@ -907,7 +907,7 @@ class Sisme_Game_Form_Module {
                         </div>
                     </div>
                 </div>
-                <p class="description"><?php echo esc_html($component['description']); ?></p>
+                <p class="description"><?php echo esc_html($component[Sisme_Utils_Games::KEY_DESCRIPTION]); ?></p>
             </td>
         </tr>
         <?php
@@ -1074,7 +1074,7 @@ class Sisme_Game_Form_Module {
                     <?php endforeach; ?>
                     
                 </div>
-                <p class="description"><?php echo esc_html($component['description']); ?></p>
+                <p class="description"><?php echo esc_html($component[Sisme_Utils_Games::KEY_DESCRIPTION]); ?></p>
             </td>
         </tr>
         <?php
@@ -1084,8 +1084,8 @@ class Sisme_Game_Form_Module {
      * Afficher le composant date de sortie
      */
     private function render_release_date_component() {
-        $component = $this->components['release_date'];
-        $value = isset($this->form_data['release_date']) ? $this->form_data['release_date'] : '';
+        $component = $this->components[Sisme_Utils_Games::KEY_RELEASE_DATE];
+        $value = isset($this->form_data[Sisme_Utils_Games::KEY_RELEASE_DATE]) ? $this->form_data[Sisme_Utils_Games::KEY_RELEASE_DATE] : '';
         $field_id = $this->module_id . '_release_date';
         $required_attr = $component['required'] ? 'required' : '';
         $required_label = $component['required'] ? ' *' : '';
@@ -1100,8 +1100,8 @@ class Sisme_Game_Form_Module {
                            value="<?php echo esc_attr($value); ?>"
                            class="sisme-form-input sisme-form-input--date"
                            <?php echo $required_attr; ?>>
-                    <?php if (!empty($component['description'])): ?>
-                        <p class="sisme-form-description"><?php echo esc_html($component['description']); ?></p>
+                    <?php if (!empty($component[Sisme_Utils_Games::KEY_DESCRIPTION])): ?>
+                        <p class="sisme-form-description"><?php echo esc_html($component[Sisme_Utils_Games::KEY_DESCRIPTION]); ?></p>
                     <?php endif; ?>
                 </div>
             </td>
@@ -1113,8 +1113,8 @@ class Sisme_Game_Form_Module {
      * Afficher le composant lien trailer
      */
     private function render_trailer_link_component() {
-        $component = $this->components['trailer_link'];
-        $value = isset($this->form_data['trailer_link']) ? $this->form_data['trailer_link'] : '';
+        $component = $this->components[Sisme_Utils_Games::KEY_TRAILER_LINK];
+        $value = isset($this->form_data[Sisme_Utils_Games::KEY_TRAILER_LINK]) ? $this->form_data[Sisme_Utils_Games::KEY_TRAILER_LINK] : '';
         $field_id = $this->module_id . '_trailer_link';
         $required_attr = $component['required'] ? 'required' : '';
         $required_label = $component['required'] ? ' *' : '';
@@ -1134,8 +1134,8 @@ class Sisme_Game_Form_Module {
                            placeholder="https://www.youtube.com/watch?v=..."
                            class="sisme-form-input sisme-form-input--url"
                            <?php echo $required_attr; ?>>
-                    <?php if (!empty($component['description'])): ?>
-                        <p class="sisme-form-description"><?php echo esc_html($component['description']); ?></p>
+                    <?php if (!empty($component[Sisme_Utils_Games::KEY_DESCRIPTION])): ?>
+                        <p class="sisme-form-description"><?php echo esc_html($component[Sisme_Utils_Games::KEY_DESCRIPTION]); ?></p>
                     <?php endif; ?>
                 </div>
             </td>
@@ -1147,8 +1147,8 @@ class Sisme_Game_Form_Module {
      * Afficher le composant liens externes
      */
     private function render_external_links_component() {
-        $component = $this->components['external_links'];
-        $value = isset($this->form_data['external_links']) ? $this->form_data['external_links'] : [];
+        $component = $this->components[Sisme_Utils_Games::KEY_EXTERNAL_LINKS];
+        $value = isset($this->form_data[Sisme_Utils_Games::KEY_EXTERNAL_LINKS]) ? $this->form_data[Sisme_Utils_Games::KEY_EXTERNAL_LINKS] : [];
         $required_label = $component['required'] ? ' *' : '';
         
         $platforms = [
@@ -1193,8 +1193,8 @@ class Sisme_Game_Form_Module {
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <?php if (!empty($component['description'])): ?>
-                        <p class="sisme-form-description"><?php echo esc_html($component['description']); ?></p>
+                    <?php if (!empty($component[Sisme_Utils_Games::KEY_DESCRIPTION])): ?>
+                        <p class="sisme-form-description"><?php echo esc_html($component[Sisme_Utils_Games::KEY_DESCRIPTION]); ?></p>
                     <?php endif; ?>
                 </div>
             </td>
@@ -1311,8 +1311,8 @@ class Sisme_Game_Form_Module {
      * Afficher le composant description
      */
     private function render_description_component() {
-        $component = $this->components['description'];
-        $value = isset($this->form_data['description']) ? $this->form_data['description'] : '';
+        $component = $this->components[Sisme_Utils_Games::KEY_DESCRIPTION];
+        $value = isset($this->form_data[Sisme_Utils_Games::KEY_DESCRIPTION]) ? $this->form_data[Sisme_Utils_Games::KEY_DESCRIPTION] : '';
         $field_id = $this->module_id . '_description';
         $required_attr = $component['required'] ? 'required' : '';
         $required_label = $component['required'] ? ' *' : '';
@@ -1345,7 +1345,7 @@ class Sisme_Game_Form_Module {
                     </div>
                     
                 </div>
-                <p class="description"><?php echo esc_html($component['description']); ?></p>
+                <p class="description"><?php echo esc_html($component[Sisme_Utils_Games::KEY_DESCRIPTION]); ?></p>
             </td>
         </tr>
         <?php
@@ -1438,7 +1438,7 @@ class Sisme_Game_Form_Module {
      * Rendre le composant "Choix de l'équipe"
      */
     private function render_team_choice_component() {
-        $config = $this->components['is_team_choice'];
+        $config = $this->components[Sisme_Utils_Games::KEY_IS_TEAM_CHOICE];
         $output_var = $config['output_var'];
         $field_id = $this->module_id . '_' . $output_var;
         $use_table = $this->form_options['table'] ?? true;
@@ -1469,8 +1469,8 @@ class Sisme_Game_Form_Module {
         echo '<span class="sisme-checkbox-label">💖 Ce jeu est un choix spécial de l\'équipe</span>';
         echo '</label>';
         
-        if (!empty($config['description'])) {
-            echo '<p class="description">' . esc_html($config['description']) . '</p>';
+        if (!empty($config[Sisme_Utils_Games::KEY_DESCRIPTION])) {
+            echo '<p class="description">' . esc_html($config[Sisme_Utils_Games::KEY_DESCRIPTION]) . '</p>';
         }
         
         echo '<div class="sisme-team-choice-info">';

@@ -257,11 +257,11 @@ $page->render_start();
                                 <div class="sisme-game-list sisme-featured-game-list" id="removeGameList">
                                     <?php foreach ($featured_games_data as $featured_game): ?>
                                         <div class="featured-game-item" 
-                                             data-game-id="<?php echo $featured_game['term_id']; ?>"
-                                             data-game-name="<?php echo esc_attr($featured_game['name']); ?>"
-                                             data-search="<?php echo esc_attr(strtolower($featured_game['name'])); ?>">
+                                             data-game-id="<?php echo $featured_game[Sisme_Utils_Games::KEY_TERM_ID]; ?>"
+                                             data-game-name="<?php echo esc_attr($featured_game[Sisme_Utils_Games::KEY_NAME]); ?>"
+                                             data-search="<?php echo esc_attr(strtolower($featured_game[Sisme_Utils_Games::KEY_NAME])); ?>">
                                             <div class="featured-game-info">
-                                                <span class="featured-game-name"><?php echo esc_html($featured_game['name']); ?></span>
+                                                <span class="featured-game-name"><?php echo esc_html($featured_game[Sisme_Utils_Games::KEY_NAME]); ?></span>
                                                 <div class="featured-game-meta">
                                                     <span class="priority-badge">Priorité: <?php echo $featured_game['vedette_data']['featured_priority']; ?></span>
                                                     <?php if (!empty($featured_game['vedette_data']['featured_sponsor'])): ?>
@@ -610,8 +610,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Données des jeux featured pour affichage
     const featuredGamesData = <?php echo json_encode(array_map(function($game) {
         return [
-            Sisme_Utils_Games::KEY_ID => $game['term_id'],
-            Sisme_Utils_Games::KEY_NAME => $game['name'],
+            Sisme_Utils_Games::KEY_ID => $game[Sisme_Utils_Games::KEY_TERM_ID],
+            Sisme_Utils_Games::KEY_NAME => $game[Sisme_Utils_Games::KEY_NAME],
             'priority' => $game['vedette_data']['featured_priority'],
             'sponsor' => $game['vedette_data']['featured_sponsor'],
             'views' => $game['vedette_data']['featured_stats']['views'],

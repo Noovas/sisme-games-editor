@@ -44,8 +44,8 @@ class Sisme_Cards_Carousel_Module {
         $grid_args = array(
             'type' => $args['type'] ?? 'normal',
             'max_cards' => $carousel_options['total_cards'],
-            Sisme_Utils_Games::KEY_GENRES => $args['genres'] ?? array(),
-            Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => $args['is_team_choice'] ?? false,
+            Sisme_Utils_Games::KEY_GENRES => $args[Sisme_Utils_Games::KEY_GENRES] ?? array(),
+            Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => $args[Sisme_Utils_Games::KEY_IS_TEAM_CHOICE] ?? false,
             'sort_by_date' => $args['sort_by_date'] ?? true,
             'sort_order' => $args['sort_order'] ?? 'desc', 
             'debug' => $args['debug'] ?? false,
@@ -62,8 +62,8 @@ class Sisme_Cards_Carousel_Module {
         }
         
         $criteria = array(
-            Sisme_Utils_Games::KEY_GENRES => $grid_args['genres'],
-            Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => $grid_args['is_team_choice'],
+            Sisme_Utils_Games::KEY_GENRES => $grid_args[Sisme_Utils_Games::KEY_GENRES],
+            Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => $grid_args[Sisme_Utils_Games::KEY_IS_TEAM_CHOICE],
             'sort_by_date' => $grid_args['sort_by_date'],
             'sort_order' => $grid_args['sort_order'],  //
             'max_results' => $grid_args['max_cards'],
@@ -342,7 +342,7 @@ class Sisme_Cards_Carousel_Module {
         }
         
         // Valider genres
-        if (isset($args['genres']) && !is_array($args['genres'])) {
+        if (isset($args[Sisme_Utils_Games::KEY_GENRES]) && !is_array($args[Sisme_Utils_Games::KEY_GENRES])) {
             return array(
                 'valid' => false,
                 'message' => 'genres doit être un tableau'

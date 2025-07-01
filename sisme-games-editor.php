@@ -220,7 +220,7 @@ class SismeGamesEditor {
             wp_send_json_error('Erreur : ' . $new_tag->get_error_message());
         }
         
-        $tag_info = get_term($new_tag['term_id'], 'post_tag');
+        $tag_info = get_term($new_tag[Sisme_Utils_Games::KEY_TERM_ID], 'post_tag');
         wp_send_json_success(array(
             Sisme_Utils_Games::KEY_TERM_ID => $tag_info->term_id,
             Sisme_Utils_Games::KEY_NAME => $tag_info->name
@@ -252,7 +252,7 @@ class SismeGamesEditor {
             wp_send_json_error('Erreur : ' . $new_category->get_error_message());
         }
         
-        $category_info = get_term($new_category['term_id'], 'category');
+        $category_info = get_term($new_category[Sisme_Utils_Games::KEY_TERM_ID], 'category');
         wp_send_json_success(array(
             Sisme_Utils_Games::KEY_TERM_ID => $category_info->term_id,
             Sisme_Utils_Games::KEY_NAME => $category_info->name
@@ -291,10 +291,10 @@ class SismeGamesEditor {
         }
         
         if (!empty($entity_website)) {
-            update_term_meta($new_entity['term_id'], 'website_url', $entity_website);
+            update_term_meta($new_entity[Sisme_Utils_Games::KEY_TERM_ID], 'website_url', $entity_website);
         }
         
-        $entity_info = get_term($new_entity['term_id'], 'category');
+        $entity_info = get_term($new_entity[Sisme_Utils_Games::KEY_TERM_ID], 'category');
         wp_send_json_success(array(
             Sisme_Utils_Games::KEY_TERM_ID => $entity_info->term_id,
             Sisme_Utils_Games::KEY_NAME => $entity_info->name,
@@ -362,7 +362,7 @@ class SismeGamesEditor {
         if (!check_ajax_referer('sisme_team_choice_nonce', 'nonce', false)) {
             wp_die('Nonce invalide', 403);
         }
-        $term_id = intval($_POST['term_id'] ?? 0);
+        $term_id = intval($_POST[Sisme_Utils_Games::KEY_TERM_ID] ?? 0);
         $current_value = sanitize_text_field($_POST['current_value'] ?? '0');
         if (!$term_id) {
             wp_send_json_error('ID de jeu invalide');

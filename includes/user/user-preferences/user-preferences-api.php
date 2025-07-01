@@ -148,7 +148,7 @@ class Sisme_User_Preferences_API {
                     echo self::render_multi_select(
                         'genres',
                         Sisme_User_Preferences_Data_Manager::get_available_genres(),
-                        $preferences['genres'],
+                        $preferences[Sisme_Utils_Games::KEY_GENRES],
                         ['display_key' => 'name', 'value_key' => 'id', 'columns' => 2]
                     ); 
                     ?>
@@ -378,8 +378,8 @@ class Sisme_User_Preferences_API {
                 <span class="sisme-toggle-text"><?php echo esc_html($label); ?></span>
             </div>
             
-            <?php if (!empty($options['description'])): ?>
-                <p class="sisme-toggle-description"><?php echo esc_html($options['description']); ?></p>
+            <?php if (!empty($options[Sisme_Utils_Games::KEY_DESCRIPTION])): ?>
+                <p class="sisme-toggle-description"><?php echo esc_html($options[Sisme_Utils_Games::KEY_DESCRIPTION]); ?></p>
             <?php endif; ?>
         </div>
         <?php

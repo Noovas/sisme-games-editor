@@ -44,15 +44,15 @@ class Sisme_Vedettes_API {
         $formatted_games = array();
         foreach ($featured_games as $game) {
             $formatted_game = array(
-                Sisme_Utils_Games::KEY_TERM_ID => $game['term_id'],
-                Sisme_Utils_Games::KEY_NAME => $game['name'],
+                Sisme_Utils_Games::KEY_TERM_ID => $game[Sisme_Utils_Games::KEY_TERM_ID],
+                Sisme_Utils_Games::KEY_NAME => $game[Sisme_Utils_Games::KEY_NAME],
                 'slug' => $game['slug'],
                 'priority' => $game['vedette_data']['featured_priority'],
                 'sponsor' => $game['vedette_data']['featured_sponsor'],
                 'stats' => $game['vedette_data']['featured_stats']
             );
             if ($include_game_data) {
-                $formatted_game['game_data'] = Sisme_Utils_Games::get_game_data($game['term_id']);
+                $formatted_game['game_data'] = Sisme_Utils_Games::get_game_data($game[Sisme_Utils_Games::KEY_TERM_ID]);
             }
             $formatted_games[] = $formatted_game;
         }
@@ -230,25 +230,25 @@ class Sisme_Vedettes_API {
         $carousel_items = array();
         
         foreach ($featured_games as $game) {
-            $cover_id = get_term_meta($game['term_id'], 'cover_main', true);
+            $cover_id = get_term_meta($game[Sisme_Utils_Games::KEY_TERM_ID], 'cover_main', true);
             
             if ($cover_id && wp_attachment_is_image($cover_id)) {
                 $image_url = wp_get_attachment_image_url($cover_id, 'large');
                 if ($image_url) {
                     // MODIFICATION: Récupérer la description du jeu
-                    $game_description = get_term_meta($game['term_id'], 'game_description', true);
+                    $game_description = get_term_meta($game[Sisme_Utils_Games::KEY_TERM_ID], 'game_description', true);
                     
                     $carousel_items[] = array(
                         'type' => 'image',
                         Sisme_Utils_Games::KEY_ID => $cover_id,
                         'url' => $image_url,
-                        'alt' => get_post_meta($cover_id, '_wp_attachment_image_alt', true) ?: $game['name'],
+                        'alt' => get_post_meta($cover_id, '_wp_attachment_image_alt', true) ?: $game[Sisme_Utils_Games::KEY_NAME],
                         Sisme_Utils_Games::KEY_TITLE => get_the_title($cover_id),
                         'caption' => wp_get_attachment_caption($cover_id),
                         'game_info' => array(
-                            Sisme_Utils_Games::KEY_NAME => $game['name'],
+                            Sisme_Utils_Games::KEY_NAME => $game[Sisme_Utils_Games::KEY_NAME],
                             'slug' => $game['slug'],
-                            Sisme_Utils_Games::KEY_TERM_ID => $game['term_id'],
+                            Sisme_Utils_Games::KEY_TERM_ID => $game[Sisme_Utils_Games::KEY_TERM_ID],
                             'priority' => isset($game['priority']) ? $game['priority'] : 0,
                             'sponsor' => isset($game['sponsor']) ? $game['sponsor'] : '',
                             Sisme_Utils_Games::KEY_DESCRIPTION => $game_description // NOUVEAU: Ajouter la description
@@ -351,7 +351,7 @@ class Sisme_Vedettes_API {
         
         // Trier par date de sortie (plus récent en premier)
         usort($games_with_dates, function($a, $b) {
-            return $b['timestamp'] - $a['timestamp'];
+            return $b[Sisme_Utils_Games::KEY_TIMESTAMP] - $a[Sisme_Utils_Games::KEY_TIMESTAMP];
         });
         
         // Limiter au nombre demandé
@@ -401,7 +401,7 @@ class Sisme_Vedettes_API {
         $cover_ids = array();
         
         foreach ($featured_games as $game) {
-            $cover_id = get_term_meta($game['term_id'], 'cover_main', true);
+            $cover_id = get_term_meta($game[Sisme_Utils_Games::KEY_TERM_ID], 'cover_main', true);
             if ($cover_id && wp_attachment_is_image($cover_id)) {
                 $cover_ids[] = intval($cover_id);
             }

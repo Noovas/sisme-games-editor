@@ -155,14 +155,14 @@ class Sisme_User_Notifications_API {
      * @return string HTML de la notification
      */
     public static function render_notification_item($notification) {
-        $time_ago = self::format_time_ago($notification['timestamp']);
+        $time_ago = self::format_time_ago($notification[Sisme_Utils_Games::KEY_TIMESTAMP]);
         
         $output = '<div class="sisme-notification-item sisme-notification-item--unread" data-index="' . $notification['index'] . '">';
         
         $output .= '<div class="sisme-notification-content">';
         
         $output .= '<div class="sisme-notification-game">';
-        $output .= '<a href="' . esc_url($notification['game_url']) . '" class="sisme-notification-game-link">';
+        $output .= '<a href="' . esc_url($notification[Sisme_Utils_Games::KEY_GAME_URL]) . '" class="sisme-notification-game-link">';
         $output .= '<strong>' . esc_html($notification['game_name']) . '</strong>';
         $output .= '</a>';
         $output .= '</div>';

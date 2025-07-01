@@ -195,7 +195,7 @@ class Sisme_Game_Data_Table_Module {
             <!-- Nom du jeu (colonne principale) -->
             <td class="sisme-game-header-cell">
                 <div class="sisme-game-header">
-                    <h3 class="sisme-game-title"><?php echo esc_html($game_data['name']); ?></h3>
+                    <h3 class="sisme-game-title"><?php echo esc_html($game_data[Sisme_Utils_Games::KEY_NAME]); ?></h3>
                     <div class="sisme-game-meta">
                         <span class="sisme-game-id">ID: <?php echo $game_data['id']; ?></span>
                         <span class="sisme-game-slug">Slug: <?php echo esc_html($game_data['slug']); ?></span>
@@ -206,9 +206,9 @@ class Sisme_Game_Data_Table_Module {
                                 Aucun article
                             <?php endif; ?>
                         </span>
-                        <?php if (!empty($game_data['last_update'])): ?>
+                        <?php if (!empty($game_data[Sisme_Utils_Games::KEY_LAST_UPDATE])): ?>
                             <span class="sisme-last-update">
-                                Modifié: <?php echo date('d/m/Y H:i', strtotime($game_data['last_update'])); ?>
+                                Modifié: <?php echo date('d/m/Y H:i', strtotime($game_data[Sisme_Utils_Games::KEY_LAST_UPDATE])); ?>
                             </span>
                         <?php endif; ?>
                     </div>
@@ -263,7 +263,7 @@ class Sisme_Game_Data_Table_Module {
                     <button type="button" 
                         class="sisme-action-btn sisme-action-delete delete-game-data" 
                         data-game-id="<?php echo $game_data['id']; ?>"
-                        data-game-name="<?php echo esc_attr($game_data['name']); ?>"
+                        data-game-name="<?php echo esc_attr($game_data[Sisme_Utils_Games::KEY_NAME]); ?>"
                         data-sisme-tooltip="Supprimer définitivement ce jeu"
                         data-sisme-tooltip-type="error">💀
                     </button>

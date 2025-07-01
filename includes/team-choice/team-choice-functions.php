@@ -52,7 +52,7 @@ class Sisme_Team_Choice_Functions {
         if ($column_key !== 'team_choice') {
             return $content;
         }
-        $term_id = $game_data['term_id'] ?? $game_data['id'] ?? 0;
+        $term_id = $game_data[Sisme_Utils_Games::KEY_TERM_ID] ?? $game_data['id'] ?? 0;
         if (!$term_id) {
             return '❌';
         }

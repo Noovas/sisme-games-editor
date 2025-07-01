@@ -82,18 +82,18 @@ if ($is_edit_mode) {
     $_POST['game_modes'] = get_term_meta($tag_id, Sisme_Utils_Games::META_MODES, true) ?: array();
     $_POST['game_developers'] = get_term_meta($tag_id, Sisme_Utils_Games::META_DEVELOPERS, true) ?: array();
     $_POST['game_publishers'] = get_term_meta($tag_id, Sisme_Utils_Games::META_PUBLISHERS, true) ?: array();
-    $_POST['description'] = wp_specialchars_decode(get_term_meta($tag_id, Sisme_Utils_Games::META_DESCRIPTION, true) ?: '', ENT_QUOTES);
+    $_POST[Sisme_Utils_Games::KEY_DESCRIPTION] = wp_specialchars_decode(get_term_meta($tag_id, Sisme_Utils_Games::META_DESCRIPTION, true) ?: '', ENT_QUOTES);
     $_POST[Sisme_Utils_Games::META_COVER_MAIN] = get_term_meta($tag_id, Sisme_Utils_Games::META_COVER_MAIN, true);
     $_POST['cover_news'] = get_term_meta($tag_id, Sisme_Utils_Games::META_COVER_NEWS, true);
     $_POST['cover_patch'] = get_term_meta($tag_id, Sisme_Utils_Games::META_COVER_PATCH, true);
     $_POST['cover_test'] = get_term_meta($tag_id, Sisme_Utils_Games::META_COVER_TEST, true);
     $_POST['cover_vertical'] = get_term_meta($tag_id, 'cover_vertical', true);
     $_POST['game_platforms'] = get_term_meta($tag_id, Sisme_Utils_Games::META_PLATFORMS, true) ?: array();
-    $_POST['release_date'] = get_term_meta($tag_id, Sisme_Utils_Games::META_RELEASE_DATE, true);
-    $_POST['trailer_link'] = get_term_meta($tag_id, Sisme_Utils_Games::META_TRAILER_LINK, true);
-    $_POST['external_links'] = get_term_meta($tag_id, Sisme_Utils_Games::META_EXTERNAL_LINKS, true) ?: array();
-    $_POST['screenshots'] = get_term_meta($tag_id, Sisme_Utils_Games::META_SCREENSHOTS, true);
-    $_POST['is_team_choice'] = get_term_meta($tag_id, Sisme_Utils_Games::META_TEAM_CHOICE, true);
+    $_POST[Sisme_Utils_Games::KEY_RELEASE_DATE] = get_term_meta($tag_id, Sisme_Utils_Games::META_RELEASE_DATE, true);
+    $_POST[Sisme_Utils_Games::KEY_TRAILER_LINK] = get_term_meta($tag_id, Sisme_Utils_Games::META_TRAILER_LINK, true);
+    $_POST[Sisme_Utils_Games::KEY_EXTERNAL_LINKS] = get_term_meta($tag_id, Sisme_Utils_Games::META_EXTERNAL_LINKS, true) ?: array();
+    $_POST[Sisme_Utils_Games::KEY_SCREENSHOTS] = get_term_meta($tag_id, Sisme_Utils_Games::META_SCREENSHOTS, true);
+    $_POST[Sisme_Utils_Games::KEY_IS_TEAM_CHOICE] = get_term_meta($tag_id, Sisme_Utils_Games::META_TEAM_CHOICE, true);
 }
 
 $page->render_start();

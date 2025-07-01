@@ -200,16 +200,16 @@ $page->render_start();
             <?php else: ?>
                 <span>Mode: Création</span>
             <?php endif; ?>
-            <?php if (!empty($game_data['release_date'])): ?>
-                <span>Sortie: <?php echo esc_html($game_data['release_date']); ?></span>
+            <?php if (!empty($game_data[Sisme_Utils_Games::KEY_RELEASE_DATE])): ?>
+                <span>Sortie: <?php echo esc_html($game_data[Sisme_Utils_Games::KEY_RELEASE_DATE]); ?></span>
             <?php endif; ?>
         </div>
     </div>
     
-    <?php if (!empty($game_data['description'])): ?>
+    <?php if (!empty($game_data[Sisme_Utils_Games::KEY_DESCRIPTION])): ?>
         <div class="sisme-fiche-game-info__body">
             <div class="sisme-fiche-game-description">
-                <?php echo wp_kses_post($game_data['description']); ?>
+                <?php echo wp_kses_post($game_data[Sisme_Utils_Games::KEY_DESCRIPTION]); ?>
             </div>
         </div>
     <?php endif; ?>
