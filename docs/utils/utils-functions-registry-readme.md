@@ -82,8 +82,8 @@ DEFAULT_PLATEFORM_WEB = '🌐'
 ```php
 COLLECTION_FAVORITE = 'favorite'
 COLLECTION_OWNED = 'owned'
-META_DESCRIPTION = 'game_description'
-META_COVER_MAIN = 'cover_main'
+META_DESCRIPTION = Sisme_Utils_Games::META_DESCRIPTION
+META_COVER_MAIN = Sisme_Utils_Games::META_COVER_MAIN
 META_RELEASE_DATE = 'release_date'
 META_LAST_UPDATE = 'last_update'
 META_PLATFORMS = 'game_platforms'

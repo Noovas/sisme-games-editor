@@ -149,7 +149,7 @@ class Sisme_Notification_Utils {
         }
         
         // Vérifier que c'est bien un jeu (avec meta game_description)
-        $game_description = get_term_meta($term->term_id, 'game_description', true);
+        $game_description = get_term_meta($term->term_id, Sisme_Utils_Games::META_DESCRIPTION, true);
         if (empty($game_description)) {
             return;
         }
@@ -197,7 +197,7 @@ class Sisme_Notification_Utils {
         }
         
         $game_tag_id = $post_tags[0]->term_id;
-        $game_description = get_term_meta($game_tag_id, 'game_description', true);
+        $game_description = get_term_meta($game_tag_id, Sisme_Utils_Games::META_DESCRIPTION, true);
         
         if (empty($game_description)) {
             error_log("HOOK SAVE: Tag {$game_tag_id} sans game_description ignoré");
@@ -246,7 +246,7 @@ class Sisme_Notification_Utils {
         $game_tag_id = $post_tags[0]->term_id;
         
         // ✅ Vérifier que ce tag a des game_data
-        $game_description = get_term_meta($game_tag_id, 'game_description', true);
+        $game_description = get_term_meta($game_tag_id, Sisme_Utils_Games::META_DESCRIPTION, true);
         if (empty($game_description)) {
             error_log("HOOK: Tag {$game_tag_id} sans game_description ignoré");
             return;

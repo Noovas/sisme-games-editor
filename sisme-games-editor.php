@@ -318,9 +318,9 @@ class SismeGamesEditor {
         }
         
         $meta_keys = [
-            'game_description', 'game_genres', 'game_modes', 'game_developers', 
-            'game_publishers', 'game_platforms', 'release_date', 'external_links',
-            'trailer_link', 'cover_main', 'cover_news', 'cover_patch', 'cover_test',
+            Sisme_Utils_Games::META_DESCRIPTION, Sisme_Utils_Games::META_GENRES, 'game_modes', 'game_developers', 
+            'game_publishers', 'game_platforms', Sisme_Utils_Games::META_RELEASE_DATE, 'external_links',
+            'trailer_link', Sisme_Utils_Games::META_COVER_MAIN, 'cover_news', 'cover_patch', 'cover_test',
             'screenshots', 'game_sections', 'last_update'
         ];
         

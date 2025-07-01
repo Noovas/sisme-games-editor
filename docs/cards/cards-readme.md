@@ -120,8 +120,8 @@ window.sismeCarousel = {
 ### Meta Keys WordPress
 ```php
 // Obligatoires
-'game_description'    // string - Description complète
-'cover_main'         // int - ID attachment cover
+Sisme_Utils_Games::META_DESCRIPTION    // string - Description complète
+Sisme_Utils_Games::META_COVER_MAIN         // int - ID attachment cover
 
 // Optionnels  
 'release_date'       // string - YYYY-MM-DD

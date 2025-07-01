@@ -107,11 +107,11 @@ class Sisme_Game_Form_Module {
             'parent_category' => 'editeurs-developpeurs',
             'entity_type' => 'publisher'
         ],
-        'cover_main' => [
+        Sisme_Utils_Games::META_COVER_MAIN => [
             'label' => 'Cover principale',
             'description' => '',
             'required' => false,
-            'output_var' => 'cover_main'
+            'output_var' => Sisme_Utils_Games::META_COVER_MAIN
         ],
         'cover_news' => [
             'label' => 'Cover news',
@@ -295,7 +295,7 @@ class Sisme_Game_Form_Module {
                 $value = wp_specialchars_decode($value, ENT_QUOTES);
                 return wp_kses($value, $allowed_html);
 
-            case 'cover_main':
+            case Sisme_Utils_Games::META_COVER_MAIN:
             case 'cover_news':
             case 'cover_patch':
             case 'cover_test':
@@ -917,9 +917,9 @@ class Sisme_Game_Form_Module {
      * Afficher tous les covers
      */
     private function render_all_covers_component() {
-        $covers = ['cover_main', 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical'];
+        $covers = [Sisme_Utils_Games::META_COVER_MAIN, 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical'];
         $cover_labels = [
-            'cover_main' => 'Cover Principale',
+            Sisme_Utils_Games::META_COVER_MAIN => 'Cover Principale',
             'cover_news' => 'Cover News', 
             'cover_patch' => 'Cover Patch',
             'cover_test' => 'Cover Test',
@@ -1386,7 +1386,7 @@ class Sisme_Game_Form_Module {
                 $this->render_game_publishers_component();
                 break;
 
-            case 'cover_main':
+            case Sisme_Utils_Games::META_COVER_MAIN:
             case 'cover_news':
             case 'cover_patch':
             case 'cover_test':

@@ -313,7 +313,7 @@ class Sisme_Search_Loader {
         $meta_query = array(
             'relation' => 'OR',
             array(
-                'key' => 'game_description',
+                'key' => Sisme_Utils_Games::META_DESCRIPTION,
                 'value' => $query->get('s'),
                 'compare' => 'LIKE'
             )

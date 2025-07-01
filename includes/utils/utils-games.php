@@ -22,23 +22,58 @@ if (!defined('ABSPATH')) {
 
 class Sisme_Utils_Games {
     
-    /**
-     * Constantes pour les collections
-     */
+    // ✅ Constantes pour les collections
     const COLLECTION_FAVORITE = 'favorite';
     const COLLECTION_OWNED = 'owned';
     
-    /**
-     * Meta keys de base
-     */
+    // ✅ META KEYS - Stockage WordPress
     const META_DESCRIPTION = 'game_description';
     const META_COVER_MAIN = 'cover_main';
+    const META_COVER_NEWS = 'cover_news'; 
+    const META_COVER_PATCH = 'cover_patch';
+    const META_COVER_TEST = 'cover_test';
     const META_RELEASE_DATE = 'release_date';
     const META_LAST_UPDATE = 'last_update';
     const META_PLATFORMS = 'game_platforms';
     const META_GENRES = 'game_genres';
     const META_MODES = 'game_modes';
     const META_TEAM_CHOICE = 'is_team_choice';
+    const META_EXTERNAL_LINKS = 'external_links';
+    const META_TRAILER_LINK = 'trailer_link';
+    const META_SCREENSHOTS = 'screenshots';
+    const META_DEVELOPERS = 'game_developers';
+    const META_PUBLISHERS = 'game_publishers';
+    
+    // ✅ KEY - Interface publique
+    const KEY_TERM_ID = 'term_id';
+    const KEY_ID = 'id';
+    const KEY_NAME = 'name';
+    const KEY_TITLE = 'title';
+    const KEY_SLUG = 'slug';
+    const KEY_DESCRIPTION = 'description';
+    const KEY_COVER_URL = 'cover_url';
+    const KEY_COVER_ID = 'cover_id';
+    const KEY_GAME_URL = 'game_url';
+    const KEY_RELEASE_DATE = 'release_date';
+    const KEY_LAST_UPDATE = 'last_update';
+    const KEY_TIMESTAMP = 'timestamp';
+    const KEY_GENRES = 'genres';
+    const KEY_MODES = 'modes';
+    const KEY_PLATFORMS = 'platforms';
+    const KEY_IS_TEAM_CHOICE = 'is_team_choice';
+    const KEY_EXTERNAL_LINKS = 'external_links';
+    const KEY_TRAILER_LINK = 'trailer_link';
+    const KEY_SCREENSHOTS = 'screenshots';
+    const KEY_DEVELOPERS = 'developers';
+    const KEY_PUBLISHERS = 'publishers';
+    const KEY_COVERS = 'covers';
+    const KEY_RELEASE_STATUS = 'release_status';
+    
+    // ✅ COVERS SUB-KEYS
+    const KEY_COVER_MAIN = 'main';
+    const KEY_COVER_NEWS = 'news';
+    const KEY_COVER_PATCH = 'patch';
+    const KEY_COVER_TEST = 'test';
     
     /**
      * 🏷️ Récupérer les genres d'un jeu
@@ -160,55 +195,53 @@ class Sisme_Utils_Games {
     }
 
     /**
-     * 📊 Récupérer les données complètes d'un jeu - VERSION UNIFIÉE
+     * 📊 Récupérer les données complètes d'un jeu
      * 
      * @param int $term_id ID du jeu (term_id)
-     * @return array|false Données complètes du jeu ou false si terme invalide
+     * @return array|false Données complètes du jeu avec clés API ou false si terme invalide
      */
     public static function get_game_data($term_id) {
         if (empty($term_id) || !is_numeric($term_id)) {
             return false;
         }
-        
         $term = get_term($term_id);
         if (!$term || is_wp_error($term)) {
             return false;
         }
-
         $cover_id = get_term_meta($term_id, self::META_COVER_MAIN, true) ?: 0;
         $cover_url = $cover_id ? wp_get_attachment_image_url($cover_id, 'full') : '';
         $release_date = get_term_meta($term_id, self::META_RELEASE_DATE, true) ?: '';
         $timestamp = !empty($release_date) ? strtotime($release_date) : 0;
-
+        
         return array(
-            'term_id' => $term_id,
-            'id' => $term_id,
-            'name' => $term->name,
-            'title' => $term->name, 
-            'slug' => $term->slug,
-            'description' => get_term_meta($term_id, self::META_DESCRIPTION, true) ?: '',
-            'cover_url' => $cover_url,
-            'cover_id' => $cover_id,
-            'game_url' => home_url($term->slug . '/'),
-            'release_date' => $release_date,
-            'last_update' => get_term_meta($term_id, self::META_LAST_UPDATE, true) ?: '',
-            'timestamp' => $timestamp,
-            'genres' => self::get_game_genres($term_id),
-            'modes' => self::get_game_modes($term_id),
-            'platforms' => self::get_game_platforms_grouped($term_id),
-            'is_team_choice' => self::is_team_choice($term_id),
-            'external_links' => get_term_meta($term_id, 'external_links', true) ?: array(),
-            'trailer_link' => get_term_meta($term_id, 'trailer_link', true) ?: '',
-            'screenshots' => get_term_meta($term_id, 'screenshots', true) ?: array(),
-            'developers' => get_term_meta($term_id, 'game_developers', true) ?: array(),
-            'publishers' => get_term_meta($term_id, 'game_publishers', true) ?: array(),
-            'covers' => array(
-                'main' => $cover_id,
-                'news' => get_term_meta($term_id, 'cover_news', true) ?: 0,
-                'patch' => get_term_meta($term_id, 'cover_patch', true) ?: 0,
-                'test' => get_term_meta($term_id, 'cover_test', true) ?: 0
+            self::KEY_TERM_ID => $term_id,
+            self::KEY_ID => $term_id,
+            self::KEY_NAME => $term->name,
+            self::KEY_TITLE => $term->name,
+            self::KEY_SLUG => $term->slug,
+            self::KEY_DESCRIPTION => get_term_meta($term_id, self::META_DESCRIPTION, true) ?: '',
+            self::KEY_COVER_URL => $cover_url,
+            self::KEY_COVER_ID => $cover_id,
+            self::KEY_GAME_URL => home_url($term->slug . '/'),
+            self::KEY_RELEASE_DATE => $release_date,
+            self::KEY_LAST_UPDATE => get_term_meta($term_id, self::META_LAST_UPDATE, true) ?: '',
+            self::KEY_TIMESTAMP => $timestamp,
+            self::KEY_GENRES => self::get_game_genres($term_id),
+            self::KEY_MODES => self::get_game_modes($term_id),
+            self::KEY_PLATFORMS => self::get_game_platforms_grouped($term_id),
+            self::KEY_IS_TEAM_CHOICE => self::is_team_choice($term_id),
+            self::KEY_EXTERNAL_LINKS => get_term_meta($term_id, self::META_EXTERNAL_LINKS, true) ?: array(),
+            self::KEY_TRAILER_LINK => get_term_meta($term_id, self::META_TRAILER_LINK, true) ?: '',
+            self::KEY_SCREENSHOTS => get_term_meta($term_id, self::META_SCREENSHOTS, true) ?: array(),
+            self::KEY_DEVELOPERS => get_term_meta($term_id, self::META_DEVELOPERS, true) ?: array(),
+            self::KEY_PUBLISHERS => get_term_meta($term_id, self::META_PUBLISHERS, true) ?: array(),
+            self::KEY_COVERS => array(
+                self::KEY_COVER_MAIN => $cover_id,
+                self::KEY_COVER_NEWS => get_term_meta($term_id, self::META_COVER_NEWS, true) ?: 0,
+                self::KEY_COVER_PATCH => get_term_meta($term_id, self::META_COVER_PATCH, true) ?: 0,
+                self::KEY_COVER_TEST => get_term_meta($term_id, self::META_COVER_TEST, true) ?: 0
             ),
-            'release_status' => self::get_game_release_status($term_id)
+            self::KEY_RELEASE_STATUS => self::get_game_release_status($term_id)
         );
     }
 

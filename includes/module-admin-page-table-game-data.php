@@ -296,7 +296,7 @@ class Sisme_Game_Data_Table_Module {
             
             foreach ($all_tags as $tag) {
                 // Vérifier si le jeu a des données
-                $has_data = get_term_meta($tag->term_id, 'game_description', true);
+                $has_data = get_term_meta($tag->term_id, Sisme_Utils_Games::META_DESCRIPTION, true);
                 if (!empty($has_data)) {
                     $stats['games_with_data']++;
                 }

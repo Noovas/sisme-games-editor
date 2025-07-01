@@ -50,16 +50,16 @@ $form_was_submitted = false;
 
 if (!empty($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme_form_action')) {
     $temp_form = new Sisme_Game_Form_Module([
-        'game_name', 'is_team_choice', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 
-        'description', 'game_platforms', 'release_date', 'trailer_link', 'external_links', 
-        'cover_main', 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical', 'screenshots'
+        'game_name', 'is_team_choice', Sisme_Utils_Games::META_GENRES, 'game_modes', 'game_developers', 'game_publishers', 
+        'description', 'game_platforms', Sisme_Utils_Games::META_RELEASE_DATE, 'trailer_link', 'external_links', 
+        Sisme_Utils_Games::META_COVER_MAIN, 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical', 'screenshots'
     ]);
     $data = $temp_form->get_submitted_data();
     
     if (!empty($data['game_name'])) {
         foreach ($data as $key => $value) {
             if ($key !== 'game_name') {
-                $meta_key = ($key === 'description') ? 'game_description' : $key;
+                $meta_key = ($key === 'description') ? Sisme_Utils_Games::META_DESCRIPTION : $key;
                 update_term_meta($data['game_name'], $meta_key, $value);
             }
         }
@@ -78,18 +78,18 @@ if (!empty($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme
 
 if ($is_edit_mode) {
     $_POST['game_name'] = $tag_id;
-    $_POST['game_genres'] = get_term_meta($tag_id, 'game_genres', true) ?: array();
-    $_POST['game_modes'] = get_term_meta($tag_id, 'game_modes', true) ?: array();
+    $_POST['game_genres'] = get_term_meta($tag_id, Sisme_Utils_Games::META_GENRES, true) ?: array();
+    $_POST['game_modes'] = get_term_meta($tag_id, Sisme_Utils_Games::META_MODES, true) ?: array();
     $_POST['game_developers'] = get_term_meta($tag_id, 'game_developers', true) ?: array();
     $_POST['game_publishers'] = get_term_meta($tag_id, 'game_publishers', true) ?: array();
-    $_POST['description'] = wp_specialchars_decode(get_term_meta($tag_id, 'game_description', true) ?: '', ENT_QUOTES);
-    $_POST['cover_main'] = get_term_meta($tag_id, 'cover_main', true);
+    $_POST['description'] = wp_specialchars_decode(get_term_meta($tag_id, Sisme_Utils_Games::META_DESCRIPTION, true) ?: '', ENT_QUOTES);
+    $_POST[Sisme_Utils_Games::META_COVER_MAIN] = get_term_meta($tag_id, Sisme_Utils_Games::META_COVER_MAIN, true);
     $_POST['cover_news'] = get_term_meta($tag_id, 'cover_news', true);
     $_POST['cover_patch'] = get_term_meta($tag_id, 'cover_patch', true);
     $_POST['cover_test'] = get_term_meta($tag_id, 'cover_test', true);
     $_POST['cover_vertical'] = get_term_meta($tag_id, 'cover_vertical', true);
     $_POST['game_platforms'] = get_term_meta($tag_id, 'game_platforms', true) ?: array();
-    $_POST['release_date'] = get_term_meta($tag_id, 'release_date', true);
+    $_POST['release_date'] = get_term_meta($tag_id, Sisme_Utils_Games::META_RELEASE_DATE, true);
     $_POST['trailer_link'] = get_term_meta($tag_id, 'trailer_link', true);
     $_POST['external_links'] = get_term_meta($tag_id, 'external_links', true) ?: array();
     $_POST['screenshots'] = get_term_meta($tag_id, 'screenshots', true);
@@ -132,9 +132,9 @@ $page->render_start();
 <!-- Formulaire EXACTEMENT comme l'original -->
 <?php
 $form = new Sisme_Game_Form_Module([
-    'game_name', 'is_team_choice', 'game_genres', 'game_modes', 'game_developers', 'game_publishers', 
-    'description', 'game_platforms', 'release_date', 'trailer_link', 'external_links', 
-    'cover_main', 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical', 'screenshots'
+    'game_name', 'is_team_choice', Sisme_Utils_Games::META_GENRES, 'game_modes', 'game_developers', 'game_publishers', 
+    'description', 'game_platforms', Sisme_Utils_Games::META_RELEASE_DATE, 'trailer_link', 'external_links', 
+    Sisme_Utils_Games::META_COVER_MAIN, 'cover_news', 'cover_patch', 'cover_test', 'cover_vertical', 'screenshots'
 ], [
     'submit_text' => $is_edit_mode ? 'Mettre à jour' : 'Créer le jeu',
     'nonce_action' => 'sisme_form_action'

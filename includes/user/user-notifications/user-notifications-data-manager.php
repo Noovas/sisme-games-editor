@@ -219,7 +219,7 @@ class Sisme_User_Notifications_Data_Manager {
             'game_slug' => $game_data['slug'],
             'game_url' => $game_data['game_url'],
             'game_cover_url' => $game_data['cover_url'],
-            'game_description' => $game_data['description']
+            Sisme_Utils_Games::META_DESCRIPTION => $game_data['description']
         ]);
     }
     

@@ -348,7 +348,7 @@ class Sisme_Search_Suggestions {
         
         foreach ($tags as $tag) {
             // Vérifier si c'est un tag de jeu
-            $has_game_data = get_term_meta($tag->term_id, 'game_description', true);
+            $has_game_data = get_term_meta($tag->term_id, Sisme_Utils_Games::META_DESCRIPTION, true);
             
             if ($has_game_data) {
                 $suggestions[] = array(

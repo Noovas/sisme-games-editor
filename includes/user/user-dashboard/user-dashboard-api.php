@@ -124,7 +124,7 @@ class Sisme_User_Dashboard_API {
                 </div>
                 
                 <div class="sisme-profile-actions">
-                    <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="sisme-button sisme-btn--secondary">
+                    <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="sisme-button sisme-button-orange">
                         <span class="sisme-icon">🚪</span>
                         <span class="sisme-label">Déconnexion</span>
                     </a>
@@ -534,10 +534,10 @@ class Sisme_User_Dashboard_API {
                        $game_id = $game['id'];
                        
                        // Récupérer toutes les données depuis les meta terms
-                       $game_description = get_term_meta($game_id, 'game_description', true);
-                       $release_date = get_term_meta($game_id, 'release_date', true);
-                       $cover_main = get_term_meta($game_id, 'cover_main', true);
-                       $game_genres = get_term_meta($game_id, 'game_genres', true) ?: [];
+                       $game_description = get_term_meta($game_id, Sisme_Utils_Games::META_DESCRIPTION, true);
+                       $release_date = get_term_meta($game_id, Sisme_Utils_Games::META_RELEASE_DATE, true);
+                       $cover_main = get_term_meta($game_id, Sisme_Utils_Games::META_COVER_MAIN, true);
+                       $game_genres = get_term_meta($game_id, Sisme_Utils_Games::META_GENRES, true) ?: [];
                        
                        // URL de l'image de couverture
                        $cover_url = '';
@@ -675,7 +675,7 @@ class Sisme_User_Dashboard_API {
                         $term = get_term($game_id, 'post_tag');
                         if (!$term || is_wp_error($term)) continue;
 
-                        $cover_main = get_term_meta($game_id, 'cover_main', true);
+                        $cover_main = get_term_meta($game_id, Sisme_Utils_Games::META_COVER_MAIN, true);
                         
                         $cover_url = '';
                         if ($cover_main) {

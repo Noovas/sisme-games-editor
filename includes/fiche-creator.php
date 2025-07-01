@@ -33,7 +33,7 @@ class Sisme_Fiche_Creator {
         }
         
         // Récupérer les genres du jeu depuis Game Data
-        $game_genres = get_term_meta($tag_id, 'game_genres', true) ?: array();
+        $game_genres = get_term_meta($tag_id, Sisme_Utils_Games::META_GENRES, true) ?: array();
         
         // Titre de l'article
         $article_title = $tag_data->name;
@@ -58,7 +58,7 @@ class Sisme_Fiche_Creator {
         }
 
         // Récupérer la cover principale du jeu depuis Game Data
-        $cover_main_id = get_term_meta($tag_id, 'cover_main', true);
+        $cover_main_id = get_term_meta($tag_id, Sisme_Utils_Games::META_COVER_MAIN, true);
 
         // Définir l'image à la une automatiquement
         if (!empty($cover_main_id)) {set_post_thumbnail($post_id, $cover_main_id);}

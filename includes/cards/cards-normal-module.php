@@ -136,7 +136,7 @@ class Sisme_Cards_Normal_Module {
     private static function render_description($game_data) {
         $short_description = Sisme_Utils_Formatting::truncate_smart($game_data['description'], 90);
         
-        return '<p class="sisme-card-description">' . esc_html($short_description) . '</p>';
+        return '<p class="sisme-card-description">' . wp_kses_post($short_description) . '</p>';
     }
     
     /**

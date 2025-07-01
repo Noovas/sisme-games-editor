@@ -435,7 +435,7 @@ class Sisme_Search_API {
             'hide_empty' => false,
             'meta_query' => array(
                 array(
-                    'key' => 'game_description',
+                    'key' => Sisme_Utils_Games::META_DESCRIPTION,
                     'compare' => 'EXISTS'
                 )
             ),
@@ -460,7 +460,7 @@ class Sisme_Search_API {
                 <?php foreach ($games as $game): ?>
                     <div class="sisme-search-card sisme-fallback-card">
                         <h3><?php echo esc_html($game->name); ?></h3>
-                        <p><?php echo esc_html(wp_trim_words(get_term_meta($game->term_id, 'game_description', true), 20)); ?></p>
+                        <p><?php echo esc_html(wp_trim_words(get_term_meta($game->term_id, Sisme_Utils_Games::META_DESCRIPTION, true), 20)); ?></p>
                         <div class="sisme-card-meta">
                             <span><?php echo sprintf(__('ID: %d', 'sisme-games-editor'), $game->term_id); ?></span>
                         </div>
@@ -563,7 +563,7 @@ class Sisme_Search_API {
             $description = $game['description'] ?? '';
         } elseif (is_object($game)) {
             $name = $game->name ?? 'Jeu sans nom';
-            $description = get_term_meta($game->term_id, 'game_description', true) ?? '';
+            $description = get_term_meta($game->term_id, Sisme_Utils_Games::META_DESCRIPTION, true) ?? '';
         }
         
         ob_start();

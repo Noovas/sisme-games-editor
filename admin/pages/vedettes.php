@@ -64,7 +64,7 @@ $all_games = get_terms(array(
     'hide_empty' => false,
     'meta_query' => array(
         array(
-            'key' => 'game_description',
+            'key' => Sisme_Utils_Games::META_DESCRIPTION,
             'compare' => 'EXISTS'
         )
     )

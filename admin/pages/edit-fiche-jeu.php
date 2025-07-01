@@ -38,11 +38,11 @@ if (is_wp_error($tag_data) || !$tag_data) {
 // Récupérer les Game Data pour affichage
 $game_data = array(
     'title' => $tag_data->name,
-    'description' => get_term_meta($tag_id, 'game_description', true),
-    'genres' => get_term_meta($tag_id, 'game_genres', true) ?: array(),
-    'modes' => get_term_meta($tag_id, 'game_modes', true) ?: array(),
+    'description' => get_term_meta($tag_id, Sisme_Utils_Games::META_DESCRIPTION, true),
+    'genres' => get_term_meta($tag_id, Sisme_Utils_Games::META_GENRES, true) ?: array(),
+    'modes' => get_term_meta($tag_id, Sisme_Utils_Games::META_MODES, true) ?: array(),
     'platforms' => get_term_meta($tag_id, 'game_platforms', true) ?: array(),
-    'release_date' => get_term_meta($tag_id, 'release_date', true),
+    'release_date' => get_term_meta($tag_id, Sisme_Utils_Games::META_RELEASE_DATE, true),
 );
 
 // Récupérer les sections par défaut du jeu

@@ -381,16 +381,16 @@ class Sisme_Search_Filters {
                 
             case 'date_desc':
                 usort($games, function($id_a, $id_b) {
-                    $date_a = get_term_meta($id_a, 'release_date', true) ?: '1970-01-01';
-                    $date_b = get_term_meta($id_b, 'release_date', true) ?: '1970-01-01';
+                    $date_a = get_term_meta($id_a, Sisme_Utils_Games::META_RELEASE_DATE, true) ?: '1970-01-01';
+                    $date_b = get_term_meta($id_b, Sisme_Utils_Games::META_RELEASE_DATE, true) ?: '1970-01-01';
                     return strcmp($date_b, $date_a);
                 });
                 break;
                 
             case 'date_asc':
                 usort($games, function($id_a, $id_b) {
-                    $date_a = get_term_meta($id_a, 'release_date', true) ?: '1970-01-01';
-                    $date_b = get_term_meta($id_b, 'release_date', true) ?: '1970-01-01';
+                    $date_a = get_term_meta($id_a, Sisme_Utils_Games::META_RELEASE_DATE, true) ?: '1970-01-01';
+                    $date_b = get_term_meta($id_b, Sisme_Utils_Games::META_RELEASE_DATE, true) ?: '1970-01-01';
                     return strcmp($date_a, $date_b);
                 });
                 break;
@@ -512,7 +512,7 @@ class Sisme_Search_Filters {
             'hide_empty' => false,
             'meta_query' => array(
                 array(
-                    'key' => 'game_description',
+                    'key' => Sisme_Utils_Games::META_DESCRIPTION,
                     'compare' => 'EXISTS'
                 )
             )
@@ -526,7 +526,7 @@ class Sisme_Search_Filters {
         $today = date('Y-m-d');
         
         foreach ($all_games as $game_term) {
-            $release_date = get_term_meta($game_term->term_id, 'release_date', true);
+            $release_date = get_term_meta($game_term->term_id, Sisme_Utils_Games::META_RELEASE_DATE, true);
             
             // Vérifier si le jeu a une date de sortie future
             if (!empty($release_date) && $release_date > $today) {

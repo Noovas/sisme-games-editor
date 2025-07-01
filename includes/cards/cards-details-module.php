@@ -141,7 +141,7 @@ class Sisme_Cards_Details_Module {
         // Mode details : description plus longue (250 caractères au lieu de 90)
         $long_description = Sisme_Utils_Formatting::truncate_smart($game_data['description'], 500);
         
-        return '<div class="sisme-card-description--details">' . esc_html($long_description) . '</div>';
+        return '<div class="sisme-card-description--details">' . wp_kses_post($long_description) . '</div>';
     }
     
     /**
