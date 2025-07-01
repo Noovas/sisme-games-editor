@@ -155,3 +155,25 @@ body,
     background: var(--sisme-bg-hover-orange);
     box-shadow: var(--sisme-shadow-neon-orange);
 }
+
+.sisme-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.sisme-disabled::after {
+    content: "Bientot disponible";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #666;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+}

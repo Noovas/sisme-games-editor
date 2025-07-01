@@ -141,7 +141,7 @@ class Sisme_User_Preferences_API {
                 */?>
                 
                 <!-- Genres favoris -->
-                <div class="sisme-preference-group">
+                <div class="sisme-preference-group sisme-disabled">
                     <label class="sisme-preference-label">Genres favoris</label>
                     <p class="sisme-preference-description">Choisissez vos genres de jeux préférés</p>
                     <?php 
@@ -189,9 +189,9 @@ class Sisme_User_Preferences_API {
             </h3>
             
             <div class="sisme-section-content">
-                
-                <?php foreach ($notification_types as $key => $label): ?>
-                    <div class="sisme-preference-group">
+                <?php $active_notifications = ['new_indie_releases']; // new_games_in_genres, favorite_games_updates, new_indie_releases, newsletter
+                foreach ($notification_types as $key => $label): ?>
+                    <div class="sisme-preference-group <?php echo !in_array($key, $active_notifications) ? 'sisme-disabled' : ''; ?>">
                         <?php 
                         echo self::render_toggle(
                             "notifications.{$key}",
@@ -215,7 +215,7 @@ class Sisme_User_Preferences_API {
     private static function render_privacy_section($preferences) {
         ob_start();
         ?>
-        <section class="sisme-preferences-section" data-section="privacy">
+        <section class="sisme-preferences-section sisme-disabled" data-section="privacy">
             <h3 class="sisme-section-title">
                 <span class="sisme-section-icon">🔒</span>
                 Confidentialité
