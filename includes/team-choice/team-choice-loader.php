@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 class Sisme_Team_Choice_Loader {
     private static $instance = null;
     private static $modules_loaded = false;
-
+    
     private function __construct() {
         $this->load_modules();
         $this->init_hooks();
@@ -143,61 +143,6 @@ class Sisme_Team_Choice_Loader {
     }
     
     /**
-     * 🚀 Gérer les actions en lot
-     */
-    public function handle_bulk_actions() {
-        // Vérifier les permissions
-        if (!current_user_can('manage_categories')) {
-            wp_die('Permissions insuffisantes');
-        }
-        
-        // Vérifier le nonce
-        if (!check_admin_referer('sisme_team_choice_bulk')) {
-            wp_die('Action non autorisée');
-        }
-        
-        $action = sanitize_text_field($_POST['bulk_action'] ?? '');
-        $term_ids = array_map('intval', $_POST['term_ids'] ?? array());
-        
-        if (empty($term_ids)) {
-            wp_redirect(add_query_arg('error', 'no_selection', wp_get_referer()));
-            exit;
-        }
-        
-        $results = array('success' => 0, 'errors' => 0);
-        
-        switch ($action) {
-            case 'set_team_choice':
-                $bulk_results = Sisme_Team_Choice_Functions::bulk_set_team_choice($term_ids, true);
-                $results['success'] = count($bulk_results['success']);
-                $results['errors'] = count($bulk_results['errors']);
-                break;
-                
-            case 'unset_team_choice':
-                $bulk_results = Sisme_Team_Choice_Functions::bulk_set_team_choice($term_ids, false);
-                $results['success'] = count($bulk_results['success']);
-                $results['errors'] = count($bulk_results['errors']);
-                break;
-                
-            default:
-                wp_redirect(add_query_arg('error', 'invalid_action', wp_get_referer()));
-                exit;
-        }
-        
-        // Redirection avec message de succès
-        $redirect_args = array(
-            'team_choice_updated' => $results['success']
-        );
-        
-        if ($results['errors'] > 0) {
-            $redirect_args['team_choice_errors'] = $results['errors'];
-        }
-        
-        wp_redirect(add_query_arg($redirect_args, wp_get_referer()));
-        exit;
-    }
-    
-    /**
      * 📊 Ajouter colonne dans le tableau Game Data
      */
     public function add_table_column($columns) {
@@ -222,24 +167,6 @@ class Sisme_Team_Choice_Loader {
     }
     
     /**
-     * 🎨 Rendre le contenu de la colonne
-     */
-    public function render_table_column($content, $column_key, $game_data) {
-        if ($column_key !== 'team_choice') {
-            return $content;
-        }
-        
-        $term_id = $game_data['term_id'] ?? 0;
-        $is_team_choice = Sisme_Team_Choice_Functions::is_team_choice($term_id);
-        
-        if ($is_team_choice) {
-            return '<span class="team-choice-badge team-choice-yes">💖</span>';
-        } else {
-            return '<span class="team-choice-badge team-choice-no">🤍</span>';
-        }
-    }
-    
-    /**
      * 🔧 Méthodes utilitaires statiques
      */
     /**
@@ -255,10 +182,9 @@ class Sisme_Team_Choice_Loader {
     public static function get_stats() {
         if (!self::is_loaded()) {
             return array('error' => 'Module non chargé');
-        }
-        
+        }     
         return array(
-            'total_team_choices' => Sisme_Team_Choice_Functions::count_team_choice_games(),
+            'total_team_choices' => Sisme_Utils_Games::count_team_choice_games(),
             'total_games' => wp_count_terms('post_tag', array('hide_empty' => false)),
             'module_loaded' => true
         );

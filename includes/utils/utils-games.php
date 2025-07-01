@@ -38,6 +38,7 @@ class Sisme_Utils_Games {
     const META_PLATFORMS = 'game_platforms';
     const META_GENRES = 'game_genres';
     const META_MODES = 'game_modes';
+    const META_TEAM_CHOICE = 'is_team_choice';
     
     /**
      * 🏷️ Récupérer les genres d'un jeu
@@ -359,11 +360,10 @@ class Sisme_Utils_Games {
                 $all_games = array_intersect($all_games, $genre_filtered);
             }
         }
-        if ($criteria['is_team_choice']) {
+        if ($criteria[self::META_TEAM_CHOICE]) {
             $team_choice_games = array();
             foreach ($all_games as $game_id) {
-                $is_team_choice = get_term_meta($game_id, 'is_team_choice', true);
-                if ($is_team_choice) {
+                if (self::is_team_choice($game_id)) {  // ← UTILISER NOTRE FONCTION !
                     $team_choice_games[] = $game_id;
                 }
             }
@@ -448,5 +448,74 @@ class Sisme_Utils_Games {
             );
         }
         return $genre_query;
+    }
+
+    /**
+     * 🏆 Marquer/démarquer un jeu comme choix de l'équipe
+     * 
+     * @param int $term_id ID du jeu (term_id)
+     * @param bool $is_choice True pour marquer, false pour démarquer
+     * @return bool True si succès, false si erreur
+     */
+    public static function set_team_choice($term_id, $is_choice = true) {
+        if (!term_exists($term_id, 'post_tag')) {
+            return false;
+        }        
+        $value = $is_choice ? '1' : '0';        
+        $result = update_term_meta($term_id, self::META_TEAM_CHOICE, $value);             
+        return $result !== false;
+    }
+
+    /**
+     * 🏆 Vérifier si un jeu est un choix de l'équipe
+     * Migration depuis: Sisme_Team_Choice_Functions::is_team_choice()
+     * 
+     * @param int $term_id ID du jeu (term_id)
+     * @return bool True si c'est un choix de l'équipe
+     */
+    public static function is_team_choice($term_id) {
+        if (empty($term_id) || !is_numeric($term_id)) {
+            return false;
+        }
+        $value = get_term_meta($term_id, self::META_TEAM_CHOICE, true);
+        return $value === '1';
+    }
+
+    /**
+     * 🏆 Obtenir tous les jeux marqués comme choix de l'équipe
+     * Migration depuis: Sisme_Team_Choice_Functions::get_team_choice_games()
+     * 
+     * @param array $args Arguments supplémentaires pour get_terms
+     * @return array Liste des jeux choix de l'équipe
+     */
+    public static function get_team_choice_games($args = array()) {
+        $default_args = array(
+            'taxonomy' => 'post_tag',
+            'hide_empty' => false,
+            'meta_query' => array(
+                array(
+                    'key' => self::META_TEAM_CHOICE,
+                    'value' => '1',
+                    'compare' => '='
+                ),
+                array(
+                    'key' => self::META_DESCRIPTION,
+                    'compare' => 'EXISTS'
+                )
+            )
+        );
+        $args = wp_parse_args($args, $default_args);
+        return get_terms($args);
+    }
+
+    /**
+     * 🏆 Obtenir le nombre de jeux choix de l'équipe
+     * Migration depuis: Sisme_Team_Choice_Functions::count_team_choice_games()
+     * 
+     * @return int Nombre de jeux
+     */
+    public static function count_team_choice_games() {
+        $games = self::get_team_choice_games(array('fields' => 'ids'));
+        return count($games);
     }
 }

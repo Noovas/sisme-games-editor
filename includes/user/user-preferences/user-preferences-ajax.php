@@ -38,9 +38,6 @@ class Sisme_User_Preferences_Ajax {
         add_action('wp_ajax_nopriv_sisme_update_user_preference', [self::class, 'ajax_not_logged_in']);
         add_action('wp_ajax_nopriv_sisme_reset_user_preferences', [self::class, 'ajax_not_logged_in']);
 
-        add_action('wp_ajax_sisme_delete_user_avatar', [self::class, 'ajax_delete_avatar']);
-        add_action('wp_ajax_nopriv_sisme_delete_user_avatar', [self::class, 'ajax_not_logged_in']);
-
         add_action('wp_ajax_sisme_select_user_avatar', [self::class, 'ajax_select_avatar']);
         add_action('wp_ajax_nopriv_sisme_select_user_avatar', [self::class, 'ajax_not_logged_in']);
         
@@ -545,27 +542,6 @@ class Sisme_User_Preferences_Ajax {
             ]);
         } else {
             wp_send_json_error(['message' => 'Erreur lors de la sauvegarde']);
-        }
-    }
-
-    /**
-     * Handler AJAX pour suppression avatar
-     */
-    public static function ajax_delete_avatar() {
-        if (!check_ajax_referer('sisme_user_preferences_nonce', 'security', false)) {
-            wp_send_json_error(['message' => 'Erreur de sécurité']);
-        }
-
-        $user_id = get_current_user_id();
-        if (!$user_id) {
-            wp_send_json_error(['message' => 'Connexion requise']);
-        }
-
-        $success = Sisme_User_Preferences_Data_Manager::delete_user_avatar($user_id);
-        if ($success) {
-            wp_send_json_success(['message' => 'Avatar supprimé']);
-        } else {
-            wp_send_json_error(['message' => 'Erreur lors de la suppression']);
         }
     }
 

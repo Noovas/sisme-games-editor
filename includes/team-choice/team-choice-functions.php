@@ -1,103 +1,72 @@
 <?php
 /**
  * File: /sisme-games-editor/includes/team-choice/team-choice-functions.php
+ * Fonctions métier pour le système de choix de l'équipe
+ * 
+ * RESPONSABILITÉ:
+ * - Wrappers vers utils-games.php pour les fonctions de base
+ * - Gestion des actions en lot administratives
+ * - Intégration tableau Game Data (colonnes et rendu)
+ * - Logique d'affichage spécifique au module
+ * 
+ * DÉPENDANCES:
+ * - utils-games.php (fonctions migrées)
+ * - WordPress Admin (hooks et redirections)
+ * - Module Game Data Table (filtres)
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
-class Sisme_Team_Choice_Functions {
-    
+
+class Sisme_Team_Choice_Functions {      
     /**
-     * Marquer un jeu comme choix de l'équipe
+     * 📊 Ajouter colonne dans le tableau Game Data
      * 
-     * @param int $term_id ID du terme/jeu
-     * @param bool $is_choice True pour marquer, false pour dé-marquer
-     * @return bool Succès de l'opération
+     * @param array $columns Colonnes existantes du tableau
+     * @return array Colonnes avec "Choix équipe" ajoutée
      */
-    public static function set_team_choice($term_id, $is_choice = true) {
-        if (!term_exists($term_id, 'post_tag')) {
-            return false;
-        }
-        
-        $value = $is_choice ? '1' : '0';
-        $result = update_term_meta($term_id, 'is_team_choice', $value);
-        
-        // Log pour debug
-        error_log("Jeu $term_id marqué comme choix équipe: $value");
-        
-        return $result !== false;
-    }
-    
-    /**
-     * Vérifier si un jeu est un choix de l'équipe
-     * 
-     * @param int $term_id ID du terme/jeu
-     * @return bool True si c'est un choix de l'équipe
-     */
-    public static function is_team_choice($term_id) {
-        $value = get_term_meta($term_id, 'is_team_choice', true);
-        return $value === '1';
-    }
-    
-    /**
-     * Obtenir tous les jeux marqués comme choix de l'équipe
-     * 
-     * @param array $args Arguments supplémentaires pour get_terms
-     * @return array Liste des jeux choix de l'équipe
-     */
-    public static function get_team_choice_games($args = array()) {
-        $default_args = array(
-            'taxonomy' => 'post_tag',
-            'hide_empty' => false,
-            'meta_query' => array(
-                array(
-                    'key' => 'is_team_choice',
-                    'value' => '1',
-                    'compare' => '='
-                ),
-                array(
-                    'key' => 'game_description',
-                    'compare' => 'EXISTS'
-                )
-            )
-        );
-        
-        $args = wp_parse_args($args, $default_args);
-        return get_terms($args);
-    }
-    
-    /**
-     * Obtenir le nombre de jeux choix de l'équipe
-     * 
-     * @return int Nombre de jeux
-     */
-    public static function count_team_choice_games() {
-        $games = self::get_team_choice_games(array('fields' => 'ids'));
-        return count($games);
-    }
-    
-    /**
-     * Actions en lot pour plusieurs jeux
-     * 
-     * @param array $term_ids Liste des IDs de termes
-     * @param bool $is_choice True pour marquer, false pour dé-marquer
-     * @return array Résultat avec succès et erreurs
-     */
-    public static function bulk_set_team_choice($term_ids, $is_choice = true) {
-        $results = array(
-            'success' => array(),
-            'errors' => array()
-        );
-        
-        foreach ($term_ids as $term_id) {
-            if (self::set_team_choice($term_id, $is_choice)) {
-                $results['success'][] = $term_id;
-            } else {
-                $results['errors'][] = $term_id;
+    public static function add_table_column($columns) {
+        $new_columns = array();
+        foreach ($columns as $key => $label) {
+            $new_columns[$key] = $label;
+            if ($key === 'vedette' || $key === 'featured') {
+                $new_columns['team_choice'] = 'Choix équipe';
             }
         }
-        
-        return $results;
+        if (!isset($new_columns['team_choice'])) {
+            $new_columns['team_choice'] = 'Choix équipe';
+        }
+        return $new_columns;
+    }
+    
+    /**
+     * 🎨 Rendre le contenu de la colonne team choice
+     * 
+     * @param string $content Contenu existant de la colonne
+     * @param string $column_key Clé de la colonne
+     * @param array $game_data Données du jeu
+     * @return string HTML de la colonne ou contenu original
+     */
+    public static function render_table_column($content, $column_key, $game_data) {
+        if ($column_key !== 'team_choice') {
+            return $content;
+        }
+        $term_id = $game_data['term_id'] ?? $game_data['id'] ?? 0;
+        if (!$term_id) {
+            return '❌';
+        }
+        $is_team_choice = Sisme_Utils_Games::is_team_choice($term_id);
+        $heart_class = $is_team_choice ? 'team-choice-active' : 'team-choice-inactive';
+        $heart_icon = $is_team_choice ? '❤️' : '🤍';
+        $title = $is_team_choice ? 'Retirer des choix équipe' : 'Ajouter aux choix équipe';
+        return sprintf(
+            '<button class="team-choice-btn %s" data-game-id="%d" data-team-choice="%s" title="%s">%s</button>',
+            esc_attr($heart_class),
+            $term_id,
+            $is_team_choice ? '1' : '0',
+            esc_attr($title),
+            $heart_icon
+        );
     }
 }
