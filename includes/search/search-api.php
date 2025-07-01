@@ -669,7 +669,7 @@ class Sisme_Search_API {
                 <div class="sisme-search-counter" style="display: block;">
                     <strong>
                         <?php 
-                        echo Sisme_Search_Filters::get_search_summary($search_params, $results['total']);
+                        echo Sisme_Utils_Filters::get_search_summary($search_params, $results['total']);
                         ?>
                     </strong>
                     <?php if (!empty($search_params['query']) || !empty($search_params['genres'])): ?>

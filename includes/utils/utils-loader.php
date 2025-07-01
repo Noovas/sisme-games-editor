@@ -31,6 +31,7 @@ class Sisme_Utils_Loader {
         'utils-wp.php'           => 'Helpers WordPress',
         'utils-debug.php'        => 'Logging et debug',
         'utils-games.php'        => 'Données et métier jeux',
+        'utils-filter.php'        => 'filtres et recherches de jeux',
         'utils-users.php'        => 'Données et métier utilisateurs'
     );
     

@@ -811,6 +811,13 @@ input#sismeSearchInput {
    😞 ÉTATS VIDES
 ======================================== */
 
+.sisme-search-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
 .sisme-search-empty-state,
 .sisme-search-no-results {
     text-align: center;
@@ -1224,12 +1231,5 @@ input#sismeSearchInput {
     
     .sisme-empty-icon {
         animation: none;
-    }
-}
-
-/* Mode sombre forcé (si nécessaire) */
-@media (prefers-color-scheme: dark) {
-    .sisme-search-interface {
-        /* Le thème est déjà sombre par défaut */
     }
 }

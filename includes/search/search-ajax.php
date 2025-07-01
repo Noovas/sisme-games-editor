@@ -70,7 +70,7 @@ class Sisme_Search_Ajax {
             $html = self::render_results_html($results, $search_params);
             
             // Générer le résumé de recherche
-            $summary = Sisme_Search_Filters::get_search_summary($search_params, $results['total']);
+            $summary = Sisme_Utils_Filters::get_search_summary($search_params, $results['total']);
             
             // Réponse de succès
             wp_send_json_success(array(

@@ -380,10 +380,6 @@
                 <div class="sisme-search-error">
                     <div class="sisme-empty-icon">⚠️</div>
                     <h3>${sismeSearch.i18n.errorText}</h3>
-                    <p>Une erreur est survenue lors de la recherche. Veuillez réessayer.</p>
-                    <button type="button" class="sisme-filter-apply" onclick="location.reload()">
-                        🔄 Recharger la page
-                    </button>
                 </div>
             `;
             

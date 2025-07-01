@@ -220,7 +220,7 @@ class Sisme_Search_Loader {
             // Textes traduisibles
             'i18n' => array(
                 'loadingText' => __('Recherche en cours...', 'sisme-games-editor'),
-                'errorText' => __('Erreur lors de la recherche', 'sisme-games-editor'),
+                'errorText' => __('Aucun résultat', 'sisme-games-editor'),
                 'noResultsText' => __('Aucun jeu trouvé', 'sisme-games-editor'),
                 'searchPlaceholder' => __('Rechercher un jeu...', 'sisme-games-editor'),
                 'loadMoreText' => __('📚 Charger plus de jeux', 'sisme-games-editor'),

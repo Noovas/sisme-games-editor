@@ -2,7 +2,7 @@
 
 ## 🎯 Vue d'ensemble
 
-Le système Utils comprend **7 modules** référencés dans `utils-loader.php` et chargés automatiquement :
+Le système Utils comprend **8 modules** référencés dans `utils-loader.php` et chargés automatiquement :
 
 1. **utils-validation.php** - Validation et sanitisation *(non détaillé dans les fichiers)*
 2. **utils-formatting.php** ✅ - Formatage dates et textes
@@ -11,6 +11,7 @@ Le système Utils comprend **7 modules** référencés dans `utils-loader.php` e
 5. **utils-debug.php** - Logging et debug *(non détaillé dans les fichiers)*
 6. **utils-games.php** ✅ - Données et métier jeux
 7. **utils-users.php** ✅ - Données et métier utilisateurs
+8. **utils-filters.php** ✅ - Filtrage et recherche de jeux
 
 ---
 
@@ -189,6 +190,60 @@ $date_with_status = Sisme_Utils_Formatting::format_release_date_with_status('202
 ```
 </details>
 
+<details>
+<summary><code>convert_genre_ids_to_slugs($genre_ids)</code></summary>
+
+```php
+// 🏷️ Convertir les IDs de genres en noms
+// @param array $genre_ids - Liste des IDs de genres
+// @return array - Liste des noms de genres (préfixe "jeux-" supprimé)
+$genre_names = Sisme_Utils_Formatting::convert_genre_ids_to_slugs([15, 16, 17]);
+```
+</details>
+
+---
+
+## 🔍 utils-filters.php
+
+**Classe :** `Sisme_Utils_Filters`
+
+<details>
+<summary><code>filter_by_search_term($game_ids, $search_term)</code></summary>
+
+```php
+// 🔍 Filtrer les jeux par terme de recherche textuelle
+// @param array $game_ids - IDs des jeux à filtrer
+// @param string $search_term - Terme de recherche
+// @return array - IDs des jeux correspondants
+$matching_games = Sisme_Utils_Filters::filter_by_search_term([123, 124, 125], 'after');
+```
+</details>
+
+<details>
+<summary><code>apply_sorting($games, $sort_type)</code></summary>
+
+```php
+// 📊 Appliquer le tri aux résultats
+// @param array $games - Liste des IDs de jeux
+// @param string $sort_type - Type de tri ('relevance', 'name_asc', 'name_desc', 'date_asc', 'date_desc')
+// @return array - IDs des jeux triés
+$sorted_games = Sisme_Utils_Filters::apply_sorting([123, 124, 125], 'name_asc');
+```
+</details>
+
+<details>
+<summary><code>get_search_summary($params, $total_results)</code></summary>
+
+```php
+// 📋 Générer un résumé de recherche lisible
+// @param array $params - Paramètres de recherche
+// @param int $total_results - Nombre total de résultats
+// @return string - Résumé lisible
+$summary = Sisme_Utils_Filters::get_search_summary(['query' => 'after'], 1);
+// Retourne: "1 jeu trouvé pour "after""
+```
+</details>
+
 ---
 
 ## 🎮 utils-games.php
@@ -306,9 +361,9 @@ $game_data = Sisme_Utils_Games::get_game_data(125);
 <summary><code>get_game_release_status($term_id)</code></summary>
 
 ```php
-// 📅 Détermine le statut de sortie d'un jeu
-// @param int $term_id - ID du jeu
-// @return array - Statut avec is_released, release_date, days_diff, status_text
+// 📅 Déterminer le statut de sortie d'un jeu
+// @param int $term_id - ID du jeu (term_id)
+// @return array - Statut avec 'status' ('released'/'upcoming'/'unknown'), 'days_until' (int), 'is_released' (bool)
 $status = Sisme_Utils_Games::get_game_release_status(125);
 ```
 </details>
@@ -317,38 +372,33 @@ $status = Sisme_Utils_Games::get_game_release_status(125);
 <summary><code>get_game_badge($game_data)</code></summary>
 
 ```php
-// 🏆 Détermine le badge d'un jeu selon sa fraîcheur
+// 🏆 Générer un badge de fraîcheur pour un jeu
 // @param array $game_data - Données complètes du jeu
-// @return array - Badge avec class et text ou array vide
+// @return array|false - Badge avec 'text', 'class', 'type' ou false si aucun badge
 $badge = Sisme_Utils_Games::get_game_badge($game_data);
 ```
 </details>
 
 <details>
-<summary><code>sort_games_by_release_date($term_ids, $order = 'desc')</code></summary>
+<summary><code>get_games_by_criteria($criteria)</code></summary>
 
 ```php
-// 📈 Trie les jeux par date de sortie
-// @param array $term_ids - IDs des termes
-// @param string $order - Ordre de tri : 'desc' ou 'asc'
-// @return array - IDs triés par date
-$sorted_ids = Sisme_Utils_Games::sort_games_by_release_date($game_ids, 'desc');
+// 🔍 Rechercher des jeux selon des critères
+// @param array $criteria - Critères de recherche (genres, is_team_choice, sort_by_date, max_results, search, etc.)
+// @return array - Liste des IDs de jeux correspondants
+$games = Sisme_Utils_Games::get_games_by_criteria(['genres' => ['action'], 'max_results' => 10]);
 ```
 </details>
 
 <details>
-<summary><code>get_games_by_criteria($criteria = [])</code></summary>
+<summary><code>sort_games_by_release_date($game_ids, $order = 'desc')</code></summary>
 
 ```php
-// 🔍 Récupérer les IDs des jeux selon les critères
-// @param array $criteria - Critères de recherche
-// Critères disponibles: genres, is_team_choice, sort_by_date, sort_order, max_results, released, debug
-// @return array - IDs des jeux trouvés
-$games = Sisme_Utils_Games::get_games_by_criteria([
-    'genres' => ['action', 'rpg'],
-    'max_results' => 10,
-    'sort_by_date' => true
-]);
+// 📅 Trier des jeux par date de sortie
+// @param array $game_ids - Liste des IDs de jeux
+// @param string $order - Ordre de tri ('asc' ou 'desc')
+// @return array - IDs de jeux triés
+$sorted_games = Sisme_Utils_Games::sort_games_by_release_date([123, 124, 125], 'desc');
 ```
 </details>
 
@@ -358,30 +408,8 @@ $games = Sisme_Utils_Games::get_games_by_criteria([
 
 **Classe :** `Sisme_Utils_Users`
 
-**Constantes COLLECTIONS:**
+**Constantes:**
 ```php
-COLLECTION_FAVORITE = 'favorite'
-COLLECTION_OWNED = 'owned'
-COLLECTION_WISHLIST = 'wishlist'
-COLLECTION_COMPLETED = 'completed'
-```
-
-**Constantes META:**
-```php
-META_PREFIX = 'sisme_user_'
-```
-
-**Constantes URLS:**
-```php
-LOGIN_URL = '/sisme-user-login/'
-REGISTER_URL = '/sisme-user-register/'
-PROFILE_URL = '/sisme-user-profil/'
-DASHBOARD_URL = '/sisme-user-tableau-de-bord/'
-```
-
-**Constantes MESSAGES:**
-```php
-DEFAULT_LOGIN_REQUIRED_MESSAGE = 'Vous devez être connecté pour accéder à cette page.'
 DEFAULT_DASHBOARD_LOGIN_MESSAGE = 'Vous devez être connecté pour accéder à votre dashboard.'
 ```
 
@@ -426,41 +454,6 @@ $html = Sisme_Utils_Users::render_login_required();
 
 ---
 
-## 🚀 Initialisation Système
-
-### Chargement Automatique
-```php
-// Le système utils se charge automatiquement via le plugin principal
-// Hook: 'plugins_loaded' priorité 5 dans utils-loader.php
-
-// Auto-initialisation du système utils
-add_action('plugins_loaded', function() {
-    Sisme_Utils_Loader::get_instance();
-}, 5);
-```
-
-### Diagnostic Système
-```php
-// Diagnostics complets
-$loader = Sisme_Utils_Loader::get_instance();
-$health = $loader->get_system_health();
-
-if ($health['system_ready']) {
-    echo "Système utils opérationnel";
-} else {
-    echo "Modules manquants: " . implode(', ', $health['missing_modules']);
-}
-```
-
-### Logging Debug
-```php
-// Logs automatiques en mode WP_DEBUG
-// [Sisme Utils] Système utils initialisé - 7/7 modules chargés
-// [Sisme Utils] Module 'Formatage dates et textes' chargé : utils-formatting.php
-```
-
----
-
 ## 🔧 Modules Non Détaillés
 
 Basé sur la liste dans `utils-loader.php`, les modules suivants sont référencés mais les détails ne sont pas disponibles dans les fichiers analysés :
@@ -489,7 +482,7 @@ Basé sur la liste dans `utils-loader.php`, les modules suivants sont référenc
 ```php
 // Validation utilisateur + récupération métadonnées
 if (Sisme_Utils_Users::validate_user_id($user_id, 'dashboard')) {
-    $prefs = Sisme_Utils_Users::get_user_meta_with_default($user_id, 'sisme_user_preferences', []);
+    $prefs = Sisme_Utils_Users::get_user_meta_with_default($user_id, 'sisme_user_preferences', [], 'dashboard');
 }
 ```
 
@@ -524,6 +517,18 @@ foreach ($games as $game_id) {
 }
 ```
 
+### Filtrage et Recherche Avancée
+```php
+// Recherche textuelle dans noms de jeux
+$matching_games = Sisme_Utils_Filters::filter_by_search_term([123, 124, 125], 'after');
+
+// Tri des résultats
+$sorted_games = Sisme_Utils_Filters::apply_sorting($matching_games, 'name_asc');
+
+// Résumé de recherche
+$summary = Sisme_Utils_Filters::get_search_summary(['query' => 'after'], count($matching_games));
+```
+
 ### Diagnostic Système
 ```php
 // Vérification santé système
@@ -532,4 +537,19 @@ if ($loader->is_ready()) {
     $stats = $loader->get_debug_stats();
     echo "Modules chargés: " . $stats['health_check']['loaded_count'];
 }
+```
+
+---
+
+## 🚀 Initialisation Système
+
+### Chargement Automatique
+```php
+// Le système utils se charge automatiquement via le plugin principal
+// Hook: 'plugins_loaded' priorité 5 dans utils-loader.php
+
+// Auto-initialisation du système utils
+add_action('plugins_loaded', function() {
+    Sisme_Utils_Loader::get_instance();
+}, 5);
 ```

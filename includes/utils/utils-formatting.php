@@ -66,18 +66,43 @@ class Sisme_Utils_Formatting {
      */
     public static function get_platform_icon($platform) {
         $icons = array(
-            'windows' => DEFAULT_PLATEFORM_PC,
-            'mac' => DEFAULT_PLATEFORM_PC,
-            'linux' => DEFAULT_PLATEFORM_PC,
-            'playstation' => DEFAULT_PLATEFORM_CONSOLE,
-            'xbox' => DEFAULT_PLATEFORM_CONSOLE,
-            'nintendo-switch' => DEFAULT_PLATEFORM_CONSOLE,
-            'ios' => DEFAULT_PLATEFORM_MOBILE,
-            'android' => DEFAULT_PLATEFORM_MOBILE,
-            'web' => DEFAULT_PLATEFORM_WEB
+            'windows' => self::DEFAULT_PLATEFORM_PC,
+            'mac' => self::DEFAULT_PLATEFORM_PC,
+            'linux' => self::DEFAULT_PLATEFORM_PC,
+            'playstation' => self::DEFAULT_PLATEFORM_CONSOLE,
+            'xbox' => self::DEFAULT_PLATEFORM_CONSOLE,
+            'nintendo-switch' => self::DEFAULT_PLATEFORM_CONSOLE,
+            'ios' => self::DEFAULT_PLATEFORM_MOBILE,
+            'android' => self::DEFAULT_PLATEFORM_MOBILE,
+            'web' => self::DEFAULT_PLATEFORM_WEB
         );
         $platform = strtolower(trim($platform));
-        return isset($icons[$platform]) ? $icons[$platform] : DEFAULT_PLATEFORM_PC;
+        return isset($icons[$platform]) ? $icons[$platform] : self::DEFAULT_PLATEFORM_PC;
+    }
+
+    /**
+     * Convertir les IDs de genres en slugs
+     * 
+     * @param array $genre_ids Liste des IDs de genres
+     * @return array Liste des slugs de genres (les noms en fait)
+     */
+    public static function convert_genre_ids_to_slugs($genre_ids) {
+        $genre_names = array();
+        
+        foreach ($genre_ids as $genre_id) {
+            $genre_id = intval($genre_id);
+            if ($genre_id <= 0) {
+                continue;
+            }
+            $category = get_category($genre_id);
+            
+            if ($category && !is_wp_error($category)) {
+                $name = $category->name;
+                $clean_name = preg_replace('/^jeux-/i', '', $name);
+                $genre_names[] = $clean_name;
+            }
+        }
+        return array_unique($genre_names);
     }
 
     /**
