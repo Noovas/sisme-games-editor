@@ -362,6 +362,7 @@ class Sisme_Utils_Games {
     public static function get_games_by_criteria($criteria = array()) {
         $default_criteria = array(
             'genres' => array(),
+            'search' => '', 
             'is_team_choice' => false,
             'sort_by_date' => true,
             'sort_order' => 'desc',
@@ -439,6 +440,24 @@ class Sisme_Utils_Games {
         if ($criteria['max_results'] > 0) {
             $filtered_games = array_slice($filtered_games, 0, $criteria['max_results']);
         }
+        if (!empty($criteria['search'])) {
+        $search_terms = get_terms(array(
+            'taxonomy' => 'post_tag',
+            'search' => $criteria['search'],
+            'meta_query' => array(
+                array(
+                    'key' => self::META_DESCRIPTION,
+                    'compare' => 'EXISTS'
+                )
+            )
+        ));
+        if (!empty($search_terms)) {
+            $search_ids = wp_list_pluck($search_terms, 'term_id');
+            $all_games = array_intersect($all_games, $search_ids);
+        } else {
+            return array(); // Aucun jeu trouvé
+        }
+    }
         return $filtered_games;
     }
     

@@ -137,11 +137,6 @@ class SismeFrontendTooltip {
                     element.addEventListener("mouseleave", () => {
                         this.hideTooltip();
                     });
-                    
-                    // Debug log (optionnel)
-                    if (console && console.debug) {
-                        console.debug(`[Sisme Tooltip] Initialized: ${element.className} - "${tooltipText}"`);
-                    }
                 }
             }
         };

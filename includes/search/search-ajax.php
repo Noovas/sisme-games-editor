@@ -49,6 +49,11 @@ class Sisme_Search_Ajax {
         
         // Récupérer et valider les paramètres
         $search_params = self::extract_search_params($_POST);
+
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[SISME SEARCH DEBUG] Paramètres reçus: ' . print_r($_POST, true));
+            error_log('[SISME SEARCH DEBUG] Paramètres extraits: ' . print_r($search_params, true));
+        }
         
         // Vérifier que le module de filtres est disponible
         if (!class_exists('Sisme_Search_Filters')) {

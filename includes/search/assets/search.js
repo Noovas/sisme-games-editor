@@ -284,7 +284,7 @@
         collectSearchData() {
             // Récupérer la valeur de recherche
             const query = $('#sismeSearchInput').val().trim();
-            
+            console.log('🔍 collectSearchData - query:', query);
             // Collecter les genres sélectionnés
             const genres = [];
             $('.sisme-genres-list input[type="checkbox"]:checked').each(function() {
@@ -303,7 +303,7 @@
             const view = this.state.currentFilters.view;
             const quickFilter = this.state.currentFilters.quickFilter;
             
-            return {
+            const data = {
                 query: query,
                 genres: genres,
                 platforms: platforms,
@@ -313,6 +313,10 @@
                 view: view,
                 per_page: this.config.resultsPerPage
             };
+
+            console.log('🔍 collectSearchData - final data:', data);
+            
+            return data;
         }
         
         /**
@@ -850,13 +854,9 @@
      * Initialisation au chargement du DOM
      */
     $(document).ready(function() {
-        // Vérifier si l'interface de recherche est présente
         if ($('#sismeSearchInterface').length) {
             window.sismeSearchInstance = new SismeSearchInterface();
-            
-            if (sismeSearch.debug) {
-                console.log('🎮 Sisme Search Interface fully loaded');
-            }
+            console.log('🎮 Sisme Search Interface fully loaded');
         }
     });
     
