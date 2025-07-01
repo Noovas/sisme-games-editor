@@ -81,14 +81,7 @@ class Sisme_Search_Filters {
         if (isset($params[Sisme_Utils_Games::KEY_GENRES]) && is_array($params[Sisme_Utils_Games::KEY_GENRES])) {
             $validated[Sisme_Utils_Games::KEY_GENRES] = array_map('intval', array_filter($params[Sisme_Utils_Games::KEY_GENRES]));
         }
-        /*
-        // Plateformes 
-        $validated['platforms'] = array();
-        if (isset($params['platforms']) && is_array($params['platforms'])) {
-            $allowed_platforms = array('pc', 'console', 'mobile');
-            $validated['platforms'] = array_intersect($params['platforms'], $allowed_platforms);
-        }
-        */
+
         // Statut de sortie
         $validated['status'] = '';
         if (isset($params['status']) && in_array($params['status'], array('released', 'upcoming'))) {
@@ -276,74 +269,40 @@ class Sisme_Search_Filters {
         if (empty($games)) {
             return $games;
         }
-        
         $filtered = $games;
-        /*
-        // Filtrage par plateformes (si pas géré par Cards)
-        if (!empty($params['platforms'])) {
-            $filtered = array_filter($filtered, function($game) use ($params) {
-                return self::game_matches_platforms($game, $params['platforms']);
-            });
+        if (!empty($params['query'])) {
+            $filtered = self::filter_by_search_term($filtered, $params['query']);
         }
-        */
-        // Autres filtres personnalisés peuvent être ajoutés ici
         
-        return array_values($filtered); // Réindexer le tableau
+        return array_values($filtered);
     }
-    
+
     /**
-     * Vérifier si un jeu correspond aux plateformes demandées
+     * 🔍 FONCTION CRITIQUE: Filtrer les jeux par terme de recherche textuelle
+     * Recherche dans les noms des jeux (tags WordPress)
      * 
-     * @param array $game Données du jeu
-     * @param array $platforms Plateformes recherchées
-     * @return bool True si correspondance
+     * @param array $game_ids IDs des jeux à filtrer
+     * @param string $search_term Terme de recherche
+     * @return array IDs des jeux correspondants
      */
-    private static function game_matches_platforms($game, $platforms) {
-        if (!isset($game['platforms']) || empty($game['platforms'])) {
-            return false;
+    private static function filter_by_search_term($game_ids, $search_term) {
+        if (empty($search_term) || empty($game_ids)) {
+            return $game_ids;
         }
-        
-        $game_platforms = is_array($game['platforms']) ? $game['platforms'] : array($game['platforms']);
-        
-        foreach ($platforms as $platform) {
-            switch ($platform) {
-                case 'pc':
-                    if (self::array_contains_any($game_platforms, array('PC', 'Steam', 'Epic', 'GOG'))) {
-                        return true;
-                    }
-                    break;
-                case 'console':
-                    if (self::array_contains_any($game_platforms, array('PlayStation', 'PS5', 'PS4', 'Xbox', 'Nintendo', 'Switch'))) {
-                        return true;
-                    }
-                    break;
-                case 'mobile':
-                    if (self::array_contains_any($game_platforms, array('Mobile', 'iOS', 'Android'))) {
-                        return true;
-                    }
-                    break;
+        $matching_ids = array();
+        $search_term_lower = strtolower(trim($search_term));
+        foreach ($game_ids as $game_id) {
+            $game_term = get_term($game_id);
+            if (!$game_term || is_wp_error($game_term)) {
+                continue;
+            }
+            $game_name = strtolower($game_term->name);
+            if (strpos($game_name, $search_term_lower) !== false) {
+                $matching_ids[] = $game_id;
+                continue;
             }
         }
-        
-        return false;
-    }
-    
-    /**
-     * Vérifier si un tableau contient au moins un élément d'un autre tableau
-     * 
-     * @param array $haystack Tableau à chercher
-     * @param array $needles Éléments à trouver
-     * @return bool True si au moins un élément trouvé
-     */
-    private static function array_contains_any($haystack, $needles) {
-        foreach ($needles as $needle) {
-            foreach ($haystack as $item) {
-                if (stripos($item, $needle) !== false) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return $matching_ids;
     }
     
     /**
@@ -498,43 +457,6 @@ class Sisme_Search_Filters {
         set_transient($cache_key, $stats, 3600);
         
         return $stats;
-    }
-
-    /**
-     * Compter les jeux avec dates de sortie à venir
-     * 
-     * @return int Nombre de jeux à venir
-     */
-    private static function count_upcoming_games() {
-        // Récupérer tous les jeux avec game_description (jeux complets)
-        $all_games = get_terms(array(
-            'taxonomy' => 'post_tag',
-            'hide_empty' => false,
-            'meta_query' => array(
-                array(
-                    'key' => Sisme_Utils_Games::META_DESCRIPTION,
-                    'compare' => 'EXISTS'
-                )
-            )
-        ));
-        
-        if (is_wp_error($all_games) || empty($all_games)) {
-            return 0;
-        }
-        
-        $upcoming_count = 0;
-        $today = date('Y-m-d');
-        
-        foreach ($all_games as $game_term) {
-            $release_date = get_term_meta($game_term->term_id, Sisme_Utils_Games::META_RELEASE_DATE, true);
-            
-            // Vérifier si le jeu a une date de sortie future
-            if (!empty($release_date) && $release_date > $today) {
-                $upcoming_count++;
-            }
-        }
-        
-        return $upcoming_count;
     }
     
     /**
