@@ -141,7 +141,7 @@ class Sisme_User_Preferences_API {
                 */?>
                 
                 <!-- Genres favoris -->
-                <div class="sisme-preference-group sisme-disabled">
+                <div class="sisme-preference-group">
                     <label class="sisme-preference-label">Genres favoris</label>
                     <p class="sisme-preference-description">Choisissez vos genres de jeux préférés</p>
                     <?php 
@@ -189,7 +189,7 @@ class Sisme_User_Preferences_API {
             </h3>
             
             <div class="sisme-section-content">
-                <?php $active_notifications = ['new_indie_releases']; // new_games_in_genres, favorite_games_updates, new_indie_releases, newsletter
+                <?php $active_notifications = ['new_indie_releases', 'new_games_in_genres']; // new_games_in_genres, favorite_games_updates, new_indie_releases, newsletter
                 foreach ($notification_types as $key => $label): ?>
                     <div class="sisme-preference-group <?php echo !in_array($key, $active_notifications) ? 'sisme-disabled' : ''; ?>">
                         <?php 

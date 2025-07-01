@@ -25,14 +25,15 @@ class Sisme_Utils_Loader {
      * Modules utils disponibles dans l'ordre de chargement
      */
     private $available_modules = array(
-        'utils-validation.php'   => 'Validation et sanitisation',
-        'utils-formatting.php'   => 'Formatage dates et textes',
-        'utils-cache.php'        => 'Gestion cache WordPress',
-        'utils-wp.php'           => 'Helpers WordPress',
-        'utils-debug.php'        => 'Logging et debug',
-        'utils-games.php'        => 'Données et métier jeux',
-        'utils-filter.php'        => 'filtres et recherches de jeux',
-        'utils-users.php'        => 'Données et métier utilisateurs'
+        'utils-validation.php'      => 'Validation et sanitisation',
+        'utils-formatting.php'      => 'Formatage dates et textes',
+        'utils-cache.php'           => 'Gestion cache WordPress',
+        'utils-wp.php'              => 'Helpers WordPress',
+        'utils-debug.php'           => 'Logging et debug',
+        'utils-games.php'           => 'Données et métier jeux',
+        'utils-filter.php'          => 'filtres et recherches de jeux',
+        'utils-users.php'           => 'Données et métier utilisateurs',
+        'utils-notifications.php'   => 'filtres et recherches de jeux'
     );
     
     /**

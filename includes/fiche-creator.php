@@ -72,7 +72,6 @@ class Sisme_Fiche_Creator {
         // Sauvegarder les sections si fournies
         if (!empty($sections)) {update_post_meta($post_id, '_sisme_game_sections', $sections);}
         
-        // Générer le contenu avec le template
         $generated_content = Sisme_Fiche_Template::generate_fiche_content($post_id);
         if (!empty($generated_content)) {
             wp_update_post(array(
@@ -80,7 +79,12 @@ class Sisme_Fiche_Creator {
                 'post_content' => $generated_content
             ));
         }
-        
+        if (class_exists('Sisme_Utils_Notification')) {
+            $result = Sisme_Utils_Notification::send_new_game_notification($tag_id);
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("FICHE CREATOR: Notifications envoyées pour jeu {$tag_id}: {$result['message']}");
+            }
+        }
         return array(
             'success' => true,
             'post_id' => $post_id,

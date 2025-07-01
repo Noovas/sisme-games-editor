@@ -306,9 +306,9 @@ class Sisme_User_Preferences_Data_Manager {
      */
     public static function get_notification_types() {
         return [
-            'new_games_in_genres' => 'Nouveaux jeux dans mes genres favoris',
             'favorite_games_updates' => 'Mises à jour des jeux en favoris',
             'new_indie_releases' => 'Nouvelles sorties indépendantes',
+            'new_games_in_genres' => 'Sorties filtrées par mes genres favoris',
             'newsletter' => 'Newsletter hebdomadaire'
         ];
     }
