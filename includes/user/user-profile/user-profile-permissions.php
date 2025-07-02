@@ -350,7 +350,7 @@ class Sisme_User_Profile_Permissions {
     /**
      * Obtenir les statistiques des permissions du système
      * @return array Statistiques permissions
-     */
+     *
     public static function get_permissions_stats() {
         global $wpdb;
         $total_users = wp_count_users()['total_users'];
@@ -387,5 +387,5 @@ class Sisme_User_Profile_Permissions {
             'default_profiles' => $default_profiles,
             'configured_percentage' => $total_users > 0 ? round((($total_users - $default_profiles) / $total_users) * 100, 1) : 0
         ];
-    }
+    }*/
 }

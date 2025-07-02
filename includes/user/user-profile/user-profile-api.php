@@ -83,6 +83,14 @@ class Sisme_User_Profile_API {
             return '<div class="sisme-error">Erreur : Renderer non disponible.</div>';
         }
         
+        // Forcer le chargement des assets dashboard
+        if (class_exists('Sisme_User_Profile_Loader')) {
+            $profile_loader = Sisme_User_Profile_Loader::get_instance();
+            if (method_exists($profile_loader, 'force_load_assets')) {
+                $profile_loader->force_load_assets();
+            }
+        }
+        
         $dashboard_data = Sisme_User_Dashboard_Data_Manager::get_dashboard_data($profile_user_id);
         
         $filtered_data = Sisme_User_Profile_Permissions::filter_profile_data(
@@ -108,48 +116,12 @@ class Sisme_User_Profile_API {
                 $filtered_data['gaming_stats'], 
                 $context
             );
-            ?>
             
-            <div class="sisme-profile-content">
-                <div class="sisme-profile-section">
-                    <h2>Vue d'ensemble</h2>
-                    <?php
-                    echo Sisme_User_Dashboard_Renderer::render_activity_feed(
-                        $filtered_data['activity_feed'], 
-                        $context
-                    );
-                    
-                    echo Sisme_User_Dashboard_Renderer::render_recent_games(
-                        $filtered_data['recent_games'], 
-                        $context
-                    );
-                    ?>
-                </div>
-                
-                <?php if (in_array('favorites', $context['accessible_sections'])): ?>
-                <div class="sisme-profile-section">
-                    <h2>Jeux favoris</h2>
-                    <?php
-                    echo Sisme_User_Dashboard_Renderer::render_favorites_section(
-                        $filtered_data['favorite_games'],
-                        $context
-                    );
-                    ?>
-                </div>
-                <?php endif; ?>
-                
-                <?php if (in_array('activity', $context['accessible_sections'])): ?>
-                <div class="sisme-profile-section">
-                    <h2>Activité</h2>
-                    <?php
-                    echo Sisme_User_Dashboard_Renderer::render_activity_section(
-                        $filtered_data['activity_feed'],
-                        $context
-                    );
-                    ?>
-                </div>
-                <?php endif; ?>
-            </div>
+            echo Sisme_User_Dashboard_Renderer::render_dashboard_grid(
+                $filtered_data, 
+                $context
+            );
+            ?>
         </div>
         <?php
         return ob_get_clean();
