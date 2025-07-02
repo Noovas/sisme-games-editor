@@ -15,60 +15,46 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+add_shortcode('sisme_user_dashboard', ['Sisme_User_Dashboard_API', 'render_dashboard']);
+
 class Sisme_User_Dashboard_API {
     
     /**
      * Shortcode principal [sisme_user_dashboard]
      */
     public static function render_dashboard($atts = []) {
-        // Vérifier si l'utilisateur est connecté
         if (!is_user_logged_in()) {
             return Sisme_Utils_Users::render_login_required();
         }
-        
         $defaults = [
             'container_class' => 'sisme-user-dashboard',
             'user_id' => '',
             Sisme_Utils_Games::KEY_TITLE => 'Mon Dashboard'
         ];
-        
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_dashboard');
-        
-        // ID utilisateur (utilisateur courant par défaut)
         $user_id = !empty($atts['user_id']) ? intval($atts['user_id']) : get_current_user_id();
-        
-        // Vérification permissions
         if ($user_id !== get_current_user_id() && !current_user_can('manage_users')) {
-            return self::render_access_denied();
+            return Sisme_User_Dashboard_Renderer::render_access_denied();
         }
-        
-        // Forcer le chargement des assets
         if (class_exists('Sisme_User_Dashboard_Loader')) {
             $loader = Sisme_User_Dashboard_Loader::get_instance();
             if (method_exists($loader, 'force_load_assets')) {
                 $loader->force_load_assets();
             }
         }
-        
-        // Récupérer les données via data-manager
         if (!class_exists('Sisme_User_Dashboard_Data_Manager')) {
-            return self::render_error('Module de données non disponible');
+            return Sisme_User_Dashboard_Renderer::render_error('Module de données non disponible');
         }
-        
         $dashboard_data = Sisme_User_Dashboard_Data_Manager::get_dashboard_data($user_id);
         if (!$dashboard_data) {
-            return self::render_error('Impossible de charger les données utilisateur');
+            return Sisme_User_Dashboard_Renderer::render_error('Impossible de charger les données utilisateur');
         }
-        
-        // Mettre à jour la dernière visite
         Sisme_User_Dashboard_Data_Manager::update_last_dashboard_visit($user_id);
-        
-        // Rendu complet
         ob_start();
         ?>
         <div class="<?php echo esc_attr($atts['container_class']); ?>" data-user-id="<?php echo esc_attr($user_id); ?>">
-            <?php echo self::render_dashboard_header($dashboard_data['user_info'], $dashboard_data['gaming_stats']); ?>
-            <?php echo self::render_dashboard_grid($dashboard_data); ?>
+            <?php echo Sisme_User_Dashboard_Renderer::render_dashboard_header($dashboard_data['user_info'], $dashboard_data['gaming_stats']); ?>
+            <?php echo Sisme_User_Dashboard_Renderer::render_dashboard_grid($dashboard_data); ?>
         </div>
         <?php
         return ob_get_clean();
@@ -76,7 +62,7 @@ class Sisme_User_Dashboard_API {
     
     /**
      * Rendu du header du dashboard
-     */
+     
     private static function render_dashboard_header($user_info, $gaming_stats) {
         ob_start();
         ?>
@@ -137,11 +123,11 @@ class Sisme_User_Dashboard_API {
         </header>
         <?php
         return ob_get_clean();
-    }
+    }*/
     
     /**
      * Grille principale du dashboard
-     */
+     
     public static function render_dashboard_grid($dashboard_data) {
         ob_start();
         ?>
@@ -219,11 +205,11 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
     
     /**
      * Navigation sidebar
-     */
+     
     private static function render_sidebar_navigation() {
         ob_start();
         ?>
@@ -255,11 +241,11 @@ class Sisme_User_Dashboard_API {
         </nav>
         <?php
         return ob_get_clean();
-    }
+    }*/
     
     /**
      * Stats rapides sidebar
-     */
+     *
     private static function render_quick_stats($gaming_stats) {
         ob_start();
         ?>
@@ -283,11 +269,11 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
 
     /**
      * Section Favoris avec liens
-     */
+     *
     private static function render_favorites_section($favorite_games) {
         ob_start();
         ?>
@@ -317,11 +303,11 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
 
     /**
      * Section La Sismothèque (jeux possédés) avec liens
-     */
+     *
     private static function render_library_section($owned_games) {
         ob_start();
         ?>
@@ -351,11 +337,11 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
 
     /**
      * Section Activité détaillée
-     */
+     *
     private static function render_activity_section($activity_feed) {
         ob_start();
         ?>
@@ -384,7 +370,7 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
 
     /**
      * Rendu de la section paramètres avec préférences utilisateur
@@ -393,7 +379,7 @@ class Sisme_User_Dashboard_API {
      * 
      * @param int $user_id ID de l'utilisateur
      * @return string HTML de la section paramètres
-     */
+     *
     private static function render_settings_section($user_id) {
         // Vérifier les prérequis pour user-preferences
         if (!class_exists('Sisme_User_Preferences_Loader')) {
@@ -443,11 +429,11 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
 
     /**
      * Message si le module préférences n'est pas disponible
-     */
+     *
     private static function render_preferences_unavailable() {
         ob_start();
         ?>
@@ -460,11 +446,11 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
 
     /**
      * Message d'erreur d'intégration des préférences
-     */
+     *
     private static function render_preferences_error() {
         ob_start();
         ?>
@@ -480,11 +466,11 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
     
     /**
      * Feed d'activité (version originale pour Vue d'ensemble)
-     */
+     
     private static function render_activity_feed($activity_feed) {
         ob_start();
         ?>
@@ -509,14 +495,14 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
     
     /**
      * Grille des derniers jeux mis en ligne avec description et date de sortie
      * 
      * @param array $recent_games_data Données des jeux récents (non utilisé, on récupère direct)
      * @return string HTML de la grille
-     */
+     *
     private static function render_recent_games($recent_games_data) {
        ob_start();
        ?>
@@ -609,14 +595,14 @@ class Sisme_User_Dashboard_API {
        </div>
        <?php
        return ob_get_clean();
-    }
+    }*/
 
     /**
      * Récupérer l'URL d'un jeu (fiche en priorité, sinon tag)
      * 
      * @param int $game_id ID du jeu (term_id)
      * @return string URL du jeu
-     */
+     *
     private static function get_game_url($game_id) {
         // Vérifier que le term existe
         $term = get_term($game_id, 'post_tag');
@@ -646,11 +632,11 @@ class Sisme_User_Dashboard_API {
             // Fallback : lien vers la page tag
             return get_term_link($term);
         }
-    }
+    }*/
 
     /**
      * Widget favoris sidebar avec liens vers les fiches
-     */
+     *
     private static function render_favorites_widget($favorite_games) {
         ob_start();
         ?>
@@ -700,11 +686,11 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
 
     /**
      * Widget statistiques
-     */
+     *
     private static function render_stats_widget($gaming_stats) {
         ob_start();
         ?>
@@ -727,11 +713,11 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
 
     /**
      * Affichage en cas d'accès refusé
-     */
+     *
     private static function render_access_denied() {
         ob_start();
         ?>
@@ -744,11 +730,11 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
 
     /**
      * Affichage en cas d'erreur
-     */
+     *
     private static function render_error($message) {
         ob_start();
         ?>
@@ -761,11 +747,11 @@ class Sisme_User_Dashboard_API {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
 
     /**
      * Formatter le temps relatif
-     */
+     *
     private static function format_time_ago($date) {
         if (empty($date)) {
             return 'Date inconnue';
@@ -779,8 +765,6 @@ class Sisme_User_Dashboard_API {
         if ($time < 2592000) return 'Il y a ' . floor($time/86400) . ' jours';
         
         return date('j M Y', strtotime($date));
-    }
+    }*/
 }
 
-// Initialiser l'API
-add_shortcode('sisme_user_dashboard', ['Sisme_User_Dashboard_API', 'render_dashboard']);

@@ -62,8 +62,9 @@ class Sisme_User_Dashboard_Loader {
         
         // Modules requis dans l'ordre (version simplifiée)
         $required_modules = [
-            'user-dashboard-data-manager.php',  // Gestion données en premier
-            'user-dashboard-api.php'            // API et shortcode
+            'user-dashboard-renderer.php',
+            'user-dashboard-data-manager.php',
+            'user-dashboard-api.php'
         ];
         
         foreach ($required_modules as $module) {
