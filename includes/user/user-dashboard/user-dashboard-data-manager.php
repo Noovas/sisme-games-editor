@@ -298,7 +298,6 @@ class Sisme_User_Dashboard_Data_Manager {
         // Activité 4: Favoris récents (simulé - en attente du vrai système de tracking)
         $favorite_games = get_user_meta($user_id, 'sisme_user_favorite_games', true);
         if (!empty($favorite_games) && is_array($favorite_games)) {
-            // Prendre les 3 derniers favoris
             $recent_favorites = array_slice(array_reverse($favorite_games), 0, 3);
             foreach ($recent_favorites as $index => $game_id) {
                 $term = get_term($game_id, 'post_tag');
@@ -308,7 +307,7 @@ class Sisme_User_Dashboard_Data_Manager {
                         'icon' => '❤️',
                         'message' => 'Ajout de "' . $term->name . '" aux favoris',
                         'date' => current_time('mysql'),
-                        'timestamp' => current_time('timestamp') - (3600 * ($index + 1)) // Échelonner sur plusieurs heures
+                        'timestamp' => current_time('timestamp') - (3600 * ($index + 1))
                     ];
                 }
             }
@@ -317,7 +316,6 @@ class Sisme_User_Dashboard_Data_Manager {
         // Activité 5: Jeux owned récents (simulé)
         $owned_games = get_user_meta($user_id, 'sisme_user_owned_games', true);
         if (!empty($owned_games) && is_array($owned_games)) {
-            // Prendre les 3 derniers owned
             $recent_owned = array_slice(array_reverse($owned_games), 0, 3);
             foreach ($recent_owned as $index => $game_id) {
                 $term = get_term($game_id, 'post_tag');
@@ -327,13 +325,12 @@ class Sisme_User_Dashboard_Data_Manager {
                         'icon' => '📚',
                         'message' => 'Ajout de "' . $term->name . '" à la Sismothèque',
                         'date' => current_time('mysql'),
-                        'timestamp' => current_time('timestamp') - (7200 * ($index + 1)) // Échelonner sur plusieurs heures
+                        'timestamp' => current_time('timestamp') - (7200 * ($index + 1))
                     ];
                 }
             }
         }
         
-        // Activité 6: Articles créés par l'utilisateur
         $user_posts = get_posts([
             'author' => $user_id,
             'post_type' => 'post',
@@ -351,12 +348,10 @@ class Sisme_User_Dashboard_Data_Manager {
             ];
         }
         
-        // Trier par timestamp décroissant (plus récent en premier)
         usort($activities, function($a, $b) {
             return $b[Sisme_Utils_Games::KEY_TIMESTAMP] - $a[Sisme_Utils_Games::KEY_TIMESTAMP];
         });
         
-        // Limiter le nombre d'activités
         return array_slice($activities, 0, $limit);
     }
     

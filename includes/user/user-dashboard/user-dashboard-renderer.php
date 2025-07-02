@@ -233,7 +233,7 @@ class Sisme_User_Dashboard_Renderer {
             <?php else: ?>
                 <div class="sisme-activity-list">
                     <?php foreach (array_slice($activity_feed, 0, 3) as $activity): ?>
-                        <div class="sisme-activity-item">
+                        <div class="sisme-activity-item sisme-activity-item--detailed animated">
                             <div class="sisme-activity-icon"><?php echo esc_html($activity['icon']); ?></div>
                             <div class="sisme-activity-content">
                                 <p class="sisme-activity-text"><?php echo esc_html($activity['message']); ?></p>
@@ -280,37 +280,53 @@ class Sisme_User_Dashboard_Renderer {
                        if ($cover_main) {
                            $cover_url = wp_get_attachment_image_url($cover_main, 'medium');
                        }
+                       $game_url = $game[Sisme_Utils_Games::KEY_GAME_URL] ?? home_url($game['slug'] . '/');
+                       $formatted_date = '';
+                       if (!empty($release_date)) {
+                           $formatted_date = Sisme_Utils_Formatting::format_release_date($release_date);
+                       }
+                       $genres_display = [];
+                       if (!empty($game_genres)) {
+                           foreach (array_slice($game_genres, 0, 2) as $genre_id) {
+                               $genre_term = get_term($genre_id);
+                               if ($genre_term && !is_wp_error($genre_term)) {
+                                   $genres_display[] = str_replace('jeux-', '', $genre_term->slug);
+                               }
+                           }
+                       }
                        ?>
-                       <a href="<?php echo esc_url(self::get_game_url($game_id)); ?>" class="sisme-game-card sisme-recent-grid">
-                           <div class="sisme-game-cover sisme-recent-grid" style="background-image: url('<?php echo esc_url($cover_url); ?>');">
-                               <?php if ($is_owned): ?>
-                                   <div class="sisme-owned-badge sisme-recent-grid">Possédé</div>
-                               <?php endif; ?>
-                           </div>
-                           <div class="sisme-game-info sisme-recent-grid">
-                               <h4 class="sisme-game-title sisme-recent-grid"><?php echo esc_html($game['name']); ?></h4>
-                               <?php if (!empty($game_description)): ?>
-                                   <p class="sisme-game-description sisme-recent-grid"><?php echo esc_html(wp_trim_words($game_description, 15, '...')); ?></p>
-                               <?php endif; ?>
-                               <?php if (!empty($release_date)): ?>
-                                   <div class="sisme-game-meta sisme-recent-grid">
-                                       <time class="sisme-release-date sisme-recent-grid"><?php echo esc_html(Sisme_Utils_Formatting::format_release_date($release_date)); ?></time>
-                                   </div>
-                               <?php endif; ?>
-                               <?php if (!empty($game_genres)): ?>
-                                   <div class="sisme-genre-tags sisme-recent-grid">
-                                       <?php foreach (array_slice($game_genres, 0, 2) as $genre_id): 
-                                           $genre_term = get_term($genre_id);
-                                           if ($genre_term && !is_wp_error($genre_term)):
-                                               $genre_name = str_replace('jeux-', '', $genre_term->slug);
-                                               ?>
-                                               <span class="sisme-genre-tag sisme-recent-grid"><?php echo esc_html($genre_name); ?></span>
-                                           <?php endif; 
-                                       endforeach; ?>
-                                   </div>
-                               <?php endif; ?>
-                           </div>
-                       </a>
+                       <div class="sisme-game-card sisme-recent-grid">
+                           <a href="<?php echo esc_url($game_url); ?>" class="sisme-game-link">
+                               <div class="sisme-game-cover sisme-recent-grid" <?php echo $cover_url ? 'style="background-image: url(' . esc_url($cover_url) . ');"' : ''; ?>>
+                                   <?php if ($is_owned): ?>
+                                       <div class="sisme-game-overlay sisme-recent-grid">
+                                           <span class="sisme-owned-badge sisme-recent-grid">⚡</span>
+                                       </div>
+                                   <?php endif; ?>
+                               </div>
+                               <div class="sisme-game-info sisme-recent-grid">
+                                   <h4 class="sisme-game-title sisme-recent-grid"><?php echo esc_html($game[Sisme_Utils_Games::KEY_NAME]); ?></h4>
+                                   <?php if (!empty($game_description)): ?>
+                                       <p class="sisme-game-description sisme-recent-grid">
+                                           <?php echo esc_html(wp_trim_words($game_description, 15, '...')); ?>
+                                       </p>
+                                   <?php endif; ?>
+                                   <?php if (!empty($genres_display)): ?>
+                                       <div class="sisme-game-genres sisme-recent-grid">
+                                           <?php foreach ($genres_display as $genre): ?>
+                                               <span class="sisme-badge sisme-badge-genre"><?php echo esc_html($genre); ?></span>
+                                           <?php endforeach; ?>
+                                       </div>
+                                   <?php endif; ?>
+                                   <?php if ($formatted_date): ?>
+                                       <div class="sisme-game-release-date sisme-recent-grid">
+                                           <span class="sisme-date-icon sisme-recent-grid">📅</span>
+                                           <span class="sisme-date-text sisme-recent-grid"><?php echo esc_html($formatted_date); ?></span>
+                                       </div>
+                                   <?php endif; ?>
+                               </div>
+                           </a>
+                       </div>
                    <?php endforeach; ?>
                </div>
            <?php else: ?>
@@ -410,9 +426,9 @@ class Sisme_User_Dashboard_Renderer {
                     <p>Votre activité apparaîtra ici au fur et à mesure de vos interactions !</p>
                 </div>
             <?php else: ?>
-                <div class="sisme-activity-list-full">
+                <div class="sisme-activity-timeline">
                     <?php foreach ($activity_feed as $activity): ?>
-                        <div class="sisme-activity-item-full">
+                        <div class="sisme-activity-item sisme-activity-item--detailed animated">
                             <div class="sisme-activity-icon"><?php echo esc_html($activity['icon']); ?></div>
                             <div class="sisme-activity-content">
                                 <p class="sisme-activity-text"><?php echo esc_html($activity['message']); ?></p>
@@ -555,7 +571,7 @@ class Sisme_User_Dashboard_Renderer {
         if (!empty($fiche_post)) {
             return get_permalink($fiche_post[0]->ID);
         } else {
-            return get_term_link($term);
+            return home_url($term->slug . '/');
         }
     }
     
@@ -565,13 +581,29 @@ class Sisme_User_Dashboard_Renderer {
      * @return string Date relative formatée
      */
     public static function format_time_ago($date) {
-        $time = time() - strtotime($date);
+        if (empty($date)) {
+            return 'Date inconnue';
+        }
+        if (is_numeric($date)) {
+            $timestamp = intval($date);
+        } else {
+            $timestamp = strtotime($date);
+            if ($timestamp !== false) {
+                $wp_offset = get_option('gmt_offset') * HOUR_IN_SECONDS;
+                $timestamp = $timestamp - $wp_offset;
+            }
+        }
+        if ($timestamp === false || $timestamp <= 0) {
+            return 'Date invalide';
+        }
+        $time = time() - $timestamp;
+        if ($time < 0) return 'Dans le futur ?!';
         if ($time < 60) return 'à l\'instant';
-        if ($time < 3600) return floor($time/60) . ' min';
-        if ($time < 86400) return floor($time/3600) . ' h';
-        if ($time < 2592000) return floor($time/86400) . ' j';
-        if ($time < 31536000) return floor($time/2592000) . ' mois';
-        return floor($time/31536000) . ' an' . (floor($time/31536000) > 1 ? 's' : '');
+        if ($time < 3600) return 'Il y a ' . floor($time/60) . ' min';
+        if ($time < 86400) return 'Il y a ' . floor($time/3600) . ' h';
+        if ($time < 2592000) return 'Il y a ' . floor($time/86400) . ' j';
+        if ($time < 31536000) return 'Il y a ' . floor($time/2592000) . ' mois';
+        return 'Il y a ' . floor($time/31536000) . ' an' . (floor($time/31536000) > 1 ? 's' : '');
     }
     
     /**
