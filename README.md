@@ -22,220 +22,151 @@ Documentation technique condensée pour tous les modules du plugin Sisme Games E
 
 ---
 
-## 📖 Conventions
+# 🗺️ Roadmap Technique - Module User-Profile
 
-**Structure standard :**
-- 📂 Architecture des fichiers
-- 🔧 API principale (classes + méthodes)  
-- ⚡ JavaScript API (si applicable)
-- 🗂️ Structure des données
-- 🚀 Patterns d'usage
-- 🐛 Debug & intégrations
+## 🎯 Objectif
+Créer un nouveau module **user-profile** pour afficher les profils publics d'utilisateurs avec réutilisation complète des composants du dashboard existant.
 
 ---
 
-## 🔥 Nouveautés v1.0.0
+## 📋 Phase 1 : Refactorisation du Dashboard (Fondations)
 
-### ✅ Module Notifications Automatiques
-```php
-// Workflow automatique complet :
-// 1. User active "Nouvelles sorties indépendantes" (préférences)
-// 2. Publication fiche jeu → Hook automatique
-// 3. Notifications envoyées aux users concernés
-// 4. Badge dashboard mis à jour
-// 5. Navigation vers jeu depuis notification
-```
+### ✅ Étape 1.1 : Analyse des composants existants
+- [x] Audit complet du module `user-dashboard`
+- [x] Identification des méthodes de rendu réutilisables
+- [x] Analyse du `Sisme_User_Dashboard_Data_Manager`
 
-### ✅ Système Utils Extensible
-```php
-// Auto-loader pour includes/utils/
-function sisme_load_utils() {
-    // Scan automatique *.php dans includes/utils/
-    // Chargement conditionnel avec logs
-    // Support extensions futures
-}
-```
+### ✅ Étape 1.2 : Création du Renderer commun
+- [x] Créer `Sisme_User_Dashboard_Renderer` dans `/user-dashboard/`
+- [x] Extraire toutes les 18 méthodes de rendu de `user-dashboard-api.php`
+- [x] Ajouter paramètres de contexte (public/privé) aux méthodes
+- [x] Maintenir compatibilité exacte avec l'existant
 
-### ✅ Intégrations Cross-Module
-- **Dashboard ↔ Notifications** : Badge automatique dans header
-- **Preferences ↔ Notifications** : Filtrage par types de notifications
-- **Cards ↔ Notifications** : Récupération données jeux pour notifications
-- **Fiche Creator ↔ Notifications** : Hook publication automatique
+### ✅ Étape 1.3 : Adaptation du dashboard existant
+- [x] Modifier `user-dashboard-loader.php` pour charger le renderer
+- [x] Modifier `user-dashboard-api.php` pour utiliser le nouveau renderer
+- [x] Tests de non-régression sur le dashboard actuel - **VALIDÉS**
+- [x] Validation des assets CSS/JS inchangés
 
 ---
 
-## 🏗️ Architecture Plugin
+## 📋 Phase 2 : Création du Module User-Profile
 
-### Structure Principale
-```
-sisme-games-editor/
-├── includes/
-│   ├── user/                    # Système utilisateur modulaire
-│   │   ├── user-auth/          # Authentification
-│   │   ├── user-dashboard/     # Dashboard unifié
-│   │   ├── user-notifications/ # 🔥 Notifications automatiques
-│   │   └── user-preferences/   # Préférences gaming
-│   ├── utils/                  # 🔥 Utilitaires globaux auto-chargés
-│   │   └── sisme-notification-utils.php
-│   ├── cards/                  # Système cartes jeux
-│   └── fiche-creator.php      # Création fiches jeux
-├── docs/                       # Documentation API REF
-└── assets/                     # CSS/JS globaux
-```
+### ✅ Étape 2.1 : Structure du nouveau module
+- [x] Créer répertoire `/user-profile/` (nouveau module profils publics)
+- [x] Créer `user-profile-loader.php` (singleton pattern + réutilisation assets dashboard)
+- [ ] Créer `user-profile-api.php` (API de rendu utilisant le renderer partagé)
+- [ ] Créer `user-profile-permissions.php` (gestion visibilité public/privé/amis)
 
-### Auto-Loading System
-```php
-// Master loaders automatiques
-Sisme_User_Loader::get_instance()           // Charge tous sous-modules user
-sisme_load_utils()                           // Charge tous fichiers utils/
-Sisme_Cards_Loader::get_instance()          // Charge système cartes
+### 📊 Étape 2.2 : Logique de données
+- [ ] Adapter utilisation `Sisme_User_Dashboard_Data_Manager` pour contexte public
+- [ ] Créer filtres de données selon permissions (public/privé/amis)
+- [ ] Gérer les cas d'utilisateurs inexistants/privés
+- [ ] Implémenter logique de visibilité dans le renderer via `$context`
 
-// Détection et chargement conditionnels
-// Logs de debug complets
-// Gestion d'erreurs intégrée
-```
+### 🎨 Étape 2.3 : Interface utilisateur
+- [x] Réutiliser les assets CSS du dashboard (héritage automatique)
+- [ ] Adapter sections selon contexte public (masquer paramètres)
+- [ ] Adapter navigation pour contexte consultation (pas d'édition)
+- [ ] Tester rendu avec différents niveaux de permissions
 
 ---
 
-## 🎯 Workflows Automatisés
+## 📋 Phase 3 : Système de Permissions
 
-### 🔔 Notifications Publication Jeux
-```php
-// 1. Détection publication fiche (hook save_post priorité 99)
-// 2. Vérification tags jeu + game_description
-// 3. Récupération users avec préférence 'new_indie_releases'
-// 4. Envoi notifications en masse (max 99 par user, FIFO)
-// 5. Logs complets pour traçabilité
-```
+### 🔐 Étape 3.1 : Niveaux de visibilité
+- [ ] **Public** : Visible par tous (défaut)
+- [ ] **Privé** : Visible uniquement par le propriétaire
+- [ ] **Amis** : Visible par les amis (futur module user-social)
 
-### 👤 Système User Modulaire
-```php
-// Chargement automatique sous-modules
-$modules = ['user-auth', 'user-dashboard', 'user-notifications', 'user-preferences'];
-// Intégrations cross-module intelligentes
-// Assets conditionnels optimisés
-```
+### ⚡ Étape 3.2 : Logique d'accès
+- [ ] Fonction `can_view_profile($viewer_id, $profile_user_id)`
+- [ ] Gestion des erreurs d'accès (403, utilisateur inexistant)
+- [ ] Cache des permissions par session
 
 ---
 
-## 🚀 Getting Started
+## 📋 Phase 4 : Intégration & Finalisation
 
-### Installation Modules
-1. **Placer fichiers** dans structure correcte
-2. **Modifier loaders** pour inclure nouveaux modules
-3. **Activation automatique** au rechargement WordPress
+### 🔗 Étape 4.1 : Chargement automatique
+- [ ] Ajouter `user-profile` dans `user-loader.php`
+- [ ] Tests de chargement et compatibilité modules existants
 
-### Ajout Utils Personnalisés
-```php
-// 1. Créer fichier dans includes/utils/mon-util.php
-// 2. Auto-chargement automatique
-// 3. Classes/fonctions disponibles globalement
-```
+### 🚀 Étape 4.2 : APIs d'utilisation
+- [ ] API programmatique : `Sisme_User_Profile_API::render_profile($user_id, $options)`
+- [ ] Shortcode optionnel : `[sisme_user_profile id="123"]`
+- [ ] Documentation des paramètres et options
 
-### Extension Système
-```php
-// Pattern pour nouveau module user
-class Sisme_User_MonModule_Loader {
-    public static function get_instance() { /* singleton */ }
-    private function __construct() { /* init */ }
-}
+### ✅ Étape 4.3 : Tests & Validation
+- [ ] Tests unitaires des permissions
+- [ ] Tests d'intégration avec dashboard existant
+- [ ] Validation responsive et accessibilité
 
-// Ajout dans user-loader.php
-'user-mon-module' => 'Description Module'
-```
+## 🎯 État Actuel - PHASE 1 TERMINÉE ✅
+
+**Migration dashboard réussie !** Le système de renderer partagé est opérationnel :
+- ✅ Dashboard existant fonctionne avec le nouveau renderer
+- ✅ Infrastructure prête pour réutilisation profils publics
+- ✅ 18 fonctions de rendu centralisées et paramétrables
 
 ---
 
-## 🔧 APIs Transversales
+## 🚀 Prochaines Étapes - PHASE 2 EN COURS
 
-### Notifications
+**Priorité 1 :** Créer `user-profile-permissions.php`
+- Logique `can_view_profile($viewer_id, $profile_user_id)`
+- Gestion 3 niveaux : public/privé/amis
+- Fonctions de filtrage données selon permissions
+
+**Priorité 2 :** Créer `user-profile-api.php`
+- API principale `render_profile($user_id, $options)`
+- Utilisation du renderer avec `$context` approprié
+- Shortcode `[sisme_user_profile id="123"]`
+
+**Priorité 3 :** Tests d'intégration
+- Validation réutilisation parfaite composants dashboard
+- Test différents niveaux de permissions
+- Vérification non-régression dashboard
+
+### Réutilisation des composants
 ```php
-// Récupérer users avec préférence
-Sisme_Notification_Utils::get_users_with_notification_preference($type)
-
-// Envoi notifications masse
-Sisme_Notification_Utils::send_notification_to_users($user_ids, $game_id, $type)
-
-// UI notifications
-[sisme_user_notifications_badge]    // Badge compteur
-[sisme_user_notifications_panel]    // Panel latéral
+// Nouveau renderer partagé
+Sisme_User_Dashboard_Renderer::render_header($user_info, $gaming_stats, $context);
+Sisme_User_Dashboard_Renderer::render_activity_feed($activity_feed, $context);
+Sisme_User_Dashboard_Renderer::render_recent_games($recent_games, $context);
 ```
 
-### User Management
+### Gestion des contextes
 ```php
-// Dashboard unifié
-[sisme_user_dashboard]              // Interface complète
-
-// Préférences
-Sisme_User_Preferences_Data_Manager::get_user_preferences($user_id)
-
-// Actions utilisateur
-Sisme_User_Actions_Data_Manager::add_game_to_user_collection($user_id, $game_id, $type)
+$context = [
+    'is_public' => true,
+    'viewer_id' => get_current_user_id(),
+    'profile_user_id' => $user_id,
+    'can_edit' => false,
+    'show_private_data' => false
+];
 ```
 
-### Cards & Jeux
-```php
-// Rendu cartes
-[game_card id="123"]                // Carte individuelle
-[game_cards_grid genres="action"]   // Grille filtrée
-
-// Données jeux
-Sisme_Cards_Functions::get_game_data($game_id)
-Sisme_Cards_Functions::get_games_by_criteria($criteria)
+### Architecture finale
+```
+includes/user/
+├── user-dashboard/
+│   ├── user-dashboard-renderer.php     # ← Nouveau (composants communs)
+│   ├── user-dashboard-api.php          # ← Modifié (utilise renderer)
+│   └── ...
+└── user-profile/                       # ← Nouveau module
+    ├── user-profile-loader.php
+    ├── user-profile-api.php
+    ├── user-profile-permissions.php
+    └── ...
 ```
 
 ---
 
-## 🐛 Debug & Logs
+## ⏱️ Estimation
+- **Phase 1** : ~2-3h (refactorisation critique)
+- **Phase 2** : ~3-4h (nouveau module)
+- **Phase 3** : ~1-2h (permissions de base)
+- **Phase 4** : ~1h (intégration finale)
 
-### Activation Debug WordPress
-```php
-// wp-config.php
-define('WP_DEBUG', true);
-define('WP_DEBUG_LOG', true);
-```
-
-### Logs Système
-```bash
-# Chargement modules
-[Sisme User] Module 'Notifications utilisateur' initialisé
-[Sisme Games Editor] 3 utilitaires chargés depuis utils/
-
-# Notifications automatiques  
-[Sisme Notification Utils] Trouvé 5 utilisateurs avec préférence 'new_indie_releases'
-[Sisme Notification Utils] Publication jeu 125: Notifications envoyées à 5 utilisateurs
-```
-
-### Debug APIs
-```php
-// Test système notifications
-Sisme_Notification_Utils::test_notification_system($game_id)
-
-// Stats utilisateurs
-$loader = Sisme_User_Loader::get_instance();
-$active_modules = $loader->get_active_modules();
-```
-
----
-
-## 📈 Performance
-
-### Optimisations Intégrées
-- **Chargement conditionnel** : Assets uniquement si nécessaires
-- **Cache intelligent** : Meta queries optimisées
-- **FIFO automatique** : Limit 99 notifications par user
-- **Singleton patterns** : Une instance par loader
-- **Hooks prioritaires** : Chargement optimal des dépendances
-
-### Monitoring
-- **Logs détaillés** en mode debug
-- **Compteurs d'erreurs** pour chaque module
-- **Statistiques usage** via méthodes get_stats()
-
----
-
-## 🔗 Liens Utiles
-
-- **[Documentation User Notifications](docs/user/user-notifications-readme.md)** - Module complet notifications
-- **[Documentation User Dashboard](docs/user/user-dashboard-readme.md)** - Interface utilisateur unifiée
-- **[Documentation Cards](docs/cards/cards-readme.md)** - Système rendu cartes jeux
+**Total estimé** : 7-10h de développement
