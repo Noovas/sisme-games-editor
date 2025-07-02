@@ -19,7 +19,7 @@ Documentation technique condensée pour tous les modules du plugin Sisme Games E
 
 - **[🎴 Cards]()** - Rendu cartes de jeux
 
-- **[🔧 Utils Registry](docs/utils/utils-functions-registry-readme.md)** Dictionnaire des fonctions 
+- **[🔧 Utils Registry](utils-functions-registry-readme.md)** Dictionnaire des fonctions 
 
 ---
 
