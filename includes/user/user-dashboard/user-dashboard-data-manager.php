@@ -103,18 +103,26 @@ class Sisme_User_Dashboard_Data_Manager {
      * @return array Stats gaming
      */
     public static function get_gaming_stats($user_id) {
-        // Récupérer les collections
-        $favorite_games = get_user_meta($user_id, 'sisme_user_favorite_games', true) ?: [];
-        $owned_games = get_user_meta($user_id, 'sisme_user_owned_games', true) ?: [];
+        // Utiliser le nouveau système user-actions
+        if (class_exists('Sisme_User_Actions_Data_Manager')) {
+            $favorite_ids = Sisme_User_Actions_Data_Manager::get_user_collection($user_id, 'favorite');
+            $owned_ids = Sisme_User_Actions_Data_Manager::get_user_collection($user_id, 'owned');
+            
+            $favorite_count = count($favorite_ids);
+            $owned_count = count($owned_ids);
+            $all_unique_games = array_unique(array_merge($favorite_ids, $owned_ids));
+            $total_unique_count = count($all_unique_games);
+        } else {
+            // Fallback ancien système
+            $favorite_games = get_user_meta($user_id, 'sisme_user_favorite_games', true) ?: [];
+            $owned_games = get_user_meta($user_id, 'sisme_user_owned_games', true) ?: [];
+            
+            $favorite_count = is_array($favorite_games) ? count($favorite_games) : 0;
+            $owned_count = is_array($owned_games) ? count($owned_games) : 0;
+            $all_unique_games = array_unique(array_merge($favorite_games, $owned_games));
+            $total_unique_count = count($all_unique_games);
+        }
         
-        $favorite_count = is_array($favorite_games) ? count($favorite_games) : 0;
-        $owned_count = is_array($owned_games) ? count($owned_games) : 0;
-        
-        // Calculer le nombre total de jeux uniques (éviter doublons)
-        $all_unique_games = array_unique(array_merge($favorite_games, $owned_games));
-        $total_unique_count = count($all_unique_games);
-        
-        // Compter les articles créés par l'utilisateur
         $user_posts = count_user_posts($user_id, 'post');
         
         return [
@@ -122,8 +130,8 @@ class Sisme_User_Dashboard_Data_Manager {
             'favorite_games' => $favorite_count,
             'owned_games' => $owned_count,
             'user_posts' => $user_posts,
-            'completion_rate' => 0, // Future feature
-            'playtime_hours' => 0,  // Future feature
+            'completion_rate' => 0,
+            'playtime_hours' => 0,
             'level' => self::calculate_user_level($total_unique_count, $user_posts)
         ];
     }
@@ -169,22 +177,22 @@ class Sisme_User_Dashboard_Data_Manager {
         }
     }
     
-    /**
-     * Récupérer les jeux favoris avec données complètes
-     * 
-     * @param int $user_id ID utilisateur
-     * @param int $limit Nombre de favoris à récupérer
-     * @return array Jeux favoris
-     */
     public static function get_favorite_games($user_id, $limit = 20) {
-        $favorite_game_ids = get_user_meta($user_id, 'sisme_user_favorite_games', true);
-        
-        if (!is_array($favorite_game_ids) || empty($favorite_game_ids)) {
-            return [];
+    // Utiliser le nouveau système user-actions
+        if (class_exists('Sisme_User_Actions_Data_Manager')) {
+            $favorite_game_ids = Sisme_User_Actions_Data_Manager::get_user_collection(
+                $user_id, 
+                'favorite', 
+                $limit
+            );
+        } else {
+            // Fallback ancien système
+            $favorite_game_ids = get_user_meta($user_id, 'sisme_user_favorite_games', true);
+            if (!is_array($favorite_game_ids) || empty($favorite_game_ids)) {
+                return [];
+            }
+            $favorite_game_ids = array_slice(array_reverse($favorite_game_ids), 0, $limit);
         }
-        
-        // Limiter et récupérer les plus récents
-        $favorite_game_ids = array_slice(array_reverse($favorite_game_ids), 0, $limit);
         
         return self::build_games_array($favorite_game_ids);
     }
@@ -197,14 +205,21 @@ class Sisme_User_Dashboard_Data_Manager {
      * @return array Jeux possédés
      */
     public static function get_owned_games($user_id, $limit = 20) {
-        $owned_game_ids = get_user_meta($user_id, 'sisme_user_owned_games', true);
-        
-        if (!is_array($owned_game_ids) || empty($owned_game_ids)) {
-            return [];
+        // Utiliser le nouveau système user-actions
+        if (class_exists('Sisme_User_Actions_Data_Manager')) {
+            $owned_game_ids = Sisme_User_Actions_Data_Manager::get_user_collection(
+                $user_id, 
+                'owned', 
+                $limit
+            );
+        } else {
+            // Fallback ancien système
+            $owned_game_ids = get_user_meta($user_id, 'sisme_user_owned_games', true);
+            if (!is_array($owned_game_ids) || empty($owned_game_ids)) {
+                return [];
+            }
+            $owned_game_ids = array_slice(array_reverse($owned_game_ids), 0, $limit);
         }
-        
-        // Limiter et récupérer les plus récents
-        $owned_game_ids = array_slice(array_reverse($owned_game_ids), 0, $limit);
         
         return self::build_games_array($owned_game_ids);
     }
@@ -250,7 +265,7 @@ class Sisme_User_Dashboard_Data_Manager {
     }
     
     /**
-     * Feed d'activité complet pour la section Activity
+     * Feed d'activité complet pour la section Activity (MODIFIÉE)
      * 
      * @param int $user_id ID utilisateur
      * @param int $limit Nombre d'éléments max
@@ -295,64 +310,65 @@ class Sisme_User_Dashboard_Data_Manager {
             ];
         }
         
-        // Activité 4: Favoris récents (simulé - en attente du vrai système de tracking)
-        $favorite_games = get_user_meta($user_id, 'sisme_user_favorite_games', true);
-        if (!empty($favorite_games) && is_array($favorite_games)) {
-            $recent_favorites = array_slice(array_reverse($favorite_games), 0, 3);
-            foreach ($recent_favorites as $index => $game_id) {
+        // NOUVEAU : Activités favoris avec VRAIS timestamps
+        if (class_exists('Sisme_User_Actions_Data_Manager')) {
+            $favorites_with_metadata = Sisme_User_Actions_Data_Manager::get_user_collection_with_metadata(
+                $user_id, 
+                'favorite', 
+                10 // Limiter aux 10 derniers favoris
+            );
+            
+            foreach ($favorites_with_metadata as $game_id => $metadata) {
                 $term = get_term($game_id, 'post_tag');
                 if ($term && !is_wp_error($term)) {
                     $activities[] = [
                         'type' => 'favorite_added',
                         'icon' => '❤️',
                         'message' => 'Ajout de "' . $term->name . '" aux favoris',
-                        'date' => current_time('mysql'),
-                        'timestamp' => current_time('timestamp') - (3600 * ($index + 1))
+                        'date' => $metadata['added_at'],
+                        'timestamp' => strtotime($metadata['added_at']),
+                        'game_id' => $game_id,
+                        'game_name' => $term->name
                     ];
                 }
             }
         }
         
-        // Activité 5: Jeux owned récents (simulé)
-        $owned_games = get_user_meta($user_id, 'sisme_user_owned_games', true);
-        if (!empty($owned_games) && is_array($owned_games)) {
-            $recent_owned = array_slice(array_reverse($owned_games), 0, 3);
-            foreach ($recent_owned as $index => $game_id) {
+        // NOUVEAU : Activités jeux possédés avec VRAIS timestamps
+        if (class_exists('Sisme_User_Actions_Data_Manager')) {
+            $owned_with_metadata = Sisme_User_Actions_Data_Manager::get_user_collection_with_metadata(
+                $user_id, 
+                'owned', 
+                5 // Limiter aux 5 derniers
+            );
+            
+            foreach ($owned_with_metadata as $game_id => $metadata) {
                 $term = get_term($game_id, 'post_tag');
                 if ($term && !is_wp_error($term)) {
                     $activities[] = [
-                        'type' => 'game_owned',
-                        'icon' => '📚',
-                        'message' => 'Ajout de "' . $term->name . '" à la Sismothèque',
-                        'date' => current_time('mysql'),
-                        'timestamp' => current_time('timestamp') - (7200 * ($index + 1))
+                        'type' => 'owned_added',
+                        'icon' => '🎯',
+                        'message' => 'Ajout de "' . $term->name . '" à la collection',
+                        'date' => $metadata['added_at'],
+                        'timestamp' => strtotime($metadata['added_at']),
+                        'game_id' => $game_id,
+                        'game_name' => $term->name
                     ];
                 }
             }
         }
         
-        $user_posts = get_posts([
-            'author' => $user_id,
-            'post_type' => 'post',
-            'posts_per_page' => 3,
-            'post_status' => 'publish'
-        ]);
-        
-        foreach ($user_posts as $post) {
-            $activities[] = [
-                'type' => 'post_published',
-                'icon' => '📝',
-                'message' => 'Publication de l\'article "' . $post->post_title . '"',
-                'date' => $post->post_date,
-                'timestamp' => strtotime($post->post_date)
-            ];
-        }
-        
+        // Trier toutes les activités par timestamp décroissant
         usort($activities, function($a, $b) {
-            return $b[Sisme_Utils_Games::KEY_TIMESTAMP] - $a[Sisme_Utils_Games::KEY_TIMESTAMP];
+            return $b['timestamp'] - $a['timestamp'];
         });
         
-        return array_slice($activities, 0, $limit);
+        // Limiter au nombre demandé
+        if ($limit > 0) {
+            $activities = array_slice($activities, 0, $limit);
+        }
+        
+        return $activities;
     }
     
     /**

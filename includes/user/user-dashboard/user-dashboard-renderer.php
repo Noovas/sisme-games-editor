@@ -491,16 +491,26 @@ class Sisme_User_Dashboard_Renderer {
             <h3 class="sisme-widget-title">❤️ Favoris récents</h3>
             <?php 
             $current_user_id = get_current_user_id();
-            $favorite_game_ids = get_user_meta($current_user_id, 'sisme_user_favorite_games', true);
+            
+            // Utiliser le nouveau système user-actions
+            if (class_exists('Sisme_User_Actions_Data_Manager')) {
+                $favorite_game_ids = Sisme_User_Actions_Data_Manager::get_user_collection($current_user_id, 'favorite', 3);
+            } else {
+                // Fallback ancien système
+                $favorite_game_ids = get_user_meta($current_user_id, 'sisme_user_favorite_games', true);
+                if (is_array($favorite_game_ids)) {
+                    $favorite_game_ids = array_slice($favorite_game_ids, 0, 3);
+                }
+            }
+            
             if (empty($favorite_game_ids) || !is_array($favorite_game_ids)): ?>
                 <p class="sisme-widget-empty">Aucun favori ajouté.</p>
             <?php else: ?>
                 <div class="sisme-favorites-preview">
-                    <?php 
-                    $limited_favorites = array_slice($favorite_game_ids, 0, 3);
-                    foreach ($limited_favorites as $game_id): 
+                    <?php foreach ($favorite_game_ids as $game_id): 
                         $term = get_term($game_id, 'post_tag');
                         if (!$term || is_wp_error($term)) continue;
+                        
                         $cover_main = get_term_meta($game_id, Sisme_Utils_Games::META_COVER_MAIN, true);
                         $cover_url = '';
                         if ($cover_main) {
@@ -512,6 +522,23 @@ class Sisme_User_Dashboard_Renderer {
                             <span class="sisme-favorite-name"><?php echo esc_html($term->name); ?></span>
                         </a>
                     <?php endforeach; ?>
+                    
+                    <?php 
+                    // Compter le total pour l'affichage "Voir tous"
+                    $total_favorites = 0;
+                    if (class_exists('Sisme_User_Actions_Data_Manager')) {
+                        $all_favorites = Sisme_User_Actions_Data_Manager::get_user_collection($current_user_id, 'favorite');
+                        $total_favorites = count($all_favorites);
+                    } else {
+                        $all_favorites = get_user_meta($current_user_id, 'sisme_user_favorite_games', true);
+                        $total_favorites = is_array($all_favorites) ? count($all_favorites) : 0;
+                    }
+                    
+                    if ($total_favorites > 3): ?>
+                        <a href="#favorites" class="sisme-view-all" data-section="favorites">
+                            Voir tous les favoris (<?php echo $total_favorites; ?>)
+                        </a>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
         </div>

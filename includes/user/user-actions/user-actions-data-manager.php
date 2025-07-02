@@ -22,9 +22,52 @@ class Sisme_User_Actions_Data_Manager {
         self::COLLECTION_FAVORITE => 'sisme_user_favorite_games',
         self::COLLECTION_OWNED => 'sisme_user_owned_games'
     ];
+
+    /**
+     * Migrer les collections utilisateur vers le nouveau format avec timestamps
+     * 
+     * @param int $user_id ID de l'utilisateur
+     * @param string $collection_type Type de collection
+     */
+    private static function migrate_user_collection_to_timestamped($user_id, $collection_type) {
+        if (!isset(self::$collection_meta_keys[$collection_type])) {
+            return false;
+        }
+        
+        $meta_key = self::$collection_meta_keys[$collection_type];
+        $collection = get_user_meta($user_id, $meta_key, true);
+        
+        // Si déjà au nouveau format (array associatif avec timestamps), ne rien faire
+        if (is_array($collection) && !empty($collection)) {
+            $first_key = array_key_first($collection);
+            if (is_array($collection[$first_key]) && isset($collection[$first_key]['added_at'])) {
+                return true;
+            }
+        }
+        
+        // Migration : transformer [123, 456] en [123 => ['added_at' => date], 456 => [...]]
+        if (is_array($collection) && !empty($collection)) {
+            $migrated_collection = [];
+            $base_date = time() - (count($collection) * 86400);
+            
+            foreach ($collection as $index => $game_id) {
+                $migrated_collection[$game_id] = [
+                    'added_at' => date('Y-m-d H:i:s', $base_date + ($index * 86400))
+                ];
+            }
+            
+            update_user_meta($user_id, $meta_key, $migrated_collection);
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme User Actions] Collection {$collection_type} migrée pour utilisateur {$user_id}");
+            }
+        }
+        
+        return true;
+    }
     
     /**
-     * Vérifier si un jeu est dans une collection utilisateur
+     * Vérifier si un jeu est dans une collection utilisateur (MODIFIÉE)
      * 
      * @param int $user_id ID de l'utilisateur
      * @param int $game_id ID du jeu (term_id)
@@ -32,24 +75,26 @@ class Sisme_User_Actions_Data_Manager {
      * @return bool
      */
     public static function is_game_in_user_collection($user_id, $game_id, $collection_type) {
-        // Vérifier que le type de collection existe
         if (!isset(self::$collection_meta_keys[$collection_type])) {
             return false;
         }
         
+        // Migration automatique si nécessaire
+        self::migrate_user_collection_to_timestamped($user_id, $collection_type);
+        
         $meta_key = self::$collection_meta_keys[$collection_type];
         $collection = get_user_meta($user_id, $meta_key, true);
         
-        // Si la collection n'existe pas encore, initialiser comme array vide
         if (empty($collection) || !is_array($collection)) {
             return false;
         }
         
-        return in_array($game_id, $collection);
+        // Nouveau format : vérifier la clé dans l'array associatif
+        return isset($collection[$game_id]);
     }
     
     /**
-     * Ajouter un jeu à une collection utilisateur
+     * Ajouter un jeu à une collection utilisateur (MODIFIÉE)
      * 
      * @param int $user_id ID de l'utilisateur
      * @param int $game_id ID du jeu (term_id)
@@ -57,26 +102,31 @@ class Sisme_User_Actions_Data_Manager {
      * @return bool Succès de l'opération
      */
     public static function add_game_to_user_collection($user_id, $game_id, $collection_type) {
-        // Vérifier que le type de collection existe
         if (!isset(self::$collection_meta_keys[$collection_type])) {
             return false;
         }
         
+        // Migration automatique si nécessaire
+        self::migrate_user_collection_to_timestamped($user_id, $collection_type);
+        
         $meta_key = self::$collection_meta_keys[$collection_type];
         $collection = get_user_meta($user_id, $meta_key, true);
         
-        // Si la collection n'existe pas encore, initialiser comme array vide
+        // Initialiser collection vide si nécessaire
         if (empty($collection) || !is_array($collection)) {
             $collection = [];
         }
         
         // Si le jeu est déjà dans la collection, ne rien faire
-        if (in_array($game_id, $collection)) {
+        if (isset($collection[$game_id])) {
             return true;
         }
         
-        // Ajouter le jeu et mettre à jour la meta
-        $collection[] = $game_id;
+        // Ajouter le jeu avec timestamp actuel
+        $collection[$game_id] = [
+            'added_at' => current_time('mysql')
+        ];
+        
         $success = update_user_meta($user_id, $meta_key, $collection);
         
         // Actions personnalisées après l'ajout
@@ -93,7 +143,7 @@ class Sisme_User_Actions_Data_Manager {
     }
     
     /**
-     * Supprimer un jeu d'une collection utilisateur
+     * Supprimer un jeu d'une collection utilisateur (MODIFIÉE)
      * 
      * @param int $user_id ID de l'utilisateur
      * @param int $game_id ID du jeu (term_id)
@@ -101,26 +151,27 @@ class Sisme_User_Actions_Data_Manager {
      * @return bool Succès de l'opération
      */
     public static function remove_game_from_user_collection($user_id, $game_id, $collection_type) {
-        // Vérifier que le type de collection existe
         if (!isset(self::$collection_meta_keys[$collection_type])) {
             return false;
         }
         
+        // Migration automatique si nécessaire
+        self::migrate_user_collection_to_timestamped($user_id, $collection_type);
+        
         $meta_key = self::$collection_meta_keys[$collection_type];
         $collection = get_user_meta($user_id, $meta_key, true);
         
-        // Si la collection n'existe pas, rien à supprimer
         if (empty($collection) || !is_array($collection)) {
             return true;
         }
         
         // Si le jeu n'est pas dans la collection, ne rien faire
-        if (!in_array($game_id, $collection)) {
+        if (!isset($collection[$game_id])) {
             return true;
         }
         
-        // Supprimer le jeu du tableau
-        $collection = array_diff($collection, [$game_id]);
+        // Supprimer le jeu
+        unset($collection[$game_id]);
         $success = update_user_meta($user_id, $meta_key, $collection);
         
         // Actions personnalisées après la suppression
@@ -137,7 +188,7 @@ class Sisme_User_Actions_Data_Manager {
     }
     
     /**
-     * Récupérer les jeux d'une collection utilisateur
+     * Récupérer les jeux d'une collection utilisateur (MODIFIÉE)
      * 
      * @param int $user_id ID de l'utilisateur
      * @param string $collection_type Type de collection (favorite, owned)
@@ -145,25 +196,96 @@ class Sisme_User_Actions_Data_Manager {
      * @return array Liste des IDs de jeux dans la collection
      */
     public static function get_user_collection($user_id, $collection_type, $limit = -1) {
-        // Vérifier que le type de collection existe
         if (!isset(self::$collection_meta_keys[$collection_type])) {
             return [];
         }
         
+        // Migration automatique si nécessaire
+        self::migrate_user_collection_to_timestamped($user_id, $collection_type);
+        
         $meta_key = self::$collection_meta_keys[$collection_type];
         $collection = get_user_meta($user_id, $meta_key, true);
         
-        // Si la collection n'existe pas, retourner un tableau vide
         if (empty($collection) || !is_array($collection)) {
             return [];
         }
         
-        // Limiter le nombre de résultats si demandé
-        if ($limit > 0 && count($collection) > $limit) {
-            $collection = array_slice($collection, 0, $limit);
+        // Extraire les IDs (clés de l'array)
+        $game_ids = array_keys($collection);
+        
+        // Limiter si nécessaire
+        if ($limit > 0 && count($game_ids) > $limit) {
+            // Trier par date d'ajout (plus récent d'abord)
+            uasort($collection, function($a, $b) {
+                return strtotime($b['added_at']) - strtotime($a['added_at']);
+            });
+            
+            $game_ids = array_slice(array_keys($collection), 0, $limit);
+        }
+        
+        return $game_ids;
+    }
+
+    /**
+     * Récupérer une collection avec métadonnées complètes
+     * 
+     * @param int $user_id ID de l'utilisateur
+     * @param string $collection_type Type de collection
+     * @param int $limit Limite (-1 pour tous)
+     * @return array Collection avec metadata [game_id => ['added_at' => date]]
+     */
+    public static function get_user_collection_with_metadata($user_id, $collection_type, $limit = -1) {
+        if (!isset(self::$collection_meta_keys[$collection_type])) {
+            return [];
+        }
+        
+        // Migration automatique si nécessaire
+        self::migrate_user_collection_to_timestamped($user_id, $collection_type);
+        
+        $meta_key = self::$collection_meta_keys[$collection_type];
+        $collection = get_user_meta($user_id, $meta_key, true);
+        
+        if (empty($collection) || !is_array($collection)) {
+            return [];
+        }
+        
+        // Trier par date d'ajout (plus récent d'abord)
+        uasort($collection, function($a, $b) {
+            return strtotime($b['added_at']) - strtotime($a['added_at']);
+        });
+        
+        // Limiter si nécessaire
+        if ($limit > 0) {
+            $collection = array_slice($collection, 0, $limit, true);
         }
         
         return $collection;
+    }
+
+    /**
+     * NOUVELLE : Obtenir la date d'ajout d'un jeu dans une collection
+     * 
+     * @param int $user_id ID utilisateur
+     * @param int $game_id ID jeu
+     * @param string $collection_type Type collection
+     * @return string|false Date MySQL ou false si pas trouvé
+     */
+    public static function get_game_added_date($user_id, $game_id, $collection_type) {
+        if (!isset(self::$collection_meta_keys[$collection_type])) {
+            return false;
+        }
+        
+        // Migration automatique si nécessaire
+        self::migrate_user_collection_to_timestamped($user_id, $collection_type);
+        
+        $meta_key = self::$collection_meta_keys[$collection_type];
+        $collection = get_user_meta($user_id, $meta_key, true);
+        
+        if (empty($collection) || !is_array($collection) || !isset($collection[$game_id])) {
+            return false;
+        }
+        
+        return $collection[$game_id]['added_at'];
     }
     
     /**
