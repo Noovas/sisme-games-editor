@@ -8,15 +8,16 @@ Documentation technique condensée pour tous les modules du plugin Sisme Games E
 ## 🚀 Accès Rapide
 
 ### Modules Core
-- **[👤 User](docs/user/user-readme.md)** - Système utilisateur complet
-  - [👤 User Auth](docs/user/user-auth-readme.md) - Authentification et sessions
-  - [⚙️ User Preferences](docs/user/user-preferences-readme.md) - Préférences gaming
-  - [📊 User Dashboard](docs/user/user-dashboard-readme.md) - Tableau de bord utilisateur
-  - [🖼️ User Profile](docs/user/user-profile-readme.md) - Gestion profils et avatars
-  - [⚡ User Actions](docs/user/user-actions-readme.md) - Actions utilisateur (favoris, owned, etc.)
-  - [🔔 User Notifications](docs/user/user-notifications-readme.md) - **NEW** Notifications automatiques
+- **[👤 User]()** - Système utilisateur complet
+  - [👤 User Auth]() - Authentification et sessions
+  - [⚙️ User Preferences]() - Préférences gaming
+  - [📊 User Dashboard]() - Tableau de bord utilisateur
+  - [🖼️ User Profile]() - Gestion profils et avatars
+  - [⚡ User Actions]() - Actions utilisateur (favoris, owned, etc.)
+  - [🔔 User Notifications]() - Notifications automatiques
+  - [👤 User Profile]() - Vue du profile utilisateur social - En cours de construction
 
-- **[🎴 Cards](docs/cards/cards-readme.md)** - Rendu cartes de jeux
+- **[🎴 Cards]()** - Rendu cartes de jeux
 
 - **[🔧 Utils Registry](docs/utils/utils-functions-registry-readme.md)** Dictionnaire des fonctions 
 
