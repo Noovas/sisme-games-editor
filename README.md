@@ -59,7 +59,7 @@ Créer un nouveau module **user-profile** pour afficher les profils publics d'ut
 - [x] Créer `user-profile-permissions.php` (gestion visibilité public/privé/amis)
 - [x] Créer `user-profile-api.php` (API de rendu utilisant le renderer partagé)
 
-### 🔄 Étape 2.2 : Logique de données
+### ✅ Étape 2.2 : Logique de données
 - [x] Adapter utilisation `Sisme_User_Dashboard_Data_Manager` pour contexte public
 - [x] Créer filtres de données selon permissions (public/privé/amis)
 - [x] Gérer les cas d'utilisateurs inexistants/privés
@@ -70,6 +70,7 @@ Créer un nouveau module **user-profile** pour afficher les profils publics d'ut
 - [x] Utiliser structure HTML identique (`render_dashboard_grid()`)
 - [x] Adapter sections selon contexte public (via permissions)
 - [x] Correction structure pour cohérence visuelle parfaite
+- [x] **Fix navigation JavaScript** - Classe CSS cohérente
 
 ---
 
@@ -88,12 +89,12 @@ Créer un nouveau module **user-profile** pour afficher les profils publics d'ut
 
 ---
 
-## 🔄 Phase 4 : Intégration & Finalisation - **EN COURS**
+## ✅ Phase 4 : Intégration & Finalisation
 
-### 🔄 Étape 4.1 : Chargement automatique - **EN COURS**
+### ✅ Étape 4.1 : Chargement automatique
+- [x] Navigation par onglets fonctionnelle (fix classe CSS)
+- [x] Shortcode `[sisme_user_profile]` opérationnel
 - [ ] Ajouter `user-profile` dans `user-loader.php` (liste des modules)
-- [ ] Tests de chargement et compatibilité modules existants
-- [x] Shortcode `[sisme_user_profile]` fonctionnel
 
 ### ✅ Étape 4.2 : APIs d'utilisation
 - [x] API programmatique : `Sisme_User_Profile_API::render_profile($user_id, $options)`
@@ -105,14 +106,30 @@ Créer un nouveau module **user-profile** pour afficher les profils publics d'ut
 - [x] Validation réutilisation parfaite composants dashboard
 - [x] Correction structure HTML pour cohérence visuelle
 - [x] Chargement assets CSS/JS dashboard
+- [x] Navigation par onglets fonctionnelle
 - [ ] Tests d'intégration complets avec dashboard existant
 - [ ] Validation responsive et accessibilité
 
 ---
 
-## ✅ État Actuel - PHASE 2 & 3 TERMINÉES
+## 🎯 Phase 5 : Améliorations UX & Technique - **NOUVELLE PHASE**
 
-**Module user-profile opérationnel !**
+### 🔄 Étape 5.1 : Amélioration UX - **EN COURS**
+- [ ] **Bouton retour "Mon profil"** - Navigation retour vers profil connecté
+- [ ] **Adaptation textes contextuels** - "Mes" → "Ses", "Ma" → "Sa", etc.
+- [ ] **Titre dynamique** - Nom de l'utilisateur dans le header
+
+### 🔄 Étape 5.2 : Intégration paramètres utilisateur - **EN COURS**
+- [ ] **Option confidentialité globale** - Activation depuis dashboard privé
+- [ ] **Interface de gestion** - Toggle public/privé dans paramètres
+- [ ] **Synchronisation permissions** - Mise à jour temps réel
+
+---
+
+## ✅ État Actuel - PHASES 1-4 TERMINÉES
+
+**Module user-profile totalement opérationnel !**
+- ✅ **Navigation par onglets** fonctionnelle (fix classe CSS)
 - ✅ **Structure identique** au dashboard (même HTML, CSS, classes)
 - ✅ **Permissions complètes** (public/privé/amis avec filtrage)
 - ✅ **API fonctionnelle** avec gestion d'erreurs
@@ -121,14 +138,19 @@ Créer un nouveau module **user-profile** pour afficher les profils publics d'ut
 
 ---
 
-## 🚀 Dernière étape - Intégration système
+## 🚀 Prochaines étapes prioritaires
 
-**À faire :**
-1. Ajouter `'user-profile' => 'Profils publics utilisateur'` dans `user-loader.php`
-2. Tests finaux d'intégration
-3. Validation sur différents niveaux de permissions
+### **Phase 5.1 - Améliorations UX :**
+1. **Bouton retour "Mon profil"** quand on visite le profil d'un autre
+2. **Adaptation des textes** pour contexte consultation
+3. **Titre personnalisé** avec nom de l'utilisateur
 
-**Temps estimé restant :** ~30 minutes
+### **Phase 5.2 - Paramètres confidentialité :**
+1. **Toggle public/privé** dans les paramètres du dashboard
+2. **Interface utilisateur** pour gérer la visibilité
+3. **Synchronisation** avec le système de permissions
+
+**Temps estimé Phase 5 :** ~2-3h
 
 ---
 
@@ -140,9 +162,9 @@ includes/user/
 │   ├── user-dashboard-renderer.php     # ✅ Renderer partagé (18 méthodes)
 │   ├── user-dashboard-api.php          # ✅ Modifié (utilise renderer)
 │   └── user-dashboard-data-manager.php # ✅ Réutilisé par profil
-└── user-profile/                       # ✅ Module complet
+└── user-profile/                       # ✅ Module complet et fonctionnel
     ├── user-profile-loader.php         # ✅ Singleton + assets
-    ├── user-profile-api.php             # ✅ API + shortcode
+    ├── user-profile-api.php             # ✅ API + shortcode + navigation
     └── user-profile-permissions.php     # ✅ Permissions + filtrage
 ```
 

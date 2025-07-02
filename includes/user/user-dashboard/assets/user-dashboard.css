@@ -52,11 +52,13 @@
 }
 
 /* ===📱 RESET & BASE ====================== */
-.sisme-user-dashboard * {
+.sisme-user-dashboard *,
+.sisme-user-profile * {
     box-sizing: border-box;
 }
 
-.sisme-user-dashboard {
+.sisme-user-dashboard,
+.sisme-user-profile {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
     background: var(--sisme-dashboard-bg-primary);
     color: var(--sisme-dashboard-text-primary);
@@ -67,7 +69,8 @@
     transition: var(--sisme-dashboard-transition-normal);
 }
 
-.sisme-user-dashboard.dashboard-loaded {
+.sisme-user-dashboard.dashboard-loaded,
+.sisme-user-profile.dashboard-loaded {
     opacity: 1;
     transform: translateY(0);
 }
@@ -1665,7 +1668,8 @@
 }
 
 /* Performance optimization pour les animations */
-.sisme-user-dashboard {
+.sisme-user-dashboard,
+.sisme-user-profile {
     contain: layout style paint;
 }
 

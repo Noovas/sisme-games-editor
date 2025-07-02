@@ -85,6 +85,8 @@ class Sisme_User_Dashboard_Renderer {
      * @return string HTML de la grille
      */
     public static function render_dashboard_grid($dashboard_data, $context = ['is_public' => true]) {
+        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'settings'];
+        
         ob_start();
         ?>
         <div class="sisme-dashboard-grid">
@@ -93,6 +95,8 @@ class Sisme_User_Dashboard_Renderer {
                 <?php echo self::render_quick_stats($dashboard_data['gaming_stats'], $context); ?>
             </aside>
             <main class="sisme-dashboard-main">
+                
+                <?php if (in_array('overview', $accessible_sections)): ?>
                 <div class="sisme-dashboard-section" data-section="overview">
                     <div class="sisme-section-header">
                         <h2 class="sisme-section-title">
@@ -103,6 +107,9 @@ class Sisme_User_Dashboard_Renderer {
                     <?php echo self::render_activity_feed($dashboard_data['activity_feed'], $context); ?>
                     <?php echo self::render_recent_games($dashboard_data['recent_games'], $context); ?>
                 </div>
+                <?php endif; ?>
+                
+                <?php if (in_array('favorites', $accessible_sections)): ?>
                 <div class="sisme-dashboard-section" data-section="favorites" style="display: none;">
                     <div class="sisme-section-header">
                         <h2 class="sisme-section-title">
@@ -112,6 +119,9 @@ class Sisme_User_Dashboard_Renderer {
                     </div>
                     <?php echo self::render_favorites_section($dashboard_data['favorite_games'], $context); ?>
                 </div>
+                <?php endif; ?>
+                
+                <?php if (in_array('library', $accessible_sections)): ?>
                 <div class="sisme-dashboard-section" data-section="library" style="display: none;">
                     <div class="sisme-section-header">
                         <h2 class="sisme-section-title">
@@ -121,6 +131,9 @@ class Sisme_User_Dashboard_Renderer {
                     </div>
                     <?php echo self::render_library_section($dashboard_data['owned_games'], $context); ?>
                 </div>
+                <?php endif; ?>
+                
+                <?php if (in_array('activity', $accessible_sections)): ?>
                 <div class="sisme-dashboard-section" data-section="activity" style="display: none;">
                     <div class="sisme-section-header">
                         <h2 class="sisme-section-title">
@@ -130,6 +143,9 @@ class Sisme_User_Dashboard_Renderer {
                     </div>
                     <?php echo self::render_activity_section($dashboard_data['activity_feed'], $context); ?>
                 </div>
+                <?php endif; ?>
+                
+                <?php if (in_array('settings', $accessible_sections)): ?>
                 <div class="sisme-dashboard-section" data-section="settings" style="display: none;">
                     <div class="sisme-section-header">
                         <h2 class="sisme-section-title">
@@ -139,6 +155,8 @@ class Sisme_User_Dashboard_Renderer {
                     </div>
                     <?php echo self::render_settings_section($dashboard_data['user_info']['id'], $context); ?>
                 </div>
+                <?php endif; ?>
+                
             </main>
             <aside class="sisme-dashboard-widgets">
                 <?php echo self::render_favorites_widget($dashboard_data['favorite_games'], $context); ?>
@@ -155,31 +173,47 @@ class Sisme_User_Dashboard_Renderer {
      * @return string HTML navigation
      */
     public static function render_sidebar_navigation($context = ['is_public' => true]) {
+        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'settings'];
+        
         ob_start();
         ?>
         <nav class="sisme-dashboard-nav">
-            <h3 class="sisme-nav-title">☰ Mon Sismenu</h3>
+            <h3 class="sisme-nav-title">☰ <?php echo $context['is_public'] ? 'Profil' : 'Mon Sismenu'; ?></h3>
             <ul class="sisme-nav-list">
+                <?php if (in_array('overview', $accessible_sections)): ?>
                 <li><a href="#overview" class="sisme-nav-link active" data-section="overview">
                     <span class="sisme-nav-icon">📊</span>
                     <span class="sisme-nav-text">Vue d'ensemble</span>
                 </a></li>
+                <?php endif; ?>
+                
+                <?php if (in_array('favorites', $accessible_sections)): ?>
                 <li><a href="#favorites" class="sisme-nav-link" data-section="favorites">
                     <span class="sisme-nav-icon">❤️</span>
                     <span class="sisme-nav-text">Favoris</span>
                 </a></li>
+                <?php endif; ?>
+                
+                <?php if (in_array('library', $accessible_sections)): ?>
                 <li><a href="#library" class="sisme-nav-link" data-section="library">
                     <span class="sisme-nav-icon">📚</span>
                     <span class="sisme-nav-text">La Sismothèque</span>
                 </a></li>
+                <?php endif; ?>
+                
+                <?php if (in_array('activity', $accessible_sections)): ?>
                 <li><a href="#activity" class="sisme-nav-link" data-section="activity">
                     <span class="sisme-nav-icon">📈</span>
                     <span class="sisme-nav-text">Activité</span>
                 </a></li>
+                <?php endif; ?>
+                
+                <?php if (in_array('settings', $accessible_sections)): ?>
                 <li><a href="#settings" class="sisme-nav-link" data-section="settings">
                     <span class="sisme-nav-icon">⚙️</span>
                     <span class="sisme-nav-text">Paramètres</span>
                 </a></li>
+                <?php endif; ?>
             </ul>
         </nav>
         <?php

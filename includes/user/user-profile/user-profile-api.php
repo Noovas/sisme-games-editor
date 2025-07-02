@@ -28,7 +28,7 @@ class Sisme_User_Profile_API {
     public static function render_profile($atts = []) {
         $defaults = [
             'id' => '',
-            'container_class' => 'sisme-user-profile'
+            'container_class' => 'sisme-user-dashboard'
         ];
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_profile');
         
