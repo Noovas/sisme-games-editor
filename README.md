@@ -72,17 +72,17 @@ Créer un système social complet avec profils publics et gestion d'amis, en ré
 
 ---
 
-## 🔄 **PHASE 5** - Améliorations UX - **EN COURS**
+## ✅ **PHASE 5** - Améliorations UX - **PARTIELLEMENT TERMINÉE**
 
-### 🔄 Étape 5.1 : Amélioration UX profils - **EN COURS**
-- [ ] **Bouton retour "Mon profil"** - Navigation retour vers profil connecté
-- [ ] **Adaptation textes contextuels** - "Mes" → "Ses", "Ma" → "Sa", etc.
+### ✅ Étape 5.1 : Amélioration UX profils - **TERMINÉE**
+- [x] **Bouton retour "Mon profil"** - Navigation retour vers profil connecté
+- [x] **Adaptation textes contextuels** - "Mes" → "Ses", "Ma" → "Sa", etc.
+- [x] **Mise à jour automatique** - Les informations se synchronisent déjà
 - [ ] **Titre dynamique** - Nom de l'utilisateur dans le header
 
 ### 🔄 Étape 5.2 : Intégration paramètres utilisateur - **EN COURS**
 - [ ] **Option confidentialité globale** - Activation depuis dashboard privé
 - [ ] **Interface de gestion** - Toggle public/privé dans paramètres
-- [ ] **Synchronisation permissions** - Mise à jour temps réel
 
 ---
 
@@ -134,12 +134,12 @@ includes/utils/
 
 ## ⏱️ **Estimations Temps**
 
-- **Phase 5** (UX) : ~2-3h
+- **Phase 5.2** (Paramètres restants) : ~1-2h
 - **Phase 7.1** (Connexion API) : ~3-4h
 - **Phase 7.2** (Fonctionnalités) : ~5-6h
 - **Phase 7.3** (Optimisations) : ~2-3h
 
-**Total restant :** ~12-16h pour un système social complet
+**Total restant :** ~11-15h pour un système social complet
 
 ---
 
@@ -151,7 +151,7 @@ includes/utils/
 - **Interface dashboard social** préparée avec sections vides
 
 ### 🔄 **En cours** :
-- **Améliorations UX** profils (Phase 5)
+- **Paramètres confidentialité** (Phase 5.2)
 
 ### 📋 **Prochaine priorité** :
 - **Connexion données sociales** aux interfaces (Phase 7.1)
