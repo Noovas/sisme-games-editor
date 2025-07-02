@@ -64,6 +64,7 @@ class Sisme_User_Loader {
             'user-actions'  => 'Actions utilisateur',
             'user-notifications' => 'Notifications utilisateur',
             'user-dashboard' => 'Dashboard utilisateur',
+            'user-profile'  => 'Profile utilisateur', 
             'user-header-menu'   => 'Menu utilisateur header', 
             'user-library'  => 'Ludothèque personnelle'
         ];

@@ -192,11 +192,56 @@ class Sisme_User_Profile_Loader {
      * Charger les assets du dashboard (réutilisation)
      */
     private function load_dashboard_assets() {
-        if (class_exists('Sisme_User_Dashboard_Loader')) {
-            $dashboard_loader = Sisme_User_Dashboard_Loader::get_instance();
-            if (method_exists($dashboard_loader, 'force_load_assets')) {
-                $dashboard_loader->force_load_assets();
-            }
+        // Charger les tokens globaux en premier
+        if (!wp_style_is('sisme-frontend-tokens', 'enqueued')) {
+            wp_enqueue_style(
+                'sisme-frontend-tokens',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/frontend/tokens.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+        }
+        
+        // CSS du dashboard
+        if (!wp_style_is('sisme-user-dashboard', 'enqueued')) {
+            wp_enqueue_style(
+                'sisme-user-dashboard',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-dashboard/assets/user-dashboard.css',
+                array('sisme-frontend-tokens'),
+                SISME_GAMES_EDITOR_VERSION
+            );
+        }
+        
+        // JavaScript du dashboard
+        if (!wp_script_is('sisme-user-dashboard', 'enqueued')) {
+            wp_enqueue_script(
+                'sisme-user-dashboard',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-dashboard/assets/user-dashboard.js',
+                array('jquery'),
+                SISME_GAMES_EDITOR_VERSION,
+                true
+            );
+            
+            // Configuration JavaScript adaptée pour profil public
+            wp_localize_script('sisme-user-dashboard', 'sismeUserDashboard', [
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('sisme_dashboard'),
+                'currentUserId' => get_current_user_id(),
+                'isPublicProfile' => true,
+                'strings' => [
+                    'loading' => 'Chargement...',
+                    'error' => 'Une erreur est survenue'
+                ],
+                'config' => [
+                    'autoRefresh' => false,
+                    'animations' => true,
+                    'notifications' => false
+                ]
+            ]);
+        }
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[Sisme User Profile] Assets dashboard chargés pour profil public');
         }
     }
     
