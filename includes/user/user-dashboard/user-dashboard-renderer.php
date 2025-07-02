@@ -34,7 +34,7 @@ class Sisme_User_Dashboard_Renderer {
                     <div class="sisme-profile-avatar">
                         <img src="<?php echo esc_url($user_info['avatar_url']); ?>" alt="Avatar" class="sisme-avatar">
                     </div>
-                    <?php if (class_exists('Sisme_User_Notifications_API')): ?>
+                    <?php if (class_exists('Sisme_User_Notifications_API') && !$context['is_public']): ?>
                         <div class="sisme-notifications-badge-container">
                             <?php echo do_shortcode('[sisme_user_notifications_badge]'); ?>
                         </div>
@@ -63,12 +63,21 @@ class Sisme_User_Dashboard_Renderer {
                     </div>
                 </div>
                 <div class="sisme-profile-actions">
-                    <a href="<?php echo esc_url(wp_logout_url()); ?>" class="sisme-button sisme-button-rouge">
-                        <span class="sisme-icon">🚪</span>
-                        <span class="sisme-label">Déconnexion</span>
-                    </a>
+                    <?php if ($context['is_public'] && $context['viewer_id'] !== $context['profile_user_id']): ?>
+                        <!-- Bouton retour "Mon tableau de bord" -->
+                        <a href="/sisme-user-tableau-de-bord/" class="sisme-button sisme-button-primary">
+                            <span class="sisme-label">← Retour profil</span>
+                        </a>
+                    <?php else: ?>
+                        <!-- Bouton déconnexion normal -->
+                        <a href="<?php echo esc_url(wp_logout_url()); ?>" class="sisme-button sisme-button-rouge">
+                            <span class="sisme-icon">🚪 </span>
+                            <span class="sisme-label">Déconnexion</span>
+                        </a>
+                    <?php endif; ?>
+                    
                     <a href="#stats" class="sisme-button sisme-button-bleu">
-                        <span class="sisme-icon">🏆</span>
+                        <span class="sisme-icon">🏆 </span>
                         <span class="sisme-label">Statistiques</span>
                     </a>
                 </div>
