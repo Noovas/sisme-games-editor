@@ -151,12 +151,20 @@ class Sisme_User_Auth_Security {
             }
             
             // Nom d'affichage
-            if (!empty($data['user_display_name'])) {
-                $data['user_display_name'] = sanitize_text_field($data['user_display_name']);
-                if (strlen($data['user_display_name']) < 2) {
-                    $errors['user_display_name'] = 'Le nom d\'affichage doit contenir au moins 2 caractères.';
-                } elseif (strlen($data['user_display_name']) > 50) {
-                    $errors['user_display_name'] = 'Le nom d\'affichage ne peut pas dépasser 50 caractères.';
+            if (empty($data['user_display_name'])) {
+                $errors['user_display_name'] = 'Le pseudo est obligatoire.';
+            } else {
+                $data['user_display_name'] = sanitize_text_field(trim($data['user_display_name']));
+                
+                // Validation du format
+                $display_name_validation = self::validate_display_name($data['user_display_name']);
+                if (is_wp_error($display_name_validation)) {
+                    $errors['user_display_name'] = $display_name_validation->get_error_message();
+                } else {
+                    // Vérification unicité
+                    if (self::display_name_exists($data['user_display_name'])) {
+                        $errors['user_display_name'] = 'Ce pseudo est déjà utilisé. Veuillez en choisir un autre.';
+                    }
                 }
             }
         }
@@ -170,6 +178,136 @@ class Sisme_User_Auth_Security {
         }
         
         return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * Vérifier si un display_name est déjà utilisé
+     * @param string $display_name Nom d'affichage à vérifier
+     * @param int $exclude_user_id ID utilisateur à exclure (pour modification profil)
+     * @return bool True si le display_name existe déjà
+     */
+    public static function display_name_exists($display_name, $exclude_user_id = 0) {
+        global $wpdb;
+        
+        $display_name = sanitize_text_field(trim($display_name));
+        
+        if (empty($display_name)) {
+            return false;
+        }
+        
+        // Requête pour vérifier l'unicité
+        $query = $wpdb->prepare(
+            "SELECT ID FROM {$wpdb->users} 
+            WHERE display_name = %s AND ID != %d 
+            LIMIT 1",
+            $display_name,
+            intval($exclude_user_id)
+        );
+        
+        $existing_user = $wpdb->get_var($query);
+        
+        if (defined('WP_DEBUG') && WP_DEBUG && $existing_user) {
+            error_log("[Sisme Auth Security] Display name '{$display_name}' déjà utilisé par utilisateur ID: {$existing_user}");
+        }
+        
+        return !empty($existing_user);
+    }
+
+    /**
+     * Valider un display_name selon nos règles
+     * @param string $display_name Nom d'affichage à valider
+     * @return WP_Error|true True si valide, WP_Error sinon
+     */
+    public static function validate_display_name($display_name) {
+        $display_name = sanitize_text_field(trim($display_name));
+        
+        // Vérifications de base
+        if (empty($display_name)) {
+            return new WP_Error('display_name_required', 'Le pseudo est obligatoire.');
+        }
+        
+        if (strlen($display_name) < 3) {
+            return new WP_Error('display_name_too_short', 'Le pseudo doit contenir au moins 3 caractères.');
+        }
+        
+        if (strlen($display_name) > 30) {
+            return new WP_Error('display_name_too_long', 'Le pseudo ne peut pas dépasser 30 caractères.');
+        }
+        
+        // Caractères autorisés : lettres, chiffres, underscores
+        if (!preg_match('/^[a-zA-Z0-9_]+$/u', $display_name)) {
+            return new WP_Error('display_name_invalid_chars', 'Le pseudo ne peut contenir que des lettres, chiffres, underscores.');
+        }
+        
+        // Interdire certains mots réservés
+        $reserved_names = [
+            'admin', 'administrator', 'root', 'system', 'sisme', 'moderator', 'mod',
+            'support', 'help', 'test', 'demo', 'guest', 'user', 'null', 'undefined'
+        ];
+        
+        if (in_array(strtolower($display_name), $reserved_names)) {
+            return new WP_Error('display_name_reserved', 'Ce pseudo est réservé et ne peut pas être utilisé.');
+        }
+        
+        // Interdire les pseudos qui commencent/finissent par des caractères spéciaux
+        if (preg_match('/^[._-]|[._-]$/', $display_name)) {
+            return new WP_Error('display_name_invalid_format', 'Le pseudo ne peut pas commencer ou finir par un point, tiret ou underscore.');
+        }
+        
+        return true;
+    }
+
+    /**
+     * Générer des suggestions de pseudos disponibles
+     * @param string $base_name Nom de base pour les suggestions
+     * @param int $max_suggestions Nombre maximum de suggestions
+     * @return array Liste de pseudos disponibles
+     */
+    public static function suggest_available_display_names($base_name, $max_suggestions = 5) {
+        $base_name = sanitize_text_field(trim($base_name));
+        $suggestions = [];
+        
+        if (empty($base_name)) {
+            return $suggestions;
+        }
+        
+        // Nettoyer le nom de base
+        $clean_base = preg_replace('/[^a-zA-Z0-9]/', '', $base_name);
+        if (strlen($clean_base) < 3) {
+            $clean_base = 'user' . $clean_base;
+        }
+        
+        // Générer des variations
+        for ($i = 1; $i <= $max_suggestions * 2; $i++) {
+            $candidate = $clean_base . $i;
+            
+            // Valider le candidat
+            if (!is_wp_error(self::validate_display_name($candidate)) && 
+                !self::display_name_exists($candidate)) {
+                $suggestions[] = $candidate;
+                
+                if (count($suggestions) >= $max_suggestions) {
+                    break;
+                }
+            }
+        }
+        
+        // Ajouter quelques variations créatives si pas assez de suggestions
+        if (count($suggestions) < $max_suggestions) {
+            $creative_suffixes = ['_gaming', '_player', '_gamer', '_pro'];
+            foreach ($creative_suffixes as $suffix) {
+                $candidate = $clean_base . $suffix;
+                if (!is_wp_error(self::validate_display_name($candidate)) && 
+                    !self::display_name_exists($candidate)) {
+                    $suggestions[] = $candidate;
+                    if (count($suggestions) >= $max_suggestions) {
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return $suggestions;
     }
     
     /**
