@@ -94,7 +94,7 @@ class Sisme_User_Dashboard_Renderer {
      * @return string HTML de la grille
      */
     public static function render_dashboard_grid($dashboard_data, $context = ['is_public' => true]) {
-        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'settings'];
+        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'social', 'settings'];
         
         ob_start();
         ?>
@@ -153,6 +153,18 @@ class Sisme_User_Dashboard_Renderer {
                     <?php echo self::render_activity_section($dashboard_data['activity_feed'], $context); ?>
                 </div>
                 <?php endif; ?>
+
+                <?php if (in_array('social', $accessible_sections)): ?>
+                <div class="sisme-dashboard-section" data-section="social" style="display: none;">
+                    <div class="sisme-section-header">
+                        <h2 class="sisme-section-title">
+                            <span class="sisme-title-icon">👥</span>
+                            Social
+                        </h2>
+                    </div>
+                    <?php echo self::render_social_section($dashboard_data['user_info']['id'], $context); ?>
+                </div>
+                <?php endif; ?>
                 
                 <?php if (in_array('settings', $accessible_sections)): ?>
                 <div class="sisme-dashboard-section" data-section="settings" style="display: none;">
@@ -182,7 +194,7 @@ class Sisme_User_Dashboard_Renderer {
      * @return string HTML navigation
      */
     public static function render_sidebar_navigation($context = ['is_public' => true]) {
-        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'settings'];
+        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'social', 'settings'];
         
         ob_start();
         ?>
@@ -214,6 +226,13 @@ class Sisme_User_Dashboard_Renderer {
                 <li><a href="#activity" class="sisme-nav-link" data-section="activity">
                     <span class="sisme-nav-icon">📈</span>
                     <span class="sisme-nav-text">Activité</span>
+                </a></li>
+                <?php endif; ?>
+
+                <?php if (in_array('social', $accessible_sections)): ?>
+                <li><a href="#social" class="sisme-nav-link" data-section="social">
+                    <span class="sisme-nav-icon">👥</span>
+                    <span class="sisme-nav-text">Social</span>
                 </a></li>
                 <?php endif; ?>
                 
@@ -481,6 +500,108 @@ class Sisme_User_Dashboard_Renderer {
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Section sociale - Amis et demandes
+     * @param int $user_id ID de l'utilisateur
+     * @param array $context Contexte de rendu
+     * @return string HTML de la section sociale
+     */
+    public static function render_social_section($user_id, $context = ['is_public' => false]) {
+        ob_start();
+        ?>
+        <div class="sisme-social-container">
+            
+            <!-- Section Mes Amis -->
+            <div class="sisme-social-friends">
+                <div class="sisme-subsection-header">
+                    <h3 class="sisme-subsection-title">
+                        <span class="sisme-subsection-icon">🤝</span>
+                        Mes Amis
+                    </h3>
+                    <span class="sisme-badge sisme-badge-info">0</span>
+                </div>
+                
+                <div class="sisme-friends-grid">
+                    <div class="sisme-empty-state">
+                        <div class="sisme-empty-icon">👥</div>
+                        <h4>Aucun ami pour le moment</h4>
+                        <p>Commencez à vous faire des amis en visitant d'autres profils !</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section Demandes d'amis reçues -->
+            <div class="sisme-social-requests-received">
+                <div class="sisme-subsection-header">
+                    <h3 class="sisme-subsection-title">
+                        <span class="sisme-subsection-icon">📩</span>
+                        Demandes reçues
+                    </h3>
+                    <span class="sisme-badge sisme-badge-warning">0</span>
+                </div>
+                
+                <div class="sisme-requests-list">
+                    <div class="sisme-empty-state">
+                        <div class="sisme-empty-icon">📩</div>
+                        <h4>Aucune demande en attente</h4>
+                        <p>Les nouvelles demandes d'ami apparaîtront ici.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section Demandes envoyées -->
+            <div class="sisme-social-requests-sent">
+                <div class="sisme-subsection-header">
+                    <h3 class="sisme-subsection-title">
+                        <span class="sisme-subsection-icon">📤</span>
+                        Demandes envoyées
+                    </h3>
+                    <span class="sisme-badge sisme-badge-secondary">0</span>
+                </div>
+                
+                <div class="sisme-requests-list">
+                    <div class="sisme-empty-state">
+                        <div class="sisme-empty-icon">📤</div>
+                        <h4>Aucune demande envoyée</h4>
+                        <p>Vos demandes d'ami en attente apparaîtront ici.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section Recherche d'amis -->
+            <div class="sisme-social-search">
+                <div class="sisme-subsection-header">
+                    <h3 class="sisme-subsection-title">
+                        <span class="sisme-subsection-icon">🔍</span>
+                        Trouver des amis
+                    </h3>
+                </div>
+                
+                <div class="sisme-friend-search">
+                    <div class="sisme-search-form">
+                        <input type="text" 
+                            class="sisme-search-input" 
+                            placeholder="Rechercher des utilisateurs..." 
+                            disabled>
+                        <button class="sisme-search-button" disabled>
+                            <span class="sisme-icon">🔍</span>
+                        </button>
+                    </div>
+                    <div class="sisme-search-results">
+                        <div class="sisme-empty-state">
+                            <div class="sisme-empty-icon">🔍</div>
+                            <h4>Recherche à venir</h4>
+                            <p>La fonctionnalité de recherche d'amis sera bientôt disponible.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
         </div>
         <?php
         return ob_get_clean();

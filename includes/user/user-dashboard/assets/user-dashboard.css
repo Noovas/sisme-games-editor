@@ -1811,3 +1811,108 @@
     color: var(--sisme-dashboard-text-primary);
 }
 
+
+/*============================================
+ *====== Section sociale =====================
+ *===========================================*/
+ 
+.sisme-social-container {
+    display: grid;
+    gap: var(--sisme-dashboard-space-xl);
+}
+
+.sisme-subsection-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sisme-dashboard-space-md);
+    padding-bottom: var(--sisme-dashboard-space-sm);
+    border-bottom: 1px solid var(--sisme-dashboard-border-color);
+}
+
+.sisme-subsection-title {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-dashboard-space-sm);
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--sisme-dashboard-text-primary);
+}
+
+.sisme-subsection-icon {
+    font-size: 1.2rem;
+}
+
+.sisme-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+}
+
+.sisme-badge-info {
+    background: var(--sisme-dashboard-accent-primary);
+    color: white;
+}
+
+.sisme-badge-warning {
+    background: var(--sisme-dashboard-accent-warning);
+    color: var(--sisme-dashboard-bg-primary);
+}
+
+.sisme-badge-secondary {
+    background: var(--sisme-dashboard-text-secondary);
+    color: white;
+}
+
+.sisme-empty-state {
+    text-align: center;
+    padding: var(--sisme-dashboard-space-xl);
+    color: var(--sisme-dashboard-text-secondary);
+}
+
+.sisme-empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--sisme-dashboard-space-md);
+    opacity: 0.5;
+}
+
+.sisme-empty-state h4 {
+    margin: 0 0 var(--sisme-dashboard-space-sm) 0;
+    color: var(--sisme-dashboard-text-primary);
+}
+
+.sisme-empty-state p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.sisme-search-form {
+    display: flex;
+    gap: var(--sisme-dashboard-space-sm);
+    margin-bottom: var(--sisme-dashboard-space-md);
+}
+
+.sisme-search-input {
+    flex: 1;
+    padding: var(--sisme-dashboard-space-sm);
+    border: 1px solid var(--sisme-dashboard-border-color);
+    border-radius: var(--sisme-dashboard-radius-sm);
+    background: var(--sisme-dashboard-bg-primary);
+}
+
+.sisme-search-button {
+    padding: var(--sisme-dashboard-space-sm) var(--sisme-dashboard-space-md);
+    border: none;
+    border-radius: var(--sisme-dashboard-radius-sm);
+    background: var(--sisme-dashboard-accent-primary);
+    color: white;
+    cursor: pointer;
+}
+
+.sisme-search-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

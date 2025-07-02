@@ -19,7 +19,7 @@
         config: window.sismeUserDashboard || {},
         currentSection: 'overview',
         isInitialized: false,
-        validSections: ['overview', 'favorites', 'library', 'activity', 'settings']
+        validSections: ['overview', 'favorites', 'library', 'activity', 'settings', 'social']
     };
     
     /**
@@ -27,7 +27,7 @@
      */
     SismeDashboard.init = function() {
         if (this.isInitialized) {
-            // ✅ AJOUT: Réinitialiser la navigation même si déjà initialisé
+            // Réinitialiser la navigation même si déjà initialisé
             this.currentSection = 'overview'; // Reset
             this.initNavigation(); // Relire localStorage
             return;
