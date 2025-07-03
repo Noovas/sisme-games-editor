@@ -841,6 +841,11 @@
                         }.bind(this));
                         
                         SismeDashboard.api.notify('Demande d\'ami acceptée !', 'success');
+                        setTimeout(() => {
+                            if (SismeDashboard.api && SismeDashboard.api.goToSection) {
+                                SismeDashboard.api.goToSection('social');
+                            }
+                        }, 500);
                         
                         // Mettre à jour les compteurs
                         this.updateAllSectionBadges();
@@ -882,6 +887,11 @@
                         
                         SismeDashboard.api.notify('Demande refusée', 'info');
                         this.updateAllSectionBadges();
+                        setTimeout(() => {
+                            if (SismeDashboard.api && SismeDashboard.api.goToSection) {
+                                SismeDashboard.api.goToSection('social');
+                            }
+                        }, 500);
                     } else {
                         SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
                     }
@@ -926,6 +936,11 @@
                         
                         SismeDashboard.api.notify('Ami supprimé', 'info');
                         this.updateAllSectionBadges();
+                        setTimeout(() => {
+                            if (SismeDashboard.api && SismeDashboard.api.goToSection) {
+                                SismeDashboard.api.goToSection('social');
+                            }
+                        }, 500);
                     } else {
                         SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
                     }
@@ -960,10 +975,15 @@
                         $item.fadeOut(300, function() {
                             $(this).remove();
                             this.updateSectionBadges();
-                        }.bind(this));
+                        }.bind(this));                        
                         
                         SismeDashboard.api.notify('Demande annulée', 'info');
                         this.updateAllSectionBadges();
+                        setTimeout(() => {
+                            if (SismeDashboard.api && SismeDashboard.api.goToSection) {
+                                SismeDashboard.api.goToSection('social');
+                            }
+                        }, 500);
                     } else {
                         SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
                     }

@@ -745,8 +745,8 @@ class Sisme_User_Dashboard_Renderer {
                 $receiver_info = get_userdata($receiver_id);
                 if (!$receiver_info) continue;
                 
-                $avatar_url = get_avatar_url($receiver_id, ['size' => 48]);
-                $profile_url = home_url(Sisme_Utils_Users::PROFILE_URL . '/' . $receiver_info->user_login);
+                $avatar_url = Sisme_User_Preferences_Data_Manager::get_user_avatar_url($receiver_id, 'thumbnail');
+                $profile_url = Sisme_Utils_Users::get_user_profile_url($receiver_id);
                 $sent_date = date('d/m/Y', strtotime($metadata['date']));
                 ?>
                 <div class="sisme-sent-request-item" data-user-id="<?php echo esc_attr($receiver_id); ?>">
@@ -790,8 +790,8 @@ class Sisme_User_Dashboard_Renderer {
                 $sender_info = get_userdata($sender_id);
                 if (!$sender_info) continue;
                 
-                $avatar_url = get_avatar_url($sender_id, ['size' => 48]);
-                $profile_url = home_url(Sisme_Utils_Users::PROFILE_URL . '/' . $sender_info->user_login);
+                $avatar_url = Sisme_User_Preferences_Data_Manager::get_user_avatar_url($sender_id, 'thumbnail');
+                $profile_url = Sisme_Utils_Users::get_user_profile_url($sender_id);
                 $request_date = date('d/m/Y', strtotime($metadata['date']));
                 ?>
                 <div class="sisme-request-item" data-user-id="<?php echo esc_attr($sender_id); ?>">
@@ -841,8 +841,8 @@ class Sisme_User_Dashboard_Renderer {
                 $friend_info = get_userdata($friend_id);
                 if (!$friend_info) continue;
                 
-                $avatar_url = get_avatar_url($friend_id, ['size' => 48]);
-                $profile_url = home_url(Sisme_Utils_Users::PROFILE_URL . '/' . $friend_info->user_login);
+                $avatar_url = Sisme_User_Preferences_Data_Manager::get_user_avatar_url($friend_id, 'thumbnail');
+                $profile_url = Sisme_Utils_Users::get_user_profile_url($friend_id);
                 $friend_since = date('d/m/Y', strtotime($metadata['date']));
                 ?>
                 <div class="sisme-friend-item" data-user-id="<?php echo esc_attr($friend_id); ?>">
@@ -887,26 +887,16 @@ class Sisme_User_Dashboard_Renderer {
             return [];
         }
         
-        // Rechercher dans toutes les listes d'amis où cet utilisateur a une demande pending
-        global $wpdb;
-        
-        $meta_key = Sisme_Utils_Users::META_FRIENDS_LIST;
-        $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT user_id, meta_value 
-            FROM {$wpdb->usermeta} 
-            WHERE meta_key = %s 
-            AND meta_value LIKE %s",
-            $meta_key,
-            '%"' . $user_id . '"%'
-        ));
+        // Récupérer ma liste d'amis et chercher les demandes pending que J'AI envoyées
+        $my_friends_list = get_user_meta($user_id, Sisme_Utils_Users::META_FRIENDS_LIST, true);
+        if (!is_array($my_friends_list)) {
+            return [];
+        }
         
         $sent_requests = [];
-        foreach ($results as $result) {
-            $friends_list = maybe_unserialize($result->meta_value);
-            if (is_array($friends_list) && 
-                isset($friends_list[$user_id]) && 
-                $friends_list[$user_id]['status'] === 'pending') {
-                $sent_requests[$result->user_id] = $friends_list[$user_id];
+        foreach ($my_friends_list as $friend_id => $metadata) {
+            if ($metadata['status'] === 'pending') {
+                $sent_requests[$friend_id] = $metadata;
             }
         }
         
