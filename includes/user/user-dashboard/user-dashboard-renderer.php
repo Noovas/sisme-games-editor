@@ -601,12 +601,22 @@ class Sisme_User_Dashboard_Renderer {
     }
 
     /**
-     * Section sociale - Amis et demandes
+     * Rendu de la section sociale principale avec données dynamiques
      * @param int $user_id ID de l'utilisateur
      * @param array $context Contexte de rendu
      * @return string HTML de la section sociale
      */
     public static function render_social_section($user_id, $context = ['is_public' => false]) {
+        // Récupérer les données sociales si l'API est disponible
+        if (!class_exists('Sisme_User_Social_API')) {
+            return self::render_social_section_unavailable();
+        }
+        
+        $social_stats = Sisme_User_Social_API::get_user_social_stats($user_id);
+        $friends = Sisme_User_Social_API::get_user_friends($user_id);
+        $pending_requests = Sisme_User_Social_API::get_pending_friend_requests($user_id);
+        $sent_requests = self::get_sent_friend_requests($user_id);
+        
         ob_start();
         ?>
         <div class="sisme-social-container">
@@ -618,15 +628,19 @@ class Sisme_User_Dashboard_Renderer {
                         <span class="sisme-subsection-icon">🤝</span>
                         Mes Amis
                     </h3>
-                    <span class="sisme-badge sisme-badge-info">0</span>
+                    <span class="sisme-badge sisme-badge-info"><?php echo esc_html($social_stats['friends_count']); ?></span>
                 </div>
                 
                 <div class="sisme-friends-grid">
-                    <div class="sisme-empty-state">
-                        <div class="sisme-empty-icon">👥</div>
-                        <h4>Aucun ami pour le moment</h4>
-                        <p>Commencez à vous faire des amis en visitant d'autres profils !</p>
-                    </div>
+                    <?php if (empty($friends)): ?>
+                        <div class="sisme-empty-state">
+                            <div class="sisme-empty-icon">👥</div>
+                            <h4>Aucun ami pour le moment</h4>
+                            <p>Commencez à vous faire des amis en visitant d'autres profils !</p>
+                        </div>
+                    <?php else: ?>
+                        <?php echo self::render_friends_list($friends); ?>
+                    <?php endif; ?>
                 </div>
             </div>
             
@@ -637,15 +651,19 @@ class Sisme_User_Dashboard_Renderer {
                         <span class="sisme-subsection-icon">📩</span>
                         Demandes reçues
                     </h3>
-                    <span class="sisme-badge sisme-badge-warning">0</span>
+                    <span class="sisme-badge sisme-badge-warning"><?php echo esc_html(count($pending_requests)); ?></span>
                 </div>
                 
                 <div class="sisme-requests-list">
-                    <div class="sisme-empty-state">
-                        <div class="sisme-empty-icon">📩</div>
-                        <h4>Aucune demande en attente</h4>
-                        <p>Les nouvelles demandes d'ami apparaîtront ici.</p>
-                    </div>
+                    <?php if (empty($pending_requests)): ?>
+                        <div class="sisme-empty-state">
+                            <div class="sisme-empty-icon">📩</div>
+                            <h4>Aucune demande en attente</h4>
+                            <p>Les nouvelles demandes d'ami apparaîtront ici.</p>
+                        </div>
+                    <?php else: ?>
+                        <?php echo self::render_pending_requests_list($pending_requests); ?>
+                    <?php endif; ?>
                 </div>
             </div>
             
@@ -656,15 +674,19 @@ class Sisme_User_Dashboard_Renderer {
                         <span class="sisme-subsection-icon">📤</span>
                         Demandes envoyées
                     </h3>
-                    <span class="sisme-badge sisme-badge-secondary">0</span>
+                    <span class="sisme-badge sisme-badge-secondary"><?php echo esc_html(count($sent_requests)); ?></span>
                 </div>
                 
                 <div class="sisme-requests-list">
-                    <div class="sisme-empty-state">
-                        <div class="sisme-empty-icon">📤</div>
-                        <h4>Aucune demande envoyée</h4>
-                        <p>Vos demandes d'ami en attente apparaîtront ici.</p>
-                    </div>
+                    <?php if (empty($sent_requests)): ?>
+                        <div class="sisme-empty-state">
+                            <div class="sisme-empty-icon">📤</div>
+                            <h4>Aucune demande envoyée</h4>
+                            <p>Vos demandes d'ami en attente s'afficheront ici.</p>
+                        </div>
+                    <?php else: ?>
+                        <?php echo self::render_sent_requests_list($sent_requests); ?>
+                    <?php endif; ?>
                 </div>
             </div>
             
@@ -677,26 +699,233 @@ class Sisme_User_Dashboard_Renderer {
                     </h3>
                 </div>
                 
-                <div class="sisme-friend-search">
-                    <div class="sisme-search-form">
-                        <input type="text" 
-                            class="sisme-search-input" 
-                            placeholder="Rechercher des utilisateurs..." 
-                            autocomplete="off">
-                        <button class="sisme-search-button" type="button">
-                            <span class="sisme-icon">🔍</span>
-                        </button>
-                    </div>
-                    <div class="sisme-search-results">
-                        <div class="sisme-empty-state">
-                            <div class="sisme-empty-icon">🔍</div>
-                            <h4>Recherche d'utilisateurs</h4>
-                            <p>Tapez un nom d'utilisateur pour commencer la recherche.</p>
-                        </div>
-                    </div>
+                <div class="sisme-search-container">
+                    <?php echo self::render_friend_search_widget(); ?>
                 </div>
             </div>
             
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Widget de recherche d'amis
+     * @return string HTML
+     */
+    private static function render_friend_search_widget() {
+        ob_start();
+        ?>
+        <div class="sisme-friend-search-widget">
+            <div class="sisme-search-input-container">
+                <input type="text" 
+                    id="sisme-friend-search" 
+                    class="sisme-search-input" 
+                    placeholder="Rechercher des utilisateurs..."
+                    autocomplete="off">
+                <div class="sisme-search-icon">🔍</div>
+            </div>
+            <div class="sisme-search-results" id="sisme-search-results" style="display: none;"></div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Rendu de la liste des demandes envoyées
+     * @param array $sent_requests Demandes envoyées
+     * @return string HTML
+     */
+    private static function render_sent_requests_list($sent_requests) {
+        ob_start();
+        ?>
+        <div class="sisme-sent-requests-list scrollable-list">
+            <?php foreach ($sent_requests as $receiver_id => $metadata): ?>
+                <?php 
+                $receiver_info = get_userdata($receiver_id);
+                if (!$receiver_info) continue;
+                
+                $avatar_url = get_avatar_url($receiver_id, ['size' => 48]);
+                $profile_url = home_url(Sisme_Utils_Users::PROFILE_URL . '/' . $receiver_info->user_login);
+                $sent_date = date('d/m/Y', strtotime($metadata['date']));
+                ?>
+                <div class="sisme-sent-request-item" data-user-id="<?php echo esc_attr($receiver_id); ?>">
+                    <div class="sisme-sent-request-avatar">
+                        <img src="<?php echo esc_url($avatar_url); ?>" alt="Avatar" class="sisme-avatar-small">
+                    </div>
+                    <div class="sisme-sent-request-info">
+                        <h4 class="sisme-sent-request-name">
+                            <a href="<?php echo esc_url($profile_url); ?>" class="sisme-profile-link">
+                                <?php echo esc_html($receiver_info->display_name); ?>
+                            </a>
+                        </h4>
+                        <span class="sisme-sent-request-date">Envoyée le <?php echo esc_html($sent_date); ?></span>
+                    </div>
+                    <div class="sisme-sent-request-actions">
+                        <button class="sisme-social-action-btn sisme-btn-cancel" 
+                                data-action="cancel_request" 
+                                data-user-id="<?php echo esc_attr($receiver_id); ?>"
+                                title="Annuler la demande">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Rendu de la liste des demandes reçues
+     * @param array $pending_requests Demandes en attente
+     * @return string HTML
+     */
+    private static function render_pending_requests_list($pending_requests) {
+        ob_start();
+        ?>
+        <div class="sisme-requests-list scrollable-list">
+            <?php foreach ($pending_requests as $sender_id => $metadata): ?>
+                <?php 
+                $sender_info = get_userdata($sender_id);
+                if (!$sender_info) continue;
+                
+                $avatar_url = get_avatar_url($sender_id, ['size' => 48]);
+                $profile_url = home_url(Sisme_Utils_Users::PROFILE_URL . '/' . $sender_info->user_login);
+                $request_date = date('d/m/Y', strtotime($metadata['date']));
+                ?>
+                <div class="sisme-request-item" data-user-id="<?php echo esc_attr($sender_id); ?>">
+                    <div class="sisme-request-avatar">
+                        <img src="<?php echo esc_url($avatar_url); ?>" alt="Avatar" class="sisme-avatar-small">
+                    </div>
+                    <div class="sisme-request-info">
+                        <h4 class="sisme-request-name">
+                            <a href="<?php echo esc_url($profile_url); ?>" class="sisme-profile-link">
+                                <?php echo esc_html($sender_info->display_name); ?>
+                            </a>
+                        </h4>
+                        <span class="sisme-request-date">Demande du <?php echo esc_html($request_date); ?></span>
+                    </div>
+                    <div class="sisme-request-actions">
+                        <button class="sisme-social-action-btn sisme-btn-accept" 
+                                data-action="accept_request" 
+                                data-user-id="<?php echo esc_attr($sender_id); ?>"
+                                title="Accepter la demande">
+                            ✅
+                        </button>
+                        <button class="sisme-social-action-btn sisme-btn-decline" 
+                                data-action="decline_request" 
+                                data-user-id="<?php echo esc_attr($sender_id); ?>"
+                                title="Refuser la demande">
+                            ❌
+                        </button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Rendu de la liste des amis
+     * @param array $friends Liste des amis
+     * @return string HTML
+     */
+    private static function render_friends_list($friends) {
+        ob_start();
+        ?>
+        <div class="sisme-friends-list scrollable-list">
+            <?php foreach ($friends as $friend_id => $metadata): ?>
+                <?php 
+                $friend_info = get_userdata($friend_id);
+                if (!$friend_info) continue;
+                
+                $avatar_url = get_avatar_url($friend_id, ['size' => 48]);
+                $profile_url = home_url(Sisme_Utils_Users::PROFILE_URL . '/' . $friend_info->user_login);
+                $friend_since = date('d/m/Y', strtotime($metadata['date']));
+                ?>
+                <div class="sisme-friend-item" data-user-id="<?php echo esc_attr($friend_id); ?>">
+                    <div class="sisme-friend-avatar">
+                        <img src="<?php echo esc_url($avatar_url); ?>" alt="Avatar" class="sisme-avatar-small">
+                    </div>
+                    <div class="sisme-friend-info">
+                        <h4 class="sisme-friend-name">
+                            <a href="<?php echo esc_url($profile_url); ?>" class="sisme-profile-link">
+                                <?php echo esc_html($friend_info->display_name); ?>
+                            </a>
+                        </h4>
+                        <span class="sisme-friend-since">Ami depuis le <?php echo esc_html($friend_since); ?></span>
+                    </div>
+                    <div class="sisme-friend-actions">
+                        <button class="sisme-social-action-btn sisme-btn-remove" 
+                                data-action="remove_friend" 
+                                data-user-id="<?php echo esc_attr($friend_id); ?>"
+                                title="Retirer de mes amis">
+                            ❌
+                        </button>
+                        <a href="<?php echo esc_url($profile_url); ?>" 
+                        class="sisme-social-action-btn sisme-btn-view" 
+                        title="Voir le profil">
+                            👁️
+                        </a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Obtenir les demandes envoyées par un utilisateur
+     * @param int $user_id ID de l'utilisateur
+     * @return array Demandes envoyées
+     */
+    private static function get_sent_friend_requests($user_id) {
+        if (!class_exists('Sisme_User_Social_API')) {
+            return [];
+        }
+        
+        // Rechercher dans toutes les listes d'amis où cet utilisateur a une demande pending
+        global $wpdb;
+        
+        $meta_key = Sisme_Utils_Users::META_FRIENDS_LIST;
+        $results = $wpdb->get_results($wpdb->prepare(
+            "SELECT user_id, meta_value 
+            FROM {$wpdb->usermeta} 
+            WHERE meta_key = %s 
+            AND meta_value LIKE %s",
+            $meta_key,
+            '%"' . $user_id . '"%'
+        ));
+        
+        $sent_requests = [];
+        foreach ($results as $result) {
+            $friends_list = maybe_unserialize($result->meta_value);
+            if (is_array($friends_list) && 
+                isset($friends_list[$user_id]) && 
+                $friends_list[$user_id]['status'] === 'pending') {
+                $sent_requests[$result->user_id] = $friends_list[$user_id];
+            }
+        }
+        
+        return $sent_requests;
+    }
+
+    /**
+     * Fallback si l'API sociale n'est pas disponible
+     * @return string HTML
+     */
+    private static function render_social_section_unavailable() {
+        ob_start();
+        ?>
+        <div class="sisme-social-container">
+            <div class="sisme-error-state">
+                <div class="sisme-error-icon">⚠️</div>
+                <h4>Module social indisponible</h4>
+                <p>Les fonctionnalités sociales ne sont pas encore activées.</p>
+            </div>
         </div>
         <?php
         return ob_get_clean();

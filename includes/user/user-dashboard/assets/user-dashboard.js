@@ -745,8 +745,423 @@
     SismeDashboard.social = {
         init: function() {
             this.bindSocialEvents();
+            this.bindSocialListEvents();
             this.checkSocialConfig();
             SismeDashboard.log('Module social initialisé');
+        },
+
+        /**
+         * Lier les événements des listes sociales
+         */
+        bindSocialListEvents: function() {
+            // Boutons d'actions dans les listes
+            $(document).on('click', '.sisme-social-action-btn', this.handleListAction.bind(this));
+            
+            // Recherche d'amis
+            $(document).on('input', '#sisme-friend-search', 
+                SismeDashboard.utils.debounce(this.handleFriendSearch.bind(this), 300));
+            
+            // Clic sur résultats de recherche
+            $(document).on('click', '.sisme-search-result-item', this.handleSearchResultClick.bind(this));
+            
+            // Cacher les résultats si clic ailleurs
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.sisme-friend-search-widget').length) {
+                    $('#sisme-search-results').hide();
+                }
+            });
+        },
+        
+        /**
+         * Gérer les actions dans les listes (accepter, refuser, supprimer, etc.)
+         */
+        handleListAction: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (!this.checkSocialConfig()) {
+                SismeDashboard.api.notify('Configuration sociale manquante', 'error');
+                return;
+            }
+            
+            const $button = $(e.currentTarget);
+            const $item = $button.closest('.sisme-friend-item, .sisme-request-item, .sisme-sent-request-item');
+            const userId = $button.data('user-id');
+            const action = $button.data('action');
+            
+            if (!userId || !action) {
+                SismeDashboard.log('Données manquantes pour l\'action de liste', { userId, action });
+                return;
+            }
+            
+            // Empêcher les clics multiples
+            if ($button.hasClass('loading')) {
+                return;
+            }
+            
+            // Traiter l'action selon le type
+            switch(action) {
+                case 'accept_request':
+                    this.acceptFriendRequestFromList(userId, $button, $item);
+                    break;
+                case 'decline_request':
+                    this.declineFriendRequestFromList(userId, $button, $item);
+                    break;
+                case 'remove_friend':
+                    this.removeFriendFromList(userId, $button, $item);
+                    break;
+                case 'cancel_request':
+                    this.cancelFriendRequestFromList(userId, $button, $item);
+                    break;
+                default:
+                    SismeDashboard.log('Action de liste inconnue:', action);
+            }
+        },
+        
+        /**
+         * Accepter une demande d'ami depuis la liste
+         */
+        acceptFriendRequestFromList: function(userId, $button, $item) {
+            this.setButtonLoading($button, true);
+            
+            $.ajax({
+                url: window.sismeUserSocial.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'sisme_accept_friend_request',
+                    user_id: userId,
+                    nonce: window.sismeUserSocial.nonce
+                },
+                success: (response) => {
+                    if (response.success) {
+                        // Supprimer l'élément de la liste des demandes reçues
+                        $item.fadeOut(300, function() {
+                            $(this).remove();
+                            this.updateSectionBadges();
+                        }.bind(this));
+                        
+                        SismeDashboard.api.notify('Demande d\'ami acceptée !', 'success');
+                        
+                        // Mettre à jour les compteurs
+                        this.updateAllSectionBadges();
+                    } else {
+                        SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
+                    }
+                },
+                error: (xhr, status, error) => {
+                    SismeDashboard.log('Erreur AJAX acceptFriendRequestFromList:', error);
+                    SismeDashboard.api.notify('Erreur de connexion', 'error');
+                },
+                complete: () => {
+                    this.setButtonLoading($button, false);
+                }
+            });
+        },
+        
+        /**
+         * Refuser une demande d'ami depuis la liste
+         */
+        declineFriendRequestFromList: function(userId, $button, $item) {
+            this.setButtonLoading($button, true);
+            
+            $.ajax({
+                url: window.sismeUserSocial.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'sisme_decline_friend_request',
+                    user_id: userId,
+                    nonce: window.sismeUserSocial.nonce
+                },
+                success: (response) => {
+                    if (response.success) {
+                        // Supprimer l'élément de la liste
+                        $item.fadeOut(300, function() {
+                            $(this).remove();
+                            this.updateSectionBadges();
+                        }.bind(this));
+                        
+                        SismeDashboard.api.notify('Demande refusée', 'info');
+                        this.updateAllSectionBadges();
+                    } else {
+                        SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
+                    }
+                },
+                error: (xhr, status, error) => {
+                    SismeDashboard.log('Erreur AJAX declineFriendRequestFromList:', error);
+                    SismeDashboard.api.notify('Erreur de connexion', 'error');
+                },
+                complete: () => {
+                    this.setButtonLoading($button, false);
+                }
+            });
+        },
+        
+        /**
+         * Supprimer un ami depuis la liste
+         */
+        removeFriendFromList: function(userId, $button, $item) {
+            // Confirmation avant suppression
+            const userName = $item.find('.sisme-friend-name a, .sisme-request-name a').text().trim();
+            if (!confirm(`Êtes-vous sûr de vouloir retirer ${userName} de vos amis ?`)) {
+                return;
+            }
+            
+            this.setButtonLoading($button, true);
+            
+            $.ajax({
+                url: window.sismeUserSocial.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'sisme_remove_friend',
+                    user_id: userId,
+                    nonce: window.sismeUserSocial.nonce
+                },
+                success: (response) => {
+                    if (response.success) {
+                        // Supprimer l'élément de la liste
+                        $item.fadeOut(300, function() {
+                            $(this).remove();
+                            this.updateSectionBadges();
+                        }.bind(this));
+                        
+                        SismeDashboard.api.notify('Ami supprimé', 'info');
+                        this.updateAllSectionBadges();
+                    } else {
+                        SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
+                    }
+                },
+                error: (xhr, status, error) => {
+                    SismeDashboard.log('Erreur AJAX removeFriendFromList:', error);
+                    SismeDashboard.api.notify('Erreur de connexion', 'error');
+                },
+                complete: () => {
+                    this.setButtonLoading($button, false);
+                }
+            });
+        },
+        
+        /**
+         * Annuler une demande d'ami depuis la liste
+         */
+        cancelFriendRequestFromList: function(userId, $button, $item) {
+            this.setButtonLoading($button, true);
+            
+            $.ajax({
+                url: window.sismeUserSocial.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'sisme_cancel_friend_request',
+                    user_id: userId,
+                    nonce: window.sismeUserSocial.nonce
+                },
+                success: (response) => {
+                    if (response.success) {
+                        // Supprimer l'élément de la liste
+                        $item.fadeOut(300, function() {
+                            $(this).remove();
+                            this.updateSectionBadges();
+                        }.bind(this));
+                        
+                        SismeDashboard.api.notify('Demande annulée', 'info');
+                        this.updateAllSectionBadges();
+                    } else {
+                        SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
+                    }
+                },
+                error: (xhr, status, error) => {
+                    SismeDashboard.log('Erreur AJAX cancelFriendRequestFromList:', error);
+                    SismeDashboard.api.notify('Erreur de connexion', 'error');
+                },
+                complete: () => {
+                    this.setButtonLoading($button, false);
+                }
+            });
+        },
+        
+        /**
+         * Recherche d'amis en temps réel
+         */
+        handleFriendSearch: function(e) {
+            const searchTerm = $(e.target).val().trim();
+            const $results = $('#sisme-search-results');
+            
+            if (searchTerm.length < 2) {
+                $results.hide();
+                return;
+            }
+            
+            this.showSearchLoading();
+            
+            $.ajax({
+                url: window.sismeUserSocial.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'sisme_search_users',
+                    search_term: searchTerm,
+                    nonce: window.sismeUserSocial.nonce
+                },
+                success: (response) => {
+                    if (response.success) {
+                        this.displaySearchResults(response.data.results);
+                    } else {
+                        this.showSearchError(response.data.message || 'Erreur de recherche');
+                    }
+                },
+                error: (xhr, status, error) => {
+                    SismeDashboard.log('Erreur AJAX handleFriendSearch:', error);
+                    this.showSearchError('Erreur de connexion');
+                }
+            });
+        },
+        
+        /**
+         * Afficher les résultats de recherche
+         */
+        displaySearchResults: function(users) {
+            const $results = $('#sisme-search-results');
+            
+            if (!users || users.length === 0) {
+                $results.html(`
+                    <div class="sisme-empty-state">
+                        <div class="sisme-empty-icon">🔍</div>
+                        <p>Aucun utilisateur trouvé</p>
+                    </div>
+                `).show();
+                return;
+            }
+            
+            let html = '';
+            users.forEach(user => {
+                const avatarUrl = user.avatar_url || 'https://www.gravatar.com/avatar/?d=mp&s=48';
+                const profileUrl = user.profile_url || '#';
+                
+                html += `
+                    <div class="sisme-search-result-item" data-user-id="${user.id}">
+                        <div class="sisme-search-result-avatar">
+                            <img src="${avatarUrl}" alt="Avatar" class="sisme-avatar-small">
+                        </div>
+                        <div class="sisme-search-result-info">
+                            <h4 class="sisme-search-result-name">${user.display_name}</h4>
+                            <span class="sisme-search-result-meta">Cliquer pour voir le profil</span>
+                        </div>
+                        <div class="sisme-search-result-actions">
+                            <a href="${profileUrl}" class="sisme-social-action-btn sisme-btn-view" title="Voir le profil">
+                                👁️
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            $results.html(html).show();
+        },
+        
+        /**
+         * Gérer le clic sur un résultat de recherche
+         */
+        handleSearchResultClick: function(e) {
+            e.preventDefault();
+            
+            const $item = $(e.currentTarget);
+            const $link = $item.find('.sisme-btn-view');
+            
+            if ($link.length) {
+                window.open($link.attr('href'), '_blank');
+            }
+        },
+        
+        /**
+         * Afficher l'état de chargement de la recherche
+         */
+        showSearchLoading: function() {
+            $('#sisme-search-results').html(`
+                <div class="sisme-search-loading">
+                    <div class="sisme-empty-icon">⏳</div>
+                    <span>Recherche en cours...</span>
+                </div>
+            `).show();
+        },
+        
+        /**
+         * Afficher une erreur de recherche
+         */
+        showSearchError: function(message) {
+            $('#sisme-search-results').html(`
+                <div class="sisme-search-error">
+                    <div class="sisme-empty-icon">❌</div>
+                    <span>Erreur : ${message}</span>
+                </div>
+            `).show();
+        },
+        
+        /**
+         * Mettre à jour tous les badges des sections
+         */
+        updateAllSectionBadges: function() {
+            // Recompter les éléments dans chaque section
+            setTimeout(() => {
+                // Compter les amis
+                const friendsCount = $('.sisme-friends-list .sisme-friend-item').length;
+                $('.sisme-social-friends .sisme-badge').text(friendsCount);
+                
+                // Compter les demandes reçues
+                const receivedCount = $('.sisme-requests-list .sisme-request-item').length;
+                $('.sisme-social-requests-received .sisme-badge').text(receivedCount);
+                
+                // Compter les demandes envoyées
+                const sentCount = $('.sisme-sent-requests-list .sisme-sent-request-item').length;
+                $('.sisme-social-requests-sent .sisme-badge').text(sentCount);
+                
+                // Mettre à jour le compteur du header si présent
+                this.updateMyFriendsCounter();
+                
+                // Afficher les états vides si nécessaire
+                this.checkEmptyStates();
+            }, 100);
+        },
+        
+        /**
+         * Vérifier et afficher les états vides
+         */
+        checkEmptyStates: function() {
+            // Vérifier section amis
+            const $friendsList = $('.sisme-friends-list');
+            if ($friendsList.find('.sisme-friend-item').length === 0 && 
+                $friendsList.find('.sisme-empty-state').length === 0) {
+                $friendsList.html(`
+                    <div class="sisme-empty-state">
+                        <div class="sisme-empty-icon">👥</div>
+                        <h4>Aucun ami pour le moment</h4>
+                        <p>Commencez à vous faire des amis en visitant d'autres profils !</p>
+                    </div>
+                `);
+            }
+            
+            // Vérifier section demandes reçues
+            const $requestsList = $('.sisme-requests-list');
+            if ($requestsList.find('.sisme-request-item').length === 0 && 
+                $requestsList.find('.sisme-empty-state').length === 0) {
+                $requestsList.html(`
+                    <div class="sisme-empty-state">
+                        <div class="sisme-empty-icon">📩</div>
+                        <h4>Aucune demande en attente</h4>
+                        <p>Les nouvelles demandes d'ami apparaîtront ici.</p>
+                    </div>
+                `);
+            }
+            
+            // Vérifier section demandes envoyées
+            const $sentRequestsList = $('.sisme-sent-requests-list');
+            if ($sentRequestsList.find('.sisme-sent-request-item').length === 0 && 
+                $sentRequestsList.find('.sisme-empty-state').length === 0) {
+                $sentRequestsList.html(`
+                    <div class="sisme-empty-state">
+                        <div class="sisme-empty-icon">📤</div>
+                        <h4>Aucune demande envoyée</h4>
+                        <p>Vos demandes d'ami en attente s'afficheront ici.</p>
+                    </div>
+                `);
+            }
         },
         
         /**

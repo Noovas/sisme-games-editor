@@ -74,6 +74,7 @@ class Sisme_User_Social_Loader {
         add_action('wp_ajax_sisme_decline_friend_request', [$this, 'handle_decline_friend_request']);
         add_action('wp_ajax_sisme_remove_friend', [$this, 'handle_remove_friend']);
         add_action('wp_ajax_sisme_cancel_friend_request', [$this, 'handle_cancel_friend_request']);
+        add_action('wp_ajax_sisme_get_friends_count', [$this, 'handle_get_friends_count']);
 
         add_action('wp_ajax_sisme_search_users', [$this, 'handle_search_users']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
@@ -98,7 +99,7 @@ class Sisme_User_Social_Loader {
         // Localisation des scripts pour AJAX et sécurité
         wp_localize_script('sisme-user-dashboard', 'sismeUserSocial', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('sisme_user_social_nonce'),
+            'nonce' => wp_create_nonce('sisme_social_nonce'),
             'user_id' => get_current_user_id(),
             'debug' => defined('WP_DEBUG') && WP_DEBUG
         ]);
@@ -297,7 +298,7 @@ class Sisme_User_Social_Loader {
      */
     public function handle_search_users() {
         // Vérification de sécurité
-        if (!check_ajax_referer('sisme_user_social_nonce', 'nonce', false)) {
+        if (!check_ajax_referer('sisme_social_nonce', 'nonce', false)) {
             wp_send_json_error(['message' => 'Token de sécurité invalide']);
             return;
         }
@@ -345,7 +346,7 @@ class Sisme_User_Social_Loader {
      * HANDLER AJAX à ajouter côté PHP pour le compteur d'amis
      */
     public function handle_get_friends_count() {
-        if (!wp_verify_nonce($_POST['nonce'], 'sisme_user_social_nonce')) {
+        if (!wp_verify_nonce($_POST['nonce'], 'sisme_social_nonce')) {
             wp_die('Erreur de sécurité');
         }
         
