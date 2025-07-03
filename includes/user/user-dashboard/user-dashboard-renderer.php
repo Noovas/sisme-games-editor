@@ -65,7 +65,7 @@ class Sisme_User_Dashboard_Renderer {
                 <div class="sisme-profile-actions">
                     <?php if ($context['is_public'] && $context['viewer_id'] !== $context['profile_user_id']): ?>
                         <!-- Bouton retour "Mon tableau de bord" -->
-                        <a href="/sisme-user-tableau-de-bord/" class="sisme-button sisme-button-primary">
+                        <a href=<?php echo home_url(Sisme_Utils_Users::DASHBOARD_URL) ?> class="sisme-button sisme-button-primary">
                             <span class="sisme-label">← Retour profil</span>
                         </a>
                     <?php else: ?>

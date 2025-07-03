@@ -66,7 +66,8 @@ class Sisme_User_Loader {
             'user-dashboard' => 'Dashboard utilisateur',
             'user-profile'  => 'Profile utilisateur', 
             'user-header-menu'   => 'Menu utilisateur header', 
-            'user-library'  => 'Ludothèque personnelle'
+            'user-library'  => 'Ludothèque personnelle',
+            'user-social' => 'Social'
         ];
         
         foreach ($available_modules as $module_name => $module_description) {
@@ -175,7 +176,7 @@ class Sisme_User_Loader {
         $modules = [];
         $available_modules = [
             'user-auth', 'user-profile', 'user-preferences', 
-            'user-actions', 'user-notifications', 'user-dashboard', 'user-library'
+            'user-actions', 'user-notifications', 'user-dashboard', 'user-library', 'user-social'
         ];
         
         foreach ($available_modules as $module_name) {

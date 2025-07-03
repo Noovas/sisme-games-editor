@@ -111,7 +111,7 @@ class Sisme_Utils_Users {
                 'id' => intval($user->ID),
                 'display_name' => esc_html($user->display_name),
                 'user_nicename' => esc_attr($user->user_nicename),
-                'profile_url' => self::get_user_profile_url($user->ID)
+                'profile_url' => self::get_user_profile_url($user->ID, 'overview')
             ];
         }
         if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -125,14 +125,16 @@ class Sisme_Utils_Users {
      * @param int|WP_User $user ID utilisateur ou objet WP_User
      * @return string URL du profil
      */
-    public static function get_user_profile_url($user) {
+    public static function get_user_profile_url($user, $section = 'overview') {
         if (is_numeric($user)) {
             $user = get_userdata($user);
         }
         if (!$user || !($user instanceof WP_User)) {
             return '';
         }
-        return home_url('/sisme-user-profil/?user=' . $user->user_nicename);
+        $base_url = home_url('/sisme-user-profil/?user=' . $user->user_nicename);
+        $base_url .= '#' . sanitize_title($section);        
+        return $base_url;
     }
 
     /**
