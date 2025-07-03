@@ -65,9 +65,22 @@ class Sisme_User_Social_API {
         ];
         
         // Sauvegarder
-        $success = update_user_meta($receiver_id, Sisme_Utils_Users::META_FRIENDS_LIST, $receiver_friends);
-        
-        if ($success) {
+        // Ajouter aussi la demande dans la liste de l'expéditeur
+        $sender_friends = get_user_meta($sender_id, Sisme_Utils_Users::META_FRIENDS_LIST, true);
+        if (!is_array($sender_friends)) {
+            $sender_friends = [];
+        }
+
+        $sender_friends[$receiver_id] = [
+            'status' => self::STATUS_PENDING,
+            'date' => current_time('mysql')
+        ];
+
+        // Sauvegarder des deux côtés
+        $success1 = update_user_meta($receiver_id, Sisme_Utils_Users::META_FRIENDS_LIST, $receiver_friends);
+        $success2 = update_user_meta($sender_id, Sisme_Utils_Users::META_FRIENDS_LIST, $sender_friends);
+
+        if ($success1 && $success2) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 error_log("[Sisme User Social] Demande d'ami envoyée de {$sender_id} vers {$receiver_id}");
             }
@@ -344,20 +357,29 @@ class Sisme_User_Social_API {
         if (!Sisme_Utils_Users::validate_user_id($user_id, 'get_pending_friend_requests')) {
             return [];
         }
+    
+        global $wpdb;
         
-        $friends_list = get_user_meta($user_id, Sisme_Utils_Users::META_FRIENDS_LIST, true);
-        if (!is_array($friends_list)) {
-            return [];
-        }
+        $meta_key = Sisme_Utils_Users::META_FRIENDS_LIST;
+        $results = $wpdb->get_results($wpdb->prepare(
+            "SELECT user_id, meta_value 
+            FROM {$wpdb->usermeta} 
+            WHERE meta_key = %s 
+            AND user_id != %s
+            AND meta_value LIKE %s",
+            $meta_key,
+            $user_id,
+            '%"' . $user_id . '"%'
+        ));
         
-        // Filtrer pour ne garder que les demandes en attente
         $pending_requests = [];
-        foreach ($friends_list as $sender_id => $metadata) {
-            if ($metadata['status'] === self::STATUS_PENDING) {
-                // Valider que l'expéditeur existe encore
-                if (Sisme_Utils_Users::validate_user_id($sender_id)) {
-                    $pending_requests[$sender_id] = $metadata;
-                }
+        foreach ($results as $result) {
+            $friends_list = maybe_unserialize($result->meta_value);
+            if (is_array($friends_list) && 
+                isset($friends_list[$user_id]) && 
+                $friends_list[$user_id]['status'] === self::STATUS_PENDING) {
+                // $result->user_id = celui qui m'a envoyé une demande
+                $pending_requests[$result->user_id] = $friends_list[$user_id];
             }
         }
         

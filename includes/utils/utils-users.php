@@ -33,6 +33,7 @@ class Sisme_Utils_Users {
      */
     const META_PREFIX = 'sisme_user_';
     const META_FRIENDS_LIST = 'sisme_user_friends_list'; //user_id => ['status' => 'pending'|'accepted','date' => '2025-01-15 14:30:25']
+    
 
     /**
      * URLs des pages utilisateur

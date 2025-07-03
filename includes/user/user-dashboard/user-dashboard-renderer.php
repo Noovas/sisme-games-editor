@@ -887,28 +887,17 @@ class Sisme_User_Dashboard_Renderer {
             return [];
         }
         
-        // Rechercher dans toutes les listes d'amis où cet utilisateur apparaît avec status pending
-        global $wpdb;
+        // Récupérer ma liste d'amis
+        $my_friends_list = get_user_meta($user_id, Sisme_Utils_Users::META_FRIENDS_LIST, true);
+        if (!is_array($my_friends_list)) {
+            return [];
+        }
         
-        $meta_key = Sisme_Utils_Users::META_FRIENDS_LIST;
-        $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT user_id, meta_value 
-            FROM {$wpdb->usermeta} 
-            WHERE meta_key = %s 
-            AND meta_value LIKE %s",
-            $meta_key,
-            '%"' . $user_id . '"%'
-        ));
-        
+        // Filtrer les demandes que J'AI envoyées (pending dans ma liste)
         $sent_requests = [];
-        foreach ($results as $result) {
-            $friends_list = maybe_unserialize($result->meta_value);
-            if (is_array($friends_list) && 
-                isset($friends_list[$user_id]) && 
-                $friends_list[$user_id]['status'] === 'pending') {
-                // $result->user_id = celui qui a reçu ma demande
-                // $user_id = moi qui ai envoyé la demande  
-                $sent_requests[$result->user_id] = $friends_list[$user_id];
+        foreach ($my_friends_list as $friend_id => $metadata) {
+            if ($metadata['status'] === 'pending') {
+                $sent_requests[$friend_id] = $metadata;
             }
         }
         
