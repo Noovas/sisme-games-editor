@@ -42,6 +42,7 @@ class Sisme_Utils_Users {
     const PROFILE_URL = '/sisme-user-profil/';
     const DASHBOARD_URL = '/sisme-user-tableau-de-bord/';
     const FORGOT_PASSWORD_URL = '/sisme-user-forgot-password/';
+    const RESET_PASSWORD_URL = '/sisme-user-reset-password/';
     
     /**
      * Messages par défaut

@@ -43,6 +43,136 @@ class Sisme_User_Auth_Handlers {
         if (isset($_POST['sisme_user_register_submit'])) {
             self::process_register_form();
         }
+
+        // Traitement mot de passe oublié
+        if (isset($_POST['sisme_user_forgot_password_submit'])) {
+            self::process_forgot_password_form();
+        }
+
+        // Traitement nouveau mot de passe
+        if (isset($_POST['sisme_user_reset_password_submit'])) {
+            self::process_reset_password_form();
+        }
+    }
+
+    /**
+     * Traiter le formulaire de mot de passe oublié
+     */
+    private static function process_forgot_password_form() {
+        // Sécurité : vérifier le nonce
+        if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'sisme_user_forgot_password')) {
+            wp_die('Erreur de sécurité. Veuillez recharger la page.');
+        }
+        
+        // Sanitiser les données
+        $email = sanitize_email($_POST['reset_email'] ?? '');
+        
+        if (empty($email)) {
+            self::set_auth_message('Veuillez saisir une adresse email.', 'error');
+            return;
+        }
+        
+        if (!is_email($email)) {
+            self::set_auth_message('Veuillez saisir une adresse email valide.', 'error');
+            return;
+        }
+        
+        // Vérifier si l'utilisateur existe
+        $user = get_user_by('email', $email);
+        if (!$user) {
+            // Email inexistant - Message de sécurité (ne pas révéler si l'email existe)
+            self::set_auth_message('Si cette adresse email existe, vous recevrez un lien de réinitialisation.', 'success');
+            return;
+        }
+        
+        // Email existant - Envoyer l'email de réinitialisation
+        $result = retrieve_password($user->user_login);
+        
+        if (is_wp_error($result)) {
+            self::set_auth_message('Erreur lors de l\'envoi de l\'email. Veuillez réessayer.', 'error');
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[Sisme User Auth] Erreur retrieve_password: ' . $result->get_error_message());
+            }
+        } else {
+            // Succès - Même message que pour email inexistant (sécurité)
+            self::set_auth_message('Si cette adresse email existe, vous recevrez un lien de réinitialisation.', 'success');
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[Sisme User Auth] Email de réinitialisation envoyé pour: ' . $email);
+            }
+        }
+    }
+    
+    /**
+     * Traiter le formulaire de nouveau mot de passe
+     */
+    private static function process_reset_password_form() {
+        // Sécurité : vérifier le nonce
+        if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'sisme_user_reset_password')) {
+            wp_die('Erreur de sécurité. Veuillez recharger la page.');
+        }
+        
+        // Récupérer les données
+        $token = sanitize_text_field($_POST['reset_token'] ?? '');
+        $login = sanitize_text_field($_POST['login'] ?? '');
+        $new_password = $_POST['new_password'] ?? '';
+        $confirm_password = $_POST['confirm_new_password'] ?? '';
+        
+        // Validations
+        if (empty($token)) {
+            self::set_auth_message('Token de réinitialisation manquant.', 'error');
+            return;
+        }
+        
+        if (empty($new_password) || empty($confirm_password)) {
+            self::set_auth_message('Veuillez remplir tous les champs.', 'error');
+            return;
+        }
+        
+        if ($new_password !== $confirm_password) {
+            self::set_auth_message('Les mots de passe ne correspondent pas.', 'error');
+            return;
+        }
+        
+        if (strlen($new_password) < 8) {
+            self::set_auth_message('Le mot de passe doit contenir au moins 8 caractères.', 'error');
+            return;
+        }
+        
+        // Vérifier et traiter le token
+        $result = self::handle_password_reset($token, $login, $new_password);
+        
+        if (is_wp_error($result)) {
+            self::set_auth_message($result->get_error_message(), 'error');
+        } else {
+            self::set_auth_message('Votre mot de passe a été modifié avec succès.', 'success');
+            
+            // Rediriger vers la page de connexion après succès
+            wp_safe_redirect(add_query_arg(['message' => 'password_changed'], home_url(Sisme_Utils_Users::LOGIN_URL)));
+            exit;
+        }
+    }
+    
+    /**
+     * Gérer la réinitialisation du mot de passe avec token
+     */
+    private static function handle_password_reset($token, $login, $new_password) {
+        // Utiliser la fonction WordPress pour vérifier le token
+        $user = check_password_reset_key($token, $login);
+        
+        if (is_wp_error($user)) {
+            return new WP_Error('invalid_token', 'Le lien de réinitialisation est invalide ou a expiré.');
+        }
+        
+        // Changer le mot de passe
+        reset_password($user, $new_password);
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[Sisme User Auth] Mot de passe réinitialisé pour utilisateur: ' . $user->ID);
+        }
+        
+        return true;
     }
     
     /**
@@ -396,6 +526,16 @@ class Sisme_User_Auth_Handlers {
         }
         
         return null;
+    }
+
+    /**
+     * Nettoyer les sessions lors de la déconnexion
+     */
+    public static function cleanup_auth_session() {
+        if (!session_id()) {
+            session_start();
+        }        
+        unset($_SESSION['sisme_auth_message']);
     }
     
     /**

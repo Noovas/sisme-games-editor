@@ -31,7 +31,7 @@ class Sisme_User_Auth_Forms {
     private $available_components = [
         'user_email' => [
             'label' => 'Adresse email',
-            Sisme_Utils_Games::KEY_DESCRIPTION => 'Votre adresse email de connexion',
+            'description' => 'Votre adresse email de connexion',
             'required' => true,
             'output_var' => 'user_email',
             'type' => 'email',
@@ -39,7 +39,7 @@ class Sisme_User_Auth_Forms {
         ],
         'user_password' => [
             'label' => 'Mot de passe',
-            Sisme_Utils_Games::KEY_DESCRIPTION => 'Votre mot de passe (8 caractères minimum)',
+            'description' => 'Votre mot de passe (8 caractères minimum)',
             'required' => true,
             'output_var' => 'user_password',
             'type' => 'password',
@@ -47,7 +47,7 @@ class Sisme_User_Auth_Forms {
         ],
         'user_confirm_password' => [
             'label' => 'Confirmer le mot de passe',
-            Sisme_Utils_Games::KEY_DESCRIPTION => 'Ressaisissez votre mot de passe',
+            'description' => 'Ressaisissez votre mot de passe',
             'required' => true,
             'output_var' => 'user_confirm_password',
             'type' => 'password',
@@ -55,7 +55,7 @@ class Sisme_User_Auth_Forms {
         ],
         'display_name' => [
             'label' => 'Nom d\'affichage',
-            Sisme_Utils_Games::KEY_DESCRIPTION => 'Le nom qui sera affiché publiquement (obligatoire)   ',
+            'description' => 'Le nom qui sera affiché publiquement (obligatoire)   ',
             'required' => true,
             'output_var' => 'display_name',
             'type' => 'text',
@@ -63,7 +63,7 @@ class Sisme_User_Auth_Forms {
         ],
         'remember_me' => [
             'label' => 'Se souvenir de moi',
-            Sisme_Utils_Games::KEY_DESCRIPTION => 'Rester connecté sur cet appareil',
+            'description' => 'Rester connecté sur cet appareil',
             'required' => false,
             'output_var' => 'remember_me',
             'type' => 'checkbox',
@@ -71,11 +71,43 @@ class Sisme_User_Auth_Forms {
         ],
         'redirect_to' => [
             'label' => 'Redirection',
-            Sisme_Utils_Games::KEY_DESCRIPTION => 'Page de destination après connexion',
+            'description' => 'Page de destination après connexion',
             'required' => false,
             'output_var' => 'redirect_to',
             'type' => 'hidden',
             'icon' => '↗️'
+        ],
+        'reset_email' => [
+            'label' => 'Adresse email',
+            'description' => 'Saisissez votre adresse email pour recevoir le lien de réinitialisation',
+            'required' => true,
+            'output_var' => 'reset_email',
+            'type' => 'email',
+            'icon' => '📧'
+        ],
+        'reset_token' => [
+            'type' => 'hidden',
+            'output_var' => 'reset_token'
+        ],
+        'new_password' => [
+            'label' => 'Nouveau mot de passe',
+            'description' => 'Choisissez un mot de passe fort (8 caractères minimum)',
+            'required' => true,
+            'output_var' => 'new_password',
+            'type' => 'password',
+            'icon' => '🔐'
+        ],
+        'confirm_new_password' => [
+            'label' => 'Confirmer le nouveau mot de passe',
+            'description' => 'Ressaisissez votre nouveau mot de passe',
+            'required' => true,
+            'output_var' => 'confirm_new_password',
+            'type' => 'password',
+            'icon' => '🔒'
+        ],
+        'login' => [
+            'type' => 'hidden',
+            'output_var' => 'login'
         ]
     ];
     
@@ -98,6 +130,19 @@ class Sisme_User_Auth_Forms {
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log("[Sisme User Auth Forms] Formulaire {$this->form_type} initialisé avec " . count($this->components) . " composants");
+        }
+    }
+
+    /**
+     * Définir la valeur d'un composant (utile pour pré-remplir des champs)
+     * 
+     * @param string $component_name Nom du composant
+     * @param mixed $value Valeur à définir
+     */
+    public function set_component_value($component_name, $value) {
+        if (isset($this->components[$component_name])) {
+            $output_var = $this->components[$component_name]['output_var'];
+            $this->form_data[$output_var] = $value;
         }
     }
     
@@ -131,7 +176,14 @@ class Sisme_User_Auth_Forms {
         $this->form_type = $options['type'] ?? 'login';
         
         // Actions nonce spécifiques selon le type
-        $this->nonce_action = ($this->form_type === 'register') ? 'sisme_user_register' : 'sisme_user_login';
+        $nonce_actions = [
+            'login' => 'sisme_user_login',
+            'register' => 'sisme_user_register',
+            'forgot_password' => 'sisme_user_forgot_password',
+            'reset_password' => 'sisme_user_reset_password'
+        ];
+
+        $this->nonce_action = $nonce_actions[$this->form_type] ?? 'sisme_user_auth';
         
         // Redirection par défaut
         if (isset($options['redirect_to'])) {
@@ -249,7 +301,16 @@ class Sisme_User_Auth_Forms {
                     <input type="hidden" name="<?php echo esc_attr($submit_name); ?>" >
                     <button type="submit"
                         class="sisme-button sisme-button-vert sisme-auth-submit">
-                        <span class="sisme-btn-icon"><?php echo $this->form_type === 'register' ? '📝' : '🔐'; ?></span>
+                        <?php
+                        $icons = [
+                            'login' => '🔐',
+                            'register' => '📝', 
+                            'forgot_password' => '🔄',
+                            'reset_password' => '🔑'
+                        ];
+                        $icon = $icons[$this->form_type] ?? '🔐';
+                        ?>
+                        <span class="sisme-btn-icon"><?php echo $icon; ?></span>
                         <?php echo esc_html($this->submit_button_text); ?>
                     </button>
                 </div>

@@ -63,6 +63,7 @@ class Sisme_User_Auth_Loader {
         // Modules requis dans l'ordre
         $required_modules = [
             'user-auth-security.php',    // Sécurité en premier
+            'user-auth-hooks.php',       // Hooks et redirections
             'user-auth-handlers.php',    // Logique métier
             'user-auth-forms.php',       // Formulaires
             'user-auth-api.php'          // API et shortcodes
@@ -115,9 +116,12 @@ class Sisme_User_Auth_Loader {
     private function init_shortcodes() {
         if (class_exists('Sisme_User_Auth_API')) {
             add_shortcode('sisme_user_login', ['Sisme_User_Auth_API', 'render_login_form']);
-            add_shortcode('sisme_user_register', ['Sisme_User_Auth_API', 'render_register_form']);            
+            add_shortcode('sisme_user_register', ['Sisme_User_Auth_API', 'render_register_form']);
+            add_shortcode('sisme_user_forgot_password', ['Sisme_User_Auth_API', 'render_forgot_password_form']);
+            add_shortcode('sisme_user_reset_password', ['Sisme_User_Auth_API', 'render_reset_password_form']);
+            
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('[Sisme User Auth] Shortcodes enregistrés : sisme_user_login, sisme_user_register');
+                error_log('[Sisme User Auth] Shortcodes enregistrés : login, register, forgot_password, reset_password');
             }
         }
     }
