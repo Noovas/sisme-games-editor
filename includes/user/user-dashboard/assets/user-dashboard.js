@@ -79,22 +79,61 @@
      * Initialisation de la navigation par onglets
      */
     SismeDashboard.initNavigation = function() {
+        // Détecter si on est sur un profil public ou le dashboard personnel
+        const isOwnDashboard = this.isOwnDashboard();
+        
         // Récupérer la section active depuis l'URL ou localStorage
         const urlHash = window.location.hash.replace('#', '');
         const savedSection = localStorage.getItem('sisme_dashboard_section');
         
         let initialSection = 'overview';
         
+        // Priorité 1: Hash dans l'URL (toujours respecté)
         if (urlHash && this.isValidSection(urlHash)) {
             initialSection = urlHash;
-        } else if (savedSection && this.isValidSection(savedSection)) {
+        } 
+        // Priorité 2: localStorage SEULEMENT pour le dashboard personnel
+        else if (isOwnDashboard && savedSection && this.isValidSection(savedSection)) {
             initialSection = savedSection;
         }
+        // Priorité 3: overview par défaut (surtout pour les profils publics)
         
         // Appliquer la section active
         this.setActiveSection(initialSection, false);
         
-        this.log('Navigation initialisée, section active:', initialSection);
+        this.log('Navigation initialisée, section active:', initialSection, 'dashboard personnel:', isOwnDashboard);
+    };
+
+    /**
+     * NOUVELLE FONCTION - Détecter si on est sur son propre dashboard
+     */
+    SismeDashboard.isOwnDashboard = function() {
+        // Méthode 1: Vérifier l'URL
+        const currentUrl = window.location.href;
+        if (currentUrl.includes('/sisme-user-tableau-de-bord/')) {
+            return true; // Dashboard personnel
+        }
+        
+        // Méthode 2: Vérifier si on est sur un profil avec paramètre utilisateur
+        if (currentUrl.includes('/sisme-user-profil/') && currentUrl.includes('?user=')) {
+            return false; // Profil public
+        }
+        
+        // Méthode 3: Vérifier les attributs data du container
+        const $dashboard = $('.sisme-user-dashboard');
+        if ($dashboard.length) {
+            const dashboardUserId = $dashboard.data('user-id');
+            const currentUserId = this.config.currentUserId;
+            
+            // Si les IDs correspondent et qu'on n'a pas de paramètre ?user=, c'est son propre dashboard
+            if (dashboardUserId && currentUserId && dashboardUserId == currentUserId) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return !urlParams.has('user'); // Pas de paramètre ?user= = dashboard personnel
+            }
+        }
+        
+        // Par défaut, considérer comme dashboard personnel
+        return true;
     };
     
     /**
@@ -134,7 +173,7 @@
     };
     
     /**
-     * ✨ FONCTION PRINCIPALE - Gestion de la navigation entre sections
+     * Gestion de la navigation entre sections
      */
     SismeDashboard.handleNavigation = function(e) {
         e.preventDefault();
@@ -150,7 +189,7 @@
     };
     
     /**
-     * ✨ FONCTION PRINCIPALE - Définir la section active avec animation
+     * Définir la section active avec animation
      */
     SismeDashboard.setActiveSection = function(section, animate = true) {
         if (!this.isValidSection(section)) {
@@ -193,8 +232,13 @@
             history.replaceState(null, null, '#' + section);
         }
         
-        // 5. Sauvegarder dans localStorage
-        localStorage.setItem('sisme_dashboard_section', section);
+        // 5. Sauvegarder dans localStorage SEULEMENT pour le dashboard personnel
+        if (this.isOwnDashboard()) {
+            localStorage.setItem('sisme_dashboard_section', section);
+            this.log('Section sauvée dans localStorage:', section);
+        } else {
+            this.log('Profil public - pas de sauvegarde localStorage');
+        }
         
         // 6. Émettre un événement personnalisé
         $(document).trigger('sisme:dashboard:section-changed', [section, previousSection]);
@@ -206,7 +250,8 @@
                 'favorites': 'Mes Favoris',
                 'library': 'La Sismothèque',
                 'activity': 'Mon Activité',
-                'settings': 'Paramètres'
+                'settings': 'Paramètres',
+                'social': 'Social'
             };
             
             this.showNotification(`Section ${sectionNames[section] || section}`, 'info', 2000);

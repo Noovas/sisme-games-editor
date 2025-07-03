@@ -366,6 +366,7 @@ COLLECTION_COMPLETED = 'completed'
 **Constantes META:**
 ```php
 META_PREFIX = 'sisme_user_'
+META_FRIENDS_LIST = 'sisme_user_friends_list'
 ```
 
 **Constantes URLS:**
@@ -420,6 +421,55 @@ $prefs = Sisme_Utils_Users::get_user_meta_with_default(42, 'sisme_user_preferenc
 // @param string $register_url - URL d'inscription personnalisée (optionnel)
 // @return string - HTML du message de connexion requise
 $html = Sisme_Utils_Users::render_login_required();
+```
+</details>
+
+<details>
+<summary><code>get_user_by_slug($slug)</code></summary>
+
+```php
+// 🔍 Obtenir un utilisateur par son slug (user_nicename)
+// @param string $slug - Slug de l'utilisateur
+// @return WP_User|false - Utilisateur ou false si non trouvé
+$user = Sisme_Utils_Users::get_user_by_slug('pseudo-utilisateur');
+```
+</details>
+
+<details>
+<summary><code>get_user_profile_url($user, $section = 'overview')</code></summary>
+
+```php
+// 🔗 Obtenir l'URL du profil d'un utilisateur avec section optionnelle
+// @param int|WP_User $user - ID utilisateur ou objet WP_User
+// @param string $section - Section du profil à afficher (défaut: overview)
+// @return string - URL du profil avec hash de section
+$profile_url = Sisme_Utils_Users::get_user_profile_url(42, 'overview');
+// Retourne: "/sisme-user-profil/?user=pseudo-utilisateur#overview"
+```
+</details>
+
+<details>
+<summary><code>get_current_user_profile_url()</code></summary>
+
+```php
+// 👤 Obtenir l'URL du profil de l'utilisateur connecté
+// @return string - URL du profil ou chaîne vide si non connecté
+$my_profile = Sisme_Utils_Users::get_current_user_profile_url();
+```
+</details>
+
+<details>
+<summary><code>search_users_by_display_name($search_term, $max_results = 10)</code></summary>
+
+```php
+// 🔍 Rechercher des utilisateurs par display_name avec WP_User_Query
+// @param string $search_term - Terme de recherche (minimum 2 caractères)
+// @param int $max_results - Nombre maximum de résultats (défaut: 10, max: 50)
+// @return array - Liste des utilisateurs [['id' => int, 'display_name' => string, 'user_nicename' => string, 'profile_url' => string]]
+$users = Sisme_Utils_Users::search_users_by_display_name('alice', 5);
+$results = Sisme_Utils_Users::search_users_by_display_name('jean');
+$results = Sisme_Utils_Users::search_users_by_display_name('marie', 3);
+$results = Sisme_Utils_Users::search_users_by_display_name('a'); // [] (minimum 2 caractères)
 ```
 </details>
 
