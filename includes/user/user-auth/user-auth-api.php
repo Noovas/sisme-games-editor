@@ -13,14 +13,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Sisme_User_Auth_API {
-    
-    // URLs de redirection en dur
-    const PROFILE_URL = '/sisme-user-profil/';
-    const DASHBOARD_URL = '/sisme-user-tableau-de-bord/';
-    const REGISTER_URL = '/sisme-user-register/';
-    const LOGIN_URL = '/sisme-user-login/';
-    
+class Sisme_User_Auth_API {    
     /**
      * Initialisation de l'API
      */
@@ -142,8 +135,8 @@ class Sisme_User_Auth_API {
         $register_link_text = $atts['register_link_text'] ?? 'S\'inscrire';
         $forgot_link_text = $atts['forgot_password'] ?? 'J\'ai oublié mon mot de passe chef';
         
-        $login_url = home_url(self::LOGIN_URL);
-        $register_url = home_url(self::REGISTER_URL);
+        $login_url = home_url(Sisme_Utils_Users::LOGIN_URL);
+        $register_url = home_url(Sisme_Utils_Users::REGISTER_URL);
         
         ob_start();
         ?>
@@ -174,7 +167,7 @@ class Sisme_User_Auth_API {
                             <a href="<?php echo esc_url($register_url); ?>"><?php echo esc_html($register_link_text); ?></a>
                         </p>
                         <p class="sisme-auth-link">
-                            <a href="<?php echo esc_url(Sisme_Utils_Users::FORGOT_PASSWORD_URL); ?>"><?php echo esc_html($forgot_link_text); ?></a>
+                            <a href="<?php echo esc_url(home_url(Sisme_Utils_Users::FORGOT_PASSWORD_URL)); ?>"><?php echo esc_html($forgot_link_text); ?></a>
                         </p>
                     <?php endif; ?>
                 </footer>

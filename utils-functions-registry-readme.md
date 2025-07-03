@@ -374,6 +374,8 @@ LOGIN_URL = '/sisme-user-login/'
 REGISTER_URL = '/sisme-user-register/'
 PROFILE_URL = '/sisme-user-profil/'
 DASHBOARD_URL = '/sisme-user-tableau-de-bord/'
+FORGOT_URL = '/sisme-user-forgot-password/'
+RESET_URL = '/sisme-user-reset-password/'
 ```
 
 **Constantes MESSAGES:**
