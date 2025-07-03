@@ -340,6 +340,24 @@ class Sisme_User_Social_Loader {
             ]);
         }
     }
+
+    /**
+     * HANDLER AJAX à ajouter côté PHP pour le compteur d'amis
+     */
+    public function handle_get_friends_count() {
+        if (!wp_verify_nonce($_POST['nonce'], 'sisme_user_social_nonce')) {
+            wp_die('Erreur de sécurité');
+        }
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error('Vous devez être connecté');
+        }
+        
+        $user_id = get_current_user_id();
+        $social_stats = Sisme_User_Social_API::get_user_social_stats($user_id);
+        
+        wp_send_json_success(['count' => $social_stats['friends_count']]);
+    }
     
     /**
      * Initialiser les métadonnées sociales pour un nouvel utilisateur

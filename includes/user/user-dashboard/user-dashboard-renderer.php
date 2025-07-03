@@ -47,6 +47,7 @@ class Sisme_User_Dashboard_Renderer {
                             <p class="sisme-profile-bio"><?php echo esc_html($user_info['bio']); ?></p>
                         <?php endif; ?>
                     </div>
+                    <?php echo self::render_social_section_header($user_info, $context); ?>
                     <div class="sisme-profile-stats">
                         <div class="sisme-stat">
                             <span class="sisme-stat-value"><?php echo esc_html($gaming_stats['owned_games'] ?? 0); ?></span>
@@ -83,6 +84,100 @@ class Sisme_User_Dashboard_Renderer {
                 </div>
             </div>
         </header>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Rendu de la section social dans le header (à gauche des stats)
+     * @param array $user_info Informations utilisateur
+     * @param array $context Contexte de rendu
+     * @return string HTML de la section social
+     */
+    public static function render_social_section_header($user_info, $context = ['is_public' => true]) {
+        $user_id = $user_info['id'];
+        $viewer_id = $context['viewer_id'] ?? get_current_user_id();
+        $is_own_profile = ($user_id === $viewer_id);
+        
+        ob_start();
+        ?>
+        <div class="sisme-profile-social">
+            <?php if ($is_own_profile): ?>
+                <!-- Mon profil : Afficher le nombre d'amis -->
+                <?php 
+                $social_stats = class_exists('Sisme_User_Social_API') ? 
+                            Sisme_User_Social_API::get_user_social_stats($user_id) : 
+                            ['friends_count' => 0];
+                ?>
+                <div class="sisme-social-counter" title="Mes amis">
+                    <div class="sisme-social-icon-container">
+                        <span class="sisme-social-base-icon">👥</span>
+                        <span class="sisme-social-pastille sisme-social-count"><?php echo esc_html($social_stats['friends_count']); ?></span>
+                    </div>
+                </div>
+            <?php else: ?>
+                <!-- Profil d'un autre : Bouton ami selon le statut -->
+                <?php if (class_exists('Sisme_User_Social_API')): ?>
+                    <?php 
+                    $relationship_status = Sisme_User_Social_API::get_relationship_status($viewer_id, $user_id);
+                    ?>
+                    <div class="sisme-social-action" data-user-id="<?php echo esc_attr($user_id); ?>" data-status="<?php echo esc_attr($relationship_status); ?>">
+                        <?php echo self::render_friend_button($relationship_status); ?>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Rendu du bouton ami selon le statut de la relation
+     * @param string $status Statut de la relation
+     * @return string HTML du bouton
+     */
+    private static function render_friend_button($status) {
+        $buttons = [
+            'none' => [
+                'icon' => '➕',
+                'class' => 'sisme-social-success',
+                'title' => 'Ajouter en ami',
+                'action' => 'add_friend'
+            ],
+            'pending_from_user1' => [
+                'icon' => '⏳',
+                'class' => 'sisme-social-warning',
+                'title' => 'Demande envoyée',
+                'action' => 'cancel_request'
+            ],
+            'pending_from_user2' => [
+                'icon' => '✓',
+                'class' => 'sisme-social-success',
+                'title' => 'Accepter la demande',
+                'action' => 'accept_request'
+            ],
+            'friends' => [
+                'icon' => '❌',
+                'class' => 'sisme-social-error',
+                'title' => 'Retirer de mes amis',
+                'action' => 'remove_friend'
+            ]
+        ];
+        
+        $button_config = $buttons[$status] ?? $buttons['none'];
+        
+        ob_start();
+        ?>
+        <button class="sisme-social-button" 
+                data-action="<?php echo esc_attr($button_config['action']); ?>"
+                title="<?php echo esc_attr($button_config['title']); ?>">
+            <div class="sisme-social-icon-container">
+                <span class="sisme-social-base-icon">👥</span>
+                <span class="sisme-social-pastille <?php echo esc_attr($button_config['class']); ?>">
+                    <?php echo esc_html($button_config['icon']); ?>
+                </span>
+            </div>
+        </button>
         <?php
         return ob_get_clean();
     }

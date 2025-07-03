@@ -208,7 +208,7 @@
 
 .sisme-profile-info {
     display: flex;
-    gap: var(--sisme-dashboard-space-lg);
+    gap: var(--sisme-dashboard-space-xl);
 }
 
 /* ===🏗️ GRILLE DASHBOARD ================= */
@@ -666,6 +666,7 @@
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
@@ -679,6 +680,7 @@
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     flex: 1;
 }
@@ -726,21 +728,21 @@
 
 /* ===📱 RESPONSIVE BREAKPOINTS ============ */
 
-/* Tablet Portrait (≥768px) : 2 colonnes */
+/* Tablet Portrait (≥768px) */
 @media (min-width: 768px) {
     .sisme-games-grid.sisme-recent-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-/* Tablet Landscape (≥992px) : 3 colonnes */
+/* Tablet Landscape (≥992px) */
 @media (min-width: 992px) {
     .sisme-games-grid.sisme-recent-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 }
 
-/* Desktop (≥1200px) : 4 colonnes */
+/* Desktop (≥1200px) */
 @media (min-width: 1200px) {
     .sisme-games-grid.sisme-recent-grid {
         grid-template-columns: repeat(4, 1fr);
@@ -751,14 +753,14 @@
     }
 }
 
-/* Large Desktop (≥1400px) : 5 colonnes */
+/* Large Desktop (≥1400px) */
 @media (min-width: 1400px) {
     .sisme-games-grid.sisme-recent-grid {
         grid-template-columns: repeat(5, 1fr);
     }
 }
 
-/* Extra Large (≥1600px) : 6 colonnes */
+/* Extra Large (≥1600px) */
 @media (min-width: 1600px) {
     .sisme-games-grid.sisme-recent-grid {
         grid-template-columns: repeat(6, 1fr);
@@ -824,6 +826,7 @@
     .sisme-game-description.sisme-recent-grid {
         font-size: 0.9rem;
         -webkit-line-clamp: 4;
+        line-clamp: 4;
     }
 }
 
@@ -1562,8 +1565,23 @@
     }
 }
 
+/* ===💻 Mobile RESPONSIVE ================ */
+@media (max-width: 1199px) {
+    .sisme-profile-info {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--sisme-dashboard-space-md);
+    }
+
+    .sisme-profile-actions a {
+        height: 40px;
+    }
+}
+
 /* ===💻 TABLET RESPONSIVE ================ */
 @media (min-width: 768px) and (max-width: 1199px) {
+    
+
     .sisme-dashboard-grid {
         grid-template-columns: 250px 1fr;
     }
@@ -2042,4 +2060,283 @@
 
 .sisme-search-button:active:not(:disabled) {
     transform: translateY(0);
+}
+
+/* ===👥 SOCIAL SECTION HEADER ============ */
+
+/* Section sociale à gauche des stats */
+.sisme-profile-social {
+    display: flex;
+    align-items: center;
+    margin-right: var(--sisme-dashboard-space-lg);
+    flex-shrink: 0;
+}
+
+/* Container pour l'icône avec pastille */
+.sisme-social-icon-container {
+    position: relative;
+    display: inline-block;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: default;
+}
+
+/* Icône de base (👥) */
+.sisme-social-base-icon {
+    display: block;
+    filter: grayscale(0.2);
+    transition: var(--sisme-dashboard-transition-fast);
+}
+
+/* Pastille en superposition */
+.sisme-social-pastille {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    font-size: 0.75rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--sisme-dashboard-bg-secondary);
+    font-weight: 600;
+    transition: var(--sisme-dashboard-transition-fast);
+    box-shadow: var(--sisme-dashboard-shadow-sm);
+}
+
+/* Styles des pastilles selon le type */
+.sisme-social-count {
+    background: var(--sisme-dashboard-accent-primary);
+    color: white;
+    font-size: 0.7rem;
+    min-width: 18px;
+    width: auto;
+    padding: 0 4px;
+    border-radius: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+.sisme-social-success {
+    background: var(--sisme-dashboard-accent-success);
+    color: white;
+}
+
+.sisme-social-warning {
+    background: var(--sisme-dashboard-accent-warning);
+    color: var(--sisme-dashboard-bg-primary);
+}
+
+.sisme-social-error {
+    background: var(--sisme-dashboard-accent-secondary);
+    color: white;
+}
+
+/* === BOUTON SOCIAL INTERACTIF ========== */
+
+/* Bouton d'action social (pour les profils d'autres utilisateurs) */
+.sisme-social-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: var(--sisme-dashboard-transition-fast);
+    border-radius: var(--sisme-dashboard-radius-md);
+    position: relative;
+}
+
+.sisme-social-button:hover {
+    transform: scale(1.1);
+}
+
+.sisme-social-button:hover .sisme-social-base-icon {
+    filter: grayscale(0);
+}
+
+.sisme-social-button:hover .sisme-social-pastille {
+    transform: scale(1.2);
+    box-shadow: var(--sisme-dashboard-shadow-md);
+}
+
+.sisme-social-button:active {
+    transform: scale(0.95);
+}
+
+/* Focus pour l'accessibilité */
+.sisme-social-button:focus {
+    outline: 2px solid var(--sisme-dashboard-accent-primary);
+    outline-offset: 2px;
+    border-radius: var(--sisme-dashboard-radius-sm);
+}
+
+.sisme-social-button:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* === ÉTATS DE CHARGEMENT =============== */
+
+/* État de chargement lors des actions AJAX */
+.sisme-social-button.loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.sisme-social-button.loading .sisme-social-pastille {
+    animation: social-loading 1s linear infinite;
+}
+
+@keyframes social-loading {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* === ANIMATIONS D'ÉTAT ================= */
+
+/* Animation d'apparition */
+.sisme-social-icon-container {
+    animation: social-icon-appear 0.3s ease-out;
+}
+
+@keyframes social-icon-appear {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Animation de changement d'état */
+.sisme-social-pastille.state-change {
+    animation: social-state-change 0.4s ease-out;
+}
+
+@keyframes social-state-change {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* === RESPONSIVE MOBILE ================= */
+@media (max-width: 767px) {
+    .sisme-profile-social {
+        margin-right: var(--sisme-dashboard-space-md);
+        margin-bottom: var(--sisme-dashboard-space-sm);
+    }
+    
+    .sisme-social-icon-container {
+        font-size: 1.25rem;
+    }
+    
+    .sisme-social-pastille {
+        top: -4px;
+        right: -4px;
+        width: 16px;
+        height: 16px;
+        font-size: 0.65rem;
+    }
+    
+    .sisme-social-count {
+        min-width: 14px;
+        font-size: 0.6rem;
+        padding: 0 2px;
+    }
+}
+
+/* === TOOLTIPS POUR ACCESSIBILITÉ ======= */
+.sisme-social-button[title] {
+    position: relative;
+}
+
+.sisme-social-button[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--sisme-dashboard-bg-tertiary);
+    color: var(--sisme-dashboard-text-primary);
+    padding: var(--sisme-dashboard-space-xs) var(--sisme-dashboard-space-sm);
+    border-radius: var(--sisme-dashboard-radius-sm);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: var(--sisme-dashboard-shadow-md);
+    border: 1px solid var(--sisme-dashboard-border-color);
+    margin-bottom: 5px;
+    pointer-events: none;
+}
+
+.sisme-social-button[title]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid var(--sisme-dashboard-bg-tertiary);
+    z-index: 1001;
+    margin-bottom: 1px;
+    pointer-events: none;
+}
+
+/* === INTÉGRATION AVEC STATS ============ */
+
+.sisme-profile-stats-container {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-dashboard-space-lg);
+    flex-wrap: wrap;
+}
+
+.sisme-profile-stats-container .sisme-profile-social + .sisme-profile-stats {
+    margin-left: 0;
+}
+
+/* === HAUTE RÉSOLUTION ================== */
+@media (min-width: 1600px) {
+    .sisme-social-icon-container {
+        font-size: 1.75rem;
+    }
+    
+    .sisme-social-pastille {
+        width: 22px;
+        height: 22px;
+        font-size: 0.8rem;
+    }
+    
+    .sisme-social-count {
+        min-width: 20px;
+        font-size: 0.75rem;
+        padding: 0 5px;
+    }
+}
+
+/* === DARK MODE AMÉLIORÉ ================ */
+@media (prefers-color-scheme: dark) {
+    .sisme-social-pastille {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+    
+    .sisme-social-button:hover .sisme-social-pastille {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+    }
+}
+
+/* === PRÉFÉRENCES DE MOUVEMENT ========== */
+@media (prefers-reduced-motion: reduce) {
+    .sisme-social-icon-container,
+    .sisme-social-button,
+    .sisme-social-pastille {
+        animation: none !important;
+        transition: none !important;
+    }
+    
+    .sisme-social-button:hover {
+        transform: none !important;
+    }
 }
