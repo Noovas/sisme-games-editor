@@ -71,7 +71,7 @@ class Sisme_User_Dashboard_Renderer {
                         </a>
                     <?php else: ?>
                         <!-- Bouton déconnexion normal -->
-                        <a href="<?php echo esc_url(wp_logout_url()); ?>" class="sisme-button sisme-button-rouge">
+                        <a href="<?php echo esc_url(wp_logout_url(home_url())); ?>" class="sisme-button sisme-button-rouge">
                             <span class="sisme-icon">🚪 </span>
                             <span class="sisme-label">Déconnexion</span>
                         </a>
