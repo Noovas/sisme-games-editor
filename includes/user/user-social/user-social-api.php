@@ -178,23 +178,26 @@ class Sisme_User_Social_API {
             return ['success' => false, 'message' => 'Utilisateur invalide'];
         }
         
-        // Vérifier qu'il y a bien une demande en attente
-        if (!self::has_pending_request($sender_id, $receiver_id)) {
-            return ['success' => false, 'message' => 'Aucune demande en attente'];
-        }
-        
-        // Supprimer la demande de la liste du destinataire
+        // Supprimer des DEUX côtés
+        $sender_friends = get_user_meta($sender_id, Sisme_Utils_Users::META_FRIENDS_LIST, true);
         $receiver_friends = get_user_meta($receiver_id, Sisme_Utils_Users::META_FRIENDS_LIST, true);
-        if (is_array($receiver_friends) && isset($receiver_friends[$sender_id])) {
-            unset($receiver_friends[$sender_id]);
-            $success = update_user_meta($receiver_id, Sisme_Utils_Users::META_FRIENDS_LIST, $receiver_friends);
-            
-            if ($success) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log("[Sisme User Social] Demande d'ami refusée de {$sender_id} par {$receiver_id}");
-                }
-                return ['success' => true, 'message' => 'Demande d\'ami refusée'];
+        
+        if (!is_array($sender_friends)) $sender_friends = [];
+        if (!is_array($receiver_friends)) $receiver_friends = [];
+        
+        // Supprimer les entrées des deux côtés
+        unset($sender_friends[$receiver_id]);
+        unset($receiver_friends[$sender_id]);
+        
+        // Sauvegarder des deux côtés
+        $success1 = update_user_meta($sender_id, Sisme_Utils_Users::META_FRIENDS_LIST, $sender_friends);
+        $success2 = update_user_meta($receiver_id, Sisme_Utils_Users::META_FRIENDS_LIST, $receiver_friends);
+        
+        if ($success1 && $success2) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme User Social] Demande d'ami refusée de {$sender_id} par {$receiver_id}");
             }
+            return ['success' => true, 'message' => 'Demande d\'ami refusée'];
         }
         
         return ['success' => false, 'message' => 'Erreur lors du refus'];
@@ -214,23 +217,26 @@ class Sisme_User_Social_API {
             return ['success' => false, 'message' => 'Utilisateur invalide'];
         }
         
-        // Vérifier qu'il y a bien une demande en attente
-        if (!self::has_pending_request($sender_id, $receiver_id)) {
-            return ['success' => false, 'message' => 'Aucune demande en attente'];
-        }
-        
-        // Supprimer la demande de la liste du destinataire
+        // Supprimer des DEUX côtés
+        $sender_friends = get_user_meta($sender_id, Sisme_Utils_Users::META_FRIENDS_LIST, true);
         $receiver_friends = get_user_meta($receiver_id, Sisme_Utils_Users::META_FRIENDS_LIST, true);
-        if (is_array($receiver_friends) && isset($receiver_friends[$sender_id])) {
-            unset($receiver_friends[$sender_id]);
-            $success = update_user_meta($receiver_id, Sisme_Utils_Users::META_FRIENDS_LIST, $receiver_friends);
-            
-            if ($success) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log("[Sisme User Social] Demande d'ami annulée par {$sender_id} vers {$receiver_id}");
-                }
-                return ['success' => true, 'message' => 'Demande annulée'];
+        
+        if (!is_array($sender_friends)) $sender_friends = [];
+        if (!is_array($receiver_friends)) $receiver_friends = [];
+        
+        // Supprimer les entrées
+        unset($sender_friends[$receiver_id]);
+        unset($receiver_friends[$sender_id]);
+        
+        // Sauvegarder des deux côtés
+        $success1 = update_user_meta($sender_id, Sisme_Utils_Users::META_FRIENDS_LIST, $sender_friends);
+        $success2 = update_user_meta($receiver_id, Sisme_Utils_Users::META_FRIENDS_LIST, $receiver_friends);
+        
+        if ($success1 && $success2) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme User Social] Demande d'ami annulée par {$sender_id} vers {$receiver_id}");
             }
+            return ['success' => true, 'message' => 'Demande annulée'];
         }
         
         return ['success' => false, 'message' => 'Erreur lors de l\'annulation'];
