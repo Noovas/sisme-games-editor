@@ -1734,10 +1734,6 @@
 === PRÉFÉRENCES DASHBOARD ===
 */
 
-.sisme-dashboard-preferences {
-    /* Adapter les préférences au thème dashboard */
-}
-
 .sisme-dashboard-preferences .sisme-user-preferences {
     background: transparent; /* Utiliser le background de la section dashboard */
     box-shadow: none; /* Pas d'ombre dans le dashboard */
@@ -1915,4 +1911,135 @@
 .sisme-search-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* Container des résultats de recherche */
+.sisme-search-results {
+    position: relative;
+    display: none;
+}
+
+.sisme-search-results-list {
+    background: var(--sisme-dashboard-bg-primary);
+    border: 1px solid var(--sisme-dashboard-border-color);
+    border-radius: var(--sisme-dashboard-radius-sm);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+/* Items de résultat */
+.sisme-search-result-item {
+    border-bottom: 1px solid var(--sisme-dashboard-border-color);
+}
+
+.sisme-search-result-item:last-child {
+    border-bottom: none;
+}
+
+.sisme-search-result-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sisme-dashboard-space-sm) var(--sisme-dashboard-space-md);
+    text-decoration: none;
+    color: var(--sisme-dashboard-text-primary);
+    transition: background-color 0.2s ease;
+}
+
+.sisme-search-result-link:hover {
+    background: var(--sisme-dashboard-bg-secondary);
+    color: var(--sisme-dashboard-text-primary);
+}
+
+.sisme-search-result-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sisme-search-result-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.sisme-search-result-slug {
+    font-size: 0.8rem;
+    color: var(--sisme-dashboard-text-secondary);
+}
+
+.sisme-search-result-icon {
+    font-size: 1.2rem;
+    opacity: 0.7;
+}
+
+/* États de chargement et erreurs */
+.sisme-search-loading,
+.sisme-search-error {
+    text-align: center;
+    padding: var(--sisme-dashboard-space-md);
+    color: var(--sisme-dashboard-text-secondary);
+    background: var(--sisme-dashboard-bg-primary);
+    border: 1px solid var(--sisme-dashboard-border-color);
+    border-radius: var(--sisme-dashboard-radius-sm);
+}
+
+.sisme-search-loading .sisme-empty-icon,
+.sisme-search-error .sisme-empty-icon {
+    font-size: 1.5rem;
+    margin-bottom: var(--sisme-dashboard-space-sm);
+    display: block;
+}
+
+.sisme-search-error {
+    color: var(--sisme-dashboard-accent-secondary);
+}
+
+/* Animation de l'input pendant la recherche */
+.sisme-search-input.searching {
+    border-color: var(--sisme-dashboard-accent-primary);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sisme-search-results-list {
+        max-height: 250px;
+    }
+    
+    .sisme-search-result-link {
+        padding: var(--sisme-dashboard-space-sm);
+    }
+    
+    .sisme-search-result-name {
+        font-size: 0.85rem;
+    }
+    
+    .sisme-search-result-slug {
+        font-size: 0.75rem;
+    }
+}
+
+/* Focus states pour l'accessibilité */
+.sisme-search-result-link:focus {
+    outline: 2px solid var(--sisme-dashboard-accent-primary);
+    outline-offset: -2px;
+    background: var(--sisme-dashboard-bg-secondary);
+}
+
+/* Amélioration du champ de recherche */
+.sisme-search-input:focus {
+    border-color: var(--sisme-dashboard-accent-primary);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+    outline: none;
+}
+
+.sisme-search-button:hover:not(:disabled) {
+    background: var(--sisme-dashboard-accent-secondary);
+    transform: translateY(-1px);
+}
+
+.sisme-search-button:active:not(:disabled) {
+    transform: translateY(0);
 }

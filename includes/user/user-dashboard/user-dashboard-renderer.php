@@ -587,16 +587,16 @@ class Sisme_User_Dashboard_Renderer {
                         <input type="text" 
                             class="sisme-search-input" 
                             placeholder="Rechercher des utilisateurs..." 
-                            disabled>
-                        <button class="sisme-search-button" disabled>
+                            autocomplete="off">
+                        <button class="sisme-search-button" type="button">
                             <span class="sisme-icon">🔍</span>
                         </button>
                     </div>
                     <div class="sisme-search-results">
                         <div class="sisme-empty-state">
                             <div class="sisme-empty-icon">🔍</div>
-                            <h4>Recherche à venir</h4>
-                            <p>La fonctionnalité de recherche d'amis sera bientôt disponible.</p>
+                            <h4>Recherche d'utilisateurs</h4>
+                            <p>Tapez un nom d'utilisateur pour commencer la recherche.</p>
                         </div>
                     </div>
                 </div>

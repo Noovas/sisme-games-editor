@@ -74,13 +74,73 @@ class Sisme_User_Social_Loader {
         add_action('wp_ajax_sisme_decline_friend_request', [$this, 'handle_decline_friend_request']);
         add_action('wp_ajax_sisme_remove_friend', [$this, 'handle_remove_friend']);
         add_action('wp_ajax_sisme_cancel_friend_request', [$this, 'handle_cancel_friend_request']);
-        
+
+        add_action('wp_ajax_sisme_search_users', [$this, 'handle_search_users']);
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
+
         // Hook pour initialiser les métadonnées des nouveaux utilisateurs
         add_action('user_register', [$this, 'init_user_social_metadata']);
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('[Sisme User Social] Hooks AJAX enregistrés');
         }
+    }
+
+    /**
+     * Charger les assets frontend
+     */
+    public function enqueue_frontend_assets() {
+        // Charger seulement si on est sur les pages avec dashboard/profil
+        if (!$this->should_load_assets()) {
+            return;
+        }
+        
+        // Localisation des scripts pour AJAX et sécurité
+        wp_localize_script('sisme-user-dashboard', 'sismeUserSocial', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('sisme_user_social_nonce'),
+            'user_id' => get_current_user_id(),
+            'debug' => defined('WP_DEBUG') && WP_DEBUG
+        ]);
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[Sisme User Social] Variables JavaScript localisées');
+        }
+    }
+
+    /**
+     * AJOUTER CETTE NOUVELLE MÉTHODE - Vérifier si charger les assets
+     */
+    private function should_load_assets() {
+        // Charger sur les pages dashboard et profil
+        global $post;
+        
+        if (is_admin()) {
+            return false;
+        }
+        
+        // Vérifier les URLs spécifiques
+        $current_url = $_SERVER['REQUEST_URI'] ?? '';
+        $dashboard_pages = [
+            Sisme_Utils_Users::DASHBOARD_URL,
+            Sisme_Utils_Users::PROFILE_URL
+        ];
+        
+        foreach ($dashboard_pages as $page_url) {
+            if (strpos($current_url, $page_url) !== false) {
+                return true;
+            }
+        }
+        
+        // Vérifier si on a le shortcode dans le contenu
+        if ($post && (
+            has_shortcode($post->post_content, 'sisme_user_dashboard') ||
+            has_shortcode($post->post_content, 'sisme_user_profile')
+        )) {
+            return true;
+        }
+        
+        return false;
     }
     
     /**
@@ -229,6 +289,55 @@ class Sisme_User_Social_Loader {
             wp_send_json_success($result['message']);
         } else {
             wp_send_json_error($result['message']);
+        }
+    }
+
+    /**
+     * Handler AJAX pour la recherche d'utilisateurs
+     */
+    public function handle_search_users() {
+        // Vérification de sécurité
+        if (!check_ajax_referer('sisme_user_social_nonce', 'nonce', false)) {
+            wp_send_json_error(['message' => 'Token de sécurité invalide']);
+            return;
+        }
+        
+        // Vérification que l'utilisateur est connecté
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Connexion requise']);
+            return;
+        }
+        
+        // Récupération et validation du terme de recherche
+        $search_term = isset($_POST['search_term']) ? sanitize_text_field($_POST['search_term']) : '';
+        
+        if (strlen($search_term) < 2) {
+            wp_send_json_success([
+                'results' => [],
+                'message' => 'Tapez au moins 2 caractères'
+            ]);
+            return;
+        }
+        
+        // Recherche des utilisateurs
+        if (!class_exists('Sisme_Utils_Users')) {
+            wp_send_json_error(['message' => 'Service de recherche indisponible']);
+            return;
+        }
+        
+        $users = Sisme_Utils_Users::search_users_by_display_name($search_term, 10);
+        
+        // Formatage de la réponse
+        if (empty($users)) {
+            wp_send_json_success([
+                'results' => [],
+                'message' => 'Aucun résultat pour "' . esc_html($search_term) . '"'
+            ]);
+        } else {
+            wp_send_json_success([
+                'results' => $users,
+                'message' => count($users) . ' utilisateur(s) trouvé(s)'
+            ]);
         }
     }
     

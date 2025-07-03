@@ -82,6 +82,45 @@ class Sisme_Utils_Users {
     }
 
     /**
+     * Rechercher des utilisateurs par display_name
+     * 
+     * @param string $search_term Terme de recherche
+     * @param int $max_results Nombre maximum de résultats (défaut: 10)
+     * @return array Liste des utilisateurs trouvés [id, display_name, user_nicename]
+     */
+    public static function search_users_by_display_name($search_term, $max_results = 10) {
+        if (empty($search_term) || !is_string($search_term)) {
+            return [];
+        }
+        $search_term = trim($search_term);
+        if (strlen($search_term) < 2) {
+            return [];
+        }
+        $max_results = max(1, min(50, intval($max_results)));
+        $user_query = new WP_User_Query([
+            'search' => '*' . esc_attr($search_term) . '*',
+            'search_columns' => ['display_name'],
+            'number' => $max_results,
+            'orderby' => 'display_name',
+            'order' => 'ASC',
+            'fields' => ['ID', 'display_name', 'user_nicename']
+        ]);
+        $results = [];
+        foreach ($user_query->get_results() as $user) {
+            $results[] = [
+                'id' => intval($user->ID),
+                'display_name' => esc_html($user->display_name),
+                'user_nicename' => esc_attr($user->user_nicename),
+                'profile_url' => self::get_user_profile_url($user->ID)
+            ];
+        }
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("[Sisme Utils Users] Recherche '{$search_term}' : " . count($results) . " résultats");
+        }
+        return $results;
+    }
+
+    /**
      * Obtenir l'URL du profil d'un utilisateur basée sur son slug
      * @param int|WP_User $user ID utilisateur ou objet WP_User
      * @return string URL du profil
