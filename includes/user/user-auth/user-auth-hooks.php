@@ -26,13 +26,20 @@ class Sisme_User_Auth_Hooks {
         add_action('login_form_resetpass', [__CLASS__, 'redirect_to_custom_reset_password']);
         add_action('login_form_rp', [__CLASS__, 'redirect_to_custom_reset_password']);
         
-        // Intercepter les formulaires de perte de mot de passe
-        add_action('lostpassword_post', [__CLASS__, 'handle_lost_password_request']);
-        add_action('resetpass_post', [__CLASS__, 'handle_reset_password_request']);
+        // ❌ SUPPRIMÉ : Ces hooks empêchaient l'envoi des emails
+        // add_action('lostpassword_post', [__CLASS__, 'handle_lost_password_request']);
+        // add_action('resetpass_post', [__CLASS__, 'handle_reset_password_request']);
+        
+        // ✅ NOUVEAUX HOOKS : Intercepter APRÈS l'envoi d'email
+        add_action('lostpassword_post', [__CLASS__, 'track_password_reset_request'], 1);
+        add_filter('wp_mail', [__CLASS__, 'track_password_reset_email'], 10, 1);
         
         // Personnaliser les emails de réinitialisation
         add_filter('retrieve_password_message', [__CLASS__, 'custom_password_reset_email'], 10, 4);
         add_filter('retrieve_password_title', [__CLASS__, 'custom_password_reset_subject'], 10, 2);
+        
+        // Redirection après succès d'envoi d'email
+        add_action('wp_redirect', [__CLASS__, 'handle_password_reset_redirect'], 10, 2);
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('[Sisme User Auth Hooks] Hooks d\'authentification initialisés');
@@ -52,14 +59,14 @@ class Sisme_User_Auth_Hooks {
      * Rediriger vers notre page de réinitialisation
      */
     public static function redirect_to_custom_reset_password() {
-        $redirect_url = home_url(Sisme_Utils_Users::FORGOT_PASSWORD_URL);
+        $redirect_url = home_url(Sisme_Utils_Users::RESET_PASSWORD_URL);
         
         // Préserver le token s'il existe
         if (isset($_GET['key']) && isset($_GET['login'])) {
             $redirect_url = add_query_arg([
-                'token' => sanitize_text_field($_GET['key']),
+                'key' => sanitize_text_field($_GET['key']),
                 'login' => sanitize_text_field($_GET['login'])
-            ], home_url(Sisme_Utils_Users::FORGOT_PASSWORD_URL));
+            ], home_url(Sisme_Utils_Users::RESET_PASSWORD_URL));
         }
         
         wp_safe_redirect($redirect_url);
@@ -67,35 +74,83 @@ class Sisme_User_Auth_Hooks {
     }
     
     /**
-     * Traiter la demande de réinitialisation de mot de passe
+     * Suivre les demandes de réinitialisation de mot de passe
      */
-    public static function handle_lost_password_request() {
-        // Laisser WordPress traiter la demande normalement
-        // Mais rediriger vers notre page après
-        add_action('lostpassword_post', function() {
-            $redirect_url = add_query_arg([
-                'message' => 'email_sent'
-            ], home_url(Sisme_Utils_Users::FORGOT_PASSWORD_URL));
-            
-            wp_safe_redirect($redirect_url);
-            exit;
-        }, 999);
+    public static function track_password_reset_request() {
+        if (!session_id()) {
+            session_start();
+        }
+        
+        // Marquer qu'une demande est en cours
+        $_SESSION['sisme_password_reset_requested'] = true;
+        $_SESSION['sisme_password_reset_time'] = time();
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[Sisme User Auth Hooks] Demande de réinitialisation trackée');
+        }
     }
     
     /**
-     * Traiter la réinitialisation du mot de passe
+     * Suivre l'envoi des emails de réinitialisation
      */
-    public static function handle_reset_password_request() {
-        // Laisser WordPress traiter la réinitialisation
-        // Rediriger vers login après succès
-        add_action('password_reset', function() {
-            $redirect_url = add_query_arg([
-                'message' => 'password_reset'
-            ], home_url(Sisme_Utils_Users::LOGIN_URL));
+    public static function track_password_reset_email($args) {
+        if (!session_id()) {
+            session_start();
+        }
+        
+        // Vérifier si c'est un email de réinitialisation
+        if (isset($_SESSION['sisme_password_reset_requested']) && 
+            $_SESSION['sisme_password_reset_requested'] &&
+            isset($args['subject']) && 
+            strpos($args['subject'], 'réinitialisation') !== false) {
             
-            wp_safe_redirect($redirect_url);
-            exit;
-        }, 999);
+            // Marquer l'email comme envoyé
+            $_SESSION['sisme_password_reset_email_sent'] = true;
+            $_SESSION['sisme_password_reset_email_to'] = $args['to'];
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[Sisme User Auth Hooks] Email de réinitialisation envoyé à: ' . $args['to']);
+            }
+        }
+        
+        return $args;
+    }
+    
+    /**
+     * Gérer les redirections après reset password
+     */
+    public static function handle_password_reset_redirect($location, $status) {
+        if (!session_id()) {
+            session_start();
+        }
+        
+        // Vérifier si c'est une redirection après reset password
+        if (isset($_SESSION['sisme_password_reset_requested']) && 
+            $_SESSION['sisme_password_reset_requested'] &&
+            strpos($location, 'wp-login.php') !== false &&
+            strpos($location, 'checkemail=confirm') !== false) {
+            
+            // Nettoyer les sessions
+            $email_sent = isset($_SESSION['sisme_password_reset_email_sent']) && $_SESSION['sisme_password_reset_email_sent'];
+            unset($_SESSION['sisme_password_reset_requested']);
+            unset($_SESSION['sisme_password_reset_email_sent']);
+            unset($_SESSION['sisme_password_reset_email_to']);
+            unset($_SESSION['sisme_password_reset_time']);
+            
+            // Rediriger vers notre page avec le bon message
+            $message = $email_sent ? 'email_sent' : 'email_error';
+            $redirect_url = add_query_arg([
+                'message' => $message
+            ], home_url(Sisme_Utils_Users::FORGOT_PASSWORD_URL));
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[Sisme User Auth Hooks] Redirection vers: ' . $redirect_url);
+            }
+            
+            return $redirect_url;
+        }
+        
+        return $location;
     }
     
     /**
@@ -103,9 +158,9 @@ class Sisme_User_Auth_Hooks {
      */
     public static function custom_password_reset_email($message, $key, $user_login, $user_data) {
         $reset_url = add_query_arg([
-            'token' => $key,
+            'key' => $key,
             'login' => $user_login
-        ], home_url(Sisme_Utils_Users::FORGOT_PASSWORD_URL));
+        ], home_url(Sisme_Utils_Users::RESET_PASSWORD_URL));
         
         $site_name = get_bloginfo('name');
         $site_url = home_url();

@@ -39,11 +39,12 @@ class Sisme_User_Auth_API {
     public static function render_login_form($atts = []) {
         $defaults = [
             'container_class' => 'sisme-user-auth-container',
-            Sisme_Utils_Games::KEY_TITLE => 'Connexion',
+            'title' => 'Connexion',
             'subtitle' => 'Accédez à votre espace membre',
             'submit_text' => 'Se connecter',
             'show_register_link' => 'true', 
             'register_link_text' => 'Pas encore de compte ? Créer un compte',
+            'forgot_password' => 'J\'ai oublié mon mot de passe chef',
             'redirect_to' => ''
         ];
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_login');
@@ -81,11 +82,12 @@ class Sisme_User_Auth_API {
     public static function render_register_form($atts = []) {
         $defaults = [
             'container_class' => 'sisme-user-auth-container',
-            Sisme_Utils_Games::KEY_TITLE => 'Inscription',
+            'title' => 'Inscription',
             'subtitle' => 'Créez votre compte gamer',
             'submit_text' => 'Créer mon compte',
             'show_login_link' => 'true',
             'login_link_text' => 'Déjà un compte ? Se connecter',
+            'forgot_password' => 'J\'ai oublié mon mot de passe chef',
             'require_email_verification' => 'false'
         ];
         $atts = shortcode_atts($defaults, $atts, 'sisme_user_register');
@@ -138,6 +140,7 @@ class Sisme_User_Auth_API {
         
         $login_link_text = $atts['login_link_text'] ?? 'Se connecter';
         $register_link_text = $atts['register_link_text'] ?? 'S\'inscrire';
+        $forgot_link_text = $atts['forgot_password'] ?? 'J\'ai oublié mon mot de passe chef';
         
         $login_url = home_url(self::LOGIN_URL);
         $register_url = home_url(self::REGISTER_URL);
@@ -169,6 +172,9 @@ class Sisme_User_Auth_API {
                     <?php if ($show_register_link): ?>
                         <p class="sisme-auth-link">
                             <a href="<?php echo esc_url($register_url); ?>"><?php echo esc_html($register_link_text); ?></a>
+                        </p>
+                        <p class="sisme-auth-link">
+                            <a href="<?php echo esc_url(Sisme_Utils_Users::FORGOT_PASSWORD_URL); ?>"><?php echo esc_html($forgot_link_text); ?></a>
                         </p>
                     <?php endif; ?>
                 </footer>
