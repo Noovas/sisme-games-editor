@@ -388,19 +388,17 @@ SismeGamesEditor::get_instance();
 class Sisme_Beta_Indicator {
     
     const FEATURES_COMPLETED = [
-        'Recherche de jeux (en cours)',
-        'Tableau de bord (structure)',
-        'Notifications nouveaux jeux',
-        'Gestion préférences',
-        'Système favoris et collection'
+        'Genres de jeux préférés',
+        'Vue profil utilisateur',
+        'Système d\'amis',
+        'Récupération MDP'
     ];
     
     const FEATURES_UPCOMING = [
-        'Vue profil utilisateur',
-        'Système amis et communauté',
         'Espace testeurs/guides',
         'Espace développeurs/éditeurs',
-        'Et plein d\'autres bricoles'
+        'Et plein d\'autres bricoles',
+        'Publication utilisateur'
     ];
     
     /**
