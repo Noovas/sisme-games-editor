@@ -896,7 +896,9 @@ class Sisme_User_Dashboard_Renderer {
         // Filtrer les demandes que J'AI envoyées (pending dans ma liste)
         $sent_requests = [];
         foreach ($my_friends_list as $friend_id => $metadata) {
-            if ($metadata['status'] === 'pending') {
+            if ($metadata['status'] === 'pending' && 
+                isset($metadata['type']) && 
+                $metadata['type'] === 'sent') {
                 $sent_requests[$friend_id] = $metadata;
             }
         }

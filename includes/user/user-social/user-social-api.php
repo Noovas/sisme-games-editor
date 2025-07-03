@@ -71,9 +71,24 @@ class Sisme_User_Social_API {
             $sender_friends = [];
         }
 
+        // Ajouter la demande dans la liste de l'expéditeur (avec type "sent")
+        $sender_friends = get_user_meta($sender_id, Sisme_Utils_Users::META_FRIENDS_LIST, true);
+        if (!is_array($sender_friends)) {
+            $sender_friends = [];
+        }
+
+        // Marquer comme "envoyé" chez l'expéditeur
+        $receiver_friends[$sender_id] = [
+            'status' => self::STATUS_PENDING,
+            'date' => current_time('mysql'),
+            'type' => 'received'
+        ];
+
+        // Marquer comme "reçu" chez le destinataire  
         $sender_friends[$receiver_id] = [
             'status' => self::STATUS_PENDING,
-            'date' => current_time('mysql')
+            'date' => current_time('mysql'),
+            'type' => 'sent'
         ];
 
         // Sauvegarder des deux côtés
@@ -119,7 +134,8 @@ class Sisme_User_Social_API {
         
         $receiver_friends[$sender_id] = [
             'status' => self::STATUS_ACCEPTED,
-            'date' => $acceptance_date
+            'date' => $acceptance_date,
+            'type' => 'received'
         ];
         
         // Ajouter la relation réciproque dans la liste de l'expéditeur
@@ -130,7 +146,8 @@ class Sisme_User_Social_API {
         
         $sender_friends[$receiver_id] = [
             'status' => self::STATUS_ACCEPTED,
-            'date' => $acceptance_date
+            'date' => $acceptance_date,
+            'type' => 'sent'
         ];
         
         // Sauvegarder les deux relations
@@ -357,29 +374,22 @@ class Sisme_User_Social_API {
         if (!Sisme_Utils_Users::validate_user_id($user_id, 'get_pending_friend_requests')) {
             return [];
         }
-    
-        global $wpdb;
         
-        $meta_key = Sisme_Utils_Users::META_FRIENDS_LIST;
-        $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT user_id, meta_value 
-            FROM {$wpdb->usermeta} 
-            WHERE meta_key = %s 
-            AND user_id != %s
-            AND meta_value LIKE %s",
-            $meta_key,
-            $user_id,
-            '%"' . $user_id . '"%'
-        ));
+        $friends_list = get_user_meta($user_id, Sisme_Utils_Users::META_FRIENDS_LIST, true);
+        if (!is_array($friends_list)) {
+            return [];
+        }
         
+        // Filtrer pour ne garder que les demandes reçues
         $pending_requests = [];
-        foreach ($results as $result) {
-            $friends_list = maybe_unserialize($result->meta_value);
-            if (is_array($friends_list) && 
-                isset($friends_list[$user_id]) && 
-                $friends_list[$user_id]['status'] === self::STATUS_PENDING) {
-                // $result->user_id = celui qui m'a envoyé une demande
-                $pending_requests[$result->user_id] = $friends_list[$user_id];
+        foreach ($friends_list as $sender_id => $metadata) {
+            if ($metadata['status'] === self::STATUS_PENDING && 
+                isset($metadata['type']) && 
+                $metadata['type'] === 'received') {
+                // Valider que l'expéditeur existe encore
+                if (Sisme_Utils_Users::validate_user_id($sender_id)) {
+                    $pending_requests[$sender_id] = $metadata;
+                }
             }
         }
         
