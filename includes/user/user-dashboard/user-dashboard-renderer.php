@@ -34,7 +34,7 @@ class Sisme_User_Dashboard_Renderer {
                     <div class="sisme-profile-avatar">
                         <img src="<?php echo esc_url($user_info['avatar_url']); ?>" alt="Avatar" class="sisme-avatar">
                     </div>
-                    <?php if (class_exists('Sisme_User_Notifications_API') && !$context['is_public']): ?>
+                    <?php if (class_exists('Sisme_User_Notifications_API') && $user_info['id'] === get_current_user_id()): ?>
                         <div class="sisme-notifications-badge-container">
                             <?php echo do_shortcode('[sisme_user_notifications_badge]'); ?>
                         </div>
@@ -971,14 +971,14 @@ class Sisme_User_Dashboard_Renderer {
         <div class="sisme-favorites-widget">
             <h3 class="sisme-widget-title">❤️ Favoris récents</h3>
             <?php 
-            $current_user_id = get_current_user_id();
+            $user_id = $context['profile_user_id'] ?? get_current_user_id();
             
             // Utiliser le nouveau système user-actions
             if (class_exists('Sisme_User_Actions_Data_Manager')) {
-                $favorite_game_ids = Sisme_User_Actions_Data_Manager::get_user_collection($current_user_id, 'favorite', 3);
+                $favorite_game_ids = Sisme_User_Actions_Data_Manager::get_user_collection($user_id, 'favorite', 3);
             } else {
                 // Fallback ancien système
-                $favorite_game_ids = get_user_meta($current_user_id, 'sisme_user_favorite_games', true);
+                $favorite_game_ids = get_user_meta($user_id, 'sisme_user_favorite_games', true);
                 if (is_array($favorite_game_ids)) {
                     $favorite_game_ids = array_slice($favorite_game_ids, 0, 3);
                 }
@@ -1008,10 +1008,10 @@ class Sisme_User_Dashboard_Renderer {
                     // Compter le total pour l'affichage "Voir tous"
                     $total_favorites = 0;
                     if (class_exists('Sisme_User_Actions_Data_Manager')) {
-                        $all_favorites = Sisme_User_Actions_Data_Manager::get_user_collection($current_user_id, 'favorite');
+                        $all_favorites = Sisme_User_Actions_Data_Manager::get_user_collection($user_id, 'favorite');
                         $total_favorites = count($all_favorites);
                     } else {
-                        $all_favorites = get_user_meta($current_user_id, 'sisme_user_favorite_games', true);
+                        $all_favorites = get_user_meta($user_id, 'sisme_user_favorite_games', true);
                         $total_favorites = is_array($all_favorites) ? count($all_favorites) : 0;
                     }
                     

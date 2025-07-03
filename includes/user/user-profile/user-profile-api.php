@@ -38,6 +38,11 @@ class Sisme_User_Profile_API {
         }
         
         $viewer_id = get_current_user_id();
+
+        if ($viewer_id === $profile_user_id && $viewer_id > 0) {
+            wp_safe_redirect(home_url(Sisme_Utils_Users::DASHBOARD_URL));
+            exit;
+        }
         
         if (!Sisme_User_Profile_Permissions::can_view_profile($viewer_id, $profile_user_id)) {
             return self::render_access_denied($viewer_id, $profile_user_id);
@@ -113,6 +118,8 @@ class Sisme_User_Profile_API {
      * @return string HTML du profil
      */
     private static function render_user_profile($viewer_id, $profile_user_id, $atts) {
+
+
         if (!class_exists('Sisme_User_Dashboard_Data_Manager')) {
             return '<div class="sisme-error">Erreur : Gestionnaire de données non disponible.</div>';
         }
