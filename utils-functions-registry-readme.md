@@ -465,19 +465,13 @@ $my_profile = Sisme_Utils_Users::get_current_user_profile_url();
 // 🔍 Rechercher des utilisateurs par display_name avec WP_User_Query
 // @param string $search_term - Terme de recherche (minimum 2 caractères)
 // @param int $max_results - Nombre maximum de résultats (défaut: 10, max: 50)
-// @return array - Liste des utilisateurs [['id' => int, 'display_name' => string, 'user_nicename' => string, 'profile_url' => string]]
+// @return array - Liste des utilisateurs [['id' => int, 'display_name' => string, 'user_nicename' => string, 'profile_url' => string, 'avatar_url' => string]]
 $users = Sisme_Utils_Users::search_users_by_display_name('alice', 5);
 $results = Sisme_Utils_Users::search_users_by_display_name('jean');
 $results = Sisme_Utils_Users::search_users_by_display_name('marie', 3);
 $results = Sisme_Utils_Users::search_users_by_display_name('a'); // [] (minimum 2 caractères)
 ```
 </details>
-
----
-
-### utils-filters.php
-- **Description :** Filtrage et recherche de jeux
-- **Classe :** `Sisme_Utils_Filters`
 
 ---
 
@@ -599,6 +593,206 @@ Sisme_Utils_Notification::init_hooks();
 
 ---
 
+## 👥 user-social-api.php
+
+**Classe :** `Sisme_User_Social_API`
+
+**Constantes:**
+```php
+STATUS_PENDING = 'pending'
+STATUS_ACCEPTED = 'accepted'
+```
+
+### Gestion des Relations d'Amitié
+
+<details>
+<summary><code>send_friend_request($sender_id, $receiver_id)</code></summary>
+
+```php
+// 📤 Envoyer une demande d'ami
+// @param int $sender_id - ID de l'utilisateur qui envoie
+// @param int $receiver_id - ID de l'utilisateur qui reçoit
+// @return array - ['success' => bool, 'message' => string]
+$result = Sisme_User_Social_API::send_friend_request(1, 2);
+// Structure stockée des deux côtés avec 'type' => 'sent'|'received'
+```
+</details>
+
+<details>
+<summary><code>accept_friend_request($sender_id, $receiver_id)</code></summary>
+
+```php
+// ✅ Accepter une demande d'ami
+// @param int $sender_id - ID de l'utilisateur qui a envoyé la demande
+// @param int $receiver_id - ID de l'utilisateur qui accepte
+// @return array - ['success' => bool, 'message' => string]
+$result = Sisme_User_Social_API::accept_friend_request(1, 2);
+// Change le statut vers 'accepted' des deux côtés
+```
+</details>
+
+<details>
+<summary><code>decline_friend_request($sender_id, $receiver_id)</code></summary>
+
+```php
+// ❌ Refuser une demande d'ami
+// @param int $sender_id - ID de l'utilisateur qui a envoyé la demande
+// @param int $receiver_id - ID de l'utilisateur qui refuse
+// @return array - ['success' => bool, 'message' => string]
+$result = Sisme_User_Social_API::decline_friend_request(1, 2);
+// Supprime l'entrée des deux côtés
+```
+</details>
+
+<details>
+<summary><code>cancel_friend_request($sender_id, $receiver_id)</code></summary>
+
+```php
+// 🗑️ Annuler une demande d'ami envoyée
+// @param int $sender_id - ID de l'utilisateur qui annule
+// @param int $receiver_id - ID de l'utilisateur destinataire
+// @return array - ['success' => bool, 'message' => string]
+$result = Sisme_User_Social_API::cancel_friend_request(1, 2);
+// Supprime l'entrée des deux côtés
+```
+</details>
+
+<details>
+<summary><code>remove_friend($user1_id, $user2_id)</code></summary>
+
+```php
+// 💔 Supprimer une amitié existante
+// @param int $user1_id - Premier utilisateur
+// @param int $user2_id - Deuxième utilisateur (ami à supprimer)
+// @return array - ['success' => bool, 'message' => string]
+$result = Sisme_User_Social_API::remove_friend(1, 2);
+// Supprime la relation des deux côtés
+```
+</details>
+
+### Récupération de Données
+
+<details>
+<summary><code>get_user_friends($user_id)</code></summary>
+
+```php
+// 👥 Obtenir la liste des amis d'un utilisateur
+// @param int $user_id - ID de l'utilisateur
+// @return array - Liste des amis [user_id => ['status' => 'accepted', 'date' => '2025-01-15 14:30:25', 'type' => 'sent'|'received']]
+$friends = Sisme_User_Social_API::get_user_friends(42);
+```
+</details>
+
+<details>
+<summary><code>get_pending_friend_requests($user_id)</code></summary>
+
+```php
+// 📩 Obtenir les demandes d'ami reçues
+// @param int $user_id - ID de l'utilisateur
+// @return array - Demandes reçues [sender_id => ['status' => 'pending', 'date' => '2025-01-15 14:30:25', 'type' => 'received']]
+$requests = Sisme_User_Social_API::get_pending_friend_requests(42);
+// Filtre sur type = 'received'
+```
+</details>
+
+<details>
+<summary><code>get_user_social_stats($user_id)</code></summary>
+
+```php
+// 📈 Obtenir les statistiques sociales d'un utilisateur
+// @param int $user_id - ID de l'utilisateur
+// @return array - ['friends_count' => int, 'pending_requests' => int]
+$stats = Sisme_User_Social_API::get_user_social_stats(42);
+```
+</details>
+
+### Vérifications
+
+<details>
+<summary><code>are_friends($user1_id, $user2_id)</code></summary>
+
+```php
+// 🤝 Vérifier si deux utilisateurs sont amis
+// @param int $user1_id - Premier utilisateur
+// @param int $user2_id - Deuxième utilisateur
+// @return bool - True s'ils sont amis
+$friends = Sisme_User_Social_API::are_friends(1, 2);
+```
+</details>
+
+<details>
+<summary><code>has_pending_request($sender_id, $receiver_id)</code></summary>
+
+```php
+// ⏳ Vérifier s'il y a une demande d'ami en attente
+// @param int $sender_id - ID de l'expéditeur
+// @param int $receiver_id - ID du destinataire
+// @return bool - True si demande en attente
+$pending = Sisme_User_Social_API::has_pending_request(1, 2);
+```
+</details>
+
+<details>
+<summary><code>get_relationship_status($user1_id, $user2_id)</code></summary>
+
+```php
+// 🔄 Obtenir le statut de relation entre deux utilisateurs
+// @param int $user1_id - Premier utilisateur
+// @param int $user2_id - Deuxième utilisateur
+// @return string - 'friends'|'pending_from_user1'|'pending_from_user2'|'none'
+$status = Sisme_User_Social_API::get_relationship_status(1, 2);
+```
+</details>
+
+### Structure de Données
+
+```php
+// Structure dans wp_usermeta avec clé 'sisme_user_friends_list'
+[
+    'friend_user_id' => [
+        'status' => 'pending'|'accepted',
+        'date' => '2025-01-15 14:30:25',
+        'type' => 'sent'|'received'
+    ]
+]
+```
+
+---
+
+## 👤 user-preferences-data-manager.php
+
+**Classe :** `Sisme_User_Preferences_Data_Manager`
+
+### Gestion des Avatars
+
+<details>
+<summary><code>get_user_avatar_url($user_id, $size = 'thumbnail')</code></summary>
+
+```php
+// 🖼️ Récupérer l'URL de l'avatar utilisateur
+// @param int $user_id - ID de l'utilisateur
+// @param string $size - Taille de l'image ('thumbnail', 'medium', 'large')
+// @return string|false - URL de l'avatar ou false si erreur
+$avatar = Sisme_User_Preferences_Data_Manager::get_user_avatar_url(42, 'thumbnail');
+// Utilise la meta 'sisme_user_avatar' avec fallback vers 'default'
+```
+</details>
+
+<details>
+<summary><code>update_user_avatar($user_id, $avatar_key)</code></summary>
+
+```php
+// 🔄 Mettre à jour l'avatar d'un utilisateur
+// @param int $user_id - ID de l'utilisateur
+// @param string $avatar_key - Clé de l'avatar dans la librairie
+// @return bool - Succès de la sauvegarde
+$success = Sisme_User_Preferences_Data_Manager::update_user_avatar(42, 'avatar_gaming_1');
+// Valide avec Sisme_Constants::is_valid_avatar()
+```
+</details>
+
+---
+
 ## 🚀 Initialisation Système
 
 ### Chargement Automatique
@@ -693,6 +887,60 @@ foreach ($games as $game_id) {
     $game_data = Sisme_Utils_Games::get_game_data($game_id);
     if ($game_data) {
         echo $game_data[Sisme_Utils_Games::KEY_NAME];
+    }
+}
+```
+
+### Gestion des Relations d'Amitié
+```php
+// Envoyer une demande d'ami
+$result = Sisme_User_Social_API::send_friend_request(1, 2);
+if ($result['success']) {
+    echo "Demande envoyée !";
+}
+
+// Vérifier le statut de relation
+$status = Sisme_User_Social_API::get_relationship_status(1, 2);
+switch ($status) {
+    case 'friends':
+        echo "Vous êtes amis";
+        break;
+    case 'pending_from_user1':
+        echo "Demande envoyée en attente";
+        break;
+    case 'pending_from_user2':
+        echo "Demande reçue en attente";
+        break;
+    default:
+        echo "Aucune relation";
+}
+
+// Récupérer les statistiques sociales
+$stats = Sisme_User_Social_API::get_user_social_stats(42);
+echo "Amis: " . $stats['friends_count'];
+echo "Demandes: " . $stats['pending_requests'];
+```
+
+### Gestion des Avatars
+```php
+// Récupérer l'avatar d'un utilisateur
+$avatar_url = Sisme_User_Preferences_Data_Manager::get_user_avatar_url(42, 'thumbnail');
+if ($avatar_url) {
+    echo '<img src="' . $avatar_url . '" alt="Avatar">';
+}
+
+// Mettre à jour un avatar
+$success = Sisme_User_Preferences_Data_Manager::update_user_avatar(42, 'avatar_gaming_2');
+```
+
+### Recherche d'Utilisateurs
+```php
+// Rechercher des utilisateurs avec avatars
+$users = Sisme_Utils_Users::search_users_by_display_name('alice', 5);
+foreach ($users as $user) {
+    echo $user['display_name'] . ' - ' . $user['profile_url'];
+    if (isset($user['avatar_url'])) {
+        echo '<img src="' . $user['avatar_url'] . '" alt="Avatar">';
     }
 }
 ```

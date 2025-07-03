@@ -328,18 +328,22 @@ class Sisme_User_Social_Loader {
         
         $users = Sisme_Utils_Users::search_users_by_display_name($search_term, 10);
         
-        // Formatage de la réponse
-        if (empty($users)) {
-            wp_send_json_success([
-                'results' => [],
-                'message' => 'Aucun résultat pour "' . esc_html($search_term) . '"'
-            ]);
-        } else {
-            wp_send_json_success([
-                'results' => $users,
-                'message' => count($users) . ' utilisateur(s) trouvé(s)'
-            ]);
+        $enhanced_users = [];
+        foreach ($users as $user) {
+            $enhanced_users[] = [
+                'id' => $user['id'],
+                'display_name' => $user['display_name'],
+                'user_nicename' => $user['user_nicename'],
+                'profile_url' => $user['profile_url'],
+                'avatar_url' => Sisme_User_Preferences_Data_Manager::get_user_avatar_url($user['id'], 'thumbnail')
+            ];
         }
+
+        // Et retourner $enhanced_users au lieu de $users
+        wp_send_json_success([
+            'results' => $enhanced_users,
+            'message' => count($enhanced_users) . ' utilisateur(s) trouvé(s)'
+        ]);
     }
 
     /**
