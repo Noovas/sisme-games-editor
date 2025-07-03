@@ -108,6 +108,220 @@ class Sisme_User_Auth_Security {
             error_log("[Sisme User Auth Security] Tentatives nettoyées pour : $email");
         }
     }
+
+    /**
+     * Valider un email avec règles strictes pour éviter les caractères problématiques
+     * @param string $email Email à valider
+     * @return WP_Error|true True si valide, WP_Error sinon
+     */
+    public static function validate_email_strict($email) {
+        $email = trim($email);
+        
+        // Vérification de base WordPress
+        if (!is_email($email)) {
+            return new WP_Error('email_invalid', 'L\'adresse email n\'est pas valide.');
+        }
+        
+        // Vérifier la longueur
+        if (strlen($email) > 254) {
+            return new WP_Error('email_too_long', 'L\'adresse email est trop longue (max 254 caractères).');
+        }
+        
+        if (strlen($email) < 5) {
+            return new WP_Error('email_too_short', 'L\'adresse email est trop courte.');
+        }
+        
+        // Extraire les parties local et domaine
+        $parts = explode('@', $email);
+        if (count($parts) !== 2) {
+            return new WP_Error('email_format', 'Format d\'email invalide.');
+        }
+        
+        $local_part = $parts[0];
+        $domain_part = $parts[1];
+        
+        // Valider la partie locale (avant @)
+        $local_validation = self::validate_email_local_part($local_part);
+        if (is_wp_error($local_validation)) {
+            return $local_validation;
+        }
+        
+        // Valider le domaine
+        $domain_validation = self::validate_email_domain_part($domain_part);
+        if (is_wp_error($domain_validation)) {
+            return $domain_validation;
+        }
+        
+        // Vérifier la liste noire de domaines
+        if (self::is_email_blacklisted($email)) {
+            return new WP_Error('email_blacklisted', 'Cette adresse email n\'est pas autorisée.');
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Vérifier si un email est dans la liste noire - VERSION AMÉLIORÉE
+     */
+    private static function is_email_blacklisted($email) {
+        // Domaines temporaires/jetables courants
+        $blacklisted_domains = [
+            // Domaines temporaires connus
+            '10minutemail.com',
+            'guerrillamail.com',
+            'tempmail.org',
+            'throwaway.email',
+            'mailinator.com',
+            'yopmail.com',
+            'temp-mail.org',
+            'getnada.com',
+            'guerrillamail.de',
+            '10minute.email',
+            
+            // Domaines suspects
+            'example.com',
+            'test.com',
+            'localhost',
+            
+            // Domaines avec caractères problématiques (au cas où)
+            'domain+test.com',
+            'test@domain.com' // Pas un vrai domaine
+        ];
+        
+        $email_domain = substr(strrchr($email, "@"), 1);
+        $email_domain = strtolower($email_domain);
+        
+        // Vérification exacte
+        if (in_array($email_domain, $blacklisted_domains)) {
+            return true;
+        }
+        
+        // Vérification de patterns suspects
+        $suspicious_patterns = [
+            'temp',
+            'fake',
+            'spam',
+            'trash',
+            'disposable',
+            'throwaway'
+        ];
+        
+        foreach ($suspicious_patterns as $pattern) {
+            if (strpos($email_domain, $pattern) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Valider la partie locale d'un email (avant @)
+     * @param string $local_part Partie locale
+     * @return WP_Error|true True si valide, WP_Error sinon
+     */
+    private static function validate_email_local_part($local_part) {
+        // Longueur max pour partie locale : 64 caractères
+        if (strlen($local_part) > 64) {
+            return new WP_Error('email_local_too_long', 'La partie avant @ est trop longue.');
+        }
+        
+        if (strlen($local_part) < 1) {
+            return new WP_Error('email_local_empty', 'La partie avant @ ne peut pas être vide.');
+        }
+        
+        // Caractères interdits dans la partie locale
+        $forbidden_chars = [
+            '+', // Peut causer des problèmes d'URL
+            '\'', '"', // Quotes problématiques
+            '\\', '/', // Slashes
+            '<', '>', // Chevrons
+            '(', ')', // Parenthèses
+            '[', ']', // Crochets
+            ',', ';', // Séparateurs
+            ':', '|', // Deux-points, pipe
+            '?', '*', // Wildcards
+            '=', '&', // Caractères URL
+            '%', '#', // Caractères URL
+            '!', '$', // Caractères spéciaux
+            '^', '~', // Caractères spéciaux
+            '`', '{', '}' // Autres caractères
+        ];
+        
+        foreach ($forbidden_chars as $char) {
+            if (strpos($local_part, $char) !== false) {
+                return new WP_Error(
+                    'email_forbidden_char', 
+                    "Le caractère '{$char}' n'est pas autorisé dans l'adresse email."
+                );
+            }
+        }
+        
+        // Ne peut pas commencer ou finir par un point
+        if (strpos($local_part, '.') === 0 || substr($local_part, -1) === '.') {
+            return new WP_Error('email_dot_position', 'L\'adresse email ne peut pas commencer ou finir par un point.');
+        }
+        
+        // Pas de points consécutifs
+        if (strpos($local_part, '..') !== false) {
+            return new WP_Error('email_consecutive_dots', 'L\'adresse email ne peut pas contenir de points consécutifs.');
+        }
+        
+        // Caractères autorisés : lettres, chiffres, points, tirets, underscores
+        if (!preg_match('/^[a-zA-Z0-9._-]+$/', $local_part)) {
+            return new WP_Error(
+                'email_invalid_chars', 
+                'L\'adresse email ne peut contenir que des lettres, chiffres, points, tirets et underscores.'
+            );
+        }
+        
+        return true;
+    }
+
+    /**
+     * Valider la partie domaine d'un email (après @)
+     * @param string $domain_part Partie domaine
+     * @return WP_Error|true True si valide, WP_Error sinon
+     */
+    private static function validate_email_domain_part($domain_part) {
+        // Longueur max pour domaine : 253 caractères
+        if (strlen($domain_part) > 253) {
+            return new WP_Error('email_domain_too_long', 'Le domaine email est trop long.');
+        }
+        
+        if (strlen($domain_part) < 4) { // Ex: a.co
+            return new WP_Error('email_domain_too_short', 'Le domaine email est trop court.');
+        }
+        
+        // Doit contenir au moins un point
+        if (strpos($domain_part, '.') === false) {
+            return new WP_Error('email_domain_no_dot', 'Le domaine doit contenir au moins un point.');
+        }
+        
+        // Ne peut pas commencer ou finir par un point ou tiret
+        if (preg_match('/^[.-]|[.-]$/', $domain_part)) {
+            return new WP_Error('email_domain_format', 'Le domaine ne peut pas commencer ou finir par un point ou tiret.');
+        }
+        
+        // Validation basique du format domaine
+        if (!preg_match('/^[a-zA-Z0-9.-]+$/', $domain_part)) {
+            return new WP_Error('email_domain_chars', 'Le domaine contient des caractères non autorisés.');
+        }
+        
+        // Vérifier que l'extension a au moins 2 caractères
+        $domain_parts = explode('.', $domain_part);
+        $tld = end($domain_parts);
+        
+        if (strlen($tld) < 2) {
+            return new WP_Error('email_tld_short', 'L\'extension du domaine est trop courte.');
+        }
+        
+        if (!preg_match('/^[a-zA-Z]+$/', $tld)) {
+            return new WP_Error('email_tld_format', 'L\'extension du domaine ne peut contenir que des lettres.');
+        }
+        
+        return true;
+    }
     
     /**
      * Validation complète des données utilisateur
@@ -115,13 +329,15 @@ class Sisme_User_Auth_Security {
     public static function validate_user_data($data, $context = 'register') {
         $errors = [];
         
-        // Validation de l'email
+        // Validation de l'email - VERSION STRICTE
         if (empty($data['user_email'])) {
             $errors['user_email'] = 'L\'adresse email est requise.';
-        } elseif (!is_email($data['user_email'])) {
-            $errors['user_email'] = 'L\'adresse email n\'est pas valide.';
-        } elseif (self::is_email_blacklisted($data['user_email'])) {
-            $errors['user_email'] = 'Cette adresse email n\'est pas autorisée.';
+        } else {
+            // Utiliser la nouvelle validation stricte
+            $email_validation = self::validate_email_strict($data['user_email']);
+            if (is_wp_error($email_validation)) {
+                $errors['user_email'] = $email_validation->get_error_message();
+            }
         }
         
         // Validation du mot de passe
@@ -151,19 +367,19 @@ class Sisme_User_Auth_Security {
             }
             
             // Nom d'affichage
-            if (empty($data['user_display_name'])) {
-                $errors['user_display_name'] = 'Le pseudo est obligatoire.';
+            if (empty($data['display_name'])) {
+                $errors['display_name'] = 'Le pseudo est obligatoire.';
             } else {
-                $data['user_display_name'] = sanitize_text_field(trim($data['user_display_name']));
+                $data['display_name'] = sanitize_text_field(trim($data['display_name']));
                 
                 // Validation du format
-                $display_name_validation = self::validate_display_name($data['user_display_name']);
+                $display_name_validation = self::validate_display_name($data['display_name']);
                 if (is_wp_error($display_name_validation)) {
-                    $errors['user_display_name'] = $display_name_validation->get_error_message();
+                    $errors['display_name'] = $display_name_validation->get_error_message();
                 } else {
                     // Vérification unicité
-                    if (self::display_name_exists($data['user_display_name'])) {
-                        $errors['user_display_name'] = 'Ce pseudo est déjà utilisé. Veuillez en choisir un autre.';
+                    if (self::display_name_exists($data['display_name'])) {
+                        $errors['display_name'] = 'Ce pseudo est déjà utilisé. Veuillez en choisir un autre.';
                     }
                 }
             }
@@ -349,22 +565,6 @@ class Sisme_User_Auth_Security {
     }
     
     /**
-     * Vérifier si un email est dans la liste noire
-     */
-    private static function is_email_blacklisted($email) {
-        // Domaines temporaires/jetables courants
-        $blacklisted_domains = [
-            '10minutemail.com',
-            'guerrilla mail.com',
-            'tempmail.org',
-            'throwaway.email'
-        ];
-        
-        $email_domain = substr(strrchr($email, "@"), 1);
-        return in_array(strtolower($email_domain), $blacklisted_domains);
-    }
-    
-    /**
      * Sanitiser les données utilisateur
      */
     public static function sanitize_user_data($data) {
@@ -382,8 +582,8 @@ class Sisme_User_Auth_Security {
             $sanitized['user_confirm_password'] = $data['user_confirm_password'];
         }
         
-        if (isset($data['user_display_name'])) {
-            $sanitized['user_display_name'] = sanitize_text_field($data['user_display_name']);
+        if (isset($data['display_name'])) {
+            $sanitized['display_name'] = sanitize_text_field($data['display_name']);
         }
         
         if (isset($data['remember_me'])) {

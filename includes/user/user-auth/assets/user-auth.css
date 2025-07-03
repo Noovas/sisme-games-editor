@@ -206,12 +206,6 @@
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
-/* Types spécifiques */
-.sisme-auth-input--email,
-.sisme-auth-input--text {
-    /* Styles par défaut */
-}
-
 .sisme-auth-input--password {
     font-family: monospace;
     letter-spacing: 2px;
@@ -598,4 +592,45 @@
         animation: none;
         transition: none;
     }
+}
+
+/* État de validation en cours */
+.sisme-auth-input--validating {
+    border-color: #ffa500;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23ffa500" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>');
+}
+
+/* Conteneur de suggestions */
+.sisme-suggestions {
+    margin-top: 8px;
+    padding: 12px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.sisme-suggestions-label {
+    font-weight: 600;
+    color: #6c757d;
+    margin-right: 8px;
+}
+
+.sisme-suggestion-btn {
+    display: inline-block;
+    margin: 2px 4px;
+    padding: 4px 8px;
+    background: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    color: #495057;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.sisme-suggestion-btn:hover {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
 }

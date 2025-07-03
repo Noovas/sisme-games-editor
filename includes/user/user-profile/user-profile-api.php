@@ -52,19 +52,57 @@ class Sisme_User_Profile_API {
      * @return int|false ID utilisateur ou false
      */
     private static function get_target_user_id($id_attr) {
-        if (!empty($id_attr) && is_numeric($id_attr)) {
-            $user_id = intval($id_attr);
-        } elseif (!empty($_GET['user']) && is_numeric($_GET['user'])) {
-            $user_id = intval($_GET['user']);
-        } else {
-            $user_id = get_current_user_id();
+        $user = false;
+        if (!empty($id_attr)) {
+            if (is_numeric($id_attr)) {
+                $user = get_userdata(intval($id_attr));
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("[Sisme User Profile] Recherche par ID shortcode: {$id_attr}");
+                }
+            } else {
+                if (class_exists('Sisme_User_Auth_Security')) {
+                    $user = Sisme_Utils_Users::get_user_by_slug($id_attr);
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log("[Sisme User Profile] Recherche par slug shortcode: {$id_attr}");
+                    }
+                }
+            }
         }
-        
-        if (!Sisme_Utils_Users::validate_user_id($user_id, 'get_target_user_id')) {
+        elseif (!empty($_GET['user'])) {
+            $user_param = sanitize_text_field($_GET['user']);
+            if (is_numeric($user_param)) {
+                $user = get_userdata(intval($user_param));
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("[Sisme User Profile] Recherche par ID URL: {$user_param}");
+                }
+            } else {
+                if (class_exists('Sisme_User_Auth_Security')) {
+                    $user = Sisme_Utils_Users::get_user_by_slug($user_param);
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log("[Sisme User Profile] Recherche par slug URL: {$user_param}");
+                    }
+                }
+            }
+        }
+        else {
+            $user_id = get_current_user_id();
+            if ($user_id) {
+                $user = get_userdata($user_id);
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("[Sisme User Profile] Fallback utilisateur connecté: {$user_id}");
+                }
+            }
+        }
+        if (!$user || !($user instanceof WP_User)) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme User Profile] Aucun utilisateur valide trouvé");
+            }
             return false;
         }
-        
-        return $user_id;
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("[Sisme User Profile] ✅ Utilisateur trouvé - ID: {$user->ID}, Slug: {$user->user_nicename}, Display: {$user->display_name}");
+        }
+        return $user->ID;
     }
     
     /**

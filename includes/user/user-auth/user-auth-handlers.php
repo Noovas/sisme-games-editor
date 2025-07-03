@@ -166,29 +166,58 @@ class Sisme_User_Auth_Handlers {
             return new WP_Error('validation_failed', $error_message);
         }
         
-        // Créer l'utilisateur WordPress
-        $user_id = wp_create_user(
-            $data['user_email'], 
-            $data['user_password'], 
-            $data['user_email']
-        );
+        // Préparer le display_name - OBLIGATOIRE maintenant
+        $display_name = !empty($data['display_name']) ? 
+            sanitize_text_field(trim($data['display_name'])) : 
+            $data['user_email'];
+        
+        // FORCER le user_nicename basé sur le display_name (pas l'email)
+        $user_nicename = sanitize_title($display_name);
+        
+        // S'assurer que le slug est unique
+        $user_nicename = self::make_user_nicename_unique($user_nicename);
+        
+        // Préparer les données utilisateur complètes
+        $user_data = [
+            'user_login' => $data['user_email'],         // Email pour login
+            'user_pass' => $data['user_password'],       // Mot de passe
+            'user_email' => $data['user_email'],         // Email
+            'user_nicename' => $user_nicename,           // SLUG basé sur pseudo
+            'display_name' => $display_name,             // Pseudo visible
+            'nickname' => $display_name,                 // Surnom (cohérence)
+            'first_name' => '',                          // Prénom vide par défaut
+            'last_name' => '',                           // Nom vide par défaut
+            'role' => 'subscriber'                       // Rôle par défaut
+        ];
+        
+        // Créer l'utilisateur avec wp_insert_user - MÉTHODE SAFE
+        $user_id = wp_insert_user($user_data);
         
         if (is_wp_error($user_id)) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme User Auth] Erreur wp_insert_user: " . $user_id->get_error_message());
+            }
             return $user_id;
         }
         
-        // Mettre à jour le profil utilisateur
-        $user_data = [
-            Sisme_Utils_Games::KEY_ID => $user_id,
-            'display_name' => !empty($data['user_display_name']) ? $data['user_display_name'] : $data['user_email']
-        ];
-        
-        $update_result = wp_update_user($user_data);
-        if (is_wp_error($update_result)) {
-            // L'utilisateur est créé mais on n'a pas pu mettre à jour le profil
+        // Vérification de sécurité - S'assurer que tout est correct
+        $created_user = get_userdata($user_id);
+        if (!$created_user || 
+            $created_user->display_name !== $display_name ||
+            $created_user->user_nicename !== $user_nicename) {
+            
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("[Sisme User Auth Handlers] Erreur mise à jour profil pour user ID $user_id : " . $update_result->get_error_message());
+                error_log("[Sisme User Auth] ALERTE: Données utilisateur incorrectes après création");
+                error_log("Display attendu: {$display_name}, reçu: " . ($created_user ? $created_user->display_name : 'NULL'));
+                error_log("Nicename attendu: {$user_nicename}, reçu: " . ($created_user ? $created_user->user_nicename : 'NULL'));
             }
+            
+            // Correction de sécurité si nécessaire
+            wp_update_user([
+                'ID' => $user_id,
+                'display_name' => $display_name,
+                'user_nicename' => $user_nicename
+            ]);
         }
         
         // Initialiser les métadonnées gaming
@@ -202,14 +231,53 @@ class Sisme_User_Auth_Handlers {
         do_action('sisme_user_register_success', $user_id, $data);
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("[Sisme User Auth Handlers] Inscription réussie pour : {$data['user_email']} (ID: $user_id)");
+            error_log("[Sisme User Auth] ✅ Inscription SAFE réussie - Email: {$data['user_email']}, ID: {$user_id}, Display: {$display_name}, Slug: {$user_nicename}");
         }
         
         return [
             'success' => true,
             'user_id' => $user_id,
-            'message' => 'Inscription réussie ! Vous êtes maintenant connecté.'
+            'message' => 'Inscription réussie ! Bienvenue ' . $display_name . ' !',
+            'redirect_to' => home_url(Sisme_Utils_Users::DASHBOARD_URL)
         ];
+    }
+
+    /**
+     * Rendre un user_nicename unique
+     * @param string $nicename Nicename de base
+     * @return string Nicename unique
+     */
+    private static function make_user_nicename_unique($nicename) {
+        if (empty($nicename)) {
+            $nicename = 'user' . wp_rand(1000, 9999);
+        }
+        
+        global $wpdb;
+        $original_nicename = $nicename;
+        $counter = 1;
+        
+        // Vérifier l'unicité
+        while (true) {
+            $existing = $wpdb->get_var($wpdb->prepare(
+                "SELECT ID FROM {$wpdb->users} WHERE user_nicename = %s LIMIT 1",
+                $nicename
+            ));
+            
+            if (!$existing) {
+                break; // Nicename disponible
+            }
+            
+            $nicename = $original_nicename . '-' . $counter;
+            $counter++;
+            
+            // Sécurité anti-boucle infinie
+            if ($counter > 999) {
+                $nicename = $original_nicename . '-' . wp_rand(1000, 9999);
+                break;
+            }
+        }
+        
+        return $nicename;
     }
     
     /**

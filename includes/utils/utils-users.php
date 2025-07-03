@@ -41,12 +41,72 @@ class Sisme_Utils_Users {
     const REGISTER_URL = '/sisme-user-register/';
     const PROFILE_URL = '/sisme-user-profil/';
     const DASHBOARD_URL = '/sisme-user-tableau-de-bord/';
+    const FORGOT_PASSWORD_URL = '/sisme-user-forgot-password/';
     
     /**
      * Messages par défaut
      */
     const DEFAULT_LOGIN_REQUIRED_MESSAGE = 'Vous devez être connecté pour accéder à cette page.';
     const DEFAULT_DASHBOARD_LOGIN_MESSAGE = 'Vous devez être connecté pour accéder à votre dashboard.';
+
+    /**
+     * Obtenir un utilisateur par son slug (user_nicename)
+     * 
+     * @param string $slug Slug de l'utilisateur
+     * @return WP_User|false Utilisateur ou false
+     */
+    public static function get_user_by_slug($slug) {
+        if (empty($slug)) {
+            return false;
+        }
+        $slug = sanitize_title($slug);
+        if (empty($slug)) {
+            return false;
+        }
+        $user = get_user_by('slug', $slug);
+        
+        if (!$user) {
+            if (is_numeric($slug)) {
+                $user = get_user_by('ID', intval($slug));
+            }
+        }
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            if ($user) {
+                error_log("[Sisme User Auth] User trouvé par slug '{$slug}': ID {$user->ID}, Display: {$user->display_name}");
+            } else {
+                error_log("[Sisme User Auth] Aucun user trouvé pour le slug: '{$slug}'");
+            }
+        }
+        return $user;
+    }
+
+    /**
+     * Obtenir l'URL du profil d'un utilisateur basée sur son slug
+     * @param int|WP_User $user ID utilisateur ou objet WP_User
+     * @return string URL du profil
+     */
+    public static function get_user_profile_url($user) {
+        if (is_numeric($user)) {
+            $user = get_userdata($user);
+        }
+        if (!$user || !($user instanceof WP_User)) {
+            return '';
+        }
+        return home_url('/sisme-user-profil/?user=' . $user->user_nicename);
+    }
+
+    /**
+     * Obtenir l'URL du profil de l'utilisateur courant
+     * @return string URL du profil ou chaîne vide si non connecté
+     */
+    public static function get_current_user_profile_url() {
+        $user_id = get_current_user_id();
+        if (!$user_id) {
+            return '';
+        }
+        
+        return self::get_user_profile_url($user_id);
+    }
     
     /**
      * Valider qu'un ID utilisateur est valide et que l'utilisateur existe

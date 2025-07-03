@@ -195,43 +195,144 @@
          * Validation d'un champ individuel
          */
         validateInput: function($input) {
+            const type = $input.attr('type') || 'text';
             const value = $input.val().trim();
-            const type = $input.attr('type');
-            const required = $input.attr('required');
-            const name = $input.attr('name');
+            const name = $input.attr('name') || '';
+            const required = $input.prop('required');
             
-            // Champ requis
+            // Validation de base
             if (required && !value) {
-                return {
-                    isValid: false,
-                    message: this.config.messages.required
-                };
+                return { isValid: false, message: 'Ce champ est obligatoire' };
             }
             
-            // Validation par type
-            if (value) {
-                switch (type) {
-                    case 'email':
-                        if (!this.isValidEmail(value)) {
-                            return {
-                                isValid: false,
-                                message: this.config.messages.email
-                            };
+            if (!value) {
+                return { isValid: true, message: '' };
+            }
+            
+            // Validation spécifique selon le type
+            switch (type) {
+                case 'email':
+                    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+                    if (!emailValid) {
+                        return { isValid: false, message: 'Adresse email invalide' };
+                    }
+                    break;
+                    
+                case 'password':
+                    if (name === 'user_password' && value.length < 8) {
+                        return { isValid: false, message: 'Le mot de passe doit contenir au moins 8 caractères' };
+                    }
+                    
+                    if (name === 'user_confirm_password') {
+                        const password = $('input[name="user_password"]').val();
+                        if (value !== password) {
+                            return { isValid: false, message: 'Les mots de passe ne correspondent pas' };
                         }
-                        break;
+                    }
+                    break;
+                    
+                case 'text':
+                    if (name === 'display_name') {
+                        // Validation locale d'abord
+                        if (value.length < 3) {
+                            return { isValid: false, message: 'Le pseudo doit contenir au moins 3 caractères' };
+                        }
                         
-                    case 'password':
-                        if (value.length < 8) {
-                            return {
-                                isValid: false,
-                                message: this.config.messages.password
-                            };
+                        if (value.length > 30) {
+                            return { isValid: false, message: 'Le pseudo ne peut pas dépasser 30 caractères' };
                         }
-                        break;
-                }
+                        
+                        if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+                            return { isValid: false, message: 'Seules les lettres, chiffres et underscores sont autorisés' };
+                        }
+                        
+                        // Validation AJAX pour l'unicité (si configuré)
+                        if ($input.data('validate-ajax')) {
+                            this.validateDisplayNameAjax($input, value);
+                            return { isValid: true, message: 'Vérification en cours...', pending: true };
+                        }
+                    }
+                    break;
             }
             
             return { isValid: true, message: '' };
+        },
+
+        /**
+         * Nouvelle méthode pour validation AJAX du display name
+         */
+        validateDisplayNameAjax: function($input, value) {
+            const self = this;
+            
+            // Debounce pour éviter trop de requêtes
+            clearTimeout(this.state.ajaxTimeout);
+            this.state.ajaxTimeout = setTimeout(() => {
+                
+                // Indiquer que la validation est en cours
+                self.setInputState($input, 'validating', 'Vérification de disponibilité...');
+                
+                $.ajax({
+                    url: sisme_auth_config.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'sisme_validate_display_name',
+                        display_name: value,
+                        security: sisme_auth_config.register_nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            self.setInputState($input, 'valid', '✓ Pseudo disponible');
+                        } else {
+                            let message = response.data.message;
+                            
+                            // Afficher les suggestions si disponibles
+                            if (response.data.suggestions && response.data.suggestions.length > 0) {
+                                message += ' Suggestions : ' + response.data.suggestions.join(', ');
+                            }
+                            
+                            self.setInputState($input, 'error', message);
+                            
+                            // Optionnel : Ajouter des boutons de suggestion
+                            self.showSuggestions($input, response.data.suggestions);
+                        }
+                    },
+                    error: function() {
+                        self.setInputState($input, 'neutral', 'Erreur de vérification');
+                    }
+                });
+                
+            }, 800); // Attendre 800ms après l'arrêt de frappe
+        },
+
+        /**
+         * Afficher les suggestions de pseudos
+         */
+        showSuggestions: function($input, suggestions) {
+            if (!suggestions || suggestions.length === 0) return;
+            
+            const $wrapper = $input.closest('.sisme-auth-field');
+            let $suggestionsContainer = $wrapper.find('.sisme-suggestions');
+            
+            if ($suggestionsContainer.length === 0) {
+                $suggestionsContainer = $('<div class="sisme-suggestions"></div>');
+                $wrapper.append($suggestionsContainer);
+            }
+            
+            $suggestionsContainer.empty();
+            
+            const $suggestionsList = $('<div class="sisme-suggestions-list"></div>');
+            $suggestionsList.append('<span class="sisme-suggestions-label">Suggestions :</span>');
+            
+            suggestions.forEach(suggestion => {
+                const $btn = $('<button type="button" class="sisme-suggestion-btn">' + suggestion + '</button>');
+                $btn.on('click', () => {
+                    $input.val(suggestion).trigger('blur');
+                    $suggestionsContainer.hide();
+                });
+                $suggestionsList.append($btn);
+            });
+            
+            $suggestionsContainer.append($suggestionsList).show();
         },
         
         /**
@@ -283,14 +384,14 @@
          */
         setInputState: function($input, state, message = '') {
             // Supprimer les classes d'état précédentes
-            $input.removeClass('sisme-auth-input--valid sisme-auth-input--error sisme-auth-input--focus');
+            $input.removeClass('sisme-auth-input--valid sisme-auth-input--error sisme-auth-input--focus sisme-auth-input--validating');
             
             // Ajouter la nouvelle classe
             if (state !== 'neutral') {
                 $input.addClass(`sisme-auth-input--${state}`);
             }
             
-            // Gestion du message d'erreur
+            // Gestion du message d'erreur/succès
             this.handleInputMessage($input, message, state);
         },
         
@@ -489,8 +590,55 @@
          * Validation email
          */
         isValidEmail: function(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
+            // Validation de base
+            const basicPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!basicPattern.test(email)) {
+                return false;
+            }
+            
+            // Vérifier les caractères interdits
+            const forbiddenChars = ['+', '\'', '"', '\\', '/', '<', '>', '(', ')', '[', ']', 
+                                ',', ';', ':', '|', '?', '*', '=', '&', '%', '#', 
+                                '!', '$', '^', '~', '`', '{', '}'];
+            
+            for (let char of forbiddenChars) {
+                if (email.includes(char)) {
+                    return false;
+                }
+            }
+            
+            // Vérifier longueur
+            if (email.length > 254 || email.length < 5) {
+                return false;
+            }
+            
+            // Parties local et domaine
+            const parts = email.split('@');
+            if (parts.length !== 2) {
+                return false;
+            }
+            
+            const [local, domain] = parts;
+            
+            // Validation partie locale
+            if (local.length > 64 || local.length < 1) {
+                return false;
+            }
+            
+            if (local.startsWith('.') || local.endsWith('.') || local.includes('..')) {
+                return false;
+            }
+            
+            // Validation domaine
+            if (domain.length > 253 || domain.length < 4) {
+                return false;
+            }
+            
+            if (!domain.includes('.') || domain.startsWith('.') || domain.endsWith('.')) {
+                return false;
+            }
+            
+            return true;
         },
         
         /**

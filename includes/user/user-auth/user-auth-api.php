@@ -103,7 +103,7 @@ class Sisme_User_Auth_API {
             'submit_text' => $atts['submit_text'],
             'redirect_to' => home_url(Sisme_Utils_Users::DASHBOARD_URL)
         ];
-        $components = ['user_email', 'user_password', 'user_confirm_password', 'user_display_name', 'redirect_to'];
+        $components = ['user_email', 'user_password', 'user_confirm_password', 'display_name', 'redirect_to'];
         $form = new Sisme_User_Auth_Forms($components, $form_options);
         ob_start();
         ?>

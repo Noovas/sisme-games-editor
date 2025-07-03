@@ -53,11 +53,11 @@ class Sisme_User_Auth_Forms {
             'type' => 'password',
             'icon' => '🔒'
         ],
-        'user_display_name' => [
+        'display_name' => [
             'label' => 'Nom d\'affichage',
-            Sisme_Utils_Games::KEY_DESCRIPTION => 'Le nom qui sera affiché publiquement (optionnel)',
-            'required' => false,
-            'output_var' => 'user_display_name',
+            Sisme_Utils_Games::KEY_DESCRIPTION => 'Le nom qui sera affiché publiquement (obligatoire)   ',
+            'required' => true,
+            'output_var' => 'display_name',
             'type' => 'text',
             'icon' => '👤'
         ],
@@ -309,18 +309,24 @@ class Sisme_User_Auth_Forms {
     private function render_field_input($component, $field_id, $current_value, $required_attr) {
         $name = $component['output_var'];
         
+        // Attributs spéciaux pour la validation AJAX du display name
+        $extra_attrs = '';
+        if ($name === 'display_name') {
+            $extra_attrs = ' data-validate-ajax="true" data-validation-action="sisme_validate_display_name"';
+        }
+        
         switch ($component['type']) {
             case 'email':
             case 'text':
             case 'password':
                 ?>
                 <input type="<?php echo esc_attr($component['type']); ?>" 
-                       id="<?php echo esc_attr($field_id); ?>" 
-                       name="<?php echo esc_attr($name); ?>" 
-                       value="<?php echo esc_attr($current_value); ?>" 
-                       class="sisme-auth-input sisme-auth-input--<?php echo esc_attr($component['type']); ?>"
-                       autocomplete="<?php echo $this->get_autocomplete($component['type']); ?>"
-                       <?php echo $required_attr; ?>>
+                    id="<?php echo esc_attr($field_id); ?>" 
+                    name="<?php echo esc_attr($name); ?>" 
+                    value="<?php echo esc_attr($current_value); ?>" 
+                    class="sisme-auth-input sisme-auth-input--<?php echo esc_attr($component['type']); ?>"
+                    autocomplete="<?php echo $this->get_autocomplete($component['type']); ?>"
+                    <?php echo $required_attr; ?><?php echo $extra_attrs; ?>>
                 <?php
                 break;
                 
@@ -328,12 +334,12 @@ class Sisme_User_Auth_Forms {
                 ?>
                 <label class="sisme-auth-checkbox-wrapper">
                     <input type="checkbox" 
-                           id="<?php echo esc_attr($field_id); ?>" 
-                           name="<?php echo esc_attr($name); ?>" 
-                           value="1" 
-                           class="sisme-auth-checkbox"
-                           <?php checked($current_value, true); ?>
-                           <?php echo $required_attr; ?>>
+                        id="<?php echo esc_attr($field_id); ?>" 
+                        name="<?php echo esc_attr($name); ?>" 
+                        value="1" 
+                        class="sisme-auth-checkbox"
+                        <?php checked($current_value, true); ?>
+                        <?php echo $required_attr; ?>>
                     <span class="sisme-auth-checkbox-label"><?php echo esc_html($component['label']); ?></span>
                 </label>
                 <?php
@@ -486,7 +492,7 @@ class Sisme_User_Auth_Forms {
         ];
         
         $options = array_merge($default_options, $options);
-        $components = ['user_email', 'user_password', 'user_confirm_password', 'user_display_name'];
+        $components = ['user_email', 'user_password', 'user_confirm_password', 'display_name'];
         
         return new self($components, $options);
     }
