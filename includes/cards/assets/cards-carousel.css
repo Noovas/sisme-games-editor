@@ -1,125 +1,126 @@
+/**
+ * File: /sisme-games-editor/includes/cards/assets/cards-carousel.css
+ * STYLES POUR LES CARROUSELS DE CARTES
+ * 
+ * CONTENU:
+ * - Carrousels avec navigation
+ * - Styles responsives pour mobile
+ * - Boutons et pagination
+ * - Mode infinite
+ * 
+ * DÉPENDANCES:
+ * - cards.css (styles de base)
+ */
+
 /* ========================================
-   🎠 CARROUSEL SCROLL HORIZONTAL NATIF
-   Utilise le scroll natif du navigateur - Simple et efficace
+   🎠 CARROUSEL PRINCIPAL
 ======================================== */
 
-/* Container principal du carrousel */
 .sisme-cards-carousel {
     position: relative;
     max-width: 1200px;
-    margin-bottom: 30px !important;
-    padding: 30px 60px 0px 60px;
-    touch-action: pan-y pinch-zoom;
-    border-top: solid 1px #30363d;
+    margin: 0 auto var(--sisme-space-xl, 32px) auto;
+    padding: 0 60px;
+    touch-action: pan-x;
 }
 
-/* Container avec overflow pour scroll horizontal */
+/* Container du carrousel */
 .sisme-carousel__container {
     overflow: hidden;
-    border-radius: 12px;
+    border-radius: var(--sisme-radius-lg, 12px);
     position: relative;
 }
 
-/* Track du carrousel - SCROLL HORIZONTAL NATIF */
+/* Track du carrousel */
 .sisme-carousel__track {
     display: flex;
-    gap: 15px; /* Gap plus grand pour compenser les cartes plus larges */
-    
-    /* Scroll horizontal natif avec paramètres ajustés */
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-behavior: smooth;
-    
-    /* Masquer la scrollbar mais garder la fonctionnalité */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
-    
-    /* Performance */
-    will-change: scroll-position;
-    
-    /* Touch action pour mobile - Plus précis */
-    touch-action: pan-x pinch-zoom;
-    
-    /* Contrôler la vitesse de scroll sur mobile */
-    scroll-snap-type: none; /* Pas de snap automatique */
-    overscroll-behavior-x: contain; /* Empêcher le bounce */
-    
-    /* Curseur normal sur PC */
-    cursor: default;
-    
-    /* Padding pour ne pas couper les cartes */
-    padding: 10px 0;
-    
-    /* Centrer le contenu pour desktop */
-    justify-content: flex-start;
-}
-
-/* Curseur grab seulement sur mobile/touch pour le track */
-@media (hover: none) and (pointer: coarse) {
-    .sisme-carousel__track {
-        cursor: grab;
-    }
-}
-
-/* Masquer scrollbar Webkit */
-.sisme-carousel__track::-webkit-scrollbar {
-    display: none;
+    transition: transform 0.3s ease;
+    will-change: transform;
+    backface-visibility: hidden;
+    user-select: none;
 }
 
 /* ========================================
-   🎯 SLIDES AVEC LARGEUR FIXE
+   🎯 SLIDES DU CARROUSEL
 ======================================== */
 
 .sisme-carousel__slide {
-    /* Largeur calculée par JavaScript */
     flex: 0 0 auto;
-    padding: 0 5px; /* Espacement entre cartes */
+    padding: 0 10px;
     box-sizing: border-box;
-    
-    /* Performance GPU */
-    transform: translateZ(0);
+    min-width: 0;
 }
 
-/* Cartes dans les slides */
-.sisme-carousel__slide .sisme-game-card {
-    width: 100% !important;
-    max-width: none !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    
-    /* Transitions subtiles */
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    
-    /* Curseur normal sur les cartes */
-    cursor: default;
-}
-
-.sisme-carousel__slide .sisme-game-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.sisme-carousel__slide .sisme-card-image {
+/* Largeur des slides selon le nombre de cartes par vue */
+.sisme-cards-carousel[data-cards-per-view="1"] .sisme-carousel__slide {
     width: 100%;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    border-radius: 8px 8px 0 0;
-    flex-shrink: 0;
-    height: 220px;
-    transition: transform 0.3s ease;
 }
 
-.sisme-carousel__slide .sisme-card-image:hover {
-    transform: scale(1.02);
+.sisme-cards-carousel[data-cards-per-view="2"] .sisme-carousel__slide {
+    width: 50%;
+}
+
+.sisme-cards-carousel[data-cards-per-view="3"] .sisme-carousel__slide {
+    width: 33.333%;
+}
+
+.sisme-cards-carousel[data-cards-per-view="4"] .sisme-carousel__slide {
+    width: 25%;
+}
+
+.sisme-cards-carousel[data-cards-per-view="5"] .sisme-carousel__slide {
+    width: 20%;
 }
 
 /* ========================================
-   🎮 BOUTONS DE NAVIGATION
+   🎴 CARTES DANS LE CARROUSEL
+======================================== */
+
+.sisme-carousel__slide .sisme-game-card {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    margin: 0;
+}
+
+.sisme-carousel__slide .sisme-card-image {
+    height: 200px;
+}
+
+/* Ajustement des hauteurs selon le nombre de cartes */
+.sisme-cards-carousel[data-cards-per-view="2"] .sisme-card-image {
+    height: 240px;
+}
+
+.sisme-cards-carousel[data-cards-per-view="3"] .sisme-card-image {
+    height: 200px;
+}
+
+.sisme-cards-carousel[data-cards-per-view="4"] .sisme-card-image {
+    height: 180px;
+}
+
+.sisme-cards-carousel[data-cards-per-view="5"] .sisme-card-image {
+    height: 160px;
+}
+
+/* Ajustement du contenu texte */
+.sisme-cards-carousel[data-cards-per-view="4"] .sisme-card-title,
+.sisme-cards-carousel[data-cards-per-view="5"] .sisme-card-title {
+    font-size: var(--sisme-text-base, 16px);
+}
+
+.sisme-cards-carousel[data-cards-per-view="4"] .sisme-card-description,
+.sisme-cards-carousel[data-cards-per-view="5"] .sisme-card-description {
+    font-size: var(--sisme-text-sm, 14px);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ========================================
+   ⬅️➡️ BOUTONS DE NAVIGATION
 ======================================== */
 
 .sisme-carousel__btn {
@@ -130,30 +131,27 @@
     height: 50px;
     border: none;
     border-radius: 50%;
-    
     background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(10px);
     color: white;
     font-size: 18px;
     cursor: pointer;
-    
-    z-index: 20;
+    z-index: 10;
     transition: all 0.3s ease;
-    
-    /* Touch optimisé */
-    touch-action: manipulation;
-    min-height: 44px;
-    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
 }
 
-.sisme-carousel__btn:hover:not(:disabled) {
+.sisme-carousel__btn:hover {
     background: rgba(0, 0, 0, 0.9);
     transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-.sisme-carousel__btn:active:not(:disabled) {
-    transform: translateY(-50%) scale(0.95);
+.sisme-carousel__btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: translateY(-50%) scale(0.9);
 }
 
 .sisme-carousel__btn--prev {
@@ -176,87 +174,63 @@
     font-weight: bold;
 }
 
-/* États désactivés */
-.sisme-carousel__btn:disabled,
-.sisme-carousel__btn.disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-    transform: translateY(-50%) scale(0.9);
-    background: rgba(0, 0, 0, 0.4);
+/* ========================================
+   🔘 PAGINATION (DOTS)
+======================================== */
+
+.sisme-carousel__pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: var(--sisme-space-lg, 20px);
 }
 
-.sisme-carousel__btn:disabled:hover,
-.sisme-carousel__btn.disabled:hover {
-    transform: translateY(-50%) scale(0.9);
-    background: rgba(0, 0, 0, 0.4);
+.sisme-carousel__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sisme-carousel__dot:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(1.2);
+}
+
+.sisme-carousel__dot.active {
+    background: var(--sisme-gaming-accent, #64ffda);
+    transform: scale(1.3);
 }
 
 /* ========================================
-   📱 RESPONSIVE
+   🔄 MODE INFINITE
 ======================================== */
 
-/* Tablet */
-@media (max-width: 1024px) {
-    .sisme-cards-carousel {
-        padding: 0 50px;
-    }
-    
-    .sisme-carousel__slide .sisme-card-image {
-        height: 200px;
-    }
+.sisme-cards-carousel--infinite .sisme-carousel__track {
+    transition: transform 0.5s ease;
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-    .sisme-cards-carousel {
-        padding: 0 10px; /* Padding très réduit pour plus de largeur */
-    }
-    
-    .sisme-carousel__btn {
-        width: 44px;
-        height: 44px;
-        font-size: 16px;
-    }
-    
-    .sisme-carousel__btn--prev {
-        left: -5px; /* Position plus vers l'extérieur */
-    }
-    
-    .sisme-carousel__btn--next {
-        right: -5px; /* Position plus vers l'extérieur */
-    }
-    
-    .sisme-carousel__slide .sisme-card-image {
-        height: 180px;
-    }
-    
-    /* Réduire l'espacement entre cartes sur mobile */
-    .sisme-carousel__slide {
-        padding: 0 5px;
-    }
+.sisme-cards-carousel--infinite .sisme-carousel__pagination {
+    display: none;
 }
 
-/* Très petit mobile */
-@media (max-width: 480px) {
-    .sisme-cards-carousel {
-        padding: 0 5px; /* Padding minimal */
-    }
-    
-    .sisme-carousel__slide {
-        padding: 0 3px; /* Espacement minimal entre cartes */
-    }
-    
-    .sisme-carousel__slide .sisme-card-image {
-        height: 160px;
-    }
-    
-    .sisme-carousel__btn--prev {
-        left: -8px;
-    }
-    
-    .sisme-carousel__btn--next {
-        right: -8px;
-    }
+.sisme-cards-carousel--infinite .sisme-carousel__btn:disabled {
+    opacity: 1;
+    cursor: pointer;
+}
+
+/* Slides clones pour infinite */
+.sisme-carousel__slide--clone-start,
+.sisme-carousel__slide--clone-end {
+    /* Même style que les slides normaux */
+}
+
+.sisme-carousel__slide--original {
+    /* Slides originaux - pas de style spécifique */
 }
 
 /* ========================================
@@ -265,15 +239,15 @@
 
 /* Carrousel vide */
 .sisme-cards-carousel--empty {
-    min-height: 300px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8f9fa;
-    border: 2px dashed #ddd;
-    border-radius: 12px;
-    color: #666;
-    font-size: 18px;
+    min-height: 300px;
+    background: var(--sisme-gaming-dark-light, #1a1a1a);
+    border: 2px dashed var(--sisme-white-alpha, rgba(255, 255, 255, 0.1));
+    border-radius: var(--sisme-radius-lg, 12px);
+    color: var(--sisme-gaming-text-muted, #999999);
+    font-size: var(--sisme-text-lg, 18px);
 }
 
 .sisme-cards-carousel--empty::after {
@@ -282,16 +256,110 @@
 }
 
 /* ========================================
-   🔧 MODE DEBUG
+   📱 RESPONSIVE CARROUSEL
+======================================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .sisme-cards-carousel {
+        padding: 0 50px;
+    }
+    
+    .sisme-carousel__btn {
+        width: 45px;
+        height: 45px;
+        font-size: 16px;
+    }
+    
+    .sisme-carousel__slide .sisme-card-image {
+        height: 180px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .sisme-cards-carousel {
+        padding: 0 40px;
+    }
+    
+    /* Force 2 cartes max sur mobile */
+    .sisme-cards-carousel[data-cards-per-view="3"] .sisme-carousel__slide,
+    .sisme-cards-carousel[data-cards-per-view="4"] .sisme-carousel__slide,
+    .sisme-cards-carousel[data-cards-per-view="5"] .sisme-carousel__slide {
+        width: 50%;
+    }
+    
+    .sisme-carousel__btn {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+    }
+    
+    .sisme-carousel__btn--prev {
+        left: 5px;
+    }
+    
+    .sisme-carousel__btn--next {
+        right: 5px;
+    }
+    
+    .sisme-carousel__slide .sisme-card-image {
+        height: 160px;
+    }
+    
+    .sisme-carousel__slide .sisme-game-card {
+        min-height: 350px;
+    }
+}
+
+/* Très petit mobile */
+@media (max-width: 480px) {
+    .sisme-cards-carousel {
+        padding: 0 15px;
+    }
+    
+    /* Force 1 carte sur très petit mobile */
+    .sisme-cards-carousel[data-cards-per-view="2"] .sisme-carousel__slide,
+    .sisme-cards-carousel[data-cards-per-view="3"] .sisme-carousel__slide,
+    .sisme-cards-carousel[data-cards-per-view="4"] .sisme-carousel__slide,
+    .sisme-cards-carousel[data-cards-per-view="5"] .sisme-carousel__slide {
+        width: 100%;
+    }
+    
+    .sisme-carousel__btn {
+        width: 36px;
+        height: 36px;
+        font-size: 12px;
+    }
+    
+    .sisme-carousel__btn--prev {
+        left: -5px;
+    }
+    
+    .sisme-carousel__btn--next {
+        right: -5px;
+    }
+    
+    .sisme-carousel__slide .sisme-card-image {
+        height: 140px;
+    }
+    
+    .sisme-carousel__slide .sisme-game-card {
+        min-height: 300px;
+    }
+}
+
+/* ========================================
+   🐛 MODE DEBUG
 ======================================== */
 
 .sisme-cards-carousel--debug {
-    border: 3px solid #17a2b8;
+    border: 2px solid #17a2b8;
     position: relative;
 }
 
 .sisme-cards-carousel--debug::before {
-    content: '🔧 SCROLL NATIF: ' attr(data-cards-per-view) ' cartes par vue';
+    content: '🔧 CARROUSEL: ' attr(data-cards-per-view) ' cartes par vue';
     position: absolute;
     top: -30px;
     left: 0;
@@ -306,8 +374,8 @@
 }
 
 .sisme-cards-carousel--debug .sisme-carousel__slide {
-    outline: 2px solid #17a2b8 !important;
-    outline-offset: -2px;
+    outline: 2px solid #17a2b8;
+    outline-offset: 2px;
     position: relative;
 }
 
@@ -330,8 +398,26 @@
 }
 
 .sisme-cards-carousel--debug .sisme-game-card {
-    outline: 2px solid #28a745 !important;
+    outline: 2px solid #28a745;
     outline-offset: -2px;
+}
+
+/* Debug infinite mode */
+.sisme-cards-carousel--debug.sisme-cards-carousel--infinite::before {
+    content: '🔄 INFINITE: ' attr(data-cards-per-view) ' cartes | ' attr(data-cards-count) ' originales';
+    background: #e74c3c;
+}
+
+.sisme-cards-carousel--debug .sisme-carousel__slide--clone-start {
+    outline: 3px solid orange;
+}
+
+.sisme-cards-carousel--debug .sisme-carousel__slide--clone-end {
+    outline: 3px solid purple;
+}
+
+.sisme-cards-carousel--debug .sisme-carousel__slide--original {
+    outline: 2px solid green;
 }
 
 /* ========================================
@@ -340,25 +426,17 @@
 
 /* Respecter les préférences de mouvement */
 @media (prefers-reduced-motion: reduce) {
-    .sisme-carousel__track {
-        scroll-behavior: auto !important;
-    }
-    
+    .sisme-carousel__track,
     .sisme-carousel__btn,
-    .sisme-carousel__slide .sisme-game-card {
-        transition-duration: 0.1s !important;
+    .sisme-carousel__dot {
+        transition: none !important;
     }
 }
 
 /* Focus visible */
-.sisme-carousel__btn:focus-visible {
-    outline: 3px solid #007bff;
-    outline-offset: 2px;
-}
-
-/* Support clavier pour le track */
-.sisme-carousel__track:focus {
-    outline: 2px solid #007bff;
+.sisme-carousel__btn:focus-visible,
+.sisme-carousel__dot:focus-visible {
+    outline: 2px solid var(--sisme-gaming-accent, #64ffda);
     outline-offset: 2px;
 }
 
@@ -368,46 +446,46 @@
         background: black;
         border: 2px solid white;
     }
+    
+    .sisme-carousel__dot {
+        border: 2px solid white;
+    }
 }
 
 /* ========================================
-   🎨 VARIANTES DE STYLE
+   🎨 VARIANTES DE CARROUSEL
 ======================================== */
 
 /* Carrousel compact */
 .sisme-cards-carousel--compact {
     padding: 0 40px;
-    margin-bottom: 60px !important;
+    margin-bottom: var(--sisme-space-lg, 24px);
 }
 
 .sisme-cards-carousel--compact .sisme-carousel__slide .sisme-card-image {
-    height: 160px;
+    height: 140px;
 }
 
-.sisme-cards-carousel--compact .sisme-carousel__btn {
-    width: 40px;
-    height: 40px;
-    font-size: 14px;
+.sisme-cards-carousel--compact .sisme-carousel__slide .sisme-game-card {
+    min-height: 280px;
 }
 
 /* Carrousel large */
 .sisme-cards-carousel--large {
     padding: 0 80px;
-    margin-bottom: 120px !important;
+    margin-bottom: var(--sisme-space-xxl, 48px);
 }
 
 .sisme-cards-carousel--large .sisme-carousel__slide .sisme-card-image {
     height: 280px;
 }
 
-.sisme-cards-carousel--large .sisme-carousel__btn {
-    width: 60px;
-    height: 60px;
-    font-size: 22px;
+.sisme-cards-carousel--large .sisme-carousel__slide .sisme-game-card {
+    min-height: 520px;
 }
 
 /* ========================================
-   🔄 ANIMATIONS SUBTILES
+   🔄 ANIMATIONS
 ======================================== */
 
 @keyframes carouselAppear {
@@ -425,9 +503,26 @@
     animation: carouselAppear 0.6s ease-out;
 }
 
+/* Animation des slides */
+@keyframes slideAppear {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.sisme-carousel__slide .sisme-game-card {
+    animation: slideAppear 0.4s ease-out;
+}
+
 /* Désactiver animations si reduced-motion */
 @media (prefers-reduced-motion: reduce) {
-    .sisme-cards-carousel {
+    .sisme-cards-carousel,
+    .sisme-carousel__slide .sisme-game-card {
         animation: none !important;
     }
 }
