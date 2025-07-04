@@ -377,6 +377,8 @@ class Sisme_Utils_Games {
         if ($criteria['debug']) {
             error_log('[Sisme Utils Games] Critères reçus: ' . print_r($criteria, true));
         }
+        
+        // 1. Récupérer TOUS les jeux
         $all_games = get_terms(array(
             'taxonomy' => 'post_tag',
             'hide_empty' => false,
@@ -388,9 +390,12 @@ class Sisme_Utils_Games {
                 )
             )
         ));
+        
         if (is_wp_error($all_games) || empty($all_games)) {
             return array();
         }
+        
+        // 2. Filtrer par genres
         if (!empty($criteria['genres'])) {
             $genre_query = self::build_genres_meta_query($criteria['genres']);
             if (!empty($genre_query)) {
@@ -403,6 +408,8 @@ class Sisme_Utils_Games {
                 $all_games = array_intersect($all_games, $genre_filtered);
             }
         }
+        
+        // 3. Filtrer par team choice
         if ($criteria[self::META_TEAM_CHOICE]) {
             $team_choice_games = array();
             foreach ($all_games as $game_id) {
@@ -412,9 +419,13 @@ class Sisme_Utils_Games {
             }
             $all_games = $team_choice_games;
         }
+        
+        // 4. ✅ NOUVEAU : Filtrer par statut de sortie AVANT le tri
         $filtered_games = array();
         foreach ($all_games as $game_id) {
             $should_include = true;
+            
+            // Filtrer par statut de sortie
             if ($criteria['released'] !== 0) {
                 $release_status = self::get_game_release_status($game_id);
                 
@@ -424,6 +435,8 @@ class Sisme_Utils_Games {
                     $should_include = false;
                 }
             }
+            
+            // Vérifier que le jeu existe
             if ($should_include) {
                 $game_data = self::get_game_data($game_id);
                 if ($game_data) {
@@ -431,33 +444,53 @@ class Sisme_Utils_Games {
                 }
             }
         }
+        
         if ($criteria['debug']) {
             error_log('[Sisme Utils Games] ' . count($filtered_games) . ' jeux après filtrage');
-        }
+        } 
+        
+        // 5. Trier par date APRÈS le filtrage
         if ($criteria['sort_by_date']) {
             $filtered_games = self::sort_games_by_release_date($filtered_games, $criteria['sort_order']);
+            
+            if ($criteria['debug']) {
+                error_log('[Sisme Utils Games] Tri ' . $criteria['sort_order'] . ' appliqué');
+                // Debug des premières dates
+                for ($i = 0; $i < min(5, count($filtered_games)); $i++) {
+                    $game_id = $filtered_games[$i];
+                    $release_date = get_term_meta($game_id, self::META_RELEASE_DATE, true);
+                    $game_data = self::get_game_data($game_id);
+                    $name = $game_data ? $game_data[self::KEY_NAME] : "Jeu $game_id";
+                    error_log("  - Position $i: $name ($release_date)");
+                }
+            }
         }
+        
+        // 6. Limiter le nombre de résultats
         if ($criteria['max_results'] > 0) {
             $filtered_games = array_slice($filtered_games, 0, $criteria['max_results']);
         }
+        
+        // 7. Filtrer par recherche textuelle (si nécessaire)
         if (!empty($criteria['search'])) {
-        $search_terms = get_terms(array(
-            'taxonomy' => 'post_tag',
-            'search' => $criteria['search'],
-            'meta_query' => array(
-                array(
-                    'key' => self::META_DESCRIPTION,
-                    'compare' => 'EXISTS'
+            $search_terms = get_terms(array(
+                'taxonomy' => 'post_tag',
+                'search' => $criteria['search'],
+                'meta_query' => array(
+                    array(
+                        'key' => self::META_DESCRIPTION,
+                        'compare' => 'EXISTS'
+                    )
                 )
-            )
-        ));
-        if (!empty($search_terms)) {
-            $search_ids = wp_list_pluck($search_terms, 'term_id');
-            $all_games = array_intersect($all_games, $search_ids);
-        } else {
-            return array(); // Aucun jeu trouvé
+            ));
+            if (!empty($search_terms)) {
+                $search_ids = wp_list_pluck($search_terms, 'term_id');
+                $filtered_games = array_intersect($filtered_games, $search_ids);
+            } else {
+                return array(); // Aucun jeu trouvé
+            }
         }
-    }
+        
         return $filtered_games;
     }
     

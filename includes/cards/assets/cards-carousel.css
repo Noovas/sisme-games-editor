@@ -7,8 +7,10 @@
 .sisme-cards-carousel {
     position: relative;
     max-width: 1200px;
-    margin-bottom: 90px !important;
-    padding: 0 60px;
+    margin-bottom: 30px !important;
+    padding: 30px 60px 0px 60px;
+    touch-action: pan-y pinch-zoom;
+    border-top: solid 1px #30363d;
 }
 
 /* Container avec overflow pour scroll horizontal */

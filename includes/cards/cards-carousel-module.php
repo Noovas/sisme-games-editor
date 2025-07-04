@@ -19,9 +19,9 @@ class Sisme_Cards_Carousel_Module {
      * Options par défaut pour les carrousels
      */
     private static $default_options = array(
-        'cards_per_view' => 4,        
+        'cards_per_view' => 3,        
         'total_cards' => 10,           
-        'infinite' => true,          
+        'infinite' => false,          
         'autoplay' => false,
         'navigation' => true,
         'pagination' => true,
@@ -121,6 +121,7 @@ class Sisme_Cards_Carousel_Module {
 
         // Initialiser $output vide
         $output = '';
+        $output .= '<div class="sisme-carrousel-contener">';
         
         // Ajouter le titre EN PREMIER si présent
         if (!empty($grid_args['title'])) {
@@ -162,6 +163,7 @@ class Sisme_Cards_Carousel_Module {
         }
         
         $output .= '</div>'; // fin carrousel
+        $output .= '</div>';
 
         return $output;
     }
@@ -170,7 +172,8 @@ class Sisme_Cards_Carousel_Module {
      * Rendre le titre de section
      */
     private static function render_section_title($title) {
-        $output = '<div class="sisme-carousel-section-header">';
+        $output = '';
+        $output .= '<div class="sisme-carousel-section-header">';
         $output .= '<h2 class="sisme-carousel-section-title">' . esc_html($title) . '</h2>';
         $output .= '</div>';
         
@@ -183,30 +186,23 @@ class Sisme_Cards_Carousel_Module {
     private static function render_infinite_slides($game_ids, $cards_per_view, $grid_args) {
         $output = '';
         $total_cards = count($game_ids);
-        
-        // CLONES DE FIN au début (pour aller vers la gauche)
-        $end_clones = array_slice($game_ids, -$cards_per_view);
-        foreach ($end_clones as $game_id) {
-            $output .= '<div class="sisme-carousel__slide sisme-carousel__slide--clone-end">';
-            $output .= self::render_single_card($game_id, $grid_args);
-            $output .= '</div>';
-        }
-        
-        // CARTES ORIGINALES
         foreach ($game_ids as $game_id) {
             $output .= '<div class="sisme-carousel__slide sisme-carousel__slide--original">';
             $output .= self::render_single_card($game_id, $grid_args);
             $output .= '</div>';
         }
-        
-        // CLONES DE DÉBUT à la fin (pour aller vers la droite)
         $start_clones = array_slice($game_ids, 0, $cards_per_view);
         foreach ($start_clones as $game_id) {
             $output .= '<div class="sisme-carousel__slide sisme-carousel__slide--clone-start">';
             $output .= self::render_single_card($game_id, $grid_args);
             $output .= '</div>';
         }
-        
+        $end_clones = array_slice($game_ids, -$cards_per_view);
+        foreach ($end_clones as $game_id) {
+            $output .= '<div class="sisme-carousel__slide sisme-carousel__slide--clone-end">';
+            $output .= self::render_single_card($game_id, $grid_args);
+            $output .= '</div>';
+        }
         return $output;
     }
 

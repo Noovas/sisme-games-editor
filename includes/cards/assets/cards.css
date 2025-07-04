@@ -12,7 +12,16 @@
 
 .sisme-carousel-section-header {
     text-align: center;
-    margin-bottom: var(--sisme-space-2xl, 48px);
+}
+
+.sisme-carrousel-contener {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid #30363d;
+    border-radius: 30px;
+    padding: 40px 0px 0px 0px;
+    align-items: center;
 }
 
 .sisme-carousel-section-title.with-emoji::before {

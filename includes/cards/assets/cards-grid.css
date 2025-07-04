@@ -7,9 +7,10 @@
 .sisme-cards-carousel {
     position: relative;
     max-width: 1200px;
-    margin-bottom: 90px !important;
-    padding: 0 60px;
+    margin-bottom: 30px !important;
+    padding: 30px 60px 0px 60px;
     touch-action: pan-y pinch-zoom;
+    border-top: solid 1px #30363d;
 }
 
 /* Container avec overflow caché */
@@ -709,4 +710,10 @@
 /* Masquer l'indicateur en mode debug (on a déjà l'info) */
 .sisme-cards-carousel--debug.sisme-cards-carousel--infinite::after {
     display: none;
+}
+
+@media (max-width: 480px) {
+    .sisme-carousel__slide {
+        flex: 0 0 100% !important; /* 1 carte partout */
+    }
 }
