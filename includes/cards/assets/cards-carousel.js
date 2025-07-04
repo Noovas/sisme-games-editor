@@ -105,12 +105,15 @@ class SismeCarousel {
         
         switch (breakpoint) {
             case 'mobile':
+                // TOUJOURS 1 carte sur mobile
                 this.state.cardsPerView = 1;
                 break;
             case 'tablet':
+                // Maximum 2 cartes sur tablet
                 this.state.cardsPerView = Math.min(2, originalCardsPerView);
                 break;
             default:
+                // Desktop : utiliser la configuration originale
                 this.state.cardsPerView = originalCardsPerView;
         }
         
@@ -123,8 +126,8 @@ class SismeCarousel {
      */
     getCurrentBreakpoint() {
         const width = window.innerWidth;
-        if (width <= this.breakpoints.mobile) return 'mobile';
-        if (width <= this.breakpoints.tablet) return 'tablet';
+        if (width <= 768) return 'mobile';  // 768px au lieu de 480px
+        if (width <= 1024) return 'tablet';
         return 'desktop';
     }
     

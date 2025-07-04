@@ -282,11 +282,12 @@
         padding: 0 40px;
     }
     
-    /* Force 2 cartes max sur mobile */
+    /* Force 1 carte TOUJOURS sur mobile */
+    .sisme-cards-carousel[data-cards-per-view="2"] .sisme-carousel__slide,
     .sisme-cards-carousel[data-cards-per-view="3"] .sisme-carousel__slide,
     .sisme-cards-carousel[data-cards-per-view="4"] .sisme-carousel__slide,
     .sisme-cards-carousel[data-cards-per-view="5"] .sisme-carousel__slide {
-        width: 50%;
+        width: 100%;
     }
     
     .sisme-carousel__btn {
@@ -304,11 +305,11 @@
     }
     
     .sisme-carousel__slide .sisme-card-image {
-        height: 160px;
+        height: 180px;
     }
     
     .sisme-carousel__slide .sisme-game-card {
-        min-height: 350px;
+        min-height: 380px;
     }
 }
 
@@ -318,14 +319,7 @@
         padding: 0 15px;
     }
     
-    /* Force 1 carte sur très petit mobile */
-    .sisme-cards-carousel[data-cards-per-view="2"] .sisme-carousel__slide,
-    .sisme-cards-carousel[data-cards-per-view="3"] .sisme-carousel__slide,
-    .sisme-cards-carousel[data-cards-per-view="4"] .sisme-carousel__slide,
-    .sisme-cards-carousel[data-cards-per-view="5"] .sisme-carousel__slide {
-        width: 100%;
-    }
-    
+    /* Déjà 1 carte sur mobile, pas besoin de forcer */
     .sisme-carousel__btn {
         width: 36px;
         height: 36px;
@@ -341,11 +335,11 @@
     }
     
     .sisme-carousel__slide .sisme-card-image {
-        height: 140px;
+        height: 160px;
     }
     
     .sisme-carousel__slide .sisme-game-card {
-        min-height: 300px;
+        min-height: 350px;
     }
 }
 
