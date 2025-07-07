@@ -22,12 +22,12 @@ class Sisme_Cards_Normal_Module {
      */
     private static $default_options = array(
         'show_description' => true,
-        'show_genres' => true,
+        'show_genres' => false,
         'show_platforms' => false,
         'show_date' => true,
         'css_class' => '',
-        'max_genres' => 3,          
-        'max_modes' => 4           
+        'max_genres' => 0,          
+        'max_modes' => 0           
     );
     
     /**

@@ -198,7 +198,7 @@ class Sisme_Search_Ajax {
         $criteria = array(
             'sort_by_date' => true,
             'sort_order' => 'desc',
-            'max_results' => -1, // Récupérer tous pour filtrer après
+            'max_results' => -1,
             'debug' => defined('WP_DEBUG') && WP_DEBUG
         );
         
@@ -220,6 +220,7 @@ class Sisme_Search_Ajax {
                 $criteria['released'] = 1;
             } elseif ($params['status'] === 'upcoming') {
                 $criteria['released'] = -1;
+                $criteria['sort_order'] = 'asc';
             }
         }
         

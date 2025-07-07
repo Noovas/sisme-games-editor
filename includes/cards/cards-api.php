@@ -139,7 +139,6 @@ class Sisme_Cards_API {
             error_log('[Sisme Cards API] Rendu grille avec args: ' . print_r($args, true));
         }
         
-        // 1. Récupérer les IDs des jeux via cards-functions
         $criteria = array(
             Sisme_Utils_Games::KEY_GENRES => $args[Sisme_Utils_Games::KEY_GENRES] ?? array(),
             Sisme_Utils_Games::KEY_IS_TEAM_CHOICE => $args[Sisme_Utils_Games::KEY_IS_TEAM_CHOICE] ?? false,
