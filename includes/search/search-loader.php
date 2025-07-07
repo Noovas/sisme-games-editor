@@ -70,6 +70,15 @@ class Sisme_Search_Loader {
             }
         }
         
+        // Initialiser les APIs après chargement des modules
+        if (class_exists('Sisme_Search_API')) {
+            Sisme_Search_API::init();
+        }
+        
+        if (class_exists('Sisme_Search_Ajax')) {
+            Sisme_Search_Ajax::init();
+        }
+        
         self::$modules_loaded = true;
     }
     

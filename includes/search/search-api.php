@@ -176,22 +176,39 @@ class Sisme_Search_API {
             return;
         }
         
-        // Récupérer tous les genres utilisés
-        $genres = get_terms(array(
-            'taxonomy' => 'category',
+        // Récupérer la catégorie parent "jeux-video"
+        $parent_category = get_category_by_slug('jeux-video');
+        if (!$parent_category) {
+            $parent_category = get_term_by('name', 'Jeux', 'category');
+        }
+        
+        if (!$parent_category) {
+            return;
+        }
+        
+        // Récupérer les genres (catégories enfants)
+        $genres = get_categories(array(
+            'parent' => $parent_category->term_id,
             'hide_empty' => false,
-            'parent' => 0, // Seulement les parents
             'orderby' => 'name',
             'order' => 'ASC'
         ));
         
+        // Exclure les modes de jeu
+        $excluded_slugs = array('jeux-solo', 'jeux-multijoueur', 'jeux-cooperatif', 'jeux-competitif');
+        
         if (!is_wp_error($genres) && !empty($genres)) {
             foreach ($genres as $genre) {
-                // Filtrer pour les genres de jeux
-                if (strpos($genre->slug, 'jeux-') === 0) {
-                    $genre_name = str_replace('jeux-', '', $genre->name);
-                    echo '<option value="' . esc_attr($genre->slug) . '">' . esc_html($genre_name) . '</option>';
+                // Filtrer les modes de jeu
+                if (in_array($genre->slug, $excluded_slugs)) {
+                    continue;
                 }
+                
+                // Nettoyer le nom (enlever le préfixe "jeux-")
+                $genre_name = str_replace('jeux-', '', $genre->name);
+                $genre_name = ucfirst($genre_name);
+                
+                echo '<option value="' . esc_attr($genre->slug) . '">' . esc_html($genre_name) . '</option>';
             }
         }
     }

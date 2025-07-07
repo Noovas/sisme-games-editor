@@ -121,8 +121,20 @@ class Sisme_Search_Ajax {
         // Construire les critères pour utils-games
         $criteria = self::build_search_criteria($validation['params']);
         
-        // Effectuer la recherche via utils-games
+        // 1. Récupérer tous les jeux selon les critères (genre, statut)
         $game_ids = Sisme_Utils_Games::get_games_by_criteria($criteria);
+        
+        // 2. Appliquer la recherche textuelle avec utils-filters
+        if (!empty($validation['params']['query'])) {
+            if (class_exists('Sisme_Utils_Filters')) {
+                $game_ids = Sisme_Utils_Filters::filter_by_search_term($game_ids, $validation['params']['query']);
+            }
+        }
+        
+        // 3. Limiter au nombre de résultats demandés
+        if ($validation['params']['max_results'] > 0 && count($game_ids) > $validation['params']['max_results']) {
+            $game_ids = array_slice($game_ids, 0, $validation['params']['max_results']);
+        }
         
         // Générer le HTML des résultats
         $html = self::generate_results_html($game_ids, $validation['params']);
@@ -186,18 +198,20 @@ class Sisme_Search_Ajax {
         $criteria = array(
             'sort_by_date' => true,
             'sort_order' => 'desc',
-            'max_results' => $params['max_results'],
+            'max_results' => -1, // Récupérer tous pour filtrer après
             'debug' => defined('WP_DEBUG') && WP_DEBUG
         );
         
-        // Recherche textuelle
-        if (!empty($params['query'])) {
-            $criteria['search'] = $params['query'];
-        }
+        // NOTE: utils-games ne gère PAS le paramètre 'search'
+        // La recherche textuelle sera faite après avec Sisme_Utils_Filters::filter_by_search_term
         
-        // Filtre par genre
+        // Filtre par genre (utiliser le slug directement)
         if (!empty($params['genre'])) {
-            $criteria[Sisme_Utils_Games::KEY_GENRES] = array($params['genre']);
+            // Trouver l'ID de la catégorie depuis le slug
+            $genre_category = get_category_by_slug($params['genre']);
+            if ($genre_category) {
+                $criteria[Sisme_Utils_Games::KEY_GENRES] = array($genre_category->term_id);
+            }
         }
         
         // Filtre par statut
