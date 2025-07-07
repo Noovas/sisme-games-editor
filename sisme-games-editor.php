@@ -22,7 +22,8 @@ define('SISME_GAMES_MODULES', array(
     "cards",
     "search",
     "team-choice",
-    "user"
+    "user",
+    "seo"
 ));
 
 // Charger les fichiers
