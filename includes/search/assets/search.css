@@ -195,6 +195,15 @@
     animation: searchResultsAppear 0.6s ease-out;
 }
 
+/* IMPORTANT: Désactiver les animations des cartes individuelles dans les résultats de recherche */
+.sisme-search-results .sisme-game-card,
+.sisme-search-results-grid .sisme-game-card,
+.sisme-search-initial-results .sisme-game-card {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+
 @keyframes searchResultsAppear {
     from {
         opacity: 0;

@@ -282,21 +282,11 @@
         displayResults(data) {
             if (!this.resultsContainer) return;
             
-            // Mettre à jour le contenu
+            // Mettre à jour le contenu sans animation
             this.resultsContainer.innerHTML = data.html;
             
-            // Animation d'apparition plus douce
-            this.resultsContainer.style.opacity = '0';
-            this.resultsContainer.style.transform = 'translateY(10px)';
-            
-            // Forcer le reflow puis animer
-            this.resultsContainer.offsetHeight;
-            
-            setTimeout(() => {
-                this.resultsContainer.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                this.resultsContainer.style.opacity = '1';
-                this.resultsContainer.style.transform = 'translateY(0)';
-            }, 10);
+            // Pas d'animation JavaScript, le CSS s'en charge
+            this.log('Résultats affichés');
             
             // Faire défiler vers les résultats
             this.scrollToResults();
