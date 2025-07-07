@@ -1,495 +1,279 @@
 /**
  * File: /sisme-games-editor/includes/search/assets/search.css
- * CSS complet et optimisé pour le module de recherche
+ * MODULE SEARCH REFAIT - Styles CSS
+ * 
+ * COHÉRENCE:
+ * - Utilise les classes hero existantes
+ * - Intégration avec cards-grid
+ * - Design gaming cohérent
  */
 
 /* ========================================
-   🎮 CONTAINER PRINCIPAL
+   🔍 CONTAINER PRINCIPAL DE RECHERCHE
 ======================================== */
 
-.sisme-search-interface {
+.sisme-search-container {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: var(--sisme-space-lg, 24px);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 0;
 }
 
 /* ========================================
-   🌟 HERO SECTION
+   🎮 HERO SECTION DE RECHERCHE
 ======================================== */
 
 .sisme-search-hero {
+    /* Hérite des styles de .sisme-game-hero */
+    margin-bottom: var(--sisme-space-2xl, 40px);
+}
+
+.sisme-search-hero-content {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
     text-align: center;
-    margin-bottom: var(--sisme-space-3xl, 48px);
-    padding: var(--sisme-space-3xl, 48px) var(--sisme-space-lg, 24px);
-    background: linear-gradient(135deg, var(--sisme-gaming-dark-light, #1a1a1a), var(--sisme-gaming-dark, #0f0f0f));
-    border-radius: var(--sisme-radius-lg, 12px);
-    border: 1px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
-    box-shadow: var(--sisme-shadow-gaming, 0 10px 25px rgba(0, 0, 0, 0.5));
 }
 
-.sisme-search-title {
-    color: var(--sisme-gaming-text-bright, #ffffff);
+.sisme-search-hero-header {
+    margin-bottom: var(--sisme-space-xl, 32px);
+}
+
+.sisme-search-hero-title {
     font-size: 2.5rem;
-    margin: 0 0 var(--sisme-space-md, 16px) 0;
     font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 16px 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    line-height: 1.2;
 }
 
-.sisme-search-subtitle {
-    color: var(--sisme-gaming-text-muted, #999999);
-    font-size: 1.1rem;
+.sisme-search-hero-subtitle {
+    font-size: 1.125rem;
+    color: #c7d5e0;
     margin: 0;
+    line-height: 1.4;
     opacity: 0.9;
 }
 
 /* ========================================
-   🔍 BARRE DE RECHERCHE
+   📋 FORMULAIRE DE RECHERCHE
 ======================================== */
 
-.sisme-search-bar {
-    margin-bottom: var(--sisme-space-xl, 32px);
-}
-
-.sisme-search-input-container {
-    display: flex;
-    gap: var(--sisme-space-sm, 12px);
-    max-width: 600px;
-    margin: 0 auto;
-    align-items: center;
-    background: var(--sisme-gaming-dark, #0f0f0f);
-    padding: 10px;
-    border: 1px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
-    border-radius: var(--sisme-radius-lg, 12px);
-}
-
-.sisme-search-input {
-    flex: 1;
-    padding: var(--sisme-space-md, 16px) var(--sisme-space-lg, 24px);
-    background: var(--sisme-gaming-dark-light, #1a1a1a);
-    border: 2px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
-    border-radius: var(--sisme-radius-lg, 12px);
-    color: var(--sisme-gaming-text-bright, #ffffff);
-    font-size: 1.1rem;
-    transition: border-color 0.3s ease;
-}
-
-.sisme-search-input:focus {
-    outline: none;
-    border-color: var(--sisme-color-primary, #A1B78D);
-    box-shadow: 0 0 0 3px rgba(161, 183, 141, 0.2);
-}
-
-.sisme-search-input::placeholder {
-    color: var(--sisme-gaming-text-muted, #999999);
-}
-
-.sisme-search-btn {
-    padding: var(--sisme-space-md, 16px) var(--sisme-space-lg, 24px);
-    background: linear-gradient(135deg, var(--sisme-color-primary, #A1B78D), var(--sisme-color-primary-dark, #8fa373));
-    color: white;
-    border: none;
-    border-radius: var(--sisme-radius-lg, 12px);
-    cursor: pointer;
-    font-size: 1.2rem;
-    transition: transform 0.2s ease;
-}
-
-.sisme-search-btn:hover {
-    transform: translateY(-2px);
-}
-
-/* ========================================
-   🏷️ FILTRES RAPIDES
-======================================== */
-
-.sisme-quick-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sisme-space-md, 16px);
-    justify-content: center;
-    margin-bottom: var(--sisme-space-xl, 32px);
-}
-
-.sisme-quick-filter {
-    display: flex;
-    align-items: center;
-    gap: var(--sisme-space-xs, 8px);
-    padding: var(--sisme-space-sm, 12px) var(--sisme-space-lg, 24px);
-    background: var(--sisme-gaming-dark-light, #1a1a1a);
-    border: 2px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
-    border-radius: var(--sisme-radius-lg, 12px);
-    color: var(--sisme-gaming-text, #cccccc);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 600;
-}
-
-.sisme-quick-filter:hover {
-    border-color: var(--sisme-color-primary, #A1B78D);
-    transform: translateY(-2px);
-}
-
-.sisme-quick-filter.active {
-    background: linear-gradient(135deg, var(--sisme-color-primary, #A1B78D), var(--sisme-color-primary-dark, #8fa373));
-    border-color: var(--sisme-color-primary, #A1B78D);
-    color: white;
-}
-
-/* ========================================
-   🎛️ FILTRES AVANCÉS
-======================================== */
-
-.sisme-search-filters {
-    background: var(--sisme-gaming-dark-light, #1a1a1a);
-    border: 1px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
-    border-radius: var(--sisme-radius-lg, 12px);
-    padding: var(--sisme-space-lg, 24px);
-    margin-bottom: var(--sisme-space-xl, 32px);
-}
-
-.sisme-filters-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--sisme-space-lg, 24px);
-    padding-bottom: var(--sisme-space-md, 16px);
-    border-bottom: 1px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
-}
-
-.sisme-filters-title {
-    color: var(--sisme-gaming-text-bright, #ffffff);
-    font-size: 1.2rem;
-    margin: 0;
-    font-weight: 600;
-}
-
-.sisme-filters-toggle {
-    display: flex;
-    align-items: center;
-    gap: var(--sisme-space-xs, 8px);
-    background: none;
-    border: 1px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
-    padding: var(--sisme-space-sm, 12px) var(--sisme-space-md, 16px);
-    border-radius: var(--sisme-radius-sm, 8px);
-    color: var(--sisme-gaming-text, #cccccc);
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.sisme-filters-toggle:hover {
-    border-color: var(--sisme-color-primary, #A1B78D);
-    color: var(--sisme-color-primary, #A1B78D);
-}
-
-.sisme-filters-content {
-    transition: max-height 0.4s ease, opacity 0.3s ease;
-    overflow: hidden;
-}
-
-.sisme-filters-content.collapsed {
-    max-height: 0;
-    opacity: 0;
-}
-
-.sisme-filters-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: var(--sisme-space-lg, 24px);
-    margin-bottom: var(--sisme-space-lg, 24px);
-}
-
-/* ========================================
-   📝 GROUPES DE FILTRES
-======================================== */
-
-.sisme-filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sisme-space-xs, 8px);
-}
-
-.sisme-filter-label {
-    color: var(--sisme-gaming-text-bright, #ffffff);
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    gap: var(--sisme-space-xs, 8px);
-}
-
-.sisme-filter-select {
-    width: 100%;
-    padding: var(--sisme-space-sm, 12px) var(--sisme-space-md, 16px);
-    background: var(--sisme-gaming-dark, #0f0f0f);
-    border: 1px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
-    border-radius: var(--sisme-radius-sm, 8px);
-    color: var(--sisme-gaming-text-bright, #ffffff);
-    font-size: 0.9rem;
-    cursor: pointer;
-}
-
-.sisme-filter-select:focus {
-    outline: none;
-    border-color: var(--sisme-color-primary, #A1B78D);
-}
-
-/* ========================================
-   ☑️ FILTRES CHECKBOXES
-======================================== */
-
-.sisme-genres-filter {
-    border: 1px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
-    border-radius: var(--sisme-radius-sm, 8px);
-    background: var(--sisme-gaming-dark, #0f0f0f);
-    overflow: hidden;
-}
-
-.sisme-genres-search {
-    width: 100%;
-    padding: var(--sisme-space-sm, 12px) var(--sisme-space-md, 16px);
-    background: var(--sisme-gaming-dark, #0f0f0f);
-    border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--sisme-gaming-text-bright, #ffffff);
-    font-size: 0.9rem;
-    outline: none;
-}
-
-.sisme-genres-search::placeholder {
-    color: var(--sisme-gaming-text-muted, #999999);
-}
-
-.sisme-genres-list {
-    max-height: 200px;
-    overflow-y: auto;
-    padding: var(--sisme-space-xs, 8px);
-}
-
-.sisme-checkbox-item {
-    display: flex;
-    align-items: center;
-    padding: var(--sisme-space-xs, 8px) var(--sisme-space-sm, 12px);
-    cursor: pointer;
-    border-radius: var(--sisme-radius-sm, 8px);
-    transition: background-color 0.2s ease;
-    color: var(--sisme-gaming-text, #cccccc);
-    font-size: 0.9rem;
-}
-
-.sisme-checkbox-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.sisme-checkbox-item input[type="checkbox"] {
-    margin-right: var(--sisme-space-sm, 12px);
-    accent-color: var(--sisme-color-primary, #A1B78D);
-    width: 16px;
-    height: 16px;
-}
-
-.sisme-checkbox-item:has(input[type="checkbox"]:checked) {
-    color: var(--sisme-color-primary, #A1B78D);
-    font-weight: 600;
-}
-
-/* ========================================
-   🎛️ ACTIONS DES FILTRES
-======================================== */
-
-.sisme-filters-actions {
-    display: flex;
-    gap: var(--sisme-space-md, 16px);
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: var(--sisme-space-lg, 24px);
-}
-
-.sisme-button {
-    padding: var(--sisme-space-md, 16px) var(--sisme-space-xl, 32px);
-    border: none;
-    border-radius: var(--sisme-radius-lg, 12px);
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    font-size: 1rem;
-    min-width: 120px;
-}
-
-.sisme-button-vert {
-    background: linear-gradient(135deg, var(--sisme-color-primary, #A1B78D), var(--sisme-color-primary-dark, #8fa373));
-    color: white;
-}
-
-.sisme-button-orange {
-    background: linear-gradient(135deg, var(--sisme-color-secondary, #D4AF37), #B8956A);
-    color: white;
-}
-
-.sisme-button:hover {
-    transform: translateY(-2px);
-}
-
-/* ========================================
-   📊 CONTRÔLES (TRI + VUE)
-======================================== */
-
-.sisme-search-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--sisme-space-xl, 32px);
-    padding: var(--sisme-space-md, 16px);
-    background: var(--sisme-gaming-dark-light, #1a1a1a);
-    border: 1px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
-    border-radius: var(--sisme-radius-sm, 8px);
-    flex-wrap: wrap;
-    gap: var(--sisme-space-md, 16px);
-}
-
-.sisme-search-sorting {
-    display: flex;
-    align-items: center;
-    gap: var(--sisme-space-md, 16px);
-}
-
-.sisme-sort-label {
-    color: var(--sisme-gaming-text-bright, #ffffff);
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.sisme-sort-select {
-    padding: var(--sisme-space-sm, 12px) var(--sisme-space-md, 16px);
-    background: var(--sisme-gaming-dark, #0f0f0f);
-    border: 1px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
-    border-radius: var(--sisme-radius-sm, 8px);
-    color: var(--sisme-gaming-text-bright, #ffffff);
-    cursor: pointer;
-    min-width: 150px;
-}
-
-/* ========================================
-   📊 COMPTEUR DE RÉSULTATS
-======================================== */
-
-#sismeSearchCounter {
-    text-align: center;
-    margin-bottom: var(--sisme-space-lg, 24px);
-    padding: var(--sisme-space-sm, 12px);
-    background: var(--sisme-bg-orange, rgba(212, 175, 55, 0.1));
-    border-radius: var(--sisme-radius-sm, 8px);
-    border: 1px solid var(--sisme-border-orange, rgba(212, 175, 55, 0.2));
-}
-
-#sismeSearchCounter strong {
-    color: var(--sisme-color-secondary, #D4AF37);
-    font-weight: 700;
-}
-
-/* ========================================
-   🎴 ZONE DE RÉSULTATS
-======================================== */
-
-#sismeSearchResults {
-    margin-bottom: var(--sisme-space-xl, 32px);
-    min-height: 400px;
-}
-
-/* Force 3 colonnes sur desktop - utilise les classes cards-grid */
-.sisme-cards-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: var(--sisme-space-lg, 24px) !important;
-    margin-bottom: var(--sisme-space-xl, 32px) !important;
-}
-
-/* ========================================
-   📚 BOUTON CHARGER PLUS
-======================================== */
-
-#sismeLoadMore {
-    display: block;
-    margin: var(--sisme-space-xl, 32px) auto;
-    padding: var(--sisme-space-md, 16px) var(--sisme-space-xl, 32px);
-    background: linear-gradient(135deg, var(--sisme-color-secondary, #D4AF37), #B8956A);
-    color: white;
-    border: none;
-    border-radius: var(--sisme-radius-lg, 12px);
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    font-size: 1rem;
-    min-width: 200px;
-}
-
-#sismeLoadMore:hover {
-    transform: translateY(-2px);
-}
-
-#sismeLoadMore:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* ========================================
-   ⚠️ ÉTATS D'ERREUR ET VIDE
-======================================== */
-
-.sisme-search-error,
-.sisme-search-no-results {
-    text-align: center;
+.sisme-search-form {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
     padding: var(--sisme-space-xl, 32px);
-    background: var(--sisme-gaming-dark-light, #1a1a1a);
-    border: 2px dashed rgba(255, 255, 255, 0.1);
-    border-radius: var(--sisme-radius-lg, 12px);
-    color: var(--sisme-gaming-text-muted, #999999);
-}
-
-.sisme-search-error h3,
-.sisme-search-no-results h3 {
-    color: var(--sisme-gaming-text-bright, #ffffff);
-    margin-bottom: var(--sisme-space-md, 16px);
-}
-
-/* ========================================
-   ⏳ LOADER
-======================================== */
-
-#sismeSearchLoader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
 }
 
-.sisme-loader-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: var(--sisme-space-xl, 32px);
-    background: var(--sisme-gaming-dark-light, #1a1a1a);
-    border-radius: var(--sisme-radius-lg, 12px);
-    border: 1px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
+.sisme-search-field {
+    margin-bottom: var(--sisme-space-lg, 24px);
 }
 
-.sisme-loader-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--sisme-border-light, rgba(255, 255, 255, 0.1));
-    border-top: 3px solid var(--sisme-color-primary, #A1B78D);
+.sisme-search-field:last-child {
+    margin-bottom: 0;
+}
+
+.sisme-search-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #c7d5e0;
+    margin-bottom: var(--sisme-space-sm, 8px);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sisme-search-input,
+.sisme-search-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.sisme-search-input:focus,
+.sisme-search-select:focus {
+    border-color: #66c0f4;
+    box-shadow: 0 0 0 3px rgba(102, 192, 244, 0.2);
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.sisme-search-input::placeholder {
+    color: rgba(199, 213, 224, 0.6);
+}
+
+.sisme-search-select option {
+    background: #1a1a1a;
+    color: #ffffff;
+    padding: 8px;
+}
+
+/* ========================================
+   🎛️ FILTRES DE RECHERCHE
+======================================== */
+
+.sisme-search-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sisme-space-md, 16px);
+    margin-bottom: var(--sisme-space-lg, 24px);
+}
+
+/* ========================================
+   🔘 BOUTON DE RECHERCHE
+======================================== */
+
+.sisme-search-button {
+    width: 100%;
+    padding: 16px 24px;
+    background: linear-gradient(45deg, #66c0f4, #4a9eff);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-search-button:hover {
+    background: linear-gradient(45deg, #4a9eff, #66c0f4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 192, 244, 0.3);
+}
+
+.sisme-search-button:active {
+    transform: translateY(0);
+}
+
+.sisme-search-button:disabled {
+    background: rgba(255, 255, 255, 0.2);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.sisme-search-button-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sisme-search-button.loading .sisme-search-button-text {
+    opacity: 0;
+}
+
+.sisme-search-button.loading .sisme-search-button-loading {
+    opacity: 1;
+}
+
+/* ========================================
+   📊 ZONE DE RÉSULTATS
+======================================== */
+
+.sisme-search-results {
+    margin-top: var(--sisme-space-2xl, 40px);
+    min-height: 200px;
+    position: relative;
+}
+
+.sisme-search-results-grid {
+    /* Hérite des styles de .sisme-cards-grid */
+    animation: searchResultsAppear 0.6s ease-out;
+}
+
+@keyframes searchResultsAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   🚫 AUCUN RÉSULTAT
+======================================== */
+
+.sisme-search-no-results {
+    text-align: center;
+    padding: var(--sisme-space-2xl, 40px);
+    color: #c7d5e0;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+}
+
+.sisme-search-no-results-icon {
+    font-size: 3rem;
+    margin-bottom: var(--sisme-space-md, 16px);
+    opacity: 0.6;
+}
+
+.sisme-search-no-results-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #ffffff;
+}
+
+.sisme-search-no-results-text {
+    font-size: 1rem;
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* ========================================
+   ⚠️ ERREURS
+======================================== */
+
+.sisme-search-error {
+    background: rgba(231, 76, 60, 0.1);
+    border: 1px solid rgba(231, 76, 60, 0.3);
+    border-radius: 8px;
+    padding: var(--sisme-space-md, 16px);
+    color: #e74c3c;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* ========================================
+   🔧 LOADING STATE
+======================================== */
+
+.sisme-search-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--sisme-space-xl, 32px);
+    color: #c7d5e0;
+    font-size: 1.125rem;
+}
+
+.sisme-search-loading::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid #66c0f4;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-bottom: var(--sisme-space-md, 16px);
+    margin-right: 12px;
 }
 
 @keyframes spin {
@@ -497,84 +281,128 @@
     100% { transform: rotate(360deg); }
 }
 
-.sisme-loader-text {
-    color: var(--sisme-gaming-text-bright, #ffffff);
+/* ========================================
+   🐛 DEBUG
+======================================== */
+
+.sisme-search-debug {
+    margin-top: var(--sisme-space-xl, 32px);
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: var(--sisme-space-md, 16px);
+}
+
+.sisme-search-debug h3 {
+    color: #66c0f4;
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+}
+
+.sisme-search-debug pre {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 12px;
+    border-radius: 4px;
+    color: #c7d5e0;
+    font-size: 0.875rem;
+    overflow-x: auto;
     margin: 0;
-    font-weight: 500;
 }
 
 /* ========================================
-   📱 RESPONSIVE DESIGN
+   📱 RESPONSIVE
 ======================================== */
 
-/* Large desktop (≥1400px) : 4 colonnes */
-@media (min-width: 1400px) {
-    .sisme-cards-grid {
-        grid-template-columns: repeat(4, 1fr) !important;
-    }
-}
-
-/* Desktop standard (1200px - 1399px) : 3 colonnes */
-@media (min-width: 1200px) and (max-width: 1399px) {
-    .sisme-cards-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
-    }
-}
-
-/* Tablette (768px - 1199px) : 2 colonnes */
-@media (min-width: 768px) and (max-width: 1199px) {
-    .sisme-cards-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: var(--sisme-space-md, 16px) !important;
+@media (max-width: 768px) {
+    .sisme-search-hero-title {
+        font-size: 2rem;
     }
     
-    .sisme-search-controls {
-        flex-direction: column;
-        align-items: stretch;
-        text-align: center;
-    }
-}
-
-/* Mobile (≤767px) : 1 colonne */
-@media (max-width: 767px) {
-    .sisme-search-interface {
-        padding: var(--sisme-space-sm, 12px);
+    .sisme-search-hero-subtitle {
+        font-size: 1rem;
     }
     
-    .sisme-search-title {
-        font-size: 1.8rem;
+    .sisme-search-form {
+        padding: var(--sisme-space-lg, 24px);
     }
     
-    .sisme-search-input-container {
-        flex-direction: column;
-        max-width: none;
-    }
-    
-    .sisme-search-btn {
-        width: 100%;
-    }
-    
-    .sisme-quick-filters {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .sisme-filters-row {
+    .sisme-search-filters {
         grid-template-columns: 1fr;
-        gap: var(--sisme-space-md, 16px);
+        gap: var(--sisme-space-sm, 12px);
     }
     
-    .sisme-filters-actions {
-        flex-direction: column;
+    .sisme-search-field {
+        margin-bottom: var(--sisme-space-md, 16px);
     }
     
-    .sisme-cards-grid {
-        grid-template-columns: 1fr !important;
-        gap: var(--sisme-space-sm, 12px) !important;
+    .sisme-search-input,
+    .sisme-search-select {
+        padding: 10px 12px;
+        font-size: 0.875rem;
     }
     
-    #sismeLoadMore {
-        width: 100%;
-        max-width: 300px;
+    .sisme-search-button {
+        padding: 14px 20px;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-search-hero-title {
+        font-size: 1.75rem;
+    }
+    
+    .sisme-search-form {
+        padding: var(--sisme-space-md, 16px);
+    }
+    
+    .sisme-search-no-results {
+        padding: var(--sisme-space-lg, 24px);
+    }
+    
+    .sisme-search-no-results-icon {
+        font-size: 2.5rem;
+    }
+    
+    .sisme-search-no-results-title {
+        font-size: 1.125rem;
+    }
+}
+
+/* ========================================
+   🌙 DARK MODE SUPPORT
+======================================== */
+
+@media (prefers-color-scheme: dark) {
+    .sisme-search-input,
+    .sisme-search-select {
+        background: rgba(0, 0, 0, 0.6);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .sisme-search-form {
+        background: rgba(0, 0, 0, 0.4);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+}
+
+/* ========================================
+   ♿ ACCESSIBILITY
+======================================== */
+
+.sisme-search-input:focus,
+.sisme-search-select:focus,
+.sisme-search-button:focus {
+    outline: 2px solid #66c0f4;
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sisme-search-results-grid,
+    .sisme-search-button,
+    .sisme-search-input,
+    .sisme-search-select {
+        animation: none !important;
+        transition: none !important;
     }
 }

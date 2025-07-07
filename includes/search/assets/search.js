@@ -1,248 +1,369 @@
 /**
  * File: /sisme-games-editor/includes/search/assets/search.js
- * JavaScript simple pour le module de recherche
+ * MODULE SEARCH REFAIT - JavaScript
+ * 
+ * FONCTIONNALITÉS:
+ * - Recherche en temps réel
+ * - Gestion des états (loading, erreur, succès)
+ * - Intégration AJAX
+ * - Debouncing pour performance
  */
 
 (function($) {
     'use strict';
     
-    class SismeSearchInterface {
-        constructor() {
-            this.state = {
-                isLoading: false,
-                currentPage: 1,
-                hasMore: true,
-                currentQuery: ''
-            };
+    // Configuration globale
+    const SISME_SEARCH = {
+        instances: {},
+        debounceDelay: 500,
+        minSearchLength: 2
+    };
+    
+    /**
+     * Classe principale pour gérer une instance de recherche
+     */
+    class SismeSearchInstance {
+        constructor(containerId, options = {}) {
+            this.containerId = containerId;
+            this.container = document.getElementById(containerId);
+            this.options = options;
+            this.currentRequest = null;
+            this.debounceTimer = null;
             
-            this.config = {
-                debounceDelay: 500,
-                resultsPerPage: 12
-            };
-            
-            this.searchTimeout = null;
-            this.init();
-        }
-        
-        init() {
-            this.bindEvents();
-        }
-        
-        bindEvents() {
-            // Recherche avec debounce
-            $(document).on('input', '#sismeSearchInput', (e) => {
-                this.debounceSearch(e.target.value);
-            });
-            
-            // Recherche directe
-            $(document).on('click', '#sismeSearchBtn', () => {
-                this.performSearch();
-            });
-            
-            // Filtres
-            $(document).on('change', '.sisme-genres-list input[type="checkbox"]', () => {
-                this.performSearch();
-            });
-            
-            $(document).on('change', '#sismeStatusFilter', () => {
-                this.performSearch();
-            });
-            
-            $(document).on('change', '#sismeSortBy', () => {
-                this.performSearch();
-            });
-            
-            // Filtres rapides
-            $(document).on('click', '.sisme-quick-filter', (e) => {
-                this.toggleQuickFilter(e.target);
-            });
-            
-            // Boutons filtres
-            $(document).on('click', '#sismeApplyFilters', () => {
-                this.performSearch();
-            });
-            
-            $(document).on('click', '#sismeResetFilters', () => {
-                this.resetFilters();
-            });
-            
-            // Charger plus
-            $(document).on('click', '#sismeLoadMore', () => {
-                this.loadMore();
-            });
-        }
-        
-        debounceSearch(query) {
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(() => {
-                if (query.length >= 2 || query.length === 0) {
-                    this.state.currentQuery = query;
-                    this.performSearch();
-                }
-            }, this.config.debounceDelay);
-        }
-        
-        performSearch(loadMore = false) {
-            if (this.state.isLoading) return;
-            
-            if (!loadMore) {
-                this.state.currentPage = 1;
-            }
-            
-            const searchData = this.collectSearchData();
-            searchData.page = this.state.currentPage;
-            
-            this.state.isLoading = true;
-            this.showLoader();
-            
-            $.ajax({
-                url: sismeSearch.ajaxUrl,
-                method: 'POST',
-                data: {
-                    action: 'sisme_search',
-                    nonce: sismeSearch.nonce,
-                    ...searchData
-                },
-                success: (response) => {
-                    this.handleSearchSuccess(response, loadMore);
-                },
-                error: () => {
-                    this.handleSearchError();
-                },
-                complete: () => {
-                    this.state.isLoading = false;
-                    this.hideLoader();
-                }
-            });
-        }
-        
-        collectSearchData() {
-            const query = $('#sismeSearchInput').val().trim();
-            
-            const genres = [];
-            $('.sisme-genres-list input[type="checkbox"]:checked').each(function() {
-                genres.push($(this).val());
-            });
-            
-            const status = $('#sismeStatusFilter').val();
-            const sort = $('#sismeSortBy').val() || 'relevance';
-            
-            let quickFilter = '';
-            const activeQuickFilter = $('.sisme-quick-filter.active');
-            if (activeQuickFilter.length) {
-                quickFilter = activeQuickFilter.data('filter');
-            }
-            
-            return {
-                query: query,
-                genres: genres,
-                status: status,
-                sort: sort,
-                quick_filter: quickFilter,
-                per_page: this.config.resultsPerPage
-            };
-        }
-        
-        handleSearchSuccess(response, loadMore = false) {
-            if (!response.success) {
-                this.handleSearchError();
+            if (!this.container) {
+                console.error('[Sisme Search] Container non trouvé:', containerId);
                 return;
             }
             
-            const data = response.data;
-            this.state.hasMore = data.has_more;
-            this.state.currentPage = data.page;
+            this.init();
+        }
+        
+        /**
+         * Initialiser l'instance
+         */
+        init() {
+            this.bindElements();
+            this.bindEvents();
+            this.log('Instance initialisée');
+        }
+        
+        /**
+         * Lier les éléments DOM
+         */
+        bindElements() {
+            this.form = this.container.querySelector('.sisme-search-form');
+            this.queryInput = this.container.querySelector('input[name="query"]');
+            this.genreSelect = this.container.querySelector('select[name="genre"]');
+            this.statusSelect = this.container.querySelector('select[name="status"]');
+            this.submitButton = this.container.querySelector('.sisme-search-button');
+            this.resultsContainer = this.container.querySelector('.sisme-search-results');
             
-            if (loadMore && data.is_pagination) {
-                // Mode pagination : ajouter les cartes à la grille existante
-                const $grid = $('.sisme-cards-grid');
-                if ($grid.length) {
-                    $grid.append(data.html);
+            // Éléments du bouton
+            this.buttonText = this.submitButton.querySelector('.sisme-search-button-text');
+            this.buttonLoading = this.submitButton.querySelector('.sisme-search-button-loading');
+        }
+        
+        /**
+         * Lier les événements
+         */
+        bindEvents() {
+            // Soumission du formulaire
+            if (this.form) {
+                this.form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.performSearch();
+                });
+            }
+            
+            // Recherche en temps réel sur le champ texte
+            if (this.queryInput) {
+                this.queryInput.addEventListener('input', (e) => {
+                    this.handleInputChange(e);
+                });
+            }
+            
+            // Recherche sur changement de filtres
+            if (this.genreSelect) {
+                this.genreSelect.addEventListener('change', () => {
+                    this.performSearch();
+                });
+            }
+            
+            if (this.statusSelect) {
+                this.statusSelect.addEventListener('change', () => {
+                    this.performSearch();
+                });
+            }
+        }
+        
+        /**
+         * Gérer le changement du champ de recherche
+         */
+        handleInputChange(event) {
+            const query = event.target.value.trim();
+            
+            // Annuler le timer précédent
+            if (this.debounceTimer) {
+                clearTimeout(this.debounceTimer);
+            }
+            
+            // Rechercher après un délai
+            this.debounceTimer = setTimeout(() => {
+                if (query.length >= SISME_SEARCH.minSearchLength || query.length === 0) {
+                    this.performSearch();
                 }
+            }, SISME_SEARCH.debounceDelay);
+        }
+        
+        /**
+         * Effectuer la recherche
+         */
+        performSearch() {
+            const params = this.getSearchParams();
+            
+            // Vérifier si une recherche est nécessaire
+            if (!this.shouldPerformSearch(params)) {
+                this.log('Recherche ignorée - critères insuffisants');
+                return;
+            }
+            
+            // Annuler la requête précédente
+            if (this.currentRequest) {
+                this.currentRequest.abort();
+            }
+            
+            // Mettre à jour l'état
+            this.setLoadingState(true);
+            
+            // Préparer les données
+            const formData = new FormData();
+            formData.append('action', 'sisme_search_games');
+            formData.append('nonce', sismeSearch.nonce);
+            
+            // Ajouter les paramètres
+            Object.keys(params).forEach(key => {
+                formData.append(key, params[key]);
+            });
+            
+            // Faire la requête AJAX
+            this.currentRequest = $.ajax({
+                url: sismeSearch.ajaxUrl,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: (response) => {
+                    this.handleSearchSuccess(response);
+                },
+                error: (xhr, status, error) => {
+                    this.handleSearchError(xhr, status, error);
+                },
+                complete: () => {
+                    this.setLoadingState(false);
+                    this.currentRequest = null;
+                }
+            });
+        }
+        
+        /**
+         * Récupérer les paramètres de recherche
+         */
+        getSearchParams() {
+            return {
+                query: this.queryInput ? this.queryInput.value.trim() : '',
+                genre: this.genreSelect ? this.genreSelect.value : '',
+                status: this.statusSelect ? this.statusSelect.value : '',
+                columns: this.options.columns || 4,
+                max_results: this.options.max_results || 12
+            };
+        }
+        
+        /**
+         * Vérifier si une recherche doit être effectuée
+         */
+        shouldPerformSearch(params) {
+            const hasQuery = params.query.length >= SISME_SEARCH.minSearchLength;
+            const hasFilters = params.genre || params.status;
+            
+            return hasQuery || hasFilters;
+        }
+        
+        /**
+         * Gérer le succès de la recherche
+         */
+        handleSearchSuccess(response) {
+            if (response.success) {
+                this.displayResults(response.data);
+                this.log('Recherche réussie', response.data);
             } else {
-                // Mode normal : remplacer tout le contenu
-                $('#sismeSearchResults').html(data.html);
-                this.updateResultsCounter(data.total);
+                this.handleSearchError(null, 'error', response.data.message);
+            }
+        }
+        
+        /**
+         * Gérer l'erreur de recherche
+         */
+        handleSearchError(xhr, status, error) {
+            if (status === 'abort') {
+                this.log('Recherche annulée');
+                return;
             }
             
-            this.updateLoadMoreButton();
+            let errorMessage = sismeSearch.messages.error;
+            
+            if (xhr && xhr.responseJSON && xhr.responseJSON.data) {
+                errorMessage = xhr.responseJSON.data.message;
+            }
+            
+            this.displayError(errorMessage);
+            this.log('Erreur de recherche', error);
         }
         
-        handleSearchError() {
-            const errorHtml = '<div class="sisme-search-error"><h3>Erreur lors de la recherche</h3></div>';
-            $('#sismeSearchResults').html(errorHtml);
-            this.hideLoadMoreButton();
+        /**
+         * Afficher les résultats
+         */
+        displayResults(data) {
+            if (!this.resultsContainer) return;
+            
+            // Mettre à jour le contenu
+            this.resultsContainer.innerHTML = data.html;
+            
+            // Animer l'apparition
+            this.resultsContainer.style.opacity = '0';
+            setTimeout(() => {
+                this.resultsContainer.style.opacity = '1';
+            }, 50);
+            
+            // Faire défiler vers les résultats
+            this.scrollToResults();
         }
         
-        updateResultsCounter(total) {
-            const $counter = $('#sismeSearchCounter');
-            if (total > 0) {
-                $counter.html(`<strong>${total} jeux trouvés</strong>`).show();
+        /**
+         * Afficher une erreur
+         */
+        displayError(message) {
+            if (!this.resultsContainer) return;
+            
+            this.resultsContainer.innerHTML = `
+                <div class="sisme-search-error">
+                    ${message}
+                </div>
+            `;
+        }
+        
+        /**
+         * Définir l'état de chargement
+         */
+        setLoadingState(isLoading) {
+            if (!this.submitButton) return;
+            
+            if (isLoading) {
+                this.submitButton.disabled = true;
+                this.submitButton.classList.add('loading');
+                
+                if (this.buttonText) this.buttonText.style.display = 'none';
+                if (this.buttonLoading) this.buttonLoading.style.display = 'block';
             } else {
-                $counter.hide();
+                this.submitButton.disabled = false;
+                this.submitButton.classList.remove('loading');
+                
+                if (this.buttonText) this.buttonText.style.display = 'block';
+                if (this.buttonLoading) this.buttonLoading.style.display = 'none';
             }
         }
         
-        updateLoadMoreButton() {
-            const $btn = $('#sismeLoadMore');
-            if (this.state.hasMore) {
-                $btn.show().prop('disabled', false);
-            } else {
-                $btn.hide();
+        /**
+         * Faire défiler vers les résultats
+         */
+        scrollToResults() {
+            if (!this.resultsContainer) return;
+            
+            const rect = this.resultsContainer.getBoundingClientRect();
+            const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+            
+            if (!isVisible) {
+                this.resultsContainer.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             }
         }
         
-        hideLoadMoreButton() {
-            $('#sismeLoadMore').hide();
-        }
-        
-        loadMore() {
-            if (this.state.hasMore && !this.state.isLoading) {
-                this.state.currentPage++;
-                $('#sismeLoadMore').prop('disabled', true).text('⏳ Chargement...');
-                this.performSearch(true);
+        /**
+         * Logger pour debug
+         */
+        log(message, data = null) {
+            if (sismeSearch.debug) {
+                console.log(`[Sisme Search] ${this.containerId}: ${message}`, data);
             }
         }
         
-        toggleQuickFilter(element) {
-            const $element = $(element);
-            const isActive = $element.hasClass('active');
-            
-            // Désactiver tous les filtres rapides
-            $('.sisme-quick-filter').removeClass('active');
-            
-            if (!isActive) {
-                $element.addClass('active');
+        /**
+         * Détruire l'instance
+         */
+        destroy() {
+            if (this.currentRequest) {
+                this.currentRequest.abort();
             }
             
-            this.performSearch();
-        }
-        
-        resetFilters() {
-            // Réinitialiser tous les filtres
-            $('#sismeSearchInput').val('');
-            $('.sisme-genres-list input[type="checkbox"]').prop('checked', false);
-            $('#sismeStatusFilter').val('');
-            $('#sismeSortBy').val('relevance');
-            $('.sisme-quick-filter').removeClass('active');
+            if (this.debounceTimer) {
+                clearTimeout(this.debounceTimer);
+            }
             
-            this.performSearch();
-        }
-        
-        showLoader() {
-            $('#sismeSearchLoader').fadeIn(200);
-        }
-        
-        hideLoader() {
-            $('#sismeSearchLoader').fadeOut(200);
+            delete SISME_SEARCH.instances[this.containerId];
+            this.log('Instance détruite');
         }
     }
     
-    // Initialisation
-    $(document).ready(function() {
-        if ($('#sismeSearchInterface').length) {
-            window.sismeSearchInstance = new SismeSearchInterface();
+    /**
+     * Fonction publique pour initialiser une instance
+     */
+    window.sismeSearchInit = function(containerId, options = {}) {
+        if (SISME_SEARCH.instances[containerId]) {
+            SISME_SEARCH.instances[containerId].destroy();
         }
+        
+        SISME_SEARCH.instances[containerId] = new SismeSearchInstance(containerId, options);
+        
+        return SISME_SEARCH.instances[containerId];
+    };
+    
+    /**
+     * Fonction publique pour obtenir une instance
+     */
+    window.sismeSearchGet = function(containerId) {
+        return SISME_SEARCH.instances[containerId] || null;
+    };
+    
+    /**
+     * Fonction publique pour détruire une instance
+     */
+    window.sismeSearchDestroy = function(containerId) {
+        if (SISME_SEARCH.instances[containerId]) {
+            SISME_SEARCH.instances[containerId].destroy();
+        }
+    };
+    
+    /**
+     * Initialisation automatique au chargement de la page
+     */
+    $(document).ready(function() {
+        // Rechercher les containers de recherche existants
+        $('.sisme-search-container').each(function() {
+            const containerId = $(this).attr('id');
+            if (containerId) {
+                sismeSearchInit(containerId);
+            }
+        });
+    });
+    
+    /**
+     * Nettoyage lors du déchargement de la page
+     */
+    $(window).on('beforeunload', function() {
+        Object.keys(SISME_SEARCH.instances).forEach(containerId => {
+            sismeSearchDestroy(containerId);
+        });
     });
     
 })(jQuery);
