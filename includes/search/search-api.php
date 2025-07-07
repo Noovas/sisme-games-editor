@@ -31,6 +31,57 @@ class Sisme_Search_API {
             error_log('Sisme Search API: Shortcodes registered');
         }
     }
+
+    /**
+     * Rendu de l'état initial des résultats
+     * Simple et propre
+     */
+    private static function render_initial_results_state($current_params, $default_view = 'grid') {
+        // Si on a des paramètres de recherche, afficher les résultats
+        if (!empty($current_params['query']) || !empty($current_params['genres'])) {
+            // Il y a une recherche active, l'AJAX va s'en charger
+            return '<div class="sisme-search-loading">🔍 Recherche en cours...</div>';
+        }
+        
+        // État initial : afficher tous les jeux par défaut
+        if (!class_exists('Sisme_Search_Filters')) {
+            return '<div class="sisme-search-error">Module de recherche non disponible</div>';
+        }
+        
+        try {
+            // Paramètres par défaut pour tous les jeux
+            $default_params = array(
+                'query' => '',
+                'genres' => array(),
+                'status' => '',
+                'sort' => 'name_asc',
+                'page' => 1,
+                'per_page' => 12
+            );
+            
+            $results = Sisme_Search_Filters::perform_search($default_params);
+            
+            if (empty($results['games'])) {
+                return '<div class="sisme-search-no-results"><h3>Aucun jeu disponible</h3></div>';
+            }
+            
+            // Afficher la grille avec les classes cards-grid
+            ob_start();
+            ?>
+            <div class="sisme-cards-grid sisme-cards-grid--cols-3">
+                <?php foreach ($results['games'] as $game_id): ?>
+                    <?php if (is_numeric($game_id) && $game_id > 0): ?>
+                        <?php echo Sisme_Cards_API::render_card($game_id, 'normal'); ?>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+            <?php
+            return ob_get_clean();
+            
+        } catch (Exception $e) {
+            return '<div class="sisme-search-error">Erreur lors du chargement des jeux</div>';
+        }
+    }
     
     /**
      * Shortcode principal - Interface de recherche complète
@@ -75,9 +126,25 @@ class Sisme_Search_API {
         <div class="<?php echo esc_attr($validated_atts['container_class']); ?>" id="sismeSearchInterface">
             
             <?php if ($validated_atts['show_hero']): ?>
-            <!-- Hero Section -->
-            <h2 class="sisme-search-title"><?php echo esc_html($validated_atts['hero_title']); ?></h2>
-            <p class="sisme-search-subtitle"><?php echo esc_html($validated_atts['hero_subtitle']); ?></p>
+            <!-- Hero Section avec TOUT dedans -->
+            <div class="sisme-search-hero">
+                <h2 class="sisme-search-title"><?php echo esc_html($validated_atts['hero_title']); ?></h2>
+                <p class="sisme-search-subtitle"><?php echo esc_html($validated_atts['hero_subtitle']); ?></p>
+                
+                <!-- Barre de recherche DANS le hero -->
+                <div class="sisme-search-bar">
+                    <div class="sisme-search-input-container">
+                        <input type="text" 
+                            id="sismeSearchInput" 
+                            class="sisme-search-input"
+                            placeholder="<?php esc_attr_e('Rechercher un jeu...', 'sisme-games-editor'); ?>"
+                            value="<?php echo esc_attr($current_params['query']); ?>">
+                        <button type="button" id="sismeSearchBtn" class="sisme-search-btn">
+                            🔍
+                        </button>
+                    </div>
+                </div>
+            </div>
             <?php endif; ?>
             
             <?php if ($validated_atts['show_filters']): ?>
@@ -96,13 +163,13 @@ class Sisme_Search_API {
             </div>
             
             <!-- Zone de résultats -->
-            <div class="sisme-search-results" id="sismeSearchResults">
+            <div id="sismeSearchResults">
                 <?php echo self::render_initial_results_state($current_params, $validated_atts['default_view']); ?>
             </div>
             
-            <!-- Bouton charger plus -->
+            <!-- UN SEUL bouton charger plus -->
             <button class="sisme-load-more" id="sismeLoadMore" style="display: none;">
-                📚 Charger plus de jeux
+                📚 <?php esc_html_e('Charger plus de jeux', 'sisme-games-editor'); ?>
             </button>
             
             <!-- Loader global -->
@@ -334,20 +401,6 @@ class Sisme_Search_API {
         </div>
         <?php
         return ob_get_clean();
-    }
-    
-    /**
-     * Rendu de l'état initial des résultats
-     * Affiche tous les jeux par défaut au lieu d'un état vide
-     */
-    private static function render_initial_results_state($current_params, $default_view = 'grid') {
-        // Si on a une recherche active, essayer d'afficher les résultats
-        if (!empty($current_params['query']) || !empty($current_params['genres']) || !empty($current_params['platforms'])) {
-            return self::render_search_results_html($current_params);
-        }
-        
-        // 🎮 NOUVEAU: Par défaut, afficher tous les jeux disponibles
-        return self::render_all_games_default($current_params, $default_view);
     }
 
     /**
