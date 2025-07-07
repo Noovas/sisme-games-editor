@@ -15,6 +15,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+
+
 class Sisme_SEO_Sitemap {
     
     /**
@@ -48,6 +50,20 @@ class Sisme_SEO_Sitemap {
         add_action('created_term', array($this, 'clear_sitemap_cache'));
         add_action('edited_term', array($this, 'clear_sitemap_cache'));
         add_action('deleted_term', array($this, 'clear_sitemap_cache'));
+
+        // Handler sitemap
+        add_action('template_redirect', function() {
+            $sitemap_type = get_query_var('sisme_sitemap');
+            
+            if (!$sitemap_type) return;
+            
+            header('Content-Type: application/xml; charset=UTF-8');
+            
+            if (class_exists('Sisme_SEO_Sitemap')) {
+                $sitemap = new Sisme_SEO_Sitemap();
+                $sitemap->handle_sitemap_request();
+            }
+        }, 1);
         
         // Désactiver le sitemap WordPress natif pour éviter les conflits
         add_filter('wp_sitemaps_enabled', '__return_false');

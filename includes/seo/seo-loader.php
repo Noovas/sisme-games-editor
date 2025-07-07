@@ -115,11 +115,6 @@ class Sisme_Seo_Loader {
      * Déterminer si le SEO doit être chargé
      */
     private static function should_load_seo() {
-        // Ne pas charger en admin (sauf si nécessaire)
-        if (is_admin() && !wp_doing_ajax()) {
-            return false;
-        }
-        
         // Ne pas charger pour les API REST
         if (defined('REST_REQUEST') && REST_REQUEST) {
             return false;
@@ -130,7 +125,7 @@ class Sisme_Seo_Loader {
             return false;
         }
         
-        return true;
+        return true; // ← Charger partout (frontend ET admin)
     }
     
     /**
