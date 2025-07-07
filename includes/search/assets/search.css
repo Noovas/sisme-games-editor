@@ -1233,3 +1233,69 @@ input#sismeSearchInput {
         animation: none;
     }
 }
+
+.sisme-search-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+    gap: var(--sisme-space-lg, 24px) !important;
+    margin-bottom: var(--sisme-space-xl, 32px) !important;
+    animation: resultsAppear 0.5s ease-out;
+}
+
+.sisme-search-list {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: var(--sisme-space-md, 16px) !important;
+    margin-bottom: var(--sisme-space-xl, 32px) !important;
+    animation: resultsAppear 0.5s ease-out;
+}
+
+/* Force l'affichage des cartes générées par l'API Cards */
+.sisme-search-card {
+    display: block !important;
+    width: 100% !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* S'assurer que les cartes Cards API sont visibles */
+.sisme-search-grid .sisme-game-card,
+.sisme-search-list .sisme-game-card {
+    display: block !important;
+    width: 100% !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    min-height: 300px;
+}
+
+/* Fix pour les contenus des cartes */
+.sisme-search-card .sisme-card-content,
+.sisme-search-card .sisme-card-image,
+.sisme-search-card .sisme-card-header,
+.sisme-search-card .sisme-card-title {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Animation pour les cartes qui apparaissent */
+@keyframes resultsAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   📱 RESPONSIVE FIXES
+======================================== */
+
+@media (max-width: 768px) {
+    .sisme-search-grid {
+        grid-template-columns: 1fr !important;
+    }
+}

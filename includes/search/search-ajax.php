@@ -159,12 +159,10 @@ class Sisme_Search_Ajax {
             return self::render_no_results_html($params);
         }
         
-        // Déterminer le type de vue
         $view_type = $params['view'] ?? 'grid';
         $card_type = ($view_type === 'list') ? 'details' : 'normal';
-        $grid_class = ($view_type === 'list') ? 'sisme-search-list' : 'sisme-search-grid';
+        $grid_class = 'sisme-cards-grid sisme-cards-grid--cols-3';
         
-        // Vérifier que l'API Cards est disponible
         if (!class_exists('Sisme_Cards_API')) {
             return '<p>' . __('Erreur: API Cards non disponible', 'sisme-games-editor') . '</p>';
         }
@@ -174,21 +172,8 @@ class Sisme_Search_Ajax {
         <div class="<?php echo esc_attr($grid_class); ?>" data-view="<?php echo esc_attr($view_type); ?>">
             <?php
             foreach ($results['games'] as $game) {
-                // $game est un ID entier, pas un tableau
                 if (is_numeric($game) && $game > 0) {
-                    echo Sisme_Cards_API::render_card(
-                        $game, 
-                        $card_type, 
-                        array(
-                            'show_description' => true,
-                            'show_genres' => true,
-                            'show_platforms' => ($view_type === 'list'),
-                            'show_date' => true,
-                            'css_class' => 'sisme-search-card',
-                            'max_genres' => ($view_type === 'list') ? 5 : 3,
-                            'max_modes' => 4
-                        )
-                    );
+                    echo Sisme_Cards_API::render_card($game, $card_type);
                 }
             }
             ?>
