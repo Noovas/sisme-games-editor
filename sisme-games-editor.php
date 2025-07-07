@@ -266,7 +266,7 @@ class SismeGamesEditor {
         }
         
         $entity_name = sanitize_text_field($_POST['entity_name']);
-        $entity_website = esc_url_raw($_POST['entity_website']);
+        $entity_website = esc_url_raw($_POST[Sisme_Utils_Games::META_ENTITY_WEBSITE]);
         
         if (empty($entity_name)) {
             wp_send_json_error('Nom de l\'entité requis');
@@ -282,7 +282,7 @@ class SismeGamesEditor {
             wp_send_json_success(array(
                 Sisme_Utils_Games::KEY_TERM_ID => $existing_entity->term_id,
                 Sisme_Utils_Games::KEY_NAME => $existing_entity->name,
-                'website' => get_term_meta($existing_entity->term_id, 'website_url', true)
+                'website' => get_term_meta($existing_entity->term_id, Sisme_Utils_Games::META_ENTITY_WEBSITE, true)
             ));
         }
         
@@ -292,7 +292,7 @@ class SismeGamesEditor {
         }
         
         if (!empty($entity_website)) {
-            update_term_meta($new_entity[Sisme_Utils_Games::KEY_TERM_ID], 'website_url', $entity_website);
+            update_term_meta($new_entity[Sisme_Utils_Games::KEY_TERM_ID], Sisme_Utils_Games::META_ENTITY_WEBSITE, $entity_website);
         }
         
         $entity_info = get_term($new_entity[Sisme_Utils_Games::KEY_TERM_ID], 'category');

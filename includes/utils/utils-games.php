@@ -43,6 +43,7 @@ class Sisme_Utils_Games {
     const META_SCREENSHOTS = 'screenshots';
     const META_DEVELOPERS = 'game_developers';
     const META_PUBLISHERS = 'game_publishers';
+    const META_ENTITY_WEBSITE = 'website_url';
     
     // ✅ KEY - Interface publique
     const KEY_TERM_ID = 'term_id';

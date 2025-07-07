@@ -379,7 +379,7 @@ class Sisme_SEO_Structured_Data {
                 );
                 
                 // Ajouter le site web si disponible
-                $website = get_term_meta($dev_id, 'entity_website', true);
+                $website = get_term_meta($dev_id, Sisme_Utils_Games::META_ENTITY_WEBSITE, true);
                 if ($website) {
                     $dev_data['url'] = $website;
                 }
@@ -407,7 +407,7 @@ class Sisme_SEO_Structured_Data {
                 );
                 
                 // Ajouter le site web si disponible
-                $website = get_term_meta($pub_id, 'entity_website', true);
+                $website = get_term_meta($pub_id, Sisme_Utils_Games::META_ENTITY_WEBSITE, true);
                 if ($website) {
                     $pub_data['url'] = $website;
                 }

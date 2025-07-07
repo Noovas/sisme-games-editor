@@ -358,7 +358,7 @@ class Sisme_Game_Form_Module {
                                     <?php $entity = get_category($entity_id); ?>
                                     <?php if ($entity): ?>
                                         <?php
-                                        $entity_website = get_term_meta($entity_id, 'entity_website', true);
+                                        $entity_website = get_term_meta($entity_id, Sisme_Utils_Games::META_ENTITY_WEBSITE, true);
                                         ?>
                                         <span class="sisme-selected-entity-tag" data-entity-id="<?php echo esc_attr($entity_id); ?>">
                                             <?php if (!empty($entity_website)): ?>
@@ -408,7 +408,7 @@ class Sisme_Game_Form_Module {
                             <?php else: ?>
                                 <?php foreach ($entities as $entity): ?>
                                     <?php
-                                    $entity_website = get_term_meta($entity->term_id, 'entity_website', true);
+                                    $entity_website = get_term_meta($entity->term_id, Sisme_Utils_Games::META_ENTITY_WEBSITE, true);
                                     ?>
                                     <div class="sisme-entity-suggestion-item" data-entity-id="<?php echo esc_attr($entity->term_id); ?>">
                                         <div class="sisme-entity-suggestion-content">
@@ -678,7 +678,7 @@ class Sisme_Game_Form_Module {
                                 <?php foreach ($value as $entity_id): ?>
                                     <?php $entity = get_category($entity_id); ?>
                                     <?php if ($entity): ?>
-                                        <?php $entity_website = get_term_meta($entity->term_id, 'entity_website', true); ?>
+                                        <?php $entity_website = get_term_meta($entity->term_id, Sisme_Utils_Games::META_ENTITY_WEBSITE, true); ?>
                                         <span class="sisme-tag sisme-tag--selected sisme-tag--entity" data-entity-id="<?php echo esc_attr($entity_id); ?>">
                                             <?php echo esc_html($entity->name); ?>
                                             <?php if (!empty($entity_website)): ?>
@@ -718,7 +718,7 @@ class Sisme_Game_Form_Module {
                         <div class="sisme-entity-suggestions-list sisme-suggestions-container-base">
                             <?php foreach ($entities as $entity): ?>
                                 <?php 
-                                $entity_website = get_term_meta($entity->term_id, 'entity_website', true);
+                                $entity_website = get_term_meta($entity->term_id, Sisme_Utils_Games::META_ENTITY_WEBSITE, true);
                                 $games_count = $this->count_games_for_entity($entity->term_id);
                                 ?>
                                 <div class="suggestion-item" 

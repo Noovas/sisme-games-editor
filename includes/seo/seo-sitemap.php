@@ -41,32 +41,44 @@ class Sisme_SEO_Sitemap {
     const FREQ_POSTS = 'weekly';
     
     public function __construct() {
-        // Hooks pour le sitemap
-        add_action('init', array($this, 'add_sitemap_rewrite_rules'));
-        add_action('template_redirect', array($this, 'handle_sitemap_request'));
+        // Hooks pour le sitemap avec priorité haute
+        add_action('init', array($this, 'add_sitemap_rewrite_rules'), 999);
+        add_action('template_redirect', array($this, 'handle_sitemap_request'), 1);
+        
+        // Query vars
+        add_filter('query_vars', array($this, 'add_sitemap_query_vars'));
+        
+        // Désactiver le sitemap WordPress natif
+        add_filter('wp_sitemaps_enabled', '__return_false');
         
         // Nettoyage cache
         add_action('save_post', array($this, 'clear_sitemap_cache'));
         add_action('created_term', array($this, 'clear_sitemap_cache'));
         add_action('edited_term', array($this, 'clear_sitemap_cache'));
         add_action('deleted_term', array($this, 'clear_sitemap_cache'));
-
-        // Handler sitemap
-        add_action('template_redirect', function() {
-            $sitemap_type = get_query_var('sisme_sitemap');
-            
-            if (!$sitemap_type) return;
-            
-            header('Content-Type: application/xml; charset=UTF-8');
-            
-            if (class_exists('Sisme_SEO_Sitemap')) {
-                $sitemap = new Sisme_SEO_Sitemap();
-                $sitemap->handle_sitemap_request();
-            }
-        }, 1);
         
-        // Désactiver le sitemap WordPress natif pour éviter les conflits
-        add_filter('wp_sitemaps_enabled', '__return_false');
+        // Flush rules une seule fois
+        $this->maybe_flush_rewrite_rules();
+    }
+
+    /**
+     * Ajouter la query var
+     */
+    public function add_sitemap_query_vars($vars) {
+        $vars[] = 'sisme_sitemap';
+        return $vars;
+    }
+
+    /**
+     * Flush les règles si nécessaire
+     */
+    private function maybe_flush_rewrite_rules() {
+        if (!get_option('sisme_sitemap_rules_plugin')) {
+            add_action('wp_loaded', function() {
+                flush_rewrite_rules(false);
+                update_option('sisme_sitemap_rules_plugin', true);
+            });
+        }
     }
     
     /**
