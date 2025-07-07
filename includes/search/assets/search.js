@@ -43,8 +43,19 @@
          */
         init() {
             this.bindElements();
+            this.saveInitialResults();
             this.bindEvents();
             this.log('Instance initialisée');
+        }
+        
+        /**
+         * Sauvegarder les résultats initiaux
+         */
+        saveInitialResults() {
+            if (this.resultsContainer) {
+                this.initialResultsHtml = this.resultsContainer.innerHTML;
+                this.log('Résultats initiaux sauvegardés');
+            }
         }
         
         /**
@@ -75,24 +86,70 @@
                 });
             }
             
-            // Recherche en temps réel sur le champ texte
+            // Recherche en temps réel sur le champ texte (seulement si user tape)
             if (this.queryInput) {
                 this.queryInput.addEventListener('input', (e) => {
-                    this.handleInputChange(e);
+                    // Seulement si l'utilisateur a tapé quelque chose
+                    const query = e.target.value.trim();
+                    if (query.length > 0) {
+                        this.handleInputChange(e);
+                    }
                 });
             }
             
-            // Recherche sur changement de filtres
+            // Recherche sur changement de filtres (seulement si sélectionné)
             if (this.genreSelect) {
-                this.genreSelect.addEventListener('change', () => {
-                    this.performSearch();
+                this.genreSelect.addEventListener('change', (e) => {
+                    if (e.target.value) {
+                        this.performSearch();
+                    } else {
+                        // Si aucun genre sélectionné, vérifier les autres critères
+                        this.checkAndResetOrSearch();
+                    }
                 });
             }
             
             if (this.statusSelect) {
-                this.statusSelect.addEventListener('change', () => {
-                    this.performSearch();
+                this.statusSelect.addEventListener('change', (e) => {
+                    if (e.target.value) {
+                        this.performSearch();
+                    } else {
+                        // Si aucun statut sélectionné, vérifier les autres critères
+                        this.checkAndResetOrSearch();
+                    }
                 });
+            }
+        }
+        
+        /**
+         * Vérifier s'il faut réinitialiser ou faire une recherche
+         */
+        checkAndResetOrSearch() {
+            const params = this.getSearchParams();
+            
+            if (this.shouldPerformSearch(params)) {
+                // Il y a encore des critères, faire la recherche
+                this.performSearch();
+            } else {
+                // Plus aucun critère, réinitialiser à l'affichage initial
+                this.resetToInitialResults();
+            }
+        }
+        
+        /**
+         * Réinitialiser aux résultats initiaux
+         */
+        resetToInitialResults() {
+            // Récupérer le contenu initial sauvegardé
+            if (!this.initialResultsHtml) {
+                // Si pas sauvegardé, faire une recherche vide pour récupérer l'initial
+                this.log('Réinitialisation aux résultats par défaut');
+                return;
+            }
+            
+            if (this.resultsContainer) {
+                this.resultsContainer.innerHTML = this.initialResultsHtml;
+                this.log('Résultats réinitialisés');
             }
         }
         
@@ -228,11 +285,18 @@
             // Mettre à jour le contenu
             this.resultsContainer.innerHTML = data.html;
             
-            // Animer l'apparition
+            // Animation d'apparition plus douce
             this.resultsContainer.style.opacity = '0';
+            this.resultsContainer.style.transform = 'translateY(10px)';
+            
+            // Forcer le reflow puis animer
+            this.resultsContainer.offsetHeight;
+            
             setTimeout(() => {
+                this.resultsContainer.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
                 this.resultsContainer.style.opacity = '1';
-            }, 50);
+                this.resultsContainer.style.transform = 'translateY(0)';
+            }, 10);
             
             // Faire défiler vers les résultats
             this.scrollToResults();
