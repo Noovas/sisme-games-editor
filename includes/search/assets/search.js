@@ -24,6 +24,7 @@
      */
     class SismeSearchInstance {
         constructor(containerId, options = {}) {
+            console.log('Nouvelle instance créée:', containerId);
             this.containerId = containerId;
             this.container = document.getElementById(containerId);
             this.options = options;
@@ -57,11 +58,36 @@
                 this.log('Résultats initiaux sauvegardés');
             }
             
-            // Charger plus de résultats
-            if (this.loadMoreBtn) {
-                this.loadMoreBtn.addEventListener('click', () => {
-                    this.loadMoreResults();
-                });
+            // Vérifier s'il y a des métadonnées de pagination initiale
+            this.checkInitialPagination();
+        }
+
+        /**
+         * Vérifier les métadonnées de pagination initiale
+         */
+        checkInitialPagination() {
+            const paginationData = this.container.querySelector('.sisme-initial-pagination');
+            if (paginationData) {
+                try {
+                    const data = JSON.parse(paginationData.textContent);
+                    this.currentPage = data.current_page || 1;
+                    this.hasMore = data.has_more || false;
+                    this.lastSearchParams = {
+                        query: '',
+                        genre: '',
+                        status: '',
+                        columns: this.options.columns || 4,
+                        max_results: data.max_results || 12
+                    };
+                    
+                    if (this.hasMore) {
+                        this.showLoadMoreButton();
+                    }
+                    
+                    this.log('Pagination initiale configurée', data);
+                } catch (e) {
+                    this.log('Erreur lors du parsing des métadonnées initiales', e);
+                }
             }
         }
         
@@ -104,7 +130,12 @@
          * Charger plus de résultats
          */
         loadMoreResults() {
+            console.log('loadMoreResults appelée !', new Date().getTime());
             if (!this.lastSearchParams || !this.hasMore) {
+                this.log('Charger plus impossible:', {
+                    hasParams: !!this.lastSearchParams,
+                    hasMore: this.hasMore
+                });
                 return;
             }
             
@@ -120,6 +151,8 @@
             const params = { ...this.lastSearchParams };
             params.page = this.currentPage + 1;
             params.load_more = true;
+            
+            this.log('Chargement page:', params.page);
             
             // Préparer les données
             const formData = new FormData();
@@ -182,6 +215,7 @@
          * Lier les événements
          */
         bindEvents() {
+            console.log('bindEvents() appelée pour container:', this.containerId);
             // Soumission du formulaire
             if (this.form) {
                 this.form.addEventListener('submit', (e) => {
@@ -190,10 +224,9 @@
                 });
             }
             
-            // Recherche en temps réel sur le champ texte (seulement si user tape)
+            // Recherche en temps réel sur le champ texte
             if (this.queryInput) {
                 this.queryInput.addEventListener('input', (e) => {
-                    // Seulement si l'utilisateur a tapé quelque chose
                     const query = e.target.value.trim();
                     if (query.length > 0) {
                         this.handleInputChange(e);
@@ -201,13 +234,12 @@
                 });
             }
             
-            // Recherche sur changement de filtres (seulement si sélectionné)
+            // Recherche sur changement de filtres
             if (this.genreSelect) {
                 this.genreSelect.addEventListener('change', (e) => {
                     if (e.target.value) {
                         this.performSearch();
                     } else {
-                        // Si aucun genre sélectionné, vérifier les autres critères
                         this.checkAndResetOrSearch();
                     }
                 });
@@ -218,9 +250,16 @@
                     if (e.target.value) {
                         this.performSearch();
                     } else {
-                        // Si aucun statut sélectionné, vérifier les autres critères
                         this.checkAndResetOrSearch();
                     }
+                });
+            }
+            
+            // CORRECTION : Event listener pour le bouton "charger plus"
+            if (this.loadMoreBtn) {
+                console.log('Ajout event listener sur loadMoreBtn pour:', this.containerId);
+                this.loadMoreBtn.addEventListener('click', () => {
+                    this.loadMoreResults();
                 });
             }
         }
@@ -353,14 +392,20 @@
          * Gérer le succès de la recherche
          */
         handleSearchSuccess(response) {
-            if (response.success) {
-                this.displayResults(response.data);
-                this.updatePagination(response.data);
-                this.log('Recherche réussie', response.data);
-            } else {
-                this.handleSearchError(null, 'error', response.data.message);
-            }
+        if (response.success) {
+            this.displayResults(response.data);
+            
+            // CORRECTION : Sauvegarder les paramètres de la dernière recherche
+            this.lastSearchParams = this.getSearchParams();
+            
+            // CORRECTION : Mettre à jour la pagination avec les vraies données de réponse
+            this.updatePagination(response.data);
+            
+            this.log('Recherche réussie', response.data);
+        } else {
+            this.handleSearchError(null, 'error', response.data.message);
         }
+    }
         
         /**
          * Gérer le succès du chargement de plus de résultats
@@ -379,8 +424,15 @@
          * Mettre à jour les informations de pagination
          */
         updatePagination(data) {
+            // CORRECTION : Utiliser les vraies clés de la réponse AJAX
             this.currentPage = data.current_page || 1;
             this.hasMore = data.has_more || false;
+            
+            this.log('Pagination mise à jour:', {
+                currentPage: this.currentPage,
+                hasMore: this.hasMore,
+                total: data.total_available || data.total
+            });
             
             if (this.hasMore) {
                 this.showLoadMoreButton();
@@ -432,18 +484,33 @@
             
             // Trouver la grille existante
             const existingGrid = this.resultsContainer.querySelector('.sisme-cards-grid');
-            if (existingGrid && data.html) {
-                // Extraire les nouvelles cartes du HTML retourné
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = data.html;
-                const newGrid = tempDiv.querySelector('.sisme-cards-grid');
-                
-                if (newGrid) {
-                    // Ajouter chaque nouvelle carte à la grille existante
-                    const newCards = newGrid.querySelectorAll('.sisme-game-card');
-                    newCards.forEach(card => {
+            if (!existingGrid || !data.html) return;
+            
+            // Créer un conteneur temporaire pour parser le HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = data.html;
+            
+            // Vérifier si on a reçu une grille complète ou juste des cartes
+            const newGrid = tempDiv.querySelector('.sisme-cards-grid');
+            
+            if (newGrid) {
+                // Cas 1: On a reçu une grille complète, extraire les cartes
+                const newCards = newGrid.querySelectorAll('.sisme-cards-grid__item');
+                newCards.forEach(card => {
+                    existingGrid.appendChild(card);
+                });
+            } else {
+                // Cas 2: On a reçu seulement des cartes HTML
+                // Chercher directement les cartes dans le HTML reçu
+                const cardElements = tempDiv.querySelectorAll('.sisme-cards-grid__item');
+                if (cardElements.length > 0) {
+                    cardElements.forEach(card => {
                         existingGrid.appendChild(card);
                     });
+                } else {
+                    // Si aucune carte trouvée avec la classe, c'est peut-être du HTML brut
+                    // On l'ajoute tel quel
+                    existingGrid.insertAdjacentHTML('beforeend', data.html);
                 }
             }
             
@@ -532,7 +599,8 @@
      */
     window.sismeSearchInit = function(containerId, options = {}) {
         if (SISME_SEARCH.instances[containerId]) {
-            SISME_SEARCH.instances[containerId].destroy();
+            console.log('Instance déjà existante pour:', containerId);
+            return SISME_SEARCH.instances[containerId];
         }
         
         SISME_SEARCH.instances[containerId] = new SismeSearchInstance(containerId, options);

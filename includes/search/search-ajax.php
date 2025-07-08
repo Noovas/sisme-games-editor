@@ -145,22 +145,15 @@ class Sisme_Search_Ajax {
         // Générer le HTML des résultats
         $html = self::generate_results_html($game_ids, $validation['params']);
         
-        // Préparer les métadonnées
-        $metadata = self::prepare_metadata($game_ids, $validation['params']);
-        $metadata['total_available'] = count($all_game_ids);
-        $metadata['has_more'] = $has_more;
-        $metadata['current_page'] = $page;
-        
         return array(
             'success' => true,
             'html' => $html,
             'total' => count($game_ids),
             'total_available' => count($all_game_ids),
-            'has_more' => $has_more,
             'current_page' => $page,
+            'has_more' => $has_more,
             'is_load_more' => $validation['params']['load_more'],
-            'params' => $validation['params'],
-            'metadata' => $metadata
+            'params' => $validation['params']
         );
     }
     
@@ -261,7 +254,12 @@ class Sisme_Search_Ajax {
             return self::render_no_results($params);
         }
         
-        // Utiliser Cards API pour générer la grille
+        // CORRECTION : Si c'est un "load more", retourner seulement les cartes
+        if (isset($params['load_more']) && $params['load_more']) {
+            return self::render_cards_only($game_ids);
+        }
+        
+        // Utiliser Cards API pour générer la grille complète
         $grid_args = array(
             'type' => 'normal',
             'cards_per_row' => $params['columns'],
@@ -271,6 +269,27 @@ class Sisme_Search_Ajax {
         
         // Créer une grille avec les IDs spécifiques
         return self::render_cards_grid_with_ids($game_ids, $grid_args);
+    }
+
+    /**
+     * Rendu des cartes seulement (pour load more)
+     * 
+     * @param array $game_ids IDs des jeux
+     * @return string HTML des cartes seulement
+     */
+    private static function render_cards_only($game_ids) {
+        $output = '';
+        
+        // Générer seulement les cartes, pas le container de grille
+        foreach ($game_ids as $game_id) {
+            $card_options = array(
+                'css_class' => 'sisme-cards-grid__item'
+            );
+            
+            $output .= Sisme_Cards_API::render_card($game_id, 'normal', $card_options);
+        }
+        
+        return $output;
     }
     
     /**

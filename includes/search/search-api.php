@@ -227,18 +227,44 @@ class Sisme_Search_API {
      * @param array $atts Attributs du shortcode
      */
     private static function render_initial_results($atts) {
-        // Afficher les jeux récents par défaut
-        $initial_args = array(
-            'type' => 'normal',
-            'cards_per_row' => intval($atts['columns']),
-            'max_cards' => intval($atts['max_results']),
+        $max_results = intval($atts['max_results']);
+        
+        // Récupérer TOUS les jeux pour compter le total
+        $all_games_criteria = array(
             'sort_by_date' => true,
             'sort_order' => 'desc',
-            'container_class' => 'sisme-search-initial-results'
+            'max_results' => -1 // Tous les jeux
         );
         
-        if (class_exists('Sisme_Cards_API')) {
-            echo Sisme_Cards_API::render_cards_grid($initial_args);
+        if (class_exists('Sisme_Utils_Games')) {
+            $all_game_ids = Sisme_Utils_Games::get_games_by_criteria($all_games_criteria);
+            $total_games = count($all_game_ids);
+            $has_more = $total_games > $max_results;
+            
+            // Afficher seulement les premiers résultats
+            $initial_args = array(
+                'type' => 'normal',
+                'cards_per_row' => intval($atts['columns']),
+                'max_cards' => $max_results,
+                'sort_by_date' => true,
+                'sort_order' => 'desc',
+                'container_class' => 'sisme-search-initial-results'
+            );
+            
+            if (class_exists('Sisme_Cards_API')) {
+                echo Sisme_Cards_API::render_cards_grid($initial_args);
+            }
+            
+            // Ajouter les métadonnées de pagination en JSON caché
+            echo '<script type="application/json" class="sisme-initial-pagination" style="display: none;">';
+            echo wp_json_encode(array(
+                'total_games' => $total_games,
+                'current_page' => 1,
+                'has_more' => $has_more,
+                'max_results' => $max_results
+            ));
+            echo '</script>';
+            
         } else {
             echo '<div class="sisme-search-error">Module cards non disponible</div>';
         }
