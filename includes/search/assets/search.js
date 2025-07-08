@@ -44,22 +44,9 @@
          */
         init() {
             this.bindElements();
-            this.saveInitialResults();
+            this.checkInitialPagination();
             this.bindEvents();
             this.log('Instance initialisée');
-        }
-        
-        /**
-         * Sauvegarder les résultats initiaux
-         */
-        saveInitialResults() {
-            if (this.resultsContainer) {
-                this.initialResultsHtml = this.resultsContainer.innerHTML;
-                this.log('Résultats initiaux sauvegardés');
-            }
-            
-            // Vérifier s'il y a des métadonnées de pagination initiale
-            this.checkInitialPagination();
         }
 
         /**
@@ -268,67 +255,7 @@
          * Vérifier s'il faut réinitialiser ou faire une recherche
          */
         checkAndResetOrSearch() {
-            const params = this.getSearchParams();
-            
-            if (this.shouldPerformSearch(params)) {
-                // Il y a encore des critères, faire la recherche
-                this.performSearch();
-            } else {
-                // Plus aucun critère, réinitialiser à l'affichage initial
-                this.resetToInitialResults();
-            }
-        }
-        
-        /**
-         * Réinitialiser aux résultats initiaux
-         */
-        resetToInitialResults() {
-            // Récupérer le contenu initial sauvegardé
-            if (!this.initialResultsHtml) {
-                // Si pas sauvegardé, faire une recherche vide pour récupérer l'initial
-                this.log('Réinitialisation aux résultats par défaut');
-                return;
-            }
-            
-            if (this.resultsContainer) {
-                this.resultsContainer.innerHTML = this.initialResultsHtml;
-                this.log('Résultats réinitialisés');
-            }
-
-            this.restoreInitialPagination();
-        }
-
-        /**
-         * Restaurer les données de pagination initiales
-         */
-        restoreInitialPagination() {
-            // Récupérer les métadonnées initiales
-            const metadataScript = this.container.querySelector('.sisme-initial-pagination');
-            if (metadataScript) {
-                try {
-                    const initialData = JSON.parse(metadataScript.textContent);
-                    
-                    // Restaurer les variables de pagination
-                    this.currentPage = 1;
-                    this.hasMore = initialData.has_more || false;
-                    this.lastSearchParams = null; // Pas de recherche active
-                    
-                    // Gérer l'affichage du bouton "Load more"
-                    if (this.hasMore) {
-                        this.showLoadMoreButton();
-                    } else {
-                        this.hideLoadMoreButton();
-                    }
-                    
-                    this.log('Pagination initiale restaurée', {
-                        hasMore: this.hasMore,
-                        totalGames: initialData.total_games
-                    });
-                    
-                } catch (e) {
-                    this.log('Erreur lors de la restauration des métadonnées initiales', e);
-                }
-            }
+            this.performSearch();
         }
         
         /**
@@ -355,13 +282,7 @@
          */
         performSearch() {
             const params = this.getSearchParams();
-            
-            // Vérifier si une recherche est nécessaire
-            if (!this.shouldPerformSearch(params)) {
-                this.log('Recherche ignorée - critères insuffisants');
-                return;
-            }
-            
+
             // Annuler la requête précédente
             if (this.currentRequest) {
                 this.currentRequest.abort();
@@ -409,17 +330,61 @@
                 genre: this.genreSelect ? this.genreSelect.value : '',
                 status: this.statusSelect ? this.statusSelect.value : '',
                 columns: this.options.columns || 4,
-                max_results: this.options.max_results || 12
+                max_results: this.options.max_results || 12,
+                page: 1, 
+                load_more: false
             };
+        }
+
+        /**
+         * Effectuer une recherche vide (vue par défaut)
+         */
+        performEmptySearch() {
+            // Réinitialiser le formulaire
+            if (this.queryInput) this.queryInput.value = '';
+            if (this.genreSelect) this.genreSelect.value = '';
+            if (this.statusSelect) this.statusSelect.value = '';
+            
+            // Faire une recherche AJAX normale avec paramètres vides
+            this.setLoadingState(true);
+            
+            const formData = new FormData();
+            formData.append('action', 'sisme_search_games');
+            formData.append('nonce', sismeSearch.nonce);
+            formData.append('query', '');
+            formData.append('genre', '');
+            formData.append('status', '');
+            formData.append('columns', this.options.columns || 4);
+            formData.append('max_results', this.options.max_results || 12);
+            formData.append('page', 1);
+            formData.append('load_more', false);
+            
+            this.currentRequest = $.ajax({
+                url: sismeSearch.ajaxUrl,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: (response) => {
+                    this.handleSearchSuccess(response);
+                },
+                error: (xhr, status, error) => {
+                    this.handleSearchError(xhr, status, error);
+                },
+                complete: () => {
+                    this.setLoadingState(false);
+                    this.currentRequest = null;
+                }
+            });
         }
         
         /**
          * Vérifier si une recherche doit être effectuée
          */
         shouldPerformSearch(params) {
+            return true
             const hasQuery = params.query.length >= SISME_SEARCH.minSearchLength;
             const hasFilters = params.genre || params.status;
-            
             return hasQuery || hasFilters;
         }
         
@@ -427,20 +392,20 @@
          * Gérer le succès de la recherche
          */
         handleSearchSuccess(response) {
-        if (response.success) {
-            this.displayResults(response.data);
-            
-            // CORRECTION : Sauvegarder les paramètres de la dernière recherche
-            this.lastSearchParams = this.getSearchParams();
-            
-            // CORRECTION : Mettre à jour la pagination avec les vraies données de réponse
-            this.updatePagination(response.data);
-            
-            this.log('Recherche réussie', response.data);
-        } else {
-            this.handleSearchError(null, 'error', response.data.message);
+            if (response.success) {
+                this.displayResults(response.data);
+                
+                // ✅ GARDER : Sauvegarder les paramètres pour load more
+                this.lastSearchParams = this.getSearchParams();
+                
+                // ✅ GARDER : Mettre à jour la pagination
+                this.updatePagination(response.data);
+                
+                this.log('Recherche réussie', response.data);
+            } else {
+                this.handleSearchError(null, 'error', response.data.message);
+            }
         }
-    }
         
         /**
          * Gérer le succès du chargement de plus de résultats

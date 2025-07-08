@@ -180,15 +180,7 @@ class Sisme_Search_Ajax {
             );
         }
         
-        // Vérifier qu'au moins un critère est fourni pour une nouvelle recherche
-        if (empty($validated['query']) && empty($validated['genre']) && empty($validated['status'])) {
-            return array(
-                'valid' => false,
-                'message' => 'Veuillez saisir au moins un critère de recherche'
-            );
-        }
-        
-        // Vérifier la longueur minimum de la recherche textuelle
+        // Vérifier la longueur minimum de la recherche textuelle seulement si pas vide
         if (!empty($validated['query']) && strlen($validated['query']) < 2) {
             return array(
                 'valid' => false,
