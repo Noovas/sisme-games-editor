@@ -954,3 +954,424 @@ if ($loader->is_ready()) {
     echo "Modules chargés: " . $stats['health_check']['loaded_count'];
 }
 ```
+
+## 🔍 search-api.php
+
+**Classe :** `Sisme_Search_API`
+
+<details>
+<summary><code>render_search_interface($atts = [])</code></summary>
+
+```php
+// 🔍 Shortcode principal pour l'interface de recherche complète
+// @param array $atts - Attributs du shortcode
+// Attributs disponibles: hero_title, hero_subtitle, placeholder, columns, max_results, debug
+// @return string - HTML complet de l'interface de recherche avec hero
+$html = Sisme_Search_API::render_search_interface([
+    'hero_title' => '🔍 Rechercher un jeu',
+    'hero_subtitle' => 'Trouvez vos jeux préférés',
+    'placeholder' => 'Nom du jeu...',
+    'columns' => '4',
+    'max_results' => '12',
+    'debug' => 'false'
+]);
+
+// Shortcode WordPress
+echo do_shortcode('[sisme_search hero_title="Ma recherche" columns="3"]');
+```
+</details>
+
+<details>
+<summary><code>perform_search($params)</code></summary>
+
+```php
+// 🎯 Effectuer une recherche programmatique (utilisé par AJAX)
+// @param array $params - Paramètres de recherche
+// Keys: query, genre, status, columns, max_results
+// @return array - Résultat avec success, html, total, params
+$result = Sisme_Search_API::perform_search([
+    'query' => 'zelda',
+    'genre' => 'action',
+    'status' => 'released',
+    'columns' => 4,
+    'max_results' => 12
+]);
+```
+</details>
+
+---
+
+## 🔧 search-ajax.php
+
+**Classe :** `Sisme_Search_Ajax`
+
+<details>
+<summary><code>handle_search_request()</code></summary>
+
+```php
+// 🚀 Handler AJAX principal pour les requêtes de recherche
+// Hook WordPress: wp_ajax_sisme_search_games, wp_ajax_nopriv_sisme_search_games
+// @param void - Lit $_POST pour les paramètres
+// @return void - Renvoie JSON via wp_send_json_success/error
+// Paramètres POST attendus: action, nonce, query, genre, status, columns, max_results, page, load_more
+add_action('wp_ajax_sisme_search_games', ['Sisme_Search_Ajax', 'handle_search_request']);
+add_action('wp_ajax_nopriv_sisme_search_games', ['Sisme_Search_Ajax', 'handle_search_request']);
+```
+</details>
+
+---
+
+## 🎨 search-filters.php
+
+**Classe :** `Sisme_Search_Filters`
+
+<details>
+<summary><code>perform_search($search_params)</code></summary>
+
+```php
+// 🔍 Effectuer une recherche avec cache et validation
+// @param array $search_params - Paramètres de recherche bruts
+// @return array - Résultats avec games, total, page, per_page, has_more
+$results = Sisme_Search_Filters::perform_search([
+    'query' => 'mario',
+    'genres' => [15, 16],
+    'status' => 'upcoming',
+    'sort' => 'date_asc',
+    'page' => 1,
+    'per_page' => 12
+]);
+```
+</details>
+
+<details>
+<summary><code>get_cache_key($params)</code></summary>
+
+```php
+// 🗄️ Générer une clé de cache pour les paramètres de recherche
+// @param array $params - Paramètres validés
+// @return string - Clé de cache unique
+$cache_key = Sisme_Search_Filters::get_cache_key($validated_params);
+```
+</details>
+
+<details>
+<summary><code>clear_search_cache()</code></summary>
+
+```php
+// 🧹 Vider tout le cache de recherche
+// @return void
+Sisme_Search_Filters::clear_search_cache();
+```
+</details>
+
+---
+
+## 📊 search-suggestions.php
+
+**Classe :** `Sisme_Search_Suggestions`
+
+<details>
+<summary><code>get_suggestions($query, $max_results = 5)</code></summary>
+
+```php
+// 💡 Obtenir des suggestions de recherche
+// @param string $query - Début de recherche (minimum 2 caractères)
+// @param int $max_results - Nombre maximum de suggestions
+// @return array - Suggestions avec term, count, type
+$suggestions = Sisme_Search_Suggestions::get_suggestions('zel', 5);
+// Retourne: [['term' => 'zelda', 'count' => 15, 'type' => 'game'], ...]
+```
+</details>
+
+<details>
+<summary><code>record_search($query, $results_count = 0)</code></summary>
+
+```php
+// 📈 Enregistrer une recherche pour les statistiques
+// @param string $query - Terme recherché
+// @param int $results_count - Nombre de résultats trouvés
+// @return void
+Sisme_Search_Suggestions::record_search('zelda breath', 3);
+```
+</details>
+
+<details>
+<summary><code>get_popular_searches($limit = 10)</code></summary>
+
+```php
+// 🔥 Obtenir les recherches populaires
+// @param int $limit - Nombre maximum de résultats
+// @return array - Recherches populaires avec term, count, last_searched
+$popular = Sisme_Search_Suggestions::get_popular_searches(5);
+```
+</details>
+
+<details>
+<summary><code>get_search_trends($days = 7)</code></summary>
+
+```php
+// 📈 Obtenir les tendances de recherche
+// @param int $days - Période en jours
+// @return array - Tendances avec term, count, growth_rate
+$trends = Sisme_Search_Suggestions::get_search_trends(30);
+```
+</details>
+
+<details>
+<summary><code>cleanup_old_data()</code></summary>
+
+```php
+// 🧹 Nettoyer les anciennes données de recherche (30+ jours)
+// @return void
+Sisme_Search_Suggestions::cleanup_old_data();
+```
+</details>
+
+<details>
+<summary><code>get_suggestions_stats()</code></summary>
+
+```php
+// 📊 Obtenir les statistiques des suggestions
+// @return array - Stats avec total_searches, unique_terms, top_term, top_count
+$stats = Sisme_Search_Suggestions::get_suggestions_stats();
+```
+</details>
+
+---
+
+## 🎮 JavaScript API
+
+**Classe :** `SismeSearchInstance`
+
+<details>
+<summary><code>sismeSearchInit(containerId, options = {})</code></summary>
+
+```javascript
+// 🚀 Initialiser une instance de recherche
+// @param string containerId - ID du container HTML
+// @param object options - Options de configuration
+// Options: columns, max_results, debug
+// @return SismeSearchInstance - Instance créée
+const searchInstance = sismeSearchInit('sisme-search-123', {
+    columns: 4,
+    max_results: 12,
+    debug: true
+});
+```
+</details>
+
+<details>
+<summary><code>sismeSearchGet(containerId)</code></summary>
+
+```javascript
+// 🔍 Obtenir une instance existante
+// @param string containerId - ID du container
+// @return SismeSearchInstance|null - Instance ou null si non trouvée
+const instance = sismeSearchGet('sisme-search-123');
+```
+</details>
+
+<details>
+<summary><code>sismeSearchDestroy(containerId)</code></summary>
+
+```javascript
+// 🗑️ Détruire une instance de recherche
+// @param string containerId - ID du container
+// @return void
+sismeSearchDestroy('sisme-search-123');
+```
+</details>
+
+<details>
+<summary><code>instance.performSearch()</code></summary>
+
+```javascript
+// 🔍 Effectuer une recherche manuelle
+// @return void - Déclenche la recherche AJAX
+instance.performSearch();
+```
+</details>
+
+<details>
+<summary><code>instance.loadMoreResults()</code></summary>
+
+```javascript
+// 📄 Charger plus de résultats
+// @return void - Charge la page suivante
+instance.loadMoreResults();
+```
+</details>
+
+<details>
+<summary><code>instance.getSearchParams()</code></summary>
+
+```javascript
+// 📋 Obtenir les paramètres de recherche actuels
+// @return object - Paramètres avec query, genre, status, columns, max_results
+const params = instance.getSearchParams();
+// Retourne: {query: 'zelda', genre: 'action', status: '', columns: 4, max_results: 12}
+```
+</details>
+
+<details>
+<summary><code>instance.setLoadingState(isLoading)</code></summary>
+
+```javascript
+// ⏳ Définir l'état de chargement
+// @param boolean isLoading - État de chargement
+// @return void
+instance.setLoadingState(true);
+```
+</details>
+
+---
+
+## 📦 Hooks d'Intégration
+
+<details>
+<summary><code>sisme_search_before_results</code></summary>
+
+```php
+// 🪝 Hook avant l'affichage des résultats
+// @param array $results - Résultats de recherche
+// @param array $params - Paramètres de recherche
+add_action('sisme_search_before_results', function($results, $params) {
+    // Personnaliser les résultats
+}, 10, 2);
+```
+</details>
+
+<details>
+<summary><code>sisme_search_after_results</code></summary>
+
+```php
+// 🪝 Hook après l'affichage des résultats
+// @param array $results - Résultats de recherche
+// @param array $params - Paramètres de recherche
+add_action('sisme_search_after_results', function($results, $params) {
+    // Actions post-recherche
+}, 10, 2);
+```
+</details>
+
+<details>
+<summary><code>sisme_search_modify_criteria</code></summary>
+
+```php
+// 🪝 Filtre pour modifier les critères de recherche
+// @param array $criteria - Critères pour utils-games
+// @param array $params - Paramètres originaux
+add_filter('sisme_search_modify_criteria', function($criteria, $params) {
+    // Personnaliser les critères
+    return $criteria;
+}, 10, 2);
+```
+</details>
+
+---
+
+## 🔧 Configuration
+
+**Constantes disponibles :**
+```php
+// Durée du cache de recherche (secondes)
+define('SISME_SEARCH_CACHE_DURATION', 300);
+
+// Nombre minimum de caractères pour la recherche textuelle
+define('SISME_SEARCH_MIN_LENGTH', 2);
+
+// Délai de debounce JavaScript (millisecondes)
+define('SISME_SEARCH_DEBOUNCE_DELAY', 500);
+
+// Nombre maximum de suggestions
+define('SISME_SEARCH_MAX_SUGGESTIONS', 10);
+```
+
+**Variables JavaScript globales :**
+```javascript
+// Configuration globale
+const SISME_SEARCH = {
+    instances: {},           // Instances actives
+    debounceDelay: 500,     // Délai de debounce
+    minSearchLength: 2      // Longueur minimum
+};
+
+// Variables WordPress injectées
+sismeSearch = {
+    ajaxUrl: '/wp-admin/admin-ajax.php',
+    nonce: 'abc123...',
+    debug: true,
+    messages: {
+        error: 'Une erreur est survenue'
+    }
+};
+```
+
+---
+
+## 🎯 Exemples d'Usage
+
+### Interface Complète
+```php
+// Shortcode avec personnalisation
+echo do_shortcode('[sisme_search hero_title="Découvrir des jeux" columns="3" max_results="9"]');
+```
+
+### Recherche Programmatique
+```php
+// Recherche backend
+$results = Sisme_Search_API::perform_search([
+    'query' => 'mario',
+    'status' => 'released',
+    'max_results' => 6
+]);
+
+if ($results['success']) {
+    echo $results['html'];
+}
+```
+
+### Intégration JavaScript
+```javascript
+// Initialisation automatique
+$(document).ready(function() {
+    sismeSearchInit('my-search-container', {
+        columns: 6,
+        max_results: 18
+    });
+});
+
+// Contrôle manuel
+const search = sismeSearchGet('my-search-container');
+search.performSearch();
+```
+
+### Gestion du Cache
+```php
+// Vider le cache après mise à jour de jeux
+add_action('save_post', function($post_id) {
+    if (get_post_type($post_id) === 'game') {
+        Sisme_Search_Filters::clear_search_cache();
+    }
+});
+```
+
+---
+
+## 🔄 Tri et Filtrage
+
+**Statuts disponibles :**
+- `released` : Jeux sortis (tri par date DESC - plus récents en premier)
+- `upcoming` : Jeux à venir (tri par date ASC - plus proches en premier)
+- *(vide)* : Tous les jeux (tri alphabétique A→Z)
+
+**Types de tri :**
+- **Par défaut** : Alphabétique A→Z
+- **Avec statut** : Par date de sortie selon le statut
+- **Recherche textuelle** : Pertinence + alphabétique
+- **Filtrage genre** : Alphabétique dans le genre
+
+**Comportement Load More :**
+- Conserve le tri de la recherche initiale
+- Fonctionne avec tous les types de filtres
+- Gestion automatique de la pagination
