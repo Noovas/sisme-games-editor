@@ -228,46 +228,44 @@ class Sisme_Search_API {
      */
     private static function render_initial_results($atts) {
         $max_results = intval($atts['max_results']);
+        $columns = intval($atts['columns']);
         
-        // Récupérer TOUS les jeux pour compter le total
-        $all_games_criteria = array(
-            'sort_by_date' => true,
-            'sort_order' => 'desc',
-            'max_results' => -1 // Tous les jeux
-        );
+        // Récupérer tous les jeux sans tri par date
+        $all_games = Sisme_Utils_Games::get_games_by_criteria(array(
+            'sort_by_date' => false,
+            'max_results' => -1,
+            'debug' => false
+        ));
         
-        if (class_exists('Sisme_Utils_Games')) {
-            $all_game_ids = Sisme_Utils_Games::get_games_by_criteria($all_games_criteria);
-            $total_games = count($all_game_ids);
-            $has_more = $total_games > $max_results;
+        // Tri alphabétique par défaut
+        if (class_exists('Sisme_Utils_Filters')) {
+            $all_games = Sisme_Utils_Filters::apply_sorting($all_games, 'name_asc');
+        }
+        
+        $game_ids = array_slice($all_games, 0, $max_results);
+        $total_games = count($all_games);
+        $has_more = $total_games > $max_results;
+        
+        // Générer la grille manuellement avec les IDs triés
+        if (class_exists('Sisme_Cards_API')) {
+            echo '<div class="sisme-cards-grid sisme-cards-grid--normal sisme-cards-grid--cols-' . $columns . ' sisme-search-initial-results" style="--cards-per-row: ' . $columns . ';" data-cards-count="' . count($game_ids) . '">';
             
-            // Afficher seulement les premiers résultats
-            $initial_args = array(
-                'type' => 'normal',
-                'cards_per_row' => intval($atts['columns']),
-                'max_cards' => $max_results,
-                'sort_by_date' => true,
-                'sort_order' => 'desc',
-                'container_class' => 'sisme-search-initial-results'
-            );
-            
-            if (class_exists('Sisme_Cards_API')) {
-                echo Sisme_Cards_API::render_cards_grid($initial_args);
+            foreach ($game_ids as $game_id) {
+                $card_options = array('css_class' => 'sisme-cards-grid__item');
+                echo Sisme_Cards_API::render_card($game_id, 'normal', $card_options);
             }
             
-            // Ajouter les métadonnées de pagination en JSON caché
-            echo '<script type="application/json" class="sisme-initial-pagination" style="display: none;">';
-            echo wp_json_encode(array(
-                'total_games' => $total_games,
-                'current_page' => 1,
-                'has_more' => $has_more,
-                'max_results' => $max_results
-            ));
-            echo '</script>';
-            
-        } else {
-            echo '<div class="sisme-search-error">Module cards non disponible</div>';
+            echo '</div>';
         }
+        
+        echo '<script type="application/json" class="sisme-initial-pagination" style="display: none;">';
+        echo wp_json_encode(array(
+            'total_games' => $total_games,
+            'current_page' => 1,
+            'has_more' => $has_more,
+            'max_results' => $max_results
+        ));
+        echo '</script>';
     }
     
     /**

@@ -294,6 +294,41 @@
                 this.resultsContainer.innerHTML = this.initialResultsHtml;
                 this.log('Résultats réinitialisés');
             }
+
+            this.restoreInitialPagination();
+        }
+
+        /**
+         * Restaurer les données de pagination initiales
+         */
+        restoreInitialPagination() {
+            // Récupérer les métadonnées initiales
+            const metadataScript = this.container.querySelector('.sisme-initial-pagination');
+            if (metadataScript) {
+                try {
+                    const initialData = JSON.parse(metadataScript.textContent);
+                    
+                    // Restaurer les variables de pagination
+                    this.currentPage = 1;
+                    this.hasMore = initialData.has_more || false;
+                    this.lastSearchParams = null; // Pas de recherche active
+                    
+                    // Gérer l'affichage du bouton "Load more"
+                    if (this.hasMore) {
+                        this.showLoadMoreButton();
+                    } else {
+                        this.hideLoadMoreButton();
+                    }
+                    
+                    this.log('Pagination initiale restaurée', {
+                        hasMore: this.hasMore,
+                        totalGames: initialData.total_games
+                    });
+                    
+                } catch (e) {
+                    this.log('Erreur lors de la restauration des métadonnées initiales', e);
+                }
+            }
         }
         
         /**
@@ -424,21 +459,21 @@
          * Mettre à jour les informations de pagination
          */
         updatePagination(data) {
-            // CORRECTION : Utiliser les vraies clés de la réponse AJAX
             this.currentPage = data.current_page || 1;
             this.hasMore = data.has_more || false;
             
-            this.log('Pagination mise à jour:', {
-                currentPage: this.currentPage,
-                hasMore: this.hasMore,
-                total: data.total_available || data.total
-            });
-            
+            // Gérer l'affichage du bouton "Load more"
             if (this.hasMore) {
                 this.showLoadMoreButton();
             } else {
                 this.hideLoadMoreButton();
             }
+            
+            this.log('Pagination mise à jour', {
+                currentPage: this.currentPage,
+                hasMore: this.hasMore,
+                total: data.total_available || data.total
+            });
         }
         
         /**

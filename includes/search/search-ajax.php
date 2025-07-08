@@ -110,7 +110,6 @@ class Sisme_Search_Ajax {
      * @return array Résultats de la recherche
      */
     private static function perform_search($params) {
-        // Valider les paramètres
         $validation = self::validate_search_params($params);
         
         if (!$validation['valid']) {
@@ -120,29 +119,28 @@ class Sisme_Search_Ajax {
             );
         }
         
-        // Construire les critères pour utils-games
         $criteria = self::build_search_criteria($validation['params']);
-        
-        // 1. Récupérer tous les jeux selon les critères (genre, statut)
         $all_game_ids = Sisme_Utils_Games::get_games_by_criteria($criteria);
         
-        // 2. Appliquer la recherche textuelle avec utils-filters
+        // Tri alphabétique si pas de filtre statut
+        if (empty($validation['params']['status']) && class_exists('Sisme_Utils_Filters')) {
+            $all_game_ids = Sisme_Utils_Filters::apply_sorting($all_game_ids, 'name_asc');
+        }
+        
+        // Recherche textuelle
         if (!empty($validation['params']['query'])) {
             if (class_exists('Sisme_Utils_Filters')) {
                 $all_game_ids = Sisme_Utils_Filters::filter_by_search_term($all_game_ids, $validation['params']['query']);
             }
         }
         
-        // 3. Pagination : calculer offset et slice
+        // Pagination
         $per_page = $validation['params']['max_results'];
         $page = $validation['params']['page'];
         $offset = ($page - 1) * $per_page;
         $game_ids = array_slice($all_game_ids, $offset, $per_page);
-        
-        // 4. Vérifier s'il y a plus de résultats
         $has_more = (count($all_game_ids) > ($offset + $per_page));
         
-        // Générer le HTML des résultats
         $html = self::generate_results_html($game_ids, $validation['params']);
         
         return array(
@@ -212,30 +210,29 @@ class Sisme_Search_Ajax {
      */
     private static function build_search_criteria($params) {
         $criteria = array(
-            'sort_by_date' => true,
-            'sort_order' => 'desc',
-            'max_results' => -1, // Récupérer tous pour filtrer après
+            'sort_by_date' => false, // Désactiver par défaut
+            'max_results' => -1,
             'debug' => defined('WP_DEBUG') && WP_DEBUG
         );
         
-        // NOTE: utils-games ne gère PAS le paramètre 'search'
-        // La recherche textuelle sera faite après avec Sisme_Utils_Filters::filter_by_search_term
-        
-        // Filtre par genre (utiliser le slug directement)
+        // Filtre par genre
         if (!empty($params['genre'])) {
-            // Trouver l'ID de la catégorie depuis le slug
             $genre_category = get_category_by_slug($params['genre']);
             if ($genre_category) {
                 $criteria[Sisme_Utils_Games::KEY_GENRES] = array($genre_category->term_id);
             }
         }
         
-        // Filtre par statut
+        // Filtre par statut = activer tri par date
         if (!empty($params['status'])) {
+            $criteria['sort_by_date'] = true;
+            
             if ($params['status'] === 'released') {
                 $criteria['released'] = 1;
+                $criteria['sort_order'] = 'desc';
             } elseif ($params['status'] === 'upcoming') {
                 $criteria['released'] = -1;
+                $criteria['sort_order'] = 'asc';
             }
         }
         
