@@ -86,7 +86,9 @@ class Sisme_Search_Ajax {
             'genre' => sanitize_text_field($_POST['genre'] ?? ''),
             'status' => sanitize_text_field($_POST['status'] ?? ''),
             'columns' => max(1, min(6, intval($_POST['columns'] ?? 4))),
-            'max_results' => max(1, min(50, intval($_POST['max_results'] ?? 12)))
+            'max_results' => max(1, min(50, intval($_POST['max_results'] ?? 12))),
+            'page' => max(1, intval($_POST['page'] ?? 1)),
+            'load_more' => filter_var($_POST['load_more'] ?? false, FILTER_VALIDATE_BOOLEAN)
         );
     }
     
@@ -122,30 +124,41 @@ class Sisme_Search_Ajax {
         $criteria = self::build_search_criteria($validation['params']);
         
         // 1. Récupérer tous les jeux selon les critères (genre, statut)
-        $game_ids = Sisme_Utils_Games::get_games_by_criteria($criteria);
+        $all_game_ids = Sisme_Utils_Games::get_games_by_criteria($criteria);
         
         // 2. Appliquer la recherche textuelle avec utils-filters
         if (!empty($validation['params']['query'])) {
             if (class_exists('Sisme_Utils_Filters')) {
-                $game_ids = Sisme_Utils_Filters::filter_by_search_term($game_ids, $validation['params']['query']);
+                $all_game_ids = Sisme_Utils_Filters::filter_by_search_term($all_game_ids, $validation['params']['query']);
             }
         }
         
-        // 3. Limiter au nombre de résultats demandés
-        if ($validation['params']['max_results'] > 0 && count($game_ids) > $validation['params']['max_results']) {
-            $game_ids = array_slice($game_ids, 0, $validation['params']['max_results']);
-        }
+        // 3. Pagination : calculer offset et slice
+        $per_page = $validation['params']['max_results'];
+        $page = $validation['params']['page'];
+        $offset = ($page - 1) * $per_page;
+        $game_ids = array_slice($all_game_ids, $offset, $per_page);
+        
+        // 4. Vérifier s'il y a plus de résultats
+        $has_more = (count($all_game_ids) > ($offset + $per_page));
         
         // Générer le HTML des résultats
         $html = self::generate_results_html($game_ids, $validation['params']);
         
         // Préparer les métadonnées
         $metadata = self::prepare_metadata($game_ids, $validation['params']);
+        $metadata['total_available'] = count($all_game_ids);
+        $metadata['has_more'] = $has_more;
+        $metadata['current_page'] = $page;
         
         return array(
             'success' => true,
             'html' => $html,
             'total' => count($game_ids),
+            'total_available' => count($all_game_ids),
+            'has_more' => $has_more,
+            'current_page' => $page,
+            'is_load_more' => $validation['params']['load_more'],
             'params' => $validation['params'],
             'metadata' => $metadata
         );
@@ -163,10 +176,20 @@ class Sisme_Search_Ajax {
             'genre' => $params['genre'],
             'status' => $params['status'],
             'columns' => $params['columns'],
-            'max_results' => $params['max_results']
+            'max_results' => $params['max_results'],
+            'page' => $params['page'],
+            'load_more' => $params['load_more']
         );
         
-        // Vérifier qu'au moins un critère est fourni
+        // Pour "load more", pas besoin de critères (on garde les précédents)
+        if ($validated['load_more']) {
+            return array(
+                'valid' => true,
+                'params' => $validated
+            );
+        }
+        
+        // Vérifier qu'au moins un critère est fourni pour une nouvelle recherche
         if (empty($validated['query']) && empty($validated['genre']) && empty($validated['status'])) {
             return array(
                 'valid' => false,
@@ -198,7 +221,7 @@ class Sisme_Search_Ajax {
         $criteria = array(
             'sort_by_date' => true,
             'sort_order' => 'desc',
-            'max_results' => -1,
+            'max_results' => -1, // Récupérer tous pour filtrer après
             'debug' => defined('WP_DEBUG') && WP_DEBUG
         );
         
@@ -220,7 +243,6 @@ class Sisme_Search_Ajax {
                 $criteria['released'] = 1;
             } elseif ($params['status'] === 'upcoming') {
                 $criteria['released'] = -1;
-                $criteria['sort_order'] = 'asc';
             }
         }
         

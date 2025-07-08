@@ -56,6 +56,99 @@
                 this.initialResultsHtml = this.resultsContainer.innerHTML;
                 this.log('Résultats initiaux sauvegardés');
             }
+            
+            // Charger plus de résultats
+            if (this.loadMoreBtn) {
+                this.loadMoreBtn.addEventListener('click', () => {
+                    this.loadMoreResults();
+                });
+            }
+        }
+        
+        /**
+         * Afficher le bouton charger plus
+         */
+        showLoadMoreButton() {
+            if (this.loadMoreContainer) {
+                this.loadMoreContainer.style.display = 'block';
+            }
+        }
+        
+        /**
+         * Cacher le bouton charger plus
+         */
+        hideLoadMoreButton() {
+            if (this.loadMoreContainer) {
+                this.loadMoreContainer.style.display = 'none';
+            }
+        }
+        
+        /**
+         * Définir l'état de chargement du bouton "charger plus"
+         */
+        setLoadMoreState(isLoading) {
+            if (!this.loadMoreBtn) return;
+            
+            if (isLoading) {
+                this.loadMoreBtn.disabled = true;
+                if (this.loadMoreText) this.loadMoreText.style.display = 'none';
+                if (this.loadMoreLoading) this.loadMoreLoading.style.display = 'block';
+            } else {
+                this.loadMoreBtn.disabled = false;
+                if (this.loadMoreText) this.loadMoreText.style.display = 'block';
+                if (this.loadMoreLoading) this.loadMoreLoading.style.display = 'none';
+            }
+        }
+        
+        /**
+         * Charger plus de résultats
+         */
+        loadMoreResults() {
+            if (!this.lastSearchParams || !this.hasMore) {
+                return;
+            }
+            
+            // Annuler la requête précédente
+            if (this.currentRequest) {
+                this.currentRequest.abort();
+            }
+            
+            // Mettre à jour l'état du bouton charger plus
+            this.setLoadMoreState(true);
+            
+            // Préparer les paramètres avec la page suivante
+            const params = { ...this.lastSearchParams };
+            params.page = this.currentPage + 1;
+            params.load_more = true;
+            
+            // Préparer les données
+            const formData = new FormData();
+            formData.append('action', 'sisme_search_games');
+            formData.append('nonce', sismeSearch.nonce);
+            
+            // Ajouter les paramètres
+            Object.keys(params).forEach(key => {
+                formData.append(key, params[key]);
+            });
+            
+            // Faire la requête AJAX
+            this.currentRequest = $.ajax({
+                url: sismeSearch.ajaxUrl,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: (response) => {
+                    this.handleLoadMoreSuccess(response);
+                },
+                error: (xhr, status, error) => {
+                    this.handleSearchError(xhr, status, error);
+                },
+                complete: () => {
+                    this.setLoadMoreState(false);
+                    this.currentRequest = null;
+                }
+            });
         }
         
         /**
@@ -68,10 +161,21 @@
             this.statusSelect = this.container.querySelector('select[name="status"]');
             this.submitButton = this.container.querySelector('.sisme-search-button');
             this.resultsContainer = this.container.querySelector('.sisme-search-results');
+            this.loadMoreContainer = this.container.querySelector('.sisme-search-load-more');
+            this.loadMoreBtn = this.container.querySelector('.sisme-search-load-more-btn');
             
-            // Éléments du bouton
+            // Éléments du bouton de recherche
             this.buttonText = this.submitButton.querySelector('.sisme-search-button-text');
             this.buttonLoading = this.submitButton.querySelector('.sisme-search-button-loading');
+            
+            // Éléments du bouton charger plus
+            this.loadMoreText = this.loadMoreBtn ? this.loadMoreBtn.querySelector('.sisme-load-more-text') : null;
+            this.loadMoreLoading = this.loadMoreBtn ? this.loadMoreBtn.querySelector('.sisme-load-more-loading') : null;
+            
+            // Variables de pagination
+            this.currentPage = 1;
+            this.hasMore = false;
+            this.lastSearchParams = null;
         }
         
         /**
@@ -251,9 +355,37 @@
         handleSearchSuccess(response) {
             if (response.success) {
                 this.displayResults(response.data);
+                this.updatePagination(response.data);
                 this.log('Recherche réussie', response.data);
             } else {
                 this.handleSearchError(null, 'error', response.data.message);
+            }
+        }
+        
+        /**
+         * Gérer le succès du chargement de plus de résultats
+         */
+        handleLoadMoreSuccess(response) {
+            if (response.success) {
+                this.appendResults(response.data);
+                this.updatePagination(response.data);
+                this.log('Résultats supplémentaires chargés', response.data);
+            } else {
+                this.handleSearchError(null, 'error', response.data.message);
+            }
+        }
+        
+        /**
+         * Mettre à jour les informations de pagination
+         */
+        updatePagination(data) {
+            this.currentPage = data.current_page || 1;
+            this.hasMore = data.has_more || false;
+            
+            if (this.hasMore) {
+                this.showLoadMoreButton();
+            } else {
+                this.hideLoadMoreButton();
             }
         }
         
@@ -290,6 +422,32 @@
             
             // Faire défiler vers les résultats
             this.scrollToResults();
+        }
+        
+        /**
+         * Ajouter des résultats supplémentaires
+         */
+        appendResults(data) {
+            if (!this.resultsContainer) return;
+            
+            // Trouver la grille existante
+            const existingGrid = this.resultsContainer.querySelector('.sisme-cards-grid');
+            if (existingGrid && data.html) {
+                // Extraire les nouvelles cartes du HTML retourné
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = data.html;
+                const newGrid = tempDiv.querySelector('.sisme-cards-grid');
+                
+                if (newGrid) {
+                    // Ajouter chaque nouvelle carte à la grille existante
+                    const newCards = newGrid.querySelectorAll('.sisme-game-card');
+                    newCards.forEach(card => {
+                        existingGrid.appendChild(card);
+                    });
+                }
+            }
+            
+            this.log('Résultats supplémentaires ajoutés');
         }
         
         /**

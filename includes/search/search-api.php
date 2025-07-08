@@ -147,6 +147,14 @@ class Sisme_Search_API {
                 <?php self::render_initial_results($atts); ?>
             </section>
             
+            <!-- Bouton Charger plus -->
+            <div class="sisme-search-load-more" style="display: none;">
+                <button type="button" class="sisme-search-load-more-btn">
+                    <span class="sisme-load-more-text">Charger plus de résultats</span>
+                    <span class="sisme-load-more-loading" style="display: none;">Chargement...</span>
+                </button>
+            </div>
+            
             <!-- Debug info -->
             <?php if ($debug): ?>
             <div class="sisme-search-debug">

@@ -198,7 +198,8 @@
 /* IMPORTANT: Désactiver les animations des cartes individuelles dans les résultats de recherche */
 .sisme-search-results .sisme-game-card,
 .sisme-search-results-grid .sisme-game-card,
-.sisme-search-initial-results .sisme-game-card {
+.sisme-search-initial-results .sisme-game-card,
+.sisme-search-load-more-results .sisme-game-card {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
@@ -213,6 +214,54 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* ========================================
+   📄 BOUTON CHARGER PLUS
+======================================== */
+
+.sisme-search-load-more {
+    margin-top: var(--sisme-space-xl, 32px);
+    text-align: center;
+}
+
+.sisme-search-load-more-btn {
+    background: linear-gradient(45deg, #66c0f4, #4a9eff);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 16px 32px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    min-width: 200px;
+}
+
+.sisme-search-load-more-btn:hover {
+    background: linear-gradient(45deg, #4a9eff, #66c0f4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 192, 244, 0.3);
+}
+
+.sisme-search-load-more-btn:disabled {
+    background: rgba(255, 255, 255, 0.2);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.sisme-search-load-more-btn .sisme-load-more-loading {
+    display: none;
+}
+
+.sisme-search-load-more-btn:disabled .sisme-load-more-text {
+    display: none;
+}
+
+.sisme-search-load-more-btn:disabled .sisme-load-more-loading {
+    display: inline;
 }
 
 /* ========================================
@@ -354,6 +403,12 @@
         padding: 14px 20px;
         font-size: 0.875rem;
     }
+    
+    .sisme-search-load-more-btn {
+        padding: 14px 24px;
+        font-size: 0.875rem;
+        min-width: 180px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -375,6 +430,10 @@
     
     .sisme-search-no-results-title {
         font-size: 1.125rem;
+    }
+    
+    .sisme-search-load-more-btn {
+        min-width: 160px;
     }
 }
 
@@ -401,7 +460,8 @@
 
 .sisme-search-input:focus,
 .sisme-search-select:focus,
-.sisme-search-button:focus {
+.sisme-search-button:focus,
+.sisme-search-load-more-btn:focus {
     outline: 2px solid #66c0f4;
     outline-offset: 2px;
 }
@@ -409,6 +469,7 @@
 @media (prefers-reduced-motion: reduce) {
     .sisme-search-results-grid,
     .sisme-search-button,
+    .sisme-search-load-more-btn,
     .sisme-search-input,
     .sisme-search-select {
         animation: none !important;
