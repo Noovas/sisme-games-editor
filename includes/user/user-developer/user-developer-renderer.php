@@ -137,11 +137,235 @@ class Sisme_User_Developer_Renderer {
                         Parlez-nous de votre studio et de vos projets. Plus votre candidature sera détaillée, plus nous pourrons l'évaluer rapidement.
                     </p>
                     
-                    <!-- Le formulaire détaillé sera ajouté dans la prochaine étape -->
-                    <div class="sisme-form-placeholder">
-                        <p>🚧 Formulaire en cours de développement</p>
-                        <p>Les champs de candidature seront ajoutés dans la prochaine étape.</p>
-                    </div>
+                    <form id="sisme-developer-form" class="sisme-application-form">
+                        <?php wp_nonce_field('sisme_developer_application', 'sisme_developer_nonce'); ?>
+                        
+                        <!-- Section Studio -->
+                        <div class="sisme-form-section">
+                            <h4 class="sisme-form-section-title">🏢 Informations Studio</h4>
+                            
+                            <div class="sisme-form-row">
+                                <div class="sisme-form-field">
+                                    <label for="studio_name" class="sisme-form-label">
+                                        Nom du studio <span class="sisme-required">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           id="studio_name" 
+                                           name="studio_name" 
+                                           class="sisme-form-input" 
+                                           required 
+                                           maxlength="100"
+                                           placeholder="Ex: Pixel Dreams Studio">
+                                    <span class="sisme-form-error" id="error-studio_name"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="sisme-form-row">
+                                <div class="sisme-form-field">
+                                    <label for="studio_description" class="sisme-form-label">
+                                        Description du studio <span class="sisme-required">*</span>
+                                    </label>
+                                    <textarea id="studio_description" 
+                                              name="studio_description" 
+                                              class="sisme-form-textarea" 
+                                              required 
+                                              rows="4"
+                                              maxlength="500"
+                                              placeholder="Décrivez votre studio, votre vision, vos spécialités..."></textarea>
+                                    <span class="sisme-form-help">Maximum 500 caractères</span>
+                                    <span class="sisme-form-error" id="error-studio_description"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="sisme-form-row">
+                                <div class="sisme-form-field">
+                                    <label for="studio_website" class="sisme-form-label">
+                                        Site web du studio
+                                    </label>
+                                    <input type="url" 
+                                           id="studio_website" 
+                                           name="studio_website" 
+                                           class="sisme-form-input" 
+                                           placeholder="https://votre-studio.com">
+                                    <span class="sisme-form-error" id="error-studio_website"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="sisme-form-row">
+                                <div class="sisme-form-field">
+                                    <label class="sisme-form-label">Réseaux sociaux (optionnel)</label>
+                                    <div class="sisme-social-inputs">
+                                        <div class="sisme-social-input-group">
+                                            <span class="sisme-social-icon">🐦</span>
+                                            <input type="text" 
+                                                   name="social_twitter" 
+                                                   class="sisme-form-input sisme-social-input" 
+                                                   placeholder="@votre_compte">
+                                        </div>
+                                        <div class="sisme-social-input-group">
+                                            <span class="sisme-social-icon">💬</span>
+                                            <input type="text" 
+                                                   name="social_discord" 
+                                                   class="sisme-form-input sisme-social-input" 
+                                                   placeholder="votre_pseudo#1234">
+                                        </div>
+                                        <div class="sisme-social-input-group">
+                                            <span class="sisme-social-icon">📷</span>
+                                            <input type="text" 
+                                                   name="social_instagram" 
+                                                   class="sisme-form-input sisme-social-input" 
+                                                   placeholder="@votre_compte">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Section Représentant -->
+                        <div class="sisme-form-section">
+                            <h4 class="sisme-form-section-title">👤 Informations Représentant</h4>
+                            
+                            <div class="sisme-form-row sisme-form-row-double">
+                                <div class="sisme-form-field">
+                                    <label for="representative_firstname" class="sisme-form-label">
+                                        Prénom <span class="sisme-required">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           id="representative_firstname" 
+                                           name="representative_firstname" 
+                                           class="sisme-form-input" 
+                                           required 
+                                           maxlength="50">
+                                    <span class="sisme-form-error" id="error-representative_firstname"></span>
+                                </div>
+                                <div class="sisme-form-field">
+                                    <label for="representative_lastname" class="sisme-form-label">
+                                        Nom <span class="sisme-required">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           id="representative_lastname" 
+                                           name="representative_lastname" 
+                                           class="sisme-form-input" 
+                                           required 
+                                           maxlength="50">
+                                    <span class="sisme-form-error" id="error-representative_lastname"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="sisme-form-row">
+                                <div class="sisme-form-field">
+                                    <label for="representative_birthdate" class="sisme-form-label">
+                                        Date de naissance <span class="sisme-required">*</span>
+                                    </label>
+                                    <input type="date" 
+                                           id="representative_birthdate" 
+                                           name="representative_birthdate" 
+                                           class="sisme-form-input" 
+                                           required 
+                                           max="<?php echo date('Y-m-d', strtotime('-18 years')); ?>">
+                                    <span class="sisme-form-help">Vous devez être majeur pour candidater</span>
+                                    <span class="sisme-form-error" id="error-representative_birthdate"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="sisme-form-row">
+                                <div class="sisme-form-field">
+                                    <label for="representative_address" class="sisme-form-label">
+                                        Adresse <span class="sisme-required">*</span>
+                                    </label>
+                                    <textarea id="representative_address" 
+                                              name="representative_address" 
+                                              class="sisme-form-textarea" 
+                                              required 
+                                              rows="2"
+                                              maxlength="200"
+                                              placeholder="Numéro, rue, code postal..."></textarea>
+                                    <span class="sisme-form-error" id="error-representative_address"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="sisme-form-row sisme-form-row-double">
+                                <div class="sisme-form-field">
+                                    <label for="representative_city" class="sisme-form-label">
+                                        Ville <span class="sisme-required">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           id="representative_city" 
+                                           name="representative_city" 
+                                           class="sisme-form-input" 
+                                           required 
+                                           maxlength="100">
+                                    <span class="sisme-form-error" id="error-representative_city"></span>
+                                </div>
+                                <div class="sisme-form-field">
+                                    <label for="representative_country" class="sisme-form-label">
+                                        Pays <span class="sisme-required">*</span>
+                                    </label>
+                                    <select id="representative_country" 
+                                            name="representative_country" 
+                                            class="sisme-form-select" 
+                                            required>
+                                        <option value="">Sélectionnez un pays</option>
+                                        <option value="FR">France</option>
+                                        <option value="BE">Belgique</option>
+                                        <option value="CH">Suisse</option>
+                                        <option value="CA">Canada</option>
+                                        <option value="US">États-Unis</option>
+                                        <option value="GB">Royaume-Uni</option>
+                                        <option value="DE">Allemagne</option>
+                                        <option value="ES">Espagne</option>
+                                        <option value="IT">Italie</option>
+                                        <option value="OTHER">Autre</option>
+                                    </select>
+                                    <span class="sisme-form-error" id="error-representative_country"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="sisme-form-row sisme-form-row-double">
+                                <div class="sisme-form-field">
+                                    <label for="representative_email" class="sisme-form-label">
+                                        Email de contact <span class="sisme-required">*</span>
+                                    </label>
+                                    <input type="email" 
+                                           id="representative_email" 
+                                           name="representative_email" 
+                                           class="sisme-form-input" 
+                                           required 
+                                           placeholder="contact@votre-studio.com">
+                                    <span class="sisme-form-error" id="error-representative_email"></span>
+                                </div>
+                                <div class="sisme-form-field">
+                                    <label for="representative_phone" class="sisme-form-label">
+                                        Téléphone <span class="sisme-required">*</span>
+                                    </label>
+                                    <input type="tel" 
+                                           id="representative_phone" 
+                                           name="representative_phone" 
+                                           class="sisme-form-input" 
+                                           required 
+                                           placeholder="+33 1 23 45 67 89">
+                                    <span class="sisme-form-error" id="error-representative_phone"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="sisme-form-actions">
+                            <button type="button" 
+                                    class="sisme-btn sisme-btn-secondary" 
+                                    onclick="SismeDeveloper.hideApplicationForm()">
+                                Annuler
+                            </button>
+                            <button type="submit" 
+                                    class="sisme-btn sisme-btn-primary" 
+                                    id="sisme-submit-application">
+                                📤 Envoyer ma candidature
+                            </button>
+                        </div>
+                        
+                        <!-- Zone de feedback -->
+                        <div id="sisme-form-feedback" class="sisme-form-feedback" style="display: none;"></div>
+                    </form>
                 </div>
             </div>
         </div>

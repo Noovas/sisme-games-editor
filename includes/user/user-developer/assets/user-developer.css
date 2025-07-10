@@ -258,9 +258,9 @@
     background: var(--sisme-dashboard-bg-secondary);
     border: 1px solid var(--sisme-dashboard-border-color);
     border-radius: var(--sisme-dashboard-radius-lg);
-    max-width: 600px;
+    max-width: 800px;
     width: 100%;
-    max-height: 80vh;
+    max-height: 90vh;
     overflow-y: auto;
     box-shadow: var(--sisme-dashboard-shadow-xl);
 }
@@ -271,6 +271,7 @@
     justify-content: space-between;
     padding: var(--sisme-dashboard-space-lg);
     border-bottom: 1px solid var(--sisme-dashboard-border-color);
+    background: var(--sisme-developer-bg-card);
 }
 
 .sisme-form-title {
@@ -302,17 +303,206 @@
 
 .sisme-form-intro {
     color: var(--sisme-dashboard-text-secondary);
-    margin: 0 0 var(--sisme-dashboard-space-lg) 0;
+    margin: 0 0 var(--sisme-dashboard-space-xl) 0;
     line-height: 1.6;
+    text-align: center;
+    background: var(--sisme-developer-bg-card);
+    padding: var(--sisme-dashboard-space-md);
+    border-radius: var(--sisme-dashboard-radius-md);
 }
 
-.sisme-form-placeholder {
-    text-align: center;
-    padding: var(--sisme-dashboard-space-xl);
+/* ===📋 SECTIONS FORMULAIRE ============== */
+.sisme-form-section {
+    margin-bottom: var(--sisme-dashboard-space-xl);
     background: var(--sisme-developer-bg-card);
     border: 1px solid var(--sisme-developer-border);
     border-radius: var(--sisme-dashboard-radius-md);
+    padding: var(--sisme-dashboard-space-lg);
+}
+
+.sisme-form-section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--sisme-dashboard-text-primary);
+    margin: 0 0 var(--sisme-dashboard-space-lg) 0;
+    padding-bottom: var(--sisme-dashboard-space-sm);
+    border-bottom: 1px solid var(--sisme-developer-border);
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-dashboard-space-sm);
+}
+
+/* ===🏷️ CHAMPS FORMULAIRE ================ */
+.sisme-form-row {
+    margin-bottom: var(--sisme-dashboard-space-lg);
+}
+
+.sisme-form-row-double {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sisme-dashboard-space-md);
+}
+
+.sisme-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-dashboard-space-xs);
+}
+
+.sisme-form-label {
+    font-weight: 500;
+    color: var(--sisme-dashboard-text-primary);
+    font-size: 0.9rem;
+}
+
+.sisme-required {
+    color: #f85149;
+    font-weight: bold;
+}
+
+.sisme-form-input,
+.sisme-form-textarea,
+.sisme-form-select {
+    background: var(--sisme-dashboard-bg-primary);
+    border: 1px solid var(--sisme-developer-border);
+    border-radius: var(--sisme-dashboard-radius-sm);
+    padding: var(--sisme-dashboard-space-sm) var(--sisme-dashboard-space-md);
+    color: var(--sisme-dashboard-text-primary);
+    font-size: 0.9rem;
+    transition: var(--sisme-dashboard-transition-fast);
+}
+
+.sisme-form-input:focus,
+.sisme-form-textarea:focus,
+.sisme-form-select:focus {
+    outline: none;
+    border-color: var(--sisme-dashboard-accent-primary);
+    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
+.sisme-form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.sisme-form-help {
+    font-size: 0.8rem;
     color: var(--sisme-dashboard-text-secondary);
+    font-style: italic;
+}
+
+.sisme-form-error {
+    font-size: 0.8rem;
+    color: #f85149;
+    font-weight: 500;
+    display: none;
+}
+
+.sisme-form-error.show {
+    display: block;
+}
+
+/* ===📱 RÉSEAUX SOCIAUX ================== */
+.sisme-social-inputs {
+    display: grid;
+    gap: var(--sisme-dashboard-space-sm);
+}
+
+.sisme-social-input-group {
+    display: flex;
+    align-items: center;
+    gap: var(--sisme-dashboard-space-sm);
+    background: var(--sisme-dashboard-bg-primary);
+    border: 1px solid var(--sisme-developer-border);
+    border-radius: var(--sisme-dashboard-radius-sm);
+    padding: var(--sisme-dashboard-space-xs);
+    transition: var(--sisme-dashboard-transition-fast);
+}
+
+.sisme-social-input-group:focus-within {
+    border-color: var(--sisme-dashboard-accent-primary);
+    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
+.sisme-social-icon {
+    font-size: 1.1rem;
+    padding: var(--sisme-dashboard-space-xs);
+    background: var(--sisme-developer-bg-card);
+    border-radius: var(--sisme-dashboard-radius-sm);
+    min-width: 32px;
+    text-align: center;
+}
+
+.sisme-social-input {
+    border: none !important;
+    background: transparent !important;
+    padding: var(--sisme-dashboard-space-xs) !important;
+    flex: 1;
+}
+
+.sisme-social-input:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* ===🎯 ACTIONS FORMULAIRE =============== */
+.sisme-form-actions {
+    display: flex;
+    gap: var(--sisme-dashboard-space-md);
+    justify-content: flex-end;
+    margin-top: var(--sisme-dashboard-space-xl);
+    padding-top: var(--sisme-dashboard-space-lg);
+    border-top: 1px solid var(--sisme-developer-border);
+}
+
+.sisme-form-feedback {
+    margin-top: var(--sisme-dashboard-space-lg);
+    padding: var(--sisme-dashboard-space-md);
+    border-radius: var(--sisme-dashboard-radius-md);
+    text-align: center;
+    font-weight: 500;
+}
+
+.sisme-form-feedback.success {
+    background: rgba(63, 185, 80, 0.1);
+    border: 1px solid rgba(63, 185, 80, 0.3);
+    color: #3fb950;
+}
+
+.sisme-form-feedback.error {
+    background: rgba(248, 81, 73, 0.1);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+    color: #f85149;
+}
+
+.sisme-form-feedback.loading {
+    background: rgba(88, 166, 255, 0.1);
+    border: 1px solid rgba(88, 166, 255, 0.3);
+    color: var(--sisme-dashboard-accent-primary);
+}
+
+/* ===📱 RESPONSIVE FORMULAIRE ============ */
+@media (max-width: 768px) {
+    .sisme-developer-form-container {
+        padding: var(--sisme-dashboard-space-sm);
+    }
+    
+    .sisme-developer-form {
+        max-height: 95vh;
+    }
+    
+    .sisme-form-row-double {
+        grid-template-columns: 1fr;
+        gap: var(--sisme-dashboard-space-sm);
+    }
+    
+    .sisme-form-actions {
+        flex-direction: column;
+    }
+    
+    .sisme-social-inputs {
+        gap: var(--sisme-dashboard-space-xs);
+    }
 }
 
 /* ===📊 STATUT CARDS ==================== */

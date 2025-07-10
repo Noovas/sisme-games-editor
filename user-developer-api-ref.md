@@ -187,13 +187,17 @@ $data = Sisme_User_Developer_Data_Manager::get_developer_data(42);
 // Structure retournée:
 // [
 //     'studio_name' => string,
-//     'website' => string,
-//     'description' => string,
-//     'portfolio_links' => array,
-//     'experience' => string,
-//     'motivation' => string,
-//     'contact_email' => string,
-//     'social_links' => array,
+//     'studio_description' => string,
+//     'studio_website' => string,
+//     'studio_social_links' => array,
+//     'representative_firstname' => string,
+//     'representative_lastname' => string,
+//     'representative_birthdate' => string,
+//     'representative_address' => string,
+//     'representative_city' => string,
+//     'representative_country' => string,
+//     'representative_email' => string,
+//     'representative_phone' => string,
 //     'submitted_date' => string,
 //     'reviewed_date' => string,
 //     'admin_notes' => string
@@ -256,14 +260,18 @@ $stats = Sisme_User_Developer_Data_Manager::get_developer_stats(42);
 // @return bool - Succès de la sauvegarde
 //
 // Données acceptées:
-// - studio_name (string)
-// - website (string, URL)
-// - description (string)
-// - portfolio_links (array of URLs)
-// - experience (string)
-// - motivation (string)
-// - contact_email (string, email)
-// - social_links (array: platform => handle)
+// - studio_name (string, requis)
+// - studio_description (string, requis, max 500 chars)
+// - studio_website (string, URL optionnelle)
+// - studio_social_links (array: platform => handle)
+// - representative_firstname (string, requis, max 50 chars)
+// - representative_lastname (string, requis, max 50 chars)
+// - representative_birthdate (string, date YYYY-MM-DD, requis)
+// - representative_address (string, requis, max 200 chars)
+// - representative_city (string, requis, max 100 chars)
+// - representative_country (string, requis, code pays)
+// - representative_email (string, email requis)
+// - representative_phone (string, téléphone requis)
 //
 // Actions automatiques:
 // - Sanitisation des données

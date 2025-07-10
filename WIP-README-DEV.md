@@ -23,6 +23,7 @@ includes/user/user-developer/
 - [x] **Navigation dynamique** avec icônes selon statut
 - [x] **4 états développeur** : none, pending, approved, rejected
 - [x] **État 1 complet** : Interface "Devenir Développeur"
+- [x] **Formulaire candidature** : Complet avec toutes validations
 - [x] **Système de hooks** pour extension dashboard
 - [x] **Gestion métadonnées** utilisateur développeur
 - [x] **Styles cohérents** avec thème gaming dark
@@ -65,7 +66,11 @@ includes/user/user-developer/
 - Liste des avantages développeur
 - Exemples de développeurs existants
 - Bouton "Faire une demande"
-- Modal candidature (placeholder)
+- Formulaire candidature complet :
+  * Section Studio (nom, description, site web, réseaux sociaux)
+  * Section Représentant (identité, naissance, adresse, contact)
+  * Validation HTML5 et zones d'erreur
+  * Design responsive avec feedback utilisateur
 ```
 
 ### **État 2 : Candidature en cours (pending)**
@@ -256,13 +261,14 @@ includes/user/user-developer/
 
 ## 🚀 **Étapes d'Implémentation**
 
-### **Phase 1 : Infrastructure** ✅
+### **Étape 1 : Infrastructure** ✅
 1. ✅ Créer structure fichiers
 2. ✅ Intégrer au dashboard
 3. ✅ Système de candidature (base)
+4. ✅ Formulaire candidature complet
 
-### **Phase 2 : Soumission** 🚧
-1. 📝 Adapter formulaire création jeu
+### **Étape 2 : Soumission** 🚧
+1. 📝 JavaScript validation et AJAX
 2. 🔄 Workflow validation admin
 3. 📊 Interface "Mes Jeux"
 
@@ -320,12 +326,12 @@ Tout en conservant la **qualité** et le **contrôle** pour les administrateurs.
 
 ## 📋 **Prochaines Étapes**
 
-### **Étape 2 : Formulaire Candidature Complet**
-- [ ] Formulaire avec tous les champs
-- [ ] Validation côté client et serveur
-- [ ] Système AJAX pour soumission
-- [ ] Interface "Voir ma candidature"
-- [ ] Gestion des erreurs et succès
+### **Étape 2 : JavaScript Validation et AJAX** 🚧
+- [ ] Validation côté client (champs requis, formats, âge)
+- [ ] Système AJAX pour soumission sécurisée
+- [ ] Feedback temps réel (success/error/loading)
+- [ ] Gestion des erreurs serveur
+- [ ] Interface "Voir ma candidature" (état pending)
 
 ### **Étape 3 : Interface Admin**
 - [ ] Page admin candidatures
