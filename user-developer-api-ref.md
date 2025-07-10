@@ -506,9 +506,11 @@ SismeDeveloper.log('Test message', {key: 'value'});
 .sisme-developer-icon
 .sisme-developer-content
 .sisme-benefits-list
-.sisme-examples-grid
-.sisme-developer-stats
-.sisme-developer-form-container
+.sisme-developer-application      /* Formulaire intégré */
+.sisme-form-section
+.sisme-form-field
+.sisme-social-input-group
+.sisme-form-feedback
 ```
 
 ---

@@ -23,7 +23,8 @@ includes/user/user-developer/
 - [x] **Navigation dynamique** avec icônes selon statut
 - [x] **4 états développeur** : none, pending, approved, rejected
 - [x] **État 1 complet** : Interface "Devenir Développeur"
-- [x] **Formulaire candidature** : Complet avec toutes validations
+- [x] **Formulaire intégré** : Complet sans modal, directement dans l'onglet
+- [x] **Validation JavaScript** : Temps réel avec feedback utilisateur
 - [x] **Système de hooks** pour extension dashboard
 - [x] **Gestion métadonnées** utilisateur développeur
 - [x] **Styles cohérents** avec thème gaming dark
@@ -64,13 +65,12 @@ includes/user/user-developer/
 [📝 Devenir Développeur]
 - Header avec icône et description
 - Liste des avantages développeur
-- Exemples de développeurs existants
-- Bouton "Faire une demande"
-- Formulaire candidature complet :
+- Formulaire candidature intégré directement dans l'onglet :
   * Section Studio (nom, description, site web, réseaux sociaux)
   * Section Représentant (identité, naissance, adresse, contact)
-  * Validation HTML5 et zones d'erreur
-  * Design responsive avec feedback utilisateur
+  * Validation HTML5 et JavaScript temps réel
+  * Design responsive sans modal
+  * Système de feedback (success/error/loading)
 ```
 
 ### **État 2 : Candidature en cours (pending)**
@@ -264,13 +264,13 @@ includes/user/user-developer/
 ### **Étape 1 : Infrastructure** ✅
 1. ✅ Créer structure fichiers
 2. ✅ Intégrer au dashboard
-3. ✅ Système de candidature (base)
-4. ✅ Formulaire candidature complet
+3. ✅ Formulaire candidature intégré
+4. ✅ Validation JavaScript temps réel
 
-### **Étape 2 : Soumission** 🚧
-1. 📝 JavaScript validation et AJAX
-2. 🔄 Workflow validation admin
-3. 📊 Interface "Mes Jeux"
+### **Étape 2 : Soumission AJAX** 🚧
+1. 🚧 Soumission AJAX fonctionnelle
+2. 📝 Interface "Voir ma candidature" 
+3. 🔄 Workflow validation admin
 
 ### **Phase 3 : Optimisation** 🔮
 1. 🔔 Notifications système
@@ -326,12 +326,13 @@ Tout en conservant la **qualité** et le **contrôle** pour les administrateurs.
 
 ## 📋 **Prochaines Étapes**
 
-### **Étape 2 : JavaScript Validation et AJAX** 🚧
-- [ ] Validation côté client (champs requis, formats, âge)
-- [ ] Système AJAX pour soumission sécurisée
-- [ ] Feedback temps réel (success/error/loading)
-- [ ] Gestion des erreurs serveur
+### **Étape 2 : Soumission AJAX** 🚧
+- [x] Formulaire intégré dans l'onglet (plus de modal)
+- [x] Validation JavaScript temps réel
+- [x] Système de feedback utilisateur
+- [ ] Soumission AJAX fonctionnelle
 - [ ] Interface "Voir ma candidature" (état pending)
+- [ ] Gestion des erreurs serveur
 
 ### **Étape 3 : Interface Admin**
 - [ ] Page admin candidatures
