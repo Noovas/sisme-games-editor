@@ -1,0 +1,267 @@
+<?php
+/**
+ * File: /sisme-games-editor/includes/user/user-developer/user-developer-ajax.php
+ * Handlers AJAX pour le module développeur utilisateur
+ * 
+ * RESPONSABILITÉ:
+ * - Gestion des requêtes AJAX pour candidature développeur
+ * - Validation sécurité et permissions utilisateur
+ * - Sauvegarde des candidatures avec changement de statut
+ * - Réponses JSON structurées pour le frontend
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Initialiser les hooks AJAX pour le module développeur
+ */
+function sisme_init_developer_ajax() {
+    // Actions AJAX pour utilisateurs connectés
+    add_action('wp_ajax_sisme_developer_submit', 'sisme_ajax_developer_submit');
+    
+    // Actions AJAX pour utilisateurs non connectés
+    add_action('wp_ajax_nopriv_sisme_developer_submit', 'sisme_ajax_not_logged_in');
+    
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('[Sisme User Developer Ajax] Hooks AJAX enregistrés');
+    }
+}
+
+/**
+ * Handler AJAX pour soumission candidature développeur
+ */
+function sisme_ajax_developer_submit() {
+    // Nettoyer le buffer de sortie
+    if (ob_get_length()) {
+        ob_clean();
+    }
+    
+    // Vérifier le nonce de sécurité
+    if (!check_ajax_referer('sisme_developer_nonce', 'security', false)) {
+        wp_send_json_error([
+            'message' => 'Erreur de sécurité. Veuillez recharger la page.',
+            'code' => 'invalid_nonce'
+        ]);
+    }
+    
+    // Vérifier que l'utilisateur est connecté
+    if (!is_user_logged_in()) {
+        wp_send_json_error([
+            'message' => 'Vous devez être connecté pour soumettre une candidature.',
+            'code' => 'not_logged_in'
+        ]);
+    }
+    
+    $user_id = get_current_user_id();
+    
+    // Vérifier que l'utilisateur peut candidater
+    if (!Sisme_Utils_Users::can_apply_as_developer($user_id)) {
+        $current_status = Sisme_Utils_Users::get_user_dev_data($user_id, 'status');
+        wp_send_json_error([
+            'message' => 'Vous ne pouvez pas soumettre de candidature en ce moment.',
+            'code' => 'cannot_apply',
+            'current_status' => $current_status
+        ]);
+    }
+    
+    // Sanitiser et valider les données du formulaire
+    $application_data = sisme_sanitize_developer_form_data($_POST);
+    $validation_errors = sisme_validate_developer_form_data($application_data);
+    
+    if (!empty($validation_errors)) {
+        wp_send_json_error([
+            'message' => 'Veuillez corriger les erreurs dans le formulaire.',
+            'code' => 'validation_errors',
+            'errors' => $validation_errors
+        ]);
+    }
+    
+    // Sauvegarder la candidature
+    $result = Sisme_User_Developer_Data_Manager::save_developer_application($user_id, $application_data);
+    
+    if (!$result) {
+        wp_send_json_error([
+            'message' => 'Erreur lors de la sauvegarde de votre candidature. Veuillez réessayer.',
+            'code' => 'save_failed'
+        ]);
+    }
+    
+    // Vérifier le changement de statut
+    $new_status = Sisme_Utils_Users::get_user_dev_data($user_id, 'status');
+    
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log("[Sisme User Developer Ajax] Candidature soumise avec succès - User ID: $user_id, Nouveau statut: $new_status");
+    }
+    
+    // Retourner le succès
+    wp_send_json_success([
+        'message' => 'Votre candidature a été soumise avec succès ! Vous recevrez une notification dès qu\'elle sera examinée.',
+        'code' => 'application_submitted',
+        'new_status' => $new_status,
+        'reload_dashboard' => true
+    ]);
+}
+
+/**
+ * Handler AJAX pour utilisateurs non connectés
+ */
+function sisme_ajax_not_logged_in() {
+    wp_send_json_error([
+        'message' => 'Vous devez être connecté pour effectuer cette action.',
+        'code' => 'not_logged_in'
+    ]);
+}
+
+/**
+ * Sanitiser les données du formulaire développeur
+ * 
+ * @param array $raw_data Données brutes du formulaire
+ * @return array Données sanitisées
+ */
+function sisme_sanitize_developer_form_data($raw_data) {
+    $sanitized = [];
+    
+    // Informations studio
+    $sanitized[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_NAME] = sanitize_text_field($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_NAME] ?? '');
+    $sanitized[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_DESCRIPTION] = sanitize_textarea_field($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_DESCRIPTION] ?? '');
+    $sanitized[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_WEBSITE] = esc_url_raw($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_WEBSITE] ?? '');
+    
+    // Liens sociaux
+    $social_links = [];
+    if (isset($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS]) && is_array($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS])) {
+        foreach ($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS] as $platform => $handle) {
+            if (!empty($handle)) {
+                $social_links[sanitize_key($platform)] = sanitize_text_field($handle);
+            }
+        }
+    }
+    $sanitized[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS] = $social_links;
+    
+    // Informations représentant
+    $sanitized[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_FIRSTNAME] = sanitize_text_field($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_FIRSTNAME] ?? '');
+    $sanitized[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_LASTNAME] = sanitize_text_field($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_LASTNAME] ?? '');
+    $sanitized[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_BIRTHDATE] = sanitize_text_field($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_BIRTHDATE] ?? '');
+    $sanitized[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_ADDRESS] = sanitize_textarea_field($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_ADDRESS] ?? '');
+    $sanitized[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_CITY] = sanitize_text_field($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_CITY] ?? '');
+    $sanitized[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_COUNTRY] = sanitize_text_field($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_COUNTRY] ?? '');
+    $sanitized[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_EMAIL] = sanitize_email($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_EMAIL] ?? '');
+    $sanitized[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_PHONE] = sanitize_text_field($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_PHONE] ?? '');
+    
+    return $sanitized;
+}
+
+/**
+ * Valider les données du formulaire développeur
+ * 
+ * @param array $data Données sanitisées
+ * @return array Erreurs de validation
+ */
+function sisme_validate_developer_form_data($data) {
+    $errors = [];
+    
+    // Validation informations studio
+    if (empty($data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_NAME])) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_NAME] = 'Le nom du studio est requis.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_NAME]) < 2) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_NAME] = 'Le nom du studio doit contenir au moins 2 caractères.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_NAME]) > 100) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_NAME] = 'Le nom du studio ne peut pas dépasser 100 caractères.';
+    }
+    
+    if (empty($data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_DESCRIPTION])) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_DESCRIPTION] = 'La description du studio est requise.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_DESCRIPTION]) < 10) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_DESCRIPTION] = 'La description du studio doit contenir au moins 10 caractères.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_DESCRIPTION]) > 1000) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_DESCRIPTION] = 'La description du studio ne peut pas dépasser 1000 caractères.';
+    }
+    
+    // Validation site web (optionnel)
+    if (!empty($data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_WEBSITE])) {
+        if (!filter_var($data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_WEBSITE], FILTER_VALIDATE_URL)) {
+            $errors[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_WEBSITE] = 'L\'URL du site web n\'est pas valide.';
+        }
+    }
+    
+    // Validation informations représentant
+    if (empty($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_FIRSTNAME])) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_FIRSTNAME] = 'Le prénom est requis.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_FIRSTNAME]) < 2) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_FIRSTNAME] = 'Le prénom doit contenir au moins 2 caractères.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_FIRSTNAME]) > 50) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_FIRSTNAME] = 'Le prénom ne peut pas dépasser 50 caractères.';
+    }
+    
+    if (empty($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_LASTNAME])) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_LASTNAME] = 'Le nom est requis.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_LASTNAME]) < 2) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_LASTNAME] = 'Le nom doit contenir au moins 2 caractères.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_LASTNAME]) > 50) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_LASTNAME] = 'Le nom ne peut pas dépasser 50 caractères.';
+    }
+    
+    // Validation date de naissance
+    if (empty($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_BIRTHDATE])) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_BIRTHDATE] = 'La date de naissance est requise.';
+    } else {
+        $birthdate = DateTime::createFromFormat('Y-m-d', $data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_BIRTHDATE]);
+        if (!$birthdate || $birthdate->format('Y-m-d') !== $data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_BIRTHDATE]) {
+            $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_BIRTHDATE] = 'La date de naissance n\'est pas valide.';
+        } else {
+            $age = $birthdate->diff(new DateTime())->y;
+            if ($age < 18) {
+                $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_BIRTHDATE] = 'Vous devez avoir au moins 18 ans pour candidater.';
+            }
+        }
+    }
+    
+    // Validation adresse
+    if (empty($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_ADDRESS])) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_ADDRESS] = 'L\'adresse est requise.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_ADDRESS]) < 5) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_ADDRESS] = 'L\'adresse doit contenir au moins 5 caractères.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_ADDRESS]) > 200) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_ADDRESS] = 'L\'adresse ne peut pas dépasser 200 caractères.';
+    }
+    
+    // Validation ville
+    if (empty($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_CITY])) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_CITY] = 'La ville est requise.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_CITY]) < 2) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_CITY] = 'La ville doit contenir au moins 2 caractères.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_CITY]) > 100) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_CITY] = 'La ville ne peut pas dépasser 100 caractères.';
+    }
+    
+    // Validation pays
+    if (empty($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_COUNTRY])) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_COUNTRY] = 'Le pays est requis.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_COUNTRY]) < 2) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_COUNTRY] = 'Le pays doit contenir au moins 2 caractères.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_COUNTRY]) > 100) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_COUNTRY] = 'Le pays ne peut pas dépasser 100 caractères.';
+    }
+    
+    // Validation email
+    if (empty($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_EMAIL])) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_EMAIL] = 'L\'email est requis.';
+    } elseif (!is_email($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_EMAIL])) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_EMAIL] = 'L\'email n\'est pas valide.';
+    }
+    
+    // Validation téléphone
+    if (empty($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_PHONE])) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_PHONE] = 'Le téléphone est requis.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_PHONE]) < 8) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_PHONE] = 'Le numéro de téléphone doit contenir au moins 8 caractères.';
+    } elseif (strlen($data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_PHONE]) > 20) {
+        $errors[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_PHONE] = 'Le numéro de téléphone ne peut pas dépasser 20 caractères.';
+    }
+    
+    return $errors;
+}
+
+// Initialiser les hooks AJAX
+sisme_init_developer_ajax();

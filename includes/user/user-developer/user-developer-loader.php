@@ -119,41 +119,50 @@ class Sisme_User_Developer_Loader {
         wp_enqueue_script(
             'sisme-user-developer',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/assets/user-developer.js',
-            array('jquery', 'sisme-user-dashboard'), // Dépendances
+            array('jquery', 'sisme-user-dashboard'),
             SISME_GAMES_EDITOR_VERSION,
             true
         );
         
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[Sisme User Developer] Assets chargés');
-        }
+        // JavaScript AJAX du module développeur
+        wp_enqueue_script(
+            'sisme-user-developer-ajax',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/assets/user-developer-ajax.js',
+            array('jquery', 'sisme-user-developer'),
+            SISME_GAMES_EDITOR_VERSION,
+            true
+        );
+        
+        // Localisation AJAX
+        wp_localize_script('sisme-user-developer-ajax', 'sismeAjax', array(
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('sisme_developer_nonce')
+        ));
     }
     
     /**
-     * Vérifier si les assets doivent être chargés
+     * Vérifier si on doit charger les assets
      */
     private function should_load_assets() {
-        // Charger sur la page dashboard
-        if (is_page('sisme-user-tableau-de-bord')) {
-            return true;
-        }
-        
-        // Charger si shortcode dashboard présent
+        // Charger seulement sur les pages avec le dashboard
         global $post;
-        if ($post && has_shortcode($post->post_content, 'sisme_user_dashboard')) {
-            return true;
+        
+        if (!$post) {
+            return false;
         }
         
-        return false;
+        // Vérifier si c'est une page dashboard
+        return $post->post_name === 'sisme-user-tableau-de-bord' || 
+               strpos($post->post_content, '[sisme_user_dashboard]') !== false;
     }
     
     /**
      * Ajouter la section développeur aux sections accessibles
      */
     public function add_developer_section($accessible_sections, $user_id) {
-        // Toujours ajouter la section développeur (la visibilité sera gérée par l'état)
-        $accessible_sections[] = 'developer';
-        
+        if (is_user_logged_in()) {
+            $accessible_sections[] = 'developer';
+        }
         return $accessible_sections;
     }
     
@@ -161,31 +170,20 @@ class Sisme_User_Developer_Loader {
      * Ajouter l'item de navigation développeur
      */
     public function add_developer_nav_item($nav_items, $user_id) {
-        $developer_status = $this->get_developer_status($user_id);
+        if (!is_user_logged_in()) {
+            return $nav_items;
+        }
         
-        // Déterminer l'icône et le texte selon le statut
-        $icon_map = [
-            'none' => '📝',
-            'pending' => '⏳',
-            'approved' => '🎮',
-            'rejected' => '❌'
-        ];
+        $developer_status = Sisme_User_Developer_Data_Manager::get_developer_status($user_id);
         
-        $text_map = [
-            'none' => 'Devenir Développeur',
-            'pending' => 'Candidature en cours',
-            'approved' => 'Mes Jeux',
-            'rejected' => 'Candidature rejetée'
-        ];
-        
-        $icon = $icon_map[$developer_status] ?? $icon_map['none'];
-        $text = $text_map[$developer_status] ?? $text_map['none'];
+        // Configuration selon le statut
+        $nav_config = $this->get_nav_config_by_status($developer_status);
         
         $nav_items[] = [
             'section' => 'developer',
-            'icon' => $icon,
-            'text' => $text,
-            'badge' => $developer_status === 'pending' ? '1' : null,
+            'icon' => $nav_config['icon'],
+            'text' => $nav_config['text'],
+            'badge' => $nav_config['badge'],
             'class' => 'sisme-nav-developer-' . $developer_status
         ];
         
@@ -193,7 +191,7 @@ class Sisme_User_Developer_Loader {
     }
     
     /**
-     * Rendre la section développeur
+     * Rendu de la section développeur
      */
     public function render_developer_section($content, $section, $dashboard_data) {
         if ($section !== 'developer') {
@@ -201,17 +199,17 @@ class Sisme_User_Developer_Loader {
         }
         
         if (!class_exists('Sisme_User_Developer_Renderer')) {
-            return '<div class="sisme-error">Module développeur non disponible</div>';
+            return '<p>Erreur: Module développeur non disponible.</p>';
         }
         
-        $user_id = $dashboard_data['user_info']['id'];
-        $developer_status = $this->get_developer_status($user_id);
+        $user_id = get_current_user_id();
+        $developer_status = Sisme_User_Developer_Data_Manager::get_developer_status($user_id);
         
         return Sisme_User_Developer_Renderer::render_developer_section($user_id, $developer_status, $dashboard_data);
     }
     
     /**
-     * Ajouter la section développeur aux sections JavaScript valides
+     * Ajouter 'developer' aux sections JavaScript valides
      */
     public function add_developer_valid_section($valid_sections) {
         $valid_sections[] = 'developer';
@@ -219,23 +217,48 @@ class Sisme_User_Developer_Loader {
     }
     
     /**
-     * Récupérer le statut développeur d'un utilisateur
+     * Configuration navigation selon le statut développeur
      */
-    private function get_developer_status($user_id) {
-        $status = get_user_meta($user_id, 'sisme_user_developer_status', true);
-        return $status ?: 'none';
+    private function get_nav_config_by_status($status) {
+        $configs = [
+            Sisme_Utils_Users::DEVELOPER_STATUS_NONE => [
+                'icon' => '📝',
+                'text' => 'Devenir Développeur',
+                'badge' => null
+            ],
+            Sisme_Utils_Users::DEVELOPER_STATUS_PENDING => [
+                'icon' => '⏳',
+                'text' => 'Candidature en cours',
+                'badge' => '1'
+            ],
+            Sisme_Utils_Users::DEVELOPER_STATUS_APPROVED => [
+                'icon' => '🎮',
+                'text' => 'Mes Jeux',
+                'badge' => null
+            ],
+            Sisme_Utils_Users::DEVELOPER_STATUS_REJECTED => [
+                'icon' => '❌',
+                'text' => 'Candidature rejetée',
+                'badge' => null
+            ]
+        ];
+        
+        return $configs[$status] ?? $configs[Sisme_Utils_Users::DEVELOPER_STATUS_NONE];
     }
     
     /**
-     * Vérifier si l'utilisateur peut soumettre des jeux
+     * Méthodes utilitaires publiques
+     */
+    
+    /**
+     * Vérifier si un utilisateur peut soumettre des jeux
      */
     public static function can_submit_games($user_id) {
-        $status = get_user_meta($user_id, 'sisme_user_developer_status', true);
-        return $status === 'approved';
+        return Sisme_User_Developer_Data_Manager::is_approved_developer($user_id);
     }
     
     /**
-     * Récupérer les données développeur
+     * Récupérer les données développeur d'un utilisateur
      */
     public static function get_developer_data($user_id) {
         if (!class_exists('Sisme_User_Developer_Data_Manager')) {

@@ -86,6 +86,65 @@ class Sisme_Utils_Users {
     const DEFAULT_DASHBOARD_LOGIN_MESSAGE = 'Vous devez être connecté pour accéder à votre dashboard.';
 
     /**
+     * Récupérer les données développeur d'un utilisateur
+     * 
+     * @param int $user_id ID utilisateur (optionnel, par défaut utilisateur connecté)
+     * @return array|null Données développeur complètes ou null
+     */
+    public static function get_user_dev_data($user_id = null) {
+        if ($user_id === null) {
+            $user_id = get_current_user_id();
+        }
+        
+        if (!$user_id) {
+            return null;
+        }
+        
+        // Vérifier que le module développeur est disponible
+        if (!class_exists('Sisme_User_Developer_Data_Manager')) {
+            return null;
+        }
+        
+        return Sisme_User_Developer_Data_Manager::get_developer_data($user_id);
+    }
+    
+    /**
+     * Vérifier si un utilisateur peut candidater comme développeur
+     * 
+     * @param int $user_id ID utilisateur (optionnel, par défaut utilisateur connecté)
+     * @return bool Peut candidater
+     */
+    public static function can_apply_as_developer($user_id = null) {
+        if ($user_id === null) {
+            $user_id = get_current_user_id();
+        }
+        
+        if (!$user_id || !class_exists('Sisme_User_Developer_Data_Manager')) {
+            return false;
+        }
+        
+        return Sisme_User_Developer_Data_Manager::can_apply($user_id);
+    }
+    
+    /**
+     * Vérifier si un utilisateur est développeur approuvé
+     * 
+     * @param int $user_id ID utilisateur (optionnel, par défaut utilisateur connecté)
+     * @return bool Est développeur approuvé
+     */
+    public static function is_approved_developer($user_id = null) {
+        if ($user_id === null) {
+            $user_id = get_current_user_id();
+        }
+        
+        if (!$user_id || !class_exists('Sisme_User_Developer_Data_Manager')) {
+            return false;
+        }
+        
+        return Sisme_User_Developer_Data_Manager::is_approved_developer($user_id);
+    }
+
+    /**
      * Obtenir un utilisateur par son slug (user_nicename)
      * 
      * @param string $slug Slug de l'utilisateur

@@ -163,6 +163,16 @@ class SismeGamesEditor {
             array($this, 'vedettes_page')
         );
 
+        // Sous-menu Développeurs
+        add_submenu_page(
+            'sisme-games-game-data',
+            'Développeurs',
+            '👥 Développeurs',
+            'manage_options',
+            'sisme-games-developers',
+            array($this, 'developers_page')
+        );
+
         // Sous-menu Créer Fiche (masqué du menu, accessible via liens)
         add_submenu_page(
             null,
@@ -184,6 +194,10 @@ class SismeGamesEditor {
 
     public function edit_game_data_page() {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-game-data.php';
+    }
+
+    public function developers_page() {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/developers.php';
     }
 
     public function edit_fiche_jeu_page() {

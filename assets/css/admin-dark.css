@@ -521,3 +521,309 @@ h1, h2, h3, h4, h5, h6, p, span {
         max-width: 250px;
     }
 }
+
+/* ===================================
+   PAGE ADMIN DÉVELOPPEURS
+   ================================= */
+
+.notice p{
+    color: #1e1e1e;
+}
+
+/* Statuts développeur */
+.sisme-dev-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-dev-status::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: currentColor;
+    opacity: 0.1;
+    z-index: -1;
+}
+
+.sisme-dev-status-none {
+    color: #666;
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+}
+
+.sisme-dev-status-pending {
+    color: #856404;
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    position: relative;
+}
+
+.sisme-dev-status-pending::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s infinite;
+}
+
+.sisme-dev-status-approved {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #00b894;
+    box-shadow: 0 0 0 2px rgba(0, 184, 148, 0.1);
+}
+
+.sisme-dev-status-rejected {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #e74c3c;
+    position: relative;
+}
+
+.sisme-dev-status-rejected::before {
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(231, 76, 60, 0.1),
+        rgba(231, 76, 60, 0.1) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+}
+
+/* Données développeur */
+.sisme-dev-data-details {
+    margin: 0;
+}
+
+.sisme-dev-data-summary {
+    cursor: pointer;
+    padding: 6px 12px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #495057;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.sisme-dev-data-summary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 123, 255, 0.1), transparent);
+    transition: left 0.3s ease;
+}
+
+.sisme-dev-data-summary:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+    color: #007bff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+}
+
+.sisme-dev-data-summary:hover::before {
+    left: 100%;
+}
+
+.sisme-dev-data-dump {
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 16px;
+    font-size: 11px;
+    line-height: 1.4;
+    overflow-x: auto;
+    border-radius: 0 0 4px 4px;
+    margin: 0;
+    border: 1px solid #4a5568;
+    border-top: none;
+    position: relative;
+}
+
+.sisme-dev-data-dump::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, #4a5568, #718096, #4a5568);
+}
+
+/* Statistiques */
+.sisme-dev-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.sisme-dev-stat-card {
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.sisme-dev-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: currentColor;
+    opacity: 0.05;
+    z-index: -1;
+}
+
+.sisme-dev-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sisme-dev-stat-card h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+}
+
+.sisme-dev-stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+    position: relative;
+}
+
+.sisme-dev-stat-number::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 2px;
+    background: currentColor;
+    opacity: 0.3;
+}
+
+/* Variantes par statut */
+.sisme-dev-stat-none {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border-color: #dee2e6;
+}
+
+.sisme-dev-stat-pending {
+    background-color: #fff3cd;
+    color: #856404;
+    border-color: #ffeaa7;
+    position: relative;
+}
+
+.sisme-dev-stat-pending::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 3s infinite;
+}
+
+.sisme-dev-stat-approved {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #00b894;
+    box-shadow: 0 0 0 2px rgba(0, 184, 148, 0.1);
+}
+
+.sisme-dev-stat-approved::before {
+    background: radial-gradient(circle at center, rgba(0, 184, 148, 0.1), transparent);
+}
+
+.sisme-dev-stat-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-color: #e74c3c;
+}
+
+.sisme-dev-stat-rejected::before {
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(231, 76, 60, 0.05),
+        rgba(231, 76, 60, 0.05) 4px,
+        transparent 4px,
+        transparent 8px
+    );
+}
+
+/* Animations */
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sisme-dev-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    
+    .sisme-dev-stat-card {
+        padding: 16px;
+    }
+    
+    .sisme-dev-stat-number {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sisme-dev-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .sisme-dev-data-summary {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+    
+    .sisme-dev-data-dump {
+        font-size: 10px;
+        padding: 12px;
+    }
+}
