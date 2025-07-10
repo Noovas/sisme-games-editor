@@ -239,102 +239,50 @@
     font-size: 1rem;
 }
 
-/* ===📝 FORMULAIRE CANDIDATURE =========== */
-.sisme-developer-form-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: var(--sisme-dashboard-space-lg);
-}
-
-.sisme-developer-form {
-    background: var(--sisme-dashboard-bg-secondary);
-    border: 1px solid var(--sisme-dashboard-border-color);
-    border-radius: var(--sisme-dashboard-radius-lg);
-    max-width: 800px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: var(--sisme-dashboard-shadow-xl);
-}
-
-.sisme-form-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--sisme-dashboard-space-lg);
-    border-bottom: 1px solid var(--sisme-dashboard-border-color);
+/* ===📝 FORMULAIRE CANDIDATURE INTÉGRÉ ==== */
+.sisme-developer-application {
+    margin-top: var(--sisme-dashboard-space-xl);
     background: var(--sisme-developer-bg-card);
-}
-
-.sisme-form-title {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--sisme-dashboard-text-primary);
-    margin: 0;
-}
-
-.sisme-form-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--sisme-dashboard-text-secondary);
-    cursor: pointer;
-    padding: var(--sisme-dashboard-space-xs);
-    border-radius: var(--sisme-dashboard-radius-sm);
-    transition: var(--sisme-dashboard-transition-fast);
-}
-
-.sisme-form-close:hover {
-    background: var(--sisme-dashboard-hover-bg);
-    color: var(--sisme-dashboard-text-primary);
-}
-
-.sisme-form-content {
+    border: 1px solid var(--sisme-developer-border);
+    border-radius: var(--sisme-dashboard-radius-lg);
     padding: var(--sisme-dashboard-space-lg);
 }
 
 .sisme-form-intro {
     color: var(--sisme-dashboard-text-secondary);
-    margin: 0 0 var(--sisme-dashboard-space-xl) 0;
+    margin: 0 0 var(--sisme-dashboard-space-lg) 0;
     line-height: 1.6;
     text-align: center;
-    background: var(--sisme-developer-bg-card);
+    background: var(--sisme-dashboard-bg-primary);
     padding: var(--sisme-dashboard-space-md);
     border-radius: var(--sisme-dashboard-radius-md);
+    border: 1px solid var(--sisme-developer-border);
 }
 
 /* ===📋 SECTIONS FORMULAIRE ============== */
 .sisme-form-section {
-    margin-bottom: var(--sisme-dashboard-space-xl);
-    background: var(--sisme-developer-bg-card);
+    margin-bottom: var(--sisme-dashboard-space-lg);
+    background: var(--sisme-dashboard-bg-primary);
     border: 1px solid var(--sisme-developer-border);
     border-radius: var(--sisme-dashboard-radius-md);
-    padding: var(--sisme-dashboard-space-lg);
+    padding: var(--sisme-dashboard-space-md);
 }
 
 .sisme-form-section-title {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--sisme-dashboard-text-primary);
-    margin: 0 0 var(--sisme-dashboard-space-lg) 0;
-    padding-bottom: var(--sisme-dashboard-space-sm);
+    margin: 0 0 var(--sisme-dashboard-space-md) 0;
+    padding-bottom: var(--sisme-dashboard-space-xs);
     border-bottom: 1px solid var(--sisme-developer-border);
     display: flex;
     align-items: center;
-    gap: var(--sisme-dashboard-space-sm);
+    gap: var(--sisme-dashboard-space-xs);
 }
 
 /* ===🏷️ CHAMPS FORMULAIRE ================ */
 .sisme-form-row {
-    margin-bottom: var(--sisme-dashboard-space-lg);
+    margin-bottom: var(--sisme-dashboard-space-md);
 }
 
 .sisme-form-row-double {
@@ -363,7 +311,7 @@
 .sisme-form-input,
 .sisme-form-textarea,
 .sisme-form-select {
-    background: var(--sisme-dashboard-bg-primary);
+    background: var(--sisme-dashboard-bg-secondary);
     border: 1px solid var(--sisme-developer-border);
     border-radius: var(--sisme-dashboard-radius-sm);
     padding: var(--sisme-dashboard-space-sm) var(--sisme-dashboard-space-md);
@@ -378,6 +326,7 @@
     outline: none;
     border-color: var(--sisme-dashboard-accent-primary);
     box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+    background: var(--sisme-dashboard-bg-primary);
 }
 
 .sisme-form-textarea {
@@ -412,7 +361,7 @@
     display: flex;
     align-items: center;
     gap: var(--sisme-dashboard-space-sm);
-    background: var(--sisme-dashboard-bg-primary);
+    background: var(--sisme-dashboard-bg-secondary);
     border: 1px solid var(--sisme-developer-border);
     border-radius: var(--sisme-dashboard-radius-sm);
     padding: var(--sisme-dashboard-space-xs);
@@ -449,14 +398,14 @@
 .sisme-form-actions {
     display: flex;
     gap: var(--sisme-dashboard-space-md);
-    justify-content: flex-end;
-    margin-top: var(--sisme-dashboard-space-xl);
-    padding-top: var(--sisme-dashboard-space-lg);
+    justify-content: center;
+    margin-top: var(--sisme-dashboard-space-lg);
+    padding-top: var(--sisme-dashboard-space-md);
     border-top: 1px solid var(--sisme-developer-border);
 }
 
 .sisme-form-feedback {
-    margin-top: var(--sisme-dashboard-space-lg);
+    margin-top: var(--sisme-dashboard-space-md);
     padding: var(--sisme-dashboard-space-md);
     border-radius: var(--sisme-dashboard-radius-md);
     text-align: center;

@@ -93,6 +93,58 @@ class Sisme_User_Developer_Loader {
         
         // Hook pour étendre le JavaScript avec les nouvelles sections
         add_filter('sisme_dashboard_valid_sections', [$this, 'add_developer_valid_section'], 10, 1);
+        
+        // Hook pour charger les assets
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_developer_assets']);
+    }
+    
+    /**
+     * Charger les assets CSS et JS du module développeur
+     */
+    public function enqueue_developer_assets() {
+        // Vérifier si on doit charger les assets
+        if (!$this->should_load_assets()) {
+            return;
+        }
+        
+        // CSS du module développeur
+        wp_enqueue_style(
+            'sisme-user-developer',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/assets/user-developer.css',
+            array('sisme-user-dashboard'), // Dépendance dashboard
+            SISME_GAMES_EDITOR_VERSION
+        );
+        
+        // JavaScript du module développeur
+        wp_enqueue_script(
+            'sisme-user-developer',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/assets/user-developer.js',
+            array('jquery', 'sisme-user-dashboard'), // Dépendances
+            SISME_GAMES_EDITOR_VERSION,
+            true
+        );
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[Sisme User Developer] Assets chargés');
+        }
+    }
+    
+    /**
+     * Vérifier si les assets doivent être chargés
+     */
+    private function should_load_assets() {
+        // Charger sur la page dashboard
+        if (is_page('sisme-user-tableau-de-bord')) {
+            return true;
+        }
+        
+        // Charger si shortcode dashboard présent
+        global $post;
+        if ($post && has_shortcode($post->post_content, 'sisme_user_dashboard')) {
+            return true;
+        }
+        
+        return false;
     }
     
     /**

@@ -85,54 +85,9 @@ class Sisme_User_Developer_Renderer {
                     </ul>
                 </div>
                 
-                <div class="sisme-developer-examples">
-                    <h4 class="sisme-section-subtitle">🏆 Exemples de développeurs</h4>
-                    <div class="sisme-examples-grid">
-                        <div class="sisme-example-card">
-                            <span class="sisme-example-avatar">🎨</span>
-                            <div class="sisme-example-info">
-                                <strong>Studio Pixel</strong>
-                                <span class="sisme-example-games">12 jeux publiés</span>
-                            </div>
-                        </div>
-                        <div class="sisme-example-card">
-                            <span class="sisme-example-avatar">🚀</span>
-                            <div class="sisme-example-info">
-                                <strong>Indie Dreams</strong>
-                                <span class="sisme-example-games">8 jeux publiés</span>
-                            </div>
-                        </div>
-                        <div class="sisme-example-card">
-                            <span class="sisme-example-avatar">🎯</span>
-                            <div class="sisme-example-info">
-                                <strong>GameCraft</strong>
-                                <span class="sisme-example-games">15 jeux publiés</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="sisme-developer-action">
-                    <button class="sisme-btn sisme-btn-primary sisme-btn-large" onclick="SismeDeveloper.showApplicationForm()">
-                        📝 Faire une demande
-                    </button>
-                    <p class="sisme-developer-note">
-                        <span class="sisme-note-icon">ℹ️</span>
-                        Votre candidature sera examinée par notre équipe dans les 48h
-                    </p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Formulaire de candidature (masqué par défaut) -->
-        <div id="sisme-developer-application-form" class="sisme-developer-form-container" style="display: none;">
-            <div class="sisme-developer-form">
-                <div class="sisme-form-header">
-                    <h3 class="sisme-form-title">📝 Candidature Développeur</h3>
-                    <button class="sisme-form-close" onclick="SismeDeveloper.hideApplicationForm()">×</button>
-                </div>
-                
-                <div class="sisme-form-content">
+                <!-- Formulaire de candidature directement dans l'onglet -->
+                <div class="sisme-developer-application">
+                    <h4 class="sisme-section-subtitle">📝 Candidature Développeur</h4>
                     <p class="sisme-form-intro">
                         Parlez-nous de votre studio et de vos projets. Plus votre candidature sera détaillée, plus nous pourrons l'évaluer rapidement.
                     </p>
@@ -142,7 +97,7 @@ class Sisme_User_Developer_Renderer {
                         
                         <!-- Section Studio -->
                         <div class="sisme-form-section">
-                            <h4 class="sisme-form-section-title">🏢 Informations Studio</h4>
+                            <h5 class="sisme-form-section-title">🏢 Informations Studio</h5>
                             
                             <div class="sisme-form-row">
                                 <div class="sisme-form-field">
@@ -223,7 +178,7 @@ class Sisme_User_Developer_Renderer {
                         
                         <!-- Section Représentant -->
                         <div class="sisme-form-section">
-                            <h4 class="sisme-form-section-title">👤 Informations Représentant</h4>
+                            <h5 class="sisme-form-section-title">👤 Informations Représentant</h5>
                             
                             <div class="sisme-form-row sisme-form-row-double">
                                 <div class="sisme-form-field">
@@ -351,13 +306,8 @@ class Sisme_User_Developer_Renderer {
                         
                         <!-- Actions -->
                         <div class="sisme-form-actions">
-                            <button type="button" 
-                                    class="sisme-btn sisme-btn-secondary" 
-                                    onclick="SismeDeveloper.hideApplicationForm()">
-                                Annuler
-                            </button>
                             <button type="submit" 
-                                    class="sisme-btn sisme-btn-primary" 
+                                    class="sisme-btn sisme-btn-primary sisme-btn-large" 
                                     id="sisme-submit-application">
                                 📤 Envoyer ma candidature
                             </button>

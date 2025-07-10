@@ -3,9 +3,9 @@
  * JavaScript pour la section développeur du dashboard
  * 
  * RESPONSABILITÉ:
- * - Gestion du formulaire de candidature
- * - Interactions avec les boutons et modals
- * - Animations et transitions
+ * - Validation du formulaire de candidature
+ * - Soumission AJAX du formulaire
+ * - Feedback utilisateur temps réel
  * - Intégration avec le système dashboard existant
  */
 
@@ -15,8 +15,8 @@
     // Namespace pour le module développeur
     window.SismeDeveloper = {
         config: {
-            formSelector: '#sisme-developer-application-form',
-            containerSelector: '.sisme-developer-form-container'
+            formSelector: '#sisme-developer-form',
+            feedbackSelector: '#sisme-form-feedback'
         },
         isInitialized: false
     };
@@ -39,109 +39,169 @@
      * Événements et interactions
      */
     SismeDeveloper.bindEvents = function() {
-        // Fermer le formulaire en cliquant sur l'overlay
-        $(document).on('click', this.config.containerSelector, function(e) {
-            if (e.target === this) {
-                SismeDeveloper.hideApplicationForm();
-            }
-        });
+        // Soumission du formulaire
+        $(document).on('submit', this.config.formSelector, this.handleFormSubmit.bind(this));
         
-        // Fermer avec la touche Escape
-        $(document).on('keydown', function(e) {
-            if (e.keyCode === 27 && $(SismeDeveloper.config.formSelector).is(':visible')) {
-                SismeDeveloper.hideApplicationForm();
-            }
-        });
+        // Validation en temps réel
+        $(document).on('blur', this.config.formSelector + ' input, ' + this.config.formSelector + ' textarea', this.validateField.bind(this));
         
         this.log('Événements développeur liés');
     };
     
     /**
-     * Afficher le formulaire de candidature
+     * Gérer la soumission du formulaire
      */
-    SismeDeveloper.showApplicationForm = function() {
-        const $form = $(this.config.formSelector);
+    SismeDeveloper.handleFormSubmit = function(e) {
+        e.preventDefault();
         
-        if ($form.length === 0) {
-            this.log('Formulaire de candidature non trouvé');
+        const $form = $(e.target);
+        const formData = this.collectFormData($form);
+        
+        // Validation complète
+        if (!this.validateForm(formData)) {
+            this.showFeedback('Veuillez corriger les erreurs avant de soumettre', 'error');
             return;
         }
         
-        // Désactiver le scroll du body
-        $('body').css('overflow', 'hidden');
+        // Soumission AJAX (à implémenter)
+        this.submitApplication(formData);
+    };
+    
+    /**
+     * Collecter les données du formulaire
+     */
+    SismeDeveloper.collectFormData = function($form) {
+        const formData = {};
         
-        // Afficher le formulaire avec animation
-        $form.fadeIn(300, function() {
-            // Focus sur le premier champ (quand il sera ajouté)
-            $form.find('input, textarea').first().focus();
+        $form.find('input, textarea, select').each(function() {
+            const $field = $(this);
+            const name = $field.attr('name');
+            const value = $field.val();
+            
+            if (name && value) {
+                formData[name] = value;
+            }
         });
         
-        this.log('Formulaire de candidature affiché');
+        return formData;
     };
     
     /**
-     * Masquer le formulaire de candidature
+     * Valider un champ individuel
      */
-    SismeDeveloper.hideApplicationForm = function() {
-        const $form = $(this.config.formSelector);
+    SismeDeveloper.validateField = function(e) {
+        const $field = $(e.target);
+        const name = $field.attr('name');
+        const value = $field.val();
         
-        if ($form.length === 0) {
-            return;
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Validation selon le type de champ
+        if ($field.prop('required') && !value.trim()) {
+            isValid = false;
+            errorMessage = 'Ce champ est requis';
+        } else if (name === 'studio_website' && value && !this.isValidUrl(value)) {
+            isValid = false;
+            errorMessage = 'URL non valide';
+        } else if (name === 'representative_email' && value && !this.isValidEmail(value)) {
+            isValid = false;
+            errorMessage = 'Email non valide';
+        } else if (name === 'representative_birthdate' && value && !this.isValidAge(value)) {
+            isValid = false;
+            errorMessage = 'Vous devez être majeur';
         }
         
-        // Réactiver le scroll du body
-        $('body').css('overflow', '');
-        
-        // Masquer le formulaire avec animation
-        $form.fadeOut(300);
-        
-        this.log('Formulaire de candidature masqué');
+        this.showFieldError(name, isValid ? '' : errorMessage);
+        return isValid;
     };
     
     /**
-     * Afficher les détails de candidature (pour statut pending)
+     * Valider le formulaire complet
      */
-    SismeDeveloper.showApplicationDetails = function() {
-        // Pour l'instant, juste un log
-        // Sera implémenté dans les prochaines étapes
-        this.log('Affichage des détails de candidature');
+    SismeDeveloper.validateForm = function(formData) {
+        let isValid = true;
         
-        // Placeholder : afficher une modal simple
-        alert('Détails de candidature - À implémenter dans la prochaine étape');
+        // Champs requis
+        const requiredFields = [
+            'studio_name', 'studio_description', 'representative_firstname', 
+            'representative_lastname', 'representative_birthdate', 'representative_address',
+            'representative_city', 'representative_country', 'representative_email', 
+            'representative_phone'
+        ];
+        
+        requiredFields.forEach(field => {
+            if (!formData[field] || !formData[field].trim()) {
+                this.showFieldError(field, 'Ce champ est requis');
+                isValid = false;
+            }
+        });
+        
+        return isValid;
     };
     
     /**
-     * Soumettre le formulaire de candidature
+     * Soumettre la candidature
      */
     SismeDeveloper.submitApplication = function(formData) {
+        this.showFeedback('Envoi en cours...', 'loading');
+        
         this.log('Soumission candidature', formData);
         
-        // Sera implémenté avec AJAX dans les prochaines étapes
-        return false;
+        // TODO: Implémenter l'AJAX
+        setTimeout(() => {
+            this.showFeedback('Candidature envoyée avec succès ! Vous recevrez une réponse dans les 48h.', 'success');
+        }, 2000);
     };
     
     /**
-     * Gérer les erreurs
+     * Afficher une erreur de champ
      */
-    SismeDeveloper.handleError = function(error) {
-        this.log('Erreur développeur:', error);
+    SismeDeveloper.showFieldError = function(fieldName, message) {
+        const $errorElement = $('#error-' + fieldName);
         
-        // Afficher une notification d'erreur
-        if (typeof SismeDashboard !== 'undefined' && SismeDashboard.showNotification) {
-            SismeDashboard.showNotification('Une erreur est survenue', 'error');
+        if (message) {
+            $errorElement.text(message).addClass('show');
+        } else {
+            $errorElement.text('').removeClass('show');
         }
     };
     
     /**
-     * Gérer le succès
+     * Afficher un feedback général
      */
-    SismeDeveloper.handleSuccess = function(message) {
-        this.log('Succès développeur:', message);
+    SismeDeveloper.showFeedback = function(message, type) {
+        const $feedback = $(this.config.feedbackSelector);
         
-        // Afficher une notification de succès
-        if (typeof SismeDashboard !== 'undefined' && SismeDashboard.showNotification) {
-            SismeDashboard.showNotification(message, 'success');
+        $feedback
+            .removeClass('success error loading')
+            .addClass(type)
+            .text(message)
+            .show();
+    };
+    
+    /**
+     * Utilitaires de validation
+     */
+    SismeDeveloper.isValidUrl = function(url) {
+        try {
+            new URL(url);
+            return true;
+        } catch {
+            return false;
         }
+    };
+    
+    SismeDeveloper.isValidEmail = function(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+    
+    SismeDeveloper.isValidAge = function(birthdate) {
+        const today = new Date();
+        const birth = new Date(birthdate);
+        const age = today.getFullYear() - birth.getFullYear();
+        
+        return age >= 18;
     };
     
     /**
