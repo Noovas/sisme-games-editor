@@ -131,9 +131,10 @@ function sisme_sanitize_developer_form_data($raw_data) {
     // Liens sociaux
     $social_links = [];
     if (isset($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS]) && is_array($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS])) {
-        foreach ($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS] as $platform => $handle) {
-            if (!empty($handle)) {
-                $social_links[sanitize_key($platform)] = sanitize_text_field($handle);
+        foreach ($raw_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS] as $platform => $value) {
+            if (!empty($value)) {
+                // Tous les réseaux sociaux sont traités comme des URLs
+                $social_links[sanitize_key($platform)] = esc_url_raw($value);
             }
         }
     }
@@ -182,6 +183,45 @@ function sisme_validate_developer_form_data($data) {
     if (!empty($data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_WEBSITE])) {
         if (!filter_var($data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_WEBSITE], FILTER_VALIDATE_URL)) {
             $errors[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_WEBSITE] = 'L\'URL du site web n\'est pas valide.';
+        }
+    }
+    
+    // Validation liens sociaux (tous doivent être des URLs)
+    if (!empty($data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS])) {
+        $platform_domains = [
+            'twitter' => ['twitter.com', 'x.com'],
+            'discord' => ['discord.gg', 'discord.com', 'discordapp.com'],
+            'instagram' => ['instagram.com'],
+            'youtube' => ['youtube.com', 'youtu.be'],
+            'twitch' => ['twitch.tv'],
+            'facebook' => ['facebook.com', 'fb.com'],
+            'linkedin' => ['linkedin.com']
+        ];
+        
+        foreach ($data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS] as $platform => $value) {
+            if (!empty($value)) {
+                // Vérifier que c'est une URL valide
+                if (!filter_var($value, FILTER_VALIDATE_URL)) {
+                    $errors["social_{$platform}"] = "Le lien {$platform} doit être une URL valide.";
+                    continue;
+                }
+                
+                // Vérifier le domaine spécifique à la plateforme
+                if (isset($platform_domains[$platform])) {
+                    $valid_domain = false;
+                    foreach ($platform_domains[$platform] as $domain) {
+                        if (str_contains(strtolower($value), $domain)) {
+                            $valid_domain = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!$valid_domain) {
+                        $allowed_domains = implode(', ', $platform_domains[$platform]);
+                        $errors["social_{$platform}"] = "Le lien {$platform} doit contenir un domaine valide ({$allowed_domains}).";
+                    }
+                }
+            }
         }
     }
     

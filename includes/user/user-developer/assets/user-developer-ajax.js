@@ -94,13 +94,13 @@
             
             if (name && value !== undefined) {
                 // Traitement spécial pour les liens sociaux
-                if (name.startsWith('studio_social_links[')) {
-                    const matches = name.match(/studio_social_links\[(.+)\]/);
-                    if (matches) {
-                        if (!formData.studio_social_links) {
-                            formData.studio_social_links = {};
-                        }
-                        formData.studio_social_links[matches[1]] = value;
+                if (name.startsWith('social_')) {
+                    const platform = name.replace('social_', '');
+                    if (!formData.studio_social_links) {
+                        formData.studio_social_links = {};
+                    }
+                    if (value.trim() !== '') {
+                        formData.studio_social_links[platform] = value;
                     }
                 } else {
                     formData[name] = value;
@@ -217,6 +217,42 @@
         // Validation URL du site web (optionnel)
         if (formData.studio_website && !this.isValidUrl(formData.studio_website)) {
             errors.studio_website = 'L\'URL du site web n\'est pas valide.';
+        }
+        
+        // Validation liens sociaux (tous doivent être des URLs)
+        if (formData.studio_social_links) {
+            const platformDomains = {
+                'twitter': ['twitter.com', 'x.com'],
+                'discord': ['discord.gg', 'discord.com', 'discordapp.com'],
+                'instagram': ['instagram.com'],
+                'youtube': ['youtube.com', 'youtu.be'],
+                'twitch': ['twitch.tv'],
+                'facebook': ['facebook.com', 'fb.com'],
+                'linkedin': ['linkedin.com']
+            };
+            
+            Object.keys(formData.studio_social_links).forEach(platform => {
+                const value = formData.studio_social_links[platform];
+                if (value) {
+                    // Vérifier que c'est une URL valide
+                    if (!this.isValidUrl(value)) {
+                        errors[`social_${platform}`] = `Le lien ${platform} doit être une URL valide.`;
+                        return;
+                    }
+                    
+                    // Vérifier le domaine spécifique
+                    if (platformDomains[platform]) {
+                        const validDomain = platformDomains[platform].some(domain => 
+                            value.toLowerCase().includes(domain)
+                        );
+                        
+                        if (!validDomain) {
+                            const allowedDomains = platformDomains[platform].join(', ');
+                            errors[`social_${platform}`] = `Le lien ${platform} doit contenir un domaine valide (${allowedDomains}).`;
+                        }
+                    }
+                }
+            });
         }
         
         // Validation prénom

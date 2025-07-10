@@ -60,7 +60,8 @@ class Sisme_User_Developer_Loader {
         
         $required_modules = [
             'user-developer-data-manager.php',
-            'user-developer-renderer.php'
+            'user-developer-renderer.php',
+            'user-developer-ajax.php'
         ];
         
         foreach ($required_modules as $module) {
@@ -96,6 +97,13 @@ class Sisme_User_Developer_Loader {
         
         // Hook pour charger les assets
         add_action('wp_enqueue_scripts', [$this, 'enqueue_developer_assets']);
+        
+        // Initialiser les hooks AJAX
+        add_action('init', function() {
+            if (function_exists('sisme_init_developer_ajax')) {
+                sisme_init_developer_ajax();
+            }
+        });
     }
     
     /**
