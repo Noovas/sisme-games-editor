@@ -19,7 +19,7 @@
         config: window.sismeUserDashboard || {},
         currentSection: 'overview',
         isInitialized: false,
-        validSections: ['overview', 'favorites', 'library', 'activity', 'settings', 'social']
+        validSections: ['overview', 'favorites', 'library', 'activity', 'settings', 'social', 'developer']
     };
     
     /**

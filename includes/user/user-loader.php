@@ -67,7 +67,8 @@ class Sisme_User_Loader {
             'user-profile'  => 'Profile utilisateur', 
             'user-header-menu'   => 'Menu utilisateur header', 
             'user-library'  => 'Ludothèque personnelle',
-            'user-social' => 'Social'
+            'user-social' => 'Social',
+            'user-developer' => 'Profil développeur'
         ];
         
         foreach ($available_modules as $module_name => $module_description) {

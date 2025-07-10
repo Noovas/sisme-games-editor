@@ -189,7 +189,7 @@ class Sisme_User_Dashboard_Renderer {
      * @return string HTML de la grille
      */
     public static function render_dashboard_grid($dashboard_data, $context = ['is_public' => true]) {
-        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'social', 'settings'];
+        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'social', 'settings', 'developer'];
         
         ob_start();
         ?>
@@ -272,6 +272,24 @@ class Sisme_User_Dashboard_Renderer {
                     <?php echo self::render_settings_section($dashboard_data['user_info']['id'], $context); ?>
                 </div>
                 <?php endif; ?>
+
+                <?php if (in_array('developer', $accessible_sections)): ?>
+                <div class="sisme-dashboard-section" data-section="developer" style="display: none;">
+                    <?php
+                    // Utiliser le hook pour le rendu de la section développeur
+                    $developer_content = apply_filters('sisme_dashboard_render_section', '', 'developer', $dashboard_data);
+                    if (!empty($developer_content)) {
+                        echo $developer_content;
+                    } else {
+                        // Fallback si le module développeur n'est pas chargé
+                        echo '<div class="sisme-under-construction">';
+                        echo '<h3>🎮 Section Développeur</h3>';
+                        echo '<p>Le module développeur n\'est pas encore chargé.</p>';
+                        echo '</div>';
+                    }
+                    ?>
+                </div>
+                <?php endif; ?>
                 
             </main>
             <aside class="sisme-dashboard-widgets">
@@ -289,8 +307,8 @@ class Sisme_User_Dashboard_Renderer {
      * @return string HTML navigation
      */
     public static function render_sidebar_navigation($context = ['is_public' => true]) {
-        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'social', 'settings'];
-        
+        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'social', 'settings', 'developer'];
+
         ob_start();
         ?>
         <nav class="sisme-dashboard-nav">
