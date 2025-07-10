@@ -355,6 +355,40 @@ class Sisme_User_Dashboard_Renderer {
                     <span class="sisme-nav-text">Paramètres</span>
                 </a></li>
                 <?php endif; ?>
+
+                <?php if (in_array('developer', $accessible_sections)): ?>
+                <li>
+                    <?php
+                    // Récupérer le statut développeur pour l'affichage conditionnel
+                    $user_id = $context['user_id'] ?? get_current_user_id();
+                    $developer_status = get_user_meta($user_id, 'sisme_user_developer_status', true) ?: 'none';
+                    
+                    // Déterminer l'icône et le texte selon le statut
+                    $icon_map = [
+                        'none' => '📝',
+                        'pending' => '⏳',
+                        'approved' => '🎮',
+                        'rejected' => '❌'
+                    ];
+                    
+                    $text_map = [
+                        'none' => 'Devenir Développeur',
+                        'pending' => 'Candidature en cours',
+                        'approved' => 'Mes Jeux',
+                        'rejected' => 'Candidature rejetée'
+                    ];
+                    
+                    $icon = $icon_map[$developer_status] ?? $icon_map['none'];
+                    $text = $text_map[$developer_status] ?? $text_map['none'];
+                    $badge = $developer_status === 'pending' ? '<span class="sisme-nav-badge">1</span>' : '';
+                    ?>
+                    <a href="#developer" class="sisme-nav-link sisme-nav-developer-<?php echo esc_attr($developer_status); ?>" data-section="developer">
+                        <span class="sisme-nav-icon"><?php echo esc_html($icon); ?></span>
+                        <span class="sisme-nav-text"><?php echo esc_html($text); ?></span>
+                        <?php echo $badge; ?>
+                    </a>
+                </li>
+                <?php endif; ?>
             </ul>
         </nav>
         <?php
