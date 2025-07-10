@@ -60,13 +60,6 @@ class Sisme_Utils_Developer_Roles {
         if (!$user) {
             return false;
         }
-
-        if (in_array('administrator', $user->roles)) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("[Sisme Developer Roles] TENTATIVE de modification d'un admin bloquée - User ID: $user_id");
-            }
-            return false;
-        }
         
         // Changer le rôle vers développeur
         $user->set_role(self::ROLE_DEVELOPER);
@@ -82,22 +75,38 @@ class Sisme_Utils_Developer_Roles {
     }
     
     /**
-     * Rétrograder un développeur au rôle subscriber
+     * Révoquer le statut développeur (retour à subscriber)
      */
-    public static function demote_developer($user_id) {
+    public static function revoke_developer($user_id, $admin_notes = '') {
         $user = get_userdata($user_id);
         if (!$user) {
+            return false;
+        }
+        
+        // SÉCURITÉ: Ne jamais toucher aux administrateurs !
+        if (in_array('administrator', $user->roles)) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme Developer Roles] TENTATIVE de révocation d'un admin bloquée - User ID: $user_id");
+            }
             return false;
         }
         
         // Remettre au rôle subscriber
         $user->set_role('subscriber');
         
-        // Mettre à jour le statut développeur
-        update_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_STATUS, Sisme_Utils_Users::DEVELOPER_STATUS_REJECTED);
+        // Mettre à jour le statut développeur vers "none"
+        update_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_STATUS, Sisme_Utils_Users::DEVELOPER_STATUS_NONE);
+        
+        // Mettre à jour les données de candidature
+        $application = get_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_APPLICATION, true);
+        if ($application) {
+            $application[Sisme_Utils_Users::APPLICATION_FIELD_REVIEWED_DATE] = current_time('Y-m-d H:i:s');
+            $application[Sisme_Utils_Users::APPLICATION_FIELD_ADMIN_NOTES] = sanitize_textarea_field($admin_notes);
+            update_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_APPLICATION, $application);
+        }
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("[Sisme Developer Roles] Développeur $user_id rétrogradé");
+            error_log("[Sisme Developer Roles] Développeur $user_id révoqué vers subscriber");
         }
         
         return true;
@@ -119,7 +128,11 @@ class Sisme_Utils_Developer_Roles {
      * Vérifier si un utilisateur peut soumettre des jeux
      */
     public static function can_submit_games($user_id) {
-        return user_can($user_id, self::CAPABILITY_SUBMIT_GAMES);
+        // Vérifier ET le rôle ET le statut
+        $has_role = user_can($user_id, self::CAPABILITY_SUBMIT_GAMES);
+        $status = get_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_STATUS, true);
+        
+        return $has_role && ($status === Sisme_Utils_Users::DEVELOPER_STATUS_APPROVED);
     }
     
     /**
@@ -150,7 +163,7 @@ class Sisme_Utils_Developer_Roles {
      * Rejeter une candidature développeur
      */
     public static function reject_application($user_id, $admin_notes = '') {
-        // Mettre à jour le statut
+        // Mettre à jour le statut (SANS toucher au rôle)
         update_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_STATUS, Sisme_Utils_Users::DEVELOPER_STATUS_REJECTED);
         
         // Mettre à jour les données de candidature
@@ -164,7 +177,7 @@ class Sisme_Utils_Developer_Roles {
         // TODO: Envoyer notification à l'utilisateur
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("[Sisme Developer Roles] Candidature $user_id rejetée");
+            error_log("[Sisme Developer Roles] Candidature $user_id rejetée (rôle inchangé)");
         }
         
         return true;

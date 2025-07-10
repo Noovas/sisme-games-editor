@@ -141,7 +141,12 @@ class Sisme_Utils_Users {
             return false;
         }
         
-        return Sisme_User_Developer_Data_Manager::is_approved_developer($user_id);
+        // Vérifier ET le statut ET le rôle (double sécurité)
+        $status = Sisme_User_Developer_Data_Manager::get_developer_status($user_id);
+        $has_role = class_exists('Sisme_Utils_Developer_Roles') ? 
+                   Sisme_Utils_Developer_Roles::is_developer($user_id) : false;
+        
+        return ($status === self::DEVELOPER_STATUS_APPROVED) && $has_role;
     }
 
     /**

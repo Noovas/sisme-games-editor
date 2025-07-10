@@ -32,6 +32,15 @@ if (isset($_POST['action']) && isset($_POST['user_id']) && wp_verify_nonce($_POS
                 echo '</div>';
             });
         }
+    } elseif ($action === 'revoke') {
+        if (Sisme_Utils_Developer_Roles::revoke_developer($user_id, $admin_notes)) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-warning is-dismissible">';
+                echo '<p>🔄 Statut développeur révoqué. L\'utilisateur est redevenu subscriber.</p>';
+                echo '<p><strong>Note :</strong> L\'utilisateur devra se reconnecter ou actualiser son dashboard pour voir les changements.</p>';
+                echo '</div>';
+            });
+        }
     }
 }
 
@@ -129,7 +138,14 @@ foreach ($user_ids as $user_id) {
                                     </button>
                                 </div>
                             <?php elseif ($dev_data['status'] === 'approved'): ?>
-                                <span class="sisme-dev-role-badge">🎮 Développeur actif</span>
+                                <div class="sisme-dev-actions">
+                                    <span class="sisme-dev-role-badge">🎮 Développeur actif</span>
+                                    <button type="button" class="button button-link-delete sisme-revoke-btn"
+                                            data-user-id="<?php echo esc_attr($user_id); ?>"
+                                            data-user-name="<?php echo esc_attr($dev_data['user_info']['display_name']); ?>">
+                                        🔄 Révoquer
+                                    </button>
+                                </div>
                             <?php else: ?>
                                 <em>Aucune action</em>
                             <?php endif; ?>
@@ -247,6 +263,19 @@ jQuery(document).ready(function($) {
         $('#sisme-dev-action-modal').show();
     });
     
+    $('.sisme-revoke-btn').on('click', function() {
+        const userId = $(this).data('user-id');
+        const userName = $(this).data('user-name');
+        
+        $('#modal-title').text('Révoquer le statut développeur');
+        $('#modal-message').html(`Êtes-vous sûr de vouloir révoquer le statut développeur de <strong>${userName}</strong> ?<br>L'utilisateur perdra ses droits de développeur et redeviendra subscriber.`);
+        $('#action-type').val('revoke');
+        $('#action-user-id').val(userId);
+        $('#modal-confirm').removeClass('button-primary').addClass('button-link-delete').text('🔄 Révoquer');
+        
+        $('#sisme-dev-action-modal').show();
+    });
+    
     // Fermer le modal
     $('.sisme-modal-close, #modal-cancel').on('click', function() {
         $('#sisme-dev-action-modal').hide();
@@ -272,10 +301,6 @@ jQuery(document).ready(function($) {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.5);
-}
-
-#modal-title, #modal-message {
-    color: #000;
 }
 
 .sisme-modal-content {
