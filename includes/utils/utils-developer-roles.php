@@ -60,6 +60,13 @@ class Sisme_Utils_Developer_Roles {
         if (!$user) {
             return false;
         }
+
+        if (in_array('administrator', $user->roles)) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Sisme Developer Roles] TENTATIVE de modification d'un admin bloquée - User ID: $user_id");
+            }
+            return false;
+        }
         
         // Changer le rôle vers développeur
         $user->set_role(self::ROLE_DEVELOPER);

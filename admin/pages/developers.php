@@ -274,6 +274,10 @@ jQuery(document).ready(function($) {
     background-color: rgba(0,0,0,0.5);
 }
 
+#modal-title, #modal-message {
+    color: #000;
+}
+
 .sisme-modal-content {
     background-color: #fff;
     margin: 5% auto;
