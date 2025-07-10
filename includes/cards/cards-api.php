@@ -335,7 +335,7 @@ add_shortcode('game_card', function($atts) {
         'type' => 'normal',
         'show_description' => 'true',
         'show_genres' => 'true',
-        'show_platforms' => 'false',
+        'show_platforms' => 'false',        
         'show_date' => 'true',
         'date_format' => 'short',
         'css_class' => '',
