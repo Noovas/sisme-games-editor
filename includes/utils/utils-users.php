@@ -44,6 +44,40 @@ class Sisme_Utils_Users {
     const DASHBOARD_URL = '/sisme-user-tableau-de-bord/';
     const FORGOT_PASSWORD_URL = '/sisme-user-forgot-password/';
     const RESET_PASSWORD_URL = '/sisme-user-reset-password/';
+
+    /**
+     * Constantes pour le module développeur
+     */
+    const META_DEVELOPER_STATUS = 'sisme_user_developer_status';
+    const META_DEVELOPER_APPLICATION = 'sisme_user_developer_application';
+    const META_DEVELOPER_PROFILE = 'sisme_user_developer_profile';
+
+    /**
+     * Statuts développeur
+     */
+    const DEVELOPER_STATUS_NONE = 'none';
+    const DEVELOPER_STATUS_PENDING = 'pending';
+    const DEVELOPER_STATUS_APPROVED = 'approved';
+    const DEVELOPER_STATUS_REJECTED = 'rejected';
+
+    /**
+     * Champs de candidature développeur
+     */
+    const APPLICATION_FIELD_STUDIO_NAME = 'studio_name';
+    const APPLICATION_FIELD_STUDIO_DESCRIPTION = 'studio_description';
+    const APPLICATION_FIELD_STUDIO_WEBSITE = 'studio_website';
+    const APPLICATION_FIELD_STUDIO_SOCIAL_LINKS = 'studio_social_links';
+    const APPLICATION_FIELD_REPRESENTATIVE_FIRSTNAME = 'representative_firstname';
+    const APPLICATION_FIELD_REPRESENTATIVE_LASTNAME = 'representative_lastname';
+    const APPLICATION_FIELD_REPRESENTATIVE_BIRTHDATE = 'representative_birthdate';
+    const APPLICATION_FIELD_REPRESENTATIVE_ADDRESS = 'representative_address';
+    const APPLICATION_FIELD_REPRESENTATIVE_CITY = 'representative_city';
+    const APPLICATION_FIELD_REPRESENTATIVE_COUNTRY = 'representative_country';
+    const APPLICATION_FIELD_REPRESENTATIVE_EMAIL = 'representative_email';
+    const APPLICATION_FIELD_REPRESENTATIVE_PHONE = 'representative_phone';
+    const APPLICATION_FIELD_SUBMITTED_DATE = 'submitted_date';
+    const APPLICATION_FIELD_REVIEWED_DATE = 'reviewed_date';
+    const APPLICATION_FIELD_ADMIN_NOTES = 'admin_notes';
     
     /**
      * Messages par défaut

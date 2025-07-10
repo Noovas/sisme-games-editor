@@ -16,36 +16,30 @@ if (!defined('ABSPATH')) {
 
 class Sisme_User_Developer_Data_Manager {
     
-    // Clés de métadonnées
-    const META_DEVELOPER_STATUS = 'sisme_user_developer_status';
-    const META_DEVELOPER_APPLICATION = 'sisme_user_developer_application';
-    const META_DEVELOPER_PROFILE = 'sisme_user_developer_profile';
-    
-    // Statuts possibles
-    const STATUS_NONE = 'none';
-    const STATUS_PENDING = 'pending';
-    const STATUS_APPROVED = 'approved';
-    const STATUS_REJECTED = 'rejected';
-    
     /**
      * Récupérer le statut développeur d'un utilisateur
      */
     public static function get_developer_status($user_id) {
-        $status = get_user_meta($user_id, self::META_DEVELOPER_STATUS, true);
-        return $status ?: self::STATUS_NONE;
+        $status = get_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_STATUS, true);
+        return $status ?: Sisme_Utils_Users::DEVELOPER_STATUS_NONE;
     }
     
     /**
      * Définir le statut développeur
      */
     public static function set_developer_status($user_id, $status) {
-        $valid_statuses = [self::STATUS_NONE, self::STATUS_PENDING, self::STATUS_APPROVED, self::STATUS_REJECTED];
+        $valid_statuses = [
+            Sisme_Utils_Users::DEVELOPER_STATUS_NONE, 
+            Sisme_Utils_Users::DEVELOPER_STATUS_PENDING, 
+            Sisme_Utils_Users::DEVELOPER_STATUS_APPROVED, 
+            Sisme_Utils_Users::DEVELOPER_STATUS_REJECTED
+        ];
         
         if (!in_array($status, $valid_statuses)) {
             return false;
         }
         
-        return update_user_meta($user_id, self::META_DEVELOPER_STATUS, $status);
+        return update_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_STATUS, $status);
     }
     
     /**
@@ -65,25 +59,29 @@ class Sisme_User_Developer_Data_Manager {
      * Récupérer les données de candidature
      */
     public static function get_developer_application($user_id) {
-        $application = get_user_meta($user_id, self::META_DEVELOPER_APPLICATION, true);
+        $application = get_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_APPLICATION, true);
         
         if (!$application) {
             return null;
         }
         
-        // Structure par défaut
+        // Structure par défaut avec les nouvelles constantes
         return wp_parse_args($application, [
-            'studio_name' => '',
-            'website' => '',
-            'description' => '',
-            'portfolio_links' => [],
-            'experience' => '',
-            'motivation' => '',
-            'contact_email' => '',
-            'social_links' => [],
-            'submitted_date' => '',
-            'reviewed_date' => '',
-            'admin_notes' => ''
+            Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_NAME => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_DESCRIPTION => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_WEBSITE => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS => [],
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_FIRSTNAME => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_LASTNAME => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_BIRTHDATE => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_ADDRESS => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_CITY => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_COUNTRY => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_EMAIL => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_PHONE => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_SUBMITTED_DATE => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_REVIEWED_DATE => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_ADMIN_NOTES => ''
         ]);
     }
     
@@ -91,7 +89,7 @@ class Sisme_User_Developer_Data_Manager {
      * Récupérer le profil développeur public
      */
     public static function get_developer_profile($user_id) {
-        $profile = get_user_meta($user_id, self::META_DEVELOPER_PROFILE, true);
+        $profile = get_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_PROFILE, true);
         
         if (!$profile) {
             return null;
@@ -99,8 +97,8 @@ class Sisme_User_Developer_Data_Manager {
         
         // Structure par défaut
         return wp_parse_args($profile, [
-            'studio_name' => '',
-            'website' => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_NAME => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_WEBSITE => '',
             'bio' => '',
             'avatar_studio' => '',
             'verified' => false,
@@ -150,27 +148,31 @@ class Sisme_User_Developer_Data_Manager {
      * Sauvegarder une candidature développeur
      */
     public static function save_developer_application($user_id, $application_data) {
-        // Nettoyer et valider les données
+        // Nettoyer et valider les données avec les nouvelles constantes
         $clean_data = [
-            'studio_name' => sanitize_text_field($application_data['studio_name'] ?? ''),
-            'website' => esc_url_raw($application_data['website'] ?? ''),
-            'description' => sanitize_textarea_field($application_data['description'] ?? ''),
-            'portfolio_links' => self::sanitize_portfolio_links($application_data['portfolio_links'] ?? []),
-            'experience' => sanitize_textarea_field($application_data['experience'] ?? ''),
-            'motivation' => sanitize_textarea_field($application_data['motivation'] ?? ''),
-            'contact_email' => sanitize_email($application_data['contact_email'] ?? ''),
-            'social_links' => self::sanitize_social_links($application_data['social_links'] ?? []),
-            'submitted_date' => current_time('Y-m-d H:i:s'),
-            'reviewed_date' => '',
-            'admin_notes' => ''
+            Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_NAME => sanitize_text_field($application_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_NAME] ?? ''),
+            Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_DESCRIPTION => sanitize_textarea_field($application_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_DESCRIPTION] ?? ''),
+            Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_WEBSITE => esc_url_raw($application_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_WEBSITE] ?? ''),
+            Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS => self::sanitize_social_links($application_data[Sisme_Utils_Users::APPLICATION_FIELD_STUDIO_SOCIAL_LINKS] ?? []),
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_FIRSTNAME => sanitize_text_field($application_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_FIRSTNAME] ?? ''),
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_LASTNAME => sanitize_text_field($application_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_LASTNAME] ?? ''),
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_BIRTHDATE => sanitize_text_field($application_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_BIRTHDATE] ?? ''),
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_ADDRESS => sanitize_textarea_field($application_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_ADDRESS] ?? ''),
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_CITY => sanitize_text_field($application_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_CITY] ?? ''),
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_COUNTRY => sanitize_text_field($application_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_COUNTRY] ?? ''),
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_EMAIL => sanitize_email($application_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_EMAIL] ?? ''),
+            Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_PHONE => sanitize_text_field($application_data[Sisme_Utils_Users::APPLICATION_FIELD_REPRESENTATIVE_PHONE] ?? ''),
+            Sisme_Utils_Users::APPLICATION_FIELD_SUBMITTED_DATE => current_time('Y-m-d H:i:s'),
+            Sisme_Utils_Users::APPLICATION_FIELD_REVIEWED_DATE => '',
+            Sisme_Utils_Users::APPLICATION_FIELD_ADMIN_NOTES => ''
         ];
         
         // Sauvegarder les données
-        $result = update_user_meta($user_id, self::META_DEVELOPER_APPLICATION, $clean_data);
+        $result = update_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_APPLICATION, $clean_data);
         
         if ($result) {
             // Changer le statut vers 'pending'
-            self::set_developer_status($user_id, self::STATUS_PENDING);
+            self::set_developer_status($user_id, Sisme_Utils_Users::DEVELOPER_STATUS_PENDING);
             
             // Log pour debug
             if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -209,10 +211,10 @@ class Sisme_User_Developer_Data_Manager {
         }
         
         $clean_social = [];
-        $allowed_platforms = ['twitter', 'discord', 'instagram', 'youtube', 'twitch'];
+        $allowed_platforms = ['twitter', 'discord', 'instagram', 'youtube', 'twitch', 'facebook', 'linkedin'];
         
         foreach ($social_links as $platform => $handle) {
-            if (in_array($platform, $allowed_platforms)) {
+            if (in_array($platform, $allowed_platforms) && !empty($handle)) {
                 $clean_social[$platform] = sanitize_text_field($handle);
             }
         }
@@ -227,13 +229,13 @@ class Sisme_User_Developer_Data_Manager {
         $status = self::get_developer_status($user_id);
         
         // Peut candidater seulement si statut 'none' ou 'rejected'
-        return in_array($status, [self::STATUS_NONE, self::STATUS_REJECTED]);
+        return in_array($status, [Sisme_Utils_Users::DEVELOPER_STATUS_NONE, Sisme_Utils_Users::DEVELOPER_STATUS_REJECTED]);
     }
     
     /**
      * Vérifier si un utilisateur est développeur approuvé
      */
     public static function is_approved_developer($user_id) {
-        return self::get_developer_status($user_id) === self::STATUS_APPROVED;
+        return self::get_developer_status($user_id) === Sisme_Utils_Users::DEVELOPER_STATUS_APPROVED;
     }
 }
