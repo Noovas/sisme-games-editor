@@ -1,6 +1,6 @@
 # 🎮 User Developer - API REF
 
-**Version:** 2.0.0 | **Status:** Étape 2/3 terminée - AJAX fonctionnel  
+**Version:** 2.1.0 | **Status:** Étape 2/3 terminée - AJAX complet avec reset rejection  
 Documentation technique pour le module développeur utilisateur.
 
 ---
@@ -16,7 +16,7 @@ Documentation technique pour le module développeur utilisateur.
 - **none** - Utilisateur lambda (peut candidater)
 - **pending** - Candidature en cours d'examen
 - **approved** - Développeur approuvé (peut soumettre des jeux)
-- **rejected** - Candidature rejetée (peut recandidater)
+- **rejected** - Candidature rejetée (peut recandidater via reset)
 
 ### Système de Rôles Multi-Niveaux
 - **Rôle WordPress** : `sisme-dev` (ajouté aux rôles existants)
@@ -100,7 +100,7 @@ $loader = Sisme_User_Developer_Loader::get_instance();
 // Assets chargés:
 // - user-developer.css (styles gaming dark)
 // - user-developer.js (validation temps réel)
-// - user-developer-ajax.js (soumission AJAX)
+// - user-developer-ajax.js (soumission AJAX + reset)
 // - Localisation AJAX avec nonce sécurisé
 ```
 </details>
@@ -247,6 +247,27 @@ $is_approved = Sisme_User_Developer_Data_Manager::is_approved_developer(42);
 ```
 </details>
 
+<details>
+<summary><code>sisme_ajax_developer_reset_rejection()</code></summary>
+
+```php
+// Handler AJAX pour reset candidature rejetée
+// Action: 'sisme_developer_reset_rejection'
+// Nonce: 'sisme_developer_nonce'
+//
+// Sécurité:
+// - Vérification nonce obligatoire
+// - Utilisateur connecté requis
+// - Validation statut 'rejected' uniquement
+//
+// Actions:
+// - Reset statut vers 'none'
+// - Suppression anciennes données candidature
+// - Permet nouvelle candidature immédiate
+// - Retour JSON avec reload_dashboard: true
+```
+</details>
+
 ### Fonctions Utilitaires
 
 <details>
@@ -370,7 +391,8 @@ $html = Sisme_User_Developer_Renderer::render_developer_section(42, 'none', $das
 // - Header avec icône de rejet
 // - Notes administrateur si disponibles
 // - Conseils pour prochaine candidature
-// - Bouton "Faire une nouvelle demande"
+// - Bouton "Faire une nouvelle demande" fonctionnel
+// - Zone de feedback pour reset AJAX
 ```
 </details>
 
@@ -502,6 +524,8 @@ SismeDeveloperAjax.config = {
     formSelector: '#sisme-developer-form',
     feedbackSelector: '#sisme-form-feedback',
     submitButtonSelector: '#sisme-developer-submit',
+    retryButtonSelector: '#sisme-retry-application',
+    retryFeedbackSelector: '#sisme-retry-feedback',
     ajaxUrl: sismeAjax.ajaxurl,
     nonce: sismeAjax.nonce
 };
@@ -521,6 +545,22 @@ SismeDeveloperAjax.config = {
 // 2. Requête AJAX vers 'sisme_developer_submit'
 // 3. Gestion réponse success/error
 // 4. Affichage feedback utilisateur
+// 5. Rechargement dashboard si succès
+```
+</details>
+
+<details>
+<summary><code>handleRetryApplication(event)</code></summary>
+
+```javascript
+// Gérer le reset d'une candidature rejetée
+// @param Event event - Événement click du bouton retry
+//
+// Processus:
+// 1. Confirmation utilisateur obligatoire
+// 2. Désactivation bouton + feedback loading
+// 3. Requête AJAX vers 'sisme_developer_reset_rejection'
+// 4. Gestion réponse success/error
 // 5. Rechargement dashboard si succès
 ```
 </details>
@@ -565,6 +605,14 @@ SismeDeveloperAjax.config = {
 .sisme-form-field
 .sisme-social-input-group
 .sisme-form-feedback
+
+/* État rejeté spécifique */
+.sisme-admin-feedback            /* Notes administrateur */
+.sisme-rejection-info            /* Zone de conseils */
+.sisme-tips-list                 /* Liste des conseils */
+.sisme-retry-actions             /* Actions de retry */
+#sisme-retry-application         /* Bouton retry */
+#sisme-retry-feedback            /* Feedback retry */
 
 /* Admin */
 .sisme-dev-status                 /* Badges statut */
@@ -681,14 +729,22 @@ add_filter('sisme_dashboard_valid_sections', [$this, 'add_developer_valid_sectio
 4. **Statut** vers 'none' (peut recandidater)
 5. **Navigation** redevient "📝 Devenir Développeur"
 
+### Phase 5: Reset Rejection (rejected → none)
+1. **Utilisateur rejeté** voit notes admin et conseils
+2. **Bouton "Nouvelle demande"** avec confirmation obligatoire
+3. **Reset AJAX** sécurisé avec nonce
+4. **Statut** vers 'none' + suppression anciennes données
+5. **Rechargement** dashboard → formulaire candidature accessible
+
 ---
 
 ## 🎯 Prochaines Étapes - Phase 3
 
-### Interface "Mes Jeux"
-- [ ] Formulaire soumission jeu frontend
+### Interface "Mes Jeux" ✅ Base
+- [x] Interface développeur approuvé avec statistiques
+- [x] Placeholder boutons "Soumettre un jeu"
+- [ ] Formulaire soumission jeu frontend fonctionnel
 - [ ] Liste jeux soumis avec statuts
-- [ ] Statistiques développeur détaillées
 - [ ] Workflow modération jeux admin
 
 ### Système de Notifications
@@ -698,18 +754,26 @@ add_filter('sisme_dashboard_valid_sections', [$this, 'add_developer_valid_sectio
 - [ ] Système de badges développeur
 
 ### Extensions Admin
+- [x] Interface gestion candidatures complète
+- [x] Actions approbation/rejet/révocation
 - [ ] Filters par statut développeur
 - [ ] Export données développeurs
 - [ ] Statistiques globales développeurs
 - [ ] Modération jeux soumis
+
+### Améliorations UX ✅ Terminé
+- [x] Reset candidature rejetée fonctionnel
+- [x] Affichage notes admin pour rejets
+- [x] Conseils amélioration candidature
+- [x] Confirmation utilisateur pour actions critiques
 
 ---
 
 ## 🔗 Dépendances
 
 ### Modules Utils Utilisés
-- `Sisme_Utils_Users` - Fonctions getter développeur
-- `Sisme_Utils_Developer_Roles` - Gestion rôles WordPress
+- `Sisme_Utils_Users` - Fonctions getter développeur + constantes
+- `Sisme_Utils_Developer_Roles` - Gestion rôles WordPress multi-niveaux
 - `Sisme_Utils_Validation` - Validation données formulaire (futur)
 
 ### Modules Dashboard Réutilisés
@@ -718,7 +782,11 @@ add_filter('sisme_dashboard_valid_sections', [$this, 'add_developer_valid_sectio
 - Navigation et assets dashboard existants
 
 ### Fonctions WordPress
-- `add_role()` / `remove_role()` - Gestion rôles multi-niveaux
+- `add_role()` / `remove_role()` - Gestion rôles multi-niveaux ✅
 - `update_user_meta()` / `get_user_meta()` - Métadonnées utilisateur
-- `wp_ajax_` hooks - Handlers AJAX sécurisés
-- `wp_nonce_` functions - Sécurité CSRF
+- `wp_ajax_` hooks - Handlers AJAX sécurisés ✅
+- `wp_nonce_` functions - Sécurité CSRF ✅
+
+### Actions AJAX Disponibles
+- `sisme_developer_submit` - Soumission candidature ✅
+- `sisme_developer_reset_rejection` - Reset candidature rejetée ✅
