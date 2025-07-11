@@ -40,6 +40,7 @@ class Sisme_User_Developer_Loader {
      * Initialisation du module développeur
      */
     private function init() {
+        $this->ensure_database_ready();
         $this->load_developer_modules();
         $this->register_hooks();
         
@@ -276,4 +277,12 @@ class Sisme_User_Developer_Loader {
         
         return Sisme_User_Developer_Data_Manager::get_developer_data($user_id);
     }
+
+    private function ensure_database_ready() {
+    require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/submission-database.php';
+    
+    if (!Sisme_Submission_Database::table_exists()) {
+        Sisme_Submission_Database::create_table();
+    }
+}
 }
