@@ -152,7 +152,7 @@ class Sisme_Utils_Developer_Roles {
                 update_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_APPLICATION, $application);
             }
             
-            // TODO: Envoyer notification à l'utilisateur
+            do_action('sisme_developer_application_approved', $user_id, $admin_notes);
             
             return true;
         }
@@ -175,7 +175,7 @@ class Sisme_Utils_Developer_Roles {
             update_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_APPLICATION, $application);
         }
         
-        // TODO: Envoyer notification à l'utilisateur
+        do_action('sisme_developer_application_rejected', $user_id, $admin_notes);
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log("[Sisme Developer Roles] Candidature $user_id rejetée (rôle inchangé)");

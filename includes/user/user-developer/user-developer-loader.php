@@ -61,7 +61,8 @@ class Sisme_User_Developer_Loader {
         $required_modules = [
             'user-developer-data-manager.php',
             'user-developer-renderer.php',
-            'user-developer-ajax.php'
+            'user-developer-ajax.php',
+            'user-developer-email-notifications.php' 
         ];
         
         foreach ($required_modules as $module) {

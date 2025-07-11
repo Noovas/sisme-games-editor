@@ -153,6 +153,8 @@ function sisme_ajax_developer_submit() {
         ]);
     }
     
+    do_action('sisme_developer_application_submitted', $user_id);
+    
     // Vérifier le changement de statut
     $new_status = Sisme_Utils_Users::get_user_dev_data($user_id, 'status');
     
