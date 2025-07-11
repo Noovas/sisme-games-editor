@@ -382,32 +382,58 @@ class Sisme_User_Developer_Renderer {
             </div>
             
             <div class="sisme-developer-content">
+                <!-- Section existante - Stats -->
+                <?php if (!class_exists('Sisme_Submission_Database')) {
+                    require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/submission-database.php';
+                }
+
+                $user_submissions = Sisme_Submission_Database::get_user_submissions($user_id);
+                $stats = [
+                    'published' => 0,
+                    'pending' => 0,
+                    'total_views' => 0
+                ];
+
+                foreach ($user_submissions as $submission) {
+                    if ($submission->status === 'published') {
+                        $stats['published']++;
+                        // TODO: Ajouter vraies vues depuis les analytics
+                    } elseif ($submission->status === 'pending') {
+                        $stats['pending']++;
+                    }
+                }
+                ?>
+
                 <div class="sisme-developer-stats">
                     <div class="sisme-stat-card">
                         <span class="sisme-stat-icon">🎯</span>
-                        <span class="sisme-stat-number">0</span>
+                        <span class="sisme-stat-number"><?php echo $stats['published']; ?></span>
                         <span class="sisme-stat-label">Jeux publiés</span>
                     </div>
                     <div class="sisme-stat-card">
                         <span class="sisme-stat-icon">⏳</span>
-                        <span class="sisme-stat-number">0</span>
+                        <span class="sisme-stat-number"><?php echo $stats['pending']; ?></span>
                         <span class="sisme-stat-label">En attente</span>
                     </div>
                     <div class="sisme-stat-card">
                         <span class="sisme-stat-icon">👁️</span>
-                        <span class="sisme-stat-number">0</span>
+                        <span class="sisme-stat-number"><?php echo $stats['total_views']; ?></span>
                         <span class="sisme-stat-label">Vues totales</span>
                     </div>
                 </div>
                 
+                <!-- Section existante - Actions rapides -->
                 <div class="sisme-developer-actions">
-                    <button class="sisme-btn sisme-btn-primary">
+                    <button class="sisme-btn sisme-btn-primary" onclick="SismeDeveloper.startNewSubmission()">
                         ➕ Soumettre un jeu
                     </button>
                     <button class="sisme-btn sisme-btn-secondary">
                         📊 Statistiques détaillées
                     </button>
                 </div>
+                
+                <!-- SECTION : Mes Jeux -->
+                <?php echo self::render_my_games_section($user_id); ?>
             </div>
         </div>
         <?php
@@ -468,6 +494,222 @@ class Sisme_User_Developer_Renderer {
                     </button>
                     <div id="sisme-retry-feedback" class="sisme-form-feedback" style="display: none;"></div>
                 </div>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Rendu d'un item de jeu
+     */
+    private static function render_game_item($submission, $context) {
+        $game_data = $submission->game_data_decoded;
+        $game_name = $game_data['game_name'] ?? 'Jeu sans titre';
+        $completion = $game_data['metadata']['completion_percentage'] ?? 0;
+        $last_updated = human_time_diff(strtotime($submission->updated_at), current_time('timestamp')) . ' ago';
+        
+        // Calculer le temps depuis soumission pour les pending
+        $pending_days = '';
+        if ($submission->status === 'pending' && $submission->submitted_at) {
+            $days = floor((current_time('timestamp') - strtotime($submission->submitted_at)) / DAY_IN_SECONDS);
+            $pending_days = $days > 0 ? "({$days}j)" : "(aujourd'hui)";
+        }
+        
+        ob_start();
+        ?>
+        <div class="sisme-game-item sisme-game-item-<?php echo esc_attr($submission->status); ?>" data-submission-id="<?php echo esc_attr($submission->id); ?>">
+            <div class="sisme-game-info">
+                <div class="sisme-game-title">
+                    <span class="sisme-game-name"><?php echo esc_html($game_name); ?></span>
+                    <?php if ($context === 'draft' && $completion > 0): ?>
+                        <span class="sisme-game-progress">(<?php echo esc_html($completion); ?>%)</span>
+                    <?php endif; ?>
+                    <?php if ($context === 'pending' && $pending_days): ?>
+                        <span class="sisme-game-pending-time"><?php echo esc_html($pending_days); ?></span>
+                    <?php endif; ?>
+                </div>
+                <div class="sisme-game-meta">
+                    <span class="sisme-game-updated">Mis à jour <?php echo esc_html($last_updated); ?></span>
+                    <span class="sisme-game-status sisme-status-<?php echo esc_attr($submission->status); ?>">
+                        <?php echo self::get_status_label($submission->status); ?>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="sisme-game-actions">
+                <?php echo self::render_game_actions($submission, $context); ?>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Actions pour chaque jeu selon son statut
+     */
+    private static function render_game_actions($submission, $context) {
+        ob_start();
+        
+        switch ($submission->status) {
+            case 'draft':
+            case 'revision':
+                ?>
+                <button class="sisme-btn sisme-btn-small sisme-btn-primary" onclick="SismeDeveloper.continueSubmission(<?php echo esc_attr($submission->id); ?>)">
+                    ✏️ Continuer
+                </button>
+                <button class="sisme-btn sisme-btn-small sisme-btn-danger" onclick="SismeDeveloper.deleteSubmission(<?php echo esc_attr($submission->id); ?>)">
+                    🗑️ Supprimer
+                </button>
+                <?php
+                break;
+                
+            case 'pending':
+                ?>
+                <button class="sisme-btn sisme-btn-small sisme-btn-secondary" onclick="SismeDeveloper.viewSubmission(<?php echo esc_attr($submission->id); ?>)">
+                    👁️ Voir
+                </button>
+                <?php
+                break;
+                
+            case 'published':
+                ?>
+                <button class="sisme-btn sisme-btn-small sisme-btn-secondary" onclick="SismeDeveloper.viewPublishedGame(<?php echo esc_attr($submission->id); ?>)">
+                    🔗 Voir la page
+                </button>
+                <button class="sisme-btn sisme-btn-small sisme-btn-tertiary" onclick="SismeDeveloper.viewStats(<?php echo esc_attr($submission->id); ?>)">
+                    📊 Statistiques
+                </button>
+                <?php
+                break;
+                
+            case 'rejected':
+                ?>
+                <button class="sisme-btn sisme-btn-small sisme-btn-secondary" onclick="SismeDeveloper.viewRejectionNotes(<?php echo esc_attr($submission->id); ?>)">
+                    📄 Voir les notes
+                </button>
+                <button class="sisme-btn sisme-btn-small sisme-btn-primary" onclick="SismeDeveloper.retrySubmission(<?php echo esc_attr($submission->id); ?>)">
+                    🔄 Réessayer
+                </button>
+                <?php
+                break;
+        }
+        
+        return ob_get_clean();
+    }
+
+    /**
+     * Labels des statuts
+     */
+    private static function get_status_label($status) {
+        $labels = [
+            'draft' => 'Brouillon',
+            'revision' => 'À réviser',
+            'pending' => 'En attente',
+            'published' => 'Publié',
+            'rejected' => 'Rejeté'
+        ];
+        
+        return $labels[$status] ?? ucfirst($status);
+    }
+
+    /**
+     * Rendu de la section "Mes Jeux"
+     */
+    private static function render_my_games_section($user_id) {
+        // Ensure submission database is available
+        if (!class_exists('Sisme_Submission_Database')) {
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/submission-database.php';
+        }
+        
+        // Récupérer les soumissions de l'utilisateur
+        $user_submissions = Sisme_Submission_Database::get_user_submissions($user_id);
+        
+        // Organiser par statut
+        $submissions_by_status = [
+            'draft' => [],
+            'revision' => [],
+            'pending' => [],
+            'published' => [],
+            'rejected' => []
+        ];
+        
+        foreach ($user_submissions as $submission) {
+            if (isset($submissions_by_status[$submission->status])) {
+                $submissions_by_status[$submission->status][] = $submission;
+            }
+        }
+        
+        ob_start();
+        ?>
+        <div class="sisme-my-games-section">
+            <div class="sisme-my-games-header">
+                <h4 class="sisme-my-games-title">🎮 Mes Soumissions</h4>
+                <p class="sisme-my-games-subtitle">Gérez vos jeux en cours de développement et publiés</p>
+            </div>
+            
+            <div class="sisme-my-games-content">
+                
+                <!-- Brouillons et révisions -->
+                <?php if (!empty($submissions_by_status['draft']) || !empty($submissions_by_status['revision'])): ?>
+                <div class="sisme-games-group sisme-games-drafts">
+                    <h5 class="sisme-games-group-title">📝 BROUILLONS & RÉVISIONS (<?php echo count($submissions_by_status['draft']) + count($submissions_by_status['revision']); ?>)</h5>
+                    <div class="sisme-games-list">
+                        <?php foreach (array_merge($submissions_by_status['draft'], $submissions_by_status['revision']) as $submission): ?>
+                            <?php echo self::render_game_item($submission, 'draft'); ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- En attente -->
+                <?php if (!empty($submissions_by_status['pending'])): ?>
+                <div class="sisme-games-group sisme-games-pending">
+                    <h5 class="sisme-games-group-title">⏳ EN ATTENTE (<?php echo count($submissions_by_status['pending']); ?>)</h5>
+                    <div class="sisme-games-list">
+                        <?php foreach ($submissions_by_status['pending'] as $submission): ?>
+                            <?php echo self::render_game_item($submission, 'pending'); ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Publiés -->
+                <?php if (!empty($submissions_by_status['published'])): ?>
+                <div class="sisme-games-group sisme-games-published">
+                    <h5 class="sisme-games-group-title">✅ PUBLIÉS (<?php echo count($submissions_by_status['published']); ?>)</h5>
+                    <div class="sisme-games-list">
+                        <?php foreach ($submissions_by_status['published'] as $submission): ?>
+                            <?php echo self::render_game_item($submission, 'published'); ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Rejetés -->
+                <?php if (!empty($submissions_by_status['rejected'])): ?>
+                <div class="sisme-games-group sisme-games-rejected">
+                    <h5 class="sisme-games-group-title">❌ REJETÉS (<?php echo count($submissions_by_status['rejected']); ?>)</h5>
+                    <div class="sisme-games-list">
+                        <?php foreach ($submissions_by_status['rejected'] as $submission): ?>
+                            <?php echo self::render_game_item($submission, 'rejected'); ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Aucune soumission -->
+                <?php if (empty($user_submissions)): ?>
+                <div class="sisme-games-empty">
+                    <div class="sisme-empty-icon">🎮</div>
+                    <h5>Aucun jeu soumis</h5>
+                    <p>Commencez par soumettre votre premier jeu !</p>
+                    <button class="sisme-btn sisme-btn-primary" onclick="SismeDeveloper.startNewSubmission()">
+                        ➕ Soumettre un jeu
+                    </button>
+                </div>
+                <?php endif; ?>
+                
             </div>
         </div>
         <?php

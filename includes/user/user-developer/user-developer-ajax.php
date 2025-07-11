@@ -370,5 +370,74 @@ function sisme_validate_developer_form_data($data) {
     return $errors;
 }
 
+/**
+ * Créer une nouvelle soumission
+ */
+function sisme_ajax_create_submission() {
+    check_ajax_referer('sisme_nonce', 'nonce');
+    
+    if (!is_user_logged_in()) {
+        wp_send_json_error(['message' => 'Non connecté']);
+    }
+    
+    $user_id = get_current_user_id();
+    
+    // Vérifier que l'utilisateur est développeur approuvé
+    if (!Sisme_User_Developer_Data_Manager::is_approved_developer($user_id)) {
+        wp_send_json_error(['message' => 'Non autorisé']);
+    }
+    
+    // Créer la soumission
+    $submission_id = Sisme_Submission_Database::create_submission($user_id);
+    
+    if (is_wp_error($submission_id)) {
+        wp_send_json_error(['message' => $submission_id->get_error_message()]);
+    }
+    
+    wp_send_json_success(['submission_id' => $submission_id]);
+}
+add_action('wp_ajax_sisme_create_submission', 'sisme_ajax_create_submission');
+
+/**
+ * Supprimer une soumission
+ */
+function sisme_ajax_delete_submission() {
+    check_ajax_referer('sisme_nonce', 'nonce');
+    
+    $submission_id = intval($_POST['submission_id']);
+    $user_id = get_current_user_id();
+    
+    $result = Sisme_Submission_Database::delete_submission($submission_id, $user_id);
+    
+    if (is_wp_error($result)) {
+        wp_send_json_error(['message' => $result->get_error_message()]);
+    }
+    
+    wp_send_json_success(['message' => 'Soumission supprimée']);
+}
+add_action('wp_ajax_sisme_delete_submission', 'sisme_ajax_delete_submission');
+
+/**
+ * Récupérer détails d'une soumission
+ */
+function sisme_ajax_get_submission_details() {
+    check_ajax_referer('sisme_nonce', 'nonce');
+    
+    $submission_id = intval($_POST['submission_id']);
+    $user_id = get_current_user_id();
+    
+    $submission = Sisme_Submission_Database::get_submission($submission_id);
+    
+    if (!$submission || $submission->user_id != $user_id) {
+        wp_send_json_error(['message' => 'Soumission introuvable']);
+    }
+    
+    wp_send_json_success([
+        'admin_notes' => $submission->admin_notes,
+        'game_name' => $submission->game_data_decoded['game_name'] ?? 'Jeu sans titre'
+    ]);
+}
+add_action('wp_ajax_sisme_get_submission_details', 'sisme_ajax_get_submission_details');
+
 // Initialiser les hooks AJAX
 sisme_init_developer_ajax();

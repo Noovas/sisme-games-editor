@@ -739,3 +739,321 @@
         width: 100%;
     }
 }
+
+/* =======================================================
+   🎮 SISME DEVELOPER - MES JEUX
+   Interface pour la gestion des soumissions développeur
+   Thème: Background #4a4a4a + foncissement rgba(0,0,0,0.3)
+   ======================================================= */
+
+/* Section principale Mes Jeux */
+.sisme-my-games-section {
+    margin-top: 30px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+    color: #ffffff;
+}
+
+.sisme-my-games-header {
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+}
+
+.sisme-my-games-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sisme-my-games-subtitle {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+}
+
+/* Groupes de jeux par statut */
+.sisme-games-group {
+    margin-bottom: 25px;
+}
+
+.sisme-games-group:last-child {
+    margin-bottom: 0;
+}
+
+.sisme-games-group-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Couleurs spécifiques par groupe */
+.sisme-games-drafts .sisme-games-group-title {
+    color: #ffd700;
+}
+
+.sisme-games-pending .sisme-games-group-title {
+    color: #ffa500;
+}
+
+.sisme-games-published .sisme-games-group-title {
+    color: #28a745;
+}
+
+.sisme-games-rejected .sisme-games-group-title {
+    color: #dc3545;
+}
+
+/* Liste des jeux */
+.sisme-games-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Item de jeu individuel */
+.sisme-game-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.sisme-game-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(2px);
+}
+
+/* Bordures colorées par statut */
+.sisme-game-item-draft {
+    border-left-color: #ffd700;
+}
+
+.sisme-game-item-revision {
+    border-left-color: #ff8c00;
+}
+
+.sisme-game-item-pending {
+    border-left-color: #ffa500;
+}
+
+.sisme-game-item-published {
+    border-left-color: #28a745;
+}
+
+.sisme-game-item-rejected {
+    border-left-color: #dc3545;
+}
+
+/* Informations du jeu */
+.sisme-game-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sisme-game-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+}
+
+.sisme-game-name {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 15px;
+}
+
+.sisme-game-progress {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.sisme-game-pending-time {
+    background: rgba(255, 165, 0, 0.2);
+    color: #ffa500;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.sisme-game-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.sisme-game-updated {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+}
+
+.sisme-game-status {
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sisme-status-draft {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+}
+
+.sisme-status-revision {
+    background: rgba(255, 140, 0, 0.2);
+    color: #ff8c00;
+}
+
+.sisme-status-pending {
+    background: rgba(255, 165, 0, 0.2);
+    color: #ffa500;
+}
+
+.sisme-status-published {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+}
+
+.sisme-status-rejected {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+/* Actions des jeux */
+.sisme-game-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+/* Boutons actions */
+.sisme-btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.sisme-btn-small.sisme-btn-primary {
+    background: #007cba;
+    color: #ffffff;
+}
+
+.sisme-btn-small.sisme-btn-primary:hover {
+    background: #005a87;
+}
+
+.sisme-btn-small.sisme-btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sisme-btn-small.sisme-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.sisme-btn-small.sisme-btn-tertiary {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sisme-btn-small.sisme-btn-tertiary:hover {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.sisme-btn-small.sisme-btn-danger {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.sisme-btn-small.sisme-btn-danger:hover {
+    background: rgba(220, 53, 69, 0.3);
+    color: #ffffff;
+}
+
+/* État vide */
+.sisme-games-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.sisme-empty-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.sisme-games-empty h5 {
+    margin: 0 0 8px 0;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.sisme-games-empty p {
+    margin: 0 0 20px 0;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .sisme-game-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .sisme-game-actions {
+        align-self: stretch;
+        justify-content: flex-end;
+    }
+    
+    .sisme-game-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .sisme-my-games-section {
+        padding: 15px;
+        margin-top: 20px;
+    }
+}
