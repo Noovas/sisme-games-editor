@@ -437,8 +437,15 @@ function sisme_ajax_create_submission() {
     $submission_id = Sisme_Submission_Database::create_submission($user_id, $default_game_data);
     
     if (is_wp_error($submission_id)) {
+        $error_message = $submission_id->get_error_message();
+        
+        // ✅ Messages d'erreur plus clairs pour les limites
+        if ($submission_id->get_error_code() === 'limit_exceeded') {
+            $error_message = 'Vous avez atteint la limite de brouillons (3 maximum) ou de soumissions par jour (1 maximum). Supprimez un brouillon existant ou attendez demain.';
+        }
+        
         wp_send_json_error([
-            'message' => 'Erreur lors de la création: ' . $submission_id->get_error_message()
+            'message' => 'Erreur lors de la création: ' . $error_message
         ]);
     }
     

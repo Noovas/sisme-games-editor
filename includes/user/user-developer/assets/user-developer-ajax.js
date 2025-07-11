@@ -626,6 +626,14 @@
                         setTimeout(() => {
                             gameItem.remove();
                             this.updateGamesCounts();
+                            
+                            // ✅ FIX: Vérifier s'il faut réafficher l'état vide
+                            const allRemainingItems = document.querySelectorAll('.sisme-game-item');
+                            const emptyState = document.querySelector('.sisme-games-empty');
+                            
+                            if (allRemainingItems.length === 0 && emptyState) {
+                                emptyState.style.display = 'block';
+                            }
                         }, 300);
                     }
                     this.showFeedback('Soumission supprimée avec succès', 'success');

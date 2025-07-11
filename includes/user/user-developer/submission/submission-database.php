@@ -30,7 +30,7 @@ class Sisme_Submission_Database {
     
     // Limites
     const MAX_DRAFTS_PER_USER = 3;
-    const MAX_SUBMISSIONS_PER_DAY = 1;
+    const MAX_SUBMISSIONS_PER_DAY = 10;
     
     /**
      * Créer ou mettre à jour la table lors de l'activation

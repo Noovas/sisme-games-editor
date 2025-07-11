@@ -703,10 +703,7 @@ class Sisme_User_Developer_Renderer {
                 <div class="sisme-games-empty">
                     <div class="sisme-empty-icon">🎮</div>
                     <h5>Aucun jeu soumis</h5>
-                    <p>Commencez par soumettre votre premier jeu !</p>
-                    <button class="sisme-btn sisme-btn-primary" onclick="SismeDeveloper.startNewSubmission()">
-                        ➕ Soumettre un jeu
-                    </button>
+                    <p>Commencez par soumettre votre premier jeu en utilisant le bouton ci-dessus !</p>
                 </div>
                 <?php endif; ?>
                 
