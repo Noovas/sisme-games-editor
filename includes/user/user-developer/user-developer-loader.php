@@ -146,7 +146,8 @@ class Sisme_User_Developer_Loader {
         // Localisation AJAX
         wp_localize_script('sisme-user-developer-ajax', 'sismeAjax', array(
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('sisme_developer_nonce')
+            'nonce' => wp_create_nonce('sisme_developer_nonce'),
+            'currentUserId' => get_current_user_id()
         ));
     }
     
