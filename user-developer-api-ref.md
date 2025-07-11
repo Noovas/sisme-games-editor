@@ -1,7 +1,103 @@
 # 🎮 User Developer - API REF
 
-**Version:** 2.1.0 | **Status:** Étape 2/3 terminée - AJAX complet avec reset rejection  
+**Version:** 2.2.0 | **Status:** Étape 2/3 terminée - AJAX + Email notifications complets  
 Documentation technique pour le module développeur utilisateur.
+
+---
+
+## 📧 user-developer-email-notifications.php
+
+**Classe :** `Sisme_User_Developer_Email_Notifications`
+
+### Système Email Automatique
+
+<details>
+<summary><code>init_hooks()</code></summary>
+
+```php
+// Initialiser les hooks automatiques pour envoi d'emails
+// Hooks écoutés:
+// - 'sisme_developer_application_submitted' → Email confirmation
+// - 'sisme_developer_application_approved' → Email félicitations  
+// - 'sisme_developer_application_rejected' → Email rejet avec conseils
+// Auto-initialisation via hook 'init' priorité 20
+```
+</details>
+
+### Envoi Email par Type
+
+<details>
+<summary><code>send_application_submitted_email($user_id)</code></summary>
+
+```php
+// Envoyer email de confirmation candidature soumise
+// @param int $user_id - ID utilisateur qui a candidaté
+// @return bool - Succès envoi
+//
+// Contenu:
+// - Confirmation réception candidature
+// - Délai d'examen (3-7 jours ouvrés)
+// - Lien vers dashboard
+// - Format texte simple anti-spam
+$success = Sisme_User_Developer_Email_Notifications::send_application_submitted_email(42);
+```
+</details>
+
+<details>
+<summary><code>send_application_approved_email($user_id, $admin_notes)</code></summary>
+
+```php
+// Envoyer email félicitations candidature approuvée
+// @param int $user_id - ID utilisateur approuvé
+// @param string $admin_notes - Notes admin (optionnel)
+// @return bool - Succès envoi
+//
+// Contenu:
+// - Félicitations approbation
+// - Liste privilèges développeur
+// - Notes admin si présentes (stripslashes appliqué)
+// - Lien accès "Mes Jeux"
+$success = Sisme_User_Developer_Email_Notifications::send_application_approved_email(42, 'Excellent dossier !');
+```
+</details>
+
+<details>
+<summary><code>send_application_rejected_email($user_id, $admin_notes)</code></summary>
+
+```php
+// Envoyer email candidature rejetée avec conseils
+// @param int $user_id - ID utilisateur rejeté
+// @param string $admin_notes - Notes admin (optionnel)
+// @return bool - Succès envoi
+//
+// Contenu:
+// - Information rejet avec tact
+// - Commentaires admin si présents
+// - Conseils amélioration détaillés
+// - Encouragement à recandidater
+$success = Sisme_User_Developer_Email_Notifications::send_application_rejected_email(42, 'Portfolio à enrichir');
+```
+</details>
+
+### Configuration Anti-Spam
+
+<details>
+<summary><code>send_simple_email($to, $subject, $message)</code></summary>
+
+```php
+// Envoi email optimisé anti-spam
+// @param string $to - Destinataire
+// @param string $subject - Sujet
+// @param string $message - Message texte
+// @return bool - Succès envoi
+//
+// Optimisations:
+// - Headers simples (text/plain uniquement)
+// - From: correct avec domaine site
+// - Nettoyage contenu (strip_tags, html_entity_decode)
+// - Logging debug WP_DEBUG
+```
+</details>
 
 ---
 
@@ -647,6 +743,14 @@ add_filter('sisme_dashboard_valid_sections', [$this, 'add_developer_valid_sectio
 // Structure respectée: user-developer/user-developer-loader.php
 // Classe: Sisme_User_Developer_Loader
 // Méthode: get_instance()
+
+// Modules chargés automatiquement:
+$required_modules = [
+    'user-developer-data-manager.php',    // Gestion données
+    'user-developer-renderer.php',       // Rendu interfaces
+    'user-developer-ajax.php',           // Handlers AJAX
+    'user-developer-email-notifications.php'  // ✅ NOUVEAU: Emails
+];
 ```
 
 ---
@@ -736,6 +840,13 @@ add_filter('sisme_dashboard_valid_sections', [$this, 'add_developer_valid_sectio
 4. **Statut** vers 'none' + suppression anciennes données
 5. **Rechargement** dashboard → formulaire candidature accessible
 
+### Phase 6: Notifications Email ✅ NOUVEAU
+1. **Candidature soumise** → Email confirmation immédiat
+2. **Approbation admin** → Email félicitations + privilèges
+3. **Rejet admin** → Email constructif + conseils amélioration
+4. **Format anti-spam** → Texte simple, headers corrects
+5. **Logging intégré** → Debug via WP_DEBUG
+
 ---
 
 ## 🎯 Prochaines Étapes - Phase 3
@@ -767,6 +878,13 @@ add_filter('sisme_dashboard_valid_sections', [$this, 'add_developer_valid_sectio
 - [x] Conseils amélioration candidature
 - [x] Confirmation utilisateur pour actions critiques
 
+### Notifications Email ✅ Terminé
+- [x] Email candidature soumise (confirmation + délai)
+- [x] Email candidature approuvée (félicitations + privilèges)
+- [x] Email candidature rejetée (conseils + encouragements)
+- [x] Format anti-spam optimisé (texte simple)
+- [x] Intégration hooks automatiques
+
 ---
 
 ## 🔗 Dépendances
@@ -790,3 +908,8 @@ add_filter('sisme_dashboard_valid_sections', [$this, 'add_developer_valid_sectio
 ### Actions AJAX Disponibles
 - `sisme_developer_submit` - Soumission candidature ✅
 - `sisme_developer_reset_rejection` - Reset candidature rejetée ✅
+
+### Hooks Email Automatiques 
+- `sisme_developer_application_submitted` - Déclenché après sauvegarde candidature
+- `sisme_developer_application_approved` - Déclenché lors approbation admin
+- `sisme_developer_application_rejected` - Déclenché lors rejet admin
