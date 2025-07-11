@@ -1,6 +1,5 @@
 /**
  * File: /sisme-games-editor/assets/js/tooltip.js
- * Système de Tooltip Gaming - Version CORRIGÉE et SIMPLIFIÉE
  */
 
 class SismeTooltip {
@@ -27,7 +26,7 @@ class SismeTooltip {
     
     bindEvents() {
         // Délégation d'événements pour les éléments dynamiques
-        document.addEventListener('mouseenter', (e) => {
+        /*document.addEventListener('mouseenter', (e) => {
             const element = e.target.closest('[data-sisme-tooltip]');
             if (element) {
                 this.show(element, e);
@@ -39,7 +38,7 @@ class SismeTooltip {
             if (element && element === this.currentElement) {
                 this.hide();
             }
-        }, true);
+        }, true);*/
         
         // Masquer au scroll
         document.addEventListener('scroll', () => {

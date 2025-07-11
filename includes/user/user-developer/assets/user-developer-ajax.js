@@ -13,11 +13,13 @@
     'use strict';
     
     // Namespace pour l'AJAX développeur
-    window.SismeDeveloperAjax = {
+    window.SismeDeveloperAjax = window.SismeDeveloperAjax || {
         config: {
             formSelector: '#sisme-developer-form',
             feedbackSelector: '#sisme-form-feedback',
             submitButtonSelector: '#sisme-developer-submit',
+            retryButtonSelector: '#sisme-retry-application',
+            retryFeedbackSelector: '#sisme-retry-feedback',
             ajaxUrl: sismeAjax.ajaxurl,
             nonce: sismeAjax.nonce || sismeAjax.developer_nonce
         },
@@ -52,7 +54,115 @@
         // Soumission du formulaire
         $(document).on('submit', this.config.formSelector, this.handleFormSubmit.bind(this));
         
+        // Bouton reset candidature rejetée
+        $(document).on('click', this.config.retryButtonSelector, this.handleRetryApplication.bind(this));
+        
         this.log('Événements AJAX développeur liés');
+    };
+
+    /**
+     * Gérer le reset d'une candidature rejetée
+     */
+    SismeDeveloperAjax.handleRetryApplication = function(e) {
+        e.preventDefault();
+        
+        if (this.isSubmitting) {
+            return;
+        }
+        
+        const $button = $(e.target);
+        const $feedback = $(this.config.retryFeedbackSelector);
+        
+        // Confirmer l'action
+        if (!confirm('Êtes-vous sûr de vouloir refaire une candidature ? Cela supprimera votre candidature actuelle.')) {
+            return;
+        }
+        
+        this.isSubmitting = true;
+        
+        // UI Loading
+        $button.prop('disabled', true).html('🔄 Réinitialisation...');
+        $feedback.removeClass('sisme-feedback-success sisme-feedback-error').hide();
+        
+        // Requête AJAX
+        $.ajax({
+            url: this.config.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'sisme_developer_reset_rejection',
+                security: this.config.nonce
+            },
+            dataType: 'json',
+            timeout: 30000
+        })
+        .done(this.handleRetrySuccess.bind(this, $button, $feedback))
+        .fail(this.handleRetryError.bind(this, $button, $feedback));
+    };
+    
+    /**
+     * Succès du reset
+     */
+    SismeDeveloperAjax.handleRetrySuccess = function($button, $feedback, response) {
+        this.isSubmitting = false;
+        
+        if (response.success) {
+            // Afficher le succès
+            $feedback
+                .addClass('sisme-feedback-success')
+                .html('<strong>✅ ' + response.data.message + '</strong>')
+                .show();
+            
+            // Recharger le dashboard après un délai
+            setTimeout(function() {
+                if (response.data.reload_dashboard) {
+                    window.location.reload();
+                } else {
+                    // Fallback: recharger manuellement la section développeur
+                    if (typeof SismeDashboard !== 'undefined' && SismeDashboard.loadSection) {
+                        SismeDashboard.loadSection('developer');
+                    }
+                }
+            }, 2000);
+            
+        } else {
+            // Erreur côté serveur
+            this.handleRetryError($button, $feedback, {
+                responseJSON: {
+                    data: {
+                        message: response.data.message || 'Erreur lors du reset de la candidature.'
+                    }
+                }
+            });
+        }
+    };
+    
+    /**
+     * Erreur du reset
+     */
+    SismeDeveloperAjax.handleRetryError = function($button, $feedback, xhr) {
+        this.isSubmitting = false;
+        
+        // Restaurer le bouton
+        $button.prop('disabled', false).html('🔄 Faire une nouvelle demande');
+        
+        // Message d'erreur
+        let errorMessage = 'Erreur lors de la réinitialisation. Veuillez réessayer.';
+        
+        if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+            errorMessage = xhr.responseJSON.data.message;
+        } else if (xhr.status === 0) {
+            errorMessage = 'Erreur de connexion. Vérifiez votre connexion internet.';
+        } else if (xhr.status >= 500) {
+            errorMessage = 'Erreur du serveur. Veuillez réessayer plus tard.';
+        }
+        
+        // Afficher l'erreur
+        $feedback
+            .addClass('sisme-feedback-error')
+            .html('<strong>❌ ' + errorMessage + '</strong>')
+            .show();
+        
+        this.log('Erreur reset candidature:', xhr);
     };
     
     /**

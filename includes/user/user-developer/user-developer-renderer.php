@@ -418,6 +418,14 @@ class Sisme_User_Developer_Renderer {
      * État 4 : Candidature rejetée (statut 'rejected')
      */
     private static function render_rejected_status($user_id) {
+        // Récupérer les données de candidature pour afficher les notes admin si disponibles
+        $application_data = Sisme_User_Developer_Data_Manager::get_developer_application($user_id);
+        $admin_notes = '';
+        
+        if ($application_data && !empty($application_data[Sisme_Utils_Users::APPLICATION_FIELD_ADMIN_NOTES])) {
+            $admin_notes = $application_data[Sisme_Utils_Users::APPLICATION_FIELD_ADMIN_NOTES];
+        }
+        
         ob_start();
         ?>
         <div class="sisme-developer-state sisme-developer-state-rejected">
@@ -428,12 +436,21 @@ class Sisme_User_Developer_Renderer {
                 <div class="sisme-developer-intro">
                     <h3 class="sisme-developer-title">Candidature non retenue</h3>
                     <p class="sisme-developer-description">
-                        Votre candidature n'a pas été retenue cette fois-ci.
+                        Votre candidature n'a pas été retenue cette fois-ci. Vous pouvez néanmoins refaire une demande en tenant compte des conseils ci-dessous.
                     </p>
                 </div>
             </div>
             
             <div class="sisme-developer-content">
+                <?php if (!empty($admin_notes)): ?>
+                <div class="sisme-admin-feedback">
+                    <h4>📝 Commentaires de l'équipe</h4>
+                    <div class="sisme-admin-notes">
+                        <?php echo wp_kses_post(wpautop($admin_notes)); ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
                 <div class="sisme-rejection-info">
                     <h4>💡 Conseils pour une prochaine candidature</h4>
                     <ul class="sisme-tips-list">
@@ -441,13 +458,15 @@ class Sisme_User_Developer_Renderer {
                         <li>Détaillez votre expérience en développement</li>
                         <li>Montrez votre motivation pour la communauté</li>
                         <li>Assurez-vous que votre portfolio est accessible</li>
+                        <li>Répondez précisément à toutes les questions du formulaire</li>
                     </ul>
                 </div>
                 
                 <div class="sisme-retry-actions">
-                    <button class="sisme-btn sisme-btn-primary" onclick="SismeDeveloper.showApplicationForm()">
+                    <button id="sisme-retry-application" class="sisme-btn sisme-btn-primary" type="button">
                         🔄 Faire une nouvelle demande
                     </button>
+                    <div id="sisme-retry-feedback" class="sisme-form-feedback" style="display: none;"></div>
                 </div>
             </div>
         </div>

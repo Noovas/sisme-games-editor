@@ -20,13 +20,78 @@ if (!defined('ABSPATH')) {
 function sisme_init_developer_ajax() {
     // Actions AJAX pour utilisateurs connectés
     add_action('wp_ajax_sisme_developer_submit', 'sisme_ajax_developer_submit');
+    add_action('wp_ajax_sisme_developer_reset_rejection', 'sisme_ajax_developer_reset_rejection'); 
     
     // Actions AJAX pour utilisateurs non connectés
     add_action('wp_ajax_nopriv_sisme_developer_submit', 'sisme_ajax_not_logged_in');
+    add_action('wp_ajax_nopriv_sisme_developer_reset_rejection', 'sisme_ajax_not_logged_in');
     
     if (defined('WP_DEBUG') && WP_DEBUG) {
         error_log('[Sisme User Developer Ajax] Hooks AJAX enregistrés');
     }
+}
+
+/**
+ * Handler AJAX pour reset d'une candidature rejetée
+ */
+function sisme_ajax_developer_reset_rejection() {
+    // Nettoyer le buffer de sortie
+    if (ob_get_length()) {
+        ob_clean();
+    }
+    
+    // Vérifier le nonce de sécurité
+    if (!check_ajax_referer('sisme_developer_nonce', 'security', false)) {
+        wp_send_json_error([
+            'message' => 'Erreur de sécurité. Veuillez recharger la page.',
+            'code' => 'invalid_nonce'
+        ]);
+    }
+    
+    // Vérifier que l'utilisateur est connecté
+    if (!is_user_logged_in()) {
+        wp_send_json_error([
+            'message' => 'Vous devez être connecté pour effectuer cette action.',
+            'code' => 'not_logged_in'
+        ]);
+    }
+    
+    $user_id = get_current_user_id();
+    
+    // Vérifier que l'utilisateur a bien un statut 'rejected'
+    $current_status = Sisme_User_Developer_Data_Manager::get_developer_status($user_id);
+    if ($current_status !== Sisme_Utils_Users::DEVELOPER_STATUS_REJECTED) {
+        wp_send_json_error([
+            'message' => 'Vous ne pouvez pas refaire de candidature dans votre état actuel.',
+            'code' => 'invalid_status',
+            'current_status' => $current_status
+        ]);
+    }
+    
+    // Reset du statut vers 'none'
+    $result = Sisme_User_Developer_Data_Manager::set_developer_status($user_id, Sisme_Utils_Users::DEVELOPER_STATUS_NONE);
+    
+    if (!$result) {
+        wp_send_json_error([
+            'message' => 'Erreur lors du reset de votre candidature. Veuillez réessayer.',
+            'code' => 'reset_failed'
+        ]);
+    }
+    
+    // Optionnel : Supprimer les anciennes données de candidature pour un fresh start
+    delete_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_APPLICATION);
+    
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log("[Sisme User Developer Ajax] Reset candidature rejetée - User ID: $user_id");
+    }
+    
+    // Retourner le succès
+    wp_send_json_success([
+        'message' => 'Vous pouvez maintenant refaire une candidature !',
+        'code' => 'rejection_reset',
+        'new_status' => Sisme_Utils_Users::DEVELOPER_STATUS_NONE,
+        'reload_dashboard' => true
+    ]);
 }
 
 /**

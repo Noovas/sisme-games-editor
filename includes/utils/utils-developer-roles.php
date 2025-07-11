@@ -2,6 +2,8 @@
 /**
  * File: /sisme-games-editor/includes/utils/utils-developer-roles.php
  * Gestion des rôles et permissions développeur
+ * 
+ * CORRECTION : Multi-rôles avec ajout/suppression plutôt que remplacement
  */
 
 if (!defined('ABSPATH')) {
@@ -54,6 +56,7 @@ class Sisme_Utils_Developer_Roles {
     
     /**
      * Promouvoir un utilisateur au rôle développeur
+     * CORRECTION : AJOUTER le rôle au lieu de le remplacer
      */
     public static function promote_to_developer($user_id) {
         $user = get_userdata($user_id);
@@ -61,21 +64,22 @@ class Sisme_Utils_Developer_Roles {
             return false;
         }
         
-        // Changer le rôle vers développeur
-        $user->set_role(self::ROLE_DEVELOPER);
+        // CORRECTION: AJOUTER le rôle développeur (ne pas remplacer)
+        $user->add_role(self::ROLE_DEVELOPER);
         
         // Mettre à jour le statut développeur
         update_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_STATUS, Sisme_Utils_Users::DEVELOPER_STATUS_APPROVED);
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("[Sisme Developer Roles] Utilisateur $user_id promu développeur");
+            error_log("[Sisme Developer Roles] Utilisateur $user_id promu développeur (rôle ajouté)");
         }
         
         return true;
     }
     
     /**
-     * Révoquer le statut développeur (retour à subscriber)
+     * Révoquer le statut développeur
+     * CORRECTION : Supprimer SEULEMENT le rôle développeur, garder les autres
      */
     public static function revoke_developer($user_id, $admin_notes = '') {
         $user = get_userdata($user_id);
@@ -83,16 +87,13 @@ class Sisme_Utils_Developer_Roles {
             return false;
         }
         
-        // SÉCURITÉ: Ne jamais toucher aux administrateurs !
-        if (in_array('administrator', $user->roles)) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("[Sisme Developer Roles] TENTATIVE de révocation d'un admin bloquée - User ID: $user_id");
-            }
-            return false;
-        }
+        // CORRECTION: Supprimer SEULEMENT le rôle développeur (garder admin/subscriber)
+        $user->remove_role(self::ROLE_DEVELOPER);
         
-        // Remettre au rôle subscriber
-        $user->set_role('subscriber');
+        // Si l'utilisateur n'a plus de rôles, lui donner subscriber par défaut
+        if (empty($user->roles)) {
+            $user->add_role('subscriber');
+        }
         
         // Mettre à jour le statut développeur vers "none"
         update_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_STATUS, Sisme_Utils_Users::DEVELOPER_STATUS_NONE);
@@ -106,7 +107,7 @@ class Sisme_Utils_Developer_Roles {
         }
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("[Sisme Developer Roles] Développeur $user_id révoqué vers subscriber");
+            error_log("[Sisme Developer Roles] Rôle développeur supprimé pour l'utilisateur $user_id (autres rôles conservés)");
         }
         
         return true;

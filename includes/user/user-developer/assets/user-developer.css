@@ -604,3 +604,138 @@
         max-height: 90vh;
     }
 }
+
+/* ===❌ ÉTAT REJETÉ ======================== */
+.sisme-developer-state-rejected {
+    border-color: var(--sisme-developer-rejected);
+}
+
+.sisme-developer-state-rejected .sisme-developer-icon {
+    background: rgba(248, 81, 73, 0.1);
+    border-color: var(--sisme-developer-rejected);
+}
+
+.sisme-developer-state-rejected .sisme-developer-title {
+    color: var(--sisme-developer-rejected);
+}
+
+/* Commentaires admin */
+.sisme-admin-feedback {
+    background: rgba(248, 81, 73, 0.05);
+    border: 1px solid rgba(248, 81, 73, 0.2);
+    border-radius: var(--sisme-dashboard-radius-md);
+    padding: var(--sisme-dashboard-space-lg);
+    margin-bottom: var(--sisme-dashboard-space-lg);
+}
+
+.sisme-admin-feedback h4 {
+    color: var(--sisme-developer-rejected);
+    margin: 0 0 var(--sisme-dashboard-space-md) 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.sisme-admin-notes {
+    color: var(--sisme-dashboard-text-secondary);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.sisme-admin-notes p:last-child {
+    margin-bottom: 0;
+}
+
+/* Zone de conseils */
+.sisme-rejection-info {
+    background: var(--sisme-developer-bg-card);
+    border: 1px solid var(--sisme-developer-border);
+    border-radius: var(--sisme-dashboard-radius-md);
+    padding: var(--sisme-dashboard-space-lg);
+    margin-bottom: var(--sisme-dashboard-space-lg);
+}
+
+.sisme-rejection-info h4 {
+    color: var(--sisme-dashboard-text-primary);
+    margin: 0 0 var(--sisme-dashboard-space-md) 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.sisme-tips-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sisme-tips-list li {
+    position: relative;
+    padding-left: var(--sisme-dashboard-space-lg);
+    margin-bottom: var(--sisme-dashboard-space-sm);
+    color: var(--sisme-dashboard-text-secondary);
+    line-height: 1.5;
+}
+
+.sisme-tips-list li:before {
+    content: '💡';
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.sisme-tips-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* Actions de retry */
+.sisme-retry-actions {
+    text-align: center;
+    padding-top: var(--sisme-dashboard-space-lg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#sisme-retry-application {
+    min-width: 200px;
+    margin-bottom: var(--sisme-dashboard-space-md);
+}
+
+#sisme-retry-application:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Feedback pour le retry */
+#sisme-retry-feedback {
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+#sisme-retry-feedback.sisme-feedback-success {
+    background: rgba(63, 185, 80, 0.1);
+    border-color: var(--sisme-developer-approved);
+    color: var(--sisme-developer-approved);
+}
+
+#sisme-retry-feedback.sisme-feedback-error {
+    background: rgba(248, 81, 73, 0.1);
+    border-color: var(--sisme-developer-rejected);
+    color: var(--sisme-developer-rejected);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sisme-admin-feedback,
+    .sisme-rejection-info {
+        padding: var(--sisme-dashboard-space-md);
+    }
+    
+    .sisme-tips-list li {
+        padding-left: var(--sisme-dashboard-space-md);
+        font-size: 0.9rem;
+    }
+    
+    #sisme-retry-application {
+        min-width: auto;
+        width: 100%;
+    }
+}
