@@ -415,19 +415,20 @@ class Sisme_User_Developer_Renderer {
                         <span class="sisme-stat-number"><?php echo $stats['pending']; ?></span>
                         <span class="sisme-stat-label">En attente</span>
                     </div>
+                    <!--
                     <div class="sisme-stat-card">
                         <span class="sisme-stat-icon">👁️</span>
                         <span class="sisme-stat-number"><?php echo $stats['total_views']; ?></span>
                         <span class="sisme-stat-label">Vues totales</span>
-                    </div>
+                    </div>-->
                 </div>
                 
                 <!-- Section existante - Actions rapides -->
                 <div class="sisme-developer-actions">
-                    <button class="sisme-btn sisme-btn-primary" onclick="SismeDeveloper.startNewSubmission()">
+                    <button class="sisme-button sisme-button-vert" onclick="SismeDeveloper.startNewSubmission()">
                         ➕ Soumettre un jeu
                     </button>
-                    <button class="sisme-btn sisme-btn-secondary">
+                    <button class="sisme-btn sisme-btn-secondary sisme-disabled">
                         📊 Statistiques détaillées
                     </button>
                 </div>
@@ -699,13 +700,11 @@ class Sisme_User_Developer_Renderer {
                 <?php endif; ?>
                 
                 <!-- Aucune soumission -->
-                <?php if (empty($user_submissions)): ?>
-                <div class="sisme-games-empty">
+                <div class="sisme-games-empty" style="<?php echo empty($user_submissions) ? 'display: block;' : 'display: none;'; ?>">
                     <div class="sisme-empty-icon">🎮</div>
                     <h5>Aucun jeu soumis</h5>
                     <p>Commencez par soumettre votre premier jeu en utilisant le bouton ci-dessus !</p>
                 </div>
-                <?php endif; ?>
                 
             </div>
         </div>

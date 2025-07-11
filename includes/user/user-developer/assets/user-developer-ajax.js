@@ -779,6 +779,7 @@
      */
     SismeDeveloperAjax.updateGamesCounts = function() {
         const groups = document.querySelectorAll('.sisme-games-group');
+        let totalGames = 0;
         
         groups.forEach(group => {
             const gamesList = group.querySelector('.sisme-games-list');
@@ -787,20 +788,25 @@
             const count = gameItems.length;
             
             if (count === 0) {
+                // Cacher le groupe vide
                 group.style.display = 'none';
             } else {
-                // Mettre à jour le compteur dans le titre
+                // Afficher le groupe et mettre à jour le compteur
+                group.style.display = 'block';
                 const titleText = title.textContent.replace(/\(\d+\)/, `(${count})`);
                 title.textContent = titleText;
+                totalGames += count;
             }
         });
         
-        // Vérifier s'il faut afficher l'état vide
-        const allGameItems = document.querySelectorAll('.sisme-game-item');
+        // ✅ Gestion de l'état vide
         const emptyState = document.querySelector('.sisme-games-empty');
-        
-        if (allGameItems.length === 0 && emptyState) {
-            emptyState.style.display = 'block';
+        if (emptyState) {
+            if (totalGames === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+            }
         }
     };
 

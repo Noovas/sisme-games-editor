@@ -26,21 +26,6 @@
     --sisme-developer-none: #58a6ff;
 }
 
-/* ===📦 CONTAINER PRINCIPAL ============== */
-.sisme-developer-state {
-    background: var(--sisme-dashboard-bg-secondary);
-    border: 1px solid var(--sisme-dashboard-border-color);
-    border-radius: var(--sisme-dashboard-radius-lg);
-    padding: var(--sisme-dashboard-space-xl);
-    box-shadow: var(--sisme-dashboard-shadow-sm);
-    transition: var(--sisme-dashboard-transition-normal);
-}
-
-.sisme-developer-state:hover {
-    box-shadow: var(--sisme-developer-shadow-hover);
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
 /* ===🎯 HEADER DÉVELOPPEUR =============== */
 .sisme-developer-header {
     display: flex;
@@ -828,7 +813,7 @@
     border-radius: 6px;
     padding: 15px;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
     transition: all 0.2s ease;
     border-left: 3px solid transparent;
@@ -862,6 +847,7 @@
 
 /* Informations du jeu */
 .sisme-game-info {
+    width: 100%;
     flex: 1;
     min-width: 0;
 }
@@ -1015,6 +1001,15 @@
     color: rgba(255, 255, 255, 0.7);
 }
 
+/* État vide visible par défaut, caché quand il y a des jeux */
+.sisme-games-empty {
+    display: block;
+}
+
+.sisme-my-games-content:has(.sisme-game-item) .sisme-games-empty {
+    display: none;
+}
+
 .sisme-empty-icon {
     font-size: 48px;
     margin-bottom: 15px;
@@ -1037,13 +1032,12 @@
 @media (max-width: 768px) {
     .sisme-game-item {
         flex-direction: column;
-        align-items: flex-start;
         gap: 12px;
     }
     
     .sisme-game-actions {
         align-self: stretch;
-        justify-content: flex-end;
+        justify-content: center;
     }
     
     .sisme-game-meta {
