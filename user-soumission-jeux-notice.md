@@ -421,35 +421,58 @@ Corps: Explications + notes admin + bouton "Modifier"
 
 ---
 
-## 🚀 **PHASE 10 : Plan de Développement**
+## 🚀 **PHASE 10 : Plan de Développement - MISE À JOUR**
 
-### **10.1 Ordre d'implémentation**
+### **✅ TERMINÉ**
 
 ```
-SEMAINE 1 : Base de données + Structure
-├─ Créer table submissions ✓
-├─ Classes Database + Workflow ✓
-└─ Migration données test ✓
+PHASE 1 : Base de données
+├─ ✅ Table wp_sisme_game_submissions créée
+├─ ✅ Classe Sisme_Submission_Database implémentée
+├─ ✅ CRUD complet fonctionnel
+└─ ✅ Tests de création/récupération validés
 
-SEMAINE 2 : Interface Frontend  
-├─ Stepper multi-étapes ✓
-├─ Réutilisation Form Module ✓  
-└─ Sauvegarde automatique ✓
+PHASE 2 : Interface Admin  
+├─ ✅ Système d'onglets "Les Devs" / "Leurs Jeux"
+├─ ✅ Interface développeurs avec détails déroulants
+├─ ✅ Statistiques par statut (pending/approved/rejected)
+├─ ✅ Actions approve/reject/revoke fonctionnelles
+├─ ✅ Placeholder interface soumissions
+└─ ✅ Thème sombre uniforme appliqué
+```
 
-SEMAINE 3 : Crop d'Images
-├─ Integration Cropper.js ✓
-├─ Validation server-side ✓
-└─ Preview temps réel ✓
+### **🔄 EN COURS**
 
-SEMAINE 4 : Workflow Admin
-├─ Interface admin submissions ✓
-├─ Actions approve/reject ✓
-└─ Notifications email ✓
+```
+PHASE 3 : Frontend Développeur (Dashboard)
+├─ 🔄 Extension onglet "Mes Jeux" dans user-developer-renderer.php
+├─ 📋 Interface flex column adaptée petit espace
+├─ 📋 Bouton "Soumettre un nouveau jeu"
+├─ 📋 Liste brouillons avec progression
+├─ 📋 Liste soumissions en attente
+└─ 📋 Actions basiques (continuer/supprimer/voir)
+```
 
-SEMAINE 5 : Tests & Polish
-├─ Tests complets workflow ✓
-├─ Optimisations performance ✓
-└─ Documentation finale ✓
+### **📋 À VENIR**
+
+```
+PHASE 4 : Formulaire Soumission Simple
+├─ Création soumission basique
+├─ Sauvegarde automatique  
+├─ Champs obligatoires minimum
+└─ Passage en statut 'pending'
+
+PHASE 5 : Workflow Admin Complet
+├─ Actions approve/reject fonctionnelles
+├─ Mapping vers structure jeu existante
+├─ Notifications email
+└─ Tests workflow complet
+
+PHASE 6 : Interface Soumission Avancée
+├─ Formulaire multi-étapes
+├─ Upload/crop images
+├─ Validation temps réel
+└─ Preview final
 ```
 
 ### **10.2 Points critiques**
