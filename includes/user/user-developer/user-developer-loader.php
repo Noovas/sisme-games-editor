@@ -63,7 +63,8 @@ class Sisme_User_Developer_Loader {
             'user-developer-data-manager.php',
             'user-developer-renderer.php',
             'user-developer-ajax.php',
-            'user-developer-email-notifications.php' 
+            'user-developer-email-notifications.php',
+            'submission-game/submission-game-loader.php'
         ];
         
         foreach ($required_modules as $module) {

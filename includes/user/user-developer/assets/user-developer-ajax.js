@@ -574,12 +574,57 @@
      * Ouvrir l'éditeur de soumission (placeholder pour futur module)
      */
     SismeDeveloperAjax.openSubmissionEditor = function(submissionId) {
-        // Pour l'instant, placeholder - sera implémenté dans le module de soumission
         this.log('Ouverture éditeur pour soumission:', submissionId);
-        this.showFeedback('Interface de soumission en cours de développement', 'info');
         
-        // TODO: Implémenter l'ouverture de l'interface de soumission
-        // Exemple futur: SismeSubmissionEditor.open(submissionId);
+        // Vérifier que le module est disponible
+        if (typeof Sisme_Submission_Game_Loader === 'undefined') {
+            this.showFeedback('Module d\'édition non disponible', 'error');
+            return;
+        }
+        
+        // Charger l'éditeur dans une modal ou remplacer le contenu
+        this.loadSubmissionEditor(submissionId);
+    };
+
+    SismeDeveloperAjax.loadSubmissionEditor = function(submissionId) {
+        this.log('Chargement éditeur de soumission:', submissionId);
+        
+        // Demander le rendu de l'éditeur via AJAX
+        $.ajax({
+            url: this.config.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'sisme_render_submission_editor',
+                security: this.config.nonce,
+                submission_id: submissionId
+            },
+            dataType: 'json',
+            timeout: 30000,
+            success: function(response) {
+                if (response.success) {
+                    this.displaySubmissionEditor(response.data.html);
+                } else {
+                    this.showFeedback('Erreur lors du chargement: ' + response.data.message, 'error');
+                }
+            }.bind(this),
+            error: function(xhr, status, error) {
+                this.log('Erreur AJAX:', error);
+                this.showFeedback('Erreur de connexion', 'error');
+            }.bind(this)
+        });
+    };
+
+    SismeDeveloperAjax.displaySubmissionEditor = function(html) {
+        // Option 1: Remplacer le contenu du dashboard
+        $('.sisme-dashboard-content').html(html);
+        
+        // Option 2: Ou ouvrir dans une modal
+        // this.openModal(html);
+        
+        // Réinitialiser le module JavaScript
+        if (typeof SismeSubmissionGame !== 'undefined') {
+            SismeSubmissionGame.init();
+        }
     };
 
     /**
