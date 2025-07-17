@@ -1,512 +1,405 @@
-# 📋 Documentation - Module Soumission de Jeux
-## Version 1.0 - Guide de Développement
+# 📋 Module User Soumission Jeux - API Reference
+
+## 🏗️ **Architecture actuelle**
+
+### **Structure des modules**
+```
+includes/user/user-dashboard/               # Dashboard base
+├── user-dashboard-loader.php              # Shortcode + assets
+├── user-dashboard-api.php                 # Shortcode [sisme_user_dashboard]
+├── user-dashboard-renderer.php            # Rendu sections
+├── user-dashboard-data-manager.php        # Données utilisateur
+└── assets/
+    ├── user-dashboard.css                 # Styles dashboard
+    └── user-dashboard.js                  # Navigation + interactions
+
+includes/user/user-developer/               # Extension développeur
+├── user-developer-loader.php              # Extension dashboard + hooks
+├── user-developer-renderer.php            # Interface développeur + formulaire soumission
+├── user-developer-data-manager.php        # Statuts + candidatures
+├── user-developer-ajax.php                # AJAX développeur + soumissions
+├── user-developer-email-notifications.php # Emails candidature
+├── submission/                             # Image cropping simple
+│   ├── simple-image-cropper.php           # Upload + crop basique
+│   ├── submission-database.php            # Table wp_sisme_game_submissions
+│   └── assets/simple-cropper.js           # Cropper.js frontend
+├── submission-game/                        # Soumissions avancées
+│   ├── submission-game-loader.php         # Auto-loader
+│   ├── submission-game-ajax.php           # AJAX soumissions
+│   └── assets/submission-game.js          # Interface éditeur
+└── assets/
+    ├── user-developer.css                 # Styles développeur
+    ├── user-developer.js                  # Interactions base
+    └── user-developer-ajax.js             # AJAX client + mes jeux
+```
 
 ---
 
-## 🎯 **Vue d'ensemble**
+## 📦 **Dashboard Base (`user-dashboard`)**
 
-Module permettant aux développeurs approuvés de soumettre leurs jeux via une interface frontend multi-étapes avec validation temps réel, crop d'images obligatoire et workflow d'approbation admin.
+**Classe principale :** `Sisme_User_Dashboard_Loader`
 
-### **Objectifs**
-- ✅ Réutiliser 100% la structure de données existante (`Sisme_Game_Form_Module`)
-- ✅ UX progressive avec sauvegarde automatique à chaque étape
-- ✅ Crop d'images restrictif pour garantir la qualité
-- ✅ Workflow d'approbation admin complet
-- ✅ Extensibilité future (liens avec posts news/patch/test)
+### Shortcode
+<details>
+<summary><code>[sisme_user_dashboard]</code></summary>
+
+```php
+// Shortcode principal : [sisme_user_dashboard]
+// Rendu par: Sisme_User_Dashboard_API::render_dashboard()
+// Condition assets: has_shortcode($post->post_content, 'sisme_user_dashboard')
+// Assets: user-dashboard.css/js + tokens.css
+// Localisation: sismeUserDashboard {ajaxUrl, nonce: sisme_dashboard, currentUserId}
+```
+</details>
+
+### Hooks d'extension
+<details>
+<summary><code>sisme_dashboard_accessible_sections</code></summary>
+
+```php
+// Hook pour ajouter sections accessibles
+// @param array $sections - Sections de base
+// @param int $user_id - ID utilisateur 
+// @return array - Sections étendues
+add_filter('sisme_dashboard_accessible_sections', $callback, 10, 2);
+```
+</details>
+
+<details>
+<summary><code>sisme_dashboard_navigation_items</code></summary>
+
+```php
+// Hook pour ajouter items navigation
+// @param array $nav_items - Items existants
+// @param int $user_id - ID utilisateur
+// @return array - Items étendus avec {section, icon, text, badge, class}
+add_filter('sisme_dashboard_navigation_items', $callback, 10, 2);
+```
+</details>
+
+<details>
+<summary><code>sisme_dashboard_render_section</code></summary>
+
+```php
+// Hook pour rendre sections personnalisées
+// @param string $content - Contenu actuel
+// @param string $section - Section demandée
+// @param array $dashboard_data - Données dashboard
+// @return string - HTML de la section
+add_filter('sisme_dashboard_render_section', $callback, 10, 3);
+```
+</details>
 
 ---
 
-## 🏗️ **PHASE 1 : Structure Base de Données**
+## 🎮 **Extension Développeur (`user-developer`)**
 
-### **1.1 Table principale**
+**Classe principale :** `Sisme_User_Developer_Loader`
+
+### Initialisation & Base de données
+<details>
+<summary><code>ensure_database_ready()</code></summary>
+
+```php
+// S'assure que table wp_sisme_game_submissions existe
+// Auto-création si manquante via Sisme_Submission_Database::create_table()
+// Appelé dans __construct() du loader
+```
+</details>
+
+### Hooks Dashboard
+<details>
+<summary><code>add_developer_section($sections, $user_id)</code></summary>
+
+```php
+// Ajoute 'developer' et 'submit-game' (si approved) aux sections
+// Hook: sisme_dashboard_accessible_sections
+// Condition: is_user_logged_in()
+```
+</details>
+
+<details>
+<summary><code>add_developer_nav_item($nav_items, $user_id)</code></summary>
+
+```php
+// Ajoute navigation selon statut développeur
+// Hook: sisme_dashboard_navigation_items
+// Statuts retournés:
+// - none: 📝 "Devenir Développeur"
+// - pending: ⏳ "Candidature en cours" + badge "1"
+// - approved: 🎮 "Mes Jeux"  
+// - rejected: ❌ "Candidature rejetée"
+```
+</details>
+
+<details>
+<summary><code>render_developer_section($content, $section, $data)</code></summary>
+
+```php
+// Rendu sections 'developer' et 'submit-game'
+// Hook: sisme_dashboard_render_section
+// Délègue à: Sisme_User_Developer_Renderer
+// Section 'submit-game': render_submit_game_section() avec crop test
+```
+</details>
+
+### Assets
+<details>
+<summary><code>enqueue_developer_assets()</code></summary>
+
+```php
+// Assets: user-developer.css/js + user-developer-ajax.js
+// Condition: should_load_assets() -> shortcode dashboard dans post_content
+// Localisation: sismeAjax {ajaxurl, nonce: sisme_developer_nonce, currentUserId}
+// Hook: wp_enqueue_scripts
+```
+</details>
+
+<details>
+<summary><code>enqueue_submission_assets()</code></summary>
+
+```php
+// Assets crop: cropper.min.css/js (CDN) + simple-cropper.js
+// Dépendances: ['cropperjs', 'jquery']
+// Localisation: sismeAjax {ajaxurl, nonce: sisme_developer_nonce}
+// Hook: wp_enqueue_scripts
+```
+</details>
+
+---
+
+## 📊 **Data Manager Développeur**
+
+**Classe :** `Sisme_User_Developer_Data_Manager`
+
+### Statuts développeur
+<details>
+<summary><code>get_developer_status($user_id)</code></summary>
+
+```php
+// @return string 'none'|'pending'|'approved'|'rejected'
+// Source: get_user_meta($user_id, 'sisme_developer_status', true)
+// Défaut: 'none'
+```
+</details>
+
+<details>
+<summary><code>is_approved_developer($user_id)</code></summary>
+
+```php
+// @return bool - True si statut = 'approved' ET rôle 'sisme-dev'
+// Utilisé pour: permissions soumission jeux
+```
+</details>
+
+---
+
+## 💾 **Base de Données Soumissions**
+
+**Classe :** `Sisme_Submission_Database`
+**Table :** `wp_sisme_game_submissions`
+
+### Structure table
+<details>
+<summary><code>Schema wp_sisme_game_submissions</code></summary>
 
 ```sql
 CREATE TABLE wp_sisme_game_submissions (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    
-    -- 🔗 Relations
-    user_id BIGINT UNSIGNED NOT NULL,               -- Développeur
-    published_tag_id BIGINT UNSIGNED NULL,          -- Tag créé après publication
-    
-    -- 📝 Données
-    game_data LONGTEXT NOT NULL,                    -- JSON structuré
-    
-    -- 📊 Workflow  
-    status ENUM('draft','pending','published','rejected','revision') DEFAULT 'draft',
-    submission_version INT DEFAULT 1,
-    
-    -- 👨‍💼 Admin
-    admin_user_id BIGINT UNSIGNED NULL,
-    admin_notes TEXT NULL,
-    admin_action_date DATETIME NULL,
-    
-    -- 📅 Timestamps
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    submitted_at DATETIME NULL,
-    published_at DATETIME NULL,
-    
-    -- 🔍 Index
-    INDEX idx_user_status (user_id, status),
-    INDEX idx_status_submitted (status, submitted_at),
-    INDEX idx_published_tag (published_tag_id),
-    
-    -- 🔗 Contraintes
-    FOREIGN KEY (user_id) REFERENCES wp_users(ID) ON DELETE CASCADE,
-    FOREIGN KEY (admin_user_id) REFERENCES wp_users(ID) ON DELETE SET NULL
+    id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    user_id bigint(20) unsigned NOT NULL,
+    game_data longtext NOT NULL,
+    status enum('draft','pending','published','rejected','revision') DEFAULT 'draft',
+    admin_user_id bigint(20) unsigned DEFAULT NULL,
+    admin_notes text DEFAULT NULL,
+    created_at datetime DEFAULT CURRENT_TIMESTAMP,
+    updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    submitted_at datetime DEFAULT NULL,
+    published_at datetime DEFAULT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES wp_users(ID) ON DELETE CASCADE
 );
 ```
+</details>
 
-### **1.2 Structure JSON `game_data`**
+### CRUD Operations
+<details>
+<summary><code>create_submission($user_id, $game_data)</code></summary>
 
-```json
-{
-  "game_name": "Mon Super Jeu",
-  "description": "Description complète du jeu...",
-  "genres": [12, 34, 56],
-  "platforms": [
-    {"group": "pc", "label": "PC"},
-    {"group": "console", "label": "PlayStation 5"}
-  ],
-  "modes": ["solo", "multijoueur"],
-  "developers": [42],
-  "publishers": [15],
-  "release_date": "2024-03-15",
-  "covers": {
-    "horizontal": 123,
-    "vertical": 124
-  },
-  "screenshots": "128,129,130",
-  "trailer_link": "https://youtube.com/watch?v=...",
-  "external_links": [
-    {"platform": "Steam", "url": "https://store.steampowered.com/..."}
-  ],
-  "metadata": {
-    "completion_percentage": 87,
-    "last_step_completed": "images",
-    "validation_errors": []
-  }
-}
+```php
+// Créer nouvelle soumission
+// @param int $user_id - ID développeur approuvé
+// @param array $game_data - Données jeu (JSON stocké)
+// @return int|WP_Error - ID soumission ou erreur
+// Validation: limits + permissions
 ```
+</details>
+
+<details>
+<summary><code>get_user_submissions($user_id, $status)</code></summary>
+
+```php
+// Récupérer soumissions utilisateur
+// @param int $user_id
+// @param string|null $status - Filtrer par statut (optionnel)
+// @return array - Objets soumission avec game_data_decoded
+```
+</details>
+
+<details>
+<summary><code>update_submission($submission_id, $game_data, $user_id)</code></summary>
+
+```php
+// Mettre à jour soumission
+// @param int $submission_id
+// @param array $game_data - Nouvelles données
+// @param int $user_id - Propriétaire (sécurité)
+// @return bool|WP_Error
+```
+</details>
 
 ---
 
-## 🎨 **PHASE 2 : Formats d'Images**
+## 🔄 **AJAX Handlers**
 
-### **2.1 Spécifications précises**
+### user-developer-ajax.php
+<details>
+<summary><code>wp_ajax_sisme_simple_crop_upload</code></summary>
 
 ```php
-const SUBMISSION_IMAGE_FORMATS = [
-    'horizontal' => [
-        'width' => 920,
-        'height' => 430, 
-        'ratio' => '920:430', // ≈ 2.14:1
-        'max_size' => '2MB',
-        'label' => 'Cover Horizontale',
-        'description' => 'Bannière principale du jeu'
-    ],
-    'vertical' => [
-        'width' => 600,
-        'height' => 900,
-        'ratio' => '2:3',
-        'max_size' => '1MB', 
-        'label' => 'Cover Verticale',
-        'description' => 'Pochette style affiche'
-    ]
-];
+// Handler: sisme_handle_simple_crop_upload()
+// Nonce: sisme_developer_nonce  
+// Classe: Sisme_Simple_Image_Cropper::process_upload()
+// Retour: {attachment_id, url, message}
 ```
+</details>
 
-### **2.2 Screenshots**
-- **Format** : 1920x1080 (16:9) 
-- **Minimum** : 3 images
-- **Maximum** : 8 images
-- **Taille max** : 2MB par image
+<details>
+<summary><code>wp_ajax_sisme_create_submission</code></summary>
+
+```php
+// Handler: sisme_ajax_create_submission()
+// Crée nouvelle soumission draft
+// Retour: {submission_id, message}
+```
+</details>
+
+<details>
+<summary><code>wp_ajax_sisme_delete_submission</code></summary>
+
+```php
+// Handler: sisme_ajax_delete_submission()
+// Supprime soumission (draft/revision uniquement)
+// Validation: ownership + status
+```
+</details>
+
+<details>
+<summary><code>wp_ajax_sisme_retry_submission</code></summary>
+
+```php
+// Handler: sisme_ajax_retry_submission()
+// Copie soumission rejetée vers nouveau draft
+// Ajoute metadata: retry_count, original_submission_id
+```
+</details>
+
+### submission-game-ajax.php
+<details>
+<summary><code>wp_ajax_sisme_save_submission_game</code></summary>
+
+```php
+// Handler: sisme_ajax_save_submission_game()
+// Sauvegarde draft avec validation
+// Fonction: sisme_validate_submission_game_data()
+```
+</details>
+
+<details>
+<summary><code>wp_ajax_sisme_submit_submission_game</code></summary>
+
+```php
+// Handler: sisme_ajax_submit_submission_game()
+// Draft -> pending pour validation admin
+// Update status + submitted_at timestamp
+```
+</details>
 
 ---
 
-## 📁 **PHASE 3 : Architecture Modules**
+## 🖼️ **Image Cropping**
 
-### **3.1 Structure des fichiers**
+**Classe :** `Sisme_Simple_Image_Cropper`
 
-```
-includes/user/user-developer/submission/
-├── submission-loader.php              # Point d'entrée + hooks
-├── submission-database.php            # CRUD submissions
-├── submission-workflow.php            # États & transitions  
-├── submission-renderer.php            # Interface multi-étapes
-├── submission-ajax.php               # Handlers AJAX
-├── submission-image-cropper.php      # Crop + upload images
-├── submission-validation.php         # Validation données
-└── assets/
-    ├── submission-stepper.css        # Styles progression
-    ├── submission-stepper.js         # Navigation étapes
-    ├── submission-cropper.css        # Styles crop tool
-    └── submission-cropper.js         # Crop + preview
-```
-
-### **3.2 Classes principales**
+### Méthodes principales
+<details>
+<summary><code>process_upload($file)</code></summary>
 
 ```php
-// Loader principal
-class Sisme_Submission_Loader {
-    public static function get_instance()
-    public function init()
-    private function register_hooks()
-    public function enqueue_assets()
-}
-
-// Gestion base de données  
-class Sisme_Submission_Database {
-    public static function create_submission($user_id, $game_data = [])
-    public static function update_submission($submission_id, $game_data)
-    public static function get_user_submissions($user_id, $status = null)
-    public static function delete_submission($submission_id, $user_id)
-}
-
-// Workflow et états
-class Sisme_Submission_Workflow {
-    public static function transition_to_pending($submission_id)
-    public static function approve_submission($submission_id, $admin_notes)
-    public static function reject_submission($submission_id, $admin_notes)
-    public static function reset_to_draft($submission_id)
-}
+// Upload + validation basique
+// @param array $file - $_FILES['image']
+// @return int|WP_Error - attachment_id
+// Limite: 5MB, types: JPG/PNG
 ```
+</details>
 
----
-
-## 🎯 **PHASE 4 : UX Multi-Étapes**
-
-### **4.1 Progression (4 étapes)**
-
-```
-1. INFORMATIONS DE BASE     [25%]
-   ├─ Nom du jeu ⭐ (obligatoire)
-   ├─ Description ⭐ (obligatoire)  
-   └─ Genres ⭐ (obligatoire)
-
-2. MÉDIAS VISUELS          [50%]
-   ├─ Cover horizontale ⭐ (obligatoire)
-   ├─ Cover verticale ⭐ (obligatoire)
-   └─ Screenshots ⭐ (min 3)
-
-3. DÉTAILS TECHNIQUES      [75%]
-   ├─ Plateformes ⭐ (obligatoire)
-   ├─ Modes de jeu
-   ├─ Date de sortie
-   ├─ Développeurs ⭐ (obligatoire)
-   └─ Publishers
-
-4. FINALISATION           [100%]
-   ├─ Trailer (optionnel)
-   ├─ Liens de vente
-   ├─ Prévisualisation complète
-   └─ Soumission finale ⭐
-```
-
-### **4.2 Validation progressive**
-
-```php
-// Validation par étape
-class Sisme_Submission_Validation {
-    public static function validate_step_1($data) // Base info
-    public static function validate_step_2($data) // Images  
-    public static function validate_step_3($data) // Technical
-    public static function validate_step_4($data) // Final
-    public static function validate_complete($data) // Global
-}
-```
-
-### **4.3 Sauvegarde automatique**
-
-- **Trigger** : À chaque changement de champ (debounce 2s)
-- **Statut** : Reste en `draft` jusqu'à soumission finale
-- **Recovery** : Reprise automatique à la dernière étape complétée
-- **Indicateur** : "💾 Sauvegardé il y a 3s" 
-
----
-
-## 🛠️ **PHASE 5 : Integration avec l'Existant**
-
-### **5.1 Réutilisation `Sisme_Game_Form_Module`**
-
-```php
-// Extension pour nouveaux components
-$new_components = [
-    'cover_horizontal' => [
-        'label' => 'Cover Horizontale',
-        'type' => 'image_crop',
-        'crop_ratio' => '920:430',
-        'required' => true
-    ],
-    'cover_vertical' => [
-        'label' => 'Cover Verticale', 
-        'type' => 'image_crop',
-        'crop_ratio' => '2:3',
-        'required' => true
-    ]
-];
-```
-
-### **5.2 Extension Dashboard**
-
-Ajout de l'onglet "Mes Jeux" dans `user-developer-renderer.php` :
-
-```php
-public function render_approved_status($user_id) {
-    // Interface existante + nouveau contenu
-    echo $this->render_my_games_section($user_id);
-}
-
-private function render_my_games_section($user_id) {
-    $submissions = Sisme_Submission_Database::get_user_submissions($user_id);
-    // Affichage liste + bouton "Soumettre un nouveau jeu"
-}
-```
-
----
-
-## 🔧 **PHASE 6 : Crop d'Images**
-
-### **6.1 Bibliothèques**
-
-- **Frontend** : Cropper.js v1.5.13
-- **Backend** : WP_Image_Editor (natif WordPress)
-- **Fallback** : GD Library / ImageMagick
-
-### **6.2 Workflow crop**
+### Frontend (simple-cropper.js)
+<details>
+<summary><code>SimpleCropper class</code></summary>
 
 ```javascript
-// submission-cropper.js
-class SismeImageCropper {
-    constructor(element, options) {
-        this.ratio = options.ratio;
-        this.maxWidth = options.maxWidth;
-        this.maxHeight = options.maxHeight;
-    }
-    
-    initCropper() {
-        // Initialisation Cropper.js
-    }
-    
-    uploadAndCrop() {
-        // Upload → Crop → Preview → Save
-    }
-    
-    validateFormat() {
-        // Validation taille/format
-    }
-}
+// Initialisation: new SimpleCropper(containerId)
+// Dépendances: Cropper.js (CDN)
+// Ratio fixe: 920/430 (cover horizontale)
+// Upload AJAX: action 'sisme_simple_crop_upload'
+// Events: imageProcessed avec {url, attachmentId}
+```
+</details>
+
+---
+
+## 🎯 **Workflow Soumission Actuel**
+
+### États soumission
+```
+draft -> pending -> published
+  ↓        ↓         
+revision <- rejected
 ```
 
-### **6.3 Validation server-side**
+### Permissions
+- **Soumission** : Statut développeur = 'approved' + rôle 'sisme-dev'
+- **Édition** : Propriétaire + statut 'draft'|'revision'
+- **Suppression** : Propriétaire + statut 'draft'|'revision'
 
+### Assets loading
+- **Condition** : Page avec shortcode `[sisme_user_dashboard]`
+- **Dashboard base** : Toujours chargé si shortcode présent
+- **Développeur** : Chargé si user connecté sur page dashboard
+- **Crop images** : Chargé avec assets développeur
+
+---
+
+## 🚀 **Hooks d'initialisation**
+
+### Ordre de chargement
 ```php
-// submission-image-cropper.php
-class Sisme_Submission_Image_Cropper {
-    public static function process_upload($file, $format_type)
-    public static function validate_dimensions($attachment_id, $format)
-    public static function resize_if_needed($attachment_id, $target_width, $target_height)
-    private static function get_image_editor($attachment_id)
-}
+// 1. Dashboard base
+add_action('init', user-dashboard-loader singleton)
+
+// 2. Extension développeur  
+add_action('init', user-developer-loader singleton)
+    -> ensure_database_ready()
+    -> register_hooks() avec filters dashboard
+
+// 3. AJAX développeur
+add_action('wp_loaded', 'sisme_init_developer_ajax')
+
+// 4. Module soumission-game (auto)
+add_action('init', 'sisme_init_submission_game_loader')
+    -> sisme_init_submission_game_ajax()
 ```
 
----
-
-## 👨‍💼 **PHASE 7 : Interface Admin**
-
-### **7.1 Page "Soumissions de Jeux"**
-
-```
-admin.php?page=sisme-game-submissions
-
-┌─ NOUVELLES SOUMISSIONS ─────────────────┐
-│ 🔴 Game Awesome par StudioDev (3j)       │
-│    Genre: Action, RPG | PC, PS5          │
-│    [👁️ Prévisualiser] [✅ Approuver] [❌ Rejeter] │
-└─────────────────────────────────────────┘
-
-┌─ FILTRES ───────────────────────────────┐
-│ Status: [Pending ▼] Genre: [Tous ▼]     │
-│ Développeur: [Rechercher...]             │
-└─────────────────────────────────────────┘
-```
-
-### **7.2 Actions admin**
-
-```php
-// submission-admin.php
-class Sisme_Submission_Admin {
-    public function render_submissions_page()
-    public function handle_approve_submission()
-    public function handle_reject_submission() 
-    public function render_submission_preview($submission_id)
-    public function render_submission_modal($submission_id)
-}
-```
-
-### **7.3 Workflow approbation**
-
-**APPROUVER** :
-1. Créer le tag de jeu (`wp_insert_term`)
-2. Mapper toutes les données (`update_term_meta`)
-3. Marquer comme `published`
-4. Envoyer email de confirmation
-5. Initialiser données vedettes si besoin
-
-**REJETER** :
-1. Marquer comme `rejected`
-2. Sauvegarder notes admin
-3. Envoyer email avec explications
-4. Possibilité de remise en `draft`
-
----
-
-## 📧 **PHASE 8 : Notifications Email**
-
-### **8.1 Templates email**
-
-Réutiliser `user-developer-email-notifications.php` :
-
-```php
-// Nouveaux templates
-public static function send_submission_received($user_id, $game_name)
-public static function send_submission_approved($user_id, $game_name, $game_url)  
-public static function send_submission_rejected($user_id, $game_name, $admin_notes)
-```
-
-### **8.2 Contenu des emails**
-
-**SOUMISSION REÇUE** :
-```
-Sujet: 🎮 Votre jeu "{game_name}" a été soumis
-Corps: Confirmation + délai d'examen + lien suivi
-```
-
-**APPROBATION** :
-```
-Sujet: ✅ Votre jeu "{game_name}" est maintenant publié !
-Corps: Félicitations + lien fiche + conseils promotion
-```
-
-**REJET** :
-```
-Sujet: ❌ Votre jeu "{game_name}" nécessite des modifications
-Corps: Explications + notes admin + bouton "Modifier"
-```
-
----
-
-## 🔒 **PHASE 9 : Sécurité & Permissions**
-
-### **9.1 Contrôles d'accès**
-
-```php
-// Vérifications obligatoires
-- Utilisateur connecté ✓
-- Statut développeur = 'approved' ✓  
-- Limite soumissions simultanées (max 3 en draft) ✓
-- Nonce AJAX pour toutes les actions ✓
-- Sanitisation complète des données ✓
-```
-
-### **9.2 Rate limiting**
-
-```php
-// Limitations  
-- 1 soumission par jour max
-- 3 brouillons simultanés max
-- Upload images : 5 par minute max
-- Taille totale assets : 50MB max par soumission
-```
-
----
-
-## 🚀 **PHASE 10 : Plan de Développement - MISE À JOUR**
-
-### **✅ TERMINÉ**
-
-```
-PHASE 1 : Base de données
-├─ ✅ Table wp_sisme_game_submissions créée
-├─ ✅ Classe Sisme_Submission_Database implémentée
-├─ ✅ CRUD complet fonctionnel
-└─ ✅ Tests de création/récupération validés
-
-PHASE 2 : Interface Admin  
-├─ ✅ Système d'onglets "Les Devs" / "Leurs Jeux"
-├─ ✅ Interface développeurs avec détails déroulants
-├─ ✅ Statistiques par statut (pending/approved/rejected)
-├─ ✅ Actions approve/reject/revoke fonctionnelles
-├─ ✅ Placeholder interface soumissions
-└─ ✅ Thème sombre uniforme appliqué
-```
-
-### **🔄 EN COURS**
-
-```
-PHASE 3 : Frontend Développeur (Dashboard)
-├─ 🔄 Extension onglet "Mes Jeux" dans user-developer-renderer.php
-├─ 📋 Interface flex column adaptée petit espace
-├─ 📋 Bouton "Soumettre un nouveau jeu"
-├─ 📋 Liste brouillons avec progression
-├─ 📋 Liste soumissions en attente
-└─ 📋 Actions basiques (continuer/supprimer/voir)
-```
-
-### **📋 À VENIR**
-
-```
-PHASE 4 : Formulaire Soumission Simple
-├─ Création soumission basique
-├─ Sauvegarde automatique  
-├─ Champs obligatoires minimum
-└─ Passage en statut 'pending'
-
-PHASE 5 : Workflow Admin Complet
-├─ Actions approve/reject fonctionnelles
-├─ Mapping vers structure jeu existante
-├─ Notifications email
-└─ Tests workflow complet
-
-PHASE 6 : Interface Soumission Avancée
-├─ Formulaire multi-étapes
-├─ Upload/crop images
-├─ Validation temps réel
-└─ Preview final
-```
-
-### **10.2 Points critiques**
-
-⚠️ **Attention particulière à** :
-- Mapping exact vers structure existante
-- Performance upload/crop images
-- UX progressive sans perte de données
-- Validation robuste côté server
-- Gestion erreurs et fallbacks
-
----
-
-## 📝 **Notes d'Implémentation**
-
-### **Réutilisation maximale**
-- `Sisme_Game_Form_Module` pour tous les champs
-- `user-developer-ajax.php` pattern pour AJAX
-- `user-developer-email-notifications.php` pour emails
-- CSS/JS existant comme base
-
-### **Extensions futures**
-- Système de commentaires admin ↔ développeur
-- Versioning des soumissions 
-- Analytics soumissions
-- API pour apps mobiles
-- Liens automatiques posts news/patch/test
-
-### **KPIs à tracker**
-- Nombre soumissions par mois
-- Taux d'approbation
-- Temps moyen traitement admin
-- Taux de completion étapes
-
----
-
-**🎯 Document vivant - Mise à jour à chaque étape**
+### Dépendances critiques
+- Dashboard AVANT développeur (hooks)
+- Database AVANT AJAX handlers
+- Assets conditionnels sur shortcode détection
