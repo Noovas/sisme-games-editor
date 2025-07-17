@@ -982,6 +982,26 @@ class Sisme_User_Developer_Renderer {
                             <?php endforeach; ?>
                         </div>
                     </div>
+
+                    <!-- À ajouter temporairement dans votre formulaire pour tester -->
+                    <div class="sisme-form-section">
+                        <h4 class="sisme-form-section-title">🧪 Test Crop Image Simple</h4>
+                        
+                        <div id="simpleCropTest"></div>
+                    </div>
+
+                    <!-- Charger Cropper.js depuis CDN -->
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+                    <script>
+                    // Initialiser le test simple
+                    document.addEventListener('DOMContentLoaded', function() {
+                        if (document.getElementById('simpleCropTest')) {
+                            new SimpleCropper('simpleCropTest');
+                        }
+                    });
+                    </script>
                     
                     <div class="sisme-form-actions">
                         <button type="submit" class="sisme-button sisme-button-vert" id="sisme-submit-game-btn">

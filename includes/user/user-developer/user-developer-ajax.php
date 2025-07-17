@@ -40,6 +40,8 @@ function sisme_init_developer_ajax() {
     add_action('wp_ajax_nopriv_sisme_retry_submission', 'sisme_ajax_not_logged_in');
     add_action('wp_ajax_nopriv_sisme_get_developer_stats', 'sisme_ajax_not_logged_in');
     
+    add_action('wp_ajax_sisme_simple_crop_upload', 'sisme_handle_simple_crop_upload');
+
     if (defined('WP_DEBUG') && WP_DEBUG) {
         error_log('[Sisme User Developer Ajax] Hooks AJAX enregistrés (avec soumissions)');
     }
@@ -768,4 +770,41 @@ function sisme_format_submission_for_frontend($submission) {
         'admin_notes' => $submission->admin_notes ?? '',
         'submission_version' => $submission->submission_version ?? 1
     ];
+}
+
+function sisme_handle_simple_crop_upload() {
+    // Vérification nonce
+    if (!wp_verify_nonce($_POST['security'], 'sisme_ajax_nonce')) {
+        wp_send_json_error(['message' => 'Nonce invalide']);
+    }
+
+    // Vérification utilisateur
+    if (!is_user_logged_in()) {
+        wp_send_json_error(['message' => 'Utilisateur non connecté']);
+    }
+
+    // Vérification du fichier
+    if (!isset($_FILES['image'])) {
+        wp_send_json_error(['message' => 'Aucune image fournie']);
+    }
+
+    // Charger la classe simple
+    if (!class_exists('Sisme_Simple_Image_Cropper')) {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/simple-image-cropper.php';
+    }
+
+    // Traitement simple
+    $result = Sisme_Simple_Image_Cropper::process_upload($_FILES['image']);
+
+    if (is_wp_error($result)) {
+        wp_send_json_error(['message' => $result->get_error_message()]);
+    }
+
+    $image_url = wp_get_attachment_image_url($result, 'full');
+    
+    wp_send_json_success([
+        'attachment_id' => $result,
+        'url' => $image_url,
+        'message' => 'Image traitée avec succès'
+    ]);
 }

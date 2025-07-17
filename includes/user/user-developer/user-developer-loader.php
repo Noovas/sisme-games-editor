@@ -100,12 +100,37 @@ class Sisme_User_Developer_Loader {
         // Hook pour charger les assets
         add_action('wp_enqueue_scripts', [$this, 'enqueue_developer_assets']);
         
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_submission_assets']);
+        
         // Initialiser les hooks AJAX
         add_action('init', function() {
             if (function_exists('sisme_init_developer_ajax')) {
                 sisme_init_developer_ajax();
             }
         });
+    }
+
+    /**
+     * Enregistrer les assets pour le crop simple
+     */
+    public function enqueue_submission_assets() {
+        // Seulement sur la page dashboard
+        if (!isset($_GET['page']) || $_GET['page'] !== 'sisme-dashboard') {
+            return;
+        }
+        
+        // Cropper.js depuis CDN
+        wp_enqueue_style('cropperjs', 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css', [], '1.5.13');
+        wp_enqueue_script('cropperjs', 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js', [], '1.5.13', true);
+        
+        // Notre script simple
+        wp_enqueue_script(
+            'sisme-simple-cropper',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/submission/assets/simple-cropper.js',
+            ['cropperjs', 'jquery'],
+            SISME_GAMES_EDITOR_VERSION,
+            true
+        );
     }
     
     /**
