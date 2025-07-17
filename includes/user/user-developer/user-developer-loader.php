@@ -99,22 +99,16 @@ class Sisme_User_Developer_Loader {
         
         // Hook pour charger les assets
         add_action('wp_enqueue_scripts', [$this, 'enqueue_developer_assets']);
-        
         add_action('wp_enqueue_scripts', [$this, 'enqueue_submission_assets']);
 
-        // Initialiser les hooks AJAX
-        add_action('init', function() {
-            if (function_exists('sisme_init_developer_ajax')) {
-                sisme_init_developer_ajax();
-            }
-        });
+        // Initialiser directement les hooks AJAX
+        add_action('wp_loaded', 'sisme_init_developer_ajax');
     }
 
     /**
      * Enregistrer les assets pour le crop simple
      */
     public function enqueue_submission_assets() {
-        // Seulement sur la page dashboard
         if (!$this->should_load_assets()) {
             return;
         }
@@ -132,10 +126,9 @@ class Sisme_User_Developer_Loader {
             true
         );
         
-        // ✨ AJOUT : Localisation pour SimpleCropper
         wp_localize_script('sisme-simple-cropper', 'sismeAjax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('sisme_ajax_nonce')
+            'nonce' => wp_create_nonce('sisme_developer_nonce')
         ]);
     }
     

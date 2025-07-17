@@ -773,34 +773,48 @@ function sisme_format_submission_for_frontend($submission) {
 }
 
 function sisme_handle_simple_crop_upload() {
+    error_log('=== CROP UPLOAD HANDLER CALLED ===');
+    error_log('POST data: ' . print_r($_POST, true));
+    error_log('FILES data: ' . print_r($_FILES, true));
+    
     // Vérification nonce
-    if (!wp_verify_nonce($_POST['security'], 'sisme_ajax_nonce')) {
+    if (!wp_verify_nonce($_POST['security'], 'sisme_developer_nonce')) {
+        error_log('NONCE VERIFICATION FAILED');
+        error_log('Posted nonce: ' . ($_POST['security'] ?? 'MISSING'));
         wp_send_json_error(['message' => 'Nonce invalide']);
     }
+    error_log('NONCE OK');
 
     // Vérification utilisateur
     if (!is_user_logged_in()) {
+        error_log('USER NOT LOGGED IN');
         wp_send_json_error(['message' => 'Utilisateur non connecté']);
     }
+    error_log('USER OK');
 
     // Vérification du fichier
     if (!isset($_FILES['image'])) {
+        error_log('NO IMAGE FILE');
         wp_send_json_error(['message' => 'Aucune image fournie']);
     }
+    error_log('FILE OK');
 
     // Charger la classe simple
     if (!class_exists('Sisme_Simple_Image_Cropper')) {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/simple-image-cropper.php';
     }
 
+    error_log('STARTING PROCESSING');
     // Traitement simple
     $result = Sisme_Simple_Image_Cropper::process_upload($_FILES['image']);
 
     if (is_wp_error($result)) {
+        error_log('PROCESSING ERROR: ' . $result->get_error_message());
         wp_send_json_error(['message' => $result->get_error_message()]);
     }
 
     $image_url = wp_get_attachment_image_url($result, 'full');
+    error_log('SUCCESS - Image URL: ' . $image_url);
     
     wp_send_json_success([
         'attachment_id' => $result,

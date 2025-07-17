@@ -105,17 +105,22 @@ class SimpleCropper {
         }, 'image/jpeg', 0.9);
     }
 
-    uploadImage(blob) {
-        // Vérifier que sismeAjax existe
-        if (typeof sismeAjax === 'undefined') {
-            this.showFeedback('Erreur: Configuration AJAX manquante');
-            return;
-        }
-
+    uploadImage(blob, cropData) {
+        // Debug avant envoi
+        console.log('=== DEBUG UPLOAD ===');
+        console.log('sismeAjax:', sismeAjax);
+        console.log('Blob size:', blob.size);
+        
         const formData = new FormData();
         formData.append('action', 'sisme_simple_crop_upload');
         formData.append('security', sismeAjax.nonce);
         formData.append('image', blob, 'cropped-image.jpg');
+
+        // Debug FormData
+        console.log('FormData contents:');
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + (pair[1] instanceof File ? 'File(' + pair[1].size + ' bytes)' : pair[1]));
+        }
 
         this.showFeedback('Upload en cours...');
 
@@ -123,18 +128,43 @@ class SimpleCropper {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('=== RESPONSE DEBUG ===');
+            console.log('Status:', response.status);
+            console.log('StatusText:', response.statusText);
+            console.log('Headers:', response.headers);
+            
+            // Vérifier si c'est du JSON valide
+            return response.text().then(text => {
+                console.log('Raw response:', text);
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('JSON Parse Error:', e);
+                    throw new Error('Réponse non-JSON: ' + text);
+                }
+            });
+        })
         .then(data => {
+            console.log('=== PARSED DATA ===');
+            console.log('Full data:', data);
+            console.log('data.success:', data.success);
+            console.log('data.data:', data.data);
+            
             if (data.success) {
                 this.showResult(data.data.url);
                 this.showFeedback('Image uploadée avec succès !');
             } else {
-                this.showFeedback('Erreur: ' + (data.data.message || 'Erreur inconnue'));
+                const message = data.data ? data.data.message : data.message || 'Erreur inconnue';
+                this.showFeedback('Erreur serveur: ' + message);
             }
         })
         .catch(error => {
-            console.error('Erreur upload:', error);
-            this.showFeedback('Erreur de connexion');
+            console.error('=== CATCH ERROR ===');
+            console.error('Error type:', typeof error);
+            console.error('Error message:', error.message);
+            console.error('Full error:', error);
+            this.showFeedback('Erreur de connexion: ' + error.message);
         });
     }
 
