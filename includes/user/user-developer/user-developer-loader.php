@@ -101,7 +101,7 @@ class Sisme_User_Developer_Loader {
         add_action('wp_enqueue_scripts', [$this, 'enqueue_developer_assets']);
         
         add_action('wp_enqueue_scripts', [$this, 'enqueue_submission_assets']);
-        
+
         // Initialiser les hooks AJAX
         add_action('init', function() {
             if (function_exists('sisme_init_developer_ajax')) {
@@ -131,6 +131,12 @@ class Sisme_User_Developer_Loader {
             SISME_GAMES_EDITOR_VERSION,
             true
         );
+        
+        // ✨ AJOUT : Localisation pour SimpleCropper
+        wp_localize_script('sisme-simple-cropper', 'sismeAjax', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('sisme_ajax_nonce')
+        ]);
     }
     
     /**
