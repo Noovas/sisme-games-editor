@@ -711,4 +711,29 @@ class Sisme_User_Developer_Renderer {
         <?php
         return ob_get_clean();
     }
+
+    /**
+     * Rendu de la section soumission de jeu
+     */
+    public static function render_submit_game_section($user_id, $developer_status, $dashboard_data) {
+        // Vérifier que l'utilisateur est un développeur approuvé
+        if ($developer_status !== 'approved') {
+            return '<p>Vous devez être un développeur approuvé pour soumettre des jeux.</p>';
+        }
+        
+        ob_start();
+        ?>
+        <div class="sisme-submit-game-section">
+            <div class="sisme-section-header">
+                <h3>➕ Soumettre un nouveau jeu</h3>
+                <p>Créez une soumission pour votre nouveau jeu.</p>
+            </div>
+            
+            <div class="sisme-submit-game-content">
+                <p>Formulaire de soumission en cours de développement...</p>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
 }

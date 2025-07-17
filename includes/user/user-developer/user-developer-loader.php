@@ -173,6 +173,10 @@ class Sisme_User_Developer_Loader {
     public function add_developer_section($accessible_sections, $user_id) {
         if (is_user_logged_in()) {
             $accessible_sections[] = 'developer';
+            
+            if (Sisme_User_Developer_Data_Manager::is_approved_developer($user_id)) {
+                $accessible_sections[] = 'submit-game';
+            }
         }
         return $accessible_sections;
     }
@@ -205,7 +209,7 @@ class Sisme_User_Developer_Loader {
      * Rendu de la section développeur
      */
     public function render_developer_section($content, $section, $dashboard_data) {
-        if ($section !== 'developer') {
+        if ($section !== 'developer' && $section !== 'submit-game') {
             return $content;
         }
         
@@ -216,6 +220,10 @@ class Sisme_User_Developer_Loader {
         $user_id = get_current_user_id();
         $developer_status = Sisme_User_Developer_Data_Manager::get_developer_status($user_id);
         
+        if ($section === 'submit-game') {
+            return Sisme_User_Developer_Renderer::render_submit_game_section($user_id, $developer_status, $dashboard_data);
+        }
+
         return Sisme_User_Developer_Renderer::render_developer_section($user_id, $developer_status, $dashboard_data);
     }
     
@@ -224,6 +232,7 @@ class Sisme_User_Developer_Loader {
      */
     public function add_developer_valid_section($valid_sections) {
         $valid_sections[] = 'developer';
+        $valid_sections[] = 'submit-game';
         return $valid_sections;
     }
     

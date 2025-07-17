@@ -513,53 +513,15 @@
      * Démarrer une nouvelle soumission
      */
     SismeDeveloperAjax.startNewSubmission = function() {
-        this.log('Démarrage nouvelle soumission...');
+        this.log('Ouverture onglet soumission');
         
-        if (this.isSubmitting) {
-            return;
+        // Utiliser le système de navigation du dashboard
+        if (window.SismeDashboard && typeof SismeDashboard.setActiveSection === 'function') {
+            SismeDashboard.setActiveSection('submit-game', true);
+        } else {
+            // Fallback si SismeDashboard n'est pas disponible
+            window.location.hash = 'submit-game';
         }
-        
-        // Afficher loading sur le bouton
-        const btn = event.target;
-        const originalText = btn.textContent;
-        btn.textContent = '⏳ Création...';
-        btn.disabled = true;
-        
-        this.isSubmitting = true;
-        
-        // Appel AJAX pour créer une nouvelle soumission
-        $.ajax({
-            url: this.config.ajaxUrl,
-            type: 'POST',
-            data: {
-                action: 'sisme_create_submission',
-                security: this.config.nonce
-            },
-            dataType: 'json',
-            timeout: 30000,
-            success: function(response) {
-                this.log('Soumission créée:', response);
-                
-                if (response.success && response.data.submission_id) {
-                    // Rediriger vers l'interface de soumission
-                    this.openSubmissionEditor(response.data.submission_id);
-                    this.showFeedback('Nouvelle soumission créée avec succès !', 'success');
-                } else {
-                    console.error('[SismeDeveloperAjax] Erreur création:', response.data);
-                    this.showFeedback('Erreur lors de la création de la soumission', 'error');
-                }
-            }.bind(this),
-            error: function(xhr, status, error) {
-                console.error('[SismeDeveloperAjax] Erreur AJAX:', error);
-                this.showFeedback('Erreur de connexion', 'error');
-            }.bind(this),
-            complete: function() {
-                // Restaurer le bouton
-                btn.textContent = originalText;
-                btn.disabled = false;
-                this.isSubmitting = false;
-            }.bind(this)
-        });
     };
 
     /**
