@@ -1258,3 +1258,148 @@
         width: 100%;
     }
 }
+
+/* Champs de validation */
+.sisme-field-valid {
+    border-left: 4px solid #00a32a !important;
+    background-color: rgba(0, 163, 42, 0.05);
+}
+
+.sisme-field-invalid {
+    border-left: 4px solid #d63638 !important;
+    background-color: rgba(214, 54, 56, 0.05);
+}
+
+/* Messages d'erreur */
+.sisme-field-error {
+    color: #d63638;
+    font-size: 0.9em;
+    margin-top: 5px;
+    padding: 5px 8px;
+    background: rgba(214, 54, 56, 0.1);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+}
+
+.sisme-field-error::before {
+    content: "⚠️";
+    margin-right: 6px;
+}
+
+/* Labels avec validation */
+.sisme-label-valid {
+    color: #00a32a;
+}
+
+.sisme-label-valid::after {
+    content: " ✅";
+}
+
+.sisme-label-invalid {
+    color: #d63638;
+}
+
+.sisme-label-invalid::after {
+    content: " ❌";
+}
+
+/* Bouton de soumission */
+.sisme-form-submit-container {
+    text-align: center;
+    padding: 30px 20px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    border: 2px dashed #ddd;
+}
+
+.sisme-btn-submit {
+    padding: 15px 40px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 250px;
+    margin-bottom: 15px;
+}
+
+.sisme-btn-disabled {
+    background: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.sisme-btn-enabled {
+    background: linear-gradient(135deg, #00a32a, #00d45a);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 163, 42, 0.3);
+}
+
+.sisme-btn-enabled:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 163, 42, 0.4);
+}
+
+.sisme-btn-enabled:active {
+    transform: translateY(0);
+}
+
+/* Info de soumission */
+.sisme-submit-info {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.sisme-submit-description {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0 0 15px 0;
+    line-height: 1.5;
+}
+
+.sisme-validation-summary {
+    font-size: 0.85em;
+    color: #888;
+    padding: 10px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.02);
+}
+
+/* États de validation responsive */
+@media (max-width: 768px) {
+    .sisme-btn-submit {
+        min-width: 200px;
+        padding: 12px 30px;
+        font-size: 14px;
+    }
+    
+    .sisme-form-submit-container {
+        padding: 20px 15px;
+    }
+}
+
+/* Animation pour les transitions */
+.sisme-btn-submit {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Indicateur de progression */
+.sisme-validation-progress {
+    width: 100%;
+    height: 4px;
+    background: #f0f0f0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.sisme-validation-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #00a32a, #00d45a);
+    width: 0%;
+    transition: width 0.3s ease;
+}

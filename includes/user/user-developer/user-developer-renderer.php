@@ -737,7 +737,7 @@ class Sisme_User_Developer_Renderer {
             </div>
             
             <div class="sisme-submit-game-content">
-                <form id="sisme-submit-game-form" class="sisme-submit-game-form" method="post">
+                <form id="sisme-submit-game-form" class="sisme-submit-game-form" method="post" enctype="multipart/form-data">
                     <?php wp_nonce_field('sisme_submit_game_nonce', 'sisme_submit_game_nonce'); ?>
                     
                     <div class="sisme-form-section">
@@ -1011,14 +1011,37 @@ class Sisme_User_Developer_Renderer {
                             <div id="cropper3" data-simple-cropper data-ratio-type="screenshot" data-max-images="9"></div>
                         </div>
                     </div>
-                    
-                    <div class="sisme-form-actions">
-                        <button type="submit" class="sisme-button sisme-button-vert" id="sisme-submit-game-btn">
-                            💾 Enregistrer le brouillon
-                        </button>
-                        <button type="button" class="sisme-button sisme-button-bleu" onclick="SismeDashboard.setActiveSection('developer', true)">
-                            ↩️ Retour à mes jeux
-                        </button>
+    
+                    <!-- Bouton de soumission conditionnel -->
+                    <div class="sisme-form-section">
+                        <div class="sisme-form-actions">
+                            <button type="submit" class="sisme-button sisme-button-vert" id="sisme-submit-game-btn">
+                                💾 Enregistrer le brouillon
+                            </button>
+                            <button type="button" class="sisme-button sisme-button-bleu" onclick="SismeDashboard.setActiveSection('developer', true)">
+                                ↩️ Retour à mes jeux
+                            </button>
+                        </div>
+                        <div class="sisme-form-submit-container">
+                            <button 
+                                type="button" 
+                                id="sisme-submit-game-button" 
+                                class="sisme-btn sisme-btn-submit sisme-btn-disabled" 
+                                disabled
+                            >
+                                📝 Complétez le formulaire
+                            </button>
+                            
+                            <div class="sisme-submit-info">
+                                <p class="sisme-submit-description">
+                                    Votre jeu sera examiné par notre équipe avant publication. 
+                                    Assurez-vous que toutes les informations sont correctes.
+                                </p>
+                                <div class="sisme-validation-summary" id="sisme-validation-summary">
+                                    <!-- Résumé de validation sera injecté ici par JS -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div id="sisme-submit-game-feedback" class="sisme-form-feedback" style="display: none;"></div>

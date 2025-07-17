@@ -173,6 +173,14 @@ class Sisme_User_Developer_Loader {
             'nonce' => wp_create_nonce('sisme_developer_nonce'),
             'currentUserId' => get_current_user_id()
         ));
+
+        wp_enqueue_script(
+            'sisme-submission-validator',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/assets/submission-form-validator.js',
+            ['jquery', 'sisme-simple-cropper'],
+            filemtime(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/assets/submission-form-validator.js'),
+            true
+        );
     }
     
     /**
