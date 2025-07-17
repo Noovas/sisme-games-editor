@@ -54,7 +54,14 @@ class Sisme_User_Dashboard_API {
         ?>
         <div class="<?php echo esc_attr($atts['container_class']); ?>" data-user-id="<?php echo esc_attr($user_id); ?>">
             <?php echo Sisme_User_Dashboard_Renderer::render_dashboard_header($dashboard_data['user_info'], $dashboard_data['gaming_stats']); ?>
-            <?php echo Sisme_User_Dashboard_Renderer::render_dashboard_grid($dashboard_data); ?>
+            <?php 
+                // Construire le contexte avec les sections accessibles
+                $context = [
+                    'is_public' => false,
+                    'accessible_sections' => apply_filters('sisme_dashboard_accessible_sections', [], $user_id)
+                ];
+                echo Sisme_User_Dashboard_Renderer::render_dashboard_grid($dashboard_data, $context); 
+                ?>
         </div>
         <?php
         return ob_get_clean();
