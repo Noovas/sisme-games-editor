@@ -575,7 +575,168 @@
      */
     SismeDeveloperAjax.openSubmissionEditor = function(submissionId) {
         this.log('Ouverture éditeur pour soumission:', submissionId);
-        this.loadSubmissionEditor(submissionId);
+        
+        // Version simple : remplacer le contenu par le formulaire directement
+        const html = `
+            <div class="sisme-submission-game-editor" data-submission-id="${submissionId}">
+                <div class="sisme-submission-game-header">
+                    <h3 class="sisme-submission-game-title">🎮 Nouvelle soumission</h3>
+                    <p class="sisme-submission-game-subtitle">Créez votre soumission de jeu</p>
+                </div>
+                
+                <form id="sisme-submission-game-form" class="sisme-submission-game-form">
+                    <div class="sisme-submission-game-fields">
+                        <div class="sisme-form-field">
+                            <label for="game_name" class="sisme-form-label">
+                                <span class="sisme-form-label-text">Nom du jeu</span>
+                                <span class="sisme-form-required">*</span>
+                            </label>
+                            <input type="text" id="game_name" name="game_name" class="sisme-form-input" 
+                                placeholder="Entrez le nom de votre jeu" required>
+                        </div>
+                        
+                        <div class="sisme-form-field">
+                            <label for="description" class="sisme-form-label">
+                                <span class="sisme-form-label-text">Description courte</span>
+                                <span class="sisme-form-required">*</span>
+                            </label>
+                            <textarea id="description" name="description" class="sisme-form-textarea" 
+                                    placeholder="Décrivez votre jeu en quelques mots..." required rows="4"></textarea>
+                            <div class="sisme-char-count">
+                                <span id="char-current">0</span> / 140-180 caractères
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sisme-submission-game-actions">
+                        <button type="button" class="sisme-btn sisme-btn-secondary" onclick="SismeDeveloperAjax.saveAsDraft(${submissionId})">
+                            💾 Sauvegarder brouillon
+                        </button>
+                        <button type="submit" class="sisme-btn sisme-btn-primary">
+                            🚀 Soumettre pour validation
+                        </button>
+                    </div>
+                </form>
+                
+                <div id="sisme-submission-feedback" class="sisme-form-feedback" style="display: none;"></div>
+            </div>
+            
+            <style>
+            .sisme-submission-game-editor {
+                background: #4a4a4a;
+                border-radius: 8px;
+                padding: 24px;
+                color: white;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            .sisme-submission-game-header {
+                text-align: center;
+                margin-bottom: 24px;
+            }
+            .sisme-submission-game-title {
+                font-size: 1.5rem;
+                margin: 0 0 8px 0;
+            }
+            .sisme-submission-game-subtitle {
+                color: #cccccc;
+                margin: 0;
+            }
+            .sisme-submission-game-fields {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                margin-bottom: 24px;
+            }
+            .sisme-form-field {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .sisme-form-label {
+                font-weight: 500;
+                color: #ffffff;
+            }
+            .sisme-form-required {
+                color: #ff6b6b;
+            }
+            .sisme-form-input, .sisme-form-textarea {
+                background: rgba(0, 0, 0, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 4px;
+                padding: 12px;
+                color: white;
+                font-family: inherit;
+            }
+            .sisme-form-input:focus, .sisme-form-textarea:focus {
+                outline: none;
+                border-color: #58a6ff;
+            }
+            .sisme-form-textarea {
+                resize: vertical;
+                min-height: 100px;
+            }
+            .sisme-char-count {
+                color: #cccccc;
+                font-size: 0.85rem;
+                text-align: right;
+            }
+            .sisme-submission-game-actions {
+                display: flex;
+                gap: 16px;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+            .sisme-btn {
+                padding: 12px 24px;
+                border: none;
+                border-radius: 4px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .sisme-btn-primary {
+                background: #58a6ff;
+                color: white;
+            }
+            .sisme-btn-primary:hover {
+                background: #4493e6;
+            }
+            .sisme-btn-secondary {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            .sisme-btn-secondary:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            .sisme-form-feedback {
+                padding: 12px;
+                border-radius: 4px;
+                text-align: center;
+                font-weight: 500;
+            }
+            .sisme-form-feedback.success {
+                background: rgba(63, 185, 80, 0.1);
+                border: 1px solid rgba(63, 185, 80, 0.3);
+                color: #3fb950;
+            }
+            .sisme-form-feedback.error {
+                background: rgba(248, 81, 73, 0.1);
+                border: 1px solid rgba(248, 81, 73, 0.3);
+                color: #f85149;
+            }
+            </style>
+        `;
+        
+        // Remplacer le contenu du dashboard
+        const dashboardContent = document.querySelector('.sisme-dashboard-content');
+        if (dashboardContent) {
+            dashboardContent.innerHTML = html;
+        }
+        
+        // Bind les événements du formulaire
+        this.bindSubmissionFormEvents(submissionId);
     };
 
     /**
