@@ -982,15 +982,28 @@ class Sisme_User_Developer_Renderer {
                             <?php endforeach; ?>
                         </div>
                     </div>
+                    
+                    <!-- Section Liens d'achat -->
+                    <div class="sisme-form-section">
+                        <h4 class="sisme-form-section-title">🖼️ Galerie d'images</h4>
+                        <!-- Cover horizontale -->
+                        <label class="sisme-form-label sisme-form-section-title">
+                            Cover horizontale <span class="sisme-required">*</span>
+                        </label>
+                        <div id="cropper1" data-simple-cropper data-ratio-type="cover_horizontal"></div>
 
-                    <!-- Cover horizontale -->
-                    <div id="cropper1" data-simple-cropper data-ratio-type="cover_horizontal"></div>
+                        <!-- Cover verticale -->
+                         <label class="sisme-form-label sisme-form-section-title">
+                            Cover verticale <span class="sisme-required">*</span>
+                        </label>
+                        <div id="cropper2" data-simple-cropper data-ratio-type="cover_vertical"></div>
 
-                    <!-- Cover verticale -->
-                    <div id="cropper2" data-simple-cropper data-ratio-type="cover_vertical"></div>
-
-                    <!-- Screenshot -->
-                    <div id="cropper3" data-simple-cropper data-ratio-type="screenshot"></div>
+                        <!-- Screenshots (jusqu'à 9 images) -->
+                         <label class="sisme-form-label sisme-form-section-title">
+                            Screenshots <span class="sisme-required">*</span>
+                        </label>
+                        <div id="cropper3" data-simple-cropper data-ratio-type="screenshot"></div>
+                    </div>
                     
                     <div class="sisme-form-actions">
                         <button type="submit" class="sisme-button sisme-button-vert" id="sisme-submit-game-btn">
