@@ -772,6 +772,22 @@ class Sisme_User_Developer_Renderer {
                                 required
                             ></textarea>
                         </div>
+                        <!-- Date de sortie -->
+                        <div class="sisme-form-field">
+                            <label for="game_release_date" class="sisme-form-label sisme-form-section-title">
+                                Date de sortie <span class="sisme-required">*</span>
+                            </label>
+                            <input 
+                                type="date" 
+                                id="game_release_date" 
+                                name="game_release_date" 
+                                class="sisme-form-input"
+                                required
+                            >
+                        </div>
+                    </div>
+                    <div class="sisme-form-section">
+                        <h4 class="sisme-form-section-title">📋 Liens Utiles</h4>
 
                         <!-- Lien Teaser Youtube -->
                         <div class="sisme-form-field">
@@ -837,8 +853,134 @@ class Sisme_User_Developer_Renderer {
                                 placeholder="https://www.site-de-l-editeur.com"
                             >
                         </div>
+                    </div>
 
+                        
 
+                    <!-- Section Catégories -->
+                    <div class="sisme-form-section">
+                        <h4 class="sisme-form-section-title">🏷️ Catégories</h4>
+                        
+                        <!-- Genres - Récupération depuis les catégories WordPress -->
+                        <div class="sisme-form-field">
+                            <label class="sisme-form-label sisme-form-section-title">
+                                Genres <span class="sisme-required">*</span>
+                            </label>
+                            <div class="sisme-checkbox-group">
+                                <?php
+                                $available_genres = Sisme_User_Preferences_Data_Manager::get_available_genres();
+                                foreach ($available_genres as $genre): ?>
+                                    <div class="sisme-checkbox-item">
+                                        <input type="checkbox" 
+                                            id="genre_<?php echo esc_attr($genre['id']); ?>" 
+                                            name="game_genres[]" 
+                                            value="<?php echo esc_attr($genre['id']); ?>">
+                                        <label for="genre_<?php echo esc_attr($genre['id']); ?>"><?php echo esc_html($genre['name']); ?></label>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <!-- Modes de jeu - Depuis les constantes du système -->
+                        <div class="sisme-form-field">
+                            <label class="sisme-form-label sisme-form-section-title">
+                                Modes de jeu <span class="sisme-required">*</span>
+                            </label>
+                            <div class="sisme-checkbox-group">
+                                <?php
+                                $mode_labels = array(
+                                    'solo' => 'Solo',
+                                    'multijoueur' => 'Multijoueur',
+                                    'coop' => 'Coopération',
+                                    'competitif' => 'Compétitif'
+                                );
+                                foreach ($mode_labels as $mode_key => $mode_label): ?>
+                                    <div class="sisme-checkbox-item">
+                                        <input type="checkbox" 
+                                            id="mode_<?php echo esc_attr($mode_key); ?>" 
+                                            name="game_modes[]" 
+                                            value="<?php echo esc_attr($mode_key); ?>">
+                                        <label for="mode_<?php echo esc_attr($mode_key); ?>"><?php echo esc_html($mode_label); ?></label>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <!-- Plateformes - Depuis les constantes du système -->
+                        <div class="sisme-form-field">
+                            <label class="sisme-form-label sisme-form-section-title">
+                                Plateformes <span class="sisme-required">*</span>
+                            </label>
+                            <div class="sisme-checkbox-group">
+                                <?php
+                                $platform_groups = array(
+                                    'pc' => array(
+                                        'platforms' => array('windows', 'mac', 'linux'),
+                                        'icon' => '🖥️',
+                                        'names' => array('windows' => 'Windows', 'mac' => 'macOS', 'linux' => 'Linux')
+                                    ),
+                                    'console' => array(
+                                        'platforms' => array('xbox', 'playstation', 'switch'),
+                                        'icon' => '🎮',
+                                        'names' => array('xbox' => 'Xbox', 'playstation' => 'PlayStation', 'switch' => 'Nintendo Switch')
+                                    ),
+                                    'mobile' => array(
+                                        'platforms' => array('ios', 'android'),
+                                        'icon' => '📱',
+                                        'names' => array('ios' => 'iOS', 'android' => 'Android')
+                                    ),
+                                    'web' => array(
+                                        'platforms' => array('web'),
+                                        'icon' => '🌐',
+                                        'names' => array('web' => 'Navigateur Web')
+                                    )
+                                );
+                                
+                                foreach ($platform_groups as $group_key => $group_data):
+                                    foreach ($group_data['platforms'] as $platform_key): ?>
+                                        <div class="sisme-checkbox-item">
+                                            <input type="checkbox" 
+                                                id="platform_<?php echo esc_attr($platform_key); ?>" 
+                                                name="game_platforms[]" 
+                                                value="<?php echo esc_attr($platform_key); ?>">
+                                            <label for="platform_<?php echo esc_attr($platform_key); ?>">
+                                                <?php echo $group_data['icon']; ?> <?php echo esc_html($group_data['names'][$platform_key]); ?>
+                                            </label>
+                                        </div>
+                                    <?php endforeach;
+                                endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Liens d'achat -->
+                    <div class="sisme-form-section">
+                        <h4 class="sisme-form-section-title">🛒 Liens d'achat</h4>
+                        <div class="sisme-form-field">
+                            <?php
+                            $store_platforms = array(
+                                'steam' => array('name' => 'Steam', 'logo' => 'Logo-STEAM.webp'),
+                                'epic' => array('name' => 'Epic Games', 'logo' => 'Logo-EPIC.webp'),
+                                'gog' => array('name' => 'GOG', 'logo' => 'Logo-GOG.webp')
+                            );
+                            
+                            foreach ($store_platforms as $platform_key => $platform_data): ?>
+                                <div class="sisme-link-item">
+                                    <div class="sisme-link-platform">
+                                        <img src="https://games.sisme.fr/wp-content/uploads/2025/06/<?php echo esc_attr($platform_data['logo']); ?>" 
+                                            alt="<?php echo esc_attr($platform_data['name']); ?>" 
+                                            class="sisme-store-logo">
+                                    </div>
+                                    <input 
+                                        type="url" 
+                                        id="link_<?php echo esc_attr($platform_key); ?>" 
+                                        name="external_links[<?php echo esc_attr($platform_key); ?>]" 
+                                        class="sisme-form-input sisme-link-input"
+                                        placeholder="https://store.<?php echo esc_attr($platform_key); ?>.com/..."
+                                    >
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                     
                     <div class="sisme-form-actions">

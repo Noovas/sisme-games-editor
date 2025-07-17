@@ -1055,3 +1055,55 @@
         margin-top: 20px;
     }
 }
+
+/* =======================================================
+   🎮 SISME DEVELOPER - Formulaire
+   ======================================================= */
+
+.sisme-checkbox-group { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 10px; 
+    margin-top: 10px; 
+}
+.sisme-checkbox-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+}
+.sisme-checkbox-item input[type="checkbox"] { 
+    margin: 0; 
+}
+.sisme-links-container { 
+    border: 1px solid #ddd; 
+    border-radius: 4px; 
+    padding: 15px; 
+}
+.sisme-link-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    margin-bottom: 10px; 
+}
+.sisme-link-item:last-child { 
+    margin-bottom: 0; 
+}
+.sisme-link-platform { 
+    font-weight: bold; 
+    color: #666; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+}
+.sisme-store-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    background-color: var(--sisme-color-background);
+    padding: 4px;
+    border: solid 1px var(--theme-palette-color-10);
+    border-radius: 5px;
+}
+.sisme-link-input { 
+    flex: 1; 
+}
