@@ -290,6 +290,36 @@ class Sisme_User_Dashboard_Renderer {
                     ?>
                 </div>
                 <?php endif; ?>
+
+                <?php if (in_array('submit-game', $accessible_sections)): ?>
+                <div class="sisme-dashboard-section" data-section="submit-game" style="display: none;">
+                    <div class="sisme-section-header">
+                        <h2 class="sisme-section-title">
+                            <span class="sisme-title-icon">📝</span>
+                            Soumettre un jeu
+                        </h2>
+                        <div class="sisme-section-actions">
+                            <button class="sisme-btn sisme-btn-secondary" onclick="SismeDashboard.navigateToSection('developer')">
+                                ← Retour à "Mes jeux"
+                            </button>
+                        </div>
+                    </div>
+                    <?php
+                    $submit_game_content = apply_filters('sisme_dashboard_render_section', '', 'submit-game', $dashboard_data);
+                    if (!empty($submit_game_content)) {
+                        echo $submit_game_content;
+                    } else {
+                        echo '<div class="sisme-submit-game-placeholder">';
+                        echo '<div class="sisme-empty-state">';
+                        echo '<div class="sisme-empty-icon">🎮</div>';
+                        echo '<h3>Formulaire de soumission</h3>';
+                        echo '<p>Le formulaire de soumission de jeu sera disponible ici.</p>';
+                        echo '</div>';
+                        echo '</div>';
+                    }
+                    ?>
+                </div>
+                <?php endif; ?>
                 
             </main>
             <aside class="sisme-dashboard-widgets">
