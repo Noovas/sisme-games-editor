@@ -571,23 +571,21 @@
     };
 
     /**
-     * Ouvrir l'éditeur de soumission (placeholder pour futur module)
+     * Ouvrir l'éditeur de soumission
      */
     SismeDeveloperAjax.openSubmissionEditor = function(submissionId) {
         this.log('Ouverture éditeur pour soumission:', submissionId);
-        
-        // Vérifier que le module est disponible
-        if (typeof Sisme_Submission_Game_Loader === 'undefined') {
-            this.showFeedback('Module d\'édition non disponible', 'error');
-            return;
-        }
-        
-        // Charger l'éditeur dans une modal ou remplacer le contenu
         this.loadSubmissionEditor(submissionId);
     };
 
+    /**
+     * Charger l'éditeur de soumission via AJAX
+     */
     SismeDeveloperAjax.loadSubmissionEditor = function(submissionId) {
         this.log('Chargement éditeur de soumission:', submissionId);
+        
+        // Afficher un feedback de chargement
+        this.showFeedback('Chargement de l\'éditeur...', 'loading');
         
         // Demander le rendu de l'éditeur via AJAX
         $.ajax({
@@ -614,14 +612,17 @@
         });
     };
 
+    /**
+     * Afficher l'éditeur de soumission
+     */
     SismeDeveloperAjax.displaySubmissionEditor = function(html) {
-        // Option 1: Remplacer le contenu du dashboard
-        $('.sisme-dashboard-content').html(html);
+        // Remplacer le contenu du dashboard
+        const dashboardContent = document.querySelector('.sisme-dashboard-content');
+        if (dashboardContent) {
+            dashboardContent.innerHTML = html;
+        }
         
-        // Option 2: Ou ouvrir dans une modal
-        // this.openModal(html);
-        
-        // Réinitialiser le module JavaScript
+        // Réinitialiser le module JavaScript de l'éditeur
         if (typeof SismeSubmissionGame !== 'undefined') {
             SismeSubmissionGame.init();
         }
