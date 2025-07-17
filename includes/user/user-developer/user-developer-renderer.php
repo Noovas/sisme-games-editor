@@ -839,7 +839,7 @@ class Sisme_User_Developer_Renderer {
                                 id="game_publisher_name" 
                                 name="game_publisher_name" 
                                 class="sisme-form-input"
-                                placeholder="Nom du Studio"
+                                placeholder="Nom de l'éditeur"
                                 required
                             >
                         </div>
