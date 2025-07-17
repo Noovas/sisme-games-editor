@@ -45,40 +45,42 @@ class SimpleCropper {
         this.ratioType = ratioType;
         this.config = this.ratios[ratioType] || this.ratios['cover_horizontal'];
         this.cropper = null;
+        this.uniqueId = 'cropper_' + containerId + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        this.isProcessing = false;
         this.init();
     }
 
     init() {
         this.container.innerHTML = `
             <div>
-                <input type="file" id="imageFile_${Date.now()}" accept="image/*" />
+                <input type="file" id="imageFile_${this.uniqueId}" accept="image/*" />
                 <br><br>
-                <div id="imageContainer_${Date.now()}" style="display:none;">
-                    <img id="cropImage_${Date.now()}" style="max-width: 100%;" />
+                <div id="imageContainer_${this.uniqueId}" style="display:none;">
+                    <img id="cropImage_${this.uniqueId}" style="max-width: 100%;" />
                     <br><br>
-                    <button type="button" id="cropBtn_${Date.now()}">Crop Image (${this.config.label})</button>
-                    <button type="button" id="cancelBtn_${Date.now()}">Annuler</button>
+                    <button type="button" id="cropBtn_${this.uniqueId}">Crop Image (${this.config.label})</button>
+                    <button type="button" id="cancelBtn_${this.uniqueId}">Annuler</button>
                 </div>
-                <div id="result_${Date.now()}" style="display:none;">
+                <div id="result_${this.uniqueId}" style="display:none;">
                     <h4>Résultat :</h4>
-                    <img id="resultImage_${Date.now()}" style="max-width: 300px;" />
+                    <img id="resultImage_${this.uniqueId}" style="max-width: 300px;" />
                     <br>
-                    <button type="button" id="changeBtn_${Date.now()}">Changer l'image</button>
+                    <button type="button" id="changeBtn_${this.uniqueId}">Changer l'image</button>
                 </div>
-                <div id="feedback_${Date.now()}"></div>
+                <div id="feedback_${this.uniqueId}"></div>
             </div>
         `;
 
         this.ids = {
-            fileInput: this.container.querySelector('input[type="file"]').id,
-            imageContainer: this.container.querySelector('div[id^="imageContainer"]').id,
-            cropImage: this.container.querySelector('img[id^="cropImage"]').id,
-            cropBtn: this.container.querySelector('button[id^="cropBtn"]').id,
-            cancelBtn: this.container.querySelector('button[id^="cancelBtn"]').id,
-            result: this.container.querySelector('div[id^="result"]').id,
-            resultImage: this.container.querySelector('img[id^="resultImage"]').id,
-            changeBtn: this.container.querySelector('button[id^="changeBtn"]').id,
-            feedback: this.container.querySelector('div[id^="feedback"]').id
+            fileInput: `imageFile_${this.uniqueId}`,
+            imageContainer: `imageContainer_${this.uniqueId}`,
+            cropImage: `cropImage_${this.uniqueId}`,
+            cropBtn: `cropBtn_${this.uniqueId}`,
+            cancelBtn: `cancelBtn_${this.uniqueId}`,
+            result: `result_${this.uniqueId}`,
+            resultImage: `resultImage_${this.uniqueId}`,
+            changeBtn: `changeBtn_${this.uniqueId}`,
+            feedback: `feedback_${this.uniqueId}`
         };
 
         this.bindEvents();
@@ -91,17 +93,30 @@ class SimpleCropper {
         const changeBtn = document.getElementById(this.ids.changeBtn);
 
         fileInput.addEventListener('change', (e) => {
+            if (this.isProcessing) {
+                this.showFeedback('Traitement en cours, veuillez patienter...');
+                return;
+            }
             if (e.target.files.length > 0) {
                 this.loadImage(e.target.files[0]);
             }
         });
 
-        cropBtn.addEventListener('click', () => this.cropImage());
+        cropBtn.addEventListener('click', () => {
+            if (this.isProcessing) {
+                this.showFeedback('Traitement en cours, veuillez patienter...');
+                return;
+            }
+            this.cropImage();
+        });
+        
         cancelBtn.addEventListener('click', () => this.cancel());
         changeBtn.addEventListener('click', () => this.reset());
     }
 
     loadImage(file) {
+        this.setProcessing(true);
+        
         const reader = new FileReader();
         reader.onload = (e) => {
             const cropImage = document.getElementById(this.ids.cropImage);
@@ -117,7 +132,10 @@ class SimpleCropper {
             this.cropper = new Cropper(cropImage, {
                 aspectRatio: this.config.ratio,
                 viewMode: 2,
-                autoCropArea: 0.8
+                autoCropArea: 0.8,
+                ready: () => {
+                    this.setProcessing(false);
+                }
             });
         };
         reader.readAsDataURL(file);
@@ -125,6 +143,8 @@ class SimpleCropper {
 
     cropImage() {
         if (!this.cropper) return;
+        
+        this.setProcessing(true);
 
         const canvas = this.cropper.getCroppedCanvas({
             width: this.config.width,
@@ -138,8 +158,7 @@ class SimpleCropper {
 
     uploadImage(blob) {
         console.log('=== DEBUG UPLOAD ===');
-        console.log('sismeAjax:', sismeAjax);
-        console.log('Blob size:', blob.size);
+        console.log('Instance ID:', this.uniqueId);
         console.log('Ratio type:', this.ratioType);
         
         const formData = new FormData();
@@ -148,11 +167,6 @@ class SimpleCropper {
         formData.append('image', blob, `cropped-${this.ratioType}-image.jpg`);
         formData.append('ratio_type', this.ratioType);
 
-        console.log('FormData contents:');
-        for (let pair of formData.entries()) {
-            console.log(pair[0] + ': ' + (pair[1] instanceof File ? 'File(' + pair[1].size + ' bytes)' : pair[1]));
-        }
-
         this.showFeedback('Upload en cours...');
 
         fetch(sismeAjax.ajaxurl, {
@@ -160,11 +174,7 @@ class SimpleCropper {
             body: formData
         })
         .then(response => {
-            console.log('=== RESPONSE DEBUG ===');
-            console.log('Status:', response.status);
-            
             return response.text().then(text => {
-                console.log('Raw response:', text);
                 try {
                     return JSON.parse(text);
                 } catch (e) {
@@ -174,20 +184,18 @@ class SimpleCropper {
             });
         })
         .then(data => {
-            console.log('=== PARSED DATA ===');
-            console.log('Full data:', data);
-            
             if (data.success) {
                 this.showResult(data.data.url);
                 this.showFeedback('Image uploadée avec succès !');
                 
-                // Trigger custom event avec les données
+                // Trigger custom event
                 const event = new CustomEvent('imageProcessed', {
                     detail: {
                         url: data.data.url,
                         attachmentId: data.data.attachment_id,
                         ratioType: this.ratioType,
-                        dimensions: this.config
+                        dimensions: this.config,
+                        cropperId: this.uniqueId
                     }
                 });
                 this.container.dispatchEvent(event);
@@ -200,6 +208,9 @@ class SimpleCropper {
             console.error('=== CATCH ERROR ===');
             console.error('Error:', error);
             this.showFeedback('Erreur de connexion: ' + error.message);
+        })
+        .finally(() => {
+            this.setProcessing(false);
         });
     }
 
@@ -216,6 +227,8 @@ class SimpleCropper {
     }
 
     reset() {
+        this.setProcessing(false);
+        
         if (this.cropper) {
             this.cropper.destroy();
             this.cropper = null;
@@ -225,6 +238,22 @@ class SimpleCropper {
         document.getElementById(this.ids.imageContainer).style.display = 'none';
         document.getElementById(this.ids.result).style.display = 'none';
         document.getElementById(this.ids.feedback).innerHTML = '';
+    }
+
+    setProcessing(processing) {
+        this.isProcessing = processing;
+        const fileInput = document.getElementById(this.ids.fileInput);
+        const cropBtn = document.getElementById(this.ids.cropBtn);
+        
+        if (processing) {
+            fileInput.disabled = true;
+            cropBtn.disabled = true;
+            this.container.style.opacity = '0.7';
+        } else {
+            fileInput.disabled = false;
+            cropBtn.disabled = false;
+            this.container.style.opacity = '1';
+        }
     }
 
     showFeedback(message) {
