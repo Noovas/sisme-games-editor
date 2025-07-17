@@ -115,7 +115,7 @@ class Sisme_User_Developer_Loader {
      */
     public function enqueue_submission_assets() {
         // Seulement sur la page dashboard
-        if (!isset($_GET['page']) || $_GET['page'] !== 'sisme-dashboard') {
+        if (!$this->should_load_assets()) {
             return;
         }
         
