@@ -983,7 +983,7 @@ class Sisme_User_Developer_Renderer {
                         </div>
                     </div>
                     
-                    <!-- Section Liens d'achat -->
+                    <!-- Section upload d'images -->
                     <div class="sisme-form-section">
                         <h4 class="sisme-form-section-title">🖼️ Galerie d'images</h4>
                         <!-- Cover horizontale -->
@@ -998,7 +998,7 @@ class Sisme_User_Developer_Renderer {
                         </label>
                         <div id="cropper2" data-simple-cropper data-ratio-type="cover_vertical"></div>
 
-                        <!-- Screenshots (jusqu'à 9 images) -->
+                        <!-- Screenshots (jusqu'à 9 images minimum 1) -->
                          <label class="sisme-form-label sisme-form-section-title">
                             Screenshots <span class="sisme-required">*</span>
                         </label>
