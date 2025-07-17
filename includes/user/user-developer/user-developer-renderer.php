@@ -714,6 +714,10 @@ class Sisme_User_Developer_Renderer {
 
     /**
      * Rendu de la section soumission de jeu
+     * @param int $user_id ID utilisateur
+     * @param string $developer_status Statut développeur
+     * @param array $dashboard_data Données dashboard
+     * @return string HTML de la section soumission
      */
     public static function render_submit_game_section($user_id, $developer_status, $dashboard_data) {
         // Vérifier que l'utilisateur est un développeur approuvé
@@ -725,8 +729,10 @@ class Sisme_User_Developer_Renderer {
         ?>
         <div class="sisme-submit-game-section">
             <div class="sisme-section-header">
-                <h3>➕ Soumettre un nouveau jeu</h3>
-                <p>Créez une soumission pour votre nouveau jeu.</p>
+                <h2 class="sisme-section-title">
+                    <span class="sisme-title-icon">➕</span>
+                    Soumettre un jeu
+                </h2>
             </div>
             
             <div class="sisme-submit-game-content">
