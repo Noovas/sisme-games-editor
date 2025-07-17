@@ -189,7 +189,7 @@ class Sisme_User_Dashboard_Renderer {
      * @return string HTML de la grille
      */
     public static function render_dashboard_grid($dashboard_data, $context = ['is_public' => true]) {
-        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'social', 'settings', 'developer'];
+        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'social', 'settings', 'developer', 'submit-game'];
         
         ob_start();
         ?>
@@ -292,26 +292,20 @@ class Sisme_User_Dashboard_Renderer {
                 <?php endif; ?>
 
                 <?php if (in_array('submit-game', $accessible_sections)): ?>
-                <div class="sisme-dashboard-section" data-section="submit-game" style="display: none;">
-                    <div class="sisme-section-header">
-                        <h2 class="sisme-section-title">
-                            <span class="sisme-title-icon">➕</span>
-                            Soumettre un jeu
-                        </h2>
+                    <div class="sisme-dashboard-section" data-section="submit-game" style="display: none;">
+                        <?php
+                        // Utiliser le hook pour le rendu de la section submit-game
+                        $submit_game_content = apply_filters('sisme_dashboard_render_section', '', 'submit-game', $dashboard_data);
+                        if (!empty($submit_game_content)) {
+                            echo $submit_game_content;
+                        } else {
+                            echo '<div class="sisme-under-construction">';
+                            echo '<h3>🎮 Soumission de jeu</h3>';
+                            echo '<p>Formulaire de soumission en cours de développement.</p>';
+                            echo '</div>';
+                        }
+                        ?>
                     </div>
-                    <?php
-                    // Utiliser le hook pour le rendu de la section submit-game
-                    $submit_game_content = apply_filters('sisme_dashboard_render_section', '', 'submit-game', $dashboard_data);
-                    if (!empty($submit_game_content)) {
-                        echo $submit_game_content;
-                    } else {
-                        echo '<div class="sisme-under-construction">';
-                        echo '<h3>🎮 Soumission de jeu</h3>';
-                        echo '<p>Formulaire de soumission en cours de développement.</p>';
-                        echo '</div>';
-                    }
-                    ?>
-                </div>
                 <?php endif; ?>
                 
             </main>

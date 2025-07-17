@@ -513,15 +513,26 @@
      * Démarrer une nouvelle soumission
      */
     SismeDeveloperAjax.startNewSubmission = function() {
+        console.log('[DEBUG] startNewSubmission appelée');
         this.log('Ouverture onglet soumission');
         
-        // Utiliser le système de navigation du dashboard
-        if (window.SismeDashboard && typeof SismeDashboard.setActiveSection === 'function') {
-            SismeDashboard.setActiveSection('submit-game', true);
+        // Vérifier si SismeDashboard existe
+        if (window.SismeDashboard) {
+            console.log('[DEBUG] SismeDashboard existe');
+            
+            if (typeof SismeDashboard.setActiveSection === 'function') {
+                console.log('[DEBUG] setActiveSection existe, appel avec submit-game');
+                SismeDashboard.setActiveSection('submit-game', true);
+            } else {
+                console.log('[DEBUG] setActiveSection n\'existe pas, fallback hash');
+                window.location.hash = 'submit-game';
+            }
         } else {
-            // Fallback si SismeDashboard n'est pas disponible
+            console.log('[DEBUG] SismeDashboard n\'existe pas, fallback hash');
             window.location.hash = 'submit-game';
         }
+        
+        console.log('[DEBUG] Fin startNewSubmission');
     };
 
     /**
