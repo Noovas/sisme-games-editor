@@ -419,14 +419,6 @@ function sisme_ajax_create_submission() {
     if (!class_exists('Sisme_Submission_Database')) {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/submission-database.php';
     }
-
-    $can_create = Sisme_Submission_Database::can_user_create_submission($user_id);
-    if (is_wp_error($can_create)) {
-        wp_send_json_error([
-            'message' => $can_create->get_error_message(),
-            'code' => $can_create->get_error_code()
-        ]);
-    }
     
     // Créer la soumission avec données par défaut
     $default_game_data = [

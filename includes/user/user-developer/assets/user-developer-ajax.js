@@ -571,29 +571,15 @@
     };
 
     /**
-     * Ouvrir l'éditeur de soumission
+     * Ouvrir l'éditeur de soumission (placeholder pour futur module)
      */
     SismeDeveloperAjax.openSubmissionEditor = function(submissionId) {
+        // Pour l'instant, placeholder - sera implémenté dans le module de soumission
         this.log('Ouverture éditeur pour soumission:', submissionId);
-        // TODO
-    };
-
-    // Sauvegarder comme brouillon
-    SismeDeveloperAjax.saveGameDraft = function(submissionId) {
-        // TODO
-    };
-
-    // Soumettre le jeu
-    SismeDeveloperAjax.submitGame = function(submissionId) {
-        // TODO
-    };
-
-    /**
-     * Charger l'éditeur de soumission via AJAX
-     */
-    SismeDeveloperAjax.loadSubmissionEditor = function(submissionId) {
-        this.log('Chargement éditeur de soumission:', submissionId);
-        // TODO
+        this.showFeedback('Interface de soumission en cours de développement', 'info');
+        
+        // TODO: Implémenter l'ouverture de l'interface de soumission
+        // Exemple futur: SismeSubmissionEditor.open(submissionId);
     };
 
     /**
