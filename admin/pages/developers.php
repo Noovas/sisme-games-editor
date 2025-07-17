@@ -347,6 +347,7 @@ $page->render_start();
                                     'pending' => '<span style="color: #856404; background: #fff3cd; padding: 4px 8px; border-radius: 3px;">⏳ En attente</span>',
                                     'approved' => '<span style="color: #0c5460; background: #d1ecf1; padding: 4px 8px; border-radius: 3px;">✅ Approuvé</span>',
                                     'rejected' => '<span style="color: #721c24; background: #f8d7da; padding: 4px 8px; border-radius: 3px;">❌ Rejeté</span>',
+                                    'revoked' => '<span style="color: #721c24; background: #f8d7da; padding: 4px 8px; border-radius: 3px;">❌ Révoqué</span>',
                                     'none' => '<span style="color: #6c757d; background: #e9ecef; padding: 4px 8px; border-radius: 3px;">Aucun</span>'
                                 ];
                                 echo $status_labels[$dev_data['status']] ?? 'Inconnu';
