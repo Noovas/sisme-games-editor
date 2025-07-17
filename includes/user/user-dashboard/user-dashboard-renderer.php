@@ -189,9 +189,7 @@ class Sisme_User_Dashboard_Renderer {
      * @return string HTML de la grille
      */
     public static function render_dashboard_grid($dashboard_data, $context = ['is_public' => true]) {
-        // Récupérer les sections accessibles via le hook
-        $user_id = $dashboard_data['user_info']['id'] ?? get_current_user_id();
-        $accessible_sections = $context['accessible_sections'] ?? apply_filters('sisme_dashboard_accessible_sections', ['overview', 'favorites', 'library', 'activity', 'social', 'settings'], $user_id);
+        $accessible_sections = $context['accessible_sections'] ?? ['overview', 'favorites', 'library', 'activity', 'social', 'settings', 'developer'];
         
         ob_start();
         ?>
