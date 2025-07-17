@@ -720,7 +720,6 @@ class Sisme_User_Developer_Renderer {
      * @return string HTML de la section soumission
      */
     public static function render_submit_game_section($user_id, $developer_status, $dashboard_data) {
-        // Vérifier que l'utilisateur est un développeur approuvé
         if ($developer_status !== 'approved') {
             return '<p>Vous devez être un développeur approuvé pour soumettre des jeux.</p>';
         }
@@ -729,14 +728,130 @@ class Sisme_User_Developer_Renderer {
         ?>
         <div class="sisme-submit-game-section">
             <div class="sisme-section-header">
-                <h2 class="sisme-section-title">
-                    <span class="sisme-title-icon">➕</span>
-                    Soumettre un jeu
-                </h2>
+                <div class="sisme-submit-game-intro">
+                    <h3 class="sisme-section-title">➕ Soumettre un nouveau jeu</h3>
+                    <p class="sisme-submit-game-description">
+                        Partagez votre création avec la communauté Sisme Games. Remplissez les informations essentielles pour commencer.
+                    </p>
+                </div>
             </div>
             
             <div class="sisme-submit-game-content">
-                <p>Formulaire de soumission en cours de développement...</p>
+                <form id="sisme-submit-game-form" class="sisme-submit-game-form" method="post">
+                    <?php wp_nonce_field('sisme_submit_game_nonce', 'sisme_submit_game_nonce'); ?>
+                    
+                    <div class="sisme-form-section">
+                        <h4 class="sisme-form-section-title">📋 Informations sur le jeu</h4>
+                        <!-- Nom du jeu -->
+                        <div class="sisme-form-field">
+                            <label for="game_name" class="sisme-form-label sisme-form-section-title">
+                                Nom du jeu <span class="sisme-required">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="game_name" 
+                                name="game_name" 
+                                class="sisme-form-input"
+                                placeholder="Le nom de votre jeu"
+                                maxlength="100"
+                                required
+                            >
+                        </div>
+                        <!-- Description du jeu -->
+                        <div class="sisme-form-field">
+                            <label for="game_description" class="sisme-form-label sisme-form-section-title">
+                                Description courte <span class="sisme-required">*</span>
+                            </label>
+                            <textarea 
+                                id="game_description" 
+                                name="game_description" 
+                                class="sisme-form-textarea"
+                                placeholder="Décrivez votre jeu en 180 caractères maximum"
+                                maxlength="180"
+                                rows="6"
+                                required
+                            ></textarea>
+                        </div>
+
+                        <!-- Lien Teaser Youtube -->
+                        <div class="sisme-form-field">
+                            <label for="game_trailer" class="sisme-form-label sisme-form-section-title">
+                                Teaser Youtube <span class="sisme-required">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="game_trailer" 
+                                name="game_trailer" 
+                                class="sisme-form-input"
+                                placeholder="https://www.youtube.com/watch?v=..."
+                                required
+                            >
+                        </div>
+
+                        <!-- Nom du studio de développement -->
+                        <div class="sisme-form-field">
+                            <label for="game_studio_name" class="sisme-form-label sisme-form-section-title">
+                                Nom et site du studio de développement <span class="sisme-required">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="game_studio_name" 
+                                name="game_studio_name" 
+                                class="sisme-form-input"
+                                placeholder="Nom du Studio"
+                                required
+                            >
+                        </div>
+                        <!-- Lien site web developpeur (optionnel) -->
+                        <div class="sisme-form-field">
+                            <input 
+                                type="text" 
+                                id="game_studio_url" 
+                                name="game_studio_url" 
+                                class="sisme-form-input"
+                                placeholder="https://www.site-du-studio.com"
+                            >
+                        </div>
+
+                        <!-- Nom de l'éditeur -->
+                        <div class="sisme-form-field">
+                            <label for="game_publisher_name" class="sisme-form-label sisme-form-section-title">
+                                Nom et site de l'éditeur <span class="sisme-required">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="game_publisher_name" 
+                                name="game_publisher_name" 
+                                class="sisme-form-input"
+                                placeholder="Nom du Studio"
+                                required
+                            >
+                        </div>
+                        <!-- Lien site web éditeur (optionnel) -->
+                        <div class="sisme-form-field">
+                            <input 
+                                type="text" 
+                                id="game_publisher_url" 
+                                name="game_publisher_url" 
+                                class="sisme-form-input"
+                                placeholder="https://www.site-de-l-editeur.com"
+                            >
+                        </div>
+
+
+                    </div>
+                    
+                    <div class="sisme-form-actions">
+                        <button type="submit" class="sisme-button sisme-button-vert" id="sisme-submit-game-btn">
+                            💾 Enregistrer le brouillon
+                        </button>
+                        <button type="button" class="sisme-button sisme-button-bleu" onclick="SismeDashboard.setActiveSection('developer', true)">
+                            ↩️ Retour à mes jeux
+                        </button>
+                    </div>
+                    
+                    <div id="sisme-submit-game-feedback" class="sisme-form-feedback" style="display: none;"></div>
+                </form>
             </div>
         </div>
         <?php

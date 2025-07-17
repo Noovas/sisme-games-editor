@@ -209,35 +209,25 @@ class Sisme_User_Developer_Loader {
      * Rendu de la section développeur
      */
     public function render_developer_section($content, $section, $dashboard_data) {
-        // DEBUG: Afficher les paramètres reçus
-        error_log("[DEBUG] render_developer_section appelé avec section: $section");
         
         if ($section !== 'developer' && $section !== 'submit-game') {
-            error_log("[DEBUG] Section $section ignorée");
             return $content;
         }
         
         if (!class_exists('Sisme_User_Developer_Renderer')) {
-            error_log("[DEBUG] Classe Sisme_User_Developer_Renderer non trouvée");
             return '<p>Erreur: Module développeur non disponible.</p>';
         }
         
         $user_id = get_current_user_id();
         $developer_status = Sisme_User_Developer_Data_Manager::get_developer_status($user_id);
         
-        error_log("[DEBUG] User ID: $user_id, Status: $developer_status");
-        
-        if ($section === 'submit-game') {
-            error_log("[DEBUG] Traitement section submit-game");
-            
+        if ($section === 'submit-game') {            
             // Vérifier que la méthode existe
             if (!method_exists('Sisme_User_Developer_Renderer', 'render_submit_game_section')) {
-                error_log("[DEBUG] Méthode render_submit_game_section non trouvée");
                 return '<p>Erreur: Méthode render_submit_game_section non trouvée</p>';
             }
             
             $result = Sisme_User_Developer_Renderer::render_submit_game_section($user_id, $developer_status, $dashboard_data);
-            error_log("[DEBUG] Résultat render_submit_game_section: " . strlen($result) . " caractères");
             return $result;
         }
         

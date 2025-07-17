@@ -251,6 +251,9 @@
     border: 1px solid var(--sisme-developer-border);
     border-radius: var(--sisme-dashboard-radius-md);
     padding: var(--sisme-dashboard-space-md);
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
 }
 
 .sisme-form-section-title {
@@ -286,6 +289,7 @@
     font-weight: 500;
     color: var(--sisme-dashboard-text-primary);
     font-size: 0.9rem;
+    margin-top: 15px;
 }
 
 .sisme-required {
