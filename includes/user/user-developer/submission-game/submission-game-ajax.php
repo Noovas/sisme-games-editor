@@ -25,7 +25,7 @@ function sisme_init_submission_game_ajax() {
     
     add_action('wp_ajax_sisme_render_submission_editor', 'sisme_ajax_render_submission_editor');
     add_action('wp_ajax_nopriv_sisme_render_submission_editor', 'sisme_ajax_not_logged_in_submission');
-    
+
     if (defined('WP_DEBUG') && WP_DEBUG) {
         error_log('[Sisme Submission Game] Hooks AJAX enregistrés');
     }
@@ -268,14 +268,14 @@ function sisme_ajax_render_submission_editor() {
         }
     }
     
-    // Charger le loader si nécessaire
-    if (!class_exists('Sisme_Submission_Game_Loader')) {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission-game/submission-game-loader.php';
+    // Charger la classe renderer directement
+    if (!class_exists('Sisme_Submission_Game_Renderer')) {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission-game/submission-game-renderer.php';
     }
-    
+
     // Générer le HTML de l'éditeur
-    $html = Sisme_Submission_Game_Loader::render_submission_editor($submission_id);
-    
+    $html = Sisme_Submission_Game_Renderer::render_editor($submission_id);
+
     if (defined('WP_DEBUG') && WP_DEBUG) {
         error_log("[Sisme Submission Game] Éditeur rendu pour soumission: " . ($submission_id ?: 'nouvelle'));
     }
