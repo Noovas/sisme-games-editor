@@ -79,7 +79,7 @@ class Sisme_Utils_Developer_Roles {
     
     /**
      * Révoquer le statut développeur
-     * CORRECTION : Supprimer SEULEMENT le rôle développeur, garder les autres
+     * Supprimer SEULEMENT le rôle développeur, garder les autres
      */
     public static function revoke_developer($user_id, $admin_notes = '') {
         $user = get_userdata($user_id);
@@ -87,7 +87,7 @@ class Sisme_Utils_Developer_Roles {
             return false;
         }
         
-        // CORRECTION: Supprimer SEULEMENT le rôle développeur (garder admin/subscriber)
+        // Supprimer SEULEMENT le rôle développeur (garder admin/subscriber)
         $user->remove_role(self::ROLE_DEVELOPER);
         
         // Si l'utilisateur n'a plus de rôles, lui donner subscriber par défaut
@@ -96,7 +96,7 @@ class Sisme_Utils_Developer_Roles {
         }
         
         // Mettre à jour le statut développeur vers "none"
-        update_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_STATUS, Sisme_Utils_Users::DEVELOPER_STATUS_NONE);
+        update_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_STATUS, Sisme_Utils_Users::DEVELOPER_STATUS_REVOKED);
         
         // Mettre à jour les données de candidature
         $application = get_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_APPLICATION, true);
@@ -111,6 +111,20 @@ class Sisme_Utils_Developer_Roles {
         }
         
         return true;
+    }
+
+    /**
+     * Réactiver un développeur révoqué
+     */
+    public static function reactivate_developer($user_id, $admin_notes = '') {
+        // Vérifier que le statut est bien 'revoked'
+        $status = get_user_meta($user_id, Sisme_Utils_Users::META_DEVELOPER_STATUS, true);
+        if ($status !== Sisme_Utils_Users::DEVELOPER_STATUS_REVOKED) {
+            return false;
+        }
+        
+        // Réactiver directement (même logique que approve_application)
+        return self::approve_application($user_id, $admin_notes);
     }
     
     /**

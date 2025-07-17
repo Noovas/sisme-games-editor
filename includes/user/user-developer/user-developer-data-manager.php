@@ -32,7 +32,8 @@ class Sisme_User_Developer_Data_Manager {
             Sisme_Utils_Users::DEVELOPER_STATUS_NONE, 
             Sisme_Utils_Users::DEVELOPER_STATUS_PENDING, 
             Sisme_Utils_Users::DEVELOPER_STATUS_APPROVED, 
-            Sisme_Utils_Users::DEVELOPER_STATUS_REJECTED
+            Sisme_Utils_Users::DEVELOPER_STATUS_REJECTED,
+            Sisme_Utils_Users::DEVELOPER_STATUS_REVOKED
         ];
         
         if (!in_array($status, $valid_statuses)) {

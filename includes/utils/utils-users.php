@@ -59,6 +59,7 @@ class Sisme_Utils_Users {
     const DEVELOPER_STATUS_PENDING = 'pending';
     const DEVELOPER_STATUS_APPROVED = 'approved';
     const DEVELOPER_STATUS_REJECTED = 'rejected';
+    const DEVELOPER_STATUS_REVOKED = 'revoked';
 
     /**
      * Champs de candidature développeur

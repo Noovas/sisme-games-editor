@@ -52,6 +52,14 @@ if (isset($_POST['action']) && isset($_POST['user_id']) && wp_verify_nonce($_POS
                 echo '</div>';
             });
         }
+    } elseif ($action === 'reactivate') {
+        if (Sisme_Utils_Developer_Roles::reactivate_developer($user_id, $admin_notes)) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-success is-dismissible">';
+                echo '<p>✅ Développeur réactivé avec succès !</p>';
+                echo '</div>';
+            });
+        }
     }
 }
 
@@ -384,6 +392,16 @@ $page->render_start();
                                                 class="button button-link-delete button-small"
                                                 onclick="return confirm('Révoquer le statut développeur ?')">
                                             🔄 Révoquer
+                                        </button>
+                                    </form>
+                                <?php elseif ($dev_data['status'] === 'revoked'): ?>
+                                    <form method="post" style="display: inline;">
+                                        <?php wp_nonce_field('sisme_developer_action'); ?>
+                                        <input type="hidden" name="user_id" value="<?php echo $dev_data['user_info']['ID']; ?>">
+                                        <button type="submit" name="action" value="reactivate" 
+                                                class="button button-primary button-small"
+                                                onclick="return confirm('Réactiver ce développeur ?')">
+                                            ✅ Réactiver
                                         </button>
                                     </form>
                                 <?php else: ?>
