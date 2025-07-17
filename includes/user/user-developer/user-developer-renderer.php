@@ -983,11 +983,14 @@ class Sisme_User_Developer_Renderer {
                         </div>
                     </div>
 
-                    <!-- Section Test Crop -->
-                    <div class="sisme-form-section">
-                        <h4 class="sisme-form-section-title">🧪 Test Crop Image</h4>
-                        <div id="simpleCropTest" data-simple-cropper="simpleCropTest"></div>
-                    </div>
+                    <!-- Cover horizontale -->
+                    <div id="cropper1" data-simple-cropper data-ratio-type="cover_horizontal"></div>
+
+                    <!-- Cover verticale -->
+                    <div id="cropper2" data-simple-cropper data-ratio-type="cover_vertical"></div>
+
+                    <!-- Screenshot -->
+                    <div id="cropper3" data-simple-cropper data-ratio-type="screenshot"></div>
                     
                     <div class="sisme-form-actions">
                         <button type="submit" class="sisme-button sisme-button-vert" id="sisme-submit-game-btn">

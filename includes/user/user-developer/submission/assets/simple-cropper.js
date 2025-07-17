@@ -1,16 +1,49 @@
 /**
  * File: /sisme-games-editor/includes/user/user-developer/submission/assets/simple-cropper.js
- * SimpleCropper isolé pour réutilisation
+ * SimpleCropper avec support multi-ratio
+ * 
+ * RESPONSABILITÉ:
+ * - Gestion de 3 ratios différents via paramètre
+ * - Même fonctionnement que l'original
+ * - Upload AJAX identique
+ * 
+ * DÉPENDANCES:
+ * - Cropper.js (CDN)
+ * - sismeAjax (localization)
  */
 
 class SimpleCropper {
-    constructor(containerId) {
+    constructor(containerId, ratioType = 'cover_horizontal') {
         this.container = document.getElementById(containerId);
         if (!this.container) {
             console.error('SimpleCropper: Container non trouvé:', containerId);
             return;
         }
         
+        // Configuration des ratios
+        this.ratios = {
+            'cover_horizontal': {
+                ratio: 920 / 430,
+                width: 920,
+                height: 430,
+                label: 'Cover Horizontale (920x430)'
+            },
+            'cover_vertical': {
+                ratio: 600 / 900,
+                width: 600,
+                height: 900,
+                label: 'Cover Verticale (600x900)'
+            },
+            'screenshot': {
+                ratio: 1920 / 1080,
+                width: 1920,
+                height: 1080,
+                label: 'Capture d\'écran (1920x1080)'
+            }
+        };
+        
+        this.ratioType = ratioType;
+        this.config = this.ratios[ratioType] || this.ratios['cover_horizontal'];
         this.cropper = null;
         this.init();
     }
@@ -23,7 +56,7 @@ class SimpleCropper {
                 <div id="imageContainer_${Date.now()}" style="display:none;">
                     <img id="cropImage_${Date.now()}" style="max-width: 100%;" />
                     <br><br>
-                    <button type="button" id="cropBtn_${Date.now()}">Crop Image (920x430)</button>
+                    <button type="button" id="cropBtn_${Date.now()}">Crop Image (${this.config.label})</button>
                     <button type="button" id="cancelBtn_${Date.now()}">Annuler</button>
                 </div>
                 <div id="result_${Date.now()}" style="display:none;">
@@ -36,7 +69,6 @@ class SimpleCropper {
             </div>
         `;
 
-        // Stocker les IDs uniques
         this.ids = {
             fileInput: this.container.querySelector('input[type="file"]').id,
             imageContainer: this.container.querySelector('div[id^="imageContainer"]').id,
@@ -78,13 +110,12 @@ class SimpleCropper {
             document.getElementById(this.ids.imageContainer).style.display = 'block';
             document.getElementById(this.ids.result).style.display = 'none';
             
-            // Initialiser Cropper.js
             if (this.cropper) {
                 this.cropper.destroy();
             }
             
             this.cropper = new Cropper(cropImage, {
-                aspectRatio: 920 / 430,
+                aspectRatio: this.config.ratio,
                 viewMode: 2,
                 autoCropArea: 0.8
             });
@@ -96,8 +127,8 @@ class SimpleCropper {
         if (!this.cropper) return;
 
         const canvas = this.cropper.getCroppedCanvas({
-            width: 920,
-            height: 430
+            width: this.config.width,
+            height: this.config.height
         });
 
         canvas.toBlob((blob) => {
@@ -105,18 +136,18 @@ class SimpleCropper {
         }, 'image/jpeg', 0.9);
     }
 
-    uploadImage(blob, cropData) {
-        // Debug avant envoi
+    uploadImage(blob) {
         console.log('=== DEBUG UPLOAD ===');
         console.log('sismeAjax:', sismeAjax);
         console.log('Blob size:', blob.size);
+        console.log('Ratio type:', this.ratioType);
         
         const formData = new FormData();
         formData.append('action', 'sisme_simple_crop_upload');
         formData.append('security', sismeAjax.nonce);
-        formData.append('image', blob, 'cropped-image.jpg');
+        formData.append('image', blob, `cropped-${this.ratioType}-image.jpg`);
+        formData.append('ratio_type', this.ratioType);
 
-        // Debug FormData
         console.log('FormData contents:');
         for (let pair of formData.entries()) {
             console.log(pair[0] + ': ' + (pair[1] instanceof File ? 'File(' + pair[1].size + ' bytes)' : pair[1]));
@@ -131,10 +162,7 @@ class SimpleCropper {
         .then(response => {
             console.log('=== RESPONSE DEBUG ===');
             console.log('Status:', response.status);
-            console.log('StatusText:', response.statusText);
-            console.log('Headers:', response.headers);
             
-            // Vérifier si c'est du JSON valide
             return response.text().then(text => {
                 console.log('Raw response:', text);
                 try {
@@ -148,12 +176,21 @@ class SimpleCropper {
         .then(data => {
             console.log('=== PARSED DATA ===');
             console.log('Full data:', data);
-            console.log('data.success:', data.success);
-            console.log('data.data:', data.data);
             
             if (data.success) {
                 this.showResult(data.data.url);
                 this.showFeedback('Image uploadée avec succès !');
+                
+                // Trigger custom event avec les données
+                const event = new CustomEvent('imageProcessed', {
+                    detail: {
+                        url: data.data.url,
+                        attachmentId: data.data.attachment_id,
+                        ratioType: this.ratioType,
+                        dimensions: this.config
+                    }
+                });
+                this.container.dispatchEvent(event);
             } else {
                 const message = data.data ? data.data.message : data.message || 'Erreur inconnue';
                 this.showFeedback('Erreur serveur: ' + message);
@@ -161,9 +198,7 @@ class SimpleCropper {
         })
         .catch(error => {
             console.error('=== CATCH ERROR ===');
-            console.error('Error type:', typeof error);
-            console.error('Error message:', error.message);
-            console.error('Full error:', error);
+            console.error('Error:', error);
             this.showFeedback('Erreur de connexion: ' + error.message);
         });
     }
@@ -197,15 +232,15 @@ class SimpleCropper {
     }
 }
 
-// Auto-initialisation pour les éléments avec data-attribute
+// Auto-initialisation
 document.addEventListener('DOMContentLoaded', function() {
-    // Attendre que Cropper.js soit chargé
     function initWhenReady() {
         if (typeof Cropper !== 'undefined') {
             document.querySelectorAll('[data-simple-cropper]').forEach(element => {
                 const containerId = element.id || element.getAttribute('data-simple-cropper');
+                const ratioType = element.getAttribute('data-ratio-type') || 'cover_horizontal';
                 if (containerId) {
-                    new SimpleCropper(containerId);
+                    new SimpleCropper(containerId, ratioType);
                 }
             });
         } else {
@@ -216,5 +251,4 @@ document.addEventListener('DOMContentLoaded', function() {
     initWhenReady();
 });
 
-// Export pour usage global
 window.SimpleCropper = SimpleCropper;

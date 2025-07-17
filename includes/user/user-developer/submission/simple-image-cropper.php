@@ -1,7 +1,15 @@
 <?php
 /**
  * File: /sisme-games-editor/includes/user/user-developer/submission/simple-image-cropper.php
- * Version minimaliste du crop d'image - Juste pour tester
+ * Version mise à jour avec support multi-ratio
+ * 
+ * RESPONSABILITÉ:
+ * - Support des 3 ratios : cover_horizontal, cover_vertical, screenshot
+ * - Upload et crop selon le ratio demandé
+ * - Validation par type de ratio
+ * 
+ * DÉPENDANCES:
+ * - WordPress Media API
  */
 
 if (!defined('ABSPATH')) {
@@ -10,19 +18,49 @@ if (!defined('ABSPATH')) {
 
 class Sisme_Simple_Image_Cropper {
     
+    // Configuration des ratios supportés
+    private static $ratio_configs = [
+        'cover_horizontal' => [
+            'width' => 920,
+            'height' => 430,
+            'max_size' => 5 * 1024 * 1024
+        ],
+        'cover_vertical' => [
+            'width' => 600,
+            'height' => 900,
+            'max_size' => 5 * 1024 * 1024
+        ],
+        'screenshot' => [
+            'width' => 1920,
+            'height' => 1080,
+            'max_size' => 8 * 1024 * 1024
+        ]
+    ];
+    
     /**
-     * Traiter l'upload simple d'une image
+     * Traiter l'upload avec support multi-ratio
+     * @param array $file Données $_FILES['image']
+     * @param string $ratio_type Type de ratio
+     * @return int|WP_Error attachment_id ou erreur
      */
-    public static function process_upload($file) {
+    public static function process_upload($file, $ratio_type = 'cover_horizontal') {
+        // Valider le type de ratio
+        if (!array_key_exists($ratio_type, self::$ratio_configs)) {
+            return new WP_Error('invalid_ratio_type', 'Type de ratio non supporté: ' . $ratio_type);
+        }
+        
+        $config = self::$ratio_configs[$ratio_type];
+        
         // Validation basique
         $allowed_types = ['image/jpeg', 'image/jpg', 'image/png'];
         if (!in_array($file['type'], $allowed_types)) {
             return new WP_Error('invalid_file_type', 'Type de fichier non autorisé (JPG, PNG uniquement)');
         }
 
-        // Taille max 5MB
-        if ($file['size'] > 5 * 1024 * 1024) {
-            return new WP_Error('file_too_large', 'Fichier trop volumineux (max 5MB)');
+        // Taille max selon le ratio
+        if ($file['size'] > $config['max_size']) {
+            $max_mb = round($config['max_size'] / (1024 * 1024), 1);
+            return new WP_Error('file_too_large', "Fichier trop volumineux (max {$max_mb}MB pour {$ratio_type})");
         }
 
         // Upload WordPress standard
@@ -37,7 +75,7 @@ class Sisme_Simple_Image_Cropper {
             return new WP_Error('upload_error', $uploaded_file['error']);
         }
 
-        // Créer l'attachement
+        // Créer l'attachement avec métadonnées du ratio
         $attachment = [
             'post_mime_type' => $uploaded_file['type'],
             'post_title' => sanitize_file_name($uploaded_file['file']),
@@ -58,14 +96,30 @@ class Sisme_Simple_Image_Cropper {
 
         $metadata = wp_generate_attachment_metadata($attachment_id, $uploaded_file['file']);
         wp_update_attachment_metadata($attachment_id, $metadata);
+        
+        // Ajouter les métadonnées du ratio
+        update_post_meta($attachment_id, '_sisme_ratio_type', $ratio_type);
+        update_post_meta($attachment_id, '_sisme_ratio_config', $config);
 
         return $attachment_id;
     }
 
     /**
-     * Crop une image existante
+     * Crop une image avec les dimensions du ratio spécifié
+     * @param int $attachment_id ID de l'attachement
+     * @param int $x Position X du crop
+     * @param int $y Position Y du crop
+     * @param int $width Largeur du crop
+     * @param int $height Hauteur du crop
+     * @param string $ratio_type Type de ratio pour les dimensions finales
+     * @return int|WP_Error
      */
-    public static function crop_image($attachment_id, $x, $y, $width, $height, $target_width = 920, $target_height = 430) {
+    public static function crop_image($attachment_id, $x, $y, $width, $height, $ratio_type = 'cover_horizontal') {
+        if (!array_key_exists($ratio_type, self::$ratio_configs)) {
+            return new WP_Error('invalid_ratio_type', 'Type de ratio non supporté');
+        }
+        
+        $config = self::$ratio_configs[$ratio_type];
         $image_path = get_attached_file($attachment_id);
         
         if (!$image_path) {
@@ -85,8 +139,8 @@ class Sisme_Simple_Image_Cropper {
             return $crop_result;
         }
 
-        // Redimensionner
-        $resize_result = $image_editor->resize($target_width, $target_height, false);
+        // Redimensionner selon la config du ratio
+        $resize_result = $image_editor->resize($config['width'], $config['height'], false);
         if (is_wp_error($resize_result)) {
             return $resize_result;
         }
@@ -105,5 +159,22 @@ class Sisme_Simple_Image_Cropper {
         wp_update_attachment_metadata($attachment_id, $metadata);
 
         return $attachment_id;
+    }
+    
+    /**
+     * Obtenir la configuration d'un ratio
+     * @param string $ratio_type
+     * @return array|null
+     */
+    public static function get_ratio_config($ratio_type) {
+        return self::$ratio_configs[$ratio_type] ?? null;
+    }
+    
+    /**
+     * Obtenir tous les ratios disponibles
+     * @return array
+     */
+    public static function get_available_ratios() {
+        return array_keys(self::$ratio_configs);
     }
 }
