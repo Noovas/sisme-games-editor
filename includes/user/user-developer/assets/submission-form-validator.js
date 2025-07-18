@@ -616,7 +616,8 @@ class GameSectionsManager {
         this.addButton.addEventListener('click', () => this.addSection());
         
         this.container.addEventListener('click', (e) => {
-            if (e.target.classList.contains('sisme-remove-section')) {
+            if (e.target.matches('button[data-section-index]') && 
+                e.target.classList.contains('sisme-remove-section')) {
                 this.removeSection(e.target.dataset.sectionIndex);
             }
         });
@@ -704,7 +705,7 @@ class GameSectionsManager {
                                   rows="4"></textarea>
                     </div>
                     
-                    <div class="sisme-form-field">
+                    <div class="sisme-form-field sisme-cropper-container">
                         <label class="sisme-form-label">Image de la section (optionnel)</label>
                         <div class="sisme-section-image-upload" data-section-index="${index}">
                             <div class="sisme-upload-area">
@@ -734,10 +735,14 @@ class GameSectionsManager {
         const sections = this.container.querySelectorAll('.sisme-section-item');
         sections.forEach((section, index) => {
             const title = section.querySelector('.sisme-section-item-title');
-            title.textContent = `Section ${index + 1}`;
-            
-            const removeBtn = section.querySelector('.sisme-remove-section');
-            removeBtn.disabled = index === 0;
+            if (title) {
+                title.textContent = `Section ${index + 1}`;
+            }
+
+            const removeBtn = section.querySelector('button[data-section-index]');
+            if (removeBtn) {
+                removeBtn.disabled = index === 0;
+            }
         });
     }
     

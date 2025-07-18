@@ -61,9 +61,10 @@ body,
     transition: var(--sisme-transition-all);
 }
 
-.sisme-button:hover {
+.sisme-button:hover,
+.sisme-btn:hover {
     color: white !important;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
 .sisme-button-vert {

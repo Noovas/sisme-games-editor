@@ -344,7 +344,7 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
         }
         
         .sisme-btn:hover {
-            transform: translateY(-1px);
+            transform: translateY(-1px) !important;
             background: var(--sisme-color-primary-dark);
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(161, 183, 141, 0.3);

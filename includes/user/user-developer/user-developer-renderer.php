@@ -1048,7 +1048,7 @@ class Sisme_User_Developer_Renderer {
                                                 required></textarea>
                                     </div>
                                     
-                                    <div class="sisme-form-field">
+                                    <div class="sisme-form-field sisme-cropper-container">
                                         <label class="sisme-form-label">Image de la section (optionnel)</label>
                                         <div class="sisme-section-image-upload" data-section-index="0">
                                             <div class="sisme-upload-area">
@@ -1085,10 +1085,10 @@ class Sisme_User_Developer_Renderer {
                     <!-- Bouton de soumission conditionnel -->
                     <div class="sisme-form-section">
                         <div class="sisme-form-actions">
-                            <button type="submit" class="sisme-button sisme-button-vert" id="sisme-submit-game-btn">
+                            <button type="submit" class="sisme-btn sisme-button-vert" id="sisme-submit-game-btn">
                                 💾 Enregistrer le brouillon
                             </button>
-                            <button type="button" class="sisme-button sisme-button-bleu" onclick="SismeDashboard.setActiveSection('developer', true)">
+                            <button type="button" class="sisme-btn sisme-button-bleu" onclick="SismeDashboard.setActiveSection('developer', true)">
                                 ↩️ Retour à mes jeux
                             </button>
                         </div>
