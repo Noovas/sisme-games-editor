@@ -107,10 +107,17 @@ class SubmissionFormValidator {
         this.initializeValidationState();
         this.bindTextFieldEvents();
         this.bindImageEvents();
+        this.initSectionsManager();
+        this.validateFirstSection();
         this.validateForm();
+
         this.isInitialized = true;
         
         console.log('SubmissionFormValidator: Événements liés, validation initiale effectuée');
+    }
+
+    initSectionsManager() {
+        this.sectionsManager = new GameSectionsManager();
     }
     
     initializeValidationState() {
@@ -121,6 +128,12 @@ class SubmissionFormValidator {
                 touched: false
             };
         });
+
+        this.validationState['first_section'] = {
+            isValid: false,
+            message: '',
+            touched: false
+        };
         
         Object.keys(this.imageRules).forEach(imageType => {
             this.validationState[imageType] = {
@@ -515,6 +528,289 @@ class SubmissionFormValidator {
             uploadedImages: this.uploadedImages,
             isValid: isFormValid
         };
+    }
+
+    validateFirstSection() {
+        if (!this.sectionsManager) {
+            this.validationState['first_section'] = {
+                isValid: false,
+                message: 'Gestionnaire de sections non initialisé',
+                touched: false
+            };
+            return;
+        }
+        
+        const sections = this.sectionsManager.getSections();
+        const firstSection = sections[0];
+        
+        let isValid = true;
+        let errorMessage = '';
+        
+        if (!firstSection) {
+            isValid = false;
+            errorMessage = 'La première section est obligatoire';
+        } else {
+            if (!firstSection.title || firstSection.title.trim().length < 3) {
+                isValid = false;
+                errorMessage = 'Le titre de la première section doit faire au moins 3 caractères';
+            } else if (!firstSection.content || firstSection.content.trim().length < 20) {
+                isValid = false;
+                errorMessage = 'Le contenu de la première section doit faire au moins 20 caractères';
+            }
+        }
+        
+        this.validationState['first_section'] = {
+            isValid: isValid,
+            message: errorMessage,
+            touched: true
+        };
+        
+        // Affichage visuel de l'erreur
+        this.updateFirstSectionVisual(isValid, errorMessage);
+    }
+
+    // Ajouter la méthode pour l'affichage visuel :
+    updateFirstSectionVisual(isValid, message) {
+        const firstSection = document.querySelector('.sisme-section-item[data-section-index="0"]');
+        if (!firstSection) return;
+        
+        // Supprimer les anciennes erreurs
+        const existingError = firstSection.querySelector('.sisme-first-section-error');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Ajouter bordure rouge si erreur
+        firstSection.classList.toggle('sisme-section-error', !isValid);
+        
+        // Afficher le message d'erreur
+        if (!isValid && message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'sisme-first-section-error';
+            errorDiv.style.cssText = 'display: none; color: #dc3545; font-size: 0.85rem; margin-top: 8px; padding: 8px; background: rgba(220, 53, 69, 0.1); border-radius: 4px; border: 1px solid rgba(220, 53, 69, 0.2);';
+            errorDiv.textContent = message;
+            
+            const firstSectionBody = firstSection.querySelector('.sisme-section-item-body');
+            if (firstSectionBody) {
+                firstSectionBody.appendChild(errorDiv);
+            }
+        }
+    }
+}
+
+
+class GameSectionsManager {
+    constructor() {
+        this.container = document.getElementById('game-sections-container');
+        this.addButton = document.getElementById('add-game-section');
+        this.maxSections = 10;
+        this.sectionIndex = 1;
+        
+        if (this.container && this.addButton) {
+            this.bindEvents();
+            this.updateSectionNumbers();
+        }
+    }
+    
+    bindEvents() {
+        this.addButton.addEventListener('click', () => this.addSection());
+        
+        this.container.addEventListener('click', (e) => {
+            if (e.target.classList.contains('sisme-remove-section')) {
+                this.removeSection(e.target.dataset.sectionIndex);
+            }
+        });
+        
+        this.container.addEventListener('change', (e) => {
+            if (e.target.classList.contains('sisme-section-image-input')) {
+                this.handleImageUpload(e.target);
+            }
+        });
+        
+        this.container.addEventListener('click', (e) => {
+            if (e.target.classList.contains('sisme-remove-section-image')) {
+                this.removeSectionImage(e.target.closest('.sisme-section-image-upload'));
+            }
+        });
+
+        this.container.addEventListener('input', (e) => {
+            if (e.target.matches('.section-title-input, .section-content-textarea')) {
+                const section = e.target.closest('.sisme-section-item');
+                if (section && section.dataset.sectionIndex === '0') {
+                    // Validation de la première section en temps réel
+                    if (window.submissionValidator) {
+                        setTimeout(() => {
+                            window.submissionValidator.validateFirstSection();
+                            window.submissionValidator.validateForm();
+                        }, 100);
+                    }
+                }
+            }
+        });
+    }
+    
+    addSection() {
+        const currentSections = this.container.querySelectorAll('.sisme-section-item').length;
+        
+        if (currentSections >= this.maxSections) {
+            alert(`Vous ne pouvez pas ajouter plus de ${this.maxSections} sections.`);
+            return;
+        }
+        
+        const sectionHtml = this.createSectionHTML(this.sectionIndex);
+        this.container.insertAdjacentHTML('beforeend', sectionHtml);
+        this.sectionIndex++;
+        this.updateSectionNumbers();
+        this.updateAddButton();
+    }
+    
+    removeSection(sectionIndex) {
+        const section = this.container.querySelector(`[data-section-index="${sectionIndex}"]`);
+        if (section) {
+            section.remove();
+            this.updateSectionNumbers();
+            this.updateAddButton();
+        }
+    }
+    
+    createSectionHTML(index) {
+        return `
+            <div class="sisme-section-item" data-section-index="${index}">
+                <div class="sisme-section-item-header">
+                    <h5 class="sisme-section-item-title sisme-form-section-title">Section ${index + 1}</h5>
+                    <div class="sisme-section-actions">
+                        <button type="button" class="sisme-button-orange sisme-button sisme-btn-icon sisme-remove-section" 
+                                title="Supprimer cette section" data-section-index="${index}">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="sisme-section-item-body">
+                    <div class="sisme-form-field">
+                        <label class="sisme-form-label">Titre de la section</label>
+                        <input type="text" 
+                               name="sections[${index}][title]" 
+                               class="sisme-form-input section-title-input"
+                               placeholder="Ex: Gameplay, Histoire, Caractéristiques..."
+                               maxlength="100">
+                    </div>
+                    
+                    <div class="sisme-form-field">
+                        <label class="sisme-form-label">Contenu de la section</label>
+                        <textarea name="sections[${index}][content]" 
+                                  class="sisme-form-textarea section-content-textarea"
+                                  placeholder="Décrivez cette partie de votre jeu..."
+                                  rows="4"></textarea>
+                    </div>
+                    
+                    <div class="sisme-form-field">
+                        <label class="sisme-form-label">Image de la section (optionnel)</label>
+                        <div class="sisme-section-image-upload" data-section-index="${index}">
+                            <div class="sisme-upload-area">
+                                <input type="file" 
+                                       accept="image/*,image/gif" 
+                                       class="sisme-section-image-input"
+                                       data-section-index="${index}">
+                                <div class="sisme-upload-info">
+                                    <span class="sisme-upload-icon">🖼️</span>
+                                    <span class="sisme-upload-text">Cliquez pour ajouter une image</span>
+                                    <span class="sisme-upload-hint">JPG, PNG ou GIF</span>
+                                </div>
+                            </div>
+                            <div class="sisme-section-image-preview" style="display: none;">
+                                <img class="sisme-section-preview-img" src="" alt="Aperçu">
+                                <button type="button" class="sisme-remove-section-image" title="Supprimer l'image">❌</button>
+                                <input type="hidden" name="sections[${index}][image_id]" class="section-image-id">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    updateSectionNumbers() {
+        const sections = this.container.querySelectorAll('.sisme-section-item');
+        sections.forEach((section, index) => {
+            const title = section.querySelector('.sisme-section-item-title');
+            title.textContent = `Section ${index + 1}`;
+            
+            const removeBtn = section.querySelector('.sisme-remove-section');
+            removeBtn.disabled = index === 0;
+        });
+    }
+    
+    updateAddButton() {
+        const currentSections = this.container.querySelectorAll('.sisme-section-item').length;
+        this.addButton.disabled = currentSections >= this.maxSections;
+        
+        if (currentSections >= this.maxSections) {
+            this.addButton.textContent = `Maximum ${this.maxSections} sections atteint`;
+        } else {
+            this.addButton.textContent = '➕ Ajouter une section';
+        }
+    }
+    
+    handleImageUpload(input) {
+        const file = input.files[0];
+        if (!file) return;
+        
+        if (!file.type.startsWith('image/')) {
+            alert('Veuillez sélectionner une image valide.');
+            input.value = '';
+            return;
+        }
+        
+        if (file.size > 5 * 1024 * 1024) {
+            alert('L\'image ne doit pas dépasser 5MB.');
+            input.value = '';
+            return;
+        }
+        
+        const sectionUpload = input.closest('.sisme-section-image-upload');
+        const preview = sectionUpload.querySelector('.sisme-section-image-preview');
+        const img = preview.querySelector('.sisme-section-preview-img');
+        const uploadArea = sectionUpload.querySelector('.sisme-upload-area');
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            img.src = e.target.result;
+            uploadArea.style.display = 'none';
+            preview.style.display = 'block';
+            
+            const hiddenInput = preview.querySelector('.section-image-id');
+            hiddenInput.value = 'temp_' + Date.now();
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    removeSectionImage(sectionUpload) {
+        const preview = sectionUpload.querySelector('.sisme-section-image-preview');
+        const uploadArea = sectionUpload.querySelector('.sisme-upload-area');
+        const input = sectionUpload.querySelector('.sisme-section-image-input');
+        const hiddenInput = preview.querySelector('.section-image-id');
+        
+        preview.style.display = 'none';
+        uploadArea.style.display = 'block';
+        input.value = '';
+        hiddenInput.value = '';
+    }
+    
+    getSections() {
+        const sections = [];
+        this.container.querySelectorAll('.sisme-section-item').forEach(section => {
+            const titleInput = section.querySelector('.section-title-input');
+            const contentTextarea = section.querySelector('.section-content-textarea');
+            const imageIdInput = section.querySelector('.section-image-id');
+            
+            sections.push({
+                title: titleInput ? titleInput.value.trim() : '',
+                content: contentTextarea ? contentTextarea.value.trim() : '',
+                image_id: imageIdInput ? imageIdInput.value : ''
+            });
+        });
+        return sections;
     }
 }
 

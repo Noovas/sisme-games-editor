@@ -1011,6 +1011,76 @@ class Sisme_User_Developer_Renderer {
                             <div id="cropper3" data-simple-cropper data-ratio-type="screenshot" data-max-images="9"></div>
                         </div>
                     </div>
+
+                    <!-- Description longue du jeu -->
+                    <div class="sisme-form-section">
+                        <h4 class="sisme-form-section-title">📖 Description longue du jeu</h4>
+                        <p class="sisme-form-section-description">
+                            Créez une présentation détaillée de votre jeu avec des sections personnalisées. 
+                            Chaque section peut contenir un titre, du texte et une image optionnelle.
+                        </p>
+                        
+                        <!-- Container des sections -->
+                        <div id="game-sections-container" class="sisme-game-sections-container">
+                            <!-- Section par défaut -->
+                            <div class="sisme-section-item" data-section-index="0">
+                                <div class="sisme-section-item-header">
+                                    <h5 class="sisme-section-item-title sisme-form-section-title">Section 1 <span style="color: #dc3545;">*</span></h5>
+                                </div>
+                                
+                                <div class="sisme-section-item-body">
+                                    <div class="sisme-form-field">
+                                        <label class="sisme-form-label">Titre de la section <span style="color: #dc3545;">*</span></label>
+                                        <input type="text" 
+                                            name="sections[0][title]" 
+                                            class="sisme-form-input section-title-input"
+                                            placeholder="Ex: Gameplay, Histoire, Caractéristiques..."
+                                            maxlength="100"
+                                            required>
+                                    </div>
+                                    
+                                    <div class="sisme-form-field">
+                                        <label class="sisme-form-label">Contenu de la section <span style="color: #dc3545;">*</span></label>
+                                        <textarea name="sections[0][content]" 
+                                                class="sisme-form-textarea section-content-textarea"
+                                                placeholder="Décrivez cette partie de votre jeu... (minimum 20 caractères)"
+                                                rows="4"
+                                                required></textarea>
+                                    </div>
+                                    
+                                    <div class="sisme-form-field">
+                                        <label class="sisme-form-label">Image de la section (optionnel)</label>
+                                        <div class="sisme-section-image-upload" data-section-index="0">
+                                            <div class="sisme-upload-area">
+                                                <input type="file" 
+                                                    accept="image/*,image/gif" 
+                                                    class="sisme-section-image-input"
+                                                    data-section-index="0">
+                                                <div class="sisme-upload-info">
+                                                    <span class="sisme-upload-icon">🖼️</span>
+                                                    <span class="sisme-upload-text">Cliquez pour ajouter une image</span>
+                                                    <span class="sisme-upload-hint">JPG, PNG ou GIF</span>
+                                                </div>
+                                            </div>
+                                            <div class="sisme-section-image-preview" style="display: none;">
+                                                <img class="sisme-section-preview-img" src="" alt="Aperçu">
+                                                <button type="button" class="sisme-remove-section-image" title="Supprimer l'image">❌</button>
+                                                <input type="hidden" name="sections[0][image_id]" class="section-image-id">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bouton ajouter section -->
+                        <div class="sisme-add-section-container">
+                            <button type="button" id="add-game-section" class="sisme-btn sisme-button-bleu">
+                                ➕ Ajouter une section
+                            </button>
+                            <p class="sisme-add-section-hint">Maximum 10 sections</p>
+                        </div>
+                    </div>
     
                     <!-- Bouton de soumission conditionnel -->
                     <div class="sisme-form-section">

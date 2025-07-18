@@ -1113,7 +1113,7 @@
     border-radius: 6px;
     padding: 15px;
     margin-bottom: 15px;
-    background: #f9f9f9;
+    background: rgba(0, 0, 0, 0.3)
 }
 
 .sisme-upload-section {
