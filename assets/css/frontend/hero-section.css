@@ -331,6 +331,7 @@
     top: 20px;
     z-index: 10;
     overflow-y: auto;
+    height: 90vh;
 }
 
 .sisme-game-meta-container::-webkit-scrollbar {
