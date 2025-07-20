@@ -51,13 +51,12 @@ class Sisme_Cards_Normal_Module {
         
         // Commencer le rendu
         $output = '<article class="' . $css_class . '" data-game-id="' . $game_data[Sisme_Utils_Games::KEY_TERM_ID] . '">';
-        
+        $output .= '<a href="' . esc_url($game_data[Sisme_Utils_Games::KEY_GAME_URL]) . '" class="sisme-card-link-global" title="Découvrir ' . esc_attr($game_data[Sisme_Utils_Games::KEY_NAME]) . '">';
         // Déléguer le rendu par blocs
         $output .= self::render_image_block($game_data);
         $output .= self::render_content_block($game_data, $options);
-        
+        $output .= '</a>';
         $output .= '</article>';
-        
         return $output;
     }
     
@@ -83,7 +82,6 @@ class Sisme_Cards_Normal_Module {
      */
     private static function render_content_block($game_data, $options) {
         $output = '<div class="sisme-card-content">';
-        $output .= '<a href="' . esc_url($game_data[Sisme_Utils_Games::KEY_GAME_URL]) . '">';
         
         // Titre cliquable
         $output .= self::render_title($game_data);
@@ -111,7 +109,6 @@ class Sisme_Cards_Normal_Module {
         // Meta footer
         $output .= self::render_meta_footer($game_data, $options);
         
-        $output.= '</a>';
         $output .= '</div>';
         
         return $output;
@@ -122,10 +119,7 @@ class Sisme_Cards_Normal_Module {
      */
     private static function render_title($game_data) {
         $output = '<h3 class="sisme-card-title">';
-        $output .= '<a href="' . esc_url($game_data[Sisme_Utils_Games::KEY_GAME_URL]) . '" ';
-        $output .= 'title="Découvrir ' . esc_attr($game_data[Sisme_Utils_Games::KEY_NAME]) . '">';
         $output .= esc_html($game_data[Sisme_Utils_Games::KEY_NAME]);
-        $output .= '</a>';
         $output .= '</h3>';
         return $output;
     }
@@ -234,7 +228,7 @@ class Sisme_Cards_Normal_Module {
                 $output .= '<span class="sisme-card-date">' . esc_html($formatted_date) . '</span>';
             }
         }
-        $output .= '<a href="' . esc_url($game_data[Sisme_Utils_Games::KEY_GAME_URL]) . '" class="sisme-card-link">Découvrir →</a>';
+        $output .= '<span>Découvrir →</span>';
         $output .= '</div>';
         return $output;
     }
