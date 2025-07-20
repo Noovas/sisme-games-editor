@@ -578,14 +578,11 @@
    📱 RESPONSIVE DESIGN - STRUCTURE SOLIDE
 ======================================== */
 
-@media (max-width: 768px) {
-    .sisme-game-hero {
-        flex-direction: column;
-        padding: 30px 20px;
-    }
-    
-    .sisme-game-media {
+@media (max-width: 768px) {    
+    .sisme-game-media,
+    .sisme-game-info  {
         width: -webkit-fill-available;
+        min-width: auto;
         margin-right: 0;
         margin-bottom: 30px;
     }
