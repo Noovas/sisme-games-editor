@@ -129,7 +129,8 @@
 
 .sisme-benefits-list li {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: space-between;
     gap: var(--sisme-dashboard-space-md);
     padding: var(--sisme-dashboard-space-md);
     background: var(--sisme-developer-bg-card);
@@ -147,7 +148,6 @@
 .sisme-benefit-icon {
     font-size: 1.2rem;
     display: block;
-    margin-top: 2px;
 }
 
 .sisme-benefits-list li strong {
@@ -273,12 +273,6 @@
     margin-bottom: var(--sisme-dashboard-space-md);
 }
 
-.sisme-form-row-double {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--sisme-dashboard-space-md);
-}
-
 .sisme-form-field {
     display: flex;
     flex-direction: column;
@@ -315,7 +309,6 @@
     outline: none;
     border-color: var(--sisme-dashboard-accent-primary);
     box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
-    background: var(--sisme-dashboard-bg-primary);
 }
 
 .sisme-form-textarea {
@@ -429,11 +422,6 @@
     
     .sisme-developer-form {
         max-height: 95vh;
-    }
-    
-    .sisme-form-row-double {
-        grid-template-columns: 1fr;
-        gap: var(--sisme-dashboard-space-sm);
     }
     
     .sisme-social-inputs {

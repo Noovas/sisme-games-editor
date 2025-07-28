@@ -68,19 +68,19 @@ class Sisme_User_Developer_Renderer {
                     <ul class="sisme-benefits-list">
                         <li>
                             <span class="sisme-benefit-icon">🎮</span>
-                            <strong>Publiez vos jeux</strong> - Partagez vos créations avec notre communauté
+                            <strong>Publiez vos jeux</strong>Partagez vos créations avec notre communauté
                         </li>
                         <li>
                             <span class="sisme-benefit-icon">📊</span>
-                            <strong>Statistiques détaillées</strong> - Suivez les performances de vos jeux
+                            <strong>Statistiques détaillées</strong>Suivez les performances de vos jeux
                         </li>
                         <li>
                             <span class="sisme-benefit-icon">👥</span>
-                            <strong>Profil développeur</strong> - Présentez votre studio et vos projets
+                            <strong>Profil développeur</strong>Présentez votre studio et vos projets
                         </li>
                         <li>
                             <span class="sisme-benefit-icon">🌟</span>
-                            <strong>Visibilité</strong> - Bénéficiez de la promotion de vos jeux
+                            <strong>Visibilité</strong>Bénéficiez de la promotion de vos jeux
                         </li>
                     </ul>
                 </div>
@@ -151,25 +151,25 @@ class Sisme_User_Developer_Renderer {
                                     <label class="sisme-form-label">Réseaux sociaux (optionnel)</label>
                                     <div class="sisme-social-inputs">
                                         <div class="sisme-social-input-group">
-                                            <span class="sisme-social-icon">🐦</span>
+                                            <span class="sisme-social-icon"></span>
                                             <input type="text" 
                                                    name="social_twitter" 
                                                    class="sisme-form-input sisme-social-input" 
-                                                   placeholder="@votre_compte">
+                                                   placeholder="https://x.com/votre_compte">
                                         </div>
                                         <div class="sisme-social-input-group">
-                                            <span class="sisme-social-icon">💬</span>
+                                            <span class="sisme-social-icon"></span>
                                             <input type="text" 
                                                    name="social_discord" 
                                                    class="sisme-form-input sisme-social-input" 
-                                                   placeholder="votre_pseudo#1234">
+                                                   placeholder="https://discord.gg/gmC7FAZDm6">
                                         </div>
                                         <div class="sisme-social-input-group">
-                                            <span class="sisme-social-icon">📷</span>
+                                            <span class="sisme-social-icon"></span>
                                             <input type="text" 
                                                    name="social_instagram" 
                                                    class="sisme-form-input sisme-social-input" 
-                                                   placeholder="@votre_compte">
+                                                   placeholder="https://www.instagram.com/votre_compte">
                                         </div>
                                     </div>
                                 </div>
@@ -279,7 +279,7 @@ class Sisme_User_Developer_Renderer {
                             <div class="sisme-form-row sisme-form-row-double">
                                 <div class="sisme-form-field">
                                     <label for="representative_email" class="sisme-form-label">
-                                        Email de contact <span class="sisme-required">*</span>
+                                        Email <span class="sisme-required">*</span>
                                     </label>
                                     <input type="email" 
                                            id="representative_email" 
