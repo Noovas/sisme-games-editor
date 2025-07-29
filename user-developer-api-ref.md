@@ -36,7 +36,7 @@ Documentation technique pour le module développeur utilisateur.
 //
 // Contenu:
 // - Confirmation réception candidature
-// - Délai d'examen (3-7 jours ouvrés)
+// - Délai d'examen 2 jours ouvrés maximum
 // - Lien vers dashboard
 // - Format texte simple anti-spam
 $success = Sisme_User_Developer_Email_Notifications::send_application_submitted_email(42);

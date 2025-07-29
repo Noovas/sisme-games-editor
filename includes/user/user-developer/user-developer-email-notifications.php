@@ -66,7 +66,7 @@ Date : " . current_time('d/m/Y H:i') . "
 Votre candidature est maintenant en cours d'examen par notre équipe.
 Vous recevrez un email dès qu'elle aura été traitée.
 
-Délai d'examen : 3 à 7 jours ouvrés
+Délai d'examen : 2 jours ouvrés maximum
 
 Vous pouvez suivre l'état de votre candidature sur votre dashboard :
 " . home_url(Sisme_Utils_Users::DASHBOARD_URL) . "
