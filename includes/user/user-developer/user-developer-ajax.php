@@ -519,8 +519,8 @@ function sisme_ajax_save_submission_game() {
         'genres' => array_map('intval', $_POST['game_genres'] ?? []),
         'platforms' => array_map('sanitize_text_field', $_POST['game_platforms'] ?? []),
         'modes' => array_map('sanitize_text_field', $_POST['game_modes'] ?? []),
-        'developers' => array_map('intval', $_POST['game_developers'] ?? []),
-        'publishers' => array_map('intval', $_POST['game_publishers'] ?? []),
+        'game_studio_url' => esc_url_raw($_POST['game_studio_url'] ?? ''),
+        'game_publisher_url' => esc_url_raw($_POST['game_publisher_url'] ?? ''),
         'external_links' => $_POST['external_links'] ?? [],
         
         // Images et média
@@ -669,13 +669,13 @@ function sisme_ajax_submit_submission_game() {
         'game_trailer' => esc_url_raw($_POST['game_trailer'] ?? ''),
         'game_studio_name' => sanitize_text_field($_POST['game_studio_name'] ?? ''),
         'game_publisher_name' => sanitize_text_field($_POST['game_publisher_name'] ?? ''),
-        
+        'game_studio_url' => esc_url_raw($_POST['game_studio_url'] ?? ''),
+        'game_publisher_url' => esc_url_raw($_POST['game_publisher_url'] ?? ''),
+
         // Données complexes
         'genres' => array_map('intval', $_POST['game_genres'] ?? []),
         'platforms' => array_map('sanitize_text_field', $_POST['game_platforms'] ?? []),
         'modes' => array_map('sanitize_text_field', $_POST['game_modes'] ?? []),
-        'developers' => array_map('intval', $_POST['game_developers'] ?? []),
-        'publishers' => array_map('intval', $_POST['game_publishers'] ?? []),
         'external_links' => $_POST['external_links'] ?? [],
         
         // Images et média
@@ -687,7 +687,7 @@ function sisme_ajax_submit_submission_game() {
         
         // Métadonnées de soumission finale
         'metadata' => [
-            'completion_percentage' => 100, // Forcé à 100% pour soumission finale
+            'completion_percentage' => 100,
             'last_step_completed' => 'submitted',
             'submitted_at' => current_time('mysql'),
             'submission_timestamp' => time(),
