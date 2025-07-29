@@ -120,27 +120,24 @@ class Sisme_Submission_Database {
         
         // Données par défaut
         $default_data = [
+            // Section 1: Informations de base (seule section implémentée pour l'instant)
             'game_name' => '',
-            'description' => '',
-            'genres' => [],
-            'platforms' => [],
-            'modes' => [],
-            'developers' => [],
-            'publishers' => [],
-            'release_date' => '',
-            'covers' => [
-                'horizontal' => '',
-                'vertical' => ''
-            ],
-            'screenshots' => '',
-            'trailer_link' => '',
-            'external_links' => [],
+            'game_description' => '',
+            'game_release_date' => '',
+            
+            // Métadonnées globales
             'metadata' => [
-                'completion_percentage' => 0,
-                'last_step_completed' => 'basic',
-                'validation_errors' => []
+                'sections_completed' => [],
+                'last_saved' => '',
+                'created_at' => current_time('mysql')
             ]
         ];
+
+        // NOTE: Les autres sections seront ajoutées au fur et à mesure :
+        // Section 2: game_trailer, game_studio_name, game_studio_url, game_publisher_name, game_publisher_url
+        // Section 3: game_genres[], game_platforms[], game_modes[]  
+        // Section 4: external_links[]
+        // Section 5: cover_horizontal, cover_vertical, screenshots
         
         $merged_data = array_merge($default_data, $game_data);
         

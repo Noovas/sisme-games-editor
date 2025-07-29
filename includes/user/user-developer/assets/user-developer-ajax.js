@@ -579,183 +579,120 @@
         }, 800);
     };
 
-    SismeDeveloperAjax.loadSubmissionDataIntoForm = function(submissionId) {
-        // Mettre à jour le message du loader
-        this.updateLoaderMessage('Récupération des données...');
+    /**
+     * ARCHITECTURE MODULAIRE PAR SECTIONS - Chargement
+     * 
+     * Fonction principale qui orchestre le chargement par sections
+     */
+    SismeDeveloperAjax.loadSubmissionData = function(submissionId) {
+        if (!submissionId) {
+            console.log('[Sisme Load] Aucun ID de soumission');
+            return;
+        }
+        
+        console.log('[Sisme Load] Chargement modulaire ID:', submissionId);
         
         $.ajax({
-            url: this.config.ajaxUrl,
+            url: this.config.ajaxurl,
             type: 'POST',
             data: {
-                action: 'sisme_get_full_submission_data',
+                action: 'sisme_get_submission_details',
                 security: this.config.nonce,
                 submission_id: submissionId
             },
+            dataType: 'json',
             success: function(response) {
-                if (response.success) {
-                    this.updateLoaderMessage('Remplissage du formulaire...');
-                    
+                console.log('[Sisme Load] Réponse complète:', response);
+                
+                if (response.success && response.data && response.data.game_data) {
                     const gameData = response.data.game_data;
                     
-                    const fieldMapping = {
-                        'game_name': 'game_name',
-                        'game_description': 'game_description',
-                        'game_release_date': 'game_release_date',
-                        'game_trailer': 'game_trailer',
-                        'game_studio_name': 'game_studio_name',
-                        'game_studio_url': 'game_studio_url',
-                        'game_publisher_name': 'game_publisher_name',
-                        'game_publisher_url': 'game_publisher_url'
-                    };
+                    // Chargement modulaire par sections
+                    let totalFieldsLoaded = 0;
                     
-                    Object.entries(fieldMapping).forEach(([dbField, formField]) => {
-                        const element = document.getElementById(formField);
-                        if (element && gameData[dbField]) {
-                            element.value = gameData[dbField];
-                            element.dispatchEvent(new Event('input', { bubbles: true }));
-                            element.dispatchEvent(new Event('change', { bubbles: true }));
-                        }
-                    });
+                    // Section 1: Informations de base
+                    const basicLoaded = this.loadSectionBasicInfo(gameData);
+                    totalFieldsLoaded += basicLoaded;
                     
-                    // ✅ CHAMPS COVERS - Structure spéciale
-                    if (gameData.covers) {
-                        ['horizontal', 'vertical'].forEach(type => {
-                            const element = document.getElementById(`cover_${type}`);
-                            if (element && gameData.covers[type]) {
-                                element.value = gameData.covers[type];
-                                element.dispatchEvent(new Event('input', { bubbles: true }));
-                            }
-                        });
-                    }
+                    // TODO: Section 2: Liens utiles (game_trailer, game_studio_name, game_studio_url, game_publisher_name, game_publisher_url)
+                    // const linksLoaded = this.loadSectionLinks(gameData);
+                    // totalFieldsLoaded += linksLoaded;
                     
-                    // ✅ SCREENSHOTS
-                    if (gameData.screenshots) {
-                        const screenshotsField = document.getElementById('screenshots');
-                        if (screenshotsField) {
-                            screenshotsField.value = gameData.screenshots;
-                            screenshotsField.dispatchEvent(new Event('input', { bubbles: true }));
-                        }
-                    }
+                    // TODO: Section 3: Catégories (game_genres[], game_platforms[], game_modes[])
+                    // const categoriesLoaded = this.loadSectionCategories(gameData);
+                    // totalFieldsLoaded += categoriesLoaded;
+                    
+                    // TODO: Section 4: Liens externes (external_links[steam], external_links[epic], external_links[gog], external_links[itch], external_links[website])
+                    // const externalLinksLoaded = this.loadSectionExternalLinks(gameData);
+                    // totalFieldsLoaded += externalLinksLoaded;
+                    
+                    // TODO: Section 5: Images (cover_horizontal, cover_vertical, screenshots)
+                    // const imagesLoaded = this.loadSectionImages(gameData);
+                    // totalFieldsLoaded += imagesLoaded;
                     
                     // Ajouter l'ID de soumission au formulaire
-                    let hiddenField = document.getElementById('current-submission-id');
-                    if (!hiddenField) {
-                        hiddenField = document.createElement('input');
-                        hiddenField.type = 'hidden';
-                        hiddenField.id = 'current-submission-id';
-                        hiddenField.name = 'submission_id';
-                        const form = document.getElementById('sisme-submit-game-form');
-                        if (form) {
-                            form.appendChild(hiddenField);
-                        }
-                    }
-                    hiddenField.value = submissionId;
+                    this.setSubmissionIdInForm(submissionId);
                     
-                    // Remplir les champs avancés (genres, plateformes, modes, liens)
-                    this.fillAdvancedFields(gameData);
-                    
-                    // Finalisation
-                    setTimeout(() => {
-                        this.updateLoaderMessage('Finalisation...');
-                        
-                        // Déclencher la revalidation si le validator existe
-                        if (typeof window.submissionValidator !== 'undefined') {
-                            window.submissionValidator.validateForm();
-                        }
-                        
-                        // Masquer le loader après un court délai
-                        setTimeout(() => {
-                            this.hideLoader();
-                            this.showFeedback('✅ Brouillon chargé avec succès', 'success');
-                        }, 500);
-                        
-                    }, 300);
+                    console.log(`[Sisme Load] Total champs chargés: ${totalFieldsLoaded}`);
+                    this.showFeedback(`✅ Données chargées (${totalFieldsLoaded} champs au total)`, 'success');
                     
                 } else {
-                    this.hideLoader();
-                    this.showFeedback('❌ Impossible de charger les données du brouillon', 'error');
+                    console.error('[Sisme Load] Données invalides:', response);
+                    this.showFeedback('❌ Impossible de charger les données', 'error');
                 }
             }.bind(this),
             error: function(xhr, status, error) {
-                this.log('Erreur chargement données:', {xhr, status, error});
-                this.hideLoader();
+                console.error('[Sisme Load] Erreur chargement:', {xhr, status, error});
                 this.showFeedback('❌ Erreur de connexion lors du chargement', 'error');
             }.bind(this)
         });
     };
 
     /**
-     * Remplir les champs avancés (genres, plateformes, liens, etc.)
+     * MODULE: Chargement section "Informations de base"
      */
-    SismeDeveloperAjax.fillAdvancedFields = function(gameData) {
-        if (gameData.genres && Array.isArray(gameData.genres)) {
-            gameData.genres.forEach(genreId => {
-                const checkbox = document.querySelector(`input[name="game_genres[]"][value="${genreId}"]`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            });
-        }
+    SismeDeveloperAjax.loadSectionBasicInfo = function(gameData) {
+        const basicFields = [
+            'game_name',
+            'game_description', 
+            'game_release_date'
+        ];
+        
+        let fieldsLoaded = 0;
+        
+        basicFields.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (field && gameData[fieldName]) {
+                field.value = gameData[fieldName];
+                
+                // Déclencher les événements pour la validation
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+                field.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                fieldsLoaded++;
+            }
+        });
+        
+        console.log(`[Sisme Load] Section Basic Info: ${fieldsLoaded}/3 champs chargés`);
+        return fieldsLoaded;
+    };
 
-        if (gameData.platforms && Array.isArray(gameData.platforms)) {
-            gameData.platforms.forEach(platform => {
-                const checkbox = document.querySelector(`input[name="game_platforms[]"][value="${platform}"]`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            });
-        }
-
-        if (gameData.modes && Array.isArray(gameData.modes)) {
-            gameData.modes.forEach(mode => {
-                const checkbox = document.querySelector(`input[name="game_modes[]"][value="${mode}"]`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            });
-        }
-        
-        // ✅ LIENS EXTERNES - OK
-        if (gameData.external_links && typeof gameData.external_links === 'object') {
-            Object.entries(gameData.external_links).forEach(([platform, url]) => {
-                const field = document.querySelector(`input[name="external_links[${platform}]"]`);
-                if (field && url) {
-                    field.value = url;
-                    field.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            });
-        }
-        
-        // ✅ SCREENSHOTS - OK
-        if (gameData.screenshots) {
-            const screenshotsField = document.querySelector('[name="screenshots"]');
-            if (screenshotsField) {
-                screenshotsField.value = gameData.screenshots;
-                screenshotsField.dispatchEvent(new Event('input', { bubbles: true }));
+    /**
+     * UTILITAIRE: Ajouter l'ID de soumission au formulaire
+     */
+    SismeDeveloperAjax.setSubmissionIdInForm = function(submissionId) {
+        let submissionIdField = document.getElementById('current-submission-id');
+        if (!submissionIdField) {
+            submissionIdField = document.createElement('input');
+            submissionIdField.type = 'hidden';
+            submissionIdField.id = 'current-submission-id';
+            submissionIdField.name = 'submission_id';
+            const form = document.getElementById('sisme-submit-game-form');
+            if (form) {
+                form.appendChild(submissionIdField);
             }
         }
-        
-        // ✅ COVERS - Mapping structure BDD → Formulaire
-        if (gameData.covers) {
-            if (gameData.covers.horizontal) {
-                const horizontalField = document.querySelector('[name="cover_horizontal"]');
-                if (horizontalField) {
-                    horizontalField.value = gameData.covers.horizontal;
-                }
-            }
-            
-            if (gameData.covers.vertical) {
-                const verticalField = document.querySelector('[name="cover_vertical"]');
-                if (verticalField) {
-                    verticalField.value = gameData.covers.vertical;
-                }
-            }
-        }
-        
-        this.log('Champs avancés remplis avec mapping correct:', gameData);
+        submissionIdField.value = submissionId;
     };
 
     /**
@@ -1219,67 +1156,60 @@
     };
 
     /**
-     * Collecter les données du formulaire de soumission
+     * ARCHITECTURE MODULAIRE PAR SECTIONS
+     * 
+     * Fonction principale qui orchestre la collecte par sections
      */
     SismeDeveloperAjax.collectGameFormData = function(form) {
-        const formData = {};
+        const allData = {};
         
-        // ✅ CHAMPS TEXTE - Mapping correct formulaire → BDD
-        const textFieldMapping = {
-            'game_name': 'game_name',                    
-            'game_description': 'game_description',    
-            'game_release_date': 'game_release_date',   
-            'game_trailer': 'game_trailer',            
-            'game_studio_name': 'game_studio_name',    
-            'game_publisher_name': 'game_publisher_name', 
-            'game_studio_url': 'game_studio_url',
-            'game_publisher_url': 'game_publisher_url',
-            'cover_horizontal': 'cover_horizontal',      
-            'cover_vertical': 'cover_vertical',        
-            'screenshots': 'screenshots'                
-        };
+        // Section 1: Informations de base (game_name, game_description, game_release_date)
+        const basicInfo = this.collectSectionBasicInfo(form);
+        Object.assign(allData, basicInfo);
         
-        Object.entries(textFieldMapping).forEach(([formName, dbName]) => {
-            const field = form.querySelector(`[name="${formName}"]`);
+        // TODO: Section 2: Liens utiles (game_trailer, game_studio_name, game_studio_url, game_publisher_name, game_publisher_url)
+        // const linksInfo = this.collectSectionLinks(form);
+        // Object.assign(allData, linksInfo);
+        
+        // TODO: Section 3: Catégories (game_genres[], game_platforms[], game_modes[])
+        // const categoriesInfo = this.collectSectionCategories(form);
+        // Object.assign(allData, categoriesInfo);
+        
+        // TODO: Section 4: Liens externes (external_links[steam], external_links[epic], external_links[gog], external_links[itch], external_links[website])
+        // const externalLinksInfo = this.collectSectionExternalLinks(form);
+        // Object.assign(allData, externalLinksInfo);
+        
+        // TODO: Section 5: Images (cover_horizontal, cover_vertical, screenshots)
+        // const imagesInfo = this.collectSectionImages(form);
+        // Object.assign(allData, imagesInfo);
+        
+        console.log('[Sisme Collect] Données complètes collectées:', allData);
+        return allData;
+    };
+
+    /**
+     * MODULE: Section "Informations sur le jeu"
+     * Collecte: game_name, game_description, game_release_date
+     */
+    SismeDeveloperAjax.collectSectionBasicInfo = function(form) {
+        const basicData = {};
+        
+        // Les 3 champs de la section "Informations sur le jeu"
+        const basicFields = [
+            'game_name',
+            'game_description', 
+            'game_release_date'
+        ];
+        
+        basicFields.forEach(fieldName => {
+            const field = form.querySelector(`[name="${fieldName}"]`);
             if (field) {
-                formData[dbName] = field.value.trim();
+                basicData[fieldName] = field.value.trim();
             }
         });
         
-        // Genres
-        const genreCheckboxes = form.querySelectorAll('input[name="game_genres[]"]:checked');
-        formData.genres = Array.from(genreCheckboxes).map(cb => parseInt(cb.value));
-
-        // Plateformes  
-        const platformCheckboxes = form.querySelectorAll('input[name="game_platforms[]"]:checked');
-        formData.platforms = Array.from(platformCheckboxes).map(cb => cb.value);
-
-        // Modes
-        const modeCheckboxes = form.querySelectorAll('input[name="game_modes[]"]:checked');
-        formData.modes = Array.from(modeCheckboxes).map(cb => cb.value);
-        
-        // ✅ LIENS EXTERNES - OK
-        const externalLinks = {};
-        const linkFields = form.querySelectorAll('[name^="external_links["]');
-        linkFields.forEach(field => {
-            const match = field.name.match(/external_links\[([^\]]+)\]/);
-            if (match && field.value.trim()) {
-                externalLinks[match[1]] = field.value.trim();
-            }
-        });
-        formData.external_links = externalLinks;
-        
-        // ✅ STRUCTURE COVERS - Format attendu par la BDD
-        formData.covers = {
-            horizontal: formData.cover_horizontal || '',
-            vertical: formData.cover_vertical || ''
-        };
-        
-        // Nettoyer les champs temporaires
-        delete formData.cover_horizontal;
-        delete formData.cover_vertical;
-        
-        return formData;
+        console.log('[Sisme Collect] Section Basic Info:', basicData);
+        return basicData;
     };
 
     /**
