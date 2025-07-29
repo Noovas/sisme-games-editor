@@ -289,7 +289,7 @@ class Sisme_SEO_Structured_Data {
                 case 'console':
                     $os_list[] = 'PlayStation';
                     $os_list[] = 'Xbox';
-                    $os_list[] = 'Nintendo Switch';
+                    $os_list[] = 'Switch';
                     break;
                 case 'mobile':
                     $os_list[] = 'Android';

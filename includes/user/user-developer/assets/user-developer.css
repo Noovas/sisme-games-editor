@@ -1048,7 +1048,7 @@
 
 .sisme-checkbox-group { 
     display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
     gap: 10px; 
     margin-top: 10px; 
 }

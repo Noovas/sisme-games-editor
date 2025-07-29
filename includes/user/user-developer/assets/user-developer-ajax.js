@@ -555,52 +555,166 @@
     SismeDeveloperAjax.openSubmissionEditor = function(submissionId) {
         this.log('Ouverture éditeur pour soumission:', submissionId);
         
-        if (this.isSubmitting) {
-            return;
+        // Afficher le loader immédiatement
+        this.showLoader('Préparation de l\'éditeur...');
+        
+        // Stocker l'ID pour après le changement de section
+        window.sismeEditingSubmissionId = submissionId;
+        
+        // Naviguer vers submit-game
+        if (typeof SismeDashboard !== 'undefined') {
+            SismeDashboard.setActiveSection('submit-game', true);
+        } else {
+            window.location.hash = 'submit-game';
         }
         
-        this.isSubmitting = true;
+        // Mettre à jour le message du loader
+        setTimeout(() => {
+            this.updateLoaderMessage('Chargement du brouillon...');
+        }, 300);
         
-        // Récupérer les données de la soumission
+        // Attendre que la section soit chargée puis charger les données
+        setTimeout(() => {
+            this.loadSubmissionDataIntoForm(submissionId);
+        }, 800);
+    };
+
+    SismeDeveloperAjax.loadSubmissionDataIntoForm = function(submissionId) {
+        // Mettre à jour le message du loader
+        this.updateLoaderMessage('Récupération des données...');
+        
         $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'sisme_get_submission_details',
+                action: 'sisme_get_full_submission_data',
                 security: this.config.nonce,
                 submission_id: submissionId
             },
-            dataType: 'json',
-            timeout: 30000,
             success: function(response) {
-                this.log('Détails soumission récupérés:', response);
-                
                 if (response.success) {
-                    // Naviguer vers la section de soumission
-                    if (typeof SismeDashboard !== 'undefined') {
-                        SismeDashboard.setActiveSection('submit-game', true);
-                    } else {
-                        // Redirection avec hash pour identifier la section
-                        window.location.href = window.location.origin + '/sisme-user-tableau-de-bord/#submit-game';
-                    }
+                    // Mettre à jour le message
+                    this.updateLoaderMessage('Remplissage du formulaire...');
                     
-                    // Attendre que la section soit chargée puis remplir le formulaire
+                    const gameData = response.data.game_data;
+                    
+                    // Remplir les champs texte
+                    ['game_name', 'game_description', 'game_release_date', 'game_trailer', 'game_studio_name', 'game_publisher_name'].forEach(field => {
+                        const element = document.getElementById(field);
+                        if (element && gameData[field]) {
+                            element.value = gameData[field];
+                            
+                            // Déclencher les événements pour la validation
+                            element.dispatchEvent(new Event('input', { bubbles: true }));
+                            element.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    });
+                    
+                    // Ajouter l'ID de soumission au formulaire
+                    let hiddenField = document.getElementById('current-submission-id');
+                    if (!hiddenField) {
+                        hiddenField = document.createElement('input');
+                        hiddenField.type = 'hidden';
+                        hiddenField.id = 'current-submission-id';
+                        hiddenField.name = 'submission_id';
+                        const form = document.getElementById('sisme-submit-game-form');
+                        if (form) {
+                            form.appendChild(hiddenField);
+                        }
+                    }
+                    hiddenField.value = submissionId;
+                    
+                    // Remplir les autres champs (genres, plateformes, etc.)
+                    this.fillAdvancedFields(gameData);
+                    
+                    // Finalisation
                     setTimeout(() => {
-                        this.fillFormWithSubmissionData(submissionId, response.data);
-                    }, 500);
+                        this.updateLoaderMessage('Finalisation...');
+                        
+                        // Déclencher la revalidation si le validator existe
+                        if (typeof window.submissionValidator !== 'undefined') {
+                            window.submissionValidator.validateForm();
+                        }
+                        
+                        // Masquer le loader après un court délai
+                        setTimeout(() => {
+                            this.hideLoader();
+                            this.showFeedback('✅ Brouillon chargé avec succès', 'success');
+                        }, 500);
+                        
+                    }, 300);
                     
                 } else {
-                    this.showFeedback('Impossible de charger les données du brouillon', 'error');
+                    this.hideLoader();
+                    this.showFeedback('❌ Impossible de charger les données du brouillon', 'error');
                 }
             }.bind(this),
             error: function(xhr, status, error) {
-                this.log('Erreur récupération soumission:', {xhr, status, error});
-                this.showFeedback('Erreur de connexion', 'error');
-            }.bind(this),
-            complete: function() {
-                this.isSubmitting = false;
+                this.log('Erreur chargement données:', {xhr, status, error});
+                this.hideLoader();
+                this.showFeedback('❌ Erreur de connexion lors du chargement', 'error');
             }.bind(this)
         });
+    };
+
+    /**
+     * Remplir les champs avancés (genres, plateformes, liens, etc.)
+     */
+    SismeDeveloperAjax.fillAdvancedFields = function(gameData) {
+        // Genres (checkboxes)
+        if (gameData.genres && Array.isArray(gameData.genres)) {
+            gameData.genres.forEach(genreId => {
+                const checkbox = document.querySelector(`input[name="game_genres[]"][value="${genreId}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+        }
+        
+        // Plateformes (checkboxes)
+        if (gameData.platforms && Array.isArray(gameData.platforms)) {
+            gameData.platforms.forEach(platform => {
+                const checkbox = document.querySelector(`input[name="game_platforms[]"][value="${platform}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+        }
+        
+        // Modes de jeu (checkboxes)
+        if (gameData.modes && Array.isArray(gameData.modes)) {
+            gameData.modes.forEach(mode => {
+                const checkbox = document.querySelector(`input[name="game_modes[]"][value="${mode}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+        }
+        
+        // Liens externes
+        if (gameData.external_links && typeof gameData.external_links === 'object') {
+            Object.entries(gameData.external_links).forEach(([platform, url]) => {
+                const field = document.querySelector(`input[name="external_links[${platform}]"]`);
+                if (field && url) {
+                    field.value = url;
+                    field.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            });
+        }
+        
+        // Screenshots
+        if (gameData.screenshots) {
+            const screenshotsField = document.querySelector('[name="screenshots"]');
+            if (screenshotsField) {
+                screenshotsField.value = gameData.screenshots;
+                screenshotsField.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+        
+        this.log('Champs avancés remplis:', gameData);
     };
 
     /**
@@ -1453,6 +1567,95 @@
 
     SismeDeveloper.retrySubmission = function(submissionId) {
         return SismeDeveloperAjax.retrySubmission.apply(SismeDeveloperAjax, arguments);
+    };
+
+    // ========================================
+    // FONCTIONS UTILITAIRES POUR LE LOADER
+    // ========================================
+    /**
+     * Afficher le loader modal
+     */
+    SismeDeveloperAjax.showLoader = function(message = 'Chargement en cours...') {
+        // Supprimer ancien loader s'il existe
+        this.hideLoader();
+        
+        // Créer le loader modal
+        const loaderHtml = `
+            <div id="sisme-loader-modal" style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 999999;
+                font-family: Arial, sans-serif;
+            ">
+                <div style="
+                    background: white;
+                    padding: 30px;
+                    border-radius: 10px;
+                    text-align: center;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                    min-width: 300px;
+                ">
+                    <div style="
+                        width: 40px;
+                        height: 40px;
+                        border: 4px solid #f3f3f3;
+                        border-top: 4px solid #3498db;
+                        border-radius: 50%;
+                        animation: sisme-spin 1s linear infinite;
+                        margin: 0 auto 20px auto;
+                    "></div>
+                    <p style="
+                        margin: 0;
+                        color: #333;
+                        font-size: 16px;
+                        font-weight: 500;
+                    ">${message}</p>
+                </div>
+            </div>
+            
+            <style>
+                @keyframes sisme-spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        `;
+        
+        // Ajouter au DOM
+        document.body.insertAdjacentHTML('beforeend', loaderHtml);
+        
+        this.log('Loader modal affiché:', message);
+    };
+
+    /**
+     * Cacher le loader modal
+     */
+    SismeDeveloperAjax.hideLoader = function() {
+        const loader = document.getElementById('sisme-loader-modal');
+        if (loader) {
+            loader.remove();
+            this.log('Loader modal masqué');
+        }
+    };
+
+    /**
+     * Mettre à jour le message du loader
+     */
+    SismeDeveloperAjax.updateLoaderMessage = function(message) {
+        const loader = document.getElementById('sisme-loader-modal');
+        if (loader) {
+            const messageElement = loader.querySelector('p');
+            if (messageElement) {
+                messageElement.textContent = message;
+            }
+        }
     };
     
 })(jQuery);

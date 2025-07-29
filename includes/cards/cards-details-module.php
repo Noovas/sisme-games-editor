@@ -308,7 +308,7 @@ class Sisme_Cards_Details_Module {
             'console' => array(
                 'label' => 'Console', 
                 'icon' => '🎮',
-                'tooltip' => 'PlayStation, Xbox, Nintendo Switch'
+                'tooltip' => 'PlayStation, Xbox, Switch'
             ),
             'mobile' => array(
                 'label' => 'Mobile',

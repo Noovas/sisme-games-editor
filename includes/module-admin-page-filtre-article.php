@@ -596,7 +596,7 @@ class Sisme_Article_Filter_Module {
                 'android' => 'Android',
                 'xbox' => 'Xbox',
                 'playstation' => 'PlayStation',
-                'switch' => 'Nintendo Switch'
+                'switch' => 'Switch'
             ];
             
             $platform_name = $platform_labels[$this->filter_values['platforms']] ?? $this->filter_values['platforms'];

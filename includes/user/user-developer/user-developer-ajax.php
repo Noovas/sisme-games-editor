@@ -1276,3 +1276,40 @@ function sisme_handle_simple_crop_upload() {
         'message' => 'Image traitée avec succès'
     ]);
 }
+
+/**
+ * Récupérer toutes les données d'une soumission pour édition
+ */
+function sisme_ajax_get_full_submission_data() {
+    if (!check_ajax_referer('sisme_developer_nonce', 'security', false)) {
+        wp_send_json_error(['message' => 'Erreur de sécurité']);
+    }
+    
+    if (!is_user_logged_in()) {
+        wp_send_json_error(['message' => 'Utilisateur non connecté']);
+    }
+    
+    $submission_id = intval($_POST['submission_id'] ?? 0);
+    $user_id = get_current_user_id();
+    
+    if (!$submission_id) {
+        wp_send_json_error(['message' => 'ID de soumission manquant']);
+    }
+    
+    if (!class_exists('Sisme_Submission_Database')) {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/submission-database.php';
+    }
+    
+    $submission = Sisme_Submission_Database::get_submission($submission_id);
+    
+    if (!$submission || $submission->user_id != $user_id) {
+        wp_send_json_error(['message' => 'Soumission introuvable']);
+    }
+    
+    wp_send_json_success([
+        'submission_id' => $submission->id,
+        'game_data' => $submission->game_data_decoded,
+        'status' => $submission->status
+    ]);
+}
+add_action('wp_ajax_sisme_get_full_submission_data', 'sisme_ajax_get_full_submission_data');

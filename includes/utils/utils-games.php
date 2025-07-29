@@ -168,10 +168,10 @@ class Sisme_Utils_Games {
             'linux' => 'Linux',
             'xbox' => 'Xbox',
             'playstation' => 'PlayStation',
-            'switch' => 'Nintendo Switch',
+            'switch' => 'Switch',
             'ios' => 'iOS',
             'android' => 'Android',
-            'web' => 'Navigateur Web'
+            'web' => 'Web'
         );
         $grouped_platforms = array();
         foreach ($groups as $group_key => $group_data) {

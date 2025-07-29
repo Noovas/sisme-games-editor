@@ -922,7 +922,7 @@ class Sisme_User_Developer_Renderer {
                                     'console' => array(
                                         'platforms' => array('xbox', 'playstation', 'switch'),
                                         'icon' => '🎮',
-                                        'names' => array('xbox' => 'Xbox', 'playstation' => 'PlayStation', 'switch' => 'Nintendo Switch')
+                                        'names' => array('xbox' => 'Xbox', 'playstation' => 'PlayStation', 'switch' => 'Switch')
                                     ),
                                     'mobile' => array(
                                         'platforms' => array('ios', 'android'),
@@ -932,7 +932,7 @@ class Sisme_User_Developer_Renderer {
                                     'web' => array(
                                         'platforms' => array('web'),
                                         'icon' => '🌐',
-                                        'names' => array('web' => 'Navigateur Web')
+                                        'names' => array('web' => 'Web')
                                     )
                                 );
                                 
