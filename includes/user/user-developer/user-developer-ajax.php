@@ -673,9 +673,9 @@ function sisme_ajax_submit_submission_game() {
         'game_publisher_url' => esc_url_raw($_POST['game_publisher_url'] ?? ''),
 
         // Données complexes
-        'genres' => array_map('intval', $_POST['game_genres'] ?? []),
-        'platforms' => array_map('sanitize_text_field', $_POST['game_platforms'] ?? []),
-        'modes' => array_map('sanitize_text_field', $_POST['game_modes'] ?? []),
+        'genres' => array_map('intval', $_POST['genres'] ?? []),
+        'platforms' => array_map('sanitize_text_field', $_POST['platforms'] ?? []),
+        'modes' => array_map('sanitize_text_field', $_POST['modes'] ?? []),
         'external_links' => $_POST['external_links'] ?? [],
         
         // Images et média
