@@ -593,22 +593,49 @@
             },
             success: function(response) {
                 if (response.success) {
-                    // Mettre à jour le message
                     this.updateLoaderMessage('Remplissage du formulaire...');
                     
                     const gameData = response.data.game_data;
                     
-                    // Remplir les champs texte
-                    ['game_name', 'game_description', 'game_release_date', 'game_trailer', 'game_studio_name', 'game_publisher_name'].forEach(field => {
-                        const element = document.getElementById(field);
-                        if (element && gameData[field]) {
-                            element.value = gameData[field];
-                            
-                            // Déclencher les événements pour la validation
+                    // ✅ MAPPING BDD → FORMULAIRE pour les champs texte
+                    const fieldMapping = {
+                        // BDD → Formulaire
+                        'game_name': 'game_name',
+                        'description': 'game_description',        // ← CORRECTION
+                        'release_date': 'game_release_date',       // ← CORRECTION
+                        'trailer_link': 'game_trailer',            // ← CORRECTION
+                        'game_studio_name': 'game_studio_name',
+                        'game_publisher_name': 'game_publisher_name'
+                    };
+                    
+                    Object.entries(fieldMapping).forEach(([dbField, formField]) => {
+                        const element = document.getElementById(formField);
+                        if (element && gameData[dbField]) {
+                            element.value = gameData[dbField];
                             element.dispatchEvent(new Event('input', { bubbles: true }));
                             element.dispatchEvent(new Event('change', { bubbles: true }));
                         }
                     });
+                    
+                    // ✅ CHAMPS COVERS - Structure spéciale
+                    if (gameData.covers) {
+                        ['horizontal', 'vertical'].forEach(type => {
+                            const element = document.getElementById(`cover_${type}`);
+                            if (element && gameData.covers[type]) {
+                                element.value = gameData.covers[type];
+                                element.dispatchEvent(new Event('input', { bubbles: true }));
+                            }
+                        });
+                    }
+                    
+                    // ✅ SCREENSHOTS
+                    if (gameData.screenshots) {
+                        const screenshotsField = document.getElementById('screenshots');
+                        if (screenshotsField) {
+                            screenshotsField.value = gameData.screenshots;
+                            screenshotsField.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    }
                     
                     // Ajouter l'ID de soumission au formulaire
                     let hiddenField = document.getElementById('current-submission-id');
@@ -624,7 +651,7 @@
                     }
                     hiddenField.value = submissionId;
                     
-                    // Remplir les autres champs (genres, plateformes, etc.)
+                    // Remplir les champs avancés (genres, plateformes, modes, liens)
                     this.fillAdvancedFields(gameData);
                     
                     // Finalisation
@@ -661,7 +688,7 @@
      * Remplir les champs avancés (genres, plateformes, liens, etc.)
      */
     SismeDeveloperAjax.fillAdvancedFields = function(gameData) {
-        // Genres (checkboxes)
+        // ✅ GENRES - Mapping BDD → Formulaire
         if (gameData.genres && Array.isArray(gameData.genres)) {
             gameData.genres.forEach(genreId => {
                 const checkbox = document.querySelector(`input[name="game_genres[]"][value="${genreId}"]`);
@@ -672,7 +699,7 @@
             });
         }
         
-        // Plateformes (checkboxes)
+        // ✅ PLATEFORMES - Mapping BDD → Formulaire  
         if (gameData.platforms && Array.isArray(gameData.platforms)) {
             gameData.platforms.forEach(platform => {
                 const checkbox = document.querySelector(`input[name="game_platforms[]"][value="${platform}"]`);
@@ -683,7 +710,7 @@
             });
         }
         
-        // Modes de jeu (checkboxes)
+        // ✅ MODES DE JEU - Mapping BDD → Formulaire
         if (gameData.modes && Array.isArray(gameData.modes)) {
             gameData.modes.forEach(mode => {
                 const checkbox = document.querySelector(`input[name="game_modes[]"][value="${mode}"]`);
@@ -694,7 +721,7 @@
             });
         }
         
-        // Liens externes
+        // ✅ LIENS EXTERNES - OK
         if (gameData.external_links && typeof gameData.external_links === 'object') {
             Object.entries(gameData.external_links).forEach(([platform, url]) => {
                 const field = document.querySelector(`input[name="external_links[${platform}]"]`);
@@ -705,7 +732,7 @@
             });
         }
         
-        // Screenshots
+        // ✅ SCREENSHOTS - OK
         if (gameData.screenshots) {
             const screenshotsField = document.querySelector('[name="screenshots"]');
             if (screenshotsField) {
@@ -714,7 +741,24 @@
             }
         }
         
-        this.log('Champs avancés remplis:', gameData);
+        // ✅ COVERS - Mapping structure BDD → Formulaire
+        if (gameData.covers) {
+            if (gameData.covers.horizontal) {
+                const horizontalField = document.querySelector('[name="cover_horizontal"]');
+                if (horizontalField) {
+                    horizontalField.value = gameData.covers.horizontal;
+                }
+            }
+            
+            if (gameData.covers.vertical) {
+                const verticalField = document.querySelector('[name="cover_vertical"]');
+                if (verticalField) {
+                    verticalField.value = gameData.covers.vertical;
+                }
+            }
+        }
+        
+        this.log('Champs avancés remplis avec mapping correct:', gameData);
     };
 
     /**
@@ -1183,29 +1227,46 @@
     SismeDeveloperAjax.collectGameFormData = function(form) {
         const formData = {};
         
-        // Champs texte simples
-        const textFields = [
-            'game_name', 'game_description', 'game_release_date', 
-            'game_trailer', 'game_studio_name', 'game_publisher_name',
-            'cover_horizontal', 'cover_vertical', 'screenshots'
-        ];
+        // ✅ CHAMPS TEXTE - Mapping correct formulaire → BDD
+        const textFieldMapping = {
+            // Nom formulaire → Nom BDD
+            'game_name': 'game_name',                    // OK
+            'game_description': 'description',           // ← CORRECTION
+            'game_release_date': 'release_date',         // ← CORRECTION  
+            'game_trailer': 'trailer_link',              // ← CORRECTION
+            'game_studio_name': 'game_studio_name',      // OK
+            'game_publisher_name': 'game_publisher_name', // OK
+            'cover_horizontal': 'cover_horizontal',       // OK
+            'cover_vertical': 'cover_vertical',          // OK
+            'screenshots': 'screenshots'                 // OK
+        };
         
-        textFields.forEach(fieldName => {
-            const field = form.querySelector(`[name="${fieldName}"]`);
+        Object.entries(textFieldMapping).forEach(([formName, dbName]) => {
+            const field = form.querySelector(`[name="${formName}"]`);
             if (field) {
-                formData[fieldName] = field.value.trim();
+                formData[dbName] = field.value.trim();
             }
         });
         
-        // Champs multi-sélection (checkboxes/select multiple)
-        const multiFields = ['game_genres', 'game_platforms', 'game_modes', 'game_developers', 'game_publishers'];
+        // ✅ CHAMPS MULTI-SÉLECTION - Noms corrects
+        const multiFieldMapping = {
+            // Nom formulaire → Nom BDD
+            'game_genres': 'genres',
+            'game_platforms': 'platforms',
+            'game_modes': 'modes'
+            // ❌ game_developers et game_publishers n'existent pas dans le formulaire
+        };
         
-        multiFields.forEach(fieldName => {
-            const fields = form.querySelectorAll(`[name="${fieldName}[]"]:checked, [name="${fieldName}"] option:checked`);
-            formData[fieldName] = Array.from(fields).map(field => field.value);
+        Object.entries(multiFieldMapping).forEach(([formName, dbName]) => {
+            const fields = form.querySelectorAll(`[name="${formName}[]"]:checked, [name="${formName}"] option:checked`);
+            formData[dbName] = Array.from(fields).map(field => field.value);
         });
         
-        // Liens externes (objet)
+        // ✅ CHAMPS INEXISTANTS - Valeurs par défaut
+        formData.developers = [];  // Le formulaire n'a que le nom du studio
+        formData.publishers = [];  // Le formulaire n'a que le nom de l'éditeur
+        
+        // ✅ LIENS EXTERNES - OK
         const externalLinks = {};
         const linkFields = form.querySelectorAll('[name^="external_links["]');
         linkFields.forEach(field => {
@@ -1215,6 +1276,16 @@
             }
         });
         formData.external_links = externalLinks;
+        
+        // ✅ STRUCTURE COVERS - Format attendu par la BDD
+        formData.covers = {
+            horizontal: formData.cover_horizontal || '',
+            vertical: formData.cover_vertical || ''
+        };
+        
+        // Nettoyer les champs temporaires
+        delete formData.cover_horizontal;
+        delete formData.cover_vertical;
         
         return formData;
     };
