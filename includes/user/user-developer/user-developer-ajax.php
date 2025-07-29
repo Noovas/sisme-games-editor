@@ -610,7 +610,7 @@ function sisme_ajax_submit_submission_game() {
  * Récupérer les détails d'une soumission
  */
 function sisme_ajax_get_submission_details() {
-    if (!check_ajax_referer('sisme_developer_nonce', 'security', false)) {
+    if (!wp_verify_nonce($_POST['security'], 'sisme_developer_nonce')) {
         wp_send_json_error([
             'message' => 'Erreur de sécurité. Veuillez recharger la page.',
             'code' => 'invalid_nonce'
@@ -654,7 +654,8 @@ function sisme_ajax_get_submission_details() {
         'created_at' => $submission->created_at,
         'updated_at' => $submission->updated_at,
         'submitted_at' => $submission->submitted_at,
-        'completion_percentage' => $submission->game_data_decoded['metadata']['completion_percentage'] ?? 0
+        'completion_percentage' => $submission->game_data_decoded['metadata']['completion_percentage'] ?? 0,
+        'game_data' => $submission->game_data_decoded
     ]);
 }
 add_action('wp_ajax_sisme_get_submission_details', 'sisme_ajax_get_submission_details');

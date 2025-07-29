@@ -575,7 +575,7 @@
         
         // Attendre que la section soit chargée puis charger les données
         setTimeout(() => {
-            this.loadSubmissionDataIntoForm(submissionId);
+            this.loadSubmissionData(submissionId);
         }, 800);
     };
 
