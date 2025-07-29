@@ -21,24 +21,27 @@ function sisme_init_developer_ajax() {
     // Actions AJAX pour utilisateurs connectés
     add_action('wp_ajax_sisme_developer_submit', 'sisme_ajax_developer_submit');
     add_action('wp_ajax_sisme_developer_reset_rejection', 'sisme_ajax_developer_reset_rejection'); 
-    
-    // ✅ NOUVEAUX HANDLERS POUR MES JEUX
     add_action('wp_ajax_sisme_create_submission', 'sisme_ajax_create_submission');
     add_action('wp_ajax_sisme_delete_submission', 'sisme_ajax_delete_submission');
     add_action('wp_ajax_sisme_get_submission_details', 'sisme_ajax_get_submission_details');
     add_action('wp_ajax_sisme_retry_submission', 'sisme_ajax_retry_submission');
     add_action('wp_ajax_sisme_get_developer_stats', 'sisme_ajax_get_developer_stats');
+
+    // Soumission de jeux
+    add_action('wp_ajax_sisme_save_submission_game', 'sisme_ajax_save_submission_game');
+    add_action('wp_ajax_sisme_submit_submission_game', 'sisme_ajax_submit_submission_game');
+    add_action('wp_ajax_nopriv_sisme_submit_submission_game', 'sisme_ajax_not_logged_in');
     
     // Actions AJAX pour utilisateurs non connectés
     add_action('wp_ajax_nopriv_sisme_developer_submit', 'sisme_ajax_not_logged_in');
     add_action('wp_ajax_nopriv_sisme_developer_reset_rejection', 'sisme_ajax_not_logged_in');
-    
-    // ✅ NOUVEAUX HANDLERS NON CONNECTÉS
     add_action('wp_ajax_nopriv_sisme_create_submission', 'sisme_ajax_not_logged_in');
     add_action('wp_ajax_nopriv_sisme_delete_submission', 'sisme_ajax_not_logged_in');
     add_action('wp_ajax_nopriv_sisme_get_submission_details', 'sisme_ajax_not_logged_in');
     add_action('wp_ajax_nopriv_sisme_retry_submission', 'sisme_ajax_not_logged_in');
     add_action('wp_ajax_nopriv_sisme_get_developer_stats', 'sisme_ajax_not_logged_in');
+
+    
     
     add_action('wp_ajax_sisme_simple_crop_upload', 'sisme_handle_simple_crop_upload');
 
@@ -474,7 +477,7 @@ function sisme_ajax_save_submission_game() {
     }
     
     // Vérifier le nonce de sécurité
-    if (!check_ajax_referer('sisme_submit_game_nonce', 'sisme_submit_game_nonce', false)) {
+    if (!check_ajax_referer('sisme_developer_nonce', 'security', false)) {
         wp_send_json_error([
             'message' => 'Erreur de sécurité. Veuillez recharger la page.',
             'code' => 'invalid_nonce'
@@ -620,6 +623,279 @@ function sisme_ajax_save_submission_game() {
 }
 
 /**
+ * Soumettre un jeu pour validation finale (draft → pending)
+ */
+function sisme_ajax_submit_submission_game() {
+    // Nettoyer le buffer de sortie
+    if (ob_get_length()) {
+        ob_clean();
+    }
+    
+    // Vérifier le nonce de sécurité
+    if (!check_ajax_referer('sisme_developer_nonce', 'security', false)) {
+        wp_send_json_error([
+            'message' => 'Erreur de sécurité. Veuillez recharger la page.',
+            'code' => 'invalid_nonce'
+        ]);
+    }
+    
+    // Vérifier que l'utilisateur est connecté
+    if (!is_user_logged_in()) {
+        wp_send_json_error([
+            'message' => 'Vous devez être connecté pour soumettre un jeu.',
+            'code' => 'not_logged_in'
+        ]);
+    }
+    
+    $user_id = get_current_user_id();
+    
+    // Vérifier que l'utilisateur est développeur approuvé
+    if (!class_exists('Sisme_User_Developer_Data_Manager')) {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/user-developer-data-manager.php';
+    }
+    
+    if (!Sisme_User_Developer_Data_Manager::is_approved_developer($user_id)) {
+        wp_send_json_error([
+            'message' => 'Vous devez être un développeur approuvé pour soumettre des jeux.',
+            'code' => 'not_developer'
+        ]);
+    }
+    
+    // Collecter et valider les données du formulaire (AVEC validation stricte)
+    $game_data = [
+        'game_name' => sanitize_text_field($_POST['game_name'] ?? ''),
+        'game_description' => sanitize_textarea_field($_POST['game_description'] ?? ''),
+        'game_release_date' => sanitize_text_field($_POST['game_release_date'] ?? ''),
+        'game_trailer' => esc_url_raw($_POST['game_trailer'] ?? ''),
+        'game_studio_name' => sanitize_text_field($_POST['game_studio_name'] ?? ''),
+        'game_publisher_name' => sanitize_text_field($_POST['game_publisher_name'] ?? ''),
+        
+        // Données complexes
+        'genres' => array_map('intval', $_POST['game_genres'] ?? []),
+        'platforms' => array_map('sanitize_text_field', $_POST['game_platforms'] ?? []),
+        'modes' => array_map('sanitize_text_field', $_POST['game_modes'] ?? []),
+        'developers' => array_map('intval', $_POST['game_developers'] ?? []),
+        'publishers' => array_map('intval', $_POST['game_publishers'] ?? []),
+        'external_links' => $_POST['external_links'] ?? [],
+        
+        // Images et média
+        'covers' => [
+            'horizontal' => sanitize_text_field($_POST['cover_horizontal'] ?? ''),
+            'vertical' => sanitize_text_field($_POST['cover_vertical'] ?? '')
+        ],
+        'screenshots' => sanitize_textarea_field($_POST['screenshots'] ?? ''),
+        
+        // Métadonnées de soumission finale
+        'metadata' => [
+            'completion_percentage' => 100, // Forcé à 100% pour soumission finale
+            'last_step_completed' => 'submitted',
+            'submitted_at' => current_time('mysql'),
+            'submission_timestamp' => time(),
+            'final_submission' => true
+        ]
+    ];
+    
+    // VALIDATION STRICTE - Tous les champs obligatoires
+    $validation_errors = [];
+    
+    // Champs texte obligatoires
+    $required_text_fields = [
+        'game_name' => 'Le nom du jeu est obligatoire',
+        'game_description' => 'La description est obligatoire', 
+        'game_release_date' => 'La date de sortie est obligatoire',
+        'game_studio_name' => 'Le nom du studio est obligatoire',
+        'game_publisher_name' => 'Le nom de l\'éditeur est obligatoire'
+    ];
+    
+    foreach ($required_text_fields as $field => $error_message) {
+        if (empty($game_data[$field])) {
+            $validation_errors[$field] = $error_message;
+        }
+    }
+    
+    // Validations spécifiques
+    if (!empty($game_data['game_name']) && strlen($game_data['game_name']) < 3) {
+        $validation_errors['game_name'] = 'Le nom du jeu doit faire au moins 3 caractères';
+    }
+    
+    if (!empty($game_data['game_description']) && strlen($game_data['game_description']) < 50) {
+        $validation_errors['game_description'] = 'La description doit faire au moins 50 caractères';
+    }
+    
+    if (!empty($game_data['game_release_date']) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $game_data['game_release_date'])) {
+        $validation_errors['game_release_date'] = 'Format de date invalide (YYYY-MM-DD)';
+    }
+    
+    // Validation YouTube URL (optionnelle mais si fournie doit être valide)
+    if (!empty($game_data['game_trailer'])) {
+        $youtube_pattern = '/^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]+/';
+        if (!preg_match($youtube_pattern, $game_data['game_trailer'])) {
+            $validation_errors['game_trailer'] = 'L\'URL YouTube n\'est pas valide';
+        }
+    }
+    
+    // Validation des covers (obligatoires)
+    if (empty($game_data['covers']['horizontal'])) {
+        $validation_errors['cover_horizontal'] = 'La cover horizontale est obligatoire';
+    }
+    
+    if (empty($game_data['covers']['vertical'])) {
+        $validation_errors['cover_vertical'] = 'La cover verticale est obligatoire';
+    }
+    
+    // Si erreurs de validation, retourner
+    if (!empty($validation_errors)) {
+        wp_send_json_error([
+            'message' => 'Le formulaire contient des erreurs. Veuillez les corriger.',
+            'errors' => $validation_errors,
+            'code' => 'validation_failed'
+        ]);
+    }
+    
+    // Charger la classe de base de données des soumissions
+    if (!class_exists('Sisme_Submission_Database')) {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/submission-database.php';
+    }
+    
+    // Récupérer ou créer la soumission
+    $submission_id = intval($_POST['submission_id'] ?? 0);
+    
+    if ($submission_id > 0) {
+        // Mettre à jour une soumission existante
+        $existing_submission = Sisme_Submission_Database::get_submission($submission_id);
+        
+        if (!$existing_submission) {
+            wp_send_json_error([
+                'message' => 'Soumission introuvable',
+                'code' => 'submission_not_found'
+            ]);
+        }
+        
+        if ($existing_submission->user_id != $user_id) {
+            wp_send_json_error([
+                'message' => 'Vous n\'avez pas le droit de modifier cette soumission',
+                'code' => 'access_denied'
+            ]);
+        }
+        
+        // Vérifier que la soumission peut être soumise
+        if (!in_array($existing_submission->status, ['draft', 'revision'])) {
+            wp_send_json_error([
+                'message' => 'Cette soumission a déjà été soumise ou ne peut plus être modifiée',
+                'code' => 'submission_locked'
+            ]);
+        }
+        
+        // Mettre à jour avec les nouvelles données
+        $result = Sisme_Submission_Database::update_submission($submission_id, $game_data, $user_id);
+        
+        if (is_wp_error($result)) {
+            wp_send_json_error([
+                'message' => 'Erreur lors de la mise à jour: ' . $result->get_error_message(),
+                'code' => 'update_failed'
+            ]);
+        }
+        
+    } else {
+        // Créer une nouvelle soumission directement
+        $submission_id = Sisme_Submission_Database::create_submission($user_id, $game_data);
+        
+        if (is_wp_error($submission_id)) {
+            $error_message = $submission_id->get_error_message();
+            
+            // Messages d'erreur personnalisés
+            if ($submission_id->get_error_code() === 'limit_exceeded') {
+                $error_message = 'Limite de soumissions atteinte. Vous ne pouvez soumettre qu\'un jeu par jour.';
+            }
+            
+            wp_send_json_error([
+                'message' => 'Erreur lors de la création: ' . $error_message,
+                'code' => $submission_id->get_error_code()
+            ]);
+        }
+    }
+    
+    // ÉTAPE CRITIQUE : Changer le statut vers "pending" pour validation admin
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'sisme_game_submissions';
+    
+    $status_update = $wpdb->update(
+        $table_name,
+        [
+            'status' => 'pending',
+            'submitted_at' => current_time('mysql'),
+            'updated_at' => current_time('mysql')
+        ],
+        ['id' => $submission_id, 'user_id' => $user_id],
+        ['%s', '%s', '%s'],
+        ['%d', '%d']
+    );
+    
+    if ($status_update === false) {
+        wp_send_json_error([
+            'message' => 'Jeu sauvegardé mais erreur de statut en base de données',
+            'code' => 'status_update_failed'
+        ]);
+    }
+    
+    // Log pour debug
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log("[Sisme Developer] Jeu soumis pour validation: ID $submission_id, User $user_id, Jeu: " . $game_data['game_name']);
+    }
+    
+    // Email de notification à l'admin
+    $admin_email = get_option('admin_email');
+    if ($admin_email) {
+        $user_info = get_userdata($user_id);
+        $subject = '[Sisme Games] Nouveau jeu soumis pour validation';
+        $message = sprintf(
+            "Un nouveau jeu a été soumis pour validation :\n\n" .
+            "🎮 Jeu : %s\n" .
+            "👤 Développeur : %s (%s)\n" .
+            "🏢 Studio : %s\n" .
+            "📅 Date : %s\n" .
+            "🔗 ID Soumission : %d\n\n" .
+            "Accédez à l'interface d'administration pour examiner cette soumission.",
+            $game_data['game_name'],
+            $user_info->display_name,
+            $user_info->user_email,
+            $game_data['game_studio_name'],
+            current_time('d/m/Y H:i'),
+            $submission_id
+        );
+        
+        wp_mail($admin_email, $subject, $message);
+    }
+    
+    // Email de confirmation au développeur
+    $user_info = get_userdata($user_id);
+    if ($user_info->user_email) {
+        $subject = '[Sisme Games] Votre jeu a été soumis avec succès';
+        $message = sprintf(
+            "Bonjour %s,\n\n" .
+            "Votre jeu \"%s\" a été soumis avec succès pour validation.\n\n" .
+            "Notre équipe va examiner votre soumission dans les plus brefs délais. " .
+            "Vous recevrez un email dès qu'une décision sera prise.\n\n" .
+            "Merci pour votre contribution à Sisme Games !\n\n" .
+            "L'équipe Sisme Games",
+            $user_info->display_name,
+            $game_data['game_name']
+        );
+        
+        wp_mail($user_info->user_email, $subject, $message);
+    }
+    
+    // Réponse de succès
+    wp_send_json_success([
+        'message' => 'Votre jeu "' . $game_data['game_name'] . '" a été soumis avec succès ! Notre équipe va l\'examiner dans les plus brefs délais.',
+        'submission_id' => $submission_id,
+        'game_name' => $game_data['game_name'],
+        'status' => 'pending',
+        'reload_dashboard' => true // Signal pour recharger la section "Mes Jeux"
+    ]);
+}
+
+/**
  * Calculer le pourcentage de completion du formulaire
  */
 function calculate_completion_percentage($form_data) {
@@ -658,7 +934,6 @@ function calculate_completion_percentage($form_data) {
  * Supprimer une soumission
  */
 function sisme_ajax_delete_submission() {
-    // Sécurité - MÊME PATTERN que votre système existant
     if (!check_ajax_referer('sisme_developer_nonce', 'security', false)) {
         wp_send_json_error([
             'message' => 'Erreur de sécurité. Veuillez recharger la page.',
@@ -720,7 +995,6 @@ add_action('wp_ajax_sisme_delete_submission', 'sisme_ajax_delete_submission');
  * Récupérer les détails d'une soumission
  */
 function sisme_ajax_get_submission_details() {
-    // Sécurité - MÊME PATTERN que votre système existant  
     if (!check_ajax_referer('sisme_developer_nonce', 'security', false)) {
         wp_send_json_error([
             'message' => 'Erreur de sécurité. Veuillez recharger la page.',
@@ -774,7 +1048,6 @@ add_action('wp_ajax_sisme_get_submission_details', 'sisme_ajax_get_submission_de
  * Réessayer une soumission rejetée (créer nouvelle version)
  */
 function sisme_ajax_retry_submission() {
-    // Sécurité - MÊME PATTERN que votre système existant
     if (!check_ajax_referer('sisme_developer_nonce', 'security', false)) {
         wp_send_json_error([
             'message' => 'Erreur de sécurité. Veuillez recharger la page.',

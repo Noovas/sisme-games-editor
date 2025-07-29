@@ -56,6 +56,12 @@
         
         // Bouton reset candidature rejetée
         $(document).on('click', this.config.retryButtonSelector, this.handleRetryApplication.bind(this));
+
+        // Sauvegarde du brouillon (bouton submit du form)
+        $(document).on('submit', '#sisme-submit-game-form', this.handleSaveDraft.bind(this));
+
+        // Soumission finale du jeu (bouton séparé)
+        $(document).on('click', '#sisme-submit-game-button', this.handleSubmitGame.bind(this));
         
         this.log('Événements AJAX développeur liés');
     };
@@ -781,6 +787,300 @@
                 emptyState.style.display = 'none';
             }
         }
+    };
+
+    /**
+     * Gérer la sauvegarde du brouillon
+     */
+    SismeDeveloperAjax.handleSaveDraft = function(e) {
+        e.preventDefault();
+        
+        if (this.isSubmitting) {
+            return;
+        }
+        
+        this.log('Sauvegarde brouillon déclenchée');
+        
+        const form = document.getElementById('sisme-submit-game-form');
+        if (!form) {
+            this.showFeedback('Formulaire introuvable', 'error');
+            return;
+        }
+        
+        // Collecter toutes les données du formulaire
+        const formData = this.collectGameFormData(form);
+        
+        // Ajouter les métadonnées de sauvegarde
+        formData.action = 'sisme_save_submission_game';
+        formData.security = this.config.nonce;
+        
+        // Récupérer l'ID de soumission existant si présent
+        const submissionIdField = document.getElementById('current-submission-id');
+        if (submissionIdField && submissionIdField.value) {
+            formData.submission_id = submissionIdField.value;
+        }
+        
+        this.log('Données brouillon à sauvegarder:', formData);
+        
+        // Soumettre via AJAX
+        this.submitDraftAjax(formData);
+    };
+
+    /**
+     * Gérer la soumission finale du jeu
+     */
+    SismeDeveloperAjax.handleSubmitGame = function(e) {
+        e.preventDefault();
+        
+        if (this.isSubmitting) {
+            return;
+        }
+        
+        this.log('Soumission finale déclenchée');
+        
+        // Vérifier la validation complète via le validator
+        if (typeof window.submissionValidator !== 'undefined') {
+            if (!window.submissionValidator.isFormValid()) {
+                this.showFeedback('Le formulaire contient des erreurs. Veuillez les corriger avant de soumettre.', 'error');
+                
+                // Afficher le debug de validation
+                console.log('Validation state:', window.submissionValidator.getValidationState());
+                return;
+            }
+        } else {
+            // Fallback : validation basique sans le validator
+            if (!this.validateBasicRequiredFields()) {
+                this.showFeedback('Veuillez remplir tous les champs obligatoires', 'error');
+                return;
+            }
+        }
+        
+        // Confirmation utilisateur
+        const gameName = document.getElementById('game_name')?.value || 'votre jeu';
+        if (!confirm(`Êtes-vous sûr de vouloir soumettre "${gameName}" pour validation ?\n\nUne fois soumis, vous ne pourrez plus le modifier jusqu'à la réponse de notre équipe.`)) {
+            return;
+        }
+        
+        const form = document.getElementById('sisme-submit-game-form');
+        if (!form) {
+            this.showFeedback('Formulaire introuvable', 'error');
+            return;
+        }
+        
+        // Collecter les données du formulaire
+        const formData = this.collectGameFormData(form);
+        
+        // Ajouter les métadonnées de soumission
+        formData.action = 'sisme_submit_submission_game';
+        formData.security = this.config.nonce;
+        formData.final_submission = true;
+        
+        this.log('Données finales à soumettre:', formData);
+        
+        // Soumettre via AJAX
+        this.submitGameAjax(formData);
+    };
+
+    /**
+     * Collecter les données du formulaire de soumission
+     */
+    SismeDeveloperAjax.collectGameFormData = function(form) {
+        const formData = {};
+        
+        // Champs texte simples
+        const textFields = [
+            'game_name', 'game_description', 'game_release_date', 
+            'game_trailer', 'game_studio_name', 'game_publisher_name',
+            'cover_horizontal', 'cover_vertical', 'screenshots'
+        ];
+        
+        textFields.forEach(fieldName => {
+            const field = form.querySelector(`[name="${fieldName}"]`);
+            if (field) {
+                formData[fieldName] = field.value.trim();
+            }
+        });
+        
+        // Champs multi-sélection (checkboxes/select multiple)
+        const multiFields = ['game_genres', 'game_platforms', 'game_modes', 'game_developers', 'game_publishers'];
+        
+        multiFields.forEach(fieldName => {
+            const fields = form.querySelectorAll(`[name="${fieldName}[]"]:checked, [name="${fieldName}"] option:checked`);
+            formData[fieldName] = Array.from(fields).map(field => field.value);
+        });
+        
+        // Liens externes (objet)
+        const externalLinks = {};
+        const linkFields = form.querySelectorAll('[name^="external_links["]');
+        linkFields.forEach(field => {
+            const match = field.name.match(/external_links\[([^\]]+)\]/);
+            if (match && field.value.trim()) {
+                externalLinks[match[1]] = field.value.trim();
+            }
+        });
+        formData.external_links = externalLinks;
+        
+        return formData;
+    };
+
+    /**
+     * Soumettre le brouillon via AJAX
+     */
+    SismeDeveloperAjax.submitDraftAjax = function(formData) {
+        const saveButton = document.getElementById('sisme-submit-game-btn');
+        const originalText = saveButton ? saveButton.textContent : '';
+        
+        this.isSubmitting = true;
+        
+        // Feedback visuel
+        if (saveButton) {
+            saveButton.disabled = true;
+            saveButton.textContent = '💾 Sauvegarde...';
+        }
+        
+        this.showFeedback('Sauvegarde en cours...', 'info');
+        
+        $.ajax({
+            url: this.config.ajaxUrl,
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            timeout: 30000,
+            success: function(response) {
+                this.log('Sauvegarde brouillon résultat:', response);
+                
+                if (response.success) {
+                    // Mettre à jour l'ID de soumission pour les futures sauvegardes
+                    let submissionIdField = document.getElementById('current-submission-id');
+                    if (!submissionIdField) {
+                        // Créer le champ hidden s'il n'existe pas
+                        submissionIdField = document.createElement('input');
+                        submissionIdField.type = 'hidden';
+                        submissionIdField.id = 'current-submission-id';
+                        submissionIdField.name = 'submission_id';
+                        document.getElementById('sisme-submit-game-form').appendChild(submissionIdField);
+                    }
+                    submissionIdField.value = response.data.submission_id;
+                    
+                    // Message de succès avec détails
+                    const message = `${response.data.message} (${response.data.completion_percentage}% complété)`;
+                    this.showFeedback(message, 'success');
+                    
+                    // Mettre à jour l'état du bouton de soumission si applicable
+                    if (response.data.can_submit && typeof window.submissionValidator !== 'undefined') {
+                        window.submissionValidator.validateForm();
+                    }
+                    
+                } else {
+                    this.showFeedback(response.data?.message || 'Erreur lors de la sauvegarde', 'error');
+                }
+            }.bind(this),
+            error: function(xhr, status, error) {
+                this.log('Erreur sauvegarde brouillon:', {xhr, status, error});
+                
+                let errorMessage = 'Erreur de connexion lors de la sauvegarde';
+                if (xhr.status === 403) {
+                    errorMessage = 'Session expirée. Veuillez recharger la page.';
+                }
+                
+                this.showFeedback(errorMessage, 'error');
+            }.bind(this),
+            complete: function() {
+                this.isSubmitting = false;
+                
+                if (saveButton) {
+                    saveButton.disabled = false;
+                    saveButton.textContent = originalText;
+                }
+            }.bind(this)
+        });
+    };
+
+    /**
+     * Soumettre le jeu final via AJAX  
+     */
+    SismeDeveloperAjax.submitGameAjax = function(formData) {
+        const submitButton = document.getElementById('sisme-submit-game-button');
+        const originalText = submitButton ? submitButton.textContent : '';
+        
+        this.isSubmitting = true;
+        
+        // Feedback visuel
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = '🚀 Soumission...';
+        }
+        
+        this.showFeedback('Soumission en cours...', 'info');
+        
+        $.ajax({
+            url: this.config.ajaxUrl,
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            timeout: 30000,
+            success: function(response) {
+                this.log('Soumission finale résultat:', response);
+                
+                if (response.success) {
+                    this.showFeedback(response.data.message, 'success');
+                    
+                    // Rediriger vers "Mes Jeux" après 3 secondes
+                    setTimeout(() => {
+                        if (typeof SismeDashboard !== 'undefined') {
+                            SismeDashboard.setActiveSection('developer', true);
+                        } else {
+                            location.reload();
+                        }
+                    }, 3000);
+                    
+                } else {
+                    this.showFeedback(response.data?.message || 'Erreur lors de la soumission', 'error');
+                    
+                    // Réactiver le bouton en cas d'erreur
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.textContent = originalText;
+                    }
+                }
+            }.bind(this),
+            error: function(xhr, status, error) {
+                this.log('Erreur soumission finale:', {xhr, status, error});
+                
+                let errorMessage = 'Erreur de connexion lors de la soumission';
+                if (xhr.status === 403) {
+                    errorMessage = 'Session expirée. Veuillez recharger la page.';
+                }
+                
+                this.showFeedback(errorMessage, 'error');
+                
+                // Réactiver le bouton
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                }
+            }.bind(this),
+            complete: function() {
+                this.isSubmitting = false;
+            }.bind(this)
+        });
+    };
+
+    /**
+     * Validation basique des champs requis (fallback)
+     */
+    SismeDeveloperAjax.validateBasicRequiredFields = function() {
+        const requiredFields = ['game_name', 'game_description', 'game_release_date', 'game_studio_name', 'game_publisher_name'];
+        
+        for (let fieldName of requiredFields) {
+            const field = document.getElementById(fieldName);
+            if (!field || !field.value.trim()) {
+                console.log(`Champ requis manquant: ${fieldName}`);
+                return false;
+            }
+        }
+        
+        return true;
     };
 
     /**
