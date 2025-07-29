@@ -58,7 +58,7 @@
         $(document).on('click', this.config.retryButtonSelector, this.handleRetryApplication.bind(this));
 
         // Sauvegarde du brouillon (bouton submit du form)
-        $(document).on('submit', '#sisme-submit-game-form', this.handleSaveDraft.bind(this));
+        $(document).on('click', '#sisme-submit-game-btn', this.handleSaveDraft.bind(this));
 
         // Soumission finale du jeu (bouton séparé)
         $(document).on('click', '#sisme-submit-game-button', this.handleSubmitGame.bind(this));
@@ -794,7 +794,7 @@
      */
     SismeDeveloperAjax.handleSaveDraft = function(e) {
         e.preventDefault();
-        
+
         if (this.isSubmitting) {
             return;
         }

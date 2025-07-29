@@ -1085,7 +1085,7 @@ class Sisme_User_Developer_Renderer {
                     <!-- Bouton de soumission conditionnel -->
                     <div class="sisme-form-section">
                         <div class="sisme-form-actions">
-                            <button type="submit" class="sisme-btn sisme-button-vert" id="sisme-submit-game-btn">
+                            <button type="button" class="sisme-btn sisme-button-vert" id="sisme-submit-game-btn">
                                 💾 Enregistrer le brouillon
                             </button>
                             <button type="button" class="sisme-btn sisme-button-bleu" onclick="SismeDashboard.setActiveSection('developer', true)">
