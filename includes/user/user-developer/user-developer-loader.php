@@ -64,6 +64,13 @@ class Sisme_User_Developer_Loader {
             'user-developer-ajax.php',
             'user-developer-email-notifications.php' 
         ];
+
+        $submission_modules = [
+            'game-submission/game-submission-data-manager.php',
+            'game-submission/game-submission-ajax.php', 
+            'game-submission/game-submission-renderer.php',
+            'game-submission/game-submission-validator.php'
+        ];
         
         foreach ($required_modules as $module) {
             $file_path = $developer_dir . $module;
@@ -78,6 +85,13 @@ class Sisme_User_Developer_Loader {
                 if (defined('WP_DEBUG') && WP_DEBUG) {
                     error_log("[Sisme User Developer] ERREUR - Module manquant : $file_path");
                 }
+            }
+        }
+
+        foreach ($submission_modules as $module) {
+            $file_path = $developer_dir . $module;
+            if (file_exists($file_path)) {
+                require_once $file_path;
             }
         }
         
@@ -179,6 +193,19 @@ class Sisme_User_Developer_Loader {
             ['jquery', 'sisme-simple-cropper'],
             filemtime(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/assets/submission-form-validator.js'),
             true
+        );
+
+        // Assets soumission jeux
+        wp_enqueue_script(
+            'sisme-game-submission',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission.js',
+            ['jquery', 'sisme-user-developer-ajax']
+        );
+
+        wp_enqueue_script(
+            'sisme-game-submission-validator',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission-validator.js',
+            ['jquery', 'sisme-game-submission']
         );
     }
     
