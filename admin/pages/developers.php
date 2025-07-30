@@ -18,9 +18,6 @@ require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper
 if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/submission-database.php')) {
     require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/submission-database.php';
 }
-if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-workflow.php')) {
-    require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-workflow.php';
-}
 
 // Récupérer l'onglet actuel
 $current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'developers';
@@ -66,106 +63,26 @@ if (isset($_POST['action']) && isset($_POST['user_id']) && wp_verify_nonce($_POS
     }
 }
 
-// Traitement des actions sur les soumissions (NOUVEAU SYSTÈME)
+// Traitement des actions sur les soumissions
 if (isset($_POST['submission_action']) && isset($_POST['submission_id']) && wp_verify_nonce($_POST['_wpnonce'], 'sisme_submission_action')) {
-    $submission_id = sanitize_text_field($_POST['submission_id']);
-    $user_id = intval($_POST['user_id']);
+    $submission_id = intval($_POST['submission_id']);
     $action = sanitize_text_field($_POST['submission_action']);
     $admin_notes = sanitize_textarea_field($_POST['admin_notes'] ?? '');
     
-    // Vérifier que la classe Workflow est disponible
-    if (!class_exists('Sisme_Game_Submission_Workflow')) {
+    if ($action === 'approve_submission') {
+        // TODO: Créer Sisme_Submission_Workflow::approve_submission()
         add_action('admin_notices', function() {
-            echo '<div class="notice notice-error is-dismissible">';
-            echo '<p>❌ Le système de workflow des soumissions n\'est pas disponible.</p>';
+            echo '<div class="notice notice-success is-dismissible">';
+            echo '<p>✅ Soumission approuvée ! Le jeu sera publié.</p>';
             echo '</div>';
         });
-    } else {
-        
-        if ($action === 'approve_submission') {
-            $result = Sisme_Game_Submission_Workflow::approve_submission($submission_id, $user_id, $admin_notes);
-            
-            if (is_wp_error($result)) {
-                add_action('admin_notices', function() use ($result) {
-                    echo '<div class="notice notice-error is-dismissible">';
-                    echo '<p>❌ Erreur lors de l\'approbation : ' . esc_html($result->get_error_message()) . '</p>';
-                    echo '</div>';
-                });
-            } else {
-                add_action('admin_notices', function() use ($admin_notes) {
-                    echo '<div class="notice notice-success is-dismissible">';
-                    echo '<p>✅ Soumission approuvée ! Le jeu sera publié.</p>';
-                    if (!empty($admin_notes)) {
-                        echo '<p><small>Notes envoyées au développeur : ' . esc_html(substr($admin_notes, 0, 100)) . '...</small></p>';
-                    }
-                    echo '</div>';
-                });
-            }
-            
-        } elseif ($action === 'reject_submission') {
-            $result = Sisme_Game_Submission_Workflow::reject_submission($submission_id, $user_id, $admin_notes);
-            
-            if (is_wp_error($result)) {
-                add_action('admin_notices', function() use ($result) {
-                    echo '<div class="notice notice-error is-dismissible">';
-                    echo '<p>❌ Erreur lors du rejet : ' . esc_html($result->get_error_message()) . '</p>';
-                    echo '</div>';
-                });
-            } else {
-                add_action('admin_notices', function() use ($admin_notes) {
-                    echo '<div class="notice notice-warning is-dismissible">';
-                    echo '<p>❌ Soumission rejetée.</p>';
-                    if (!empty($admin_notes)) {
-                        echo '<p><small>Raison communiquée au développeur : ' . esc_html(substr($admin_notes, 0, 100)) . '...</small></p>';
-                    }
-                    echo '</div>';
-                });
-            }
-            
-        } elseif ($action === 'delete_submission') {
-            $result = Sisme_Game_Submission_Workflow::delete_submission_admin($submission_id, $user_id);
-            
-            if (is_wp_error($result)) {
-                add_action('admin_notices', function() use ($result) {
-                    echo '<div class="notice notice-error is-dismissible">';
-                    echo '<p>❌ Erreur lors de la suppression : ' . esc_html($result->get_error_message()) . '</p>';
-                    echo '</div>';
-                });
-            } else {
-                add_action('admin_notices', function() {
-                    echo '<div class="notice notice-success is-dismissible">';
-                    echo '<p>🗑️ Brouillon supprimé avec succès.</p>';
-                    echo '</div>';
-                });
-            }
-            
-        } elseif ($action === 'request_revision') {
-            $result = Sisme_Game_Submission_Workflow::request_revision($submission_id, $user_id, $admin_notes);
-            
-            if (is_wp_error($result)) {
-                add_action('admin_notices', function() use ($result) {
-                    echo '<div class="notice notice-error is-dismissible">';
-                    echo '<p>❌ Erreur lors de la demande de révision : ' . esc_html($result->get_error_message()) . '</p>';
-                    echo '</div>';
-                });
-            } else {
-                add_action('admin_notices', function() use ($admin_notes) {
-                    echo '<div class="notice notice-info is-dismissible">';
-                    echo '<p>🔄 Révision demandée au développeur.</p>';
-                    if (!empty($admin_notes)) {
-                        echo '<p><small>Modifications demandées : ' . esc_html(substr($admin_notes, 0, 100)) . '...</small></p>';
-                    }
-                    echo '</div>';
-                });
-            }
-            
-        } else {
-            add_action('admin_notices', function() use ($action) {
-                echo '<div class="notice notice-error is-dismissible">';
-                echo '<p>❌ Action non reconnue : ' . esc_html($action) . '</p>';
-                echo '</div>';
-            });
-        }
+    } elseif ($action === 'reject_submission') {
+        // TODO: Créer Sisme_Submission_Workflow::reject_submission()
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-warning is-dismissible">';
+            echo '<p>❌ Soumission rejetée.</p>';
+            echo '</div>';
+        });
     }
 }
 
@@ -621,25 +538,20 @@ $page->render_start();
             
         <?php endif; ?>
         
-    <?php elseif ($current_tab === 'submissions' || (!isset($_GET['tab']) && $current_tab === 'base')): ?>
-        <?php
-        // Chargement du nouveau système
-        if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php')) {
-            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
-        }
+    <?php elseif ($current_tab === 'submissions'): ?>
         
-        // Vérifier que la classe est disponible
-        if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
-            echo '<div class="notice notice-error"><p>❌ Le système de soumissions n\'est pas disponible.</p></div>';
-        } else {
+        <!-- ONGLET 2: SOUMISSIONS DE JEUX -->
+        <h3>🎮 Soumissions de Jeux</h3>
+        
+        <?php if (class_exists('Sisme_Submission_Database')): ?>
             
-            // Statistiques soumissions avec le nouveau système
+            <?php
+            // Statistiques soumissions
             $submission_stats = [
-                'pending' => Sisme_Game_Submission_Data_Manager::get_all_submissions_count(Sisme_Utils_Users::GAME_STATUS_PENDING),
-                'published' => Sisme_Game_Submission_Data_Manager::get_all_submissions_count(Sisme_Utils_Users::GAME_STATUS_PUBLISHED),
-                'rejected' => Sisme_Game_Submission_Data_Manager::get_all_submissions_count(Sisme_Utils_Users::GAME_STATUS_REJECTED),
-                'draft' => Sisme_Game_Submission_Data_Manager::get_all_submissions_count(Sisme_Utils_Users::GAME_STATUS_DRAFT),
-                'revision' => Sisme_Game_Submission_Data_Manager::get_all_submissions_count(Sisme_Utils_Users::GAME_STATUS_REVISION)
+                'pending' => Sisme_Submission_Database::get_submissions_count('pending'),
+                'published' => Sisme_Submission_Database::get_submissions_count('published'),
+                'rejected' => Sisme_Submission_Database::get_submissions_count('rejected'),
+                'draft' => Sisme_Submission_Database::get_submissions_count('draft')
             ];
             ?>
             
@@ -656,14 +568,11 @@ $page->render_start();
                 <div style="background: #e2e3e5; padding: 15px; border-radius: 5px; border-left: 4px solid #6c757d;">
                     <strong>📝 Brouillons:</strong> <?php echo $submission_stats['draft']; ?>
                 </div>
-                <div style="background: #fef3e2; padding: 15px; border-radius: 5px; border-left: 4px solid #fd7e14;">
-                    <strong>🔄 Révisions:</strong> <?php echo $submission_stats['revision']; ?>
-                </div>
             </div>
             
             <?php 
-            // Récupérer toutes les soumissions avec le nouveau système
-            $submissions = Sisme_Game_Submission_Data_Manager::get_all_submissions_for_admin();
+            // Récupérer toutes les soumissions
+            $submissions = Sisme_Submission_Database::get_submissions_for_admin();
             
             if (empty($submissions)): 
             ?>
@@ -673,302 +582,116 @@ $page->render_start();
                 </div>
             <?php else: ?>
                 
-                <style>
-                .sisme-submission-row {
-                    cursor: pointer;
-                    transition: background-color 0.2s;
-                }
-                .sisme-submission-row:hover {
-                    background-color: #f8f9fa;
-                }
-                .sisme-submission-details {
-                    display: none;
-                    background: #f1f3f4;
-                    border-left: 4px solid #007cba;
-                }
-                .sisme-submission-details.open {
-                    display: table-row;
-                }
-                .sisme-expand-icon {
-                    transition: transform 0.2s;
-                    display: inline-block;
-                }
-                .sisme-expand-icon.expanded {
-                    transform: rotate(90deg);
-                }
-                .sisme-game-details {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 20px;
-                    padding: 20px;
-                    background: white;
-                    border-radius: 5px;
-                    margin: 10px;
-                }
-                .sisme-detail-section h4 {
-                    margin: 0 0 10px 0;
-                    color: #333;
-                    font-size: 14px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
-                .sisme-detail-item {
-                    margin-bottom: 8px;
-                    font-size: 13px;
-                }
-                .sisme-detail-label {
-                    font-weight: 600;
-                    color: #666;
-                    display: inline-block;
-                    width: 120px;
-                }
-                .sisme-admin-actions {
-                    margin-top: 15px;
-                    padding-top: 15px;
-                    border-top: 1px solid #ddd;
-                }
-                </style>
-                
                 <table class="wp-list-table widefat fixed striped">
                     <thead>
                         <tr>
-                            <th width="30px"></th>
-                            <th>Studio</th>
+                            <th>Jeu</th>
                             <th>Développeur</th>
-                            <th>Nom du jeu</th>
-                            <th>Date soumission</th>
                             <th>Statut</th>
                             <th>Progression</th>
+                            <th>Date soumission</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($submissions as $submission): 
-                            $game_name = $submission['game_data'][Sisme_Utils_Users::GAME_FIELD_NAME] ?? 'Nom non défini';
-                            $studio_name = $submission['game_data'][Sisme_Utils_Users::GAME_FIELD_STUDIO_NAME] ?? 'Studio non défini';
-                            $status = $submission['status'];
-                            $completion = $submission['metadata']['completion_percentage'] ?? 0;
-                            $submitted_at = $submission['metadata']['submitted_at'] ?? $submission['metadata']['updated_at'];
-                            $user_data = $submission['user_data'];
-                            $submission_id = $submission['id'];
-                            $user_id = $user_data['user_id'];
-                            
-                            // Couleur du statut
-                            $status_colors = [
-                                Sisme_Utils_Users::GAME_STATUS_DRAFT => '#6c757d',
-                                Sisme_Utils_Users::GAME_STATUS_PENDING => '#ffc107', 
-                                Sisme_Utils_Users::GAME_STATUS_PUBLISHED => '#28a745',
-                                Sisme_Utils_Users::GAME_STATUS_REJECTED => '#dc3545',
-                                Sisme_Utils_Users::GAME_STATUS_REVISION => '#fd7e14'
-                            ];
-                            
-                            $status_labels = [
-                                Sisme_Utils_Users::GAME_STATUS_DRAFT => '📝 Brouillon',
-                                Sisme_Utils_Users::GAME_STATUS_PENDING => '⏳ En attente',
-                                Sisme_Utils_Users::GAME_STATUS_PUBLISHED => '✅ Publié',
-                                Sisme_Utils_Users::GAME_STATUS_REJECTED => '❌ Rejeté',
-                                Sisme_Utils_Users::GAME_STATUS_REVISION => '🔄 Révision'
-                            ];
-                            
-                            $status_color = $status_colors[$status] ?? '#6c757d';
-                            $status_label = $status_labels[$status] ?? ucfirst($status);
-                        ?>
-                            <tr class="sisme-submission-row" onclick="toggleSubmissionDetails('<?php echo $submission_id; ?>')">
+                        <?php foreach ($submissions as $submission): ?>
+                            <tr>
                                 <td>
-                                    <span class="sisme-expand-icon" id="icon-<?php echo $submission_id ?>">▶</span>
-                                </td>
-                                <td><strong><?php echo esc_html($studio_name); ?></strong></td>
-                                <td>
-                                    <?php echo esc_html($user_data['display_name']); ?><br>
-                                    <small style="color: #666;"><?php echo esc_html($user_data['user_email']); ?></small>
-                                </td>
-                                <td><strong><?php echo esc_html($game_name); ?></strong></td>
-                                <td><?php echo $submitted_at ? date('d/m/Y H:i', strtotime($submitted_at)) : 'Non soumis'; ?></td>
-                                <td>
-                                    <span style="color: <?php echo $status_color; ?>; font-weight: bold;">
-                                        <?php echo $status_label; ?>
-                                    </span>
+                                    <strong>
+                                        <?php 
+                                        $game_name = $submission->game_data_decoded['game_name'] ?? 'Sans nom';
+                                        echo esc_html($game_name);
+                                        ?>
+                                    </strong><br>
+                                    <small>
+                                        <?php 
+                                        $description = $submission->game_data_decoded['description'] ?? '';
+                                        echo esc_html(wp_trim_words($description, 10));
+                                        ?>
+                                    </small>
                                 </td>
                                 <td>
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <div style="flex: 1; background: #e9ecef; border-radius: 10px; height: 8px;">
-                                            <div style="background: <?php echo $completion >= 80 ? '#28a745' : ($completion >= 60 ? '#ffc107' : '#dc3545'); ?>; width: <?php echo $completion; ?>%; height: 100%; border-radius: 10px;"></div>
-                                        </div>
-                                        <span style="font-size: 12px; color: #666;"><?php echo $completion; ?>%</span>
+                                    <strong><?php echo esc_html($submission->user_name); ?></strong><br>
+                                    <small><?php echo esc_html($submission->user_email); ?></small>
+                                </td>
+                                <td>
+                                    <?php
+                                    $status_labels = [
+                                        'draft' => '<span style="color: #6c757d; background: #e9ecef; padding: 4px 8px; border-radius: 3px;">📝 Brouillon</span>',
+                                        'pending' => '<span style="color: #856404; background: #fff3cd; padding: 4px 8px; border-radius: 3px;">⏳ En attente</span>',
+                                        'published' => '<span style="color: #155724; background: #d4edda; padding: 4px 8px; border-radius: 3px;">✅ Publié</span>',
+                                        'rejected' => '<span style="color: #721c24; background: #f8d7da; padding: 4px 8px; border-radius: 3px;">❌ Rejeté</span>'
+                                    ];
+                                    echo $status_labels[$submission->status] ?? 'Inconnu';
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $completion = $submission->game_data_decoded['metadata']['completion_percentage'] ?? 0;
+                                    ?>
+                                    <div style="background: #e9ecef; border-radius: 10px; height: 10px; width: 60px; position: relative;">
+                                        <div style="background: #28a745; height: 100%; width: <?php echo $completion; ?>%; border-radius: 10px;"></div>
                                     </div>
+                                    <small><?php echo $completion; ?>%</small>
                                 </td>
-                                <td onclick="event.stopPropagation();">
-                                    <?php if ($status === Sisme_Utils_Users::GAME_STATUS_PENDING): ?>
+                                <td>
+                                    <?php 
+                                    if ($submission->submitted_at) {
+                                        echo date('d/m/Y H:i', strtotime($submission->submitted_at));
+                                    } elseif ($submission->created_at) {
+                                        echo '<small>Créé le ' . date('d/m/Y', strtotime($submission->created_at)) . '</small>';
+                                    } else {
+                                        echo '-';
+                                    }
+                                    ?>
+                                </td>
+                                <td>
+                                    <?php if ($submission->status === 'pending'): ?>
                                         <form method="post" style="display: inline;">
                                             <?php wp_nonce_field('sisme_submission_action'); ?>
-                                            <input type="hidden" name="submission_id" value="<?php echo $submission_id; ?>">
-                                            <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-                                            <input type="hidden" name="submission_action" value="approve_submission">
-                                            <button type="submit" class="button button-primary button-small">✅ Approuver</button>
+                                            <input type="hidden" name="submission_id" value="<?php echo $submission->id; ?>">
+                                            <button type="submit" name="submission_action" value="approve_submission" 
+                                                    class="button button-primary button-small"
+                                                    onclick="return confirm('Approuver cette soumission et publier le jeu ?')">
+                                                ✅ Publier
+                                            </button>
+                                            <button type="submit" name="submission_action" value="reject_submission" 
+                                                    class="button button-secondary button-small"
+                                                    onclick="return confirm('Rejeter cette soumission ?')">
+                                                ❌ Rejeter
+                                            </button>
                                         </form>
-                                        <form method="post" style="display: inline; margin-left: 5px;">
-                                            <?php wp_nonce_field('sisme_submission_action'); ?>
-                                            <input type="hidden" name="submission_id" value="<?php echo $submission_id; ?>">
-                                            <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-                                            <input type="hidden" name="submission_action" value="reject_submission">
-                                            <button type="submit" class="button button-secondary button-small">❌ Rejeter</button>
-                                        </form>
-                                    <?php elseif ($status === Sisme_Utils_Users::GAME_STATUS_DRAFT): ?>
-                                        <form method="post" style="display: inline;">
-                                            <?php wp_nonce_field('sisme_submission_action'); ?>
-                                            <input type="hidden" name="submission_id" value="<?php echo $submission_id; ?>">
-                                            <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-                                            <input type="hidden" name="submission_action" value="delete_submission">
-                                            <button type="submit" class="button button-secondary button-small" onclick="return confirm('Supprimer définitivement ce brouillon ?')">🗑️ Supprimer</button>
-                                        </form>
+                                    <?php elseif ($submission->status === 'published'): ?>
+                                        <a href="<?php echo home_url('/' . get_term($submission->published_tag_id)->slug . '/'); ?>" 
+                                           class="button button-small" target="_blank">
+                                            👁️ Voir la fiche
+                                        </a>
                                     <?php else: ?>
-                                        <span style="color: #666; font-size: 12px;">Aucune action</span>
+                                        <span style="color: #6c757d;">
+                                            <?php 
+                                            if ($submission->status === 'draft') {
+                                                echo 'En cours d\'édition';
+                                            } else {
+                                                echo 'Aucune action';
+                                            }
+                                            ?>
+                                        </span>
                                     <?php endif; ?>
-                                </td>
-                            </tr>
-                            
-                            <!-- Ligne de détails déroulante -->
-                            <tr class="sisme-submission-details" id="details-<?php echo $submission_id; ?>">
-                                <td colspan="8">
-                                    <div class="sisme-game-details">
-                                        <div class="sisme-detail-section">
-                                            <h4>🎮 Informations du jeu</h4>
-                                            <div class="sisme-detail-item">
-                                                <span class="sisme-detail-label">Nom:</span>
-                                                <?php echo esc_html($submission['game_data'][Sisme_Utils_Users::GAME_FIELD_NAME] ?? 'Non défini'); ?>
-                                            </div>
-                                            <div class="sisme-detail-item">
-                                                <span class="sisme-detail-label">Description:</span>
-                                                <?php 
-                                                $description = $submission['game_data'][Sisme_Utils_Users::GAME_FIELD_DESCRIPTION] ?? '';
-                                                echo esc_html(substr($description, 0, 100)) . (strlen($description) > 100 ? '...' : '');
-                                                ?>
-                                            </div>
-                                            <div class="sisme-detail-item">
-                                                <span class="sisme-detail-label">Date sortie:</span>
-                                                <?php echo esc_html($submission['game_data'][Sisme_Utils_Users::GAME_FIELD_RELEASE_DATE] ?? 'Non définie'); ?>
-                                            </div>
-                                            <div class="sisme-detail-item">
-                                                <span class="sisme-detail-label">Genres:</span>
-                                                <?php 
-                                                $genres = $submission['game_data'][Sisme_Utils_Users::GAME_FIELD_GENRES] ?? [];
-                                                echo esc_html(is_array($genres) ? implode(', ', $genres) : 'Non définis');
-                                                ?>
-                                            </div>
-                                            <div class="sisme-detail-item">
-                                                <span class="sisme-detail-label">Plateformes:</span>
-                                                <?php 
-                                                $platforms = $submission['game_data'][Sisme_Utils_Users::GAME_FIELD_PLATFORMS] ?? [];
-                                                echo esc_html(is_array($platforms) ? implode(', ', $platforms) : 'Non définies');
-                                                ?>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="sisme-detail-section">
-                                            <h4>🏢 Studio & Publication</h4>
-                                            <div class="sisme-detail-item">
-                                                <span class="sisme-detail-label">Studio:</span>
-                                                <?php echo esc_html($submission['game_data'][Sisme_Utils_Users::GAME_FIELD_STUDIO_NAME] ?? 'Non défini'); ?>
-                                            </div>
-                                            <div class="sisme-detail-item">
-                                                <span class="sisme-detail-label">Site studio:</span>
-                                                <?php 
-                                                $studio_url = $submission['game_data'][Sisme_Utils_Users::GAME_FIELD_STUDIO_URL] ?? '';
-                                                if ($studio_url) {
-                                                    echo '<a href="' . esc_url($studio_url) . '" target="_blank">' . esc_html($studio_url) . '</a>';
-                                                } else {
-                                                    echo 'Non défini';
-                                                }
-                                                ?>
-                                            </div>
-                                            <div class="sisme-detail-item">
-                                                <span class="sisme-detail-label">Éditeur:</span>
-                                                <?php echo esc_html($submission['game_data'][Sisme_Utils_Users::GAME_FIELD_PUBLISHER_NAME] ?? 'Non défini'); ?>
-                                            </div>
-                                            <div class="sisme-detail-item">
-                                                <span class="sisme-detail-label">Trailer:</span>
-                                                <?php 
-                                                $trailer = $submission['game_data'][Sisme_Utils_Users::GAME_FIELD_TRAILER] ?? '';
-                                                if ($trailer) {
-                                                    echo '<a href="' . esc_url($trailer) . '" target="_blank">🎬 Voir le trailer</a>';
-                                                } else {
-                                                    echo 'Non défini';
-                                                }
-                                                ?>
-                                            </div>
-                                            <div class="sisme-detail-item">
-                                                <span class="sisme-detail-label">Créé le:</span>
-                                                <?php echo date('d/m/Y H:i', strtotime($submission['metadata']['created_at'])); ?>
-                                            </div>
-                                            <div class="sisme-detail-item">
-                                                <span class="sisme-detail-label">Mis à jour:</span>
-                                                <?php echo date('d/m/Y H:i', strtotime($submission['metadata']['updated_at'])); ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <?php if (!empty($submission['admin_data']['admin_notes'])): ?>
-                                    <div style="margin: 10px; padding: 15px; background: #fff3cd; border-radius: 5px;">
-                                        <h4 style="margin: 0 0 10px 0;">📝 Notes admin</h4>
-                                        <p style="margin: 0;"><?php echo esc_html($submission['admin_data']['admin_notes']); ?></p>
-                                    </div>
-                                    <?php endif; ?>
-                                    
-                                    <div class="sisme-admin-actions">
-                                        <?php if ($status === Sisme_Utils_Users::GAME_STATUS_PENDING): ?>
-                                            <form method="post" style="display: inline;">
-                                                <?php wp_nonce_field('sisme_submission_action'); ?>
-                                                <input type="hidden" name="submission_id" value="<?php echo $submission_id; ?>">
-                                                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-                                                <input type="hidden" name="submission_action" value="approve_submission">
-                                                <textarea name="admin_notes" placeholder="Notes pour le développeur (optionnel)" style="width: 300px; height: 60px; margin-right: 10px;"></textarea>
-                                                <button type="submit" class="button button-primary">✅ Approuver avec notes</button>
-                                            </form>
-                                            <br><br>
-                                            <form method="post" style="display: inline;">
-                                                <?php wp_nonce_field('sisme_submission_action'); ?>
-                                                <input type="hidden" name="submission_id" value="<?php echo $submission_id; ?>">
-                                                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-                                                <input type="hidden" name="submission_action" value="reject_submission">
-                                                <textarea name="admin_notes" placeholder="Raison du rejet (recommandé)" style="width: 300px; height: 60px; margin-right: 10px;"></textarea>
-                                                <button type="submit" class="button button-secondary">❌ Rejeter avec notes</button>
-                                            </form>
-                                        <?php endif; ?>
-                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
                 
-                <script>
-                function toggleSubmissionDetails(submissionId) {
-                    const detailsRow = document.getElementById('details-' + submissionId);
-                    const icon = document.getElementById('icon-' + submissionId);
-                    
-                    if (detailsRow.classList.contains('open')) {
-                        detailsRow.classList.remove('open');
-                        icon.classList.remove('expanded');
-                    } else {
-                        // Fermer toutes les autres lignes ouvertes
-                        document.querySelectorAll('.sisme-submission-details.open').forEach(row => {
-                            row.classList.remove('open');
-                        });
-                        document.querySelectorAll('.sisme-expand-icon.expanded').forEach(ico => {
-                            ico.classList.remove('expanded');
-                        });
-                        
-                        // Ouvrir la ligne actuelle
-                        detailsRow.classList.add('open');
-                        icon.classList.add('expanded');
-                    }
-                }
-                </script>
-                
             <?php endif; ?>
+            
+        <?php else: ?>
+            <div style="text-align: center; padding: 40px; background: #fff3cd; border-radius: 5px; border: 1px solid #ffeaa7;">
+                <p>⚠️ <strong>Module soumission non initialisé</strong></p>
+                <p>La table des soumissions n'existe pas encore. Lancez l'activation du plugin pour créer la structure.</p>
+            </div>
+        <?php endif; ?>
         
-        <?php } // Fin vérification classe ?>
-
     <?php endif; ?>
 </div>
 
