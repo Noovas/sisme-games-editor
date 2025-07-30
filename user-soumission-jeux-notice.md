@@ -61,66 +61,166 @@ const GAME_STATUS_REVISION = 'revision';
 
 ### **1.2 Structure User Meta Proposée**
 ```php
-// Clé: 'sisme_user_game_submissions'
-// Valeur: JSON
-{
-    "submissions": [
-        {
-            "id": "unique_uuid_1",
-            "status": "draft|pending|published|rejected|revision",
-            "game_data": {
-                "game_name": "Mon Super Jeu",
-                "game_description": "Description...",
-                "game_release_date": "2025-03-15",
-                "game_trailer": "https://youtube.com/...",
-                "game_studio_name": "Mon Studio",
-                "game_studio_url": "https://monstudio.com",
-                "game_publisher_name": "Mon Éditeur", 
-                "game_publisher_url": "https://monediteur.com",
-                "game_genres": ["action", "aventure"],
-                "game_platforms": ["pc", "steam"],
-                "covers": {
-                    "horizontal": {
-                        "attachment_id": 123,
-                        "url": "https://..."
-                    },
-                    "vertical": {
-                        "attachment_id": 124, 
-                        "url": "https://..."
-                    }
-                },
-                "screenshots": [
-                    {
-                        "attachment_id": 125,
-                        "url": "https://...",
-                        "caption": "Screenshot 1"
-                    }
+$example_user_meta_structure = [
+    
+    /**
+     * 📋 LISTE DES SOUMISSIONS
+     */
+    'submissions' => [
+        
+        // Exemple soumission 1 (brouillon)
+        [
+            'id' => 'sub_67f2a8b4c1d9e',              // UUID unique généré
+            'status' => 'draft',                       // État actuel
+            
+            /**
+             * 🎮 DONNÉES DU JEU (depuis le formulaire)
+             */
+            'game_data' => [
+                
+                // Section 1: Informations de base
+                'game_name' => 'Mon Super Jeu',
+                'game_description' => 'Un jeu d\'aventure épique où vous incarnez un héros qui doit sauver le monde. Explorez des mondes fantastiques et combattez des créatures légendaires.',
+                'game_release_date' => '2025-03-15',
+                'game_trailer' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                
+                // Section 2: Studio et éditeur
+                'game_studio_name' => 'Mon Studio Indé',
+                'game_studio_url' => 'https://monstudio.com',
+                'game_publisher_name' => 'Mon Éditeur',
+                'game_publisher_url' => 'https://monediteur.com',
+                
+                // Section 3: Catégories
+                'game_genres' => [15, 16, 23], // ✅ IDs de catégories WordPress
+                'game_platforms' => ['windows', 'playstation', 'switch'],
+                'game_modes' => ['solo', 'coop'],                 
+                
+                // Section 4: Médias
+                'covers' => [
+                    'horizontal' => [
+                        'attachment_id' => 123,
+                        'url' => 'https://example.com/wp-content/uploads/cover-h.jpg',
+                        'cropped_data' => [
+                            'x' => 10,
+                            'y' => 5,
+                            'width' => 920,
+                            'height' => 430
+                        ]
+                    ],
+                    'vertical' => [
+                        'attachment_id' => 124,
+                        'url' => 'https://example.com/wp-content/uploads/cover-v.jpg',
+                        'cropped_data' => [
+                            'x' => 0,
+                            'y' => 0,
+                            'width' => 600,
+                            'height' => 900
+                        ]
+                    ]
+                ],
+                'screenshots' => [
+                    [
+                        'attachment_id' => 125,
+                        'url' => 'https://example.com/wp-content/uploads/screen1.jpg',
+                        'caption' => 'Combat épique contre le dragon'
+                    ],
+                    [
+                        'attachment_id' => 126,
+                        'url' => 'https://example.com/wp-content/uploads/screen2.jpg',
+                        'caption' => 'Exploration de la forêt mystique'
+                    ]
+                ],
+                
+                // Section 5: Liens externes
+                'external_links' => [
+                    [
+                        'type' => 'steam',
+                        'label' => 'Page Steam',
+                        'url' => 'https://store.steampowered.com/app/123456'
+                    ],
+                    [
+                        'type' => 'website',
+                        'label' => 'Site officiel',
+                        'url' => 'https://monsuperjeu.com'
+                    ]
                 ]
-            },
-            "metadata": {
-                "created_at": "2025-01-15 10:30:00",
-                "updated_at": "2025-01-15 11:45:00", 
-                "submitted_at": null,
-                "published_at": null,
-                "completion_percentage": 75,
-                "retry_count": 0,
-                "original_submission_id": null
-            },
-            "admin_data": {
-                "admin_user_id": null,
-                "admin_notes": "",
-                "reviewed_at": null
-            }
-        }
+            ],
+            
+            /**
+             * 📊 MÉTADONNÉES SYSTÈME
+             */
+            'metadata' => [
+                'created_at' => '2025-01-15 10:30:00',
+                'updated_at' => '2025-01-15 14:25:00',
+                'submitted_at' => null,                    // null tant que brouillon
+                'published_at' => null,                    // null tant que pas publié
+                'completion_percentage' => 75,             // Calculé automatiquement
+                'retry_count' => 0,                        // Nombre de tentatives après rejet
+                'original_submission_id' => null,         // ID de la soumission originale si retry
+                'auto_save_enabled' => true,              // Auto-save actif pour ce brouillon
+                'last_auto_save' => '2025-01-15 14:20:00'
+            ],
+            
+            /**
+             * 👨‍💼 DONNÉES ADMIN
+             */
+            'admin_data' => [
+                'admin_user_id' => null,                  // ID admin qui a traité
+                'admin_notes' => '',                      // Notes admin (raison rejet, etc.)
+                'reviewed_at' => null                     // Date de traitement admin
+            ]
+        ],
+        
+        // Exemple soumission 2 (publiée)
+        [
+            'id' => 'sub_67f2a8b4c1d9f',
+            'status' => 'published',
+            'game_data' => [
+                'game_name' => 'Mon Jeu Publié',
+                // ... autres données ...
+            ],
+            'metadata' => [
+                'created_at' => '2025-01-10 09:15:00',
+                'updated_at' => '2025-01-12 16:45:00',
+                'submitted_at' => '2025-01-11 11:30:00',
+                'published_at' => '2025-01-12 16:45:00',
+                'completion_percentage' => 100,
+                'retry_count' => 0,
+                'original_submission_id' => null,
+                'auto_save_enabled' => false,             // Désactivé une fois publié
+                'last_auto_save' => null
+            ],
+            'admin_data' => [
+                'admin_user_id' => 42,                    // Admin qui a approuvé
+                'admin_notes' => 'Excellent jeu, approuvé sans modifications',
+                'reviewed_at' => '2025-01-12 16:45:00'
+            ]
+        ]
     ],
-    "stats": {
-        "total_submissions": 1,
-        "published_count": 0,
-        "draft_count": 1,
-        "pending_count": 0,
-        "rejected_count": 0
-    }
-}
+    
+    /**
+     * 📈 STATISTIQUES EN CACHE
+     * (Mises à jour à chaque modification pour éviter les recalculs)
+     */
+    'stats' => [
+        'total_submissions' => 2,
+        'draft_count' => 1,
+        'pending_count' => 0,
+        'published_count' => 1,
+        'rejected_count' => 0,
+        'revision_count' => 0,
+        'last_updated' => '2025-01-15 14:25:00'       // Dernière MAJ des stats
+    ],
+    
+    /**
+     * ⚙️ PARAMÈTRES UTILISATEUR
+     */
+    'settings' => [
+        'auto_save_interval' => 30,                    // Secondes entre auto-saves
+        'auto_save_enabled' => true,                   // Auto-save global activé
+        'email_notifications' => true                  // Notifications email activées
+    ]
+];
 ```
 
 ---
@@ -734,14 +834,14 @@ setInterval(() => {
 
 ## 📋 **Ordre d'Implémentation Recommandé**
 
-1. **Phase 1** : Constantes et structure user meta
-2. **Phase 2** : Data Manager core (CRUD + permissions)
-3. **Phase 3** : Handlers AJAX basiques
-4. **Phase 4** : Interface de base (formulaire + liste)
-5. **Phase 5** : JavaScript et validation + auto-save
-6. **Phase 6** : Intégration complète
-7. **Phase 7** : Tests et optimisations
-8. **Phase 8** : Interface admin basique
-9. **Phase 9** : Règles métier finales
+1. **Phase 1** : Constantes et structure user meta          ✅
+2. **Phase 2** : Data Manager core (CRUD + permissions)     
+3. **Phase 3** : Handlers AJAX basiques                     
+4. **Phase 4** : Interface de base (formulaire + liste)     
+5. **Phase 5** : JavaScript et validation + auto-save       
+6. **Phase 6** : Intégration complète                       
+7. **Phase 7** : Tests et optimisations                     
+8. **Phase 8** : Interface admin basique                    
+9. **Phase 9** : Règles métier finales                      
 
 **Estimation :** 2-3 jours de développement pour un système complet et fonctionnel avec toutes les fonctionnalités demandées.

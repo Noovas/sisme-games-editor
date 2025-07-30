@@ -86,6 +86,80 @@ class Sisme_Utils_Users {
     const DEFAULT_LOGIN_REQUIRED_MESSAGE = 'Vous devez être connecté pour accéder à cette page.';
     const DEFAULT_DASHBOARD_LOGIN_MESSAGE = 'Vous devez être connecté pour accéder à votre dashboard.';
 
+
+    /**
+     * ========================================
+     * 🎮 CONSTANTES GAME SUBMISSION
+     * ========================================
+     */
+    
+    /**
+     * Métadonnée principale pour les soumissions de jeux
+     */
+    const META_GAME_SUBMISSIONS = 'sisme_user_game_submissions';
+    
+    /**
+     * Champs du formulaire de soumission de jeu
+     */
+    const GAME_FIELD_NAME = 'game_name';
+    const GAME_FIELD_DESCRIPTION = 'game_description';
+    const GAME_FIELD_RELEASE_DATE = 'game_release_date';
+    const GAME_FIELD_TRAILER = 'game_trailer';
+    
+    // Studio et éditeur (avec URLs optionnelles)
+    const GAME_FIELD_STUDIO_NAME = 'game_studio_name';
+    const GAME_FIELD_STUDIO_URL = 'game_studio_url';
+    const GAME_FIELD_PUBLISHER_NAME = 'game_publisher_name';
+    const GAME_FIELD_PUBLISHER_URL = 'game_publisher_url';
+    
+    // Catégories et plateformes
+    const GAME_FIELD_GENRES = 'game_genres';
+    const GAME_FIELD_PLATFORMS = 'game_platforms';
+    const GAME_FIELD_MODES = 'game_modes';
+    
+    // Médias
+    const GAME_FIELD_COVER_HORIZONTAL = 'cover_horizontal';
+    const GAME_FIELD_COVER_VERTICAL = 'cover_vertical';
+    const GAME_FIELD_SCREENSHOTS = 'screenshots';
+    
+    // Liens externes
+    const GAME_FIELD_EXTERNAL_LINKS = 'external_links';
+    
+    /**
+     * Statuts des soumissions de jeux
+     */
+    const GAME_STATUS_DRAFT = 'draft';           // Brouillon (modifiable, supprimable)
+    const GAME_STATUS_PENDING = 'pending';       // En attente validation admin
+    const GAME_STATUS_PUBLISHED = 'published';   // Publié (plus modifiable)
+    const GAME_STATUS_REJECTED = 'rejected';     // Rejeté par admin
+    const GAME_STATUS_REVISION = 'revision';     // En révision après rejet (modifiable)
+    
+    /**
+     * Limites et contraintes
+     */
+    const GAME_MAX_DRAFTS_PER_USER = 3;         // Max 3 brouillons simultanés
+    const GAME_MAX_SCREENSHOTS = 5;             // Max 5 screenshots par jeu
+    const GAME_MIN_COMPLETION_TO_SUBMIT = 100;  // 100% requis pour soumettre
+    
+    /**
+     * Champs metadata des soumissions
+     */
+    const GAME_META_CREATED_AT = 'created_at';
+    const GAME_META_UPDATED_AT = 'updated_at';
+    const GAME_META_SUBMITTED_AT = 'submitted_at';
+    const GAME_META_PUBLISHED_AT = 'published_at';
+    const GAME_META_COMPLETION_PERCENTAGE = 'completion_percentage';
+    const GAME_META_RETRY_COUNT = 'retry_count';
+    const GAME_META_ORIGINAL_SUBMISSION_ID = 'original_submission_id';
+    
+    /**
+     * Champs admin des soumissions
+     */
+    const GAME_ADMIN_USER_ID = 'admin_user_id';
+    const GAME_ADMIN_NOTES = 'admin_notes';
+    const GAME_ADMIN_REVIEWED_AT = 'reviewed_at';
+
+
     /**
      * Récupérer les données développeur d'un utilisateur
      * 
