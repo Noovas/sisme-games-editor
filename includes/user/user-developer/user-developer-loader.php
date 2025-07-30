@@ -76,14 +76,6 @@ class Sisme_User_Developer_Loader {
             
             if (file_exists($file_path)) {
                 require_once $file_path;
-                
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log("[Sisme User Developer] Module chargé : $module");
-                }
-            } else {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log("[Sisme User Developer] ERREUR - Module manquant : $file_path");
-                }
             }
         }
 
@@ -93,10 +85,6 @@ class Sisme_User_Developer_Loader {
                 require_once $file_path;
                 if (defined('WP_DEBUG') && WP_DEBUG) {
                     error_log("[Sisme User Developer] Module de soumission chargé : $module");
-                }
-            } else {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log("[Sisme User Developer] ERREUR - Module de soumission manquant : $file_path");
                 }
             }
         }

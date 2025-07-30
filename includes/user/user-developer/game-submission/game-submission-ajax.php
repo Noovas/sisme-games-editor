@@ -8,6 +8,24 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+
+if (!class_exists('Sisme_Utils_Users')) {
+    error_log('ERROR: Sisme_Utils_Users manquant');
+    require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/utils/utils-users.php';
+}
+
+if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+    error_log('ERROR: Sisme_Game_Submission_Data_Manager manquant');
+    require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
+}
+
+/**
+ * Handler pour utilisateurs non connectés
+ */
+function sisme_ajax_not_logged() {
+    wp_send_json_error(['message' => 'Vous devez être connecté pour effectuer cette action']);
+}
+
 /**
  * Initialiser les hooks AJAX pour les soumissions de jeux
  */
@@ -32,15 +50,15 @@ function sisme_init_game_submission_ajax() {
     add_action('wp_ajax_sisme_admin_delete_submission', 'sisme_ajax_admin_delete_submission');
 
     // Non-connectés
-    add_action('wp_ajax_nopriv_sisme_create_game_submission', 'sisme_ajax_not_logged_in');
-    add_action('wp_ajax_nopriv_sisme_save_draft_submission', 'sisme_ajax_not_logged_in');
-    add_action('wp_ajax_nopriv_sisme_update_game_submission', 'sisme_ajax_not_logged_in');
-    add_action('wp_ajax_nopriv_sisme_delete_game_submission', 'sisme_ajax_not_logged_in');
-    add_action('wp_ajax_nopriv_sisme_get_game_submissions', 'sisme_ajax_not_logged_in');
-    add_action('wp_ajax_nopriv_sisme_submit_game_for_review', 'sisme_ajax_not_logged_in');
-    add_action('wp_ajax_nopriv_sisme_retry_rejected_submission', 'sisme_ajax_not_logged_in');
-    add_action('wp_ajax_nopriv_sisme_get_submission_details', 'sisme_ajax_not_logged_in');
-    add_action('wp_ajax_nopriv_sisme_get_developer_game_stats', 'sisme_ajax_not_logged_in');
+    add_action('wp_ajax_nopriv_sisme_create_game_submission', 'sisme_ajax_not_logged');
+    add_action('wp_ajax_nopriv_sisme_save_draft_submission', 'sisme_ajax_not_logged');
+    add_action('wp_ajax_nopriv_sisme_update_game_submission', 'sisme_ajax_not_logged');
+    add_action('wp_ajax_nopriv_sisme_delete_game_submission', 'sisme_ajax_not_logged');
+    add_action('wp_ajax_nopriv_sisme_get_game_submissions', 'sisme_ajax_not_logged');
+    add_action('wp_ajax_nopriv_sisme_submit_game_for_review', 'sisme_ajax_not_logged');
+    add_action('wp_ajax_nopriv_sisme_retry_rejected_submission', 'sisme_ajax_not_logged');
+    add_action('wp_ajax_nopriv_sisme_get_submission_details', 'sisme_ajax_not_logged');
+    add_action('wp_ajax_nopriv_sisme_get_developer_game_stats', 'sisme_ajax_not_logged');
 }
 
 /**
@@ -453,13 +471,6 @@ function sisme_ajax_admin_delete_submission() {
     }
 
     wp_send_json_success(['message' => 'Soumission supprimée par l\'administrateur']);
-}
-
-/**
- * Handler pour utilisateurs non connectés
- */
-function sisme_ajax_not_logged_in() {
-    wp_send_json_error(['message' => 'Vous devez être connecté pour effectuer cette action']);
 }
 
 /**
