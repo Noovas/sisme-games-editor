@@ -643,7 +643,8 @@ function sisme_ajax_get_submission_details() {
         wp_send_json_error(['message' => 'Accès non autorisé']);
     }
     
-    $game_name = $submission->game_data_decoded['game_name'] ?? 'Jeu sans titre';
+    $game_data = json_decode($submission->game_data, true);
+    $game_name = $game_data['game_name'] ?? 'Jeu sans titre';
     $admin_notes = $submission->admin_notes ?? '';
     
     wp_send_json_success([
@@ -655,7 +656,7 @@ function sisme_ajax_get_submission_details() {
         'updated_at' => $submission->updated_at,
         'submitted_at' => $submission->submitted_at,
         'completion_percentage' => $submission->game_data_decoded['metadata']['completion_percentage'] ?? 0,
-        'game_data' => $submission->game_data_decoded
+        'game_data' => $game_data
     ]);
 }
 add_action('wp_ajax_sisme_get_submission_details', 'sisme_ajax_get_submission_details');

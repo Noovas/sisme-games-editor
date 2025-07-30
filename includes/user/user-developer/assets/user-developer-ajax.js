@@ -596,7 +596,7 @@
             url: this.config.ajaxurl,
             type: 'POST',
             data: {
-                action: 'sisme_get_submission_details',
+                action: 'sisme_get_full_submission_data',
                 security: this.config.nonce,
                 submission_id: submissionId
             },
