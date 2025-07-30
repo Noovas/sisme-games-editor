@@ -571,4 +571,24 @@ class Sisme_Game_Submission_Data_Manager {
             'email_notifications' => true
         ];
     }
+
+    /**
+     * Compter toutes les soumissions pour l'admin par statut
+     */
+    public static function get_all_submissions_count($status = null) {
+        $developer_users = get_users([
+            'meta_key' => Sisme_Utils_Users::META_DEVELOPER_STATUS,
+            'meta_value' => Sisme_Utils_Users::DEVELOPER_STATUS_APPROVED,
+            'fields' => ['ID']
+        ]);
+        
+        $total_count = 0;
+        
+        foreach ($developer_users as $user) {
+            $user_submissions = self::get_user_submissions($user->ID, $status);
+            $total_count += count($user_submissions);
+        }
+        
+        return $total_count;
+    }
 }
