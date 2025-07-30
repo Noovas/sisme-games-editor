@@ -606,25 +606,13 @@ class Sisme_User_Developer_Renderer {
      * Rendu de la section "Mes Jeux"
      */
     private static function render_my_games_section($user_id) {
-        ob_start();
-        ?>
-        <div class="sisme-my-games-section">
-            <div class="sisme-my-games-header">
-                <h4 class="sisme-my-games-title">🎮 Mes Soumissions</h4>
-                <p class="sisme-my-games-subtitle">Gérez vos jeux en cours de développement et publiés</p>
-            </div>
-            
-            <div class="sisme-my-games-content">
-                <!-- État vide -->
-                <div class="sisme-games-empty" style="display: block;">
-                    <div class="sisme-empty-icon">🎮</div>
-                    <h5>Aucun jeu soumis</h5>
-                    <p>Commencez par soumettre votre premier jeu en utilisant le bouton ci-dessus !</p>
-                </div>
-            </div>
-        </div>
-        <?php
-        return ob_get_clean();
+        // Charger le nouveau renderer
+        if (!class_exists('Sisme_Game_Submission_Renderer')) {
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-renderer.php';
+        }
+        
+        // Utiliser le nouveau renderer au lieu du placeholder
+        return Sisme_Game_Submission_Renderer::render_submissions_list($user_id);
     }
 
     /**
