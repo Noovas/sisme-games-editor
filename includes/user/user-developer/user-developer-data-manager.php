@@ -108,31 +108,6 @@ class Sisme_User_Developer_Data_Manager {
     }
     
     /**
-     * Récupérer les jeux soumis par le développeur
-     */
-    public static function get_submitted_games($user_id) {
-        // Pour l'instant, retourner un tableau vide
-        // Sera implémenté quand on aura le système de soumission
-        return [];
-    }
-    
-    /**
-     * Récupérer les statistiques développeur
-     */
-    public static function get_developer_stats($user_id) {
-        $submitted_games = self::get_submitted_games($user_id);
-        
-        return [
-            'total_games' => count($submitted_games),
-            'approved_games' => 0, // À calculer
-            'pending_games' => 0, // À calculer
-            'total_views' => 0, // À implémenter
-            'total_downloads' => 0, // À implémenter
-            'join_date' => self::get_developer_join_date($user_id)
-        ];
-    }
-    
-    /**
      * Récupérer la date d'approbation développeur
      */
     private static function get_developer_join_date($user_id) {
@@ -238,5 +213,193 @@ class Sisme_User_Developer_Data_Manager {
      */
     public static function is_approved_developer($user_id) {
         return self::get_developer_status($user_id) === Sisme_Utils_Users::DEVELOPER_STATUS_APPROVED;
+    }
+
+    /**
+     * Récupérer les jeux soumis par le développeur
+     */
+    public static function get_submitted_games($user_id) {
+        if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+            $game_submission_file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
+            if (file_exists($game_submission_file)) {
+                require_once $game_submission_file;
+            } else {
+                return [];
+            }
+        }
+        
+        return Sisme_Game_Submission_Data_Manager::get_user_submissions($user_id);
+    }
+
+    /**
+     * Récupérer les statistiques développeur
+     */
+    public static function get_developer_stats($user_id) {
+        if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+            $game_submission_file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
+            if (file_exists($game_submission_file)) {
+                require_once $game_submission_file;
+            } else {
+                return [
+                    'total_games' => 0,
+                    'published_games' => 0,
+                    'pending_games' => 0,
+                    'draft_games' => 0,
+                    'rejected_games' => 0,
+                    'revision_games' => 0,
+                    'total_views' => 0,
+                    'join_date' => self::get_developer_join_date($user_id)
+                ];
+            }
+        }
+        
+        $game_stats = Sisme_Game_Submission_Data_Manager::get_user_stats($user_id);
+        
+        return [
+            'total_games' => $game_stats['total_submissions'] ?? 0,
+            'published_games' => $game_stats['published_count'] ?? 0,
+            'pending_games' => $game_stats['pending_count'] ?? 0,
+            'draft_games' => $game_stats['draft_count'] ?? 0,
+            'rejected_games' => $game_stats['rejected_count'] ?? 0,
+            'revision_games' => $game_stats['revision_count'] ?? 0,
+            'total_views' => 0,
+            'total_downloads' => 0,
+            'join_date' => self::get_developer_join_date($user_id),
+            'last_submission' => $game_stats['last_updated'] ?? null
+        ];
+    }
+
+    /**
+     * Vérifier si un développeur a des soumissions en cours
+     */
+    public static function has_active_submissions($user_id) {
+        $stats = self::get_developer_stats($user_id);
+        
+        return ($stats['draft_games'] + $stats['pending_games'] + $stats['revision_games']) > 0;
+    }
+
+    /**
+     * Récupérer la dernière soumission d'un développeur
+     */
+    public static function get_latest_submission($user_id) {
+        if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+            $game_submission_file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
+            if (file_exists($game_submission_file)) {
+                require_once $game_submission_file;
+            } else {
+                return null;
+            }
+        }
+        
+        $submissions = Sisme_Game_Submission_Data_Manager::get_user_submissions($user_id);
+        
+        if (empty($submissions)) {
+            return null;
+        }
+        
+        return $submissions[0];
+    }
+
+    /**
+     * Compter les brouillons actifs d'un développeur
+     */
+    public static function count_active_drafts($user_id) {
+        if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+            return 0;
+        }
+        
+        $drafts = Sisme_Game_Submission_Data_Manager::get_user_submissions($user_id, Sisme_Utils_Users::GAME_STATUS_DRAFT);
+        
+        return count($drafts);
+    }
+
+    /**
+     * Vérifier si un développeur peut créer une nouvelle soumission
+     */
+    public static function can_create_new_submission($user_id) {
+        if (!self::is_approved_developer($user_id)) {
+            return false;
+        }
+        
+        if (self::count_active_drafts($user_id) >= Sisme_Utils_Users::GAME_MAX_DRAFTS_PER_USER) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    /**
+     * Récupérer le résumé d'activité d'un développeur
+     */
+    public static function get_developer_activity_summary($user_id) {
+        $stats = self::get_developer_stats($user_id);
+        $latest_submission = self::get_latest_submission($user_id);
+        
+        return [
+            'stats' => $stats,
+            'latest_submission' => $latest_submission,
+            'can_create_new' => self::can_create_new_submission($user_id),
+            'active_drafts_count' => $stats['draft_games'],
+            'is_active_developer' => self::has_active_submissions($user_id),
+            'completion_rate' => self::calculate_completion_rate($user_id)
+        ];
+    }
+
+    /**
+     * Calculer le taux de completion des soumissions d'un développeur
+     */
+    private static function calculate_completion_rate($user_id) {
+        $stats = self::get_developer_stats($user_id);
+        
+        $total_completed = $stats['published_games'] + $stats['rejected_games'];
+        $total_submissions = $stats['total_games'];
+        
+        if ($total_submissions === 0) {
+            return 0;
+        }
+        
+        return round(($total_completed / $total_submissions) * 100);
+    }
+
+    /**
+     * Préparer les données pour le renderer
+     */
+    public static function get_formatted_submissions_for_display($user_id) {
+        if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+            return [
+                'submissions_by_status' => [
+                    'draft' => [],
+                    'revision' => [],
+                    'pending' => [],
+                    'published' => [],
+                    'rejected' => []
+                ],
+                'total_count' => 0,
+                'stats' => self::get_developer_stats($user_id)
+            ];
+        }
+        
+        $all_submissions = Sisme_Game_Submission_Data_Manager::get_user_submissions($user_id);
+        
+        $submissions_by_status = [
+            'draft' => [],
+            'revision' => [],
+            'pending' => [],
+            'published' => [],
+            'rejected' => []
+        ];
+        
+        foreach ($all_submissions as $submission) {
+            $status = $submission['status'];
+            if (isset($submissions_by_status[$status])) {
+                $submissions_by_status[$status][] = $submission;
+            }
+        }
+        
+        return [
+            'submissions_by_status' => $submissions_by_status,
+            'total_count' => count($all_submissions),
+            'stats' => self::get_developer_stats($user_id)
+        ];
     }
 }
