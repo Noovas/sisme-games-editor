@@ -387,7 +387,7 @@ class Sisme_User_Developer_Renderer {
                     require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/submission-database.php';
                 }
 
-                $user_submissions = Sisme_Submission_Database::get_user_submissions($user_id);
+                //$user_submissions = Sisme_Submission_Database::get_user_submissions($user_id);
                 $stats = [
                     'published' => 0,
                     'pending' => 0,
@@ -624,7 +624,7 @@ class Sisme_User_Developer_Renderer {
         }
         
         // Récupérer les soumissions de l'utilisateur
-        $user_submissions = Sisme_Submission_Database::get_user_submissions($user_id);
+        //$user_submissions = Sisme_Submission_Database::get_user_submissions($user_id);
         
         // Organiser par statut
         $submissions_by_status = [
