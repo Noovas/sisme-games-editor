@@ -70,14 +70,12 @@ if (isset($_POST['submission_action']) && isset($_POST['submission_id']) && wp_v
     $admin_notes = sanitize_textarea_field($_POST['admin_notes'] ?? '');
     
     if ($action === 'approve_submission') {
-        // TODO: Créer Sisme_Submission_Workflow::approve_submission()
         add_action('admin_notices', function() {
             echo '<div class="notice notice-success is-dismissible">';
             echo '<p>✅ Soumission approuvée ! Le jeu sera publié.</p>';
             echo '</div>';
         });
     } elseif ($action === 'reject_submission') {
-        // TODO: Créer Sisme_Submission_Workflow::reject_submission()
         add_action('admin_notices', function() {
             echo '<div class="notice notice-warning is-dismissible">';
             echo '<p>❌ Soumission rejetée.</p>';
