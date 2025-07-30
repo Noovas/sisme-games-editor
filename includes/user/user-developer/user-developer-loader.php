@@ -69,7 +69,6 @@ class Sisme_User_Developer_Loader {
             'game-submission/game-submission-data-manager.php',
             'game-submission/game-submission-ajax.php', 
             'game-submission/game-submission-renderer.php',
-            'game-submission/game-submission-validator.php'
         ];
         
         foreach ($required_modules as $module) {
@@ -92,6 +91,13 @@ class Sisme_User_Developer_Loader {
             $file_path = $developer_dir . $module;
             if (file_exists($file_path)) {
                 require_once $file_path;
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("[Sisme User Developer] Module de soumission chargé : $module");
+                }
+            } else {
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("[Sisme User Developer] ERREUR - Module de soumission manquant : $file_path");
+                }
             }
         }
         
@@ -116,6 +122,7 @@ class Sisme_User_Developer_Loader {
 
         // Initialiser directement les hooks AJAX
         add_action('wp_loaded', 'sisme_init_developer_ajax');
+        add_action('init', 'sisme_init_game_submission_ajax');
     }
 
     /**
