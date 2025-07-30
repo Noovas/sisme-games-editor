@@ -1,405 +1,747 @@
-# 📋 Module User Soumission Jeux - API Reference
+# 🎯 Plan d'Action - Nouveau Système Game Submission User Meta
 
-## 🏗️ **Architecture actuelle**
+## 📋 **Architecture Proposée**
 
-### **Structure des modules**
+### **🏗️ Structure des Fichiers (Nouveaux)**
+
 ```
-includes/user/user-dashboard/               # Dashboard base
-├── user-dashboard-loader.php              # Shortcode + assets
-├── user-dashboard-api.php                 # Shortcode [sisme_user_dashboard]
-├── user-dashboard-renderer.php            # Rendu sections
-├── user-dashboard-data-manager.php        # Données utilisateur
-└── assets/
-    ├── user-dashboard.css                 # Styles dashboard
-    └── user-dashboard.js                  # Navigation + interactions
-
-includes/user/user-developer/               # Extension développeur
-├── user-developer-loader.php              # Extension dashboard + hooks
-├── user-developer-renderer.php            # Interface développeur + formulaire soumission
-├── user-developer-data-manager.php        # Statuts + candidatures
-├── user-developer-ajax.php                # AJAX développeur + soumissions
-├── user-developer-email-notifications.php # Emails candidature
-├── submission/                             # Image cropping simple
-│   ├── simple-image-cropper.php           # Upload + crop basique
-│   ├── submission-database.php            # Table wp_sisme_game_submissions
-│   └── assets/simple-cropper.js           # Cropper.js frontend
-├── submission-game/                        # Soumissions avancées
-│   ├── submission-game-loader.php         # Auto-loader
-│   ├── submission-game-ajax.php           # AJAX soumissions
-│   └── assets/submission-game.js          # Interface éditeur
-└── assets/
-    ├── user-developer.css                 # Styles développeur
-    ├── user-developer.js                  # Interactions base
-    └── user-developer-ajax.js             # AJAX client + mes jeux
+includes/user/user-developer/
+├── user-developer-loader.php              ✅ Existant (à étendre)
+├── user-developer-data-manager.php        ✅ Existant (à étendre)  
+├── user-developer-renderer.php            ✅ Existant (à nettoyer/étendre)
+├── user-developer-ajax.php                ✅ Existant (à nettoyer/étendre)
+├── game-submission/                        🆕 NOUVEAU DOSSIER
+│   ├── game-submission-data-manager.php   🆕 CRUD user meta jeux
+│   ├── game-submission-ajax.php           🆕 Handlers AJAX jeux
+│   ├── game-submission-renderer.php       🆕 Rendu formulaires/listes
+│   ├── game-submission-validator.php      🆕 Validation métier
+│   ├── game-submission-admin.php          🆕 Interface admin basique
+│   └── assets/
+│       ├── game-submission.css            🆕 Styles formulaires
+│       ├── game-submission.js             🆕 Interface utilisateur
+│       ├── game-submission-validator.js   🆕 Validation frontend
+│       └── game-submission-admin.js       🆕 Interface admin
+└── assets/                                 ✅ Existant
+    ├── user-developer.css                 ✅ Existant
+    ├── user-developer.js                  ✅ Existant  
+    └── user-developer-ajax.js             ✅ Existant (à nettoyer)
 ```
 
 ---
 
-## 📦 **Dashboard Base (`user-dashboard`)**
+## 🎯 **Phase 1 : Fondations User Meta**
 
-**Classe principale :** `Sisme_User_Dashboard_Loader`
-
-### Shortcode
-<details>
-<summary><code>[sisme_user_dashboard]</code></summary>
-
+### **1.1 Étendre les Constantes (`utils-users.php`)**
 ```php
-// Shortcode principal : [sisme_user_dashboard]
-// Rendu par: Sisme_User_Dashboard_API::render_dashboard()
-// Condition assets: has_shortcode($post->post_content, 'sisme_user_dashboard')
-// Assets: user-dashboard.css/js + tokens.css
-// Localisation: sismeUserDashboard {ajaxUrl, nonce: sisme_dashboard, currentUserId}
+// Nouvelles constantes pour jeux
+const META_GAME_SUBMISSIONS = 'sisme_user_game_submissions';
+
+// Champs soumission jeu
+const GAME_FIELD_NAME = 'game_name';
+const GAME_FIELD_DESCRIPTION = 'game_description'; 
+const GAME_FIELD_RELEASE_DATE = 'game_release_date';
+const GAME_FIELD_TRAILER = 'game_trailer';
+const GAME_FIELD_STUDIO_NAME = 'game_studio_name';
+const GAME_FIELD_STUDIO_URL = 'game_studio_url';
+const GAME_FIELD_PUBLISHER_NAME = 'game_publisher_name';
+const GAME_FIELD_PUBLISHER_URL = 'game_publisher_url';
+const GAME_FIELD_GENRES = 'game_genres';
+const GAME_FIELD_PLATFORMS = 'game_platforms';
+const GAME_FIELD_COVER_HORIZONTAL = 'cover_horizontal';
+const GAME_FIELD_COVER_VERTICAL = 'cover_vertical';
+const GAME_FIELD_SCREENSHOTS = 'screenshots';
+
+// Statuts soumission
+const GAME_STATUS_DRAFT = 'draft';
+const GAME_STATUS_PENDING = 'pending';
+const GAME_STATUS_PUBLISHED = 'published';
+const GAME_STATUS_REJECTED = 'rejected';
+const GAME_STATUS_REVISION = 'revision';
 ```
-</details>
 
-### Hooks d'extension
-<details>
-<summary><code>sisme_dashboard_accessible_sections</code></summary>
-
+### **1.2 Structure User Meta Proposée**
 ```php
-// Hook pour ajouter sections accessibles
-// @param array $sections - Sections de base
-// @param int $user_id - ID utilisateur 
-// @return array - Sections étendues
-add_filter('sisme_dashboard_accessible_sections', $callback, 10, 2);
+// Clé: 'sisme_user_game_submissions'
+// Valeur: JSON
+{
+    "submissions": [
+        {
+            "id": "unique_uuid_1",
+            "status": "draft|pending|published|rejected|revision",
+            "game_data": {
+                "game_name": "Mon Super Jeu",
+                "game_description": "Description...",
+                "game_release_date": "2025-03-15",
+                "game_trailer": "https://youtube.com/...",
+                "game_studio_name": "Mon Studio",
+                "game_studio_url": "https://monstudio.com",
+                "game_publisher_name": "Mon Éditeur", 
+                "game_publisher_url": "https://monediteur.com",
+                "game_genres": ["action", "aventure"],
+                "game_platforms": ["pc", "steam"],
+                "covers": {
+                    "horizontal": {
+                        "attachment_id": 123,
+                        "url": "https://..."
+                    },
+                    "vertical": {
+                        "attachment_id": 124, 
+                        "url": "https://..."
+                    }
+                },
+                "screenshots": [
+                    {
+                        "attachment_id": 125,
+                        "url": "https://...",
+                        "caption": "Screenshot 1"
+                    }
+                ]
+            },
+            "metadata": {
+                "created_at": "2025-01-15 10:30:00",
+                "updated_at": "2025-01-15 11:45:00", 
+                "submitted_at": null,
+                "published_at": null,
+                "completion_percentage": 75,
+                "retry_count": 0,
+                "original_submission_id": null
+            },
+            "admin_data": {
+                "admin_user_id": null,
+                "admin_notes": "",
+                "reviewed_at": null
+            }
+        }
+    ],
+    "stats": {
+        "total_submissions": 1,
+        "published_count": 0,
+        "draft_count": 1,
+        "pending_count": 0,
+        "rejected_count": 0
+    }
+}
 ```
-</details>
-
-<details>
-<summary><code>sisme_dashboard_navigation_items</code></summary>
-
-```php
-// Hook pour ajouter items navigation
-// @param array $nav_items - Items existants
-// @param int $user_id - ID utilisateur
-// @return array - Items étendus avec {section, icon, text, badge, class}
-add_filter('sisme_dashboard_navigation_items', $callback, 10, 2);
-```
-</details>
-
-<details>
-<summary><code>sisme_dashboard_render_section</code></summary>
-
-```php
-// Hook pour rendre sections personnalisées
-// @param string $content - Contenu actuel
-// @param string $section - Section demandée
-// @param array $dashboard_data - Données dashboard
-// @return string - HTML de la section
-add_filter('sisme_dashboard_render_section', $callback, 10, 3);
-```
-</details>
 
 ---
 
-## 🎮 **Extension Développeur (`user-developer`)**
+## 🎯 **Phase 2 : Data Manager Core**
 
-**Classe principale :** `Sisme_User_Developer_Loader`
+### **2.1 Créer `game-submission-data-manager.php`**
 
-### Initialisation & Base de données
-<details>
-<summary><code>ensure_database_ready()</code></summary>
-
+#### **Fonctions CRUD Principales**
 ```php
-// S'assure que table wp_sisme_game_submissions existe
-// Auto-création si manquante via Sisme_Submission_Database::create_table()
-// Appelé dans __construct() du loader
+class Sisme_Game_Submission_Data_Manager {
+    
+    // === GETTERS ===
+    public static function get_user_submissions($user_id, $status = null)
+    public static function get_submission_by_id($user_id, $submission_id)
+    public static function get_user_stats($user_id)
+    
+    // === CRUD ===
+    public static function create_submission($user_id, $game_data = [])
+    public static function update_submission($user_id, $submission_id, $game_data)
+    public static function delete_submission($user_id, $submission_id)
+    public static function change_submission_status($user_id, $submission_id, $new_status)
+    
+    // === BUSINESS LOGIC ===
+    public static function save_draft($user_id, $submission_id, $game_data)           // 🆕 Sauvegarder brouillon
+    public static function submit_for_review($user_id, $submission_id)               // 🆕 Draft → Pending
+    public static function create_retry_submission($user_id, $original_id)
+    public static function calculate_completion_percentage($game_data)
+    
+    // === VALIDATION PERMISSIONS ===
+    public static function can_create_submission($user_id)
+    public static function can_edit_submission($user_id, $submission_id)             // 🆕 Édition autorisée ?
+    public static function can_delete_submission($user_id, $submission_id)           // 🆕 Suppression autorisée ?
+    public static function can_submit_for_review($user_id, $submission_id)           // 🆕 Soumission autorisée ?
+    
+    // === ADMIN QUERIES ===
+    public static function get_all_submissions_for_admin($status = null, $limit = 50) // 🆕 Liste admin
+    public static function delete_submission_admin($submission_id)                    // 🆕 Suppression admin
+}
 ```
-</details>
 
-### Hooks Dashboard
-<details>
-<summary><code>add_developer_section($sections, $user_id)</code></summary>
-
+#### **Helpers Utilitaires**
 ```php
-// Ajoute 'developer' et 'submit-game' (si approved) aux sections
-// Hook: sisme_dashboard_accessible_sections
-// Condition: is_user_logged_in()
+// Génération UUID unique pour les soumissions
+private static function generate_submission_id()
+
+// Validation permissions développeur
+private static function validate_developer_permissions($user_id)
+
+// Nettoyage données avant sauvegarde
+private static function sanitize_game_data($game_data)
+
+// Merge intelligent des données existantes
+private static function merge_game_data($existing, $new_data)
 ```
-</details>
 
-<details>
-<summary><code>add_developer_nav_item($nav_items, $user_id)</code></summary>
-
+### **2.2 Étendre `user-developer-data-manager.php`**
 ```php
-// Ajoute navigation selon statut développeur
-// Hook: sisme_dashboard_navigation_items
-// Statuts retournés:
-// - none: 📝 "Devenir Développeur"
-// - pending: ⏳ "Candidature en cours" + badge "1"
-// - approved: 🎮 "Mes Jeux"  
-// - rejected: ❌ "Candidature rejetée"
+// Ajouter à la classe existante :
+
+/**
+ * Récupérer les jeux soumis par le développeur (NOUVEAU)
+ */
+public static function get_submitted_games($user_id) {
+    if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
+    }
+    
+    return Sisme_Game_Submission_Data_Manager::get_user_submissions($user_id);
+}
+
+/**
+ * Récupérer les statistiques développeur (MISE À JOUR)
+ */
+public static function get_developer_stats($user_id) {
+    $game_stats = Sisme_Game_Submission_Data_Manager::get_user_stats($user_id);
+    
+    return [
+        'total_games' => $game_stats['total_submissions'],
+        'published_games' => $game_stats['published_count'],
+        'pending_games' => $game_stats['pending_count'],
+        'draft_games' => $game_stats['draft_count'],  
+        'rejected_games' => $game_stats['rejected_count'],
+        'total_views' => 0, // À implémenter
+        'join_date' => self::get_developer_join_date($user_id)
+    ];
+}
 ```
-</details>
-
-<details>
-<summary><code>render_developer_section($content, $section, $data)</code></summary>
-
-```php
-// Rendu sections 'developer' et 'submit-game'
-// Hook: sisme_dashboard_render_section
-// Délègue à: Sisme_User_Developer_Renderer
-// Section 'submit-game': render_submit_game_section() avec crop test
-```
-</details>
-
-### Assets
-<details>
-<summary><code>enqueue_developer_assets()</code></summary>
-
-```php
-// Assets: user-developer.css/js + user-developer-ajax.js
-// Condition: should_load_assets() -> shortcode dashboard dans post_content
-// Localisation: sismeAjax {ajaxurl, nonce: sisme_developer_nonce, currentUserId}
-// Hook: wp_enqueue_scripts
-```
-</details>
-
-<details>
-<summary><code>enqueue_submission_assets()</code></summary>
-
-```php
-// Assets crop: cropper.min.css/js (CDN) + simple-cropper.js
-// Dépendances: ['cropperjs', 'jquery']
-// Localisation: sismeAjax {ajaxurl, nonce: sisme_developer_nonce}
-// Hook: wp_enqueue_scripts
-```
-</details>
 
 ---
 
-## 📊 **Data Manager Développeur**
+## 🎯 **Phase 3 : Handlers AJAX**
 
-**Classe :** `Sisme_User_Developer_Data_Manager`
+### **3.1 Créer `game-submission-ajax.php`**
 
-### Statuts développeur
-<details>
-<summary><code>get_developer_status($user_id)</code></summary>
-
+#### **Actions AJAX Principales**
 ```php
-// @return string 'none'|'pending'|'approved'|'rejected'
-// Source: get_user_meta($user_id, 'sisme_developer_status', true)
-// Défaut: 'none'
+// === CRUD SOUMISSIONS ===
+sisme_ajax_create_game_submission()     // Créer nouveau brouillon
+sisme_ajax_save_draft_submission()      // 🆕 Sauvegarder brouillon (auto-save)
+sisme_ajax_update_game_submission()     // 🆕 Modifier soumission existante
+sisme_ajax_delete_game_submission()     // 🆕 Supprimer brouillon uniquement
+sisme_ajax_get_game_submissions()       // Lister soumissions user
+
+// === WORKFLOW ===
+sisme_ajax_submit_game_for_review()     // 🆕 Draft → Pending (soumission finale)
+sisme_ajax_retry_rejected_submission()  // Rejected → New Draft
+
+// === DETAILS ===
+sisme_ajax_get_submission_details()     // Charger données soumission
+sisme_ajax_get_developer_game_stats()   // Statistiques développeur
+
+// === VALIDATION ===
+sisme_ajax_validate_game_data()         // Validation temps réel
+sisme_ajax_check_submission_limits()    // Vérifier limites user
+
+// === ADMIN (BASIQUE) ===
+sisme_ajax_admin_get_submissions()      // 🆕 Liste soumissions admin
+sisme_ajax_admin_delete_submission()    // 🆕 Suppression admin
 ```
-</details>
 
-<details>
-<summary><code>is_approved_developer($user_id)</code></summary>
-
+#### **Structure des Handlers**
 ```php
-// @return bool - True si statut = 'approved' ET rôle 'sisme-dev'
-// Utilisé pour: permissions soumission jeux
+function sisme_ajax_create_game_submission() {
+    // 1. Sécurité (nonce + permissions)  
+    // 2. Validation données
+    // 3. Appel data manager
+    // 4. Réponse JSON
+}
 ```
-</details>
+
+### **3.2 Nettoyer `user-developer-ajax.php`**
+```php
+// SUPPRIMER tous les anciens handlers table :
+// ❌ sisme_ajax_save_submission_game()
+// ❌ sisme_ajax_submit_submission_game()  
+// ❌ sisme_ajax_create_submission()
+// ❌ sisme_ajax_delete_submission()
+// ❌ etc.
+
+// GARDER seulement :
+// ✅ sisme_ajax_developer_submit()          // Candidature
+// ✅ sisme_ajax_developer_reset_rejection() // Reset candidature
+// ✅ sisme_handle_simple_crop_upload()      // Upload images
+// ✅ sisme_ajax_not_logged_in()            // Handler sécurité
+```
 
 ---
 
-## 💾 **Base de Données Soumissions**
+## 🎯 **Phase 4 : Interface Utilisateur**
 
-**Classe :** `Sisme_Submission_Database`
-**Table :** `wp_sisme_game_submissions`
+### **4.1 Créer `game-submission-renderer.php`**
 
-### Structure table
-<details>
-<summary><code>Schema wp_sisme_game_submissions</code></summary>
-
-```sql
-CREATE TABLE wp_sisme_game_submissions (
-    id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-    user_id bigint(20) unsigned NOT NULL,
-    game_data longtext NOT NULL,
-    status enum('draft','pending','published','rejected','revision') DEFAULT 'draft',
-    admin_user_id bigint(20) unsigned DEFAULT NULL,
-    admin_notes text DEFAULT NULL,
-    created_at datetime DEFAULT CURRENT_TIMESTAMP,
-    updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    submitted_at datetime DEFAULT NULL,
-    published_at datetime DEFAULT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES wp_users(ID) ON DELETE CASCADE
-);
-```
-</details>
-
-### CRUD Operations
-<details>
-<summary><code>create_submission($user_id, $game_data)</code></summary>
-
+#### **Rendu Formulaires**
 ```php
-// Créer nouvelle soumission
-// @param int $user_id - ID développeur approuvé
-// @param array $game_data - Données jeu (JSON stocké)
-// @return int|WP_Error - ID soumission ou erreur
-// Validation: limits + permissions
+class Sisme_Game_Submission_Renderer {
+    
+    // === SECTIONS FORMULAIRE ===
+    public static function render_submission_form($user_id, $submission_id = null)
+    public static function render_basic_info_section($game_data = [])
+    public static function render_media_section($game_data = [])
+    public static function render_categories_section($game_data = [])
+    public static function render_external_links_section($game_data = [])
+    
+    // === LISTES ===
+    public static function render_submissions_list($user_id)
+    public static function render_submission_item($submission, $context = 'list')
+    
+    // === WIDGETS ===
+    public static function render_stats_widget($stats)
+    public static function render_actions_widget($user_id)
+}
 ```
-</details>
 
-<details>
-<summary><code>get_user_submissions($user_id, $status)</code></summary>
-
+### **4.2 Mettre à Jour `user-developer-renderer.php`**
 ```php
-// Récupérer soumissions utilisateur
-// @param int $user_id
-// @param string|null $status - Filtrer par statut (optionnel)
-// @return array - Objets soumission avec game_data_decoded
-```
-</details>
+// Mettre à jour render_my_games_section() :
 
-<details>
-<summary><code>update_submission($submission_id, $game_data, $user_id)</code></summary>
+private static function render_my_games_section($user_id) {
+    if (!class_exists('Sisme_Game_Submission_Renderer')) {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-renderer.php';
+    }
+    
+    return Sisme_Game_Submission_Renderer::render_submissions_list($user_id);
+}
 
-```php
-// Mettre à jour soumission
-// @param int $submission_id
-// @param array $game_data - Nouvelles données
-// @param int $user_id - Propriétaire (sécurité)
-// @return bool|WP_Error
+// Mettre à jour render_submit_game_section() :
+
+public static function render_submit_game_section($user_id, $developer_status, $dashboard_data) {
+    if ($developer_status !== 'approved') {
+        return '<p>Vous devez être un développeur approuvé pour soumettre des jeux.</p>';
+    }
+    
+    return Sisme_Game_Submission_Renderer::render_submission_form($user_id);
+}
 ```
-</details>
 
 ---
 
-## 🔄 **AJAX Handlers**
+## 🎯 **Phase 5 : Frontend JavaScript**
 
-### user-developer-ajax.php
-<details>
-<summary><code>wp_ajax_sisme_simple_crop_upload</code></summary>
+### **5.1 Créer `game-submission.js`**
 
-```php
-// Handler: sisme_handle_simple_crop_upload()
-// Nonce: sisme_developer_nonce  
-// Classe: Sisme_Simple_Image_Cropper::process_upload()
-// Retour: {attachment_id, url, message}
-```
-</details>
-
-<details>
-<summary><code>wp_ajax_sisme_create_submission</code></summary>
-
-```php
-// Handler: sisme_ajax_create_submission()
-// Crée nouvelle soumission draft
-// Retour: {submission_id, message}
-```
-</details>
-
-<details>
-<summary><code>wp_ajax_sisme_delete_submission</code></summary>
-
-```php
-// Handler: sisme_ajax_delete_submission()
-// Supprime soumission (draft/revision uniquement)
-// Validation: ownership + status
-```
-</details>
-
-<details>
-<summary><code>wp_ajax_sisme_retry_submission</code></summary>
-
-```php
-// Handler: sisme_ajax_retry_submission()
-// Copie soumission rejetée vers nouveau draft
-// Ajoute metadata: retry_count, original_submission_id
-```
-</details>
-
-### submission-game-ajax.php
-<details>
-<summary><code>wp_ajax_sisme_save_submission_game</code></summary>
-
-```php
-// Handler: sisme_ajax_save_submission_game()
-// Sauvegarde draft avec validation
-// Fonction: sisme_validate_submission_game_data()
-```
-</details>
-
-<details>
-<summary><code>wp_ajax_sisme_submit_submission_game</code></summary>
-
-```php
-// Handler: sisme_ajax_submit_submission_game()
-// Draft -> pending pour validation admin
-// Update status + submitted_at timestamp
-```
-</details>
-
----
-
-## 🖼️ **Image Cropping**
-
-**Classe :** `Sisme_Simple_Image_Cropper`
-
-### Méthodes principales
-<details>
-<summary><code>process_upload($file)</code></summary>
-
-```php
-// Upload + validation basique
-// @param array $file - $_FILES['image']
-// @return int|WP_Error - attachment_id
-// Limite: 5MB, types: JPG/PNG
-```
-</details>
-
-### Frontend (simple-cropper.js)
-<details>
-<summary><code>SimpleCropper class</code></summary>
-
+#### **Gestion Formulaire**
 ```javascript
-// Initialisation: new SimpleCropper(containerId)
-// Dépendances: Cropper.js (CDN)
-// Ratio fixe: 920/430 (cover horizontale)
-// Upload AJAX: action 'sisme_simple_crop_upload'
-// Events: imageProcessed avec {url, attachmentId}
+class GameSubmissionManager {
+    
+    // === INITIALISATION ===
+    init()
+    bindEvents()
+    
+    // === CRUD ===
+    createSubmission()                  // Créer nouveau brouillon
+    saveDraft(submissionId)            // 🆕 Sauvegarde automatique brouillon
+    editSubmission(submissionId)       // 🆕 Ouvrir soumission en édition
+    updateSubmission(submissionId)     // 🆕 Sauvegarder modifications
+    deleteSubmission(submissionId)     // 🆕 Supprimer (brouillons uniquement)
+    
+    // === WORKFLOW ===
+    submitForReview(submissionId)       // 🆕 Draft → Pending (soumission finale)
+    retryRejectedSubmission(submissionId)
+    
+    // === UI ===
+    showSubmissionForm(submissionId = null)  // Nouveau ou édition
+    showSubmissionsList()
+    updateStatsDisplay()
+    
+    // === AUTO-SAVE ===
+    enableAutoSave()                    // 🆕 Sauvegarde automatique toutes les 30s
+    disableAutoSave()                   // 🆕 Désactiver auto-save
+    
+    // === VALIDATION ===
+    validateForm()
+    validateSection(sectionName)
+    calculateCompletionPercentage()
+    canDeleteSubmission(submission)     // 🆕 Vérifier si suppression autorisée
+}
 ```
-</details>
+
+### **5.2 Créer `game-submission-validator.js`**
+```javascript
+class GameSubmissionValidator {
+    
+    // === RÈGLES VALIDATION ===
+    rules: {
+        game_name: { required: true, minLength: 3, maxLength: 100 },
+        game_description: { required: true, minLength: 50, maxLength: 180 },
+        game_release_date: { required: true, isDate: true },
+        game_trailer: { required: true, isYouTubeUrl: true },
+        game_studio_name: { required: true, minLength: 2, maxLength: 50 },
+        game_studio_url: { required: false, isUrl: true },
+        game_publisher_name: { required: true, minLength: 2, maxLength: 50 },
+        game_publisher_url: { required: false, isUrl: true }
+    }
+    
+    // === MÉTHODES ===
+    validateField(fieldName, value)
+    validateForm()
+    isFormValid()
+    getValidationErrors()
+    showFieldError(fieldName, message)
+    clearFieldError(fieldName)
+}
+```
+
+### **5.3 Nettoyer `user-developer-ajax.js`**
+```javascript
+// SUPPRIMER toutes les fonctions liées aux soumissions :
+// ❌ startNewSubmission()
+// ❌ continueSubmission()
+// ❌ loadSubmissionData()
+// ❌ handleSaveDraft()
+// ❌ handleSubmitGame()
+// ❌ etc.
+
+// GARDER seulement :
+// ✅ handleFormSubmit()        // Candidature développeur
+// ✅ handleRetryApplication()  // Reset candidature  
+// ✅ showFeedback()           // Feedback utilisateur
+// ✅ showLoader()             // Loader modal
+```
 
 ---
 
-## 🎯 **Workflow Soumission Actuel**
+## 🎯 **Phase 6 : Intégration et Chargement**
 
-### États soumission
-```
-draft -> pending -> published
-  ↓        ↓         
-revision <- rejected
-```
-
-### Permissions
-- **Soumission** : Statut développeur = 'approved' + rôle 'sisme-dev'
-- **Édition** : Propriétaire + statut 'draft'|'revision'
-- **Suppression** : Propriétaire + statut 'draft'|'revision'
-
-### Assets loading
-- **Condition** : Page avec shortcode `[sisme_user_dashboard]`
-- **Dashboard base** : Toujours chargé si shortcode présent
-- **Développeur** : Chargé si user connecté sur page dashboard
-- **Crop images** : Chargé avec assets développeur
-
----
-
-## 🚀 **Hooks d'initialisation**
-
-### Ordre de chargement
+### **6.1 Étendre `user-developer-loader.php`**
 ```php
-// 1. Dashboard base
-add_action('init', user-dashboard-loader singleton)
+// Ajouter chargement modules soumission :
 
-// 2. Extension développeur  
-add_action('init', user-developer-loader singleton)
-    -> ensure_database_ready()
-    -> register_hooks() avec filters dashboard
+private function load_developer_modules() {
+    // ... modules existants ...
+    
+    // NOUVEAUX modules soumission
+    $submission_modules = [
+        'game-submission/game-submission-data-manager.php',
+        'game-submission/game-submission-ajax.php', 
+        'game-submission/game-submission-renderer.php',
+        'game-submission/game-submission-validator.php',
+        'game-submission/game-submission-admin.php'
+    ];
+    
+    foreach ($submission_modules as $module) {
+        $this->load_submission_module($module);
+    }
+}
 
-// 3. AJAX développeur
-add_action('wp_loaded', 'sisme_init_developer_ajax')
-
-// 4. Module soumission-game (auto)
-add_action('init', 'sisme_init_submission_game_loader')
-    -> sisme_init_submission_game_ajax()
+// Ajouter chargement assets soumission :
+public function enqueue_submission_assets() {
+    // CSS soumission
+    wp_enqueue_style(
+        'sisme-game-submission',
+        SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission.css'
+    );
+    
+    // JS soumission
+    wp_enqueue_script(
+        'sisme-game-submission',
+        SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission.js',
+        ['jquery', 'sisme-user-developer-ajax']
+    );
+}
 ```
 
-### Dépendances critiques
-- Dashboard AVANT développeur (hooks)
-- Database AVANT AJAX handlers
-- Assets conditionnels sur shortcode détection
+---
+
+## 🎯 **Phase 7 : Tests et Validation**
+
+### **7.1 Tests Unitaires Data Manager**
+- CRUD opérations user meta
+- Validation permissions
+- Calculs statistiques
+- Gestion des statuts
+
+### **7.2 Tests Frontend**
+- Formulaire soumission
+- Validation temps réel  
+- AJAX handlers
+- Navigation sections
+
+### **7.3 Tests d'Intégration**
+- Dashboard développeur
+- Système de crop images
+- Workflow complet soumission
+- Gestion des erreurs
+
+---
+
+## 🎯 **Phase 8 : Interface Admin (Basique)**
+
+### **8.1 Créer `game-submission-admin.php`**
+
+#### **Page Admin Simple**
+```php
+class Sisme_Game_Submission_Admin {
+    
+    // === INTERFACE ADMIN ===
+    public static function render_admin_page()
+    public static function render_submissions_table($submissions)
+    public static function render_submission_details_modal($submission)
+    
+    // === ACTIONS ADMIN ===  
+    public static function handle_admin_delete_submission()
+    
+    // === AJAX ADMIN ===
+    public static function ajax_get_submissions_list()
+    public static function ajax_get_submission_details() 
+    public static function ajax_delete_submission()
+}
+```
+
+#### **Structure Table Admin**
+```html
+<table class="wp-list-table widefat fixed striped">
+    <thead>
+        <tr>
+            <th>Jeu</th>
+            <th>Studio</th>
+            <th>Développeur</th>
+            <th>Statut</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Nom du Jeu</strong></td>
+            <td>Nom Studio</td>
+            <td>Nom Utilisateur</td>
+            <td><span class="status-badge pending">En attente</span></td>
+            <td>2025-01-15</td>
+            <td>
+                <button class="button view-details" data-id="123">👁️ Détails</button>
+                <button class="button delete-submission" data-id="123">🗑️ Supprimer</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+```
+
+#### **Modal Détails Submission**
+```html
+<div id="submission-details-modal" class="sisme-admin-modal">
+    <div class="modal-content">
+        <h3>📋 Détails de la Soumission</h3>
+        
+        <!-- Informations principales -->
+        <div class="submission-info">
+            <p><strong>Jeu :</strong> <span id="detail-game-name"></span></p>
+            <p><strong>Studio :</strong> <span id="detail-studio-name"></span></p>
+            <p><strong>Développeur :</strong> <span id="detail-user-name"></span></p>
+            <p><strong>Statut :</strong> <span id="detail-status"></span></p>
+        </div>
+        
+        <!-- Accordéon avec toutes les données -->
+        <div class="submission-details-accordion">
+            <button class="accordion-toggle">📋 Informations détaillées</button>
+            <div class="accordion-content">
+                <div id="full-submission-data"></div>
+            </div>
+        </div>
+        
+        <div class="modal-actions">
+            <button class="button-primary close-modal">Fermer</button>
+        </div>
+    </div>
+</div>
+```
+
+### **8.2 JavaScript Admin**
+```javascript
+// game-submission-admin.js
+class GameSubmissionAdmin {
+    
+    init() {
+        this.bindEvents();
+        this.loadSubmissionsList();
+    }
+    
+    // Charger liste soumissions
+    loadSubmissionsList() {
+        // AJAX vers sisme_ajax_admin_get_submissions
+    }
+    
+    // Afficher détails en modal
+    showSubmissionDetails(submissionId) {
+        // AJAX vers sisme_ajax_admin_get_submission_details
+        // Remplir modal + afficher
+    }
+    
+    // Supprimer soumission
+    deleteSubmission(submissionId) {
+        if (confirm('Supprimer cette soumission ?')) {
+            // AJAX vers sisme_ajax_admin_delete_submission
+        }
+    }
+}
+```
+
+---
+
+## 🎯 **Phase 9 : Règles de Gestion Précises**
+
+### **9.1 Permissions Utilisateur**
+
+#### **Création de Soumission**
+```php
+public static function can_create_submission($user_id) {
+    // ✅ Doit être développeur approuvé
+    if (!Sisme_User_Developer_Data_Manager::is_approved_developer($user_id)) {
+        return false;
+    }
+    
+    // ✅ Limite max brouillons simultanés (ex: 3)
+    $drafts = self::get_user_submissions($user_id, 'draft');
+    if (count($drafts) >= 3) {
+        return false;
+    }
+    
+    return true;
+}
+```
+
+#### **Édition de Soumission**
+```php
+public static function can_edit_submission($user_id, $submission_id) {
+    $submission = self::get_submission_by_id($user_id, $submission_id);
+    
+    // ✅ Doit être propriétaire
+    if (!$submission || $submission['user_id'] !== $user_id) {
+        return false;
+    }
+    
+    // ✅ Statuts autorisés : draft, revision
+    $editable_statuses = ['draft', 'revision'];
+    return in_array($submission['status'], $editable_statuses);
+}
+```
+
+#### **Suppression de Soumission**
+```php
+public static function can_delete_submission($user_id, $submission_id) {
+    $submission = self::get_submission_by_id($user_id, $submission_id);
+    
+    // ✅ Doit être propriétaire
+    if (!$submission || $submission['user_id'] !== $user_id) {
+        return false;
+    }
+    
+    // ✅ UNIQUEMENT les brouillons peuvent être supprimés
+    return $submission['status'] === 'draft';
+}
+```
+
+#### **Soumission pour Review**
+```php
+public static function can_submit_for_review($user_id, $submission_id) {
+    $submission = self::get_submission_by_id($user_id, $submission_id);
+    
+    // ✅ Doit être propriétaire + statut draft/revision
+    if (!$submission || $submission['user_id'] !== $user_id) {
+        return false;
+    }
+    
+    $submittable_statuses = ['draft', 'revision'];
+    if (!in_array($submission['status'], $submittable_statuses)) {
+        return false;
+    }
+    
+    // ✅ Formulaire doit être complet (ex: 100%)
+    $completion = self::calculate_completion_percentage($submission['game_data']);
+    return $completion >= 100;
+}
+```
+
+### **9.2 Workflow États Précis**
+
+```
+┌─────────┐    save_draft()    ┌─────────┐
+│  DRAFT  │ ←───────────────── │   NEW   │
+└─────────┘                    └─────────┘
+     │                              
+     │ submit_for_review()           
+     ├─────→ (100% requis)          
+     ▼                              
+┌─────────┐                         
+│ PENDING │                         
+└─────────┘                         
+     │                              
+     ├─── ADMIN APPROVE ──→ ┌───────────┐
+     │                      │ PUBLISHED │ (❌ Plus modifiable)
+     │                      └───────────┘
+     │                              
+     └─── ADMIN REJECT ───→ ┌──────────┐
+                            │ REJECTED │ 
+                            └──────────┘
+                                 │
+                                 │ retry_submission()
+                                 ▼
+                            ┌──────────┐
+                            │ REVISION │ (✅ Modifiable)
+                            └──────────┘
+```
+
+### **9.3 Auto-Save Brouillons**
+```javascript
+// Auto-save toutes les 30 secondes pour les brouillons
+setInterval(() => {
+    if (this.isFormDirty && this.currentStatus === 'draft') {
+        this.saveDraft();
+    }
+}, 30000);
+```
+
+---
+
+## 🚀 **Avantages de cette Approche**
+
+### **✅ Architecture Propre**
+- Séparation claire des responsabilités
+- Modules indépendants et testables
+- Réutilisation du système candidature éprouvé
+
+### **✅ Performance**
+- User meta indexé WordPress natif
+- Pas de requêtes SQL complexes
+- Cache WordPress automatique
+
+### **✅ Maintenabilité**
+- Structure JSON évolutive
+- Ajout facile de nouveaux champs
+- Migration simple si nécessaire
+
+### **✅ Sécurité**
+- Nonces WordPress sur toutes les actions
+- Validation multi-niveaux
+- Permissions strictes développeur
+
+### **✅ Cohérence**
+- Même approche que candidatures développeur
+- Standards WordPress respectés
+- Interface utilisateur unifiée
+
+### **✅ Gestion Métier Complète**
+- Auto-save intelligent
+- Permissions strictes par statut
+- Workflow d'états précis
+- Interface admin pratique
+
+---
+
+## 📋 **Ordre d'Implémentation Recommandé**
+
+1. **Phase 1** : Constantes et structure user meta
+2. **Phase 2** : Data Manager core (CRUD + permissions)
+3. **Phase 3** : Handlers AJAX basiques
+4. **Phase 4** : Interface de base (formulaire + liste)
+5. **Phase 5** : JavaScript et validation + auto-save
+6. **Phase 6** : Intégration complète
+7. **Phase 7** : Tests et optimisations
+8. **Phase 8** : Interface admin basique
+9. **Phase 9** : Règles métier finales
+
+**Estimation :** 2-3 jours de développement pour un système complet et fonctionnel avec toutes les fonctionnalités demandées.
