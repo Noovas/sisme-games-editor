@@ -71,8 +71,8 @@ class SubmissionFormValidator {
             screenshot: {
                 required: true,
                 min: 1,
-                max: 9,
-                message: 'Au moins 1 screenshot obligatoire (max 9)'
+                max: 5,
+                message: 'Au moins 1 screenshot obligatoire (max 5)'
             }
         };
         

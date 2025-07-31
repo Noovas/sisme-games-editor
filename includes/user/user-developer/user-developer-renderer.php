@@ -908,12 +908,12 @@ class Sisme_User_Developer_Renderer {
                             <input type="hidden" name="cover_vertical_attachment_id" id="cover_vertical_attachment_id" value="">
                         </div>
 
-                        <!-- Screenshots (jusqu'à 9 images, minimum 1) -->
+                        <!-- Screenshots (minimum 1, maximum selon statut du dev) -->
                         <div class="sisme-form-field">
                             <label class="sisme-form-label sisme-form-section-title">
                                 Screenshots <span class="sisme-required">*</span>
                             </label>
-                            <div id="cropper3" data-simple-cropper data-ratio-type="screenshot" data-max-images="9"></div>
+                            <div id="cropper3" data-simple-cropper data-ratio-type="screenshot" data-max-images="<?php echo Sisme_Utils_Users::GAME_MAX_SCREENSHOTS; ?>"></div>
                             <input type="hidden" name="screenshots_attachment_ids" id="screenshots_attachment_ids" value="">
                         </div>
                     </div>
