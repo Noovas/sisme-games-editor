@@ -311,8 +311,7 @@ class Sisme_Game_Submission_Data_Manager {
             Sisme_Utils_Users::GAME_FIELD_TRAILER,
             Sisme_Utils_Users::GAME_FIELD_STUDIO_NAME,
             Sisme_Utils_Users::GAME_FIELD_PUBLISHER_NAME,
-            Sisme_Utils_Users::GAME_FIELD_GENRES,
-            Sisme_Utils_Users::GAME_FIELD_PLATFORMS,
+                    Sisme_Utils_Users::GAME_FIELD_PLATFORMS,
             Sisme_Utils_Users::GAME_FIELD_COVER_HORIZONTAL,
             Sisme_Utils_Users::GAME_FIELD_COVER_VERTICAL
         ];

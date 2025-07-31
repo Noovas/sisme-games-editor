@@ -394,7 +394,6 @@
         const $form = $(this.config.formSelector);
         const gameData = {};
         
-        // Collecter tous les champs du formulaire
         $form.find('input, textarea, select').each(function() {
             const $field = $(this);
             const name = $field.attr('name');
@@ -404,7 +403,13 @@
             
             if (type === 'checkbox' || type === 'radio') {
                 if ($field.is(':checked')) {
-                    gameData[name] = $field.val();
+                    // ✅ FIX: Gérer les tableaux pour les checkboxes multiples
+                    if (name.endsWith('[]')) {
+                        if (!gameData[name]) gameData[name] = [];
+                        gameData[name].push($field.val());
+                    } else {
+                        gameData[name] = $field.val();
+                    }
                 }
             } else if ($field.is('select[multiple]')) {
                 gameData[name] = $field.val() || [];

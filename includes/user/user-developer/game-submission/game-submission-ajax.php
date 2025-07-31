@@ -124,7 +124,13 @@ function sisme_ajax_save_draft_submission() {
         return;
     }
 
+    // DEBUG - voir ce qui arrive vraiment
+    error_log('POST game_genres: ' . print_r($_POST['game_genres'] ?? 'MISSING', true));
+
     $game_data = sisme_collect_game_data_from_post();
+
+    error_log('COLLECTED game_genres: ' . print_r($game_data['game_genres'] ?? 'MISSING', true));
+    
     $result = Sisme_Game_Submission_Data_Manager::save_draft($user_id, $submission_id, $game_data);
 
     if (is_wp_error($result)) {

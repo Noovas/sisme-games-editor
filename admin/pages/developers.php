@@ -92,6 +92,20 @@ $page = new Sisme_Admin_Page_Wrapper(
     'Retour au Dashboard'
 );
 
+/**
+ * Helper pour afficher une valeur ou "N.C" si vide
+ * @param mixed $value - Valeur à vérifier
+ * @param string $default - Texte par défaut (N.C)
+ * @return string
+ */
+function sisme_display_value_or_nc($value, $default = 'N.C') {
+    if (is_array($value)) {
+        return !empty($value) ? implode(', ', array_map('esc_html', $value)) : $default;
+    }
+    
+    return !empty($value) && trim($value) !== '' ? esc_html($value) : $default;
+}
+
 $page->render_start();
 ?>
 
@@ -706,28 +720,93 @@ $page->render_start();
                                     <!-- Informations principales -->
                                     <div>
                                         <h4>📋 Informations du jeu</h4>
+                                        
+                                        <p><strong>Nom du jeu:</strong> 
+                                        <?php echo esc_html($game_data[Sisme_Utils_Users::GAME_FIELD_NAME] ?? 'N.C'); ?></p>
+                                        
                                         <p><strong>Description:</strong><br>
-                                        <?php echo esc_html(substr($game_data[Sisme_Utils_Users::GAME_FIELD_DESCRIPTION] ?? 'Pas de description', 0, 200) . '...'); ?></p>
+                                        <?php echo esc_html(substr($game_data[Sisme_Utils_Users::GAME_FIELD_DESCRIPTION] ?? 'N.C', 0, 200) . '...'); ?></p>
                                         
                                         <p><strong>Date de sortie:</strong> 
-                                        <?php echo esc_html($game_data[Sisme_Utils_Users::GAME_FIELD_RELEASE_DATE] ?? 'Non définie'); ?></p>
+                                        <?php echo esc_html($game_data[Sisme_Utils_Users::GAME_FIELD_RELEASE_DATE] ?? 'N.C'); ?></p>
                                         
                                         <p><strong>Trailer:</strong> 
                                         <?php if (!empty($game_data[Sisme_Utils_Users::GAME_FIELD_TRAILER])): ?>
                                             <a href="<?php echo esc_url($game_data[Sisme_Utils_Users::GAME_FIELD_TRAILER]); ?>" target="_blank">Voir le trailer</a>
-                                        <?php else: echo 'Pas de trailer'; endif; ?></p>
+                                        <?php else: echo 'N.C'; endif; ?></p>
+                                        
+                                        <p><strong>Studio:</strong> 
+                                            <?php echo esc_html($game_data[Sisme_Utils_Users::GAME_FIELD_STUDIO_NAME] ?? 'N.C'); ?>
+                                            <?php if (!empty($game_data[Sisme_Utils_Users::GAME_FIELD_STUDIO_URL])): ?>
+                                                <a href="<?php echo esc_url($game_data[Sisme_Utils_Users::GAME_FIELD_STUDIO_URL]); ?>" target="_blank">- Visiter</a>
+                                            <?php else: echo 'N.C'; endif; ?></p>
+                                        </p>
+                                        
                                         
                                         <p><strong>Éditeur:</strong> 
-                                        <?php echo esc_html($game_data[Sisme_Utils_Users::GAME_FIELD_PUBLISHER_NAME] ?? 'Non défini'); ?></p>
+                                            <?php echo esc_html($game_data[Sisme_Utils_Users::GAME_FIELD_PUBLISHER_NAME] ?? 'N.C'); ?>
+                                            <?php if (!empty($game_data[Sisme_Utils_Users::GAME_FIELD_PUBLISHER_URL])): ?>
+                                                <a href="<?php echo esc_url($game_data[Sisme_Utils_Users::GAME_FIELD_PUBLISHER_URL]); ?>" target="_blank">- Visiter</a>
+                                            <?php else: echo 'N.C'; endif; ?></p>
+                                        </p>                                        
+                                        
+                                        <p><strong>Genres:</strong> 
+                                        <?php 
+                                        $genres = $game_data[Sisme_Utils_Users::GAME_FIELD_GENRES] ?? [];
+                                        echo !empty($genres) ? esc_html(implode(', ', $genres)) : 'N.C';
+                                        ?></p>
+
+                                        <p><strong>Modes:</strong> 
+                                        <?php 
+                                        $modes = $game_data[Sisme_Utils_Users::GAME_FIELD_MODES] ?? [];
+                                        echo !empty($modes) ? esc_html(implode(', ', $modes)) : 'N.C';
+                                        ?></p>
+                                        
+                                        <p><strong>Plateformes:</strong> 
+                                        <?php 
+                                        $platforms = $game_data[Sisme_Utils_Users::GAME_FIELD_PLATFORMS] ?? [];
+                                        echo !empty($platforms) ? esc_html(implode(', ', $platforms)) : 'N.C';
+                                        ?></p>
                                     </div>
-                                    
+
                                     <!-- Métadonnées système -->
                                     <div>
                                         <h4>⚙️ Métadonnées système</h4>
-                                        <p><strong>Créé le:</strong> <?php echo esc_html($metadata['created_at'] ?? 'Inconnue'); ?></p>
-                                        <p><strong>Modifié le:</strong> <?php echo esc_html($metadata['updated_at'] ?? 'Inconnue'); ?></p>
-                                        <p><strong>Soumis le:</strong> <?php echo esc_html($metadata['submitted_at'] ?? 'Pas encore soumis'); ?></p>
+                                        
+                                        <p><strong>Completion:</strong> 
+                                        <span style="color: #007cba; font-weight: bold;">
+                                            <?php echo intval($metadata['completion_percentage'] ?? 0); ?>%
+                                        </span></p>
+                                        
+                                        <p><strong>Créé le:</strong> <?php echo esc_html($metadata['created_at'] ?? 'N.C'); ?></p>
+                                        <p><strong>Modifié le:</strong> <?php echo esc_html($metadata['updated_at'] ?? 'N.C'); ?></p>
+                                        <p><strong>Soumis le:</strong> <?php echo esc_html($metadata['submitted_at'] ?? 'N.C'); ?></p>
                                         <p><strong>Tentatives:</strong> <?php echo esc_html($metadata['retry_count'] ?? 0); ?></p>
+                                            
+                                        <h4>🔗 Liens</h4>
+                                        <?php $external_links = $game_data[Sisme_Utils_Users::GAME_FIELD_EXTERNAL_LINKS] ?? [];?>
+                                        <p><strong>Steam:</strong> 
+                                            <?php echo esc_html(implode(', ', $external_links)); ?>
+                                        </p>
+                                        <p><strong>Epic:</strong> 
+                                        
+                                        </p>
+                                        <p><strong>Gog:</strong> 
+                                        
+                                        </p>
+
+                                        <h4>📷 Médias</h4>
+                                        <p><strong>Cover horizontale:</strong> 
+                                        <?php echo !empty($game_data['covers']['horizontal']) ? '✅ Présente' : 'N.C'; ?></p>
+                                        
+                                        <p><strong>Cover verticale:</strong> 
+                                        <?php echo !empty($game_data['covers']['vertical']) ? '✅ Présente' : 'N.C'; ?></p>
+                                        
+                                        <p><strong>Screenshots:</strong> 
+                                        <?php 
+                                        $screenshots = $game_data['screenshots'] ?? [];
+                                        echo !empty($screenshots) ? count($screenshots) . ' image(s)' : 'N.C';
+                                        ?></p>
                                         
                                         <?php if (!empty($submission['admin_data']['admin_notes'])): ?>
                                             <h4>📝 Notes admin</h4>
@@ -736,7 +815,6 @@ $page->render_start();
                                             </p>
                                         <?php endif; ?>
                                     </div>
-                                </div>
                                 
                                 <!-- Actions admin -->
                                 <div style="margin-top: 20px; text-align: right;">
