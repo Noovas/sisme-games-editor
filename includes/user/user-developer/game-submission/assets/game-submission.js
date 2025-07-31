@@ -413,6 +413,7 @@
             
             
             if (!name || $field.is(':disabled')) return;
+            if (name.includes('attachment_id')) return;
             
             if (type === 'checkbox' || type === 'radio') {
                 if ($field.is(':checked')) {
@@ -441,6 +442,20 @@
         });
         if (Object.keys(externalLinks).length > 0) {
             gameData['external_links'] = externalLinks;
+        }
+
+        const coverH = $form.find('input[name="cover_horizontal_attachment_id"]').val();
+        const coverV = $form.find('input[name="cover_vertical_attachment_id"]').val();
+        const screenshots = $form.find('input[name="screenshots_attachment_ids"]').val();
+        
+        if (coverH || coverV) {
+            gameData['covers'] = {};
+            if (coverH) gameData['covers']['horizontal'] = coverH;
+            if (coverV) gameData['covers']['vertical'] = coverV;
+        }
+        
+        if (screenshots) {
+            gameData['screenshots'] = screenshots.split(',').filter(id => id.trim());
         }
         
         return gameData;

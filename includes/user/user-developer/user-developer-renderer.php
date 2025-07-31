@@ -896,6 +896,7 @@ class Sisme_User_Developer_Renderer {
                                 Cover horizontale <span class="sisme-required">*</span>
                             </label>
                             <div id="cropper1" data-simple-cropper data-ratio-type="cover_horizontal"></div>
+                            <input type="hidden" name="cover_horizontal_attachment_id" id="cover_horizontal_attachment_id" value="">
                         </div>
 
                         <!-- Cover verticale -->
@@ -904,6 +905,7 @@ class Sisme_User_Developer_Renderer {
                                 Cover verticale <span class="sisme-required">*</span>
                             </label>
                             <div id="cropper2" data-simple-cropper data-ratio-type="cover_vertical"></div>
+                            <input type="hidden" name="cover_vertical_attachment_id" id="cover_vertical_attachment_id" value="">
                         </div>
 
                         <!-- Screenshots (jusqu'à 9 images, minimum 1) -->
@@ -912,6 +914,7 @@ class Sisme_User_Developer_Renderer {
                                 Screenshots <span class="sisme-required">*</span>
                             </label>
                             <div id="cropper3" data-simple-cropper data-ratio-type="screenshot" data-max-images="9"></div>
+                            <input type="hidden" name="screenshots_attachment_ids" id="screenshots_attachment_ids" value="">
                         </div>
                     </div>
 

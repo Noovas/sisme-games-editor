@@ -313,6 +313,17 @@ class SimpleCropper {
                 allImages: this.config.multiple ? this.uploadedImages : [{ url: data.url, attachmentId: data.attachment_id }]
             }
         });
+        
+        if (this.ratioType === 'screenshot') {
+            // Pour screenshots multiples, ajouter à la liste
+            let currentIds = document.getElementById('screenshots_attachment_ids').value;
+            let idsArray = currentIds ? currentIds.split(',') : [];
+            idsArray.push(data.attachment_id);
+            document.getElementById('screenshots_attachment_ids').value = idsArray.join(',');
+        } else {
+            // Pour covers, remplacer la valeur
+            document.getElementById(this.ratioType + '_attachment_id').value = data.attachment_id;
+        }
         this.container.dispatchEvent(event);
     }
 

@@ -562,5 +562,20 @@ function sisme_collect_game_data_from_post() {
         $game_data[Sisme_Utils_Users::GAME_FIELD_EXTERNAL_LINKS] = $external_links;
     }
 
+    $covers = [];
+    if (!empty($_POST['cover_horizontal_attachment_id'])) {
+        $covers['horizontal'] = intval($_POST['cover_horizontal_attachment_id']);
+    }
+    if (!empty($_POST['cover_vertical_attachment_id'])) {
+        $covers['vertical'] = intval($_POST['cover_vertical_attachment_id']);
+    }
+    if (!empty($covers)) {
+        $game_data['covers'] = $covers;
+    }
+    if (!empty($_POST['screenshots_attachment_ids'])) {
+        $screenshot_ids = explode(',', $_POST['screenshots_attachment_ids']);
+        $game_data['screenshots'] = array_map('intval', array_filter($screenshot_ids));
+    }
+
     return $game_data;
 }
