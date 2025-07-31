@@ -179,7 +179,7 @@ function sisme_handle_simple_crop_upload() {
     
     wp_send_json_success([
         'attachment_id' => $result,
-        'url' => $attachment_url,
+        'url' => add_query_arg('ver', time(), $attachment_url),
         'message' => 'Image uploadée avec succès'
     ]);
 }

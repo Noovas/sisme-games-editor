@@ -167,6 +167,14 @@ class Sisme_Game_Submission_Data_Manager {
             return new WP_Error('cannot_delete', 'Suppression non autorisée');
         }
         
+        // Récupérer la soumission avant suppression
+        $submission = self::get_submission_by_id($user_id, $submission_id);
+        
+        // Déclencher un hook avant suppression pour permettre le nettoyage des médias
+        if ($submission) {
+            do_action('sisme_before_submission_delete', $user_id . '_' . $submission_id, $submission);
+        }
+        
         if (self::remove_submission_from_user_data($user_id, $submission_id)) {
             self::update_user_stats($user_id);
             return true;

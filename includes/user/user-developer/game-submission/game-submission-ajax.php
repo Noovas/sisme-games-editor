@@ -131,11 +131,48 @@ function sisme_ajax_save_draft_submission() {
 
     error_log('COLLECTED game_genres: ' . print_r($game_data['game_genres'] ?? 'MISSING', true));
     
+    // Récupérer la soumission actuelle pour comparer les images avant/après
+    $current_submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
+    
+    // Sauvegarder le brouillon
     $result = Sisme_Game_Submission_Data_Manager::save_draft($user_id, $submission_id, $game_data);
 
     if (is_wp_error($result)) {
         wp_send_json_error(['message' => $result->get_error_message()]);
         return;
+    }
+    
+    // Nettoyer les médias remplacés (covers)
+    if (!empty($current_submission) && !empty($current_submission['game_data']['covers'])) {
+        $old_covers = $current_submission['game_data']['covers'];
+        $new_covers = $game_data['covers'] ?? [];
+        
+        // Traiter les covers horizontales
+        if (!empty($old_covers['horizontal']) && 
+            (!isset($new_covers['horizontal']) || $old_covers['horizontal'] != $new_covers['horizontal'])) {
+            wp_delete_attachment(intval($old_covers['horizontal']), true);
+        }
+        
+        // Traiter les covers verticales
+        if (!empty($old_covers['vertical']) && 
+            (!isset($new_covers['vertical']) || $old_covers['vertical'] != $new_covers['vertical'])) {
+            wp_delete_attachment(intval($old_covers['vertical']), true);
+        }
+    }
+    
+    // Nettoyer les screenshots remplacés
+    if (!empty($current_submission) && !empty($current_submission['game_data']['screenshots'])) {
+        $old_screenshots = $current_submission['game_data']['screenshots'];
+        $new_screenshots = $game_data['screenshots'] ?? [];
+        
+        // Trouver les screenshots qui ont été supprimés
+        $removed_screenshots = array_diff($old_screenshots, $new_screenshots);
+        
+        foreach ($removed_screenshots as $screenshot_id) {
+            if (!empty($screenshot_id)) {
+                wp_delete_attachment(intval($screenshot_id), true);
+            }
+        }
     }
 
     $submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
@@ -573,6 +610,14 @@ function sisme_collect_game_data_from_post() {
     } else {
         $game_data['covers'] = $covers;
     }
+    
+    // Traitement des screenshots
+    if (isset($_POST['screenshots_attachment_ids']) && !empty($_POST['screenshots_attachment_ids'])) {
+        $screenshots_ids = array_map('intval', explode(',', $_POST['screenshots_attachment_ids']));
+        $game_data['screenshots'] = array_filter($screenshots_ids);
+    } else {
+        $game_data['screenshots'] = [];
+    }
 
     return $game_data;
 }
@@ -597,7 +642,7 @@ function sisme_ajax_get_attachment_url() {
     }
     
     wp_send_json_success([
-        'url' => $url,
+        'url' => add_query_arg('ver', time(), $url),
         'attachment_id' => $attachment_id
     ]);
 }

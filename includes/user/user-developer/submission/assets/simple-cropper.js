@@ -178,7 +178,7 @@ class SimpleCropper {
             this.cropper.destroy();
             this.cropper = null;
         }
-        this.showFeedback('Image retirée du formulaire. Elle sera supprimée du média lors de la sauvegarde.');
+        this.showFeedback('Image retirée du formulaire. Elle sera automatiquement supprimée du média lors de la sauvegarde.');
         // Event custom pour notifier la suppression UI
         const event = new CustomEvent('imageRemoved', {
             detail: {
@@ -428,7 +428,9 @@ class SimpleCropper {
     showResult(imageUrl) {
         if (!this.config.multiple) {
             const resultImage = document.getElementById(this.ids.resultImage);
-            resultImage.src = imageUrl;
+            // Ajouter un paramètre de cache-busting à l'URL
+            const cacheBustedUrl = this.addCacheBustingParam(imageUrl);
+            resultImage.src = cacheBustedUrl;
             document.getElementById(this.ids.imageContainer).style.display = 'none';
             document.getElementById(this.ids.result).style.display = 'block';
             // (Re)lier le bouton supprimer par classe (robuste)
@@ -452,7 +454,7 @@ class SimpleCropper {
                 <div class="sisme-gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: 15px;">
                     ${this.uploadedImages.map((img, index) => `
                         <div class="sisme-gallery-item" style="position: relative;">
-                            <img src="${img.url}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" />
+                            <img src="${this.addCacheBustingParam(img.url)}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" />
                             <button type="button" class="sisme-remove-btn" 
                                     onclick="window.cropperInstances['${this.uniqueId}'].removeImage(${index})"
                                     style="position: absolute; top: -5px; right: -5px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer;">
@@ -485,7 +487,7 @@ class SimpleCropper {
         if (index >= 0 && index < this.uploadedImages.length) {
             this.uploadedImages.splice(index, 1);
             this.updateGallery();
-            this.showFeedback(`Image supprimée (${this.uploadedImages.length}/${this.maxImages})`);
+            this.showFeedback(`Image supprimée (${this.uploadedImages.length}/${this.maxImages}). L'image sera définitivement supprimée lors de la sauvegarde.`);
             
             // Trigger update event
             const event = new CustomEvent('imageRemoved', {
@@ -551,14 +553,27 @@ class SimpleCropper {
     showFeedback(message) {
         document.getElementById(this.ids.feedback).innerHTML = '<p>' + message + '</p>';
     }
-
+    
+    /**
+     * Ajoute un paramètre de cache-busting à une URL d'image
+     * @param {string} url - L'URL de l'image
+     * @return {string} - L'URL avec le paramètre de cache-busting
+     */
+    addCacheBustingParam(url) {
+        if (!url) return url;
+        
+        const separator = url.includes('?') ? '&' : '?';
+        return `${url}${separator}v=${Date.now()}`;
+    }
 
     displayExistingImage(imageUrl) {
         // Affiche l'image dans le bloc résultat standard avec les boutons d'action
         const resultContainer = document.getElementById(this.ids.result);
         const resultImage = document.getElementById(this.ids.resultImage);
         if (resultContainer && resultImage) {
-            resultImage.src = imageUrl;
+            // Ajouter un paramètre de cache-busting à l'URL
+            const cacheBustedUrl = this.addCacheBustingParam(imageUrl);
+            resultImage.src = cacheBustedUrl;
             document.getElementById(this.ids.imageContainer).style.display = 'none';
             resultContainer.style.display = 'block';
             // (Re)lier le bouton supprimer par classe (robuste)
