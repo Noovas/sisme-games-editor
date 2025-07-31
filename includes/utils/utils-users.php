@@ -124,6 +124,9 @@ class Sisme_Utils_Users {
     
     // Liens externes
     const GAME_FIELD_EXTERNAL_LINKS = 'external_links';
+    const GAME_FIELD_EXTERNAL_LINKS_STEAM = 'steam';
+    const GAME_FIELD_EXTERNAL_LINKS_GOG = 'gog';
+    const GAME_FIELD_EXTERNAL_LINKS_EPIC = 'epic';
     
     /**
      * Statuts des soumissions de jeux

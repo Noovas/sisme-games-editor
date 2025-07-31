@@ -549,5 +549,18 @@ function sisme_collect_game_data_from_post() {
         }
     }
 
+    if (isset($_POST['external_links']) && is_array($_POST['external_links'])) {
+        $external_links = [];
+        foreach ($_POST['external_links'] as $platform => $url) {
+            $platform = sanitize_text_field($platform);
+            $url = esc_url_raw(trim($url));
+            
+            if (!empty($url) && filter_var($url, FILTER_VALIDATE_URL)) {
+                $external_links[$platform] = $url;
+            }
+        }
+        $game_data[Sisme_Utils_Users::GAME_FIELD_EXTERNAL_LINKS] = $external_links;
+    }
+
     return $game_data;
 }

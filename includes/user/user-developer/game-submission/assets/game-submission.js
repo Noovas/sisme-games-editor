@@ -399,11 +399,11 @@
             const name = $field.attr('name');
             const type = $field.attr('type');
             
+            
             if (!name || $field.is(':disabled')) return;
             
             if (type === 'checkbox' || type === 'radio') {
                 if ($field.is(':checked')) {
-                    // ✅ FIX: Gérer les tableaux pour les checkboxes multiples
                     if (name.endsWith('[]')) {
                         if (!gameData[name]) gameData[name] = [];
                         gameData[name].push($field.val());
@@ -417,6 +417,19 @@
                 gameData[name] = $field.val();
             }
         });
+        
+        const externalLinks = {};
+        $form.find('input[name^="external_links["]').each(function() {
+            const $field = $(this);
+            const name = $field.attr('name');
+            const match = name.match(/external_links\[([^\]]+)\]/);
+            if (match && $field.val().trim()) {
+                externalLinks[match[1]] = $field.val().trim();
+            }
+        });
+        if (Object.keys(externalLinks).length > 0) {
+            gameData['external_links'] = externalLinks;
+        }
         
         return gameData;
     };

@@ -207,43 +207,97 @@ updateCompletionBar(percentage)
 ```php
 // Meta: 'sisme_user_game_submissions'
 [
-    'submissions' => [
-        [
-            'id' => 'sub_67f2a8b4c1d9f',
-            'status' => 'draft|pending|published|rejected',
-            'game_data' => [
-                'game_name' => '...',
-                'game_description' => '...',
-                // ... tous les champs
-            ],
-            'metadata' => [
-                'created_at' => '2025-01-10 09:15:00',
-                'updated_at' => '2025-01-15 14:30:00',
-                'submitted_at' => null,
-                'completion_percentage' => 75,
-                'retry_count' => 0,
-                'original_submission_id' => null
-            ],
-            'admin_data' => [
-                'admin_user_id' => null,
-                'admin_notes' => null,
-                'reviewed_at' => null
-            ]
-        ]
-    ],
-    'stats' => [
-        'total_submissions' => 3,
-        'draft_count' => 1,
-        'pending_count' => 1,
-        'published_count' => 1,
-        'rejected_count' => 0,
-        'last_updated' => '2025-01-15 14:25:00'
-    ],
-    'settings' => [
-        'auto_save_interval' => 30,
-        'auto_save_enabled' => true,
-        'email_notifications' => true
-    ]
+   'submissions' => [
+       [
+           'id' => 'sub_67f2a8b4c1d9f',
+           'status' => 'draft|pending|published|rejected|revision',
+           'game_data' => [
+               // Informations principales
+               'game_name' => 'Mon Super Jeu',
+               'game_description' => 'Description complète du jeu...',
+               'game_release_date' => '2025-12-31',
+               'game_trailer' => 'https://youtu.be/abc123456',
+               
+               // Studio et éditeur
+               'game_studio_name' => 'Mon Studio',
+               'game_studio_url' => 'https://www.monstudio.com',
+               'game_publisher_name' => 'Mon Éditeur',
+               'game_publisher_url' => 'https://www.monediteur.com',
+               
+               // Catégories (tableaux d'IDs/valeurs)
+               'game_genres' => ['60', '170', '42'],           // IDs des genres
+               'game_platforms' => ['windows', 'mac', 'linux'], // Slugs plateformes
+               'game_modes' => ['solo', 'multi', 'coop'],      // Modes de jeu
+               
+               // Liens d'achat (objet associatif)
+               'external_links' => [
+                   'steam' => 'https://store.steampowered.com/app/123456/',
+                   'epic' => 'https://store.epicgames.com/game/mon-jeu',
+                   'gog' => 'https://www.gog.com/game/mon_jeu',
+                   'itch' => 'https://dev.itch.io/mon-jeu',
+                   'nintendo' => 'https://nintendo.com/...',
+                   'playstation' => 'https://store.playstation.com/...',
+                   'xbox' => 'https://xbox.com/...'
+               ],
+               
+               // Médias (URLs ou IDs d'attachments)
+               'covers' => [
+                   'horizontal' => 'https://example.com/cover-h.jpg',
+                   'vertical' => 'https://example.com/cover-v.jpg'
+               ],
+               'screenshots' => [
+                   'https://example.com/screen1.jpg',
+                   'https://example.com/screen2.jpg',
+                   'https://example.com/screen3.jpg'
+               ],
+               
+               // Sections de contenu détaillé (optionnel)
+               'sections' => [
+                   [
+                       'title' => 'Gameplay',
+                       'content' => 'Description du gameplay...',
+                       'image_id' => 123  // ID attachment WordPress
+                   ],
+                   [
+                       'title' => 'Histoire',
+                       'content' => 'Synopsis de l\'histoire...',
+                       'image_id' => null
+                   ]
+               ]
+           ],
+           'metadata' => [
+               'created_at' => '2025-01-10 09:15:00',
+               'updated_at' => '2025-01-15 14:30:00',
+               'submitted_at' => '2025-01-12 10:00:00',        // null si pas encore soumis
+               'published_at' => null,                         // null si pas publié
+               'completion_percentage' => 85,                  // 0-100
+               'retry_count' => 0,                             // Nombre de retry après rejet
+               'original_submission_id' => null,               // ID soumission originale si retry
+               'auto_save_enabled' => true,
+               'last_auto_save' => '2025-01-15 14:30:00'
+           ],
+           'admin_data' => [
+               'admin_user_id' => 42,                          // ID admin qui a traité
+               'admin_notes' => 'Excellent jeu, approuvé !',  // Notes admin
+               'reviewed_at' => '2025-01-16 09:00:00'         // Date de review admin
+           ]
+       ],
+       // ... autres soumissions
+   ],
+   'stats' => [
+       'total_submissions' => 5,
+       'draft_count' => 2,
+       'pending_count' => 1,
+       'published_count' => 1,
+       'rejected_count' => 1,
+       'revision_count' => 0,
+       'last_updated' => '2025-01-15 14:25:00'
+   ],
+   'settings' => [
+       'auto_save_interval' => 30,                            // Secondes entre auto-saves
+       'auto_save_enabled' => true,                           // Auto-save global activé
+       'email_notifications' => true                          // Notifications email activées
+   ]
 ]
 ```
 

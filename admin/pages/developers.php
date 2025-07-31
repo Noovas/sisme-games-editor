@@ -785,14 +785,20 @@ $page->render_start();
                                             
                                         <h4>🔗 Liens</h4>
                                         <?php $external_links = $game_data[Sisme_Utils_Users::GAME_FIELD_EXTERNAL_LINKS] ?? [];?>
-                                        <p><strong>Steam:</strong> 
-                                            <?php echo esc_html(implode(', ', $external_links)); ?>
+                                        <p><strong>Steam:</strong>
+                                            <?php if (!empty($external_links[Sisme_Utils_Users::GAME_FIELD_EXTERNAL_LINKS_STEAM])): ?>
+                                                <a href="<?php echo esc_url($external_links[Sisme_Utils_Users::GAME_FIELD_EXTERNAL_LINKS_STEAM]); ?>" target="_blank">Lien</a>
+                                            <?php else: echo 'N.C'; endif; ?></p>
                                         </p>
                                         <p><strong>Epic:</strong> 
-                                        
+                                            <?php if (!empty($external_links[Sisme_Utils_Users::GAME_FIELD_EXTERNAL_LINKS_EPIC])): ?>
+                                                <a href="<?php echo esc_url($external_links[Sisme_Utils_Users::GAME_FIELD_EXTERNAL_LINKS_EPIC]); ?>" target="_blank">Lien</a>
+                                            <?php else: echo 'N.C'; endif; ?></p>
                                         </p>
                                         <p><strong>Gog:</strong> 
-                                        
+                                            <?php if (!empty($external_links[Sisme_Utils_Users::GAME_FIELD_EXTERNAL_LINKS_GOG])): ?>
+                                                <a href="<?php echo esc_url($external_links[Sisme_Utils_Users::GAME_FIELD_EXTERNAL_LINKS_GOG]); ?>" target="_blank">Lien</a>
+                                            <?php else: echo 'N.C'; endif; ?></p>
                                         </p>
 
                                         <h4>📷 Médias</h4>
