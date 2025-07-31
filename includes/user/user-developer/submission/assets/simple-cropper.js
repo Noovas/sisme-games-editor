@@ -58,8 +58,8 @@ class SimpleCropper {
         this.cropper = null;
         this.uniqueId = 'cropper_' + containerId + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         this.isProcessing = false;
-        this.uploadedImages = []; // Pour screenshots multiples
-        this.maxImages = options.maxImages || this.config.maxImages || 1;
+        this.uploadedImages = []; 
+        this.maxImages = options.maxImages || this.config.maxImages || (this.ratioType === 'screenshot' ? 5 : 1);
         this.init();
     }
 
@@ -123,10 +123,20 @@ class SimpleCropper {
         const cancelBtn = document.getElementById(this.ids.cancelBtn);
         
         fileInput.addEventListener('change', (e) => {
-            if (this.isProcessing) {
-                this.showFeedback('Traitement en cours, veuillez patienter...');
+            if (this.config.multiple && this.uploadedImages.length >= this.maxImages) {
+                this.showFeedback(`Limite atteinte ! Maximum ${this.maxImages} screenshots.`);
+                e.target.value = ''; 
+                e.preventDefault();
+                e.stopPropagation();
                 return;
             }
+            
+            if (this.isProcessing) {
+                this.showFeedback('Traitement en cours, veuillez patienter...');
+                e.target.value = '';
+                return;
+            }
+            
             if (e.target.files.length > 0) {
                 this.loadImage(e.target.files[0]);
             }
@@ -250,10 +260,7 @@ class SimpleCropper {
     }
 
     cropImage() {
-        console.log('=== CROP IMAGE DEBUG ===');
-        console.log('Cropper instance:', this.cropper);
         if (!this.cropper) {
-            console.error('No cropper instance!');
             return;
         }
         this.setProcessing(true);
@@ -262,27 +269,61 @@ class SimpleCropper {
             height: this.config.height
         });
         canvas.toBlob((blob) => {
-            console.log('Blob created (stockée localement, pas d\'upload immédiat) :', blob);
-            // Stocker le blob localement pour upload lors de la sauvegarde manuelle
-            this.croppedBlob = blob;
-            this.showFeedback('Image prête à être uploadée (sera envoyée lors de la sauvegarde).');
-            // Afficher l'aperçu
-            const resultImage = document.getElementById(this.ids.resultImage);
-            if (resultImage) {
-                resultImage.src = URL.createObjectURL(blob);
+            console.log('Blob created pour', this.ratioType, ':', blob);
+            
+            if (this.config.multiple) {
+                // Mode screenshots multiples : ajouter à la collection locale
+                const imageData = {
+                    blob: blob,
+                    url: URL.createObjectURL(blob),
+                    timestamp: Date.now(),
+                    ratioType: this.ratioType
+                };
+                
+                this.uploadedImages.push(imageData);
+                
+                this.resetCropInterface();
+                this.showFeedback(`Screenshot ajouté ! (${this.uploadedImages.length}/${this.maxImages})`);
+                
+                const fileInput = document.getElementById(this.ids.fileInput);
+                if (fileInput) {
+                    fileInput.disabled = this.shouldDisableUpload();
+                    if (this.shouldDisableUpload()) {
+                        this.showFeedback(`Limite atteinte ! Maximum ${this.maxImages} screenshots.`);
+                    }
+                }
+
+                // Trigger custom event
+                const event = new CustomEvent('imageProcessed', {
+                    detail: {
+                        url: imageData.url,
+                        ratioType: this.ratioType,
+                        isMultiple: true,
+                        totalImages: this.uploadedImages.length
+                    }
+                });
+                this.container.dispatchEvent(event);
+                this.updateGallery();
+                
+            } else {
+                // Mode image unique : stocker le blob pour upload ultérieur
+                this.croppedBlob = blob;
+                this.showFeedback('Image prête à être uploadée (sera envoyée lors de la sauvegarde).');
+                
+                // Afficher l'aperçu pour les images uniques
+                const resultImage = document.getElementById(this.ids.resultImage);
+                if (resultImage) {
+                    resultImage.src = URL.createObjectURL(blob);
+                }
+                
+                const imageContainer = document.getElementById(this.ids.imageContainer);
+                if (imageContainer) imageContainer.style.display = 'none';
+                const resultContainer = document.getElementById(this.ids.result);
+                if (resultContainer) {
+                    resultContainer.style.display = 'block';
+                }
             }
-            // Cacher le cropper et afficher l'aperçu dès le crop
-            const imageContainer = document.getElementById(this.ids.imageContainer);
-            if (imageContainer) imageContainer.style.display = 'none';
-            const resultContainer = document.getElementById(this.ids.result);
-            if (resultContainer) {
-                resultContainer.style.display = 'block';
-            }
-            // (Re)lier le bouton supprimer dynamiquement
-            const removeBtn = document.getElementById(this.ids.removeBtn);
-            if (removeBtn) {
-                removeBtn.onclick = () => this.removeImageUnique();
-            }
+            
             this.setProcessing(false);
         }, 'image/jpeg', 0.9);
     }
@@ -334,23 +375,13 @@ class SimpleCropper {
 
     handleUploadSuccess(data) {
         if (this.config.multiple) {
-            // Ajouter à la galerie
-            this.uploadedImages.push({
-                url: data.url,
-                attachmentId: data.attachment_id,
-                ratioType: this.ratioType
-            });
-            
-            this.updateGallery();
-            this.resetCropInterface();
-            this.showFeedback(`Image ajoutée ! (${this.uploadedImages.length}/${this.maxImages})`);
-        } else {
-            // Image unique
-            this.showResult(data.url);
-            this.showFeedback('Image uploadée avec succès !');
+            console.warn('handleUploadSuccess appelé pour un multiple, cela ne devrait pas arriver');
+            return;
         }
-        
-        // Trigger custom event
+        this.showResult(data.url);
+        this.showFeedback('Image uploadée avec succès !');
+        document.getElementById(this.ratioType + '_attachment_id').value = data.attachment_id;
+
         const event = new CustomEvent('imageProcessed', {
             detail: {
                 url: data.url,
@@ -362,21 +393,7 @@ class SimpleCropper {
                 allImages: this.config.multiple ? this.uploadedImages : [{ url: data.url, attachmentId: data.attachment_id }]
             }
         });
-        
-        if (this.ratioType === 'screenshot') {
-            // Pour screenshots multiples, ajouter à la liste
-            let currentIds = document.getElementById('screenshots_attachment_ids').value;
-            let idsArray = currentIds ? currentIds.split(',') : [];
-            idsArray.push(data.attachment_id);
-            document.getElementById('screenshots_attachment_ids').value = idsArray.join(',');
-        } else {
-            // Pour covers, remplacer la valeur
-            document.getElementById(this.ratioType + '_attachment_id').value = data.attachment_id;
-        }
         this.container.dispatchEvent(event);
-
-        // (Suppression de la sauvegarde auto après upload d'image)
-        // Ne rien faire ici
     }
 
     /**
@@ -454,33 +471,52 @@ class SimpleCropper {
                 <div class="sisme-gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: 15px;">
                     ${this.uploadedImages.map((img, index) => `
                         <div class="sisme-gallery-item" style="position: relative;">
-                            <img src="${this.addCacheBustingParam(img.url)}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" />
-                            <button type="button" class="sisme-remove-btn" 
-                                    onclick="window.cropperInstances['${this.uniqueId}'].removeImage(${index})"
-                                    style="position: absolute; top: -5px; right: -5px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer;">
+                            <img src="${img.url}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 4px;" />
+                            <button type="button" onclick="window.cropperInstances['${this.uniqueId}'].removeImageFromGallery(${index})" 
+                                    style="position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 12px;">
                                 ×
                             </button>
+                            <div style="position: absolute; bottom: 2px; left: 2px; background: rgba(0,0,0,0.7); color: white; padding: 2px 4px; font-size: 10px; border-radius: 2px;">
+                                ${index + 1}
+                            </div>
                         </div>
                     `).join('')}
                 </div>
             `;
         }
         
-        // Actualiser le counter dans le label
-        const uploadInfo = this.container.querySelector('.sisme-upload-info');
-        if (uploadInfo) {
-            uploadInfo.innerHTML = `
-                ${this.config.emoji} ${this.config.label} (${this.uploadedImages.length}/${this.maxImages})
-                <br><small>Minimum 1 image, maximum ${this.maxImages}</small>
-            `;
+        // Désactiver l'upload si limite atteinte
+        if (fileInput) {
+            const shouldDisable = this.shouldDisableUpload();
+            fileInput.disabled = shouldDisable;
+            
+            if (shouldDisable) {
+                fileInput.style.opacity = '0.5';
+                fileInput.style.cursor = 'not-allowed';
+            } else {
+                fileInput.style.opacity = '1';
+                fileInput.style.cursor = 'pointer';
+            }
         }
         
-        // Désactiver upload si max atteint
-        fileInput.disabled = this.shouldDisableUpload();
+        // Mettre à jour le compteur dans le label
+        this.updateCounterDisplay();
+    }
+
+    updateCounterDisplay() {
+        if (!this.config.multiple) return;
+        
+        const counterText = ` (${this.uploadedImages.length}/${this.maxImages})`;
+        const infoDiv = this.container.querySelector('.sisme-upload-info');
+        if (infoDiv) {
+            // Remplacer le compteur dans le texte
+            infoDiv.innerHTML = infoDiv.innerHTML.replace(/\(\d+\/\d+\)/, counterText);
+        }
     }
 
     shouldDisableUpload() {
-        return this.config.multiple && this.uploadedImages.length >= this.maxImages;
+        if (!this.config.multiple) return false;
+        return this.uploadedImages.length >= this.maxImages;
     }
 
     removeImage(index) {
@@ -488,6 +524,32 @@ class SimpleCropper {
             this.uploadedImages.splice(index, 1);
             this.updateGallery();
             this.showFeedback(`Image supprimée (${this.uploadedImages.length}/${this.maxImages}). L'image sera définitivement supprimée lors de la sauvegarde.`);
+            
+            const event = new CustomEvent('imageRemoved', {
+                detail: {
+                    index: index,
+                    remaining: this.uploadedImages.length,
+                    cropperId: this.uniqueId
+                }
+            });
+            this.container.dispatchEvent(event);
+        }
+    }
+
+    removeImageFromGallery(index) {
+        if (index >= 0 && index < this.uploadedImages.length) {
+            const removedImage = this.uploadedImages[index];
+            
+            // Libérer l'URL blob pour éviter les fuites mémoire
+            if (removedImage.url && removedImage.url.startsWith('blob:')) {
+                URL.revokeObjectURL(removedImage.url);
+            }
+            
+            // Supprimer de la collection
+            this.uploadedImages.splice(index, 1);
+            
+            this.updateGallery();
+            this.showFeedback(`Image supprimée ! (${this.uploadedImages.length}/${this.maxImages})`);
             
             // Trigger update event
             const event = new CustomEvent('imageRemoved', {
@@ -501,6 +563,16 @@ class SimpleCropper {
         }
     }
 
+    updateScreenshotsField() {
+        if (this.ratioType !== 'screenshot') return;
+        
+        const idsField = document.getElementById('screenshots_attachment_ids');
+        if (idsField) {
+            const ids = this.uploadedImages.map(img => img.attachmentId).filter(id => id);
+            idsField.value = ids.join(',');
+        }
+    }
+
     resetCropInterface() {
         if (this.cropper) {
             this.cropper.destroy();
@@ -510,7 +582,7 @@ class SimpleCropper {
         document.getElementById(this.ids.fileInput).value = '';
         document.getElementById(this.ids.imageContainer).style.display = 'none';
         
-        // Ne pas effacer le feedback pour les multiples
+
         if (!this.config.multiple) {
             document.getElementById(this.ids.feedback).innerHTML = '';
         }
