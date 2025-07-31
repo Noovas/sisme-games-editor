@@ -41,14 +41,13 @@
         }
         
         if (typeof sismeAjax === 'undefined') {
-            this.log('Erreur: sismeAjax non défini');
             return;
         }
         
         this.bindEvents();
         this.initFormValidation();
+        this.bindSectionEvents();
         this.isInitialized = true;
-        this.log('Module Soumissions Jeux initialisé');
     };
     
     /**
@@ -100,20 +99,6 @@
         const currentCount = $('#game-sections-container .sisme-section-item').length;
         return currentCount < SismeGameSubmission.getMaxSections();
     };
-
-    // Hook sur le bouton d'ajout de section
-    $(document).on('click', '#add-section-btn', function(e) {
-        if (!SismeGameSubmission.canAddSection()) {
-            alert('Nombre maximum de sections atteint (' + SismeGameSubmission.getMaxSections() + ').');
-            e.preventDefault();
-            return false;
-        }
-        // Ajout/clonage d'une nouvelle section
-        const sectionCount = $('#game-sections-container .sisme-section-item').length;
-        const newSection = $('#game-sections-container .sisme-section-item').first().clone();
-        newSection.find('input, textarea').val('');
-        newSection.appendTo('#game-sections-container');
-    });
     
     /**
      * Éditer une soumission existante
@@ -513,28 +498,9 @@ SismeGameSubmission.saveDraft = async function(e) {
 
         // Charger les sections de description longue
         if (gameData.sections && Array.isArray(gameData.sections)) {
-            // Vider d'abord le conteneur des sections
-            const $sectionsContainer = $('#game-sections-container');
-            $sectionsContainer.empty();
-            
-            // Recréer chaque section
-            gameData.sections.forEach((section, index) => {
-                // Déclencher l'ajout d'une nouvelle section via l'interface existante
-                // (suppose qu'il existe un bouton ou une fonction pour ajouter une section)
-                $('#add-section-btn').click(); // Adapter selon votre interface
-                
-                // Remplir les champs de la section nouvellement créée
-                const $newSection = $sectionsContainer.find('.sisme-section-item').last();
-                $newSection.find(`input[name="sections[${index}][title]"]`).val(section.title);
-                $newSection.find(`textarea[name="sections[${index}][content]"]`).val(section.content);
-                
-                if (section.image_attachment_id) {
-                    $newSection.find(`input[name="sections[${index}][image_id]"]`).val(section.image_attachment_id);
-                    // Charger l'image dans l'interface si nécessaire
-                    // this.loadSectionImage(index, section.image_attachment_id);
-                }
-            });
+            this.loadSections(gameData.sections);
         }
+
         const completion = submission.metadata?.completion_percentage || 0;
         this.updateCompletionProgress(completion);
     };
@@ -827,6 +793,188 @@ SismeGameSubmission.saveDraft = async function(e) {
         if (section === 'submit-game') {
             this.config.currentSubmissionId = null;
         }
+    };
+
+    /**
+     * Charger et recréer les sections de description longue
+     */
+    SismeGameSubmission.loadSections = function(sections) {
+        const $sectionsContainer = $('#game-sections-container');
+        $sectionsContainer.empty();
+        
+        // Créer chaque section
+        sections.forEach((sectionData, index) => {
+            const sectionHtml = this.createSectionHtml(index, sectionData);
+            $sectionsContainer.append(sectionHtml);
+            
+            // Charger l'image si elle existe
+            if (sectionData.image_attachment_id) {
+                this.loadSectionImage(index, sectionData.image_attachment_id);
+            }
+        });
+        
+        // S'assurer qu'il y a au moins une section
+        if (sections.length === 0) {
+            const defaultSectionHtml = this.createSectionHtml(0, { title: '', content: '', image_attachment_id: null });
+            $sectionsContainer.append(defaultSectionHtml);
+        }
+    };
+
+    /**
+     * Créer le HTML d'une section
+     */
+    SismeGameSubmission.createSectionHtml = function(index, sectionData = {}) {
+        const sectionNumber = index + 1;
+        const title = sectionData.title || '';
+        const content = sectionData.content || '';
+        
+        return `
+            <div class="sisme-section-item" data-section-index="${index}">
+                <div class="sisme-section-item-header">
+                    <h5 class="sisme-section-item-title sisme-form-section-title">Section ${sectionNumber} <span style="color: #dc3545;">*</span></h5>
+                    ${index > 0 ? '<button type="button" class="sisme-remove-section-btn" title="Supprimer cette section">🗑️</button>' : ''}
+                </div>
+                
+                <div class="sisme-section-item-body">
+                    <div class="sisme-form-field">
+                        <label class="sisme-form-label">Titre de la section <span style="color: #dc3545;">*</span></label>
+                        <input type="text" 
+                            name="sections[${index}][title]" 
+                            class="sisme-form-input section-title-input"
+                            placeholder="Ex: Gameplay, Histoire, Caractéristiques..."
+                            maxlength="100"
+                            value="${title}"
+                            required>
+                    </div>
+                    
+                    <div class="sisme-form-field">
+                        <label class="sisme-form-label">Contenu de la section <span style="color: #dc3545;">*</span></label>
+                        <textarea name="sections[${index}][content]" 
+                                class="sisme-form-textarea section-content-textarea"
+                                placeholder="Décrivez cette partie de votre jeu... (minimum 20 caractères)"
+                                rows="4"
+                                required>${content}</textarea>
+                    </div>
+                    
+                    <div class="sisme-form-field sisme-cropper-container">
+                        <label class="sisme-form-label">Image de la section (optionnel)</label>
+                        <div class="sisme-section-image-upload" data-section-index="${index}">
+                            <div class="sisme-upload-area">
+                                <input type="file" 
+                                    accept="image/*,image/gif" 
+                                    class="sisme-section-image-input"
+                                    data-section-index="${index}">
+                                <div class="sisme-upload-info">
+                                    <span class="sisme-upload-icon">🖼️</span>
+                                    <span class="sisme-upload-text">Cliquez pour ajouter une image</span>
+                                    <span class="sisme-upload-hint">JPG, PNG ou GIF</span>
+                                </div>
+                            </div>
+                            <div class="sisme-section-image-preview" style="display: none;">
+                                <img class="sisme-section-preview-img" src="" alt="Aperçu">
+                                <button type="button" class="sisme-remove-section-image" title="Supprimer l'image">❌</button>
+                                <input type="hidden" name="sections[${index}][image_id]" class="section-image-id">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+
+    /**
+     * Charger une image de section depuis un attachment_id
+     */
+    SismeGameSubmission.loadSectionImage = function(sectionIndex, attachmentId) {
+        if (!attachmentId) return;
+        
+        // Récupérer l'URL de l'attachment via AJAX
+        $.ajax({
+            url: this.config.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'get_attachment_url',
+                attachment_id: attachmentId,
+                security: this.config.nonce
+            },
+            success: (response) => {
+                if (response.success && response.data.url) {
+                    const $section = $(`.sisme-section-item[data-section-index="${sectionIndex}"]`);
+                    const $uploadArea = $section.find('.sisme-upload-area');
+                    const $preview = $section.find('.sisme-section-image-preview');
+                    const $img = $preview.find('.sisme-section-preview-img');
+                    const $hiddenInput = $preview.find('.section-image-id');
+                    
+                    // Afficher l'image
+                    $img.attr('src', response.data.url);
+                    $uploadArea.hide();
+                    $preview.show();
+                    $hiddenInput.val(attachmentId);
+                }
+            },
+            error: () => {
+                console.error('Erreur chargement image section:', attachmentId);
+            }
+        });
+    };
+
+    /**
+     * Rebinder les événements des sections (après création dynamique)
+     */
+    SismeGameSubmission.bindSectionEvents = function() {
+        // Nettoyer les anciens événements puis rebinder
+        $(document).off('change', '.sisme-section-image-input').on('change', '.sisme-section-image-input', function(e) {
+            if (window.submissionValidator && typeof window.submissionValidator.handleSectionImageUpload === 'function') {
+                window.submissionValidator.handleSectionImageUpload(e);
+            }
+        });
+
+        $(document).off('click', '.sisme-remove-section-image').on('click', '.sisme-remove-section-image', function(e) {
+            e.preventDefault();
+            const $sectionUpload = $(this).closest('.sisme-section-image-upload');
+            if (window.submissionValidator && typeof window.submissionValidator.removeSectionImage === 'function') {
+                window.submissionValidator.removeSectionImage($sectionUpload[0]);
+            }
+        });
+
+        $(document).off('click', '.sisme-remove-section-btn').on('click', '.sisme-remove-section-btn', function(e) {
+            e.preventDefault();
+            $(this).closest('.sisme-section-item').remove();
+            SismeGameSubmission.reindexSections();
+        });
+
+        // Événement ajout de section avec protection contre les doublons
+        $(document).off('click', '#add-game-section').on('click', '#add-game-section', function(e) {
+            e.preventDefault();
+            
+            if (!SismeGameSubmission.canAddSection()) {
+                alert('Nombre maximum de sections atteint (' + SismeGameSubmission.getMaxSections() + ').');
+                return false;
+            }
+            
+            const sectionCount = $('#game-sections-container .sisme-section-item').length;
+            const newSectionHtml = SismeGameSubmission.createSectionHtml(sectionCount, {});
+            $('#game-sections-container').append(newSectionHtml);
+        });
+    };
+
+    /**
+     * Réindexer les sections après suppression
+     */
+    SismeGameSubmission.reindexSections = function() {
+        $('#game-sections-container .sisme-section-item').each(function(index) {
+            const $section = $(this);
+            const sectionNumber = index + 1;
+            
+            // Mettre à jour les attributs et noms
+            $section.attr('data-section-index', index);
+            $section.find('.sisme-section-item-title').html(`Section ${sectionNumber} <span style="color: #dc3545;">*</span>`);
+            $section.find('input[name*="[title]"]').attr('name', `sections[${index}][title]`);
+            $section.find('textarea[name*="[content]"]').attr('name', `sections[${index}][content]`);
+            $section.find('input[name*="[image_id]"]').attr('name', `sections[${index}][image_id]`);
+            $section.find('.sisme-section-image-input').attr('data-section-index', index);
+            $section.find('.sisme-section-image-upload').attr('data-section-index', index);
+        });
     };
     
     /**
