@@ -50,7 +50,6 @@
         this.bindEvents();
         this.initFormValidation();
         this.isInitialized = true;
-        
         this.log('Module Soumissions Jeux initialisé');
     };
     
@@ -65,9 +64,7 @@
         $(document).on('click', this.config.draftButtonSelector, this.saveDraft.bind(this));
         $(document).on('click', this.config.submitButtonSelector, this.submitForReview.bind(this));
         
-        // Auto-save sur changement de champs
-        $(document).on('input change', this.config.formSelector + ' input, ' + this.config.formSelector + ' textarea, ' + this.config.formSelector + ' select', 
-            this.scheduleAutoSave.bind(this));
+        // (Suppression de l'auto-save sur changement de champs)
         
         // Navigation dashboard
         $(document).on('sisme:section:changed', this.onSectionChanged.bind(this));
@@ -110,10 +107,7 @@
             if (typeof SismeDashboard !== 'undefined') {
                 SismeDashboard.setActiveSection('submit-game', true);
             }
-            
-            // Activer l'auto-save pour cette soumission
             this.config.currentSubmissionId = submissionId;
-            this.enableAutoSave();
         }).catch(error => {
             this.showFeedback('Erreur lors du chargement de la soumission', 'error');
             this.log('Erreur chargement soumission: ' + error);
@@ -224,58 +218,111 @@
      */
     SismeGameSubmission.saveDraft = function(e) {
         if (e) e.preventDefault();
-        
-        if (this.isDraftSaving) {
-            return;
-        }
-        
+        if (this.isDraftSaving) return;
         this.isDraftSaving = true;
         const $button = $(this.config.draftButtonSelector);
         const originalText = $button.text();
-        
         $button.prop('disabled', true).text('💾 Sauvegarde...');
-        
-        const gameData = this.collectFormData();
-        const isNewSubmission = !this.config.currentSubmissionId;
-        
-        const ajaxData = {
-            security: this.config.nonce,
-            ...gameData
-        };
-        
-        if (isNewSubmission) {
-            ajaxData.action = 'sisme_create_game_submission';
+
+        // MODALE DE PATIENCE
+        let modal = document.getElementById('sisme-saving-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'sisme-saving-modal';
+            modal.style.position = 'fixed';
+            modal.style.top = 0;
+            modal.style.left = 0;
+            modal.style.width = '100vw';
+            modal.style.height = '100vh';
+            modal.style.background = 'rgba(0,0,0,0.5)';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.style.zIndex = 9999;
+            modal.innerHTML = '<div style="background:#222;padding:2em 3em;border-radius:12px;color:#fff;font-size:1.3em;box-shadow:0 2px 16px #0006;display:flex;flex-direction:column;align-items:center;"><span style="font-size:2em;">⏳</span><span style="margin-top:1em;">Sauvegarde en cours...<br>Merci de patienter</span></div>';
+            document.body.appendChild(modal);
         } else {
-            ajaxData.action = 'sisme_save_draft_submission';
-            ajaxData.submission_id = this.config.currentSubmissionId;
+            modal.style.display = 'flex';
         }
-        
-        $.ajax({
-            url: this.config.ajaxUrl,
-            type: 'POST',
-            data: ajaxData,
-            dataType: 'json',
-            success: (response) => {
-                if (response.success) {
-                    if (isNewSubmission && response.data.submission_id) {
-                        this.config.currentSubmissionId = response.data.submission_id;
-                        this.enableAutoSave();
+
+        // UPLOAD DIFFÉRÉ DES IMAGES (covers)
+        (async () => {
+            try {
+                const croppers = window.sismeCroppers || [];
+                console.log('[SISME] Croppers trouvés:', croppers);
+                // 1. Upload toutes les images croppées (en séquentiel)
+                for (const cropper of croppers) {
+                    console.log('[SISME] Test cropper', cropper.ratioType, cropper);
+                    if (cropper.croppedBlob) {
+                        console.log('[SISME] Upload du blob pour', cropper.ratioType, cropper.croppedBlob);
+                        const formData = new FormData();
+                        formData.append('action', 'sisme_simple_crop_upload');
+                        formData.append('security', sismeAjax.nonce);
+                        formData.append('image', cropper.croppedBlob, `cropped-${cropper.ratioType}-image.jpg`);
+                        formData.append('ratio_type', cropper.ratioType);
+                        const response = await fetch(sismeAjax.ajaxurl, { method: 'POST', body: formData });
+                        const data = await response.json();
+                        console.log('[SISME] Réponse upload', cropper.ratioType, data);
+                        if (data.success && data.data && data.data.attachment_id) {
+                            // Met à jour le champ caché AVANT la collecte des données
+                            const hiddenInput = document.getElementById(cropper.ratioType + '_attachment_id');
+                            if (hiddenInput) {
+                                hiddenInput.value = data.data.attachment_id;
+                                console.log('[SISME] Champ caché', cropper.ratioType + '_attachment_id', 'MAJ avec', data.data.attachment_id);
+                            } else {
+                                console.warn('[SISME] Champ caché introuvable pour', cropper.ratioType + '_attachment_id');
+                            }
+                            // On retire le blob pour éviter un re-upload inutile
+                            cropper.croppedBlob = null;
+                        } else {
+                            throw new Error('Erreur upload image ' + cropper.ratioType + ' : ' + (data && data.data && data.data.message ? data.data.message : '')); 
+                        }
+                    } else {
+                        console.log('[SISME] Pas de blob à uploader pour', cropper.ratioType);
                     }
-                    
-                    this.showFeedback(response.data.message, 'success');
-                    this.updateCompletionProgress(response.data.completion_percentage);
-                } else {
-                    this.showFeedback(response.data.message, 'error');
                 }
-            },
-            error: () => {
-                this.showFeedback('Erreur réseau lors de la sauvegarde', 'error');
-            },
-            complete: () => {
+                // 2. (Screenshots multiples à gérer ici si besoin)
+
+                // 3. Collecte des données APRÈS que tous les uploads soient terminés
+                const gameData = this.collectFormData();
+                console.log('[SISME] Données collectées pour sauvegarde', gameData);
+                const isNewSubmission = !this.config.currentSubmissionId;
+                const ajaxData = {
+                    security: this.config.nonce,
+                    ...gameData
+                };
+                if (isNewSubmission) {
+                    ajaxData.action = 'sisme_create_game_submission';
+                } else {
+                    ajaxData.action = 'sisme_save_draft_submission';
+                    ajaxData.submission_id = this.config.currentSubmissionId;
+                }
+                // 4. Sauvegarde AJAX du formulaire
+                const result = await $.ajax({
+                    url: this.config.ajaxUrl,
+                    type: 'POST',
+                    data: ajaxData,
+                    dataType: 'json'
+                });
+                console.log('[SISME] Résultat sauvegarde', result);
+                if (result.success) {
+                    if (isNewSubmission && result.data.submission_id) {
+                        this.config.currentSubmissionId = result.data.submission_id;
+                    }
+                    this.showFeedback(result.data.message, 'success');
+                    this.updateCompletionProgress(result.data.completion_percentage);
+                } else {
+                    this.showFeedback(result.data.message, 'error');
+                }
+            } catch (err) {
+                console.error('[SISME] Erreur JS lors de la sauvegarde', err);
+                this.showFeedback('Erreur lors de la sauvegarde : ' + (err.message || err), 'error');
+            } finally {
                 $button.prop('disabled', false).text(originalText);
                 this.isDraftSaving = false;
+                if (modal) modal.style.display = 'none';
             }
-        });
+        })();
     };
     
     /**
@@ -395,8 +442,59 @@
             }
         });
 
+        if (gameData.covers) {
+            if (gameData.covers.horizontal) {
+                $form.find('input[name="cover_horizontal_attachment_id"]').val(gameData.covers.horizontal);
+                this.loadImageInCropper('cropper1', gameData.covers.horizontal);
+            }
+            if (gameData.covers.vertical) {
+                $form.find('input[name="cover_vertical_attachment_id"]').val(gameData.covers.vertical);
+                this.loadImageInCropper('cropper2', gameData.covers.vertical);
+            }
+        }
+        
+        if (gameData.screenshots && Array.isArray(gameData.screenshots)) {
+            gameData.screenshots.forEach((attachmentId, index) => {
+                this.loadImageInCropper('cropper3', attachmentId, index);
+            });
+        }
+
         const completion = submission.metadata?.completion_percentage || 0;
         this.updateCompletionProgress(completion);
+    };
+
+    SismeGameSubmission.loadImageInCropper = function(cropperId, attachmentId, index = 0) {
+        // Récupérer l'URL de l'attachment via AJAX
+        $.ajax({
+            url: this.config.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'get_attachment_url',
+                attachment_id: attachmentId,
+                security: this.config.nonce
+            },
+            success: (response) => {
+                if (response.success && response.data.url) {
+                    // Trouver l'instance du cropper et afficher l'image
+                    let cropperInstance = window.cropperInstances[cropperId];
+                    if (!cropperInstance) {
+                        // Cherche une instance dont le uniqueId commence par cropperId
+                        for (const key in window.cropperInstances) {
+                            if (key.indexOf(cropperId) !== -1) {
+                                cropperInstance = window.cropperInstances[key];
+                                break;
+                            }
+                        }
+                    }
+                    if (cropperInstance) {
+                        console.log('Cropper trouvé pour', cropperId, cropperInstance, response.data.url);
+                        cropperInstance.displayExistingImage(response.data.url);
+                    } else {
+                        console.warn('Aucune instance de cropper trouvée pour', cropperId, window.cropperInstances);
+                    }
+                }
+            }
+        });
     };
     
     /**

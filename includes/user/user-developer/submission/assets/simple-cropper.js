@@ -19,7 +19,11 @@ class SimpleCropper {
             console.error('SimpleCropper: Container non trouvé:', containerId);
             return;
         }
-        
+
+        // Enregistrement global pour la soumission différée
+        if (!window.sismeCroppers) window.sismeCroppers = [];
+        window.sismeCroppers.push(this);
+
         // Configuration des ratios
         this.ratios = {
             'cover_horizontal': {
@@ -66,7 +70,6 @@ class SimpleCropper {
         this.container.innerHTML = `
             <div class="sisme-cropper-container">
                 ${isMultiple ? `<div id="gallery_${this.uniqueId}" class="sisme-image-gallery"></div>` : ''}
-                
                 <div class="sisme-upload-section">
                     <input type="file" id="imageFile_${this.uniqueId}" accept="image/*" 
                            ${this.shouldDisableUpload() ? 'disabled' : ''} />
@@ -75,7 +78,6 @@ class SimpleCropper {
                         ${isMultiple ? '<br><small>Minimum 1 image, maximum ' + this.maxImages + '</small>' : ''}
                     </div>
                 </div>
-                
                 <div id="imageContainer_${this.uniqueId}" style="display:none;">
                     <img id="cropImage_${this.uniqueId}" style="max-width: 100%; max-height: 400px;" />
                     <div class="sisme-crop-actions" style="margin-top: 10px;">
@@ -87,18 +89,13 @@ class SimpleCropper {
                         </button>
                     </div>
                 </div>
-                
                 ${!isMultiple ? `
                 <div id="result_${this.uniqueId}" style="display:none;">
                     <div class="sisme-result-preview">
                         <img id="resultImage_${this.uniqueId}" style="max-width: 300px; border: 1px solid #ddd; border-radius: 4px;" />
                     </div>
-                    <button type="button" id="changeBtn_${this.uniqueId}" class="sisme-btn sisme-btn-secondary" style="margin-top: 10px;">
-                        Changer l'image
-                    </button>
                 </div>
                 ` : ''}
-                
                 <div id="feedback_${this.uniqueId}" class="sisme-feedback"></div>
             </div>
         `;
@@ -147,9 +144,49 @@ class SimpleCropper {
         
         // Pour images uniques seulement
         if (!this.config.multiple) {
-            const changeBtn = document.getElementById(this.ids.changeBtn);
-            changeBtn.addEventListener('click', () => this.reset());
+            const removeBtn = document.getElementById(this.ids.removeBtn);
+            if (removeBtn) {
+                removeBtn.addEventListener('click', () => this.removeImageUnique());
+            }
         }
+    }
+
+    /**
+     * Pour images uniques : supprime l'image, reset l'UI et le champ caché d'ID d'attachment
+     */
+    removeImageUnique() {
+        // Nouveau comportement : vider l'aperçu, réafficher le cropper, masquer l'aperçu, pas de suppression média
+        console.log('[SimpleCropper] removeImageUnique (UI only) for', this.ratioType);
+        // Vider le champ caché d'ID
+        const hiddenInput = document.getElementById(this.ratioType + '_attachment_id');
+        if (hiddenInput) hiddenInput.value = '';
+        // Vider l'aperçu
+        const resultImage = document.getElementById(this.ids.resultImage);
+        if (resultImage) resultImage.src = '';
+        // Réinitialiser le blob local
+        this.croppedBlob = null;
+        // Réinitialiser l'input file
+        const fileInput = document.getElementById(this.ids.fileInput);
+        if (fileInput) fileInput.value = '';
+        // Réafficher le cropper (imageContainer), masquer l'aperçu (result)
+        const imageContainer = document.getElementById(this.ids.imageContainer);
+        if (imageContainer) imageContainer.style.display = 'block';
+        const resultContainer = document.getElementById(this.ids.result);
+        if (resultContainer) resultContainer.style.display = 'none';
+        // Détruire l'instance cropper si présente
+        if (this.cropper) {
+            this.cropper.destroy();
+            this.cropper = null;
+        }
+        this.showFeedback('Image retirée du formulaire. Elle sera supprimée du média lors de la sauvegarde.');
+        // Event custom pour notifier la suppression UI
+        const event = new CustomEvent('imageRemoved', {
+            detail: {
+                cropperId: this.uniqueId,
+                ratioType: this.ratioType
+            }
+        });
+        this.container.dispatchEvent(event);
     }
 
     loadImage(file) {
@@ -215,26 +252,38 @@ class SimpleCropper {
     cropImage() {
         console.log('=== CROP IMAGE DEBUG ===');
         console.log('Cropper instance:', this.cropper);
-        
         if (!this.cropper) {
             console.error('No cropper instance!');
             return;
         }
-        
         this.setProcessing(true);
-
-        console.log('Getting cropped canvas...');
         const canvas = this.cropper.getCroppedCanvas({
             width: this.config.width,
             height: this.config.height
         });
-
-        console.log('Canvas:', canvas);
-        console.log('Converting to blob...');
-
         canvas.toBlob((blob) => {
-            console.log('Blob created:', blob);
-            this.uploadImage(blob);
+            console.log('Blob created (stockée localement, pas d\'upload immédiat) :', blob);
+            // Stocker le blob localement pour upload lors de la sauvegarde manuelle
+            this.croppedBlob = blob;
+            this.showFeedback('Image prête à être uploadée (sera envoyée lors de la sauvegarde).');
+            // Afficher l'aperçu
+            const resultImage = document.getElementById(this.ids.resultImage);
+            if (resultImage) {
+                resultImage.src = URL.createObjectURL(blob);
+            }
+            // Cacher le cropper et afficher l'aperçu dès le crop
+            const imageContainer = document.getElementById(this.ids.imageContainer);
+            if (imageContainer) imageContainer.style.display = 'none';
+            const resultContainer = document.getElementById(this.ids.result);
+            if (resultContainer) {
+                resultContainer.style.display = 'block';
+            }
+            // (Re)lier le bouton supprimer dynamiquement
+            const removeBtn = document.getElementById(this.ids.removeBtn);
+            if (removeBtn) {
+                removeBtn.onclick = () => this.removeImageUnique();
+            }
+            this.setProcessing(false);
         }, 'image/jpeg', 0.9);
     }
 
@@ -325,15 +374,68 @@ class SimpleCropper {
             document.getElementById(this.ratioType + '_attachment_id').value = data.attachment_id;
         }
         this.container.dispatchEvent(event);
+
+        // (Suppression de la sauvegarde auto après upload d'image)
+        // Ne rien faire ici
+    }
+
+    /**
+     * Sauvegarde automatique du brouillon après upload d'image
+     */
+    autoSaveAfterImageUpload(attachmentId) {
+        // Récupérer l'ID de soumission (champ caché ou global)
+        let submissionIdInput = document.querySelector('input[name="submission_id"]');
+        let submission_id = submissionIdInput ? submissionIdInput.value : (window.sismeSubmissionId || null);
+        if (!submission_id) {
+            console.warn('[SimpleCropper] Impossible de trouver submission_id pour auto-save après upload image.');
+            return;
+        }
+
+        // Préparer les données covers
+        let covers = {};
+        let horizontal = document.getElementById('cover_horizontal_attachment_id');
+        let vertical = document.getElementById('cover_vertical_attachment_id');
+        if (horizontal && horizontal.value) covers['horizontal'] = horizontal.value;
+        if (vertical && vertical.value) covers['vertical'] = vertical.value;
+
+        // Construire le FormData
+        let formData = new FormData();
+        formData.append('action', 'sisme_save_draft_submission');
+        formData.append('security', sismeAjax.nonce);
+        formData.append('submission_id', submission_id);
+        formData.append('covers[horizontal]', covers['horizontal'] || '');
+        formData.append('covers[vertical]', covers['vertical'] || '');
+
+        // Ajouter d'autres champs si besoin (optionnel)
+
+        fetch(sismeAjax.ajaxurl, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('[SimpleCropper] Auto-save après upload image : OK');
+            } else {
+                console.warn('[SimpleCropper] Auto-save après upload image : erreur', data);
+            }
+        })
+        .catch(e => {
+            console.warn('[SimpleCropper] Auto-save après upload image : erreur AJAX', e);
+        });
     }
 
     showResult(imageUrl) {
         if (!this.config.multiple) {
             const resultImage = document.getElementById(this.ids.resultImage);
             resultImage.src = imageUrl;
-            
             document.getElementById(this.ids.imageContainer).style.display = 'none';
             document.getElementById(this.ids.result).style.display = 'block';
+            // (Re)lier le bouton supprimer par classe (robuste)
+            const removeBtn = this.container.querySelector('.sisme-btn-danger');
+            if (removeBtn) {
+                removeBtn.onclick = () => this.removeImageUnique();
+            }
         }
     }
 
@@ -448,6 +550,25 @@ class SimpleCropper {
 
     showFeedback(message) {
         document.getElementById(this.ids.feedback).innerHTML = '<p>' + message + '</p>';
+    }
+
+
+    displayExistingImage(imageUrl) {
+        // Affiche l'image dans le bloc résultat standard avec les boutons d'action
+        const resultContainer = document.getElementById(this.ids.result);
+        const resultImage = document.getElementById(this.ids.resultImage);
+        if (resultContainer && resultImage) {
+            resultImage.src = imageUrl;
+            document.getElementById(this.ids.imageContainer).style.display = 'none';
+            resultContainer.style.display = 'block';
+            // (Re)lier le bouton supprimer par classe (robuste)
+            const removeBtn = this.container.querySelector('.sisme-btn-danger');
+            if (removeBtn) {
+                removeBtn.onclick = () => this.removeImageUnique();
+            }
+        } else {
+            console.warn('Conteneur résultat ou image non trouvé pour', this.ids.result, this.ids.resultImage);
+        }
     }
 }
 

@@ -562,20 +562,86 @@ function sisme_collect_game_data_from_post() {
         $game_data[Sisme_Utils_Users::GAME_FIELD_EXTERNAL_LINKS] = $external_links;
     }
 
-    $covers = [];
-    if (!empty($_POST['cover_horizontal_attachment_id'])) {
-        $covers['horizontal'] = intval($_POST['cover_horizontal_attachment_id']);
-    }
-    if (!empty($_POST['cover_vertical_attachment_id'])) {
-        $covers['vertical'] = intval($_POST['cover_vertical_attachment_id']);
-    }
-    if (!empty($covers)) {
+    // Toujours envoyer covers même si vide
+    $covers = [
+        'horizontal' => isset($_POST['covers']['horizontal']) ? intval($_POST['covers']['horizontal']) : '',
+        'vertical'   => isset($_POST['covers']['vertical']) ? intval($_POST['covers']['vertical']) : ''
+    ];
+    // Si les deux sont vides, on envoie quand même un tableau vide
+    if (empty($covers['horizontal']) && empty($covers['vertical'])) {
+        $game_data['covers'] = [];
+    } else {
         $game_data['covers'] = $covers;
-    }
-    if (!empty($_POST['screenshots_attachment_ids'])) {
-        $screenshot_ids = explode(',', $_POST['screenshots_attachment_ids']);
-        $game_data['screenshots'] = array_map('intval', array_filter($screenshot_ids));
     }
 
     return $game_data;
 }
+
+/**
+ * Récupérer l'URL d'une image attachée
+ */
+add_action('wp_ajax_get_attachment_url', 'sisme_ajax_get_attachment_url');
+function sisme_ajax_get_attachment_url() {
+    if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_developer_nonce')) {
+        wp_send_json_error(['message' => 'Erreur de sécurité']);
+    }
+    
+    $attachment_id = intval($_POST['attachment_id'] ?? 0);
+    if (!$attachment_id) {
+        wp_send_json_error(['message' => 'ID attachment manquant']);
+    }
+    
+    $url = wp_get_attachment_url($attachment_id);
+    if (!$url) {
+        wp_send_json_error(['message' => 'Image introuvable']);
+    }
+    
+    wp_send_json_success([
+        'url' => $url,
+        'attachment_id' => $attachment_id
+    ]);
+}
+
+/**
+ * Suppression d'une image (attachment) via AJAX pour le cropper
+ */
+add_action('wp_ajax_sisme_simple_crop_delete', function() {
+    if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_developer_nonce')) {
+        wp_send_json_error(['message' => 'Erreur de sécurité (nonce)']);
+    }
+
+    $attachment_id = isset($_POST['attachment_id']) ? intval($_POST['attachment_id']) : 0;
+    if (!$attachment_id) {
+        wp_send_json_error(['message' => 'ID d\'image manquant']);
+    }
+
+    $user_id = get_current_user_id();
+    $can_delete = current_user_can('delete_post', $attachment_id);
+
+    if (!$can_delete && $user_id) {
+        if (!function_exists('sisme_load_submission_data_manager')) {
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-ajax.php';
+        }
+        if (sisme_load_submission_data_manager()) {
+            $submissions = Sisme_Game_Submission_Data_Manager::get_user_submissions($user_id);
+            foreach ($submissions as $submission) {
+                $covers = $submission['game_data']['covers'] ?? [];
+                if (in_array($attachment_id, $covers, true)) {
+                    $can_delete = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!$can_delete) {
+        wp_send_json_error(['message' => 'Droits insuffisants pour supprimer cette image']);
+    }
+
+    $deleted = wp_delete_attachment($attachment_id, true);
+    if ($deleted) {
+        wp_send_json_success(['message' => 'Image supprimée']);
+    } else {
+        wp_send_json_error(['message' => 'Erreur lors de la suppression']);
+    }
+});
