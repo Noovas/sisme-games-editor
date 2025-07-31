@@ -282,6 +282,53 @@
                     }
                 }
                 // 2. (Screenshots multiples à gérer ici si besoin)
+                const screenshotCropper = croppers.find(c => c.ratioType === 'screenshot');
+                if (screenshotCropper && screenshotCropper.uploadedImages && screenshotCropper.uploadedImages.length > 0) {
+                    console.log('[SISME] Upload des screenshots', screenshotCropper.uploadedImages.length);
+                    
+                    // Récupérer les IDs existants pour comparaison (nettoyage)
+                    const existingIds = document.getElementById('screenshots_attachment_ids').value;
+                    const existingIdsArray = existingIds ? existingIds.split(',').map(id => parseInt(id.trim())).filter(id => id) : [];
+                    
+                    const newAttachmentIds = [];
+                    
+                    // Upload chaque screenshot qui a un blob
+                    for (let i = 0; i < screenshotCropper.uploadedImages.length; i++) {
+                        const screenshot = screenshotCropper.uploadedImages[i];
+                        
+                        if (screenshot.blob) {
+                            console.log('[SISME] Upload screenshot', i + 1);
+                            const formData = new FormData();
+                            formData.append('action', 'sisme_simple_crop_upload');
+                            formData.append('security', sismeAjax.nonce);
+                            formData.append('image', screenshot.blob, `screenshot-${i + 1}.jpg`);
+                            formData.append('ratio_type', 'screenshot');
+                            
+                            const response = await fetch(sismeAjax.ajaxurl, { method: 'POST', body: formData });
+                            const data = await response.json();
+                            
+                            if (data.success && data.data && data.data.attachment_id) {
+                                newAttachmentIds.push(data.data.attachment_id);
+                                // Mettre à jour l'objet screenshot avec l'ID
+                                screenshotCropper.uploadedImages[i].attachmentId = data.data.attachment_id;
+                                screenshotCropper.uploadedImages[i].blob = null; // Nettoyer le blob
+                                console.log('[SISME] Screenshot uploadé avec ID', data.data.attachment_id);
+                            } else {
+                                throw new Error('Erreur upload screenshot ' + (i + 1) + ' : ' + (data?.data?.message || 'Erreur inconnue'));
+                            }
+                        } else if (screenshot.attachmentId) {
+                            // Screenshot déjà uploadé
+                            newAttachmentIds.push(screenshot.attachmentId);
+                        }
+                    }
+                    
+                    // Mettre à jour le champ caché avec les nouveaux IDs
+                    document.getElementById('screenshots_attachment_ids').value = newAttachmentIds.join(',');
+                    console.log('[SISME] IDs screenshots mis à jour:', newAttachmentIds);
+                    
+                    // TODO: Nettoyer les anciens médias (à implémenter côté serveur)
+                    // Les IDs dans existingIdsArray qui ne sont plus dans newAttachmentIds doivent être supprimés
+                }
 
                 // 3. Collecte des données APRÈS que tous les uploads soient terminés
                 const gameData = this.collectFormData();
@@ -553,7 +600,7 @@
         }
         
         if (screenshots) {
-            gameData['screenshots'] = screenshots.split(',').filter(id => id.trim());
+            gameData['screenshots'] = screenshots;
         }
         
         return gameData;

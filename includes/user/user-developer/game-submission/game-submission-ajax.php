@@ -612,9 +612,19 @@ function sisme_collect_game_data_from_post() {
     }
     
     // Traitement des screenshots
-    if (isset($_POST['screenshots_attachment_ids']) && !empty($_POST['screenshots_attachment_ids'])) {
-        $screenshots_ids = array_map('intval', explode(',', $_POST['screenshots_attachment_ids']));
-        $game_data['screenshots'] = array_filter($screenshots_ids);
+    if (isset($_POST['screenshots'])) {
+        $raw_screenshots = $_POST['screenshots'];
+        
+        if (is_array($raw_screenshots)) {
+            // Format array : screenshots[] = [4222, 4223, 4224]
+            $game_data['screenshots'] = array_map('intval', array_filter($raw_screenshots));
+        } elseif (is_string($raw_screenshots) && !empty($raw_screenshots)) {
+            // Format string : screenshots = "4222,4223,4224"
+            $screenshots_ids = array_map('intval', explode(',', $raw_screenshots));
+            $game_data['screenshots'] = array_filter($screenshots_ids);
+        } else {
+            $game_data['screenshots'] = [];
+        }
     } else {
         $game_data['screenshots'] = [];
     }
