@@ -335,6 +335,8 @@ SismeGameSubmission.saveDraft = async function(e) {
                     // Les IDs dans existingIdsArray qui ne sont plus dans newAttachmentIds doivent être supprimés
                 }
 
+                await this.uploadSectionImages();
+
                 // 3. Collecte des données APRÈS que tous les uploads soient terminés
                 const gameData = this.collectFormData();
                 const isNewSubmission = !this.config.currentSubmissionId;
@@ -509,8 +511,71 @@ SismeGameSubmission.saveDraft = async function(e) {
             this.loadScreenshotsInCropper(gameData.screenshots);
         }
 
+        // Charger les sections de description longue
+        if (gameData.sections && Array.isArray(gameData.sections)) {
+            // Vider d'abord le conteneur des sections
+            const $sectionsContainer = $('#game-sections-container');
+            $sectionsContainer.empty();
+            
+            // Recréer chaque section
+            gameData.sections.forEach((section, index) => {
+                // Déclencher l'ajout d'une nouvelle section via l'interface existante
+                // (suppose qu'il existe un bouton ou une fonction pour ajouter une section)
+                $('#add-section-btn').click(); // Adapter selon votre interface
+                
+                // Remplir les champs de la section nouvellement créée
+                const $newSection = $sectionsContainer.find('.sisme-section-item').last();
+                $newSection.find(`input[name="sections[${index}][title]"]`).val(section.title);
+                $newSection.find(`textarea[name="sections[${index}][content]"]`).val(section.content);
+                
+                if (section.image_attachment_id) {
+                    $newSection.find(`input[name="sections[${index}][image_id]"]`).val(section.image_attachment_id);
+                    // Charger l'image dans l'interface si nécessaire
+                    // this.loadSectionImage(index, section.image_attachment_id);
+                }
+            });
+        }
         const completion = submission.metadata?.completion_percentage || 0;
         this.updateCompletionProgress(completion);
+    };
+
+    /**
+     * Upload des images de sections avec IDs temporaires
+     */
+    SismeGameSubmission.uploadSectionImages = async function() {
+        const sectionItems = document.querySelectorAll('#game-sections-container .sisme-section-item');
+        
+        for (let i = 0; i < sectionItems.length; i++) {
+            const section = sectionItems[i];
+            const imageIdInput = section.querySelector('.section-image-id');
+            const imageInput = section.querySelector('.sisme-section-image-input');
+            
+            // Si c'est un ID temporaire et qu'il y a un fichier à uploader
+            if (imageIdInput && imageIdInput.value.startsWith('temp_') && imageInput && imageInput.files[0]) {
+                try {
+                    const formData = new FormData();
+                    formData.append('action', 'sisme_simple_crop_upload');
+                    formData.append('security', this.config.nonce);
+                    formData.append('image', imageInput.files[0]);
+                    formData.append('ratio_type', 'screenshot'); // Utiliser screenshot pour les sections
+                    
+                    const response = await fetch(this.config.ajaxUrl, { 
+                        method: 'POST', 
+                        body: formData 
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success && data.data && data.data.attachment_id) {
+                        // Remplacer l'ID temporaire par l'ID réel
+                        imageIdInput.value = data.data.attachment_id;
+                    } else {
+                        console.error('Erreur upload image section:', data);
+                    }
+                } catch (error) {
+                    console.error('Erreur upload image section:', error);
+                }
+            }
+        }
     };
 
     SismeGameSubmission.loadImageInCropper = function(cropperId, attachmentId, index = 0) {
@@ -672,12 +737,12 @@ SismeGameSubmission.saveDraft = async function(e) {
             const $section = $(this);
             const title = $section.find(`input[name="sections[${i}][title]"]`).val() || '';
             const content = $section.find(`textarea[name="sections[${i}][content]"]`).val() || '';
-            const imageId = $section.find(`input[name="sections[${i}][image_id]"]`).val() || '';
+            const imageId = $section.find('.section-image-id').val() || '';
             if (title && content) {
                 sections.push({
                     title: title,
                     content: content,
-                    image_id: imageId
+                    image_attachment_id: imageId && !imageId.startsWith('temp_') ? parseInt(imageId) : null
                 });
             }
         });

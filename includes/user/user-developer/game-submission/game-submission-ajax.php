@@ -161,15 +161,26 @@ function sisme_ajax_save_draft_submission() {
         }
     }
 
-    // Nettoyer les images de sections supprimées
+    // Nettoyer les images de sections supprimées ou remplacées
     if (!empty($current_submission) && !empty($current_submission['game_data'][Sisme_Utils_Users::GAME_FIELD_DESCRIPTION_SECTIONS])) {
         $old_sections = $current_submission['game_data'][Sisme_Utils_Users::GAME_FIELD_DESCRIPTION_SECTIONS];
         $new_sections = $game_data[Sisme_Utils_Users::GAME_FIELD_DESCRIPTION_SECTIONS] ?? [];
-        $old_ids = array_filter(array_map(function($s) { return $s['image_attachment_id'] ?? null; }, $old_sections));
-        $new_ids = array_filter(array_map(function($s) { return $s['image_attachment_id'] ?? null; }, $new_sections));
+        
+        // Récupérer les IDs d'images (ignorer les nulls et les temp_)
+        $old_ids = array_filter(array_map(function($s) { 
+            $id = $s['image_attachment_id'] ?? null;
+            return ($id && !is_string($id)) ? intval($id) : null;
+        }, $old_sections));
+        
+        $new_ids = array_filter(array_map(function($s) { 
+            $id = $s['image_attachment_id'] ?? null;
+            return ($id && !is_string($id)) ? intval($id) : null;
+        }, $new_sections));
+        
+        // Supprimer les images qui ne sont plus utilisées
         $removed_section_images = array_diff($old_ids, $new_ids);
         foreach ($removed_section_images as $img_id) {
-            if (!empty($img_id)) {
+            if (!empty($img_id) && is_numeric($img_id)) {
                 wp_delete_attachment(intval($img_id), true);
             }
         }
@@ -627,6 +638,31 @@ function sisme_collect_game_data_from_post() {
         }
     } else {
         $game_data['screenshots'] = [];
+    }
+
+    // Traitement des sections de description longue
+    if (isset($_POST['sections']) && is_array($_POST['sections'])) {
+        $sections = [];
+        foreach ($_POST['sections'] as $section_data) {
+            if (!empty($section_data['title']) && !empty($section_data['content'])) {
+                $image_id = $section_data['image_id'] ?? '';
+                $final_image_id = null;
+                
+                // Ne garder que les IDs numériques valides (ignorer les temp_)
+                if (!empty($image_id) && !str_starts_with($image_id, 'temp_') && is_numeric($image_id)) {
+                    $final_image_id = intval($image_id);
+                }
+                
+                $sections[] = [
+                    'title' => sanitize_text_field($section_data['title']),
+                    'content' => sanitize_textarea_field($section_data['content']),
+                    'image_attachment_id' => $final_image_id
+                ];
+            }
+        }
+        if (!empty($sections)) {
+            $game_data[Sisme_Utils_Users::GAME_FIELD_DESCRIPTION_SECTIONS] = $sections;
+        }
     }
 
     return $game_data;

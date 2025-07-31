@@ -455,7 +455,7 @@ class Sisme_Game_Submission_Data_Manager {
             }
         }
         
-        $complex_fields = ['covers', 'screenshots', 'external_links'];
+        $complex_fields = ['covers', 'screenshots', 'external_links', 'sections'];
         foreach ($complex_fields as $field) {
             if (isset($game_data[$field])) {
                 $clean_data[$field] = $game_data[$field];
