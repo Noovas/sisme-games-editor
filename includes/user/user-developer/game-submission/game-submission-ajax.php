@@ -10,12 +10,10 @@ if (!defined('ABSPATH')) {
 
 
 if (!class_exists('Sisme_Utils_Users')) {
-    error_log('ERROR: Sisme_Utils_Users manquant');
     require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/utils/utils-users.php';
 }
 
 if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
-    error_log('ERROR: Sisme_Game_Submission_Data_Manager manquant');
     require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
 }
 
@@ -124,12 +122,9 @@ function sisme_ajax_save_draft_submission() {
         return;
     }
 
-    // DEBUG - voir ce qui arrive vraiment
-    error_log('POST game_genres: ' . print_r($_POST['game_genres'] ?? 'MISSING', true));
 
     $game_data = sisme_collect_game_data_from_post();
 
-    error_log('COLLECTED game_genres: ' . print_r($game_data['game_genres'] ?? 'MISSING', true));
     
     // Récupérer la soumission actuelle pour comparer les images avant/après
     $current_submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);

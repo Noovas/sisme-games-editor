@@ -44,7 +44,6 @@ class Sisme_User_Developer_Loader {
         $this->register_hooks();
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[Sisme User Developer] Module développeur utilisateur initialisé');
         }
     }
     
@@ -84,7 +83,6 @@ class Sisme_User_Developer_Loader {
             if (file_exists($file_path)) {
                 require_once $file_path;
                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log("[Sisme User Developer] Module de soumission chargé : $module");
                 }
             }
         }
@@ -284,7 +282,6 @@ class Sisme_User_Developer_Loader {
             return $result;
         }
         
-        error_log("[DEBUG] Traitement section developer");
         return Sisme_User_Developer_Renderer::render_developer_section($user_id, $developer_status, $dashboard_data);
     }
     

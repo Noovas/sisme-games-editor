@@ -152,7 +152,6 @@ class Sisme_User_Developer_Data_Manager {
             
             // Log pour debug
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("[Sisme User Developer] Candidature sauvegardée pour l'utilisateur $user_id");
             }
         }
         

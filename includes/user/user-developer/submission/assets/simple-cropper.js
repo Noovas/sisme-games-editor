@@ -16,7 +16,6 @@ class SimpleCropper {
     constructor(containerId, ratioType = 'cover_horizontal', options = {}) {
         this.container = document.getElementById(containerId);
         if (!this.container) {
-            console.error('SimpleCropper: Container non trouvé:', containerId);
             return;
         }
 
@@ -165,8 +164,6 @@ class SimpleCropper {
      * Pour images uniques : supprime l'image, reset l'UI et le champ caché d'ID d'attachment
      */
     removeImageUnique() {
-        // Nouveau comportement : vider l'aperçu, réafficher le cropper, masquer l'aperçu, pas de suppression média
-        console.log('[SimpleCropper] removeImageUnique (UI only) for', this.ratioType);
         // Vider le champ caché d'ID
         const hiddenInput = document.getElementById(this.ratioType + '_attachment_id');
         if (hiddenInput) hiddenInput.value = '';
@@ -200,9 +197,6 @@ class SimpleCropper {
     }
 
     loadImage(file) {
-        console.log('=== LOAD IMAGE DEBUG ===');
-        console.log('Ratio type:', this.ratioType);
-        console.log('All IDs:', this.ids);
         
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -210,18 +204,12 @@ class SimpleCropper {
             const imageContainer = document.getElementById(this.ids.imageContainer);
             const resultContainer = document.getElementById(this.ids.result);
             
-            console.log('Elements check:');
-            console.log('- cropImage:', cropImage);
-            console.log('- imageContainer:', imageContainer);
-            console.log('- resultContainer:', resultContainer);
             
             if (!cropImage) {
-                console.error('ERREUR: Element cropImage non trouvé!', this.ids.cropImage);
                 return;
             }
             
             if (!imageContainer) {
-                console.error('ERREUR: Element imageContainer non trouvé!', this.ids.imageContainer);
                 return;
             }
             
@@ -240,19 +228,15 @@ class SimpleCropper {
             
             // Forcer l'initialisation avec un délai
             setTimeout(() => {
-                console.log('Force init Cropper after timeout');
                 try {
                     this.cropper = new Cropper(cropImage, {
                         aspectRatio: this.config.ratio,
                         viewMode: 2,
                         autoCropArea: 0.8,
                         ready: () => {
-                            console.log('Cropper ready!');
                         }
                     });
-                    console.log('Cropper instance created:', this.cropper);
                 } catch (error) {
-                    console.error('Erreur Cropper:', error);
                 }
             }, 200);
         };
@@ -269,7 +253,6 @@ class SimpleCropper {
             height: this.config.height
         });
         canvas.toBlob((blob) => {
-            console.log('Blob created pour', this.ratioType, ':', blob);
             
             if (this.config.multiple) {
                 // Mode screenshots multiples : ajouter à la collection locale
@@ -329,9 +312,6 @@ class SimpleCropper {
     }
 
     uploadImage(blob) {
-        console.log('=== DEBUG UPLOAD ===');
-        console.log('Instance ID:', this.uniqueId);
-        console.log('Ratio type:', this.ratioType);
         
         const formData = new FormData();
         formData.append('action', 'sisme_simple_crop_upload');
@@ -350,8 +330,7 @@ class SimpleCropper {
                 try {
                     return JSON.parse(text);
                 } catch (e) {
-                    console.error('JSON Parse Error:', e);
-                    throw new Error('Réponse non-JSON: ' + text);
+                    // ...existing code...
                 }
             });
         })
@@ -363,10 +342,8 @@ class SimpleCropper {
                 this.showFeedback('Erreur serveur: ' + message);
             }
         })
-        .catch(error => {
-            console.error('=== CATCH ERROR ===');
-            console.error('Error:', error);
-            this.showFeedback('Erreur de connexion: ' + error.message);
+        .catch(() => {
+            this.showFeedback('Erreur de connexion');
         })
         .finally(() => {
             this.setProcessing(false);
@@ -375,7 +352,6 @@ class SimpleCropper {
 
     handleUploadSuccess(data) {
         if (this.config.multiple) {
-            console.warn('handleUploadSuccess appelé pour un multiple, cela ne devrait pas arriver');
             return;
         }
         this.showResult(data.url);
@@ -404,7 +380,6 @@ class SimpleCropper {
         let submissionIdInput = document.querySelector('input[name="submission_id"]');
         let submission_id = submissionIdInput ? submissionIdInput.value : (window.sismeSubmissionId || null);
         if (!submission_id) {
-            console.warn('[SimpleCropper] Impossible de trouver submission_id pour auto-save après upload image.');
             return;
         }
 
@@ -432,13 +407,10 @@ class SimpleCropper {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                console.log('[SimpleCropper] Auto-save après upload image : OK');
             } else {
-                console.warn('[SimpleCropper] Auto-save après upload image : erreur', data);
             }
         })
         .catch(e => {
-            console.warn('[SimpleCropper] Auto-save après upload image : erreur AJAX', e);
         });
     }
 
@@ -654,7 +626,6 @@ class SimpleCropper {
                 removeBtn.onclick = () => this.removeImageUnique();
             }
         } else {
-            console.warn('Conteneur résultat ou image non trouvé pour', this.ids.result, this.ids.resultImage);
         }
     }
 }

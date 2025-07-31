@@ -108,9 +108,8 @@
                 SismeDashboard.setActiveSection('submit-game', true);
             }
             this.config.currentSubmissionId = submissionId;
-        }).catch(error => {
+        }).catch(() => {
             this.showFeedback('Erreur lors du chargement de la soumission', 'error');
-            this.log('Erreur chargement soumission: ' + error);
         });
     };
     
@@ -249,12 +248,9 @@
         (async () => {
             try {
                 const croppers = window.sismeCroppers || [];
-                console.log('[SISME] Croppers trouvés:', croppers);
                 // 1. Upload toutes les images croppées (en séquentiel)
                 for (const cropper of croppers) {
-                    console.log('[SISME] Test cropper', cropper.ratioType, cropper);
                     if (cropper.croppedBlob) {
-                        console.log('[SISME] Upload du blob pour', cropper.ratioType, cropper.croppedBlob);
                         const formData = new FormData();
                         formData.append('action', 'sisme_simple_crop_upload');
                         formData.append('security', sismeAjax.nonce);
@@ -262,29 +258,23 @@
                         formData.append('ratio_type', cropper.ratioType);
                         const response = await fetch(sismeAjax.ajaxurl, { method: 'POST', body: formData });
                         const data = await response.json();
-                        console.log('[SISME] Réponse upload', cropper.ratioType, data);
                         if (data.success && data.data && data.data.attachment_id) {
                             // Met à jour le champ caché AVANT la collecte des données
                             const hiddenInput = document.getElementById(cropper.ratioType + '_attachment_id');
                             if (hiddenInput) {
                                 hiddenInput.value = data.data.attachment_id;
-                                console.log('[SISME] Champ caché', cropper.ratioType + '_attachment_id', 'MAJ avec', data.data.attachment_id);
                             } else {
-                                console.warn('[SISME] Champ caché introuvable pour', cropper.ratioType + '_attachment_id');
                             }
                             // On retire le blob pour éviter un re-upload inutile
                             cropper.croppedBlob = null;
                         } else {
-                            throw new Error('Erreur upload image ' + cropper.ratioType + ' : ' + (data && data.data && data.data.message ? data.data.message : '')); 
                         }
                     } else {
-                        console.log('[SISME] Pas de blob à uploader pour', cropper.ratioType);
                     }
                 }
                 // 2. (Screenshots multiples à gérer ici si besoin)
                 const screenshotCropper = croppers.find(c => c.ratioType === 'screenshot');
                 if (screenshotCropper && screenshotCropper.uploadedImages && screenshotCropper.uploadedImages.length > 0) {
-                    console.log('[SISME] Upload des screenshots', screenshotCropper.uploadedImages.length);
                     
                     // Récupérer les IDs existants pour comparaison (nettoyage)
                     const existingIds = document.getElementById('screenshots_attachment_ids').value;
@@ -297,7 +287,6 @@
                         const screenshot = screenshotCropper.uploadedImages[i];
                         
                         if (screenshot.blob) {
-                            console.log('[SISME] Upload screenshot', i + 1);
                             const formData = new FormData();
                             formData.append('action', 'sisme_simple_crop_upload');
                             formData.append('security', sismeAjax.nonce);
@@ -312,9 +301,7 @@
                                 // Mettre à jour l'objet screenshot avec l'ID
                                 screenshotCropper.uploadedImages[i].attachmentId = data.data.attachment_id;
                                 screenshotCropper.uploadedImages[i].blob = null; // Nettoyer le blob
-                                console.log('[SISME] Screenshot uploadé avec ID', data.data.attachment_id);
                             } else {
-                                throw new Error('Erreur upload screenshot ' + (i + 1) + ' : ' + (data?.data?.message || 'Erreur inconnue'));
                             }
                         } else if (screenshot.attachmentId) {
                             // Screenshot déjà uploadé
@@ -322,9 +309,7 @@
                         }
                     }
                     
-                    // Mettre à jour le champ caché avec les nouveaux IDs
                     document.getElementById('screenshots_attachment_ids').value = newAttachmentIds.join(',');
-                    console.log('[SISME] IDs screenshots mis à jour:', newAttachmentIds);
                     
                     // TODO: Nettoyer les anciens médias (à implémenter côté serveur)
                     // Les IDs dans existingIdsArray qui ne sont plus dans newAttachmentIds doivent être supprimés
@@ -332,7 +317,6 @@
 
                 // 3. Collecte des données APRÈS que tous les uploads soient terminés
                 const gameData = this.collectFormData();
-                console.log('[SISME] Données collectées pour sauvegarde', gameData);
                 const isNewSubmission = !this.config.currentSubmissionId;
                 const ajaxData = {
                     security: this.config.nonce,
@@ -351,7 +335,6 @@
                     data: ajaxData,
                     dataType: 'json'
                 });
-                console.log('[SISME] Résultat sauvegarde', result);
                 if (result.success) {
                     if (isNewSubmission && result.data.submission_id) {
                         this.config.currentSubmissionId = result.data.submission_id;
@@ -362,8 +345,7 @@
                     this.showFeedback(result.data.message, 'error');
                 }
             } catch (err) {
-                console.error('[SISME] Erreur JS lors de la sauvegarde', err);
-                this.showFeedback('Erreur lors de la sauvegarde : ' + (err.message || err), 'error');
+                this.showFeedback('Erreur lors de la sauvegarde', 'error');
             } finally {
                 $button.prop('disabled', false).text(originalText);
                 this.isDraftSaving = false;
@@ -468,8 +450,6 @@
         
         const gameData = submission.game_data || {};
         const $form = $(this.config.formSelector);
-        console.log('=== POPULATE FORM CALLED ===');
-        console.log('Submission ID:', submission.id);
         console.trace();
         
 
@@ -539,7 +519,6 @@
                         }
                     }
                     if (cropperInstance) {
-                        console.log('Cropper trouvé pour', cropperId, cropperInstance, response.data.url);
                         cropperInstance.displayExistingImage(response.data.url);
                     } else {
                         console.warn('Aucune instance de cropper trouvée pour', cropperId, window.cropperInstances);
@@ -603,7 +582,6 @@
                     cropperInstance.uploadedImages.push(imageData);
                     cropperInstance.updateGallery();
                     
-                    console.log('Screenshot chargé:', attachmentId);
                 }
             },
             error: () => {
@@ -821,7 +799,6 @@
      */
     SismeGameSubmission.onSectionChanged = function(e, section) {
         if (section === 'submit-game') {
-            // Nouveau formulaire
             this.config.currentSubmissionId = null;
             this.disableAutoSave();
         } else if (section !== 'submit-game' && this.config.currentSubmissionId) {
@@ -852,9 +829,6 @@
      * Log de débogage
      */
     SismeGameSubmission.log = function(message) {
-        if (typeof console !== 'undefined' && console.log) {
-            console.log('[SismeGameSubmission] ' + message);
-        }
     };
     
     // Initialisation automatique

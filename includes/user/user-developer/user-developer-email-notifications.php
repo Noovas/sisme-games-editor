@@ -33,7 +33,6 @@ class Sisme_User_Developer_Email_Notifications {
         add_action('sisme_developer_application_rejected', [__CLASS__, 'send_application_rejected_email'], 10, 2);
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[Sisme Developer Email] Hooks email notifications initialisés');
         }
     }
     
@@ -200,7 +199,6 @@ L'équipe " . $site_name;
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
             $status = $success ? 'SUCCÈS' : 'ÉCHEC';
-            error_log("[Sisme Developer Email] {$status} envoi email - Destinataire: {$to}");
         }
         
         return $success;
