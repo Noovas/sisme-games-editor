@@ -373,8 +373,7 @@
     SismeGameSubmission.populateForm = function(submission) {
         const gameData = submission.game_data || {};
         const $form = $(this.config.formSelector);
-        
-        // Remplir les champs texte
+
         Object.keys(gameData).forEach(key => {
             const $field = $form.find('[name="' + key + '"]');
             if ($field.length && gameData[key]) {
@@ -382,7 +381,20 @@
             }
         });
         
-        // Mettre à jour la progression
+        if (gameData.external_links) {
+            Object.entries(gameData.external_links).forEach(([platform, url]) => {
+                $form.find(`input[name="external_links[${platform}]"]`).val(url);
+            });
+        }
+
+        ['game_genres', 'game_platforms', 'game_modes'].forEach(fieldName => {
+            if (gameData[fieldName] && Array.isArray(gameData[fieldName])) {
+                gameData[fieldName].forEach(value => {
+                    $form.find(`input[name="${fieldName}[]"][value="${value}"]`).prop('checked', true);
+                });
+            }
+        });
+
         const completion = submission.metadata?.completion_percentage || 0;
         this.updateCompletionProgress(completion);
     };
