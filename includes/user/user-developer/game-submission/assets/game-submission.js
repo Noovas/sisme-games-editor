@@ -99,11 +99,11 @@
      * Éditer une soumission existante
      */
     SismeGameSubmission.editSubmission = function(submissionId) {
-        this.log('Édition soumission: ' + submissionId);
-        
-        // Charger les données de la soumission
+        if (this.currentEditingId === submissionId) {
+            return;
+        }
+        this.currentEditingId = submissionId;
         this.loadSubmissionData(submissionId).then(() => {
-            // Naviguer vers le formulaire
             if (typeof SismeDashboard !== 'undefined') {
                 SismeDashboard.setActiveSection('submit-game', true);
             }
@@ -465,8 +465,13 @@
      * Remplir le formulaire avec les données d'une soumission
      */
     SismeGameSubmission.populateForm = function(submission) {
+        
         const gameData = submission.game_data || {};
         const $form = $(this.config.formSelector);
+        console.log('=== POPULATE FORM CALLED ===');
+        console.log('Submission ID:', submission.id);
+        console.trace();
+        
 
         Object.keys(gameData).forEach(key => {
             const $field = $form.find('[name="' + key + '"]');
@@ -510,6 +515,7 @@
     };
 
     SismeGameSubmission.loadImageInCropper = function(cropperId, attachmentId, index = 0) {
+        if (cropperId === 'cropper3') return;
         // Récupérer l'URL de l'attachment via AJAX
         $.ajax({
             url: this.config.ajaxUrl,
@@ -549,11 +555,10 @@
     SismeGameSubmission.loadScreenshotsInCropper = function(screenshotIds) {
         if (!screenshotIds || !Array.isArray(screenshotIds)) return;
         
-        // Trouver l'instance du cropper screenshot
         let screenshotCropper = null;
         for (const key in window.cropperInstances) {
             const instance = window.cropperInstances[key];
-            if (instance.ratioType === 'screenshot') {
+            if (instance.ratioType === 'screenshot' && key.includes('cropper3')) {
                 screenshotCropper = instance;
                 break;
             }
