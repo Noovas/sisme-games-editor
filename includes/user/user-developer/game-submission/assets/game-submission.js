@@ -501,9 +501,8 @@
         }
         
         if (gameData.screenshots && Array.isArray(gameData.screenshots)) {
-            gameData.screenshots.forEach((attachmentId, index) => {
-                this.loadImageInCropper('cropper3', attachmentId, index);
-            });
+            $form.find('input[name="screenshots_attachment_ids"]').val(gameData.screenshots.join(','));
+            this.loadScreenshotsInCropper(gameData.screenshots);
         }
 
         const completion = submission.metadata?.completion_percentage || 0;
@@ -540,6 +539,70 @@
                         console.warn('Aucune instance de cropper trouvée pour', cropperId, window.cropperInstances);
                     }
                 }
+            }
+        });
+    };
+
+    /**
+     * Charger les screenshots existants dans la galerie
+     */
+    SismeGameSubmission.loadScreenshotsInCropper = function(screenshotIds) {
+        if (!screenshotIds || !Array.isArray(screenshotIds)) return;
+        
+        // Trouver l'instance du cropper screenshot
+        let screenshotCropper = null;
+        for (const key in window.cropperInstances) {
+            const instance = window.cropperInstances[key];
+            if (instance.ratioType === 'screenshot') {
+                screenshotCropper = instance;
+                break;
+            }
+        }
+        
+        if (!screenshotCropper) {
+            console.warn('Cropper screenshot non trouvé');
+            return;
+        }
+        
+        // Vider la galerie existante
+        screenshotCropper.uploadedImages = [];
+        
+        // Charger chaque screenshot
+        screenshotIds.forEach((attachmentId) => {
+            this.loadScreenshotById(screenshotCropper, attachmentId);
+        });
+    };
+
+    /**
+     * Charger un screenshot par son ID
+     */
+    SismeGameSubmission.loadScreenshotById = function(cropperInstance, attachmentId) {
+        $.ajax({
+            url: this.config.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'get_attachment_url',
+                attachment_id: attachmentId,
+                security: this.config.nonce
+            },
+            success: (response) => {
+                if (response.success && response.data.url) {
+                    // Ajouter à la collection du cropper
+                    const imageData = {
+                        blob: null, // Pas de blob car c'est une image existante
+                        url: response.data.url,
+                        attachmentId: attachmentId,
+                        ratioType: 'screenshot'
+                    };
+                    
+                    cropperInstance.uploadedImages.push(imageData);
+                    cropperInstance.updateGallery();
+                    
+                    console.log('Screenshot chargé:', attachmentId);
+                }
+            },
+            error: () => {
+                console.error('Erreur chargement screenshot:', attachmentId);
             }
         });
     };
