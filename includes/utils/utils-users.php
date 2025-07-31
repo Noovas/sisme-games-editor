@@ -127,6 +127,9 @@ class Sisme_Utils_Users {
     const GAME_FIELD_EXTERNAL_LINKS_STEAM = 'steam';
     const GAME_FIELD_EXTERNAL_LINKS_GOG = 'gog';
     const GAME_FIELD_EXTERNAL_LINKS_EPIC = 'epic';
+
+    // Sections de description longue
+    const GAME_FIELD_DESCRIPTION_SECTIONS = 'sections';
     
     /**
      * Statuts des soumissions de jeux
@@ -142,6 +145,7 @@ class Sisme_Utils_Users {
      */
     const GAME_MAX_DRAFTS_PER_USER = 3;         // Max 3 brouillons simultanés
     const GAME_MAX_SCREENSHOTS = 5;             // Max 5 screenshots par jeu
+    const GAME_MAX_SECTIONS_DESCRIPTION = 3;    // Max 3 sections de description longue par jeu
     const GAME_MIN_COMPLETION_TO_SUBMIT = 100;  // 100% requis pour soumettre
     
     /**

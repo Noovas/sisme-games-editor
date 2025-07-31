@@ -1,10 +1,10 @@
+    
 /**
  * File: /sisme-games-editor/includes/user/user-developer/game-submission/assets/game-submission.js
  * JavaScript pour la gestion des soumissions de jeux
  * 
  * RESPONSABILITÉ:
  * - Gestion CRUD des soumissions de jeux
- * - Auto-sauvegarde des brouillons
  * - Interface utilisateur dynamique
  * - Validation et workflow des soumissions
  * 
@@ -25,9 +25,7 @@
             draftButtonSelector: '#sisme-submit-game-btn',
             ajaxUrl: sismeAjax.ajaxurl,
             nonce: sismeAjax.nonce,
-            autoSaveInterval: 30000, // 30 secondes
             currentSubmissionId: null,
-            autoSaveTimer: null,
             isSubmitting: false,
             isDraftSaving: false
         },
@@ -64,8 +62,6 @@
         $(document).on('click', this.config.draftButtonSelector, this.saveDraft.bind(this));
         $(document).on('click', this.config.submitButtonSelector, this.submitForReview.bind(this));
         
-        // (Suppression de l'auto-save sur changement de champs)
-        
         // Navigation dashboard
         $(document).on('sisme:section:changed', this.onSectionChanged.bind(this));
     };
@@ -94,6 +90,30 @@
             this.retrySubmission(submissionId);
         }
     };
+
+    // Limite du nombre de sections
+    SismeGameSubmission.getMaxSections = function() {
+        return window.Sisme_Utils_Users?.GAME_MAX_SECTIONS_DESCRIPTION || 3;
+    };
+
+    SismeGameSubmission.canAddSection = function() {
+        const currentCount = $('#game-sections-container .sisme-section-item').length;
+        return currentCount < SismeGameSubmission.getMaxSections();
+    };
+
+    // Hook sur le bouton d'ajout de section
+    $(document).on('click', '#add-section-btn', function(e) {
+        if (!SismeGameSubmission.canAddSection()) {
+            alert('Nombre maximum de sections atteint (' + SismeGameSubmission.getMaxSections() + ').');
+            e.preventDefault();
+            return false;
+        }
+        // Ajout/clonage d'une nouvelle section
+        const sectionCount = $('#game-sections-container .sisme-section-item').length;
+        const newSection = $('#game-sections-container .sisme-section-item').first().clone();
+        newSection.find('input, textarea').val('');
+        newSection.appendTo('#game-sections-container');
+    });
     
     /**
      * Éditer une soumission existante
@@ -215,7 +235,7 @@
     /**
      * Sauvegarder brouillon
      */
-    SismeGameSubmission.saveDraft = function(e) {
+SismeGameSubmission.saveDraft = async function(e) {
         if (e) e.preventDefault();
         if (this.isDraftSaving) return;
         this.isDraftSaving = true;
@@ -378,7 +398,6 @@
         const originalText = $button.text();
         
         $button.prop('disabled', true).text('🚀 Soumission...');
-        this.disableAutoSave();
         
         $.ajax({
             url: this.config.ajaxUrl,
@@ -601,8 +620,6 @@
             const $field = $(this);
             const name = $field.attr('name');
             const type = $field.attr('type');
-            
-            
             if (!name || $field.is(':disabled')) return;
             if (name.includes('attachment_id')) return;
             
@@ -638,86 +655,46 @@
         const coverH = $form.find('input[name="cover_horizontal_attachment_id"]').val();
         const coverV = $form.find('input[name="cover_vertical_attachment_id"]').val();
         const screenshots = $form.find('input[name="screenshots_attachment_ids"]').val();
-        
+
         if (coverH || coverV) {
             gameData['covers'] = {};
             if (coverH) gameData['covers']['horizontal'] = coverH;
             if (coverV) gameData['covers']['vertical'] = coverV;
         }
-        
+
         if (screenshots) {
             gameData['screenshots'] = screenshots;
+        }
+
+        // Collecte des sections de description longue
+        const sections = [];
+        $('#game-sections-container .sisme-section-item').each(function(i) {
+            const $section = $(this);
+            const title = $section.find(`input[name="sections[${i}][title]"]`).val() || '';
+            const content = $section.find(`textarea[name="sections[${i}][content]"]`).val() || '';
+            const imageId = $section.find(`input[name="sections[${i}][image_id]"]`).val() || '';
+            if (title && content) {
+                sections.push({
+                    title: title,
+                    content: content,
+                    image_id: imageId
+                });
+            }
+        });
+        if (sections.length > 0) {
+            gameData['sections'] = sections;
         }
         
         return gameData;
     };
     
     /**
-     * Auto-sauvegarde programmée
-     */
-    SismeGameSubmission.scheduleAutoSave = function() {
-        if (!this.config.currentSubmissionId) {
-            return;
-        }
-        
-        clearTimeout(this.config.autoSaveTimer);
-        this.config.autoSaveTimer = setTimeout(() => {
-            this.performAutoSave();
-        }, this.config.autoSaveInterval);
-    };
-    
-    /**
-     * Effectuer auto-sauvegarde
-     */
-    SismeGameSubmission.performAutoSave = function() {
-        if (this.isDraftSaving || this.isSubmitting) {
-            return;
-        }
-        
-        const gameData = this.collectFormData();
-        
-        $.ajax({
-            url: this.config.ajaxUrl,
-            type: 'POST',
-            data: {
-                action: 'sisme_save_draft_submission',
-                security: this.config.nonce,
-                submission_id: this.config.currentSubmissionId,
-                ...gameData
-            },
-            dataType: 'json',
-            success: (response) => {
-                if (response.success) {
-                    this.showAutoSaveIndicator(response.data.last_auto_save);
-                    this.updateCompletionProgress(response.data.completion_percentage);
-                }
-            }
-        });
-    };
-    
-    /**
-     * Activer l'auto-sauvegarde
-     */
-    SismeGameSubmission.enableAutoSave = function() {
-        this.scheduleAutoSave();
-    };
-    
-    /**
-     * Désactiver l'auto-sauvegarde
-     */
-    SismeGameSubmission.disableAutoSave = function() {
-        clearTimeout(this.config.autoSaveTimer);
-    };
-    
-    /**
      * Validation du formulaire
      */
     SismeGameSubmission.validateForm = function() {
-        // Validation basique - sera étendue avec game-submission-validator.js
         const $form = $(this.config.formSelector);
         let isValid = true;
         
-        // Champs requis
         $form.find('[required]').each(function() {
             const $field = $(this);
             if (!$field.val().trim()) {
@@ -735,7 +712,6 @@
      * Initialiser la validation du formulaire
      */
     SismeGameSubmission.initFormValidation = function() {
-        // Validation temps réel
         $(document).on('blur', this.config.formSelector + ' [required]', function() {
             const $field = $(this);
             if ($field.val().trim()) {
@@ -755,21 +731,6 @@
         } else {
             $button.prop('disabled', true).text('📝 Complétez le formulaire (' + percentage + '%)');
         }
-    };
-    
-    /**
-     * Afficher l'indicateur d'auto-sauvegarde
-     */
-    SismeGameSubmission.showAutoSaveIndicator = function(time) {
-        // Indicateur discret d'auto-save
-        $('.sisme-auto-save-indicator').remove();
-        $(this.config.formSelector).append(
-            '<div class="sisme-auto-save-indicator">💾 Sauvegardé automatiquement à ' + time + '</div>'
-        );
-        
-        setTimeout(() => {
-            $('.sisme-auto-save-indicator').fadeOut();
-        }, 3000);
     };
     
     /**
@@ -800,10 +761,6 @@
     SismeGameSubmission.onSectionChanged = function(e, section) {
         if (section === 'submit-game') {
             this.config.currentSubmissionId = null;
-            this.disableAutoSave();
-        } else if (section !== 'submit-game' && this.config.currentSubmissionId) {
-            // Quitter le formulaire - désactiver auto-save
-            this.disableAutoSave();
         }
     };
     

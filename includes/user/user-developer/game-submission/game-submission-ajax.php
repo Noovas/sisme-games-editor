@@ -141,31 +141,36 @@ function sisme_ajax_save_draft_submission() {
     if (!empty($current_submission) && !empty($current_submission['game_data']['covers'])) {
         $old_covers = $current_submission['game_data']['covers'];
         $new_covers = $game_data['covers'] ?? [];
-        
-        // Traiter les covers horizontales
-        if (!empty($old_covers['horizontal']) && 
-            (!isset($new_covers['horizontal']) || $old_covers['horizontal'] != $new_covers['horizontal'])) {
+        if (!empty($old_covers['horizontal']) && (!isset($new_covers['horizontal']) || $old_covers['horizontal'] != $new_covers['horizontal'])) {
             wp_delete_attachment(intval($old_covers['horizontal']), true);
         }
-        
-        // Traiter les covers verticales
-        if (!empty($old_covers['vertical']) && 
-            (!isset($new_covers['vertical']) || $old_covers['vertical'] != $new_covers['vertical'])) {
+        if (!empty($old_covers['vertical']) && (!isset($new_covers['vertical']) || $old_covers['vertical'] != $new_covers['vertical'])) {
             wp_delete_attachment(intval($old_covers['vertical']), true);
         }
     }
-    
+
     // Nettoyer les screenshots remplacés
     if (!empty($current_submission) && !empty($current_submission['game_data']['screenshots'])) {
         $old_screenshots = $current_submission['game_data']['screenshots'];
         $new_screenshots = $game_data['screenshots'] ?? [];
-        
-        // Trouver les screenshots qui ont été supprimés
         $removed_screenshots = array_diff($old_screenshots, $new_screenshots);
-        
         foreach ($removed_screenshots as $screenshot_id) {
             if (!empty($screenshot_id)) {
                 wp_delete_attachment(intval($screenshot_id), true);
+            }
+        }
+    }
+
+    // Nettoyer les images de sections supprimées
+    if (!empty($current_submission) && !empty($current_submission['game_data'][Sisme_Utils_Users::GAME_FIELD_DESCRIPTION_SECTIONS])) {
+        $old_sections = $current_submission['game_data'][Sisme_Utils_Users::GAME_FIELD_DESCRIPTION_SECTIONS];
+        $new_sections = $game_data[Sisme_Utils_Users::GAME_FIELD_DESCRIPTION_SECTIONS] ?? [];
+        $old_ids = array_filter(array_map(function($s) { return $s['image_attachment_id'] ?? null; }, $old_sections));
+        $new_ids = array_filter(array_map(function($s) { return $s['image_attachment_id'] ?? null; }, $new_sections));
+        $removed_section_images = array_diff($old_ids, $new_ids);
+        foreach ($removed_section_images as $img_id) {
+            if (!empty($img_id)) {
+                wp_delete_attachment(intval($img_id), true);
             }
         }
     }
