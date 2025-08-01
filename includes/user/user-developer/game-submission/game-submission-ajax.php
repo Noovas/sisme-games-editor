@@ -186,12 +186,8 @@ function sisme_ajax_save_draft_submission() {
         }
     }
 
-    $submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
-    $completion = $submission['metadata']['completion_percentage'] ?? 0;
-
     wp_send_json_success([
         'message' => 'Brouillon sauvegardé automatiquement',
-        'completion_percentage' => $completion,
         'last_auto_save' => current_time('H:i:s')
     ]);
 }
@@ -231,15 +227,57 @@ function sisme_ajax_update_game_submission() {
         return;
     }
 
-    $submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
-    $completion = $submission['metadata']['completion_percentage'] ?? 0;
+    $can_submit = Sisme_Game_Submission_Data_Manager::can_submit_for_review($user_id, $submission_id);
 
     wp_send_json_success([
         'message' => 'Soumission mise à jour',
-        'completion_percentage' => $completion,
-        'can_submit' => $completion >= Sisme_Utils_Users::GAME_MIN_COMPLETION_TO_SUBMIT
+        'can_submit' => $can_submit
     ]);
 }
+
+function sisme_ajax_validate_submission_for_review() {
+    if (!sisme_verify_submission_nonce()) {
+        wp_send_json_error(['message' => 'Erreur de sécurité']);
+        return;
+    }
+
+    if (!is_user_logged_in()) {
+        wp_send_json_error(['message' => 'Utilisateur non connecté']);
+        return;
+    }
+
+    $user_id = get_current_user_id();
+    $submission_id = sanitize_text_field($_POST['submission_id'] ?? '');
+
+    if (empty($submission_id)) {
+        wp_send_json_error(['message' => 'ID de soumission manquant']);
+        return;
+    }
+
+    if (!sisme_load_submission_data_manager()) {
+        wp_send_json_error(['message' => 'Système de soumission non disponible']);
+        return;
+    }
+
+    $submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
+    if (!$submission) {
+        wp_send_json_error(['message' => 'Soumission introuvable']);
+        return;
+    }
+
+    $validation_errors = Sisme_Game_Submission_Data_Manager::validate_required_fields($submission['game_data']);
+    
+    if (!empty($validation_errors)) {
+        wp_send_json_error([
+            'message' => 'Champs obligatoires manquants',
+            'errors' => $validation_errors
+        ]);
+        return;
+    }
+
+    wp_send_json_success(['message' => 'Validation réussie']);
+}
+add_action('wp_ajax_sisme_validate_submission_for_review', 'sisme_ajax_validate_submission_for_review');
 
 /**
  * Supprimer une soumission (brouillons uniquement)
@@ -342,7 +380,15 @@ function sisme_ajax_submit_game_for_review() {
     $result = Sisme_Game_Submission_Data_Manager::submit_for_review($user_id, $submission_id);
 
     if (is_wp_error($result)) {
-        wp_send_json_error(['message' => $result->get_error_message()]);
+        $error_code = $result->get_error_code();
+        if ($error_code === 'validation_failed') {
+            wp_send_json_error([
+                'message' => $result->get_error_message(),
+                'validation_error' => true
+            ]);
+        } else {
+            wp_send_json_error(['message' => $result->get_error_message()]);
+        }
         return;
     }
 

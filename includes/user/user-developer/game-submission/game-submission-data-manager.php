@@ -77,8 +77,7 @@ class Sisme_Game_Submission_Data_Manager {
         
         $submission_id = self::generate_submission_id();
         $clean_game_data = self::sanitize_game_data($game_data);
-        $completion = self::calculate_completion_percentage($clean_game_data);
-        
+
         $new_submission = [
             'id' => $submission_id,
             'status' => Sisme_Utils_Users::GAME_STATUS_DRAFT,
@@ -88,7 +87,6 @@ class Sisme_Game_Submission_Data_Manager {
                 'updated_at' => current_time('mysql'),
                 'submitted_at' => null,
                 'published_at' => null,
-                'completion_percentage' => $completion,
                 'retry_count' => 0,
                 'original_submission_id' => null,
                 'auto_save_enabled' => true,
@@ -141,11 +139,9 @@ class Sisme_Game_Submission_Data_Manager {
         
         $clean_game_data = self::sanitize_game_data($game_data);
         $merged_data = self::merge_game_data($submission['game_data'], $clean_game_data);
-        $completion = self::calculate_completion_percentage($merged_data);
-        
+
         $submission['game_data'] = $merged_data;
         $submission['metadata']['updated_at'] = current_time('mysql');
-        $submission['metadata']['completion_percentage'] = $completion;
         
         if ($submission['status'] === Sisme_Utils_Users::GAME_STATUS_DRAFT) {
             $submission['metadata']['last_auto_save'] = current_time('mysql');
@@ -187,13 +183,18 @@ class Sisme_Game_Submission_Data_Manager {
      * Soumettre un brouillon pour validation (draft → pending)
      */
     public static function submit_for_review($user_id, $submission_id) {
-        if (!self::can_submit_for_review($user_id, $submission_id)) {
-            return new WP_Error('cannot_submit', 'Soumission pour validation non autorisée');
-        }
-        
         $submission = self::get_submission_by_id($user_id, $submission_id);
         if (!$submission) {
             return new WP_Error('not_found', 'Soumission introuvable');
+        }
+        
+        if (!self::can_edit_submission($user_id, $submission_id)) {
+            return new WP_Error('cannot_submit', 'Soumission pour validation non autorisée');
+        }
+        
+        $validation_errors = self::validate_required_fields($submission['game_data']);
+        if (!empty($validation_errors)) {
+            return new WP_Error('validation_failed', 'Champs obligatoires manquants: ' . implode(', ', $validation_errors));
         }
         
         $submission['status'] = Sisme_Utils_Users::GAME_STATUS_PENDING;
@@ -289,55 +290,70 @@ class Sisme_Game_Submission_Data_Manager {
      * Vérifier si une soumission peut être envoyée pour validation
      */
     public static function can_submit_for_review($user_id, $submission_id) {
+        if (!self::can_edit_submission($user_id, $submission_id)) {
+            return false;
+        }
+        
         $submission = self::get_submission_by_id($user_id, $submission_id);
-        
-        if (!$submission) {
+        if (!$submission || $submission['status'] !== Sisme_Utils_Users::GAME_STATUS_DRAFT) {
             return false;
         }
         
-        $submittable_statuses = [
-            Sisme_Utils_Users::GAME_STATUS_DRAFT,
-            Sisme_Utils_Users::GAME_STATUS_REVISION
-        ];
-        
-        if (!in_array($submission['status'], $submittable_statuses)) {
-            return false;
-        }
-        
-        $completion = $submission['metadata']['completion_percentage'] ?? 0;
-        return $completion >= Sisme_Utils_Users::GAME_MIN_COMPLETION_TO_SUBMIT;
+        $validation_errors = self::validate_required_fields($submission['game_data']);
+        return empty($validation_errors);
     }
     
-    /**
-     * Calculer le pourcentage de completion d'une soumission
-     */
-    public static function calculate_completion_percentage($game_data) {
+    public static function validate_required_fields($game_data) {
+        $errors = [];
+        
         $required_fields = [
-            Sisme_Utils_Users::GAME_FIELD_NAME,
-            Sisme_Utils_Users::GAME_FIELD_DESCRIPTION,
-            Sisme_Utils_Users::GAME_FIELD_RELEASE_DATE,
-            Sisme_Utils_Users::GAME_FIELD_TRAILER,
-            Sisme_Utils_Users::GAME_FIELD_STUDIO_NAME,
-            Sisme_Utils_Users::GAME_FIELD_PUBLISHER_NAME,
-                    Sisme_Utils_Users::GAME_FIELD_PLATFORMS,
-            Sisme_Utils_Users::GAME_FIELD_COVER_HORIZONTAL,
-            Sisme_Utils_Users::GAME_FIELD_COVER_VERTICAL
+            'game_name',
+            'game_description',
+            'game_release_date',
+            'game_trailer',
+            'game_studio_name',
+            'game_publisher_name',
+            'game_genres',
+            'game_platforms',
+            'game_modes',
+            'cover_horizontal',
+            'cover_vertical',
+            'screenshots'
         ];
         
-        $completed_fields = 0;
-        $total_fields = count($required_fields);
-        
         foreach ($required_fields as $field) {
-            if (isset($game_data[$field]) && !empty($game_data[$field])) {
-                if (is_array($game_data[$field]) && count($game_data[$field]) > 0) {
-                    $completed_fields++;
-                } elseif (!is_array($game_data[$field])) {
-                    $completed_fields++;
-                }
+            if (!isset($game_data[$field]) || empty($game_data[$field])) {
+                $errors[] = $field;
             }
         }
         
-        return round(($completed_fields / $total_fields) * 100);
+        $has_external_link = false;
+        if (isset($game_data['external_links']) && is_array($game_data['external_links'])) {
+            foreach (['steam', 'epic', 'gog'] as $platform) {
+                if (!empty($game_data['external_links'][$platform])) {
+                    $has_external_link = true;
+                    break;
+                }
+            }
+        }
+        if (!$has_external_link) {
+            $errors[] = 'external_links';
+        }
+        
+        $has_section = false;
+        if (isset($game_data['sections']) && is_array($game_data['sections'])) {
+            foreach ($game_data['sections'] as $section) {
+                if (!empty($section['title']) && !empty($section['content'])) {
+                    $has_section = true;
+                    break;
+                }
+            }
+        }
+        if (!$has_section) {
+            $errors[] = 'sections';
+        }
+        
+        return $errors;
     }
     
     /**

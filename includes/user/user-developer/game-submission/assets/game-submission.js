@@ -45,8 +45,8 @@
         }
         
         this.bindEvents();
-        this.initFormValidation();
         this.bindSectionEvents();
+        this.enableSubmitButton();
         this.isInitialized = true;
     };
     
@@ -347,7 +347,6 @@ SismeGameSubmission.saveDraft = async function(e) {
                         this.config.currentSubmissionId = result.data.submission_id;
                     }
                     this.showFeedback(result.data.message, 'success');
-                    this.updateCompletionProgress(result.data.completion_percentage);
                 } else {
                     this.showFeedback(result.data.message, 'error');
                 }
@@ -368,11 +367,6 @@ SismeGameSubmission.saveDraft = async function(e) {
         if (e) e.preventDefault();
         
         if (this.isSubmitting || !this.config.currentSubmissionId) {
-            return;
-        }
-        
-        if (!this.validateForm()) {
-            this.showFeedback('Veuillez corriger les erreurs dans le formulaire', 'error');
             return;
         }
         
@@ -399,14 +393,17 @@ SismeGameSubmission.saveDraft = async function(e) {
                 if (response.success) {
                     this.showFeedback(response.data.message, 'success');
                     
-                    // Retourner à la liste après soumission
                     setTimeout(() => {
                         if (typeof SismeDashboard !== 'undefined') {
                             SismeDashboard.setActiveSection('developer', true);
                         }
                     }, 2000);
                 } else {
-                    this.showFeedback(response.data.message, 'error');
+                    if (response.data.validation_error) {
+                        this.showFeedback('Veuillez remplir tous les champs obligatoires avant de soumettre', 'error');
+                    } else {
+                        this.showFeedback(response.data.message, 'error');
+                    }
                     $button.prop('disabled', false).text(originalText);
                 }
             },
@@ -500,9 +497,11 @@ SismeGameSubmission.saveDraft = async function(e) {
         if (gameData.sections && Array.isArray(gameData.sections)) {
             this.loadSections(gameData.sections);
         }
+    };
 
-        const completion = submission.metadata?.completion_percentage || 0;
-        this.updateCompletionProgress(completion);
+    SismeGameSubmission.enableSubmitButton = function() {
+        const $button = $(this.config.submitButtonSelector);
+        $button.prop('disabled', false).text('🚀 Soumettre pour Validation');
     };
 
     /**
@@ -717,51 +716,6 @@ SismeGameSubmission.saveDraft = async function(e) {
         }
         
         return gameData;
-    };
-    
-    /**
-     * Validation du formulaire
-     */
-    SismeGameSubmission.validateForm = function() {
-        const $form = $(this.config.formSelector);
-        let isValid = true;
-        
-        $form.find('[required]').each(function() {
-            const $field = $(this);
-            if (!$field.val().trim()) {
-                $field.addClass('error');
-                isValid = false;
-            } else {
-                $field.removeClass('error');
-            }
-        });
-        
-        return isValid;
-    };
-    
-    /**
-     * Initialiser la validation du formulaire
-     */
-    SismeGameSubmission.initFormValidation = function() {
-        $(document).on('blur', this.config.formSelector + ' [required]', function() {
-            const $field = $(this);
-            if ($field.val().trim()) {
-                $field.removeClass('error');
-            }
-        });
-    };
-    
-    /**
-     * Mettre à jour l'indicateur de progression
-     */
-    SismeGameSubmission.updateCompletionProgress = function(percentage) {
-        const $button = $(this.config.submitButtonSelector);
-        
-        if (percentage >= 100) {
-            $button.prop('disabled', false).text('🚀 Soumettre pour Validation');
-        } else {
-            $button.prop('disabled', true).text('📝 Complétez le formulaire (' + percentage + '%)');
-        }
     };
     
     /**

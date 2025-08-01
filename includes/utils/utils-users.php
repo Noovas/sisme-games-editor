@@ -147,7 +147,6 @@ class Sisme_Utils_Users {
     const GAME_MAX_DRAFTS_PER_USER = 3;         // Max 3 brouillons simultanés
     const GAME_MAX_SCREENSHOTS = 5;             // Max 5 screenshots par jeu
     const GAME_MAX_SECTIONS_DESCRIPTION = 3;    // Max 3 sections de description longue par jeu
-    const GAME_MIN_COMPLETION_TO_SUBMIT = 100;  // 100% requis pour soumettre
     
     /**
      * Champs metadata des soumissions
