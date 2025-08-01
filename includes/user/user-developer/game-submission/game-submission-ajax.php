@@ -479,6 +479,11 @@ function sisme_ajax_get_submission_details() {
         return;
     }
 
+    if ($submission['status'] !== 'pending') {
+        wp_send_json_error(['message' => 'Cette soumission n\'est pas consultable']);
+        return;
+    }
+
     wp_send_json_success([
         'submission' => $submission,
         'game_data' => $submission['game_data'],

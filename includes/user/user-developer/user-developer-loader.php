@@ -170,6 +170,14 @@ class Sisme_User_Developer_Loader {
             array('sisme-user-developer-game-submission'),
             SISME_GAMES_EDITOR_VERSION
         );
+
+        // CSS pour les détails expandables des soumissions pending
+        wp_enqueue_style(
+            'sisme-game-submission-details',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission-details.css',
+            array('sisme-user-developer-game-submission'),
+            SISME_GAMES_EDITOR_VERSION
+        );
         
         // JavaScript du module développeur
         wp_enqueue_script(
@@ -208,7 +216,16 @@ class Sisme_User_Developer_Loader {
         wp_enqueue_script(
             'sisme-game-submission-modal',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission-modal.js',
-            array('jquery', 'sisme-game-submission'), // Dépend du JS de soumission existant
+            array('jquery', 'sisme-game-submission'),
+            SISME_GAMES_EDITOR_VERSION,
+            true
+        );
+
+        // JavaScript pour les détails expandables des soumissions pending
+        wp_enqueue_script(
+            'sisme-game-submission-details',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission-details.js',
+            array('jquery', 'sisme-game-submission'),
             SISME_GAMES_EDITOR_VERSION,
             true
         );
