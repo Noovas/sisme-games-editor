@@ -191,6 +191,7 @@
         this.log('Navigation vers:', section);
     };
     
+    
     /**
      * Définir la section active avec animation
      */
@@ -231,8 +232,24 @@
         }
         
         // 4. Mettre à jour l'URL sans déclencher hashchange
-        if (window.location.hash !== '#' + section) {
-            history.replaceState(null, null, '#' + section);
+        const currentHash = window.location.hash;
+        const currentHashWithoutParams = currentHash.split('?')[0];
+        const expectedHash = '#' + section;
+
+        if (currentHashWithoutParams !== expectedHash) {
+            // Si on est sur submit-game et qu'il y a des paramètres, les préserver
+            if (section === 'submit-game' && currentHash.includes('?')) {
+                // Ne pas changer l'URL si on est déjà sur submit-game avec paramètres
+                const currentSection = currentHash.substring(1).split('?')[0];
+                if (currentSection === 'submit-game') {
+                    // On reste sur submit-game avec paramètres - ne pas modifier l'URL
+                    this.log('Préservation des paramètres URL pour submit-game:', currentHash);
+                } else {
+                    history.replaceState(null, null, expectedHash);
+                }
+            } else {
+                history.replaceState(null, null, expectedHash);
+            }
         }
         
         // 5. Sauvegarder dans localStorage SEULEMENT pour le dashboard personnel

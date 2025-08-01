@@ -410,7 +410,7 @@ class Sisme_User_Developer_Renderer {
                         <span class="sisme-stat-label">Vues totales</span>
                     </div>-->
                 </div>
-                                
+
                 <!-- Section Mes Jeux -->
                 <?php echo self::render_my_games_section($user_id); ?>
             </div>
@@ -595,7 +595,7 @@ class Sisme_User_Developer_Renderer {
     /**
      * Rendu de la section "Mes Jeux"
      */
-    private static function render_my_games_section($user_id) {
+    public static function render_my_games_section($user_id) {
         // Charger le nouveau renderer
         if (!class_exists('Sisme_Game_Submission_Renderer')) {
             require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-renderer.php';
@@ -984,7 +984,7 @@ class Sisme_User_Developer_Renderer {
                             <button type="button" class="sisme-btn sisme-button-vert" id="sisme-submit-game-btn">
                                 💾 Enregistrer le brouillon
                             </button>
-                            <button type="button" class="sisme-btn sisme-button-bleu" onclick="SismeDashboard.setActiveSection('developer', true)">
+                            <button type="button" class="sisme-btn sisme-button-bleu" onclick="window.location.replace(window.location.pathname+'#developer');">
                                 ↩️ Retour à mes jeux
                             </button>
                         </div>

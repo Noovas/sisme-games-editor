@@ -1,4 +1,3 @@
-    
 /**
  * File: /sisme-games-editor/includes/user/user-developer/game-submission/assets/game-submission.js
  * JavaScript pour la gestion des soumissions de jeux
@@ -47,7 +46,10 @@
         this.bindEvents();
         this.bindSectionEvents();
         this.enableSubmitButton();
+        this.handleHashChange();
+        
         this.isInitialized = true;
+        this.log('Module Game Submission initialisé');
     };
     
     /**
@@ -63,7 +65,137 @@
         
         // Navigation dashboard
         $(document).on('sisme:section:changed', this.onSectionChanged.bind(this));
+
+        $(document).on('sisme:submit-game:url-params', this.handleUrlParams.bind(this));
+        $(window).on('hashchange', this.handleHashChange.bind(this));
     };
+
+    /**
+     * Recharge dynamiquement la liste des soumissions du dashboard développeur
+     * Remplace le contenu de .sisme-submissions-list par le HTML retourné par AJAX
+     * Utilisable partout après une action CRUD
+     */
+    window.reloadDashboardSubmitionDatas = function() {
+        var $block = $('.sisme-my-games-section').first();
+        if ($block.length === 0) return;
+        $block.addClass('sisme-loading');
+        $.ajax({
+            url: sismeAjax.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'sisme_reload_submissions_list',
+                security: sismeAjax.nonce
+            },
+            dataType: 'html',
+            success: function(html) {
+                // Remplacer tout le bloc principal
+                var $newBlock = $(html);
+                $block.replaceWith($newBlock);
+            },
+            error: function() {
+                $block.html('<div class="sisme-form-feedback sisme-form-feedback-error">Erreur lors du rechargement des soumissions.</div>');
+            },
+            complete: function() {
+                // On ne peut pas retirer la classe si le bloc a été remplacé, donc rien ici
+            }
+        });
+    };
+
+    // Rafraîchir la liste lors du clic sur 'Retour à mes jeux'
+    $(document).on('click', 'button.sisme-btn.sisme-button-bleu', function(e) {
+        if ($(this).text().includes('Retour à mes jeux')) {
+            if (typeof window.reloadDashboardSubmitionDatas === 'function') {
+                window.reloadDashboardSubmitionDatas();
+            }
+        }
+    });
+
+    /**
+     * Gérer le refresh de page (hashchange)
+     */
+    SismeGameSubmission.handleHashChange = function() {
+        // Si on est sur submit-game, parser les paramètres
+        const hash = window.location.hash.substring(1); // Enlever le #
+        if (hash.startsWith('submit-game')) {
+            const [section, queryString] = hash.split('?');
+            const params = new URLSearchParams(queryString || '');
+            
+            // Déclencher la logique des paramètres
+            this.handleUrlParams(null, params);
+        }
+    };
+
+    /**
+     * Charger une soumission pour édition
+     */
+    SismeGameSubmission.loadSubmissionForEdit = function(submissionId) {
+        // Éviter de recharger si c'est déjà la soumission courante
+        if (this.config.currentSubmissionId === submissionId) {
+            return;
+        }
+        
+        this.log('Chargement soumission pour édition:', submissionId);
+        this.config.currentSubmissionId = submissionId;
+        this.config.isEditMode = true;
+        
+        // Mettre à jour l'interface - mode édition
+        this.updateFormUIForEdit(submissionId);
+        
+        // Charger les données
+        this.loadSubmissionData(submissionId)
+            .then(() => {
+                this.log('Soumission chargée avec succès');
+            })
+            .catch((error) => {
+                this.log('Erreur chargement soumission:', error);
+                this.showFeedback('Erreur lors du chargement de la soumission', 'error');
+            });
+    };
+
+    /**
+     * Nettoyer le formulaire pour nouveau jeu
+     */
+    SismeGameSubmission.clearFormForNewGame = function() {
+        // Éviter de nettoyer si on est déjà en mode nouveau
+        if (!this.config.currentSubmissionId && !this.config.isEditMode) {
+            return;
+        }
+        
+        this.log('Nettoyage formulaire pour nouveau jeu');
+        this.config.currentSubmissionId = null;
+        this.config.isEditMode = false;
+        
+        // Nettoyer le formulaire
+        this.clearForm();
+        
+        // Mettre à jour l'interface - mode nouveau
+        this.updateFormUIForNew();
+    };
+
+    /**
+     * Mettre à jour l'interface pour le mode édition
+     */
+    SismeGameSubmission.updateFormUIForEdit = function(submissionId) {
+        $('#sisme-form-title').text('✏️ Modifier le jeu');
+        $('#sisme-new-game-btn').show();
+    };
+
+    /**
+     * Mettre à jour l'interface pour le mode nouveau
+     */
+    SismeGameSubmission.updateFormUIForNew = function() {
+        // Restaurer le titre original
+        $('#sisme-form-title').text('➕ Soumettre un nouveau jeu');
+        
+        // Cacher le bouton "Nouveau jeu"
+        $('#sisme-new-game-btn').hide();
+        
+        // Restaurer la description originale
+        const $description = $('.sisme-submit-game-description');
+        $description.text('Partagez votre création avec la communauté Sisme Games. Remplissez les informations essentielles pour commencer.');
+    };
+
+
     
     /**
      * Gérer les actions sur les soumissions
@@ -90,25 +222,43 @@
         }
     };
 
-        SismeGameSubmission.handleUrlParams = function(e, params) {
+    SismeGameSubmission.handleUrlParams = function(e, params) {
         const editId = params.get('edit');
         
         if (editId) {
-            // Mode modification
+            // Mode modification - charger la soumission
             this.loadSubmissionForEdit(editId);
         } else {
-            // Mode nouveau jeu - nettoyer
-            this.clearForm();
-            this.config.currentSubmissionId = null;
+            // Mode nouveau jeu - nettoyer le formulaire
+            this.clearFormForNewGame();
         }
     };
 
     SismeGameSubmission.clearForm = function() {
         const $form = $(this.config.formSelector);
         if ($form.length) {
+            // Reset basique du formulaire
             $form[0].reset();
-            // Vider aussi les champs dynamiques si nécessaire
+            
+            // Nettoyer les sections dynamiques
             $('#game-sections-container').empty();
+            
+            // Remettre une section par défaut
+            const defaultSectionHtml = this.createSectionHtml(0, { 
+                title: '', 
+                content: '', 
+                image_attachment_id: null 
+            });
+            $('#game-sections-container').append(defaultSectionHtml);
+            
+            // Nettoyer les previews d'images
+            $('.sisme-section-image-preview').hide();
+            $('.sisme-upload-area').show();
+            
+            // Réinitialiser le bouton de soumission
+            //this.resetSubmitButton();
+            
+            this.log('Formulaire nettoyé');
         }
     };
 
@@ -144,9 +294,14 @@
      * Supprimer une soumission (brouillons uniquement)
      */
     SismeGameSubmission.deleteSubmission = function(submissionId) {
-        if (!confirm('Êtes-vous sûr de vouloir supprimer cette soumission ? Cette action est irréversible.')) {
+        if (this.isDeletingSubmission) {
             return;
         }
+        this.isDeletingSubmission = true;
+        
+        const $button = $(`.sisme-submission-item[data-submission-id="${submissionId}"] button:contains("Supprimer")`);
+        const originalText = $button.text();
+        $button.prop('disabled', true).text('🗑️ Suppression...');
         
         this.log('Suppression soumission: ' + submissionId);
         
@@ -161,16 +316,60 @@
             dataType: 'json',
             success: (response) => {
                 if (response.success) {
-                    this.showFeedback(response.data.message, 'success');
-                    this.refreshSubmissionsList();
+                    const $item = $(`.sisme-submission-item[data-submission-id="${submissionId}"]`);
+                    $item.fadeOut(300, function() {
+                        $item.remove();
+                        
+                        const remainingItems = $('.sisme-submission-item').length;
+                        if (remainingItems === 0) {
+                            $('.sisme-submissions-list').html(`
+                                <div class="sisme-games-empty">
+                                    <div class="sisme-empty-icon">🎮</div>
+                                    <h5>Aucun jeu soumis</h5>
+                                    <p>Commencez par soumettre votre premier jeu en utilisant le bouton ci-dessus !</p>
+                                </div>
+                            `);
+                        }
+                    });
+                    this.updateStatsAfterDelete();
+                    
                 } else {
+                    $button.prop('disabled', false).text(originalText);
                     this.showFeedback(response.data.message, 'error');
                 }
             },
             error: () => {
+                $button.prop('disabled', false).text(originalText);
                 this.showFeedback('Erreur réseau lors de la suppression', 'error');
+            },
+            complete: () => {
+                this.isDeletingSubmission = false;
             }
         });
+    };
+
+    SismeGameSubmission.updateStatsAfterDelete = function() {
+        // Mettre à jour le Total (premier stat-item)
+        const $totalStat = $('.sisme-stats-grid .sisme-stat-item').eq(0).find('.sisme-stat-number');
+        const currentTotal = parseInt($totalStat.text()) || 0;
+        if (currentTotal > 0) {
+            $totalStat.text(currentTotal - 1);
+            // Animation du changement
+            $totalStat.parent().addClass('updated');
+            setTimeout(() => $totalStat.parent().removeClass('updated'), 500);
+        }
+        
+        // Mettre à jour les Brouillons (deuxième stat-item)
+        const $draftStat = $('.sisme-stats-grid .sisme-stat-item').eq(1).find('.sisme-stat-number');
+        const currentDrafts = parseInt($draftStat.text()) || 0;
+        if (currentDrafts > 0) {
+            $draftStat.text(currentDrafts - 1);
+            // Animation du changement
+            $draftStat.parent().addClass('updated');
+            setTimeout(() => $draftStat.parent().removeClass('updated'), 500);
+        }
+        
+        this.log('Stats mises à jour après suppression');
     };
     
     /**
@@ -985,7 +1184,10 @@ SismeGameSubmission.saveDraft = async function(e) {
     /**
      * Log de débogage
      */
-    SismeGameSubmission.log = function(message) {
+    SismeGameSubmission.log = function(message, data = null) {
+        if (console && console.log) {
+            console.log('[GameSubmission]', message, data || '');
+        }
     };
     
     // Initialisation automatique

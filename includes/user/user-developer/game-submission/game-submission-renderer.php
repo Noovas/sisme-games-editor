@@ -118,14 +118,14 @@ class Sisme_Game_Submission_Renderer {
             
             <div class="sisme-submission-actions">
                 <?php if ($status === 'draft'): ?>
-                    <button class="sisme-btn sisme-btn-small sisme-btn-primary" onclick="window.location.hash = 'submit-game?edit=<?php echo esc_js($submission['id']); ?>'">
-                        ✏️ Continuer
+                    <button class="sisme-btn sisme-btn-secondary" onclick="window.location.hash = 'submit-game?edit=<?php echo esc_js($submission['id']); ?>'">
+                        📝 Continuer
                     </button>
-                    <button class="sisme-btn sisme-btn-small sisme-btn-danger" onclick="SismeGameSubmission.deleteSubmission('<?php echo esc_js($submission['id']); ?>')">
+                    <button class="sisme-btn sisme-btn-small sisme-btn-danger" data-action="delete" data-submission-id="<?php echo esc_attr($submission['id']); ?>">
                         🗑️ Supprimer
                     </button>
                 <?php elseif ($status === 'pending'): ?>
-                    <button class="sisme-btn sisme-btn-small sisme-btn-secondary" onclick="SismeGameSubmission.viewSubmission('<?php echo esc_js($submission['id']); ?>')">
+                    <button class="sisme-btn sisme-btn-secondary" onclick="window.location.hash = 'submit-game?edit=<?php echo esc_js($submission['id']); ?>'">
                         👁️ Voir
                     </button>
                 <?php elseif ($status === 'rejected'): ?>

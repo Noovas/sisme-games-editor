@@ -782,3 +782,33 @@ add_action('wp_ajax_sisme_simple_crop_delete', function() {
         wp_send_json_error(['message' => 'Erreur lors de la suppression']);
     }
 });
+
+// Handler AJAX pour recharger dynamiquement la liste des soumissions du dashboard développeur
+add_action('wp_ajax_sisme_reload_submissions_list', 'sisme_reload_submissions_list_callback');
+function sisme_reload_submissions_list_callback() {
+    $nonce_valid = false;
+    if (isset($_POST['security'])) {
+        if (wp_verify_nonce($_POST['security'], 'sisme_submit_game_nonce')) {
+            $nonce_valid = true;
+        } elseif (wp_verify_nonce($_POST['security'], 'sisme_developer_nonce')) {
+            $nonce_valid = true;
+        }
+    }
+    if (!$nonce_valid) {
+        wp_send_json_error('Accès non autorisé (nonce)');
+    }
+    if (!is_user_logged_in()) {
+        wp_send_json_error('Vous devez être connecté.');
+    }
+    $user_id = get_current_user_id();
+    if (!$user_id) {
+        wp_send_json_error('Utilisateur non trouvé.');
+    }
+    // Inclure le renderer si besoin
+    if (!class_exists('Sisme_Game_Submission_Renderer')) {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-renderer.php';
+    }
+    // Retourner le HTML complet du bloc Mes Soumissions
+    echo Sisme_Game_Submission_Renderer::render_submissions_list($user_id);
+    wp_die();
+}
