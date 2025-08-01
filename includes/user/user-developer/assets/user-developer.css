@@ -1028,6 +1028,15 @@
     font-weight: bold;
 }
 
+/* Highlight pour la description lors du hover sur le bouton de soumission */
+.sisme-submit-description.sisme-highlight {
+    background: #ffe9b3;
+    color: #222;
+    border-radius: 6px;
+    box-shadow: 0 0 0 2px #ffd36b;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .sisme-game-item {

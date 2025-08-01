@@ -382,35 +382,6 @@ class Sisme_User_Developer_Renderer {
             </div>
             
             <div class="sisme-developer-content">
-                <!-- Section Stats (temporaire, sans base de données) -->
-                <?php
-                // Stats temporaires - seront remplacées par le nouveau système
-                $stats = [
-                    'published' => 0,
-                    'pending' => 0,
-                    'total_views' => 0
-                ];
-                ?>
-
-                <div class="sisme-developer-stats">
-                    <div class="sisme-stat-card">
-                        <span class="sisme-stat-icon">🎯</span>
-                        <span class="sisme-stat-number"><?php echo $stats['published']; ?></span>
-                        <span class="sisme-stat-label">Jeux publiés</span>
-                    </div>
-                    <div class="sisme-stat-card">
-                        <span class="sisme-stat-icon">⏳</span>
-                        <span class="sisme-stat-number"><?php echo $stats['pending']; ?></span>
-                        <span class="sisme-stat-label">En attente</span>
-                    </div>
-                    <!--
-                    <div class="sisme-stat-card">
-                        <span class="sisme-stat-icon">👁️</span>
-                        <span class="sisme-stat-number"><?php echo $stats['total_views']; ?></span>
-                        <span class="sisme-stat-label">Vues totales</span>
-                    </div>-->
-                </div>
-
                 <!-- Section Mes Jeux -->
                 <?php echo self::render_my_games_section($user_id); ?>
             </div>
@@ -1001,7 +972,9 @@ class Sisme_User_Developer_Renderer {
                             <div class="sisme-submit-info">
                                 <p class="sisme-submit-description">
                                     Votre jeu sera examiné par notre équipe avant publication. 
-                                    Assurez-vous que toutes les informations sont correctes.
+                                    Assurez-vous que toutes les informations sont correctes car
+                                    vous ne pourrez pas les modifier après la soumission tant
+                                    qu'elle ne sera pas étudiée.
                                 </p>
                                 <div class="sisme-validation-summary" id="sisme-validation-summary">
                                     <!-- Résumé de validation sera injecté ici par JS -->

@@ -154,6 +154,14 @@ class Sisme_User_Developer_Loader {
             array('sisme-user-dashboard'), // Dépendance dashboard
             SISME_GAMES_EDITOR_VERSION
         );
+
+        // CSS du module développeur
+        wp_enqueue_style(
+            'sisme-user-developer',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission.css',
+            array('sisme-user-dashboard'),
+            SISME_GAMES_EDITOR_VERSION
+        );
         
         // JavaScript du module développeur
         wp_enqueue_script(

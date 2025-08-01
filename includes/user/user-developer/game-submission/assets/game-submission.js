@@ -50,6 +50,14 @@
         
         this.isInitialized = true;
         this.log('Module Game Submission initialisé');
+
+        // Mettre en évidence la description lors du hover sur le bouton de soumission
+        $(document).on('mouseenter', '#sisme-submit-game-button', function() {
+            $('.sisme-submit-description').addClass('sisme-highlight');
+        });
+        $(document).on('mouseleave', '#sisme-submit-game-button', function() {
+            $('.sisme-submit-description').removeClass('sisme-highlight');
+        });
     };
     
     /**
@@ -331,7 +339,6 @@
                             `);
                         }
                     });
-                    this.updateStatsAfterDelete();
                     
                 } else {
                     $button.prop('disabled', false).text(originalText);
@@ -346,30 +353,6 @@
                 this.isDeletingSubmission = false;
             }
         });
-    };
-
-    SismeGameSubmission.updateStatsAfterDelete = function() {
-        // Mettre à jour le Total (premier stat-item)
-        const $totalStat = $('.sisme-stats-grid .sisme-stat-item').eq(0).find('.sisme-stat-number');
-        const currentTotal = parseInt($totalStat.text()) || 0;
-        if (currentTotal > 0) {
-            $totalStat.text(currentTotal - 1);
-            // Animation du changement
-            $totalStat.parent().addClass('updated');
-            setTimeout(() => $totalStat.parent().removeClass('updated'), 500);
-        }
-        
-        // Mettre à jour les Brouillons (deuxième stat-item)
-        const $draftStat = $('.sisme-stats-grid .sisme-stat-item').eq(1).find('.sisme-stat-number');
-        const currentDrafts = parseInt($draftStat.text()) || 0;
-        if (currentDrafts > 0) {
-            $draftStat.text(currentDrafts - 1);
-            // Animation du changement
-            $draftStat.parent().addClass('updated');
-            setTimeout(() => $draftStat.parent().removeClass('updated'), 500);
-        }
-        
-        this.log('Stats mises à jour après suppression');
     };
     
     /**

@@ -61,9 +61,9 @@ class Sisme_Game_Submission_Renderer {
                     ➕ Nouveau Jeu
                 </button>
             </div>
-            
-            <?php echo self::render_stats_widget($stats); ?>
-            
+
+            <!-- < ?php // echo self::render_stats_widget($stats); ?> -->
+
             <div class="sisme-my-games-content">
                 <?php if (empty($submissions)): ?>
                     <div class="sisme-games-empty">
@@ -151,7 +151,7 @@ class Sisme_Game_Submission_Renderer {
      * @param array $stats Statistiques utilisateur
      * @return string HTML du widget
      */
-    public static function render_stats_widget($stats) {
+    /*public static function render_stats_widget($stats) {
         $total = $stats['total_submissions'] ?? 0;
         $draft = $stats['draft_count'] ?? 0;
         $pending = $stats['pending_count'] ?? 0;
@@ -183,7 +183,7 @@ class Sisme_Game_Submission_Renderer {
         </div>
         <?php
         return ob_get_clean();
-    }
+    }*/
     
     /**
      * Obtenir le libellé du statut
