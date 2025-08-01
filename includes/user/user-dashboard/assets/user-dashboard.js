@@ -84,7 +84,9 @@
         const isOwnDashboard = this.isOwnDashboard();
         
         // Récupérer la section active depuis l'URL ou localStorage
-        const urlHash = window.location.hash.replace('#', '');
+        const hashParts = window.location.hash.replace('#', '').split('?');
+        const urlHash = hashParts[0];
+        const params = new URLSearchParams(hashParts[1] || '');
         const savedSection = localStorage.getItem('sisme_dashboard_section');
         
         let initialSection = 'overview';
@@ -265,9 +267,17 @@
      * Gestion du changement d'hash dans l'URL
      */
     SismeDashboard.handleHashChange = function() {
-        const newSection = window.location.hash.replace('#', '') || 'overview';
+        const hashParts = window.location.hash.replace('#', '').split('?');
+        const newSection = hashParts[0] || 'overview';
+        const params = new URLSearchParams(hashParts[1] || '');
+        
         if (this.isValidSection(newSection) && newSection !== this.currentSection) {
             this.setActiveSection(newSection, true);
+            
+            // Transmettre les paramètres à la section
+            if (newSection === 'submit-game') {
+                $(document).trigger('sisme:submit-game:url-params', [params]);
+            }
         }
     };
     

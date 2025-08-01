@@ -57,7 +57,7 @@ class Sisme_Game_Submission_Renderer {
             <div class="sisme-my-games-header">
                 <h4 class="sisme-my-games-title">🎮 Mes Soumissions</h4>
                 <p class="sisme-my-games-subtitle">Gérez vos jeux en cours de développement et publiés</p>
-                <button class="sisme-btn sisme-btn-primary" onclick="SismeDashboard.setActiveSection('submit-game', true)">
+                <button class="sisme-btn sisme-btn-primary" onclick="window.location.hash = 'submit-game'">
                     ➕ Nouveau Jeu
                 </button>
             </div>
@@ -96,7 +96,6 @@ class Sisme_Game_Submission_Renderer {
         $metadata = $submission['metadata'] ?? [];
         
         $game_name = $game_data[Sisme_Utils_Users::GAME_FIELD_NAME] ?? 'Jeu sans nom';
-        $completion = $metadata['completion_percentage'] ?? 0;
         $created_at = $metadata['created_at'] ?? '';
         
         ob_start();
@@ -119,7 +118,7 @@ class Sisme_Game_Submission_Renderer {
             
             <div class="sisme-submission-actions">
                 <?php if ($status === 'draft'): ?>
-                    <button class="sisme-btn sisme-btn-small sisme-btn-primary" onclick="SismeGameSubmission.editSubmission('<?php echo esc_js($submission['id']); ?>')">
+                    <button class="sisme-btn sisme-btn-small sisme-btn-primary" onclick="window.location.hash = 'submit-game?edit=<?php echo esc_js($submission['id']); ?>'">
                         ✏️ Continuer
                     </button>
                     <button class="sisme-btn sisme-btn-small sisme-btn-danger" onclick="SismeGameSubmission.deleteSubmission('<?php echo esc_js($submission['id']); ?>')">

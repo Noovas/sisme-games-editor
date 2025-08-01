@@ -869,10 +869,10 @@
         // Attendre que le module principal soit initialisé
         setTimeout(() => {
             if (SismeDeveloperAjax.isInitialized) {
-                SismeDeveloperAjax.log('Extension Mes Jeux chargée');
+                //SismeDeveloperAjax.log('Extension Mes Jeux chargée');
                 
                 // Initialiser les compteurs si la section est déjà affichée
-                SismeDeveloperAjax.updateGamesCounts();
+                //SismeDeveloperAjax.updateGamesCounts();
             }
         }, 100);
     });

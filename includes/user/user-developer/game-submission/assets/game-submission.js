@@ -90,6 +90,28 @@
         }
     };
 
+        SismeGameSubmission.handleUrlParams = function(e, params) {
+        const editId = params.get('edit');
+        
+        if (editId) {
+            // Mode modification
+            this.loadSubmissionForEdit(editId);
+        } else {
+            // Mode nouveau jeu - nettoyer
+            this.clearForm();
+            this.config.currentSubmissionId = null;
+        }
+    };
+
+    SismeGameSubmission.clearForm = function() {
+        const $form = $(this.config.formSelector);
+        if ($form.length) {
+            $form[0].reset();
+            // Vider aussi les champs dynamiques si nécessaire
+            $('#game-sections-container').empty();
+        }
+    };
+
     // Limite du nombre de sections
     SismeGameSubmission.getMaxSections = function() {
         return window.Sisme_Utils_Users?.GAME_MAX_SECTIONS_DESCRIPTION || 3;
