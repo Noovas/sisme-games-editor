@@ -151,7 +151,7 @@ class Sisme_User_Developer_Loader {
         wp_enqueue_style(
             'sisme-user-developer',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/assets/user-developer.css',
-            array('sisme-user-dashboard'), // Dépendance dashboard
+            array('sisme-user-dashboard'),
             SISME_GAMES_EDITOR_VERSION
         );
 
@@ -160,6 +160,14 @@ class Sisme_User_Developer_Loader {
             'sisme-user-developer-game-submission',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission-tab.css',
             array('sisme-user-dashboard'),
+            SISME_GAMES_EDITOR_VERSION
+        );
+
+        // CSS de la modale de soumission
+        wp_enqueue_style(
+            'sisme-game-submission-modal',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission-modal.css',
+            array('sisme-user-developer-game-submission'),
             SISME_GAMES_EDITOR_VERSION
         );
         
@@ -180,13 +188,6 @@ class Sisme_User_Developer_Loader {
             SISME_GAMES_EDITOR_VERSION,
             true
         );
-        
-        // Localisation AJAX
-        wp_localize_script('sisme-user-developer-ajax', 'sismeAjax', array(
-            'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('sisme_developer_nonce'),
-            'currentUserId' => get_current_user_id()
-        ));
 
         wp_enqueue_script(
             'sisme-submission-validator',
@@ -202,6 +203,22 @@ class Sisme_User_Developer_Loader {
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission.js',
             ['jquery', 'sisme-user-developer-ajax']
         );
+        
+        // JavaScript de la modale de soumission
+        wp_enqueue_script(
+            'sisme-game-submission-modal',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission-modal.js',
+            array('jquery', 'sisme-game-submission'), // Dépend du JS de soumission existant
+            SISME_GAMES_EDITOR_VERSION,
+            true
+        );
+        
+        // Localisation AJAX
+        wp_localize_script('sisme-user-developer-ajax', 'sismeAjax', array(
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('sisme_developer_nonce'),
+            'currentUserId' => get_current_user_id()
+        ));        
     }
     
     /**

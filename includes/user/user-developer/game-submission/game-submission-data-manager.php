@@ -118,7 +118,7 @@ class Sisme_Game_Submission_Data_Manager {
         }
         
         if ($submission['status'] !== Sisme_Utils_Users::GAME_STATUS_DRAFT) {
-            return new WP_Error('not_draft', 'Seuls les brouillons peuvent être auto-sauvegardés');
+            return new WP_Error('not_draft', 'Seuls les brouillons peuvent être sauvegardés ou soumis pour validation');
         }
         
         return self::update_submission($user_id, $submission_id, $game_data);

@@ -31,8 +31,6 @@ class Sisme_Game_Submission_Renderer {
         if (!class_exists('Sisme_User_Developer_Renderer')) {
             return '<div class="sisme-error">Renderer développeur non disponible</div>';
         }
-        
-        // Appeler directement la fonction existante
         return Sisme_User_Developer_Renderer::render_submit_game_section($user_id, 'approved', []);
     }
     
@@ -138,6 +136,30 @@ class Sisme_Game_Submission_Renderer {
                         ✅ Publié
                     </button>
                 <?php endif; ?>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Rendu du HTML de la modale de soumission
+     * @return string HTML de la modale
+     */
+    public static function render_submission_modal() {
+        ob_start();
+        ?>
+        <div id="sisme-submission-modal" class="sisme-submission-modal" role="dialog" aria-labelledby="modal-title" aria-hidden="true">
+            <div class="sisme-modal-content" role="document">
+                <div id="modal-title" class="sisme-modal-title">Préparation...</div>
+                <div class="sisme-spinner" aria-label="Chargement en cours">
+                    <div class="sisme-spinner-dot"></div>
+                    <div class="sisme-spinner-dot"></div>
+                    <div class="sisme-spinner-dot"></div>
+                </div>
+                <div class="sisme-modal-details">
+                    <p>Initialisation de la soumission...</p>
+                </div>
             </div>
         </div>
         <?php

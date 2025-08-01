@@ -988,6 +988,7 @@ class Sisme_User_Developer_Renderer {
             </div>
         </div>
         <?php
+        echo Sisme_Game_Submission_Renderer::render_submission_modal();
         return ob_get_clean();
     }
 }

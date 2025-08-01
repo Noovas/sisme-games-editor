@@ -128,7 +128,11 @@ function sisme_ajax_save_draft_submission() {
     
     // Récupérer la soumission actuelle pour comparer les images avant/après
     $current_submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
-    
+    // Refuser si la soumission n'est pas un brouillon
+    if (!$current_submission || $current_submission['status'] !== Sisme_Utils_Users::GAME_STATUS_DRAFT) {
+        wp_send_json_error(['message' => 'Seuls les brouillons peuvent être sauvegardés.']);
+        return;
+    }
     // Sauvegarder le brouillon
     $result = Sisme_Game_Submission_Data_Manager::save_draft($user_id, $submission_id, $game_data);
 
@@ -377,6 +381,12 @@ function sisme_ajax_submit_game_for_review() {
         return;
     }
 
+    $current_submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
+    // Refuser si la soumission n'est pas un brouillon
+    if (!$current_submission || $current_submission['status'] !== Sisme_Utils_Users::GAME_STATUS_DRAFT) {
+        wp_send_json_error(['message' => 'Seuls les brouillons peuvent être soumis pour validation.']);
+        return;
+    }
     $result = Sisme_Game_Submission_Data_Manager::submit_for_review($user_id, $submission_id);
 
     if (is_wp_error($result)) {

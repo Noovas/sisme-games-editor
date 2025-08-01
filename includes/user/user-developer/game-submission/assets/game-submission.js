@@ -47,6 +47,7 @@
         this.bindSectionEvents();
         this.enableSubmitButton();
         this.handleHashChange();
+        this.bindModalEvents();
         
         this.isInitialized = true;
         this.log('Module Game Submission initialisé');
@@ -359,28 +360,7 @@
      * Voir les détails d'une soumission
      */
     SismeGameSubmission.viewSubmission = function(submissionId) {
-        this.log('Affichage détails soumission: ' + submissionId);
-        
-        $.ajax({
-            url: this.config.ajaxUrl,
-            type: 'POST',
-            data: {
-                action: 'sisme_get_submission_details',
-                security: this.config.nonce,
-                submission_id: submissionId
-            },
-            dataType: 'json',
-            success: (response) => {
-                if (response.success) {
-                    this.showSubmissionModal(response.data.submission);
-                } else {
-                    this.showFeedback(response.data.message, 'error');
-                }
-            },
-            error: () => {
-                this.showFeedback('Erreur lors du chargement des détails', 'error');
-            }
-        });
+        //TODO: Implémenter la logique de visualisation des détails
     };
     
     /**
@@ -425,8 +405,16 @@
      * Sauvegarder brouillon
      */
 SismeGameSubmission.saveDraft = async function(e) {
+
         if (e) e.preventDefault();
         if (this.isDraftSaving) return;
+
+        // Vérification: refuser la sauvegarde si la soumission n'est pas un draft
+        if (this.config.currentSubmissionId && this.config.submissionStatus && this.config.submissionStatus !== 'draft') {
+            this.showFeedback('❌ Impossible de sauvegarder : la soumission n\'est plus un brouillon.', 'error');
+            return;
+        }
+
         this.isDraftSaving = true;
         const $button = $(this.config.draftButtonSelector);
         const originalText = $button.text();
@@ -570,7 +558,7 @@ SismeGameSubmission.saveDraft = async function(e) {
     /**
      * Soumettre pour validation
      */
-    SismeGameSubmission.submitForReview = function(e) {
+    /*SismeGameSubmission.submitForReview = function(e) {
         if (e) e.preventDefault();
         
         if (this.isSubmitting) {
@@ -632,6 +620,187 @@ SismeGameSubmission.saveDraft = async function(e) {
             $button.prop('disabled', false).text(originalText);
             this.isSubmitting = false;
         });
+    };*/
+    SismeGameSubmission.submitForReview = function(e) {
+        if (e) e.preventDefault();
+        
+        if (this.isSubmitting) {
+            return;
+        }
+        
+        // Vérifier que l'instance modale est disponible
+        if (typeof window.sismeSubmissionModal === 'undefined') {
+            this.showFeedback('❌ Système de modale non disponible', 'error');
+            return;
+        }
+        
+        // Lancer la modale avec le processus complet
+        window.sismeSubmissionModal.show();
+        window.sismeSubmissionModal.startSubmissionProcess(this);
+        
+        // Marquer comme en cours de soumission
+        this.isSubmitting = true;
+    };
+
+    /**
+     * Version silencieuse de saveDraft pour la modale
+     * Sauvegarde sans afficher de feedback (utilisée par la modale)
+     */
+    SismeGameSubmission.saveDraftSilently = function() {
+        return new Promise(async (resolve, reject) => {
+            if (this.isDraftSaving) {
+                resolve();
+                return;
+            }
+            
+            this.isDraftSaving = true;
+            
+            try {                
+                const croppers = window.sismeCroppers || [];
+
+                for (const cropper of croppers) {
+                    if (cropper.croppedBlob) {
+                        const formData = new FormData();
+                        formData.append('action', 'sisme_simple_crop_upload');
+                        formData.append('security', this.config.nonce);
+                        formData.append('image', cropper.croppedBlob, `cropped-${cropper.ratioType}-image.jpg`);
+                        formData.append('ratio_type', cropper.ratioType);
+                        
+                        const response = await fetch(this.config.ajaxUrl, { method: 'POST', body: formData });
+                        const data = await response.json();
+                        
+                        if (data.success && data.data && data.data.attachment_id) {
+                            const hiddenInput = document.getElementById(cropper.ratioType + '_attachment_id');
+                            if (hiddenInput) {
+                                hiddenInput.value = data.data.attachment_id;
+                            }
+                            cropper.croppedBlob = null;
+                        }
+                    }
+                }
+
+                const screenshotCropper = croppers.find(c => c.ratioType === 'screenshot');
+                if (screenshotCropper && screenshotCropper.uploadedImages && screenshotCropper.uploadedImages.length > 0) {
+                    
+                    const existingIds = document.getElementById('screenshots_attachment_ids').value;
+                    const existingIdsArray = existingIds ? existingIds.split(',').map(id => parseInt(id.trim())).filter(id => id) : [];
+                    const newAttachmentIds = [];
+
+                    for (let i = 0; i < screenshotCropper.uploadedImages.length; i++) {
+                        const screenshot = screenshotCropper.uploadedImages[i];
+                        
+                        if (screenshot.blob) {
+                            const formData = new FormData();
+                            formData.append('action', 'sisme_simple_crop_upload');
+                            formData.append('security', this.config.nonce);
+                            formData.append('image', screenshot.blob, `screenshot-${i + 1}.jpg`);
+                            formData.append('ratio_type', 'screenshot');
+                            
+                            const response = await fetch(this.config.ajaxUrl, { method: 'POST', body: formData });
+                            const data = await response.json();
+                            
+                            if (data.success && data.data && data.data.attachment_id) {
+                                newAttachmentIds.push(data.data.attachment_id);
+                                screenshotCropper.uploadedImages[i].attachmentId = data.data.attachment_id;
+                                screenshotCropper.uploadedImages[i].blob = null;
+                            }
+                        } else if (screenshot.attachmentId) {
+                            newAttachmentIds.push(screenshot.attachmentId);
+                        }
+                    }
+                    
+                    document.getElementById('screenshots_attachment_ids').value = newAttachmentIds.join(',');
+                }
+
+                await this.uploadSectionImages();
+
+                const gameData = this.collectFormData();
+                const isNewSubmission = !this.config.currentSubmissionId;
+                const ajaxData = {
+                    security: this.config.nonce,
+                    ...gameData
+                };
+            
+                if (isNewSubmission) {
+                    ajaxData.action = 'sisme_create_game_submission';
+                } else {
+                    ajaxData.action = 'sisme_save_draft_submission';
+                    ajaxData.submission_id = this.config.currentSubmissionId;
+                }
+                const result = await $.ajax({
+                    url: this.config.ajaxUrl,
+                    type: 'POST',
+                    data: ajaxData,
+                    dataType: 'json'
+                });
+                
+                if (result.success) {
+                    if (isNewSubmission && result.data.submission_id) {
+                        this.config.currentSubmissionId = result.data.submission_id;
+                    }
+                    
+                    // Recharger dashboard
+                    if (typeof window.reloadDashboardSubmitionDatas === 'function') {
+                        window.reloadDashboardSubmitionDatas();
+                    }
+                    
+                    resolve();
+                } else {
+                    reject(new Error(result.data.message || 'Erreur lors de la sauvegarde'));
+                }
+                
+            } catch (err) {
+                reject(err);
+            } finally {
+                this.isDraftSaving = false;
+            }
+        });
+    };
+
+    /**
+     * Fonction appelée par la modale en cas de succès
+     * La modale gère déjà la redirection, on remet juste l'état
+     */
+    SismeGameSubmission.onModalSuccess = function() {
+        this.onSubmissionComplete();
+    };
+
+    /**
+     * Fonction appelée par la modale en cas d'erreur
+     * La modale se ferme, l'utilisateur peut corriger le formulaire
+     */
+    SismeGameSubmission.onModalError = function() {
+        this.onSubmissionComplete();
+    };
+
+    /**
+     * Modification de la fonction existante pour gérer la fin de soumission
+     * Réinitialiser l'état de soumission quand la modale se ferme
+     */
+    SismeGameSubmission.onSubmissionComplete = function() {
+        // Réinitialiser l'état de soumission quand la modale se ferme
+        this.isSubmitting = false;
+    };
+
+    /**
+     * Liaison des événements modale
+     */
+    SismeGameSubmission.bindModalEvents = function() {
+        // Écouter les événements de fermeture de modale
+        $(document).on('sisme:modal:success', () => {
+            this.onModalSuccess();
+        });
+        
+        $(document).on('sisme:modal:error', () => {
+            this.onModalError();
+        });
+        
+        // Alternative polling pour vérifier si la modale est fermée
+        this.checkModalStatus = setInterval(() => {
+            if (this.isSubmitting && window.sismeSubmissionModal && !window.sismeSubmissionModal.isOpen) {
+                this.onSubmissionComplete();
+            }
+        }, 1000);
     };
     
     
@@ -944,18 +1113,6 @@ SismeGameSubmission.saveDraft = async function(e) {
         if (typeof SismeDashboard !== 'undefined') {
             SismeDashboard.refreshSection('developer');
         }
-    };
-    
-    /**
-     * Afficher une modal avec les détails
-     */
-    SismeGameSubmission.showSubmissionModal = function(submission) {
-        // Modal simple pour l'instant
-        const gameName = submission.game_data?.game_name || 'Jeu sans nom';
-        const status = submission.status || 'unknown';
-        
-        alert('Détails de "' + gameName + '":\nStatut: ' + status);
-        // TODO: Créer une vraie modal
     };
     
     /**
