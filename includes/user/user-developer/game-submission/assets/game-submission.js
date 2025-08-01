@@ -568,6 +568,9 @@ SismeGameSubmission.saveDraft = async function(e) {
                         this.config.currentSubmissionId = result.data.submission_id;
                     }
                     this.showFeedback(result.data.message, 'success');
+                    if (typeof window.reloadDashboardSubmitionDatas === 'function') {
+                        window.reloadDashboardSubmitionDatas();
+                    }
                 } else {
                     this.showFeedback(result.data.message, 'error');
                 }
