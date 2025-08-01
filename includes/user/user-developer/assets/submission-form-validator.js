@@ -328,30 +328,9 @@ class SubmissionFormValidator {
     }
     
     validateForm() {
-        const allStates = Object.values(this.validationState);
-        const touchedStates = allStates.filter(state => state.touched);
-        const requiredFieldsValid = allStates.every(state => state.isValid);
-        
-        const hasAnyTouchedFields = touchedStates.length > 0;
-        const hasInvalidTouchedFields = touchedStates.some(state => !state.isValid);
-        
-        let isFormValid = false;
-        let buttonText = '📝 Complétez le formulaire';
-        
-        if (!hasAnyTouchedFields) {
-            isFormValid = false;
-            buttonText = '📝 Complétez le formulaire';
-        } else if (hasInvalidTouchedFields) {
-            isFormValid = false;
-            buttonText = '❌ Corrigez les erreurs';
-        } else if (requiredFieldsValid) {
-            isFormValid = true;
-            buttonText = '🚀 Soumettre le jeu';
-        }
-        
-        this.updateSubmitButton(isFormValid, buttonText);
-        
-        return isFormValid;
+        const buttonText = '🚀 Soumettre pour Validation';
+        this.updateSubmitButton(true, buttonText);
+        return true;
     }
     
     updateFieldVisual(field, isValid, message) {

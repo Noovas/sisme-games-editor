@@ -410,17 +410,7 @@ class Sisme_User_Developer_Renderer {
                         <span class="sisme-stat-label">Vues totales</span>
                     </div>-->
                 </div>
-                
-                <!-- Section Actions rapides -->
-                <div class="sisme-developer-actions">
-                    <button class="sisme-button sisme-button-vert" onclick="alert('Système de soumission en cours de développement')">>
-                        ➕ Soumettre un jeu
-                    </button>
-                    <button class="sisme-btn sisme-btn-secondary sisme-disabled">
-                        📊 Statistiques détaillées
-                    </button>
-                </div>
-                
+                                
                 <!-- Section Mes Jeux -->
                 <?php echo self::render_my_games_section($user_id); ?>
             </div>

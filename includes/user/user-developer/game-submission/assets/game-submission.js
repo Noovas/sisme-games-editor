@@ -366,7 +366,7 @@ SismeGameSubmission.saveDraft = async function(e) {
     SismeGameSubmission.submitForReview = function(e) {
         if (e) e.preventDefault();
         
-        if (this.isSubmitting || !this.config.currentSubmissionId) {
+        if (this.isSubmitting) {
             return;
         }
         
@@ -378,44 +378,55 @@ SismeGameSubmission.saveDraft = async function(e) {
         const $button = $(this.config.submitButtonSelector);
         const originalText = $button.text();
         
-        $button.prop('disabled', true).text('🚀 Soumission...');
+        $button.prop('disabled', true).text('💾 Sauvegarde...');
         
-        $.ajax({
-            url: this.config.ajaxUrl,
-            type: 'POST',
-            data: {
-                action: 'sisme_submit_game_for_review',
-                security: this.config.nonce,
-                submission_id: this.config.currentSubmissionId
-            },
-            dataType: 'json',
-            success: (response) => {
-                if (response.success) {
-                    this.showFeedback(response.data.message, 'success');
-                    
-                    setTimeout(() => {
-                        if (typeof SismeDashboard !== 'undefined') {
-                            SismeDashboard.setActiveSection('developer', true);
-                        }
-                    }, 2000);
-                } else {
-                    if (response.data.validation_error) {
-                        this.showFeedback('Veuillez remplir tous les champs obligatoires avant de soumettre', 'error');
+        // 1. D'abord sauvegarder comme brouillon
+        this.saveDraft().then(() => {
+            // 2. Puis soumettre le brouillon sauvegardé
+            $button.text('🚀 Soumission...');
+            
+            $.ajax({
+                url: this.config.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'sisme_submit_game_for_review',
+                    security: this.config.nonce,
+                    submission_id: this.config.currentSubmissionId
+                },
+                dataType: 'json',
+                success: (response) => {
+                    if (response.success) {
+                        this.showFeedback(response.data.message, 'success');
+                        
+                        setTimeout(() => {
+                            if (typeof SismeDashboard !== 'undefined') {
+                                SismeDashboard.setActiveSection('developer', true);
+                            }
+                        }, 2000);
                     } else {
-                        this.showFeedback(response.data.message, 'error');
+                        if (response.data.validation_error) {
+                            this.showFeedback('Veuillez remplir tous les champs obligatoires avant de soumettre', 'error');
+                        } else {
+                            this.showFeedback(response.data.message, 'error');
+                        }
+                        $button.prop('disabled', false).text(originalText);
                     }
+                },
+                error: () => {
+                    this.showFeedback('Erreur réseau lors de la soumission', 'error');
                     $button.prop('disabled', false).text(originalText);
+                },
+                complete: () => {
+                    this.isSubmitting = false;
                 }
-            },
-            error: () => {
-                this.showFeedback('Erreur réseau lors de la soumission', 'error');
-                $button.prop('disabled', false).text(originalText);
-            },
-            complete: () => {
-                this.isSubmitting = false;
-            }
+            });
+        }).catch(() => {
+            this.showFeedback('Erreur lors de la sauvegarde avant soumission', 'error');
+            $button.prop('disabled', false).text(originalText);
+            this.isSubmitting = false;
         });
     };
+    
     
     /**
      * Charger les données d'une soumission

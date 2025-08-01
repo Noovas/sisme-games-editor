@@ -194,12 +194,6 @@ class Sisme_User_Developer_Loader {
             SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission.js',
             ['jquery', 'sisme-user-developer-ajax']
         );
-
-        wp_enqueue_script(
-            'sisme-game-submission-validator',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission-validator.js',
-            ['jquery', 'sisme-game-submission']
-        );
     }
     
     /**

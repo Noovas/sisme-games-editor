@@ -109,14 +109,7 @@ class Sisme_Game_Submission_Renderer {
                 </div>
             </div>
             
-            <div class="sisme-submission-meta">
-                <div class="sisme-submission-progress">
-                    <span class="sisme-progress-label">Completion: <?php echo intval($completion); ?>%</span>
-                    <div class="sisme-progress-bar">
-                        <div class="sisme-progress-fill" style="width: <?php echo intval($completion); ?>%"></div>
-                    </div>
-                </div>
-                
+            <div class="sisme-submission-meta">                
                 <?php if ($created_at): ?>
                     <div class="sisme-submission-date">
                         Créé le <?php echo date('d/m/Y', strtotime($created_at)); ?>

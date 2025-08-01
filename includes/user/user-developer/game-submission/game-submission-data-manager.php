@@ -316,8 +316,6 @@ class Sisme_Game_Submission_Data_Manager {
             'game_genres',
             'game_platforms',
             'game_modes',
-            'cover_horizontal',
-            'cover_vertical',
             'screenshots'
         ];
         
@@ -338,6 +336,12 @@ class Sisme_Game_Submission_Data_Manager {
         }
         if (!$has_external_link) {
             $errors[] = 'external_links';
+        }
+        
+        if (!isset($game_data['covers']) || 
+            empty($game_data['covers']['horizontal']) || 
+            empty($game_data['covers']['vertical'])) {
+            $errors[] = 'covers';
         }
         
         $has_section = false;
