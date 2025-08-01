@@ -118,6 +118,7 @@ class Sisme_Utils_Users {
     const GAME_FIELD_MODES = 'game_modes';
     
     // Médias
+    const GAME_FIELD_COVERS = 'covers';
     const GAME_FIELD_COVER_HORIZONTAL = 'cover_horizontal';
     const GAME_FIELD_COVER_VERTICAL = 'cover_vertical';
     const GAME_FIELD_SCREENSHOTS = 'screenshots';
