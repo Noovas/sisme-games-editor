@@ -155,10 +155,10 @@ class Sisme_User_Developer_Loader {
             SISME_GAMES_EDITOR_VERSION
         );
 
-        // CSS du module développeur
+        // CSS du module développeur pour les soumissions de jeux
         wp_enqueue_style(
-            'sisme-user-developer',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission.css',
+            'sisme-user-developer-game-submission',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission-tab.css',
             array('sisme-user-dashboard'),
             SISME_GAMES_EDITOR_VERSION
         );

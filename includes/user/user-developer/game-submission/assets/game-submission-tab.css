@@ -1,0 +1,84 @@
+.sisme-submission-item {
+    display: flex;
+    gap: 10px;
+    border: 1px solid var(--sisme-border-bleu-active);
+    border-radius: 5px;
+    padding: 15px;
+    background-color: var(--sisme-dashboard-bg-tertiary);
+    flex-direction: column;
+}
+
+.sisme-submission-item .sisme-submission-header {
+
+}
+
+.sisme-submission-item .sisme-submission-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    justify-self: center;
+}
+
+.sisme-submission-item .sisme-submission-status {
+    
+}
+
+.sisme-status-draft,
+.sisme-status-revision,
+.sisme-status-pending,
+.sisme-status-published,
+.sisme-status-rejected {
+    border-radius: 5px;
+    padding: 5px;
+    text-align: center;
+}
+
+.sisme-status-draft {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+}
+
+.sisme-status-revision {
+    background: rgba(255, 140, 0, 0.2);
+    color: #ff8c00;
+}
+
+.sisme-status-pending {
+    background: rgba(255, 165, 0, 0.2);
+    color: #ffa500;
+}
+
+.sisme-status-published {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+}
+
+.sisme-status-rejected {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+.sisme-submission-item .sisme-submission-meta {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    gap: 5px;
+    border-radius: 5px;
+}
+
+.sisme-submission-item .sisme-submission-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+}
+
+.sisme-submission-actions button {
+    justify-content: center;
+}
+
+.sisme-submission-actions .sisme-btn-secondary:hover {
+    color: var(--sisme-color-primary-dark) !important;
+}
+
+
