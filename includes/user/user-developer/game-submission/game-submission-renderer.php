@@ -55,8 +55,6 @@ class Sisme_Game_Submission_Renderer {
         ?>
         <div class="sisme-my-games-section">
             <div class="sisme-my-games-header">
-                <h4 class="sisme-my-games-title">🎮 Mes Soumissions</h4>
-                <p class="sisme-my-games-subtitle">Gérez vos jeux en cours de développement et publiés</p>
                 <button class="sisme-btn sisme-btn-primary" onclick="window.location.hash = 'submit-game'">
                     ➕ Nouveau Jeu
                 </button>

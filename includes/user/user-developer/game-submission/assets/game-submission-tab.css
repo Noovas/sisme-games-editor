@@ -1,11 +1,18 @@
 .sisme-submission-item {
     display: flex;
+    flex-direction: column;
     gap: 10px;
-    border: 1px solid var(--sisme-border-bleu-active);
     border-radius: 5px;
     padding: 15px;
+    margin-bottom: 20px;
     background-color: var(--sisme-dashboard-bg-tertiary);
-    flex-direction: column;
+    border: 1px solid var(--sisme-border-bleu-active);
+    transition: all 0.3s ease;
+}
+
+.sisme-submission-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--sisme-border-strong);
 }
 
 .sisme-submission-item .sisme-submission-header {
@@ -20,6 +27,13 @@
 
 .sisme-submission-item .sisme-submission-status {
     
+}
+
+.sisme-my-games-header {
+    text-align: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
 }
 
 .sisme-status-draft,
