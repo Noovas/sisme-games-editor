@@ -187,7 +187,7 @@ function sisme_ajax_save_draft_submission() {
     }
 
     wp_send_json_success([
-        'message' => 'Brouillon sauvegardé automatiquement',
+        'message' => 'Brouillon sauvegardé',
         'last_auto_save' => current_time('H:i:s')
     ]);
 }
