@@ -76,8 +76,7 @@ class Sisme_Assets_Loader {
     
     /**
      * Charger les styles admin - DARK GAMING STYLE + FICHE FORM
-     * 
-     * MODIFICATION: Ajout du chargement conditionnel pour edit-fiche-jeu
+     * @param string $hook Le hook de la page admin 
      */
     public function enqueue_admin_styles($hook) {
         // Vérifier si on est sur une page admin du plugin
@@ -92,8 +91,6 @@ class Sisme_Assets_Loader {
             array(),
             SISME_GAMES_EDITOR_VERSION
         );
-
-
         
         // Page création/édition de fiche
         if (strpos($hook, 'sisme-games-edit-fiche-jeu') !== false) {
@@ -155,21 +152,5 @@ class Sisme_Assets_Loader {
                 true
             );
         }
-    }
-    
-    /**
-     * Vérifier si la fiche a des screenshots
-     */
-    private function has_screenshots() {
-        if (!is_single()) return false;
-        
-        global $post;
-        $game_tags = wp_get_post_tags($post->ID);
-        if (empty($game_tags)) return false;
-        
-        $tag_id = $game_tags[0]->term_id;
-        $screenshots = get_term_meta($tag_id, Sisme_Utils_Games::META_SCREENSHOTS, true);
-        
-        return !empty($screenshots);
     }
 }
