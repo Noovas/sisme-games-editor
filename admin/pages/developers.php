@@ -12,6 +12,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+add_action('wp_ajax_sisme_admin_get_submission_details', function() {
+    Sisme_Admin_Submission_Tab::ajax_get_submission_details();
+});
+
 require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
 if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/submission-database.php')) {
     require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/submission/submission-database.php';

@@ -119,6 +119,7 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/tools/emoji-helper.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/search/search-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/team-choice/team-choice-loader.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-submission-tab.php';
     }
 
     public function add_admin_menu() {

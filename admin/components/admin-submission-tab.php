@@ -19,20 +19,157 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+add_action('wp_ajax_sisme_get_submission_details', ['Sisme_Admin_Submission_Tab', 'ajax_get_submission_details']);
+
 /**
  * Classe pour l'onglet admin des soumissions
  */
-class Sisme_Admin_Submission_Tab {
+class Sisme_Admin_Submission_Tab {    
+    /**
+     * Récupérer une soumission par son ID parmi tous les développeurs (admin)
+     */
+    private static function get_submission_for_admin($submission_id) {
+        if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+            $file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
+            if (file_exists($file)) {
+                require_once $file;
+            }
+        }
+        $developer_users = get_users([
+            'meta_key' => Sisme_Utils_Users::META_DEVELOPER_STATUS,
+            'meta_value' => Sisme_Utils_Users::DEVELOPER_STATUS_APPROVED,
+            'fields' => ['ID', 'display_name', 'user_email']
+        ]);
+        foreach ($developer_users as $user) {
+            $user_submissions = Sisme_Game_Submission_Data_Manager::get_user_submissions($user->ID);
+            foreach ($user_submissions as $submission) {
+                if ($submission['id'] === $submission_id) {
+                    $submission['user_data'] = [
+                        'user_id' => $user->ID,
+                        'display_name' => $user->display_name,
+                        'user_email' => $user->user_email
+                    ];
+                    return $submission;
+                }
+            }
+        }
+        return null;
+    }
+    /**
+     * AJAX : Récupérer les détails d'une soumission
+     */
+    public static function ajax_get_submission_details() {
+        error_log('DEBUG: ajax_get_submission_details CALLED');
+        // Vérification admin obligatoire
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Permissions insuffisantes']);
+            return;
+        }
+        
+        // Vérification nonce
+        if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_developer_nonce')) {
+            wp_send_json_error(['message' => 'Erreur de sécurité']);
+            return;
+        }
+        
+        $submission_id = sanitize_text_field($_POST['submission_id'] ?? '');
+        $developer_user_id = intval($_POST['user_id'] ?? 0);
+        error_log('DEBUG: submission_id=' . $submission_id . ' developer_user_id=' . $developer_user_id);
+        error_log('AJAX APPELÉ !');
+        if (empty($submission_id) || !$developer_user_id) {
+            wp_send_json_error(['message' => 'Paramètres manquants']);
+            return;
+        }
+        
+        // Charger le module data manager
+        if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+            $file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
+            if (!file_exists($file)) {
+                wp_send_json_error(['message' => 'Module soumission non disponible']);
+                return;
+            }
+            require_once $file;
+        }
+
+        $submission = self::get_submission_for_admin($submission_id);
+        error_log('DEBUG: submission=' . print_r($submission, true));
+        if (!$submission) {
+            wp_send_json_error(['message' => 'Soumission introuvable pour ce développeur']);
+            return;
+        }
+        
+        // Enrichir les données avec des infos développeur
+        $developer_info = get_userdata($developer_user_id);
+        
+        $game_data = $submission['game_data'] ?? [];
+        // Covers
+        $covers = [
+            'horizontal' => !empty($game_data['covers']['horizontal']) ? [
+                'id' => $game_data['covers']['horizontal'],
+                'url' => wp_get_attachment_url($game_data['covers']['horizontal']),
+                'thumb' => wp_get_attachment_image_url($game_data['covers']['horizontal'], 'thumbnail')
+            ] : null,
+            'vertical' => !empty($game_data['covers']['vertical']) ? [
+                'id' => $game_data['covers']['vertical'],
+                'url' => wp_get_attachment_url($game_data['covers']['vertical']),
+                'thumb' => wp_get_attachment_image_url($game_data['covers']['vertical'], 'thumbnail')
+            ] : null
+        ];
+        // Screenshots
+        $screenshots = [];
+        if (!empty($game_data['screenshots']) && is_array($game_data['screenshots'])) {
+            foreach ($game_data['screenshots'] as $i => $sid) {
+                $screenshots[] = [
+                    'id' => $sid,
+                    'url' => wp_get_attachment_url($sid),
+                    'thumb' => wp_get_attachment_image_url($sid, 'thumbnail')
+                ];
+            }
+        }
+        // Sections détaillées
+        $sections = [];
+        if (!empty($game_data['sections']) && is_array($game_data['sections'])) {
+            foreach ($game_data['sections'] as $section) {
+                $sections[] = [
+                    'title' => $section['title'] ?? '',
+                    'content' => $section['content'] ?? '',
+                    'image' => !empty($section['image_attachment_id']) ? [
+                        'id' => $section['image_attachment_id'],
+                        'url' => wp_get_attachment_url($section['image_attachment_id']),
+                        'thumb' => wp_get_attachment_image_url($section['image_attachment_id'], 'thumbnail')
+                    ] : null
+                ];
+            }
+        }
+        // Liens externes
+        $external_links = $game_data['external_links'] ?? [];
+        // Réponse complète
+        wp_send_json_success([
+            'submission_id' => $submission_id,
+            'developer' => [
+                'user_id' => $developer_user_id,
+                'display_name' => $developer_info ? $developer_info->display_name : 'Inconnu',
+                'user_email' => $developer_info ? $developer_info->user_email : ''
+            ],
+            'game_data' => $game_data,
+            'covers' => $covers,
+            'screenshots' => $screenshots,
+            'sections' => $sections,
+            'external_links' => $external_links,
+            'metadata' => $submission['metadata'] ?? [],
+            'admin_data' => $submission['admin_data'] ?? [],
+            'status' => $submission['status'] ?? 'unknown',
+            'is_admin_access' => true
+        ]);
+    }
     
     /**
      * Rendu de l'onglet complet
      */
     public static function render() {
+        
         // Charger les assets admin
         self::enqueue_admin_assets();
-        
-        // Charger les assets front pour la compatibilité
-        self::enqueue_front_compatibility();
         
         // Récupérer les données
         $submissions_data = self::get_submissions_data();
@@ -41,7 +178,6 @@ class Sisme_Admin_Submission_Tab {
         ob_start();
         ?>
         <div class="sisme-admin-submissions">
-            
             <!-- Statistiques -->
             <?php echo self::render_stats($stats); ?>
             
@@ -49,19 +185,6 @@ class Sisme_Admin_Submission_Tab {
             <?php echo self::render_submissions_table($submissions_data); ?>
             
         </div>
-        
-        <!-- JavaScript admin -->
-        <script>
-        jQuery(document).ready(function($) {
-            if (typeof SismeSubmissionDetails !== 'undefined') {
-                // Override pour l'admin avec sécurité
-                <?php echo self::get_admin_javascript_override(); ?>
-                
-                SismeSubmissionDetails.init();
-                console.log('🎯 Interface admin submissions initialisée');
-            }
-        });
-        </script>
         <?php
         return ob_get_clean();
     }
@@ -84,6 +207,13 @@ class Sisme_Admin_Submission_Tab {
             SISME_GAMES_EDITOR_VERSION,
             true
         );
+        
+        // Localiser pour l'admin
+        wp_localize_script('sisme-admin-submissions', 'sismeAdminAjax', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('sisme_developer_nonce'),
+            'isAdmin' => true
+        ]);
     }
     
     /**
@@ -311,38 +441,16 @@ class Sisme_Admin_Submission_Tab {
         </tr>
         
         <!-- Ligne de détails (cachée par défaut) -->
-        <tr class="sisme-details-row" style="display: none;">
+         <tr class="sisme-details-row" id="details-<?php echo esc_attr($submission['id']); ?>" style="display: none;">
             <td colspan="6" class="details-container">
                 <div class="admin-details-content">
-                    <?php
-                    // ✅ STRUCTURE MINIMALE pour que le JS front fonctionne
-                    $adapted_submission = [
-                        'id' => $submission['id'],
-                        'status' => $submission['status'],
-                        'game_data' => $submission['game_data'],
-                        'metadata' => $submission['metadata']
-                    ];
-                    ?>
-                    
-                    <!-- Structure invisible pour le JS front -->
-                    <div class="sisme-submission-item hidden-structure" 
-                         data-submission-id="<?php echo esc_attr($submission['id']); ?>" 
-                         data-status="<?php echo esc_attr($status); ?>" 
-                         style="display: none;">
-                        <div class="sisme-submission-meta">
-                            <!-- Les détails AJAX seront injectés ici -->
-                        </div>
-                    </div>
-                    
-                    <!-- Affichage admin visible -->
-                    <div class="admin-details-display">
-                        <div class="admin-loading" style="text-align: center; padding: 20px; color: #666;">
-                            ⏳ Chargement des détails...
-                        </div>
+                    <div class="admin-loading">
+                        ⏳ Chargement des détails...
                     </div>
                 </div>
             </td>
         </tr>
+              
         <?php
         return ob_get_clean();
     }
@@ -433,12 +541,10 @@ class Sisme_Admin_Submission_Tab {
         ?>
         <div class="action-buttons">
             
-            <!-- Voir plus (toujours disponible) -->
-            <button class="action-btn view-btn sisme-expand-btn" 
+            <!-- Voir plus - VERSION SIMPLIFIÉE -->
+            <button class="action-btn view-btn" 
                     data-submission-id="<?php echo esc_attr($submission_id); ?>"
-                    data-admin-user-id="<?php echo esc_attr($user_id); ?>"
-                    data-admin-token="<?php echo esc_attr(wp_create_nonce('admin_view_' . $user_id . '_' . $submission_id)); ?>"
-                    data-state="collapsed"
+                    data-user-id="<?php echo esc_attr($user_id); ?>"
                     title="Voir les détails">
                 👁️
             </button>
@@ -473,71 +579,5 @@ class Sisme_Admin_Submission_Tab {
         </div>
         <?php
         return ob_get_clean();
-    }
-    
-    /**
-     * JavaScript pour l'override admin
-     */
-    private static function get_admin_javascript_override() {
-        return "
-        const originalExpandDetails = SismeSubmissionDetails.expandDetails;
-        
-        SismeSubmissionDetails.expandDetails = function(submissionId, \$button) {
-            const adminUserId = \$button.data('admin-user-id');
-            const adminToken = \$button.data('admin-token');
-            
-            if (adminUserId && adminToken) {
-                const \$row = \$button.closest('.sisme-submission-row');
-                const \$detailsRow = \$row.next('.sisme-details-row');
-                const \$meta = \$detailsRow.find('.sisme-submission-meta'); // ✅ Structure invisible
-                
-                // Toggle l'affichage de la ligne de détails
-                if (\$detailsRow.is(':visible')) {
-                    \$detailsRow.slideUp(300);
-                    \$button.data('state', 'collapsed').text('👁️');
-                    return;
-                }
-                
-                this.setButtonLoading(\$button, true);
-                \$detailsRow.show();
-                
-                \$.ajax({
-                    url: this.config.ajaxUrl,
-                    type: 'POST',
-                    data: {
-                        action: 'sisme_get_submission_details',
-                        submission_id: submissionId,
-                        admin_user_id: adminUserId,
-                        admin_token: adminToken,
-                        security: this.config.nonce
-                    },
-                    success: (response) => {
-                        this.setButtonLoading(\$button, false);
-                        
-                        if (response.success && response.data) {
-                            this.cache[submissionId] = response.data;
-                            
-                            // ✅ Injecter dans la structure invisible
-                            this.renderDetails(\$meta, response.data);
-                            
-                            // ✅ Copier le contenu vers l'affichage admin
-                            const detailsHtml = \$meta.find('.sisme-meta-details').html() || 'Aucun détail disponible';
-                            \$detailsRow.find('.admin-details-display').html('<div class=\"admin-details-wrapper\">' + detailsHtml + '</div>');
-                            
-                            \$button.data('state', 'expanded').text('🔼');
-                        } else {
-                            \$detailsRow.find('.admin-details-display').html('<div class=\"admin-error\">❌ ' + (response.data?.message || 'Erreur') + '</div>');
-                        }
-                    },
-                    error: () => {
-                        this.setButtonLoading(\$button, false);
-                        this.showError(\$meta, 'Erreur de connexion');
-                    }
-                });
-            } else {
-                originalExpandDetails.call(this, submissionId, \$button);
-            }
-        };
-        ";
     }
 }
