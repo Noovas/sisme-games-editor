@@ -22,7 +22,7 @@ if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/su
 // Récupérer l'onglet actuel
 $current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'developers';
 
-// Traitement des actions (existant)
+// Traitement des actions
 if (isset($_POST['action']) && isset($_POST['user_id']) && wp_verify_nonce($_POST['_wpnonce'], 'sisme_developer_action')) {
     $user_id = intval($_POST['user_id']);
     $action = sanitize_text_field($_POST['action']);
@@ -81,6 +81,27 @@ if (isset($_POST['submission_action']) && isset($_POST['submission_id']) && wp_v
             echo '<p>❌ Soumission rejetée.</p>';
             echo '</div>';
         });
+    }
+}
+
+if (isset($_POST['action']) && $_POST['action'] === 'delete_submission' && wp_verify_nonce($_POST['_wpnonce'], 'admin_submission_delete')) {
+    $submission_id = sanitize_text_field($_POST['submission_id'] ?? '');
+    $user_id = intval($_POST['user_id'] ?? 0);
+    if (!empty($submission_id) && $user_id) {
+        Sisme_Utils_Media_Cleanup::cleanup_submission_media($user_id . '_' . $submission_id);
+        if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
+        }
+        $result = Sisme_Game_Submission_Data_Manager::delete_submission($user_id, $submission_id);
+        if (!is_wp_error($result)) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-success"><p>✅ Soumission et médias supprimés !</p></div>';
+            });
+        } else {
+            add_action('admin_notices', function() use ($result) {
+                echo '<div class="notice notice-error"><p>❌ ' . $result->get_error_message() . '</p></div>';
+            });
+        }
     }
 }
 
@@ -874,6 +895,8 @@ $page->render_start();
                     });
                 });
             });
+
+            
             </script>
             
             <style>
@@ -897,6 +920,7 @@ $page->render_start();
 <?php $page->render_end(); ?>
 
 <script>
+    
 function toggleDevDetails(index) {
     const detailsRow = document.getElementById('details-' + index);
     const toggleIcon = document.getElementById('toggle-' + index);

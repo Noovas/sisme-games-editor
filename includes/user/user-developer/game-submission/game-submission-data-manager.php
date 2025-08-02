@@ -170,7 +170,7 @@ class Sisme_Game_Submission_Data_Manager {
         if ($submission) {
             do_action('sisme_before_submission_delete', $user_id . '_' . $submission_id, $submission);
         }
-        
+
         if (self::remove_submission_from_user_data($user_id, $submission_id)) {
             self::update_user_stats($user_id);
             return true;
@@ -281,6 +281,10 @@ class Sisme_Game_Submission_Data_Manager {
         
         if (!$submission) {
             return false;
+        }
+
+        if (current_user_can('manage_options')) {
+            return true;
         }
         
         return $submission['status'] === Sisme_Utils_Users::GAME_STATUS_DRAFT;

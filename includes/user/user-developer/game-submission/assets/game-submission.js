@@ -192,19 +192,12 @@
      * Mettre à jour l'interface pour le mode nouveau
      */
     SismeGameSubmission.updateFormUIForNew = function() {
-        // Restaurer le titre original
         $('#sisme-form-title').text('➕ Soumettre un nouveau jeu');
-        
-        // Cacher le bouton "Nouveau jeu"
         $('#sisme-new-game-btn').hide();
-        
-        // Restaurer la description originale
         const $description = $('.sisme-submit-game-description');
         $description.text('Partagez votre création avec la communauté Sisme Games. Remplissez les informations essentielles pour commencer.');
     };
 
-
-    
     /**
      * Gérer les actions sur les soumissions
      */
@@ -234,10 +227,8 @@
         const editId = params.get('edit');
         
         if (editId) {
-            // Mode modification - charger la soumission
             this.loadSubmissionForEdit(editId);
         } else {
-            // Mode nouveau jeu - nettoyer le formulaire
             this.clearFormForNewGame();
         }
     };
@@ -265,8 +256,6 @@
             
             // Réinitialiser le bouton de soumission
             //this.resetSubmitButton();
-            
-            this.log('Formulaire nettoyé');
         }
     };
 
@@ -299,7 +288,7 @@
     };
     
     /**
-     * Supprimer une soumission (brouillons uniquement)
+     * Supprimer une soumission
      */
     SismeGameSubmission.deleteSubmission = function(submissionId) {
         if (this.isDeletingSubmission) {
@@ -355,55 +344,11 @@
         });
     };
     
-    /**
-     * Voir les détails d'une soumission
-     */
-    SismeGameSubmission.viewSubmission = function(submissionId) {
-        //TODO: Implémenter la logique de visualisation des détails
-    };
-    
-    /**
-     * Créer nouvelle version après rejet
-     */
-    SismeGameSubmission.retrySubmission = function(submissionId) {
-        if (!confirm('Créer une nouvelle version de cette soumission ?')) {
-            return;
-        }
-        
-        this.log('Retry soumission: ' + submissionId);
-        
-        $.ajax({
-            url: this.config.ajaxUrl,
-            type: 'POST',
-            data: {
-                action: 'sisme_retry_rejected_submission',
-                security: this.config.nonce,
-                original_submission_id: submissionId
-            },
-            dataType: 'json',
-            success: (response) => {
-                if (response.success) {
-                    this.showFeedback(response.data.message, 'success');
-                    this.refreshSubmissionsList();
-                    
-                    // Naviguer vers l'édition de la nouvelle soumission
-                    if (response.data.new_submission_id) {
-                        this.editSubmission(response.data.new_submission_id);
-                    }
-                } else {
-                    this.showFeedback(response.data.message, 'error');
-                }
-            },
-            error: () => {
-                this.showFeedback('Erreur lors de la création de la nouvelle version', 'error');
-            }
-        });
-    };
     
     /**
      * Sauvegarder brouillon
      */
-SismeGameSubmission.saveDraft = async function(e) {
+    SismeGameSubmission.saveDraft = async function(e) {
 
         if (e) e.preventDefault();
         if (this.isDraftSaving) return;
@@ -439,12 +384,11 @@ SismeGameSubmission.saveDraft = async function(e) {
         } else {
             modal.style.display = 'flex';
         }
-
-        // UPLOAD DIFFÉRÉ DES IMAGES (covers)
+        // Lancer le processus de sauvegarde
         (async () => {
             try {
                 const croppers = window.sismeCroppers || [];
-                // 1. Upload toutes les images croppées (en séquentiel)
+                // Upload toutes les images croppées
                 for (const cropper of croppers) {
                     if (cropper.croppedBlob) {
                         const formData = new FormData();
@@ -468,7 +412,7 @@ SismeGameSubmission.saveDraft = async function(e) {
                     } else {
                     }
                 }
-                // 2. (Screenshots multiples à gérer ici si besoin)
+                // Screenshots multiples à gérer ici si besoin
                 const screenshotCropper = croppers.find(c => c.ratioType === 'screenshot');
                 if (screenshotCropper && screenshotCropper.uploadedImages && screenshotCropper.uploadedImages.length > 0) {
                     
@@ -504,16 +448,12 @@ SismeGameSubmission.saveDraft = async function(e) {
                             newAttachmentIds.push(screenshot.attachmentId);
                         }
                     }
-                    
                     document.getElementById('screenshots_attachment_ids').value = newAttachmentIds.join(',');
-                    
-                    // TODO: Nettoyer les anciens médias (à implémenter côté serveur)
-                    // Les IDs dans existingIdsArray qui ne sont plus dans newAttachmentIds doivent être supprimés
                 }
 
                 await this.uploadSectionImages();
 
-                // 3. Collecte des données APRÈS que tous les uploads soient terminés
+                // Collecte des données APRÈS que tous les uploads soient terminés
                 const gameData = this.collectFormData();
                 const isNewSubmission = !this.config.currentSubmissionId;
                 const ajaxData = {
@@ -526,7 +466,7 @@ SismeGameSubmission.saveDraft = async function(e) {
                     ajaxData.action = 'sisme_save_draft_submission';
                     ajaxData.submission_id = this.config.currentSubmissionId;
                 }
-                // 4. Sauvegarde AJAX du formulaire
+                // Sauvegarde AJAX du formulaire
                 const result = await $.ajax({
                     url: this.config.ajaxUrl,
                     type: 'POST',
@@ -554,72 +494,6 @@ SismeGameSubmission.saveDraft = async function(e) {
         })();
     };
     
-    /**
-     * Soumettre pour validation
-     */
-    /*SismeGameSubmission.submitForReview = function(e) {
-        if (e) e.preventDefault();
-        
-        if (this.isSubmitting) {
-            return;
-        }
-        
-        if (!confirm('Soumettre ce jeu pour validation ? Vous ne pourrez plus le modifier.')) {
-            return;
-        }
-        
-        this.isSubmitting = true;
-        const $button = $(this.config.submitButtonSelector);
-        const originalText = $button.text();
-        
-        $button.prop('disabled', true).text('💾 Sauvegarde...');
-        
-        // 1. D'abord sauvegarder comme brouillon
-        this.saveDraft().then(() => {
-            // 2. Puis soumettre le brouillon sauvegardé
-            $button.text('🚀 Soumission...');
-            
-            $.ajax({
-                url: this.config.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'sisme_submit_game_for_review',
-                    security: this.config.nonce,
-                    submission_id: this.config.currentSubmissionId
-                },
-                dataType: 'json',
-                success: (response) => {
-                    if (response.success) {
-                        this.showFeedback(response.data.message, 'success');
-                        
-                        setTimeout(() => {
-                            if (typeof SismeDashboard !== 'undefined') {
-                                SismeDashboard.setActiveSection('developer', true);
-                            }
-                        }, 2000);
-                    } else {
-                        if (response.data.validation_error) {
-                            this.showFeedback('Veuillez remplir tous les champs obligatoires avant de soumettre', 'error');
-                        } else {
-                            this.showFeedback(response.data.message, 'error');
-                        }
-                        $button.prop('disabled', false).text(originalText);
-                    }
-                },
-                error: () => {
-                    this.showFeedback('Erreur réseau lors de la soumission', 'error');
-                    $button.prop('disabled', false).text(originalText);
-                },
-                complete: () => {
-                    this.isSubmitting = false;
-                }
-            });
-        }).catch(() => {
-            this.showFeedback('Erreur lors de la sauvegarde avant soumission', 'error');
-            $button.prop('disabled', false).text(originalText);
-            this.isSubmitting = false;
-        });
-    };*/
     SismeGameSubmission.submitForReview = function(e) {
         if (e) e.preventDefault();
         
@@ -1160,7 +1034,7 @@ SismeGameSubmission.saveDraft = async function(e) {
             <div class="sisme-section-item" data-section-index="${index}">
                 <div class="sisme-section-item-header">
                     <h5 class="sisme-section-item-title sisme-form-section-title">Section ${sectionNumber} <span style="color: #dc3545;">*</span></h5>
-                    ${index > 0 ? '<button type="button" class="sisme-remove-section-btn" title="Supprimer cette section">🗑️</button>' : ''}
+                    ${index > 0 ? `<button type="button" class="sisme-button-orange sisme-button sisme-btn-icon sisme-remove-section" title="Supprimer cette section" data-section-index="${index}">🗑️</button>` : ''}
                 </div>
                 
                 <div class="sisme-section-item-body">

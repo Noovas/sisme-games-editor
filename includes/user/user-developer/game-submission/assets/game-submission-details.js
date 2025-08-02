@@ -133,21 +133,15 @@
      * Rendu HTML des détails
      */
     SismeSubmissionDetails.renderDetails = function($meta, data) {
-        const originalContent = $meta.find('.sisme-meta-original').html() || $meta.html();
-        
         if (!$meta.find('.sisme-meta-original').length) {
             $meta.wrapInner('<div class="sisme-meta-original"></div>');
         }
-        
         const detailsHtml = this.buildDetailsHtml(data);
-        
         if ($meta.find('.sisme-meta-details').length) {
             $meta.find('.sisme-meta-details').html(detailsHtml);
         } else {
             $meta.append(`<div class="sisme-meta-details">${detailsHtml}</div>`);
         }
-        
-        // Charger les images après insertion du HTML
         this.loadMediaImages($meta);
     };
     

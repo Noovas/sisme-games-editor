@@ -558,43 +558,6 @@ function sisme_ajax_admin_get_submissions() {
 }
 
 /**
- * Supprimer une soumission (admin)
- */
-function sisme_ajax_admin_delete_submission() {
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error(['message' => 'Permissions insuffisantes']);
-        return;
-    }
-
-    if (!sisme_verify_submission_nonce()) {
-        wp_send_json_error(['message' => 'Erreur de sécurité']);
-        return;
-    }
-
-    $submission_id = sanitize_text_field($_POST['submission_id'] ?? '');
-    $user_id = intval($_POST['user_id'] ?? 0);
-
-    if (empty($submission_id) || !$user_id) {
-        wp_send_json_error(['message' => 'Paramètres manquants']);
-        return;
-    }
-
-    if (!sisme_load_submission_data_manager()) {
-        wp_send_json_error(['message' => 'Système de soumission non disponible']);
-        return;
-    }
-
-    $result = Sisme_Game_Submission_Data_Manager::delete_submission_admin($submission_id, $user_id);
-
-    if (is_wp_error($result)) {
-        wp_send_json_error(['message' => $result->get_error_message()]);
-        return;
-    }
-
-    wp_send_json_success(['message' => 'Soumission supprimée par l\'administrateur']);
-}
-
-/**
  * Vérifier le nonce de sécurité
  */
 function sisme_verify_submission_nonce() {
