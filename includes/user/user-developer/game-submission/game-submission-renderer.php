@@ -90,6 +90,15 @@ class Sisme_Game_Submission_Renderer {
         $status = $submission['status'] ?? 'draft';
         $game_data = $submission['game_data'] ?? [];
         $metadata = $submission['metadata'] ?? [];
+
+        $user_id = '';
+        $is_admin_context = false;
+        if (is_array($context)) {
+            if (isset($context['user_id']) && current_user_can('manage_options')) {
+                $user_id = intval($context['user_id']);
+                $is_admin_context = true;
+            }
+        }
         
         $game_name = $game_data[Sisme_Utils_Users::GAME_FIELD_NAME] ?? 'Jeu sans nom';
         $created_at = $metadata['created_at'] ?? '';
@@ -123,6 +132,10 @@ class Sisme_Game_Submission_Renderer {
                 <?php elseif ($status === 'pending'): ?>
                     <button class="sisme-btn sisme-btn-secondary sisme-expand-btn" 
                             data-submission-id="<?php echo esc_attr($submission['id']); ?>" 
+                            <?php if ($is_admin_context && $user_id): ?>
+                            data-admin-user-id="<?php echo esc_attr($user_id); ?>"
+                            data-admin-token="<?php echo esc_attr(wp_create_nonce('admin_view_' . $user_id . '_' . $submission['id'])); ?>"
+                            <?php endif; ?>
                             data-state="collapsed">
                         👁️ Voir plus
                     </button>

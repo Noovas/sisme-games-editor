@@ -457,44 +457,44 @@ function sisme_ajax_get_submission_details() {
         wp_send_json_error(['message' => 'Erreur de sécurité']);
         return;
     }
-
     if (!is_user_logged_in()) {
         wp_send_json_error(['message' => 'Utilisateur non connecté']);
         return;
     }
-
-    $user_id = get_current_user_id();
     $submission_id = sanitize_text_field($_POST['submission_id'] ?? '');
-
+    $admin_user_id = intval($_POST['admin_user_id'] ?? 0);
     if (empty($submission_id)) {
         wp_send_json_error(['message' => 'ID de soumission manquant']);
         return;
     }
-
+    if ($admin_user_id && $admin_user_id !== get_current_user_id()) {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Permissions insuffisantes pour accéder aux soumissions d\'autres utilisateurs']);
+            return;
+        }
+        $user_id = $admin_user_id;
+    } else {
+        $user_id = get_current_user_id();
+    }
     if (!sisme_load_submission_data_manager()) {
         wp_send_json_error(['message' => 'Système de soumission non disponible']);
         return;
     }
-
     $submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
-
     if (!$submission) {
         wp_send_json_error(['message' => 'Soumission introuvable']);
         return;
     }
-
-    // Autoriser l'accès si draft ou revision ou pending
-    $allowed_statuses = ['draft', 'revision', 'pending'];
-    if (!in_array($submission['status'], $allowed_statuses, true)) {
-        wp_send_json_error(['message' => 'Cette soumission n\'est pas consultable']);
+    if ($submission['metadata']['user_id'] ?? null && $submission['metadata']['user_id'] != $user_id) {
+        wp_send_json_error(['message' => 'Soumission non autorisée']);
         return;
     }
-
     wp_send_json_success([
-        'submission' => $submission,
+        'submission_id' => $submission_id,
+        'user_id' => $user_id,
         'game_data' => $submission['game_data'],
         'metadata' => $submission['metadata'],
-        'admin_data' => $submission['admin_data']
+        'admin_data' => current_user_can('manage_options') ? ($submission['admin_data'] ?? []) : []
     ]);
 }
 
