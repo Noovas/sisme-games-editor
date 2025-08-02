@@ -44,7 +44,6 @@
         }
         
         this.bindEvents();
-        this.bindSectionEvents();
         this.enableSubmitButton();
         this.handleHashChange();
         this.bindModalEvents();

@@ -57,6 +57,10 @@ function sisme_init_game_submission_ajax() {
     add_action('wp_ajax_nopriv_sisme_retry_rejected_submission', 'sisme_ajax_not_logged');
     add_action('wp_ajax_nopriv_sisme_get_submission_details', 'sisme_ajax_not_logged');
     add_action('wp_ajax_nopriv_sisme_get_developer_game_stats', 'sisme_ajax_not_logged');
+
+    //Détails
+    add_action('wp_ajax_sisme_convert_taxonomy_ids', 'sisme_ajax_convert_taxonomy_ids');
+    add_action('wp_ajax_nopriv_sisme_convert_taxonomy_ids', 'sisme_ajax_not_logged');
 }
 
 /**
@@ -479,7 +483,9 @@ function sisme_ajax_get_submission_details() {
         return;
     }
 
-    if ($submission['status'] !== 'pending') {
+    // Autoriser l'accès si draft ou revision ou pending
+    $allowed_statuses = ['draft', 'revision', 'pending'];
+    if (!in_array($submission['status'], $allowed_statuses, true)) {
         wp_send_json_error(['message' => 'Cette soumission n\'est pas consultable']);
         return;
     }
@@ -826,4 +832,87 @@ function sisme_reload_submissions_list_callback() {
     // Retourner le HTML complet du bloc Mes Soumissions
     echo Sisme_Game_Submission_Renderer::render_submissions_list($user_id);
     wp_die();
+}
+
+/**
+ * Convertir les IDs de taxonomies en noms via AJAX
+ */
+function sisme_ajax_convert_taxonomy_ids() {
+    if (!sisme_verify_submission_nonce()) {
+        wp_send_json_error(['message' => 'Erreur de sécurité']);
+        return;
+    }
+
+    $ids = $_POST['ids'] ?? [];
+    $taxonomy = sanitize_text_field($_POST['taxonomy'] ?? '');
+
+    if (empty($ids) || !is_array($ids)) {
+        wp_send_json_success(['names' => []]);
+        return;
+    }
+
+    $names = [];
+
+    switch ($taxonomy) {
+        case 'genre':
+            // Utiliser la fonction existante de utils-formatting
+            if (class_exists('Sisme_Utils_Formatting')) {
+                $names = Sisme_Utils_Formatting::convert_genre_ids_to_slugs($ids);
+            } else {
+                // Fallback manuel
+                foreach ($ids as $id) {
+                    $category = get_category(intval($id));
+                    if ($category && !is_wp_error($category)) {
+                        $clean_name = preg_replace('/^jeux-/i', '', $category->name);
+                        $names[] = $clean_name;
+                    }
+                }
+            }
+            break;
+
+        case 'plateforme':
+            // Mapper les slugs de plateformes
+            $platform_names = [
+                'windows' => 'Windows',
+                'mac' => 'Mac', 
+                'linux' => 'Linux',
+                'playstation' => 'PlayStation',
+                'xbox' => 'Xbox',
+                'nintendo' => 'Nintendo Switch',
+                'android' => 'Android',
+                'ios' => 'iOS'
+            ];
+            
+            foreach ($ids as $id) {
+                $names[] = $platform_names[$id] ?? ucfirst($id);
+            }
+            break;
+
+        case 'mode-de-jeu':
+            // Mapper les modes de jeu
+            $mode_names = [
+                'solo' => 'Solo',
+                'multijoueur' => 'Multijoueur', 
+                'coop' => 'Coopératif',
+                'pvp' => 'Joueur vs Joueur',
+                'mmo' => 'MMO'
+            ];
+            
+            foreach ($ids as $id) {
+                $names[] = $mode_names[$id] ?? ucfirst($id);
+            }
+            break;
+
+        default:
+            // Taxonomie générique WordPress
+            foreach ($ids as $id) {
+                $term = get_term(intval($id), $taxonomy);
+                if ($term && !is_wp_error($term)) {
+                    $names[] = $term->name;
+                }
+            }
+            break;
+    }
+
+    wp_send_json_success(['names' => array_unique($names)]);
 }

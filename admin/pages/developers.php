@@ -700,17 +700,27 @@ $page->render_start();
                                 </span>
                             </td>
                             <td>
-                                <div style="background: #f1f1f1; border-radius: 3px; height: 20px; position: relative;">
-                                    <div style="background: #007cba; height: 100%; width: <?php echo $completion; ?>%; border-radius: 3px;"></div>
-                                    <span style="position: absolute; top: 0; left: 0; right: 0; text-align: center; font-size: 11px; line-height: 20px; color: #333;">
-                                        <?php echo $completion; ?>%
-                                    </span>
-                                </div>
-                            </td>
-                            <td>
                                 <?php echo esc_html($display_date); ?>
                             </td>
+                            <td>
+                                <form method="post" style="display: inline;" 
+                                    onsubmit="return confirm('⚠️ ATTENTION: Cette action supprimera définitivement la soumission ET tous ses médias (covers, screenshots, images).\n\nJeu: <?php echo esc_js($game_name); ?>\nDéveloppeur: <?php echo esc_js($user_name); ?>\n\nÊtes-vous absolument sûr ?');">
+                                    
+                                    <?php wp_nonce_field('admin_submission_delete'); ?>
+                                    <input type="hidden" name="action" value="delete_submission">
+                                    <input type="hidden" name="submission_id" value="<?php echo esc_attr($submission['id']); ?>">
+                                    <input type="hidden" name="user_id" value="<?php echo esc_attr($user_data['user_id']); ?>">
+                                    <input type="hidden" name="tab" value="submissions">
+                                    
+                                    <button type="submit" class="button button-small" 
+                                            style="color: #dc3545; border-color: #dc3545; font-size: 11px;">
+                                        🗑️ Supprimer
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
+
+                        
                         
                         <!-- Ligne de détails (accordéon) -->
                         <tr class="submission-details" style="display: none;" id="details-<?php echo esc_attr($submission['id']); ?>">
@@ -822,18 +832,20 @@ $page->render_start();
                                         <?php endif; ?>
                                     </div>
                                 
-                                <!-- Actions admin -->
+                                <!-- Actions admin
                                 <div style="margin-top: 20px; text-align: right;">
                                     <button class="button" onclick="toggleDetails('<?php echo esc_js($submission['id']); ?>')">Masquer les détails</button>
                                     
-                                    <?php if ($status === 'pending'): ?>
+                                    <?php //if ($status === 'pending'): ?>
                                         <button class="button button-primary" style="margin-left: 10px;">✅ Approuver</button>
                                         <button class="button" style="margin-left: 10px;">❌ Rejeter</button>
-                                    <?php elseif ($status === 'draft'): ?>
+                                    <?php //elseif ($status === 'draft'): ?>
                                         <button class="button button-secondary" style="margin-left: 10px;">🗑️ Supprimer le brouillon</button>
-                                    <?php endif; ?>
+                                    <?php //endif; ?>
                                 </div>
+                                -->
                             </td>
+                            
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

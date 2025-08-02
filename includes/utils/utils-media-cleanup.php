@@ -31,28 +31,42 @@ class Sisme_Utils_Media_Cleanup {
     public static function cleanup_submission_media($submission_id) {
         // Le submission_id est en fait le user_id et l'id de soumission
         list($user_id, $submission_id) = explode('_', $submission_id);
-        
         $submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
         if (!$submission || empty($submission['game_data'])) return;
-        
         $game_data = $submission['game_data'];
-        
-        // Nettoyer les covers
+        $media_ids = [];
+
+        // Covers
         if (!empty($game_data['covers'])) {
             foreach ($game_data['covers'] as $cover_id) {
-                if ($cover_id) {
-                    wp_delete_attachment($cover_id, true);
+                if ($cover_id && is_numeric($cover_id)) {
+                    $media_ids[] = intval($cover_id);
                 }
             }
         }
-        
-        // Nettoyer les screenshots
+
+        // Screenshots
         if (!empty($game_data['screenshots'])) {
             foreach ($game_data['screenshots'] as $screenshot_id) {
-                if ($screenshot_id) {
-                    wp_delete_attachment($screenshot_id, true);
+                if ($screenshot_id && is_numeric($screenshot_id)) {
+                    $media_ids[] = intval($screenshot_id);
                 }
             }
+        }
+
+        // Images de sections
+        if (!empty($game_data[Sisme_Utils_Users::GAME_FIELD_DESCRIPTION_SECTIONS])) {
+            foreach ($game_data[Sisme_Utils_Users::GAME_FIELD_DESCRIPTION_SECTIONS] as $section) {
+                $img_id = $section['image_attachment_id'] ?? null;
+                if ($img_id && is_numeric($img_id)) {
+                    $media_ids[] = intval($img_id);
+                }
+            }
+        }
+
+        // Suppression en une seule boucle
+        foreach (array_unique($media_ids) as $media_id) {
+            wp_delete_attachment($media_id, true);
         }
     }
     

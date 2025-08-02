@@ -395,7 +395,7 @@ class Sisme_Game_Submission_Data_Manager {
     }
     
     /**
-     * Supprimer une soumission (action admin)
+     * Supprimer une soumission complètement (action admin) avec tous ses médias
      */
     public static function delete_submission_admin($submission_id, $user_id) {
         $submission = self::get_submission_by_id($user_id, $submission_id);
@@ -404,12 +404,76 @@ class Sisme_Game_Submission_Data_Manager {
             return new WP_Error('not_found', 'Soumission introuvable');
         }
         
+        // Supprimer tous les médias associés AVANT de supprimer la soumission
+        self::delete_submission_media($submission);
+        
+        // Supprimer la soumission des données utilisateur
         if (self::remove_submission_from_user_data($user_id, $submission_id)) {
             self::update_user_stats($user_id);
+            
+            // Log pour debug si nécessaire
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log("[Admin] Soumission supprimée: {$submission_id} (utilisateur: {$user_id})");
+            }
+            
             return true;
         }
         
         return new WP_Error('delete_failed', 'Erreur lors de la suppression');
+    }
+
+    /**
+     * Supprimer tous les médias d'une soumission
+     */
+    private static function delete_submission_media($submission) {
+        $game_data = $submission['game_data'] ?? [];
+        $deleted_count = 0;
+        
+        // Supprimer les covers
+        if (!empty($game_data['covers'])) {
+            if (!empty($game_data['covers']['horizontal'])) {
+                $attachment_id = intval($game_data['covers']['horizontal']);
+                if (wp_delete_attachment($attachment_id, true)) {
+                    $deleted_count++;
+                }
+            }
+            
+            if (!empty($game_data['covers']['vertical'])) {
+                $attachment_id = intval($game_data['covers']['vertical']);
+                if (wp_delete_attachment($attachment_id, true)) {
+                    $deleted_count++;
+                }
+            }
+        }
+        
+        // Supprimer les screenshots
+        if (!empty($game_data['screenshots']) && is_array($game_data['screenshots'])) {
+            foreach ($game_data['screenshots'] as $screenshot_id) {
+                $attachment_id = intval($screenshot_id);
+                if ($attachment_id > 0 && wp_delete_attachment($attachment_id, true)) {
+                    $deleted_count++;
+                }
+            }
+        }
+        
+        // Supprimer les images des sections
+        if (!empty($game_data['sections']) && is_array($game_data['sections'])) {
+            foreach ($game_data['sections'] as $section) {
+                if (!empty($section['image_attachment_id'])) {
+                    $attachment_id = intval($section['image_attachment_id']);
+                    if ($attachment_id > 0 && wp_delete_attachment($attachment_id, true)) {
+                        $deleted_count++;
+                    }
+                }
+            }
+        }
+        
+        // Log pour debug
+        if (defined('WP_DEBUG') && WP_DEBUG && $deleted_count > 0) {
+            error_log("[Admin] {$deleted_count} médias supprimés pour la soumission {$submission['id']}");
+        }
+        
+        return $deleted_count;
     }
     
     private static function generate_submission_id() {
