@@ -565,7 +565,12 @@
         
         return modeIds.map(id => modeNames[id] || this.ucfirst(id));
     };
-    
+
+    SismeSubmissionDetails.ucfirst = function(str) {
+        if (!str) return '';
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    };
+
     /**
      * Demander la conversion de taxonomies via AJAX
      */

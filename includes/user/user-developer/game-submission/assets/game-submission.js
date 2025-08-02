@@ -133,6 +133,8 @@
         }
     };
 
+    
+
     /**
      * Charger une soumission pour édition
      */
@@ -158,6 +160,10 @@
                 this.log('Erreur chargement soumission:', error);
                 this.showFeedback('Erreur lors du chargement de la soumission', 'error');
             });
+    };
+
+    SismeGameSubmission.viewSubmission = function(submissionId) {
+        // TODO: Implémenter la vue d'une soumission
     };
 
     /**
