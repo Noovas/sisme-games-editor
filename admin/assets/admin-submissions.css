@@ -23,25 +23,62 @@
 .admin-detail-content {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
 }
 
 .admin-covers-row {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 20px;
 }
 
-.admin-cover-item {
+.admin-cover-item,
+.admin-screenshot-item,
+.admin-section-image-full {
     display: flex;
     flex-direction: column-reverse;
     width: -webkit-fill-available;
+    border-top: solid 5px transparent;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    transition: all ease .3s;
+}
+
+.admin-cover-item img,
+.admin-screenshot-item img,
+.admin-section-image-full img {
+    width: 100%;
+}
+
+.admin-cover-item:hover,
+.admin-screenshot-item:hover,
+.admin-section-image-full:hover {
+    transform: scale(1.02);
+    border-color: var(--sisme-state-success);
+    z-index: 10;
+}
+
+.admin-cover-item:hover::after,
+.admin-screenshot-item:hover::after,
+.admin-section-image-full:hover::after {
+    content: "🔗 Voir";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    white-space: nowrap;
+    pointer-events: none;
 }
 
 .admin-screenshots-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
+    gap: 20px;
 }
 
 .admin-screenshot-item {
@@ -84,7 +121,6 @@
 }
 .admin-media-label {
     text-align: center;
-    margin-top: 4px;
     font-size: 20px;
     color: #b8c2cc;
     background: #1e293b;
@@ -708,10 +744,11 @@
 .admin-detail-title {
     color: #3498db;
     font-weight: 600;
-    margin-bottom: 10px;
-    font-size: 0.9rem;
+    margin-bottom: 20px;
+    font-size: 2rem;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
 }
 

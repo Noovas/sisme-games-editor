@@ -195,10 +195,10 @@ jQuery(document).ready(function($) {
             if (data.covers && (data.covers.horizontal || data.covers.vertical)) {
                 html += '<div class="admin-covers-row">';
                 if (data.covers.horizontal) {
-                    html += `<div class="admin-cover-item"><img src="${escapeHtml(data.covers.horizontal.thumb)}" alt="Cover H" /><span class="admin-media-label">Horizontal</span></div>`;
+                    html += `<div class="admin-cover-item"><a href="${escapeHtml(data.covers.horizontal.url)}" target="_blank"><img src="${escapeHtml(data.covers.horizontal.thumb)}" alt="Cover H" /></a><span class="admin-media-label">Horizontal</span></div>`;
                 }
                 if (data.covers.vertical) {
-                    html += `<div class="admin-cover-item"><img src="${escapeHtml(data.covers.vertical.thumb)}" alt="Cover V" /><span class="admin-media-label">Vertical</span></div>`;
+                    html += `<div class="admin-cover-item"><a href="${escapeHtml(data.covers.vertical.url)}" target="_blank"><img src="${escapeHtml(data.covers.vertical.thumb)}" alt="Cover V" /></a><span class="admin-media-label">Vertical</span></div>`;
                 }
                 html += '</div>';
             }
@@ -206,7 +206,7 @@ jQuery(document).ready(function($) {
             if (data.screenshots && data.screenshots.length) {
                 html += `<div class="admin-screenshots-grid">`;
                 data.screenshots.forEach((shot, i) => {
-                    html += `<div class="admin-screenshot-item"><img src="${escapeHtml(shot.thumb)}" alt="Screenshot ${i+1}" /><span class="admin-media-label">Screenshot #${i+1}</span></div>`;
+                    html += `<div class="admin-screenshot-item"><a href="${escapeHtml(shot.url)}" target="_blank"><img src="${escapeHtml(shot.thumb)}" alt="Screenshot ${i+1}" /></a><span class="admin-media-label">Screenshot #${i+1}</span></div>`;
                 });
                 html += '</div>';
             }
@@ -223,7 +223,7 @@ jQuery(document).ready(function($) {
                 html += `<h5>${escapeHtml(section.title)}</h5>`;
                 html += `<div class="admin-section-content">${escapeHtml(section.content)}</div>`;
                 if (section.image) {
-                    html += `<div class="admin-section-image-full"><img src="${escapeHtml(section.image.url)}" alt="${escapeHtml(section.title)}" style="width:100%;max-width:900px;display:block;margin:0 auto;" /></div>`;
+                    html += `<div class="admin-section-image-full"><a href="${escapeHtml(section.image.url)}" target="_blank"><img src="${escapeHtml(section.image.url)}" alt="${escapeHtml(section.title)}" style="width:100%;max-width:900px;display:block;margin:0 auto;" /></a></div>`;
                 }
                 html += '</div>';
                 if (i < data.sections.length - 1) {
