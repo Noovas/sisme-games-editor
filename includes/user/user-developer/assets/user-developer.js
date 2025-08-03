@@ -31,21 +31,14 @@
         
         this.bindEvents();
         this.isInitialized = true;
-        
-        this.log('Module développeur initialisé');
     };
     
     /**
      * Événements et interactions
      */
     SismeDeveloper.bindEvents = function() {
-        // Soumission du formulaire
         $(document).on('submit', this.config.formSelector, this.handleFormSubmit.bind(this));
-        
-        // Validation en temps réel
         $(document).on('blur', this.config.formSelector + ' input, ' + this.config.formSelector + ' textarea', this.validateField.bind(this));
-        
-        this.log('Événements développeur liés');
     };
     
     /**
@@ -145,10 +138,6 @@
      */
     SismeDeveloper.submitApplication = function(formData) {
         this.showFeedback('Envoi en cours...', 'loading');
-        
-        this.log('Soumission candidature', formData);
-        
-        // TODO: Implémenter l'AJAX
         setTimeout(() => {
             this.showFeedback('Candidature envoyée avec succès ! Vous recevrez une réponse dans les 48h.', 'success');
         }, 2000);
@@ -202,19 +191,6 @@
         const age = today.getFullYear() - birth.getFullYear();
         
         return age >= 18;
-    };
-    
-    /**
-     * Logging utilitaire
-     */
-    SismeDeveloper.log = function(message, data) {
-        if (typeof console !== 'undefined' && console.log) {
-            if (data) {
-                console.log('[Sisme Developer]', message, data);
-            } else {
-                console.log('[Sisme Developer]', message);
-            }
-        }
     };
     
     /**

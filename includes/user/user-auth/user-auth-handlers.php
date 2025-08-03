@@ -90,17 +90,9 @@ class Sisme_User_Auth_Handlers {
         
         if (is_wp_error($result)) {
             self::set_auth_message('Erreur lors de l\'envoi de l\'email. Veuillez réessayer.', 'error');
-            
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('[Sisme User Auth] Erreur retrieve_password: ' . $result->get_error_message());
-            }
         } else {
             // Succès - Même message que pour email inexistant (sécurité)
             self::set_auth_message('Si cette adresse email existe, vous recevrez un lien de réinitialisation.', 'success');
-            
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('[Sisme User Auth] Email de réinitialisation envoyé pour: ' . $email);
-            }
         }
     }
     
@@ -164,14 +156,8 @@ class Sisme_User_Auth_Handlers {
         if (is_wp_error($user)) {
             return new WP_Error('invalid_token', 'Le lien de réinitialisation est invalide ou a expiré.');
         }
-        
         // Changer le mot de passe
-        reset_password($user, $new_password);
-        
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[Sisme User Auth] Mot de passe réinitialisé pour utilisateur: ' . $user->ID);
-        }
-        
+        reset_password($user, $new_password);        
         return true;
     }
     
@@ -324,9 +310,6 @@ class Sisme_User_Auth_Handlers {
         $user_id = wp_insert_user($user_data);
         
         if (is_wp_error($user_id)) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("[Sisme User Auth] Erreur wp_insert_user: " . $user_id->get_error_message());
-            }
             return $user_id;
         }
         
@@ -335,14 +318,6 @@ class Sisme_User_Auth_Handlers {
         if (!$created_user || 
             $created_user->display_name !== $display_name ||
             $created_user->user_nicename !== $user_nicename) {
-            
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("[Sisme User Auth] ALERTE: Données utilisateur incorrectes après création");
-                error_log("Display attendu: {$display_name}, reçu: " . ($created_user ? $created_user->display_name : 'NULL'));
-                error_log("Nicename attendu: {$user_nicename}, reçu: " . ($created_user ? $created_user->user_nicename : 'NULL'));
-            }
-            
-            // Correction de sécurité si nécessaire
             wp_update_user([
                 'ID' => $user_id,
                 'display_name' => $display_name,
@@ -359,11 +334,7 @@ class Sisme_User_Auth_Handlers {
         
         // Hook pour extensions
         do_action('sisme_user_register_success', $user_id, $data);
-        
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("[Sisme User Auth] ✅ Inscription SAFE réussie - Email: {$data['user_email']}, ID: {$user_id}, Display: {$display_name}, Slug: {$user_nicename}");
-        }
-        
+       
         return [
             'success' => true,
             'user_id' => $user_id,

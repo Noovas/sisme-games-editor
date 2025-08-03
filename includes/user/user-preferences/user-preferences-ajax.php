@@ -443,10 +443,7 @@ class Sisme_User_Preferences_Ajax {
         }
         
         error_log($log_message);
-        ?> 
-        <script>
-            console.log(<?php $log_message ?> )
-        </script> <?php
+        ?> <?php
     }
     
     /**

@@ -49,7 +49,6 @@
         this.bindModalEvents();
         
         this.isInitialized = true;
-        this.log('Module Game Submission initialisé');
 
         // Mettre en évidence la description lors du hover sur le bouton de soumission
         $(document).on('mouseenter', '#sisme-submit-game-button', function() {
@@ -143,8 +142,6 @@
         if (this.config.currentSubmissionId === submissionId) {
             return;
         }
-        
-        this.log('Chargement soumission pour édition:', submissionId);
         this.config.currentSubmissionId = submissionId;
         this.config.isEditMode = true;
         
@@ -154,10 +151,8 @@
         // Charger les données
         this.loadSubmissionData(submissionId)
             .then(() => {
-                this.log('Soumission chargée avec succès');
             })
             .catch((error) => {
-                this.log('Erreur chargement soumission:', error);
                 this.showFeedback('Erreur lors du chargement de la soumission', 'error');
             });
     };
@@ -174,8 +169,6 @@
         if (!this.config.currentSubmissionId && !this.config.isEditMode) {
             return;
         }
-        
-        this.log('Nettoyage formulaire pour nouveau jeu');
         this.config.currentSubmissionId = null;
         this.config.isEditMode = false;
         
@@ -214,7 +207,6 @@
         const action = $button.text().trim();
         
         if (!submissionId) {
-            this.log('Erreur: ID soumission manquant');
             return;
         }
         
@@ -306,8 +298,6 @@
         const originalText = $button.text();
         $button.prop('disabled', true).text('🗑️ Suppression...');
         
-        this.log('Suppression soumission: ' + submissionId);
-        
         $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
@@ -349,161 +339,36 @@
             }
         });
     };
-    
-    
+
     /**
-     * Sauvegarder brouillon
+     * Sauvegarder brouillon avec modale professionnelle
      */
-    SismeGameSubmission.saveDraft = async function(e) {
-
+    SismeGameSubmission.saveDraft = function(e) {
         if (e) e.preventDefault();
-        if (this.isDraftSaving) return;
-
-        // Vérification: refuser la sauvegarde si la soumission n'est pas un draft
-        if (this.config.currentSubmissionId && this.config.submissionStatus && this.config.submissionStatus !== 'draft') {
-            this.showFeedback('❌ Impossible de sauvegarder : la soumission n\'est plus un brouillon.', 'error');
+        if (this.config.isDraftSaving) return;
+        if (typeof window.sismeSubmissionModal === 'undefined') {
+            this.showFeedback('❌ Système de modale non disponible', 'error');
             return;
         }
+        window.sismeSubmissionModal.show();
+        window.sismeSubmissionModal.startDraftOnlyProcess(this);
+        this.config.isDraftSaving = true;
+    };
 
-        this.isDraftSaving = true;
-        const $button = $(this.config.draftButtonSelector);
-        const originalText = $button.text();
-        $button.prop('disabled', true).text('💾 Sauvegarde...');
-
-        // MODALE DE PATIENCE
-        let modal = document.getElementById('sisme-saving-modal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'sisme-saving-modal';
-            modal.style.position = 'fixed';
-            modal.style.top = 0;
-            modal.style.left = 0;
-            modal.style.width = '100vw';
-            modal.style.height = '100vh';
-            modal.style.background = 'rgba(0,0,0,0.5)';
-            modal.style.display = 'flex';
-            modal.style.alignItems = 'center';
-            modal.style.justifyContent = 'center';
-            modal.style.zIndex = 9999;
-            modal.innerHTML = '<div style="background:#222;padding:2em 3em;border-radius:12px;color:#fff;font-size:1.3em;box-shadow:0 2px 16px #0006;display:flex;flex-direction:column;align-items:center;"><span style="font-size:2em;">⏳</span><span style="margin-top:1em;">Sauvegarde en cours...<br>Merci de patienter</span></div>';
-            document.body.appendChild(modal);
-        } else {
-            modal.style.display = 'flex';
+    /**
+     * Callback après succès de sauvegarde draft
+     */
+    SismeGameSubmission.onDraftSuccess = function() {
+        this.config.isDraftSaving = false;
+        if (typeof window.reloadDashboardSubmitionDatas === 'function') {
+            window.reloadDashboardSubmitionDatas();
         }
-        // Lancer le processus de sauvegarde
-        (async () => {
-            try {
-                const croppers = window.sismeCroppers || [];
-                // Upload toutes les images croppées
-                for (const cropper of croppers) {
-                    if (cropper.croppedBlob) {
-                        const formData = new FormData();
-                        formData.append('action', 'sisme_simple_crop_upload');
-                        formData.append('security', sismeAjax.nonce);
-                        formData.append('image', cropper.croppedBlob, `cropped-${cropper.ratioType}-image.jpg`);
-                        formData.append('ratio_type', cropper.ratioType);
-                        const response = await fetch(sismeAjax.ajaxurl, { method: 'POST', body: formData });
-                        const data = await response.json();
-                        if (data.success && data.data && data.data.attachment_id) {
-                            // Met à jour le champ caché AVANT la collecte des données
-                            const hiddenInput = document.getElementById(cropper.ratioType + '_attachment_id');
-                            if (hiddenInput) {
-                                hiddenInput.value = data.data.attachment_id;
-                            } else {
-                            }
-                            // On retire le blob pour éviter un re-upload inutile
-                            cropper.croppedBlob = null;
-                        } else {
-                        }
-                    } else {
-                    }
-                }
-                // Screenshots multiples à gérer ici si besoin
-                const screenshotCropper = croppers.find(c => c.ratioType === 'screenshot');
-                if (screenshotCropper && screenshotCropper.uploadedImages && screenshotCropper.uploadedImages.length > 0) {
-                    
-                    // Récupérer les IDs existants pour comparaison (nettoyage)
-                    const existingIds = document.getElementById('screenshots_attachment_ids').value;
-                    const existingIdsArray = existingIds ? existingIds.split(',').map(id => parseInt(id.trim())).filter(id => id) : [];
-                    
-                    const newAttachmentIds = [];
-                    
-                    // Upload chaque screenshot qui a un blob
-                    for (let i = 0; i < screenshotCropper.uploadedImages.length; i++) {
-                        const screenshot = screenshotCropper.uploadedImages[i];
-                        
-                        if (screenshot.blob) {
-                            const formData = new FormData();
-                            formData.append('action', 'sisme_simple_crop_upload');
-                            formData.append('security', sismeAjax.nonce);
-                            formData.append('image', screenshot.blob, `screenshot-${i + 1}.jpg`);
-                            formData.append('ratio_type', 'screenshot');
-                            
-                            const response = await fetch(sismeAjax.ajaxurl, { method: 'POST', body: formData });
-                            const data = await response.json();
-                            
-                            if (data.success && data.data && data.data.attachment_id) {
-                                newAttachmentIds.push(data.data.attachment_id);
-                                // Mettre à jour l'objet screenshot avec l'ID
-                                screenshotCropper.uploadedImages[i].attachmentId = data.data.attachment_id;
-                                screenshotCropper.uploadedImages[i].blob = null; // Nettoyer le blob
-                            } else {
-                            }
-                        } else if (screenshot.attachmentId) {
-                            // Screenshot déjà uploadé
-                            newAttachmentIds.push(screenshot.attachmentId);
-                        }
-                    }
-                    document.getElementById('screenshots_attachment_ids').value = newAttachmentIds.join(',');
-                }
-
-                await this.uploadSectionImages();
-
-                // Collecte des données APRÈS que tous les uploads soient terminés
-                const gameData = this.collectFormData();
-                const isNewSubmission = !this.config.currentSubmissionId;
-                const ajaxData = {
-                    security: this.config.nonce,
-                    ...gameData
-                };
-                if (isNewSubmission) {
-                    ajaxData.action = 'sisme_create_game_submission';
-                } else {
-                    ajaxData.action = 'sisme_save_draft_submission';
-                    ajaxData.submission_id = this.config.currentSubmissionId;
-                }
-                // Sauvegarde AJAX du formulaire
-                const result = await $.ajax({
-                    url: this.config.ajaxUrl,
-                    type: 'POST',
-                    data: ajaxData,
-                    dataType: 'json'
-                });
-                if (result.success) {
-                    if (isNewSubmission && result.data.submission_id) {
-                        this.config.currentSubmissionId = result.data.submission_id;
-                    }
-                    this.showFeedback(result.data.message, 'success');
-                    if (typeof window.reloadDashboardSubmitionDatas === 'function') {
-                        window.reloadDashboardSubmitionDatas();
-                    }
-                } else {
-                    this.showFeedback(result.data.message, 'error');
-                }
-            } catch (err) {
-                this.showFeedback('Erreur lors de la sauvegarde', 'error');
-            } finally {
-                $button.prop('disabled', false).text(originalText);
-                this.isDraftSaving = false;
-                if (modal) modal.style.display = 'none';
-            }
-        })();
     };
     
     SismeGameSubmission.submitForReview = function(e) {
         if (e) e.preventDefault();
         
-        if (this.isSubmitting) {
+        if (this.config.isSubmitting) {
             return;
         }
         
@@ -518,7 +383,7 @@
         window.sismeSubmissionModal.startSubmissionProcess(this);
         
         // Marquer comme en cours de soumission
-        this.isSubmitting = true;
+        this.config.isSubmitting = true;
     };
 
     /**
@@ -527,14 +392,14 @@
      */
     SismeGameSubmission.saveDraftSilently = function() {
         return new Promise(async (resolve, reject) => {
-            if (this.isDraftSaving) {
+            if (this.configisDraftSaving) {
                 resolve();
                 return;
             }
-            
-            this.isDraftSaving = true;
-            
-            try {                
+
+            this.config.isDraftSaving = true;
+
+            try {
                 const croppers = window.sismeCroppers || [];
 
                 for (const cropper of croppers) {
@@ -617,8 +482,7 @@
                     if (isNewSubmission && result.data.submission_id) {
                         this.config.currentSubmissionId = result.data.submission_id;
                     }
-                    
-                    // Recharger dashboard
+
                     if (typeof window.reloadDashboardSubmitionDatas === 'function') {
                         window.reloadDashboardSubmitionDatas();
                     }
@@ -631,7 +495,7 @@
             } catch (err) {
                 reject(err);
             } finally {
-                this.isDraftSaving = false;
+                this.config.isDraftSaving = false;
             }
         });
     };
@@ -658,7 +522,7 @@
      */
     SismeGameSubmission.onSubmissionComplete = function() {
         // Réinitialiser l'état de soumission quand la modale se ferme
-        this.isSubmitting = false;
+        this.configisSubmitting = false;
     };
 
     /**
@@ -669,6 +533,11 @@
         $(document).on('sisme:modal:success', () => {
             this.onModalSuccess();
         });
+
+        // Événement pour succès de draft
+        $(document).on('sisme:modal:draft-success', () => {
+            this.onDraftSuccess();
+        });
         
         $(document).on('sisme:modal:error', () => {
             this.onModalError();
@@ -676,7 +545,7 @@
         
         // Alternative polling pour vérifier si la modale est fermée
         this.checkModalStatus = setInterval(() => {
-            if (this.isSubmitting && window.sismeSubmissionModal && !window.sismeSubmissionModal.isOpen) {
+            if (this.config.isSubmitting && window.sismeSubmissionModal && !window.sismeSubmissionModal.isOpen) {
                 this.onSubmissionComplete();
             }
         }, 1000);
@@ -720,7 +589,6 @@
         
         const gameData = submission.game_data || {};
         const $form = $(this.config.formSelector);
-        console.trace();
         
 
         Object.keys(gameData).forEach(key => {
@@ -863,20 +731,27 @@
             console.warn('Cropper screenshot non trouvé');
             return;
         }
-        
-        // Vider la galerie existante
+
+        if (screenshotCropper.isLoading) {
+            return;
+        }
+        screenshotCropper.isLoading = true;
         screenshotCropper.uploadedImages = [];
-        
-        // Charger chaque screenshot
+        let loadedCount = 0;
         screenshotIds.forEach((attachmentId) => {
-            this.loadScreenshotById(screenshotCropper, attachmentId);
+            this.loadScreenshotById(screenshotCropper, attachmentId, () => {
+                loadedCount++;
+                if (loadedCount === screenshotIds.length) {
+                    screenshotCropper.isLoading = false;
+                }
+            });
         });
     };
 
     /**
      * Charger un screenshot par son ID
      */
-    SismeGameSubmission.loadScreenshotById = function(cropperInstance, attachmentId) {
+    SismeGameSubmission.loadScreenshotById = function(cropperInstance, attachmentId, callback) {
         $.ajax({
             url: this.config.ajaxUrl,
             type: 'POST',
@@ -887,21 +762,20 @@
             },
             success: (response) => {
                 if (response.success && response.data.url) {
-                    // Ajouter à la collection du cropper
                     const imageData = {
-                        blob: null, // Pas de blob car c'est une image existante
+                        blob: null,
                         url: response.data.url,
                         attachmentId: attachmentId,
                         ratioType: 'screenshot'
                     };
-                    
                     cropperInstance.uploadedImages.push(imageData);
                     cropperInstance.updateGallery();
-                    
                 }
+                if (callback) callback();
             },
             error: () => {
                 console.error('Erreur chargement screenshot:', attachmentId);
+                if (callback) callback();
             }
         });
     };
@@ -1201,15 +1075,6 @@
             setTimeout(() => {
                 $feedback.fadeOut();
             }, 5000);
-        }
-    };
-    
-    /**
-     * Log de débogage
-     */
-    SismeGameSubmission.log = function(message, data = null) {
-        if (console && console.log) {
-            console.log('[GameSubmission]', message, data || '');
         }
     };
     

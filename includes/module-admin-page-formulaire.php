@@ -2359,8 +2359,6 @@ class Sisme_Game_Form_Module {
                     }
                 }
                 
-                console.log('Champ détecté:', fieldName); // Pour debug
-                
                 // Supprimer le message "aucune entité sélectionnée"
                 selectedDisplay.find('.sisme-no-selection').remove();
                 

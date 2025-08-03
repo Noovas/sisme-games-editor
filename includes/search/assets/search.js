@@ -24,7 +24,6 @@
      */
     class SismeSearchInstance {
         constructor(containerId, options = {}) {
-            console.log('Nouvelle instance créée:', containerId);
             this.containerId = containerId;
             this.container = document.getElementById(containerId);
             this.options = options;
@@ -46,7 +45,6 @@
             this.bindElements();
             this.checkInitialPagination();
             this.bindEvents();
-            this.log('Instance initialisée');
         }
 
         /**
@@ -70,10 +68,7 @@
                     if (this.hasMore) {
                         this.showLoadMoreButton();
                     }
-                    
-                    this.log('Pagination initiale configurée', data);
                 } catch (e) {
-                    this.log('Erreur lors du parsing des métadonnées initiales', e);
                 }
             }
         }
@@ -117,12 +112,7 @@
          * Charger plus de résultats
          */
         loadMoreResults() {
-            console.log('loadMoreResults appelée !', new Date().getTime());
             if (!this.lastSearchParams || !this.hasMore) {
-                this.log('Charger plus impossible:', {
-                    hasParams: !!this.lastSearchParams,
-                    hasMore: this.hasMore
-                });
                 return;
             }
             
@@ -138,8 +128,6 @@
             const params = { ...this.lastSearchParams };
             params.page = this.currentPage + 1;
             params.load_more = true;
-            
-            this.log('Chargement page:', params.page);
             
             // Préparer les données
             const formData = new FormData();
@@ -202,7 +190,6 @@
          * Lier les événements
          */
         bindEvents() {
-            console.log('bindEvents() appelée pour container:', this.containerId);
             // Soumission du formulaire
             if (this.form) {
                 this.form.addEventListener('submit', (e) => {
@@ -242,9 +229,7 @@
                 });
             }
             
-            // CORRECTION : Event listener pour le bouton "charger plus"
             if (this.loadMoreBtn) {
-                console.log('Ajout event listener sur loadMoreBtn pour:', this.containerId);
                 this.loadMoreBtn.addEventListener('click', () => {
                     this.loadMoreResults();
                 });
@@ -394,14 +379,8 @@
         handleSearchSuccess(response) {
             if (response.success) {
                 this.displayResults(response.data);
-                
-                // ✅ GARDER : Sauvegarder les paramètres pour load more
                 this.lastSearchParams = this.getSearchParams();
-                
-                // ✅ GARDER : Mettre à jour la pagination
                 this.updatePagination(response.data);
-                
-                this.log('Recherche réussie', response.data);
             } else {
                 this.handleSearchError(null, 'error', response.data.message);
             }
@@ -414,7 +393,6 @@
             if (response.success) {
                 this.appendResults(response.data);
                 this.updatePagination(response.data);
-                this.log('Résultats supplémentaires chargés', response.data);
             } else {
                 this.handleSearchError(null, 'error', response.data.message);
             }
@@ -433,12 +411,6 @@
             } else {
                 this.hideLoadMoreButton();
             }
-            
-            this.log('Pagination mise à jour', {
-                currentPage: this.currentPage,
-                hasMore: this.hasMore,
-                total: data.total_available || data.total
-            });
         }
         
         /**
@@ -446,7 +418,6 @@
          */
         handleSearchError(xhr, status, error) {
             if (status === 'abort') {
-                this.log('Recherche annulée');
                 return;
             }
             
@@ -457,7 +428,6 @@
             }
             
             this.displayError(errorMessage);
-            this.log('Erreur de recherche', error);
         }
         
         /**
@@ -465,14 +435,7 @@
          */
         displayResults(data) {
             if (!this.resultsContainer) return;
-            
-            // Mettre à jour le contenu sans animation
             this.resultsContainer.innerHTML = data.html;
-            
-            // Pas d'animation JavaScript, le CSS s'en charge
-            this.log('Résultats affichés');
-            
-            // Faire défiler vers les résultats
             this.scrollToResults();
         }
         
@@ -513,8 +476,6 @@
                     existingGrid.insertAdjacentHTML('beforeend', data.html);
                 }
             }
-            
-            this.log('Résultats supplémentaires ajoutés');
         }
         
         /**
@@ -569,15 +530,6 @@
         }
         
         /**
-         * Logger pour debug
-         */
-        log(message, data = null) {
-            if (sismeSearch.debug) {
-                console.log(`[Sisme Search] ${this.containerId}: ${message}`, data);
-            }
-        }
-        
-        /**
          * Détruire l'instance
          */
         destroy() {
@@ -590,7 +542,6 @@
             }
             
             delete SISME_SEARCH.instances[this.containerId];
-            this.log('Instance détruite');
         }
     }
     
@@ -599,7 +550,6 @@
      */
     window.sismeSearchInit = function(containerId, options = {}) {
         if (SISME_SEARCH.instances[containerId]) {
-            console.log('Instance déjà existante pour:', containerId);
             return SISME_SEARCH.instances[containerId];
         }
         

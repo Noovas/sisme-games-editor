@@ -44,10 +44,6 @@ class Sisme_User_Auth_Loader {
         $this->load_auth_modules();
         $this->register_hooks();
         $this->init_shortcodes();
-        
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[Sisme User Auth] Module d\'authentification initialisé');
-        }
     }
     
     /**
@@ -71,17 +67,8 @@ class Sisme_User_Auth_Loader {
         
         foreach ($required_modules as $module) {
             $file_path = $auth_dir . $module;
-            
             if (file_exists($file_path)) {
                 require_once $file_path;
-                
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log("[Sisme User Auth] Module chargé : $module");
-                }
-            } else {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log("[Sisme User Auth] ERREUR - Module manquant : $file_path");
-                }
             }
         }
         
@@ -119,10 +106,6 @@ class Sisme_User_Auth_Loader {
             add_shortcode('sisme_user_register', ['Sisme_User_Auth_API', 'render_register_form']);
             add_shortcode('sisme_user_forgot_password', ['Sisme_User_Auth_API', 'render_forgot_password_form']);
             add_shortcode('sisme_user_reset_password', ['Sisme_User_Auth_API', 'render_reset_password_form']);
-            
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('[Sisme User Auth] Shortcodes enregistrés : login, register, forgot_password, reset_password');
-            }
         }
     }
 
@@ -235,10 +218,6 @@ class Sisme_User_Auth_Loader {
         ]);
         
         $this->assets_loaded = true;
-        
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[Sisme User Auth] Assets frontend chargés');
-        }
     }
     
     /**
@@ -255,9 +234,6 @@ class Sisme_User_Auth_Loader {
      * Nettoyage lors de la déconnexion
      */
     public function handle_logout_cleanup() {
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[Sisme User Auth] Nettoyage session de déconnexion');
-        }
     }
     
     /**

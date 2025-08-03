@@ -93,7 +93,6 @@ class SismeCarousel {
         }
         
         this.updateUI();
-        this.debug('Carrousel initialisé', this.state);
     }
     
     /**
@@ -118,7 +117,6 @@ class SismeCarousel {
         }
         
         this.state.totalPages = Math.ceil(this.state.totalCards / this.state.cardsPerView);
-        this.debug(`Responsive: ${breakpoint}, ${this.state.cardsPerView} cartes par vue`);
     }
     
     /**
@@ -400,15 +398,6 @@ class SismeCarousel {
     }
     
     /**
-     * Debug utilitaire
-     */
-    debug(message, data = null) {
-        if (this.carousel.classList.contains('sisme-cards-carousel--debug')) {
-            console.log(`[Carrousel Debug] ${message}`, data || '');
-        }
-    }
-    
-    /**
      * Détruit le carrousel
      */
     destroy() {
@@ -444,11 +433,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Erreur initialisation carrousel:', error);
         }
     });
-    
-    // Log pour debug
-    if (carousels.length > 0) {
-        console.log(`[Sisme Carrousel] ${carousels.length} carrousel(s) initialisé(s)`);
-    }
 });
 
 /**

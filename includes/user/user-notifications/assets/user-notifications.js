@@ -51,10 +51,6 @@
         bindEvents();
         
         isInitialized = true;
-        
-        if (config.debug) {
-            console.log('[Sisme Notifications] Initialisé avec succès');
-        }
     }
     
     /**
@@ -132,10 +128,6 @@
         
         // Focus accessibilité
         $panel.find('.sisme-notifications-close').focus();
-        
-        if (config.debug) {
-            console.log('[Sisme Notifications] Panel ouvert');
-        }
     }
     
     /**
@@ -154,10 +146,6 @@
         }, 300);
         
         panelOpen = false;
-        
-        if (config.debug) {
-            console.log('[Sisme Notifications] Panel fermé');
-        }
     }
     
     /**
@@ -213,9 +201,6 @@
             },
             error: function(xhr, status, error) {
                 showError('Erreur de connexion');
-                if (config.debug) {
-                    console.error('[Sisme Notifications] Erreur AJAX:', error);
-                }
             }
         });
     }
@@ -261,10 +246,6 @@
                     });
                     
                     updateBadgeCount(response.data.unread_count);
-                    
-                    if (config.debug) {
-                        console.log('[Sisme Notifications] Notification marquée lue:', notificationIndex);
-                    }
                 } else {
                     $button.prop('disabled', false);
                     $item.removeClass('sisme-notification-removing');
@@ -275,10 +256,6 @@
                 $button.prop('disabled', false);
                 $item.removeClass('sisme-notification-removing');
                 showError('Erreur de connexion');
-                
-                if (config.debug) {
-                    console.error('[Sisme Notifications] Erreur AJAX:', error);
-                }
             }
         });
     }
@@ -288,10 +265,6 @@
      */
     function handleNotificationClick(event) {
         const gameUrl = event.currentTarget.href;
-        
-        if (config.debug) {
-            console.log('[Sisme Notifications] Navigation vers:', gameUrl);
-        }
         
         // Fermer le panel après un délai
         setTimeout(() => {

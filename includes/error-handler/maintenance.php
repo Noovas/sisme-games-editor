@@ -550,11 +550,10 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
         const maxChecks = 30; // Arrêter après ~1h
         
         function checkSiteStatus() {
-            if (showDebug) return; // Pas d'auto-refresh en debug
+            if (showDebug) return;
             
             checkCount++;
             if (checkCount > maxChecks) {
-                console.log('Sisme Games: Auto-refresh arrêté');
                 return;
             }
             
@@ -565,12 +564,10 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
             })
             .then(response => {
                 if (response.status >= 200 && response.status < 400) {
-                    console.log('Sisme Games: Site de retour ! 🎮');
                     window.location.href = '/';
                 }
             })
             .catch(() => {
-                console.log(`Sisme Games: Vérification ${checkCount}/${maxChecks}`);
             });
         }
         
@@ -586,11 +583,6 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
                 window.location.href = url.toString();
             }
         });
-        
-        // Console info
-        console.log(`🎮 Sisme Games - Maintenance
-Mode: ${isEmergency ? 'Emergency' : 'Maintenance'}
-Découverte de jeux indépendants`);
     </script>
 </body>
 </html>

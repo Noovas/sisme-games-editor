@@ -39,13 +39,11 @@
             this.config.ajaxUrl = sismeAjax.ajaxurl;
             this.config.nonce = sismeAjax.nonce;
         } else {
-            this.log('Variables AJAX non disponibles', 'error');
             return;
         }
         
         this.bindEvents();
         this.isInitialized = true;
-        this.log('Module Submission Details initialisé');
     };
     
     /**
@@ -67,7 +65,6 @@
         const currentState = $button.data('state') || 'collapsed';
         
         if (!submissionId) {
-            this.log('ID soumission manquant', 'error');
             return;
         }
         
@@ -415,7 +412,6 @@
      */
     SismeSubmissionDetails.onSubmissionsReloaded = function() {
         this.cache = {};
-        this.log('Cache vidé après rechargement des soumissions');
     };
     
     /**
@@ -601,14 +597,11 @@
                         }
                     });
                     
-                    this.log(`Noms ${taxonomy} récupérés:`, response.data.names);
-                    
                     // Actualiser l'affichage des détails expandés
                     this.refreshExpandedDetails();
                 }
             },
             error: () => {
-                this.log(`Erreur conversion taxonomie ${taxonomy}`, 'error');
             }
         });
     };
@@ -649,12 +642,6 @@
         };
         
         return platformNames[platform] || platform.charAt(0).toUpperCase() + platform.slice(1);
-    };
-    
-    SismeSubmissionDetails.log = function(message, type = 'info') {
-        if (typeof console !== 'undefined' && console[type]) {
-            console[type]('[SismeSubmissionDetails]', message);
-        }
     };
     
     $(document).ready(function() {

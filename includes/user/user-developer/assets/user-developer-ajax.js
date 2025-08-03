@@ -37,14 +37,11 @@
         
         // Vérifier que les dépendances sont disponibles
         if (typeof sismeAjax === 'undefined') {
-            this.log('Erreur: sismeAjax non défini');
             return;
         }
         
         this.bindEvents();
         this.isInitialized = true;
-        
-        this.log('Module AJAX développeur initialisé');
     };
     
     /**
@@ -156,8 +153,6 @@
             .addClass('sisme-feedback-error')
             .html('<strong>❌ ' + errorMessage + '</strong>')
             .show();
-        
-        this.log('Erreur reset candidature:', xhr);
     };
     
     /**
@@ -275,8 +270,6 @@
                     }
                 }, 2000);
             }
-            
-            this.log('Candidature soumise avec succès', response.data);
         } else {
             this.handleSubmitError(response);
         }
@@ -300,7 +293,6 @@
         }
         
         this.showFeedback(errorMessage, 'error');
-        this.log('Erreur soumission candidature', response);
     };
     
     /**
@@ -486,15 +478,6 @@
         return age >= 18;
     };
     
-    /**
-     * Logger pour debug
-     */
-    SismeDeveloperAjax.log = function(message, data) {
-        if (typeof console !== 'undefined' && console.log) {
-            console.log('[Sisme Developer Ajax] ' + message, data || '');
-        }
-    };
-    
     // Initialisation automatique quand le DOM est prêt
     $(document).ready(function() {
         SismeDeveloperAjax.init();
@@ -504,7 +487,6 @@
      * Remplir le formulaire avec les données d'une soumission existante
      */
     SismeDeveloperAjax.fillFormWithSubmissionData = function(submissionId, submissionData) {
-        this.log('Remplissage formulaire avec données:', submissionData);
         
         // Récupérer les vraies données via AJAX car get_submission_details ne retourne que le résumé
         $.ajax({
@@ -634,9 +616,6 @@
     SismeDeveloperAjax.setImageInCropper = function(ratioType, imageUrl) {
         const container = document.querySelector(`[data-ratio-type="${ratioType}"]`);
         if (container && imageUrl) {
-            // TODO: Intégration avec votre système de crop
-            // Cela dépend de l'implémentation de SimpleCropper
-            this.log(`Image à charger pour ${ratioType}:`, imageUrl);
         }
     };
 
@@ -644,8 +623,6 @@
      * Voir un jeu publié
      */
     SismeDeveloperAjax.viewPublishedGame = function(submissionId) {
-        this.log('Consultation jeu publié:', submissionId);
-        // TODO: Rediriger vers la page du jeu
         this.showFeedback('Redirection vers la page du jeu en cours de développement', 'info');
     };
 
@@ -653,17 +630,13 @@
      * Voir les statistiques d'un jeu
      */
     SismeDeveloperAjax.viewStats = function(submissionId) {
-        this.log('Consultation stats:', submissionId);
-        // TODO: Ouvrir modal de statistiques
         this.showFeedback('Statistiques en cours de développement', 'info');
     };
 
     /**
      * Voir les notes de rejet
      */
-    SismeDeveloperAjax.viewRejectionNotes = function(submissionId) {
-        this.log('Consultation notes rejet:', submissionId);
-        
+    SismeDeveloperAjax.viewRejectionNotes = function(submissionId) {        
         if (this.isSubmitting) {
             return;
         }
@@ -709,7 +682,6 @@
         for (let fieldName of requiredFields) {
             const field = document.getElementById(fieldName);
             if (!field || !field.value.trim()) {
-                console.log(`Champ requis manquant: ${fieldName}`);
                 return false;
             }
         }
@@ -957,8 +929,6 @@
         
         // Ajouter au DOM
         document.body.insertAdjacentHTML('beforeend', loaderHtml);
-        
-        this.log('Loader modal affiché:', message);
     };
 
     /**
@@ -968,7 +938,6 @@
         const loader = document.getElementById('sisme-loader-modal');
         if (loader) {
             loader.remove();
-            this.log('Loader modal masqué');
         }
     };
 

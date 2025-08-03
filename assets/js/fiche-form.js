@@ -277,6 +277,4 @@ document.addEventListener('DOMContentLoaded', function() {
             subtree: true
         });
     }
-    
-    console.log('🎮 Sisme Fiche Form: Scripts chargés avec succès');
 });

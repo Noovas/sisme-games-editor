@@ -252,13 +252,6 @@ class Sisme_Utils_Users {
                 $user = get_user_by('ID', intval($slug));
             }
         }
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            if ($user) {
-                error_log("[Sisme User Auth] User trouvé par slug '{$slug}': ID {$user->ID}, Display: {$user->display_name}");
-            } else {
-                error_log("[Sisme User Auth] Aucun user trouvé pour le slug: '{$slug}'");
-            }
-        }
         return $user;
     }
 

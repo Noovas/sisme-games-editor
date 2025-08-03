@@ -27,7 +27,6 @@ class SismeCards {
         this.setupLazyLoading();
         this.setupInteractions();
         this.setupAnimations();
-        this.debug('Cartes initialisées', this.cards.length);
     }
     
     /**
@@ -82,11 +81,9 @@ class SismeCards {
         img.onload = () => {
             imageElement.style.backgroundImage = `url(${src})`;
             imageElement.classList.add('loaded');
-            this.debug('Image chargée', src);
         };
         img.onerror = () => {
             imageElement.classList.add('error');
-            this.debug('Erreur chargement image', src);
         };
         img.src = src;
     }
@@ -279,15 +276,6 @@ class SismeCards {
         });
         this.observers = {};
         this.cards = [];
-    }
-    
-    /**
-     * Debug utilitaire
-     */
-    debug(message, data = null) {
-        if (window.sismeCarousel && window.sismeCarousel.debug) {
-            console.log(`[Sisme Cards] ${message}`, data || '');
-        }
     }
 }
 

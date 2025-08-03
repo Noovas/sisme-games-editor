@@ -662,7 +662,6 @@ jQuery(document).ready(function($) {
             }
         };
         SismeSubmissionDetails.init();
-        console.log('🔒 Module admin sécurisé initialisé');
     }
     window.toggleDevDetails = function(index) {
         const detailsRow = document.getElementById('details-' + index);

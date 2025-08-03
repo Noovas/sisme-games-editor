@@ -43,7 +43,6 @@
         this.social.init();
         
         this.isInitialized = true;
-        this.log('Dashboard JavaScript initialisé');
         
         setTimeout(() => {
             this.showNotification('Bienvenue sur votre dashboard ! 🎮', 'success', 3000);
@@ -72,8 +71,6 @@
         
         // Gestion du changement d'hash dans l'URL
         $(window).on('hashchange', this.handleHashChange.bind(this));
-        
-        this.log('Événements liés');
     };
     
     /**
@@ -103,8 +100,6 @@
         
         // Appliquer la section active
         this.setActiveSection(initialSection, false);
-        
-        this.log('Navigation initialisée, section active:', initialSection, 'dashboard personnel:', isOwnDashboard);
     };
 
     /**
@@ -158,8 +153,6 @@
                 this.closeMobileSidebar();
             }
         });
-        
-        this.log('Support mobile initialisé');
     };
     
     /**
@@ -171,8 +164,6 @@
         
         // Animations au scroll (si nécessaire)
         this.initScrollAnimations();
-        
-        this.log('Animations initialisées');
     };
     
     /**
@@ -187,8 +178,6 @@
         if (this.isValidSection(section)) {
             this.setActiveSection(section, true);
         }
-        
-        this.log('Navigation vers:', section);
     };
     
     
@@ -243,7 +232,6 @@
                 const currentSection = currentHash.substring(1).split('?')[0];
                 if (currentSection === 'submit-game') {
                     // On reste sur submit-game avec paramètres - ne pas modifier l'URL
-                    this.log('Préservation des paramètres URL pour submit-game:', currentHash);
                 } else {
                     history.replaceState(null, null, expectedHash);
                 }
@@ -255,9 +243,6 @@
         // 5. Sauvegarder dans localStorage SEULEMENT pour le dashboard personnel
         if (this.isOwnDashboard()) {
             localStorage.setItem('sisme_dashboard_section', section);
-            this.log('Section sauvée dans localStorage:', section);
-        } else {
-            this.log('Profil public - pas de sauvegarde localStorage');
         }
         
         // 6. Émettre un événement personnalisé
@@ -276,8 +261,6 @@
             
             this.showNotification(`Section ${sectionNames[section] || section}`, 'info', 2000);
         }
-        
-        this.log('Section active:', section);
     };
     
     /**
@@ -329,9 +312,7 @@
         if (section && this.isValidSection(section)) {
             this.setActiveSection(section, true);
         }
-        
         this.showNotification(`Accès à ${label}`, 'info', 2000);
-        this.log('Action rapide:', label);
     };
     
     /**
@@ -350,8 +331,6 @@
             this.showNotification(`Ouverture de la fiche : ${gameName}`, 'info', 2000);
             // Laisser le navigateur suivre le lien naturellement
         }
-        
-        this.log('Clic sur jeu:', gameName);
     };
     
     /**
@@ -366,7 +345,6 @@
         setTimeout(() => $item.removeClass('favorite-clicked'), 300);
         
         this.showNotification(`Accès au favori : ${gameName}`, 'info', 2000);
-        this.log('Clic sur favori:', gameName);
     };
     
     /**
@@ -411,8 +389,6 @@
         setTimeout(() => {
             this.closeNotification($notification);
         }, duration);
-        
-        this.log('Notification:', message, type);
     };
     
     /**
@@ -455,8 +431,6 @@
         
         // Événement toggle
         $toggle.on('click', this.toggleMobileSidebar.bind(this));
-        
-        this.log('Toggle mobile créé');
     };
     
     /**
@@ -548,15 +522,6 @@
     };
     
     /**
-     * Debug et logging
-     */
-    SismeDashboard.log = function(...args) {
-        if (this.config.debug || (typeof window.WP_DEBUG !== 'undefined' && window.WP_DEBUG)) {
-            console.log('[Sisme Dashboard]', ...args);
-        }
-    };
-    
-    /**
      * API publique pour interactions externes
      */
     SismeDashboard.api = {
@@ -593,7 +558,6 @@
             this.bindSocialEvents();
             this.bindSocialListEvents();
             this.checkSocialConfig();
-            SismeDashboard.log('Module social initialisé');
         },
 
         /**
@@ -636,7 +600,6 @@
             const action = $button.data('action');
             
             if (!userId || !action) {
-                SismeDashboard.log('Données manquantes pour l\'action de liste', { userId, action });
                 return;
             }
             
@@ -660,7 +623,7 @@
                     this.cancelFriendRequestFromList(userId, $button, $item);
                     break;
                 default:
-                    SismeDashboard.log('Action de liste inconnue:', action);
+                    console.log('Action de liste inconnue:', action);
             }
         },
         
@@ -700,7 +663,6 @@
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.log('Erreur AJAX acceptFriendRequestFromList:', error);
                     SismeDashboard.api.notify('Erreur de connexion', 'error');
                 },
                 complete: () => {
@@ -743,7 +705,6 @@
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.log('Erreur AJAX declineFriendRequestFromList:', error);
                     SismeDashboard.api.notify('Erreur de connexion', 'error');
                 },
                 complete: () => {
@@ -792,7 +753,6 @@
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.log('Erreur AJAX removeFriendFromList:', error);
                     SismeDashboard.api.notify('Erreur de connexion', 'error');
                 },
                 complete: () => {
@@ -835,7 +795,6 @@
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.log('Erreur AJAX cancelFriendRequestFromList:', error);
                     SismeDashboard.api.notify('Erreur de connexion', 'error');
                 },
                 complete: () => {
@@ -874,7 +833,6 @@
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.log('Erreur AJAX handleFriendSearch:', error);
                     this.showSearchError('Erreur de connexion');
                 }
             });
@@ -1035,7 +993,6 @@
          */
         checkSocialConfig: function() {
             if (typeof window.sismeUserSocial === 'undefined') {
-                SismeDashboard.log('Configuration sismeUserSocial non trouvée');
                 return false;
             }
             return true;
@@ -1071,7 +1028,6 @@
             const currentStatus = $container.data('status');
             
             if (!userId || !action) {
-                SismeDashboard.log('Données manquantes pour l\'action sociale', { userId, action });
                 return;
             }
             
@@ -1095,7 +1051,7 @@
                     this.removeFriend(userId, $button, $container);
                     break;
                 default:
-                    SismeDashboard.log('Action sociale inconnue:', action);
+                    console.log('Action sociale inconnue:', action);
             }
         },
         
@@ -1122,7 +1078,6 @@
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.log('Erreur AJAX sendFriendRequest:', error);
                     SismeDashboard.api.notify('Erreur de connexion', 'error');
                 },
                 complete: () => {
@@ -1154,7 +1109,6 @@
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.log('Erreur AJAX cancelFriendRequest:', error);
                     SismeDashboard.api.notify('Erreur de connexion', 'error');
                 },
                 complete: () => {
@@ -1189,7 +1143,6 @@
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.log('Erreur AJAX acceptFriendRequest:', error);
                     SismeDashboard.api.notify('Erreur de connexion', 'error');
                 },
                 complete: () => {
@@ -1229,7 +1182,6 @@
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.log('Erreur AJAX removeFriend:', error);
                     SismeDashboard.api.notify('Erreur de connexion', 'error');
                 },
                 complete: () => {
@@ -1289,7 +1241,6 @@
             
             const config = buttonConfigs[newStatus];
             if (!config) {
-                SismeDashboard.log('Configuration de bouton manquante pour:', newStatus);
                 return;
             }
             
@@ -1346,7 +1297,7 @@
                         }
                     },
                     error: (xhr, status, error) => {
-                        SismeDashboard.log('Erreur lors de la mise à jour du compteur:', error);
+                        SismeDashboard.api.notify('Erreur de connexion pour mettre à jour le compteur', 'error');
                     }
                 });
             }

@@ -41,13 +41,8 @@
             if (!this.modal) {
                 this.createModalHTML();
             }
-            
             this.content = this.modal.querySelector('.sisme-modal-content');
             this.bindEvents();
-            
-            if (typeof console !== 'undefined' && console.log) {
-                console.log('[SismeSubmissionModal] Initialisé');
-            }
         }
         
         /**
@@ -194,6 +189,47 @@
             `;
             
             this.setContent(html);
+        }
+
+        /**
+         * Succès spécifique pour sauvegarde brouillon
+         */
+        showDraftSuccess() {
+            this.currentPhase = 'success';
+            
+            const gameName = this.getGameName();
+            
+            const html = `
+                <div class="sisme-result-success">
+                    <div class="sisme-result-icon">💾</div>
+                    <div class="sisme-result-title">Brouillon sauvegardé !</div>
+                    <div class="sisme-result-message">
+                        ${gameName ? `"<strong>${this.escapeHtml(gameName)}</strong>"` : 'Votre jeu'} a été sauvegardé avec succès.<br>
+                        Vous pouvez continuer à modifier ou soumettre plus tard.
+                    </div>
+                </div>
+                <div class="sisme-modal-actions">
+                    <button class="sisme-modal-btn" id="draft-success-btn" type="button">
+                        Continuer l'édition
+                    </button>
+                </div>
+            `;
+            
+            this.setContent(html);
+            
+            // Bouton de fermeture
+            $('#draft-success-btn').on('click', () => {
+                this.hide();
+                $(document).trigger('sisme:modal:draft-success');
+            });
+            
+            // Auto-fermeture après 3 secondes
+            setTimeout(() => {
+                if (this.isOpen && this.currentPhase === 'success') {
+                    this.hide();
+                    $(document).trigger('sisme:modal:draft-success');
+                }
+            }, 3000);
         }
         
         /**
@@ -354,18 +390,25 @@
             this.gameSubmissionInstance = gameSubmissionInstance;
             
             try {
-                // Phase 1: Sauvegarde
                 await this.performSaving();
-                
-                // Pause entre les phases
                 await this.sleep(500);
-                
-                // Phase 2: Soumission
                 await this.performSubmission();
                 
             } catch (error) {
-                console.error('[SismeSubmissionModal] Erreur:', error);
                 this.showError([], error.message || 'Erreur inattendue');
+            }
+        }
+
+        /**
+         * Démarrer SEULEMENT la sauvegarde (arrêt après phase 1)
+         */
+        async startDraftOnlyProcess(gameSubmissionInstance) {
+            this.gameSubmissionInstance = gameSubmissionInstance;
+            try {
+                await this.performSaving();
+                this.showDraftSuccess();                
+            } catch (error) {
+                this.showError([], error.message || 'Erreur lors de la sauvegarde');
             }
         }
         
@@ -375,7 +418,6 @@
         async performSaving() {
             this.showSaving();
             
-            // Étapes avec des noms compréhensibles pour l'utilisateur
             this.addStep('saving-steps', '📷 Traitement des images...', 'processing');
             await this.sleep(800);
             this.updateLastStep('saving-steps', 'complete');
@@ -408,8 +450,6 @@
             this.addStep('submitting-steps', '🖼️ Sauvegarde des visuels', 'complete');
             await this.sleep(200);
             this.addStep('submitting-steps', '💾 Enregistrement de votre jeu', 'complete');
-            
-            // Nouvelle étape: validation avec terme compréhensible
             await this.sleep(400);
             this.addStep('submitting-steps', '✅ Vérification finale...', 'processing');
             
@@ -541,10 +581,6 @@
     // Initialisation automatique quand le DOM est prêt
     $(document).ready(function() {
         window.sismeSubmissionModal = new SismeSubmissionModal();
-        
-        if (typeof console !== 'undefined' && console.log) {
-            console.log('[SismeSubmissionModal] Instance globale créée');
-        }
     });
     
 })(jQuery);

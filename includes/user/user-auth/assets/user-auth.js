@@ -41,10 +41,6 @@
             this.bindEvents();
             this.initExistingForms();
             this.setupGlobalConfig();
-            
-            if (window.sismeUserAuth && window.sismeUserAuth.debug) {
-                console.log('[Sisme User Auth] JavaScript initialisé');
-            }
         },
         
         /**
@@ -494,10 +490,6 @@
          */
         handleAjaxError: function($form, error) {
             this.showMessage($form, this.config.messages.error, 'error');
-            
-            if (window.sismeUserAuth?.debug) {
-                console.error('[Sisme User Auth] Erreur AJAX:', error);
-            }
         },
         
         /**
@@ -639,15 +631,6 @@
             }
             
             return true;
-        },
-        
-        /**
-         * Utilitaires de debug
-         */
-        debug: function(message, data = null) {
-            if (window.sismeUserAuth?.debug) {
-                console.log(`[Sisme User Auth] ${message}`, data);
-            }
         },
         
         /**

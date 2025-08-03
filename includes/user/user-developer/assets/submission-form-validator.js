@@ -112,8 +112,6 @@ class SubmissionFormValidator {
         this.validateForm();
 
         this.isInitialized = true;
-        
-        console.log('SubmissionFormValidator: Événements liés, validation initiale effectuée');
     }
 
     initSectionsManager() {
@@ -142,8 +140,6 @@ class SubmissionFormValidator {
                 touched: false
             };
         });
-        
-        console.log('SubmissionFormValidator: État de validation initialisé', this.validationState);
     }
     
     bindTextFieldEvents() {
@@ -168,93 +164,56 @@ class SubmissionFormValidator {
         });
     }
     
-    bindImageEvents() {
-        console.log('Binding image events...');
-        
+    bindImageEvents() {        
         document.querySelectorAll('[data-simple-cropper]').forEach(container => {
             const ratioType = container.getAttribute('data-ratio-type');
-            
-            if (this.imageRules[ratioType]) {
-                console.log(`Setting up listeners for ${ratioType}`);
-                
-                container.addEventListener('imageProcessed', (event) => {
-                    console.log(`Image processed for ${ratioType}:`, event.detail);
-                    
-                    // MÊME LOGIQUE POUR TOUS : utiliser allImages si disponible
+            if (this.imageRules[ratioType]) {                
+                container.addEventListener('imageProcessed', (event) => {            
                     if (event.detail.allImages && Array.isArray(event.detail.allImages)) {
                         this.uploadedImages[ratioType] = [...event.detail.allImages];
-                        console.log(`Using allImages for ${ratioType}:`, this.uploadedImages[ratioType]);
                     } else {
                         // Fallback : créer un tableau avec l'image unique
                         this.uploadedImages[ratioType] = [{
                             url: event.detail.url,
                             attachmentId: event.detail.attachmentId
                         }];
-                        console.log(`Using single image for ${ratioType}:`, this.uploadedImages[ratioType]);
                     }
-                    
                     this.validationState[ratioType].touched = true;
                     this.validateImages();
                 });
-                
                 container.addEventListener('imageRemoved', (event) => {
-                    console.log(`Image removed for ${ratioType}:`, event.detail);
-                    
-                    // ACCÈS DIRECT À L'INSTANCE CROPPER
                     const cropperId = event.detail.cropperId;
                     if (window.cropperInstances && window.cropperInstances[cropperId]) {
                         const instance = window.cropperInstances[cropperId];
-                        console.log(`Direct access to cropper instance:`, instance.uploadedImages);
-                        
-                        // COPIER DIRECTEMENT depuis l'instance
                         this.uploadedImages[ratioType] = [...(instance.uploadedImages || [])];
                     } else {
-                        // Fallback
                         if (this.uploadedImages[ratioType] && event.detail.index !== undefined) {
                             this.uploadedImages[ratioType].splice(event.detail.index, 1);
                         }
                     }
-                    
                     this.validationState[ratioType].touched = true;
-                    console.log(`Updated images after removal for ${ratioType}:`, this.uploadedImages[ratioType]);
                     this.validateImages();
                 });
             }
         });
-        
-        // Synchronisation initiale DIRECTE avec les instances
         setTimeout(() => {
             this.syncWithCropperInstances();
         }, 300);
     }
     
-    syncWithCropperInstances() {
-        console.log('=== SYNC DIRECT AVEC INSTANCES ===');
-        console.log('window.cropperInstances:', window.cropperInstances);
-        
+    syncWithCropperInstances() {        
         if (window.cropperInstances) {
             Object.entries(window.cropperInstances).forEach(([cropperId, instance]) => {
                 const ratioType = instance.ratioType;
-                console.log(`Instance ${cropperId} (${ratioType}):`, instance.uploadedImages);
-                
                 if (this.imageRules[ratioType]) {
-                    // COPIE DIRECTE peu importe le nombre
                     if (instance.uploadedImages && instance.uploadedImages.length > 0) {
                         this.uploadedImages[ratioType] = [...instance.uploadedImages];
                         this.validationState[ratioType].touched = true;
-                        console.log(`✅ SYNC ${ratioType}: ${instance.uploadedImages.length} images`);
-                    } else {
-                        console.log(`❌ ${ratioType}: Pas d'images dans l'instance`);
                     }
                 }
             });
-        } else {
-            console.log('❌ Pas d\'instances croppers trouvées');
         }
-        
-        // Revalider après synchronisation
         this.validateImages();
-        console.log('=== ÉTAT FINAL uploadedImages ===', this.uploadedImages);
     }
     
     validateField(fieldName) {
@@ -398,14 +357,11 @@ class SubmissionFormValidator {
         } else {
             this.uploadedImages[ratioType].push(imageData);
         }
-        
-        console.log(`Image ajoutée (${ratioType}):`, this.uploadedImages[ratioType]);
     }
     
     removeUploadedImage(ratioType, index) {
         if (this.uploadedImages[ratioType] && this.uploadedImages[ratioType][index]) {
             this.uploadedImages[ratioType].splice(index, 1);
-            console.log(`Image supprimée (${ratioType}):`, this.uploadedImages[ratioType]);
         }
     }
     
@@ -447,34 +403,18 @@ class SubmissionFormValidator {
     }
     
     debugValidation() {
-        console.log('=== DEBUG VALIDATION FORMULAIRE ===');
-        console.log('Tous les champs et leur état :');
         
         // Champs texte
         Object.keys(this.rules).forEach(fieldName => {
             const field = document.getElementById(fieldName);
             const state = this.validationState[fieldName];
             const value = field ? field.value.trim() : 'CHAMP INTROUVABLE';
-            
-            console.log(`📝 ${fieldName}:`);
-            console.log(`   Valeur: "${value}"`);
-            console.log(`   Valide: ${state.isValid ? '✅' : '❌'}`);
-            console.log(`   Touché: ${state.touched ? '✅' : '❌'}`);
-            console.log(`   Message: "${state.message}"`);
-            console.log('');
         });
         
         // Images
         Object.keys(this.imageRules).forEach(imageType => {
             const state = this.validationState[imageType];
             const count = this.uploadedImages[imageType].length;
-            
-            console.log(`🖼️ ${imageType}:`);
-            console.log(`   Images: ${count}`);
-            console.log(`   Valide: ${state.isValid ? '✅' : '❌'}`);
-            console.log(`   Touché: ${state.touched ? '✅' : '❌'}`);
-            console.log(`   Message: "${state.message}"`);
-            console.log('');
         });
         
         // État global
@@ -483,24 +423,15 @@ class SubmissionFormValidator {
         const validStates = allStates.filter(state => state.isValid);
         const invalidStates = allStates.filter(state => !state.isValid);
         
-        console.log('📊 RÉSUMÉ GLOBAL:');
-        console.log(`   Total champs: ${allStates.length}`);
-        console.log(`   Champs touchés: ${touchedStates.length}`);
-        console.log(`   Champs valides: ${validStates.length}`);
-        console.log(`   Champs invalides: ${invalidStates.length}`);
-        
         if (invalidStates.length > 0) {
-            console.log('❌ CHAMPS PROBLÉMATIQUES:');
             invalidStates.forEach(state => {
                 const fieldName = Object.keys(this.validationState).find(key => 
                     this.validationState[key] === state
                 );
-                console.log(`   - ${fieldName}: ${state.message || 'Invalide'}`);
             });
         }
         
         const isFormValid = this.validateForm();
-        console.log(`🎯 FORMULAIRE VALIDE: ${isFormValid ? '✅ OUI' : '❌ NON'}`);
         
         return {
             validationState: this.validationState,
@@ -804,7 +735,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         if (!window.submissionValidator) {
             window.submissionValidator = new SubmissionFormValidator();
-            console.log('SubmissionFormValidator initialisé avec succès');
         }
     }, 100);
 });
