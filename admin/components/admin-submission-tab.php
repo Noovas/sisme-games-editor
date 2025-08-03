@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-add_action('wp_ajax_sisme_get_submission_details', ['Sisme_Admin_Submission_Tab', 'ajax_get_submission_details']);
+add_action('wp_ajax_sisme_admin_get_submission_details', ['Sisme_Admin_Submission_Tab', 'ajax_get_submission_details']);
 
 /**
  * Classe pour l'onglet admin des soumissions

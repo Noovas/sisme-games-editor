@@ -698,13 +698,14 @@
                 },
                 dataType: 'json',
                 success: (response) => {
-                    if (response.success) {
-                        this.populateForm(response.data.submission);
-                        resolve(response.data.submission);
-                    } else {
-                        reject(response.data.message);
-                    }
-                },
+                if (response.success) {
+                    const submissionData = response.data.submission || response.data;
+                    this.populateForm(submissionData);
+                    resolve(submissionData);
+                } else {
+                    reject(response.data.message);
+                }
+            },
                 error: () => {
                     reject('Erreur réseau');
                 }

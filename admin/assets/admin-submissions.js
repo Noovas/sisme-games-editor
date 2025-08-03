@@ -63,7 +63,7 @@ jQuery(document).ready(function($) {
             url: config.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'sisme_get_submission_details',
+                action: 'sisme_admin_get_submission_details',
                 submission_id: submissionId,
                 user_id: userId,
                 security: config.nonce
@@ -153,7 +153,7 @@ jQuery(document).ready(function($) {
             html += '<div class="admin-detail-content">';
             
             if (gameData.game_genres && gameData.game_genres.length) {
-                html += `<p><strong>Genres :</strong> ${gameData.game_genres.join(', ')}</p>`;
+                html += `<p><strong>Genres :</strong> <span class="genre-names" data-genre-ids="${gameData.game_genres.join(',')}">${convertGenreIds(gameData.game_genres)}</span></p>`;
             }
             if (gameData.game_platforms && gameData.game_platforms.length) {
                 html += `<p><strong>Plateformes :</strong> ${gameData.game_platforms.join(', ')}</p>`;
@@ -291,5 +291,32 @@ jQuery(document).ready(function($) {
             hour: '2-digit',
             minute: '2-digit'
         });
+    }
+
+    /**
+     * Convertir les IDs de genres en noms
+     */
+    function convertGenreIds(genreIds) {
+        if (!Array.isArray(genreIds) || genreIds.length === 0) {
+            return '';
+        }
+        
+        $.ajax({
+            url: config.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'sisme_convert_taxonomy_ids',
+                ids: genreIds,
+                taxonomy: 'genre',
+                security: config.nonce
+            },
+            success: function(response) {
+                if (response.success && response.data.names) {
+                    $('.genre-names').text(response.data.names.join(', '));
+                }
+            }
+        });
+        
+        return genreIds.map(id => `Genre ${id}`).join(', ');
     }
 });
