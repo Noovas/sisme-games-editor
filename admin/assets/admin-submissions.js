@@ -319,4 +319,45 @@ jQuery(document).ready(function($) {
         
         return genreIds.map(id => `Genre ${id}`).join(', ');
     }
+
+    // Gestionnaire pour les boutons "Rejeter"
+    $(document).on('click', '.reject-btn.active', function(e) {
+        e.preventDefault();
+        
+        const $button = $(this);
+        const submissionId = $button.data('submission-id');
+        const userId = $button.data('user-id');
+        const gameName = $button.closest('tr').find('.game-info strong').text() || 'ce jeu';
+        
+        const reason = prompt(`Motif du rejet pour "${gameName}" :`);
+        
+        if (reason && reason.trim()) {
+            rejectSubmission(submissionId, userId, reason.trim());
+        }
+    });
+
+    function rejectSubmission(submissionId, userId, reason) {
+        $.ajax({
+            url: config.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'sisme_admin_reject_submission',
+                submission_id: submissionId,
+                user_id: userId,
+                rejection_reason: reason,
+                security: config.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('✅ Soumission rejetée et email envoyé');
+                    location.reload();
+                } else {
+                    alert('❌ Erreur: ' + (response.data?.message || 'Erreur inconnue'));
+                }
+            },
+            error: function() {
+                alert('❌ Erreur de connexion');
+            }
+        });
+    }
 });

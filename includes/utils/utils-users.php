@@ -44,6 +44,7 @@ class Sisme_Utils_Users {
     const DASHBOARD_URL = '/sisme-user-tableau-de-bord/';
     const FORGOT_PASSWORD_URL = '/sisme-user-forgot-password/';
     const RESET_PASSWORD_URL = '/sisme-user-reset-password/';
+    const DEVELOPER_URL = '/sisme-user-tableau-de-bord/#developer';
 
     /**
      * Constantes pour le module développeur
@@ -139,7 +140,6 @@ class Sisme_Utils_Users {
     const GAME_STATUS_PENDING = 'pending';       // En attente validation admin
     const GAME_STATUS_PUBLISHED = 'published';   // Publié (plus modifiable)
     const GAME_STATUS_REJECTED = 'rejected';     // Rejeté par admin
-    const GAME_STATUS_REVISION = 'revision';     // En révision après rejet (modifiable)
     
     /**
      * Limites et contraintes

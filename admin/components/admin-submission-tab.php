@@ -20,6 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 add_action('wp_ajax_sisme_admin_get_submission_details', ['Sisme_Admin_Submission_Tab', 'ajax_get_submission_details']);
+add_action('wp_ajax_sisme_admin_reject_submission', ['Sisme_Admin_Submission_Tab', 'ajax_reject_submission']);
 
 /**
  * Classe pour l'onglet admin des soumissions
@@ -540,8 +541,8 @@ class Sisme_Admin_Submission_Tab {
         ob_start();
         ?>
         <div class="action-buttons">
-            
-            <!-- Voir plus - VERSION SIMPLIFIÉE -->
+
+            <!-- Voir plus -->
             <button class="action-btn view-btn" 
                     data-submission-id="<?php echo esc_attr($submission_id); ?>"
                     data-user-id="<?php echo esc_attr($user_id); ?>"
@@ -549,21 +550,23 @@ class Sisme_Admin_Submission_Tab {
                 👁️
             </button>
             
-            <!-- Approuver (actif si pending/revision) -->
+            <!-- Approuver -->
             <button class="action-btn approve-btn <?php echo in_array($status, ['pending', 'revision']) ? 'active' : 'disabled'; ?>" 
                     <?php echo in_array($status, ['pending', 'revision']) ? 'onclick="alert(\'Approbation à implémenter\')"' : 'disabled'; ?>
                     title="Approuver la soumission">
                 ✅
             </button>
             
-            <!-- Rejeter (actif si pending/revision) -->
+            <!-- Rejeter -->
             <button class="action-btn reject-btn <?php echo in_array($status, ['pending', 'revision']) ? 'active' : 'disabled'; ?>" 
-                    <?php echo in_array($status, ['pending', 'revision']) ? 'onclick="alert(\'Rejet à implémenter\')"' : 'disabled'; ?>
+                    data-submission-id="<?php echo esc_attr($submission_id); ?>"
+                    data-user-id="<?php echo esc_attr($user_id); ?>"
+                    <?php echo in_array($status, ['pending', 'revision']) ? '' : 'disabled'; ?>
                     title="Rejeter la soumission">
                 ❌
             </button>
             
-            <!-- Supprimer (toujours actif pour admin) -->
+            <!-- Supprimer -->
             <form method="post" style="display: inline;" class="delete-form"
                   onsubmit="return confirm('⚠️ Supprimer définitivement cette soumission ET tous ses médias ?');">
                 <?php wp_nonce_field('admin_submission_delete'); ?>
@@ -579,5 +582,69 @@ class Sisme_Admin_Submission_Tab {
         </div>
         <?php
         return ob_get_clean();
+    }
+    /**
+     * AJAX : Rejeter une soumission
+     */
+    public static function ajax_reject_submission() {
+        error_log('DEBUG: Début ajax_reject_submission');
+        error_log('DEBUG: POST data: ' . print_r($_POST, true));
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Permissions insuffisantes']);
+        }
+        
+        if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_developer_nonce')) {
+            wp_send_json_error(['message' => 'Erreur de sécurité']);
+        }
+        
+        $submission_id = sanitize_text_field($_POST['submission_id'] ?? '');
+        $user_id = intval($_POST['user_id'] ?? 0);
+        $reason = wp_unslash(sanitize_textarea_field($_POST['rejection_reason'] ?? ''));
+        
+        error_log("DEBUG: submission_id='$submission_id', user_id=$user_id, reason='$reason'");
+        
+        if (!$submission_id || !$user_id || !$reason) {
+            error_log('DEBUG: Paramètre manquant détecté');
+            wp_send_json_error(['message' => "Paramètres manquants - ID:$submission_id, User:$user_id, Reason:$reason"]);
+        }
+        
+        // Charger le data manager
+        if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
+        }
+        
+        // Changer le statut vers draft
+        $result = Sisme_Game_Submission_Data_Manager::change_submission_status(
+            $user_id, 
+            $submission_id, 
+            Sisme_Utils_Users::GAME_STATUS_DRAFT,
+            [
+                'rejected_at' => current_time('mysql'),
+                'rejection_reason' => $reason
+            ]
+        );
+        
+        if ($result) {
+            $user = get_userdata($user_id);
+            $submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
+            $game_name = $submission['game_data']['game_name'] ?? 'Votre jeu';
+            
+            $email_content = Sisme_Email_Templates::submission_rejected(
+                $user->display_name,
+                $game_name,
+                $reason
+            );
+            
+            Sisme_Email_Manager::send_email(
+                [$user_id],
+                "Soumission rejetée : {$game_name}",
+                $email_content
+            );
+            
+            wp_send_json_success(['message' => 'Soumission rejetée avec succès']);
+        } else {
+            wp_send_json_error(['message' => 'Erreur lors du rejet']);
+        }
     }
 }

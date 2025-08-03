@@ -23,7 +23,8 @@ define('SISME_GAMES_MODULES', array(
     "search",
     "team-choice",
     "user",
-    "seo"
+    "seo",
+    "email-manager"
 ));
 
 // Charger les fichiers

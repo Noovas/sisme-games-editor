@@ -410,46 +410,6 @@ function sisme_ajax_submit_game_for_review() {
 }
 
 /**
- * Créer une nouvelle version après rejet
- */
-function sisme_ajax_retry_rejected_submission() {
-    if (!sisme_verify_submission_nonce()) {
-        wp_send_json_error(['message' => 'Erreur de sécurité']);
-        return;
-    }
-
-    if (!is_user_logged_in()) {
-        wp_send_json_error(['message' => 'Utilisateur non connecté']);
-        return;
-    }
-
-    $user_id = get_current_user_id();
-    $original_id = sanitize_text_field($_POST['original_submission_id'] ?? '');
-
-    if (empty($original_id)) {
-        wp_send_json_error(['message' => 'ID de soumission originale manquant']);
-        return;
-    }
-
-    if (!sisme_load_submission_data_manager()) {
-        wp_send_json_error(['message' => 'Système de soumission non disponible']);
-        return;
-    }
-
-    $new_submission_id = Sisme_Game_Submission_Data_Manager::create_retry_submission($user_id, $original_id);
-
-    if (is_wp_error($new_submission_id)) {
-        wp_send_json_error(['message' => $new_submission_id->get_error_message()]);
-        return;
-    }
-
-    wp_send_json_success([
-        'new_submission_id' => $new_submission_id,
-        'message' => 'Nouvelle version créée'
-    ]);
-}
-
-/**
  * Récupérer les détails d'une soumission
  */
 function sisme_ajax_get_submission_details() {

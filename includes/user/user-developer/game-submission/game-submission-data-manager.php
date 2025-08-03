@@ -53,6 +53,50 @@ class Sisme_Game_Submission_Data_Manager {
         
         return null;
     }
+
+    /**
+     * Changer le statut d'une soumission
+     * @param int $user_id ID utilisateur
+     * @param string $submission_id ID soumission
+     * @param string $status Nouveau statut
+     * @param array $metadata Métadonnées additionnelles
+     * @return bool Succès de l'opération
+     */
+    public static function change_submission_status($user_id, $submission_id, $status, $metadata = []) {
+        $submission = self::get_submission_by_id($user_id, $submission_id);
+        if (!$submission) {
+            return false;
+        }
+        
+        // Valider le statut
+        $valid_statuses = [
+            Sisme_Utils_Users::GAME_STATUS_DRAFT,
+            Sisme_Utils_Users::GAME_STATUS_PENDING,
+            Sisme_Utils_Users::GAME_STATUS_PUBLISHED,
+            Sisme_Utils_Users::GAME_STATUS_REJECTED
+        ];
+        
+        if (!in_array($status, $valid_statuses)) {
+            return false;
+        }
+        
+        // Changer le statut
+        $submission['status'] = $status;
+        $submission['metadata']['updated_at'] = current_time('mysql');
+        
+        // Ajouter métadonnées supplémentaires
+        foreach ($metadata as $key => $value) {
+            $submission['metadata'][$key] = $value;
+        }
+        
+        // Sauvegarder
+        if (self::update_submission_in_user_data($user_id, $submission)) {
+            self::update_user_stats($user_id);
+            return true;
+        }
+        
+        return false;
+    }
     
     /**
      * Récupérer les statistiques d'un utilisateur
@@ -212,34 +256,6 @@ class Sisme_Game_Submission_Data_Manager {
     }
     
     /**
-     * Créer une nouvelle version après rejet (rejected → revision)
-     */
-    public static function create_retry_submission($user_id, $original_id) {
-        $original = self::get_submission_by_id($user_id, $original_id);
-        
-        if (!$original || $original['status'] !== Sisme_Utils_Users::GAME_STATUS_REJECTED) {
-            return new WP_Error('invalid_original', 'Soumission originale invalide');
-        }
-        
-        $retry_data = $original['game_data'];
-        $new_submission_id = self::create_submission($user_id, $retry_data);
-        
-        if (is_wp_error($new_submission_id)) {
-            return $new_submission_id;
-        }
-        
-        $new_submission = self::get_submission_by_id($user_id, $new_submission_id);
-        $new_submission['status'] = Sisme_Utils_Users::GAME_STATUS_REVISION;
-        $new_submission['metadata']['retry_count'] = ($original['metadata']['retry_count'] ?? 0) + 1;
-        $new_submission['metadata']['original_submission_id'] = $original_id;
-        
-        self::update_submission_in_user_data($user_id, $new_submission);
-        self::update_user_stats($user_id);
-        
-        return $new_submission_id;
-    }
-    
-    /**
      * Vérifier si un utilisateur peut créer une soumission
      */
     public static function can_create_submission($user_id) {
@@ -266,8 +282,7 @@ class Sisme_Game_Submission_Data_Manager {
         }
         
         $editable_statuses = [
-            Sisme_Utils_Users::GAME_STATUS_DRAFT,
-            Sisme_Utils_Users::GAME_STATUS_REVISION
+            Sisme_Utils_Users::GAME_STATUS_DRAFT
         ];
         
         return in_array($submission['status'], $editable_statuses);
@@ -567,9 +582,6 @@ class Sisme_Game_Submission_Data_Manager {
                     break;
                 case Sisme_Utils_Users::GAME_STATUS_REJECTED:
                     $stats['rejected_count']++;
-                    break;
-                case Sisme_Utils_Users::GAME_STATUS_REVISION:
-                    $stats['revision_count']++;
                     break;
             }
         }
