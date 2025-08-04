@@ -112,8 +112,14 @@ class Sisme_Game_Page_Renderer {
         
         foreach ($sections as $section) {
             $output .= '<div class="sisme-game-section">';
-            $output .= '<h3>' . esc_html($section['title']) . '</h3>';
-            $output .= $section['content']; // Déjà formaté avec wpautop()
+            
+            if (!empty($section['title'])) {
+                $output .= '<h3>' . esc_html($section['title']) . '</h3>';
+            }
+            
+            if (!empty($section['content'])) {
+                $output .= wpautop(wp_kses_post($section['content']));
+            }
             
             if (!empty($section['image_url'])) {
                 $output .= '<div class="sisme-game-section-image">';
@@ -140,7 +146,7 @@ class Sisme_Game_Page_Renderer {
         
         // Description
         if (!empty($game_data['description'])) {
-            $output .= '<p class="sisme-game-description">' . esc_html($game_data['description']) . '</p>';
+            $output .= '<p class="sisme-game-description">' . wp_kses_post($game_data['description']) . '</p>';
         }
         
         // USER ACTIONS
@@ -199,28 +205,27 @@ class Sisme_Game_Page_Renderer {
         $output = '<div class="sisme-user-actions sisme-user-action-fiches">';
         
         if (class_exists('Sisme_User_Actions_API')) {
-            $favorite_button = Sisme_User_Actions_API::render_action_button(
+            $button_html = Sisme_User_Actions_API::render_action_button(
                 $game_data['id'],
                 'favorite',
-                array(
+                [
                     'size' => 'medium',
                     'show_text' => false,
                     'show_count' => true
-                )
+                ]
             );
+            $output .= $button_html;
             
-            $owned_button = Sisme_User_Actions_API::render_action_button(
+            $button_html = Sisme_User_Actions_API::render_action_button(
                 $game_data['id'],
                 'owned',
-                array(
+                [
                     'size' => 'medium',
                     'show_text' => false,
                     'show_count' => true
-                )
+                ]
             );
-            
-            $output .= $favorite_button;
-            $output .= $owned_button;
+            $output .= $button_html;
         }
         
         $output .= '</div>';
