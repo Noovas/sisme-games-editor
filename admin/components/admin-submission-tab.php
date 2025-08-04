@@ -145,6 +145,7 @@ class Sisme_Admin_Submission_Tab {
         }
         // Liens externes
         $external_links = $game_data['external_links'] ?? [];
+
         // Réponse complète
         wp_send_json_success([
             'submission_id' => $submission_id,
@@ -651,7 +652,6 @@ class Sisme_Admin_Submission_Tab {
      */
     public static function ajax_approve_submission() {
         error_log('DEBUG: Début ajax_approve_submission');
-        error_log('DEBUG: POST data: ' . print_r($_POST, true));
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error(['message' => 'Permissions insuffisantes']);
@@ -664,10 +664,7 @@ class Sisme_Admin_Submission_Tab {
         $submission_id = sanitize_text_field($_POST['submission_id'] ?? '');
         $user_id = intval($_POST['user_id'] ?? 0);
         
-        error_log("DEBUG: submission_id='$submission_id', user_id=$user_id");
-        
         if (!$submission_id || !$user_id) {
-            error_log('DEBUG: Paramètre manquant détecté');
             wp_send_json_error(['message' => "Paramètres manquants - ID:$submission_id, User:$user_id"]);
         }
         
@@ -690,15 +687,42 @@ class Sisme_Admin_Submission_Tab {
         $result = Sisme_Game_Submission_Data_Manager::change_submission_status(
             $user_id, 
             $submission_id, 
-            Sisme_Utils_Users::GAME_STATUS_PUBLISHED,
+            Sisme_Utils_Users::GAME_STATUS_PENDING,
             [
-                'approved_at' => current_time('mysql'),
-                'admin_user_id' => get_current_user_id()
+                'approval_timestamp' => current_time('mysql')
             ]
         );
         
         if ($result) {
             if (class_exists('Sisme_Game_Creator')) {
+                // Débogage des modes avant création
+                echo '<pre>';
+                echo "DÉBOGAGE DES MODES DE JEU:\n\n";
+                
+                echo "1. MODES DANS LA SOUMISSION:\n";
+                if (isset($submission['game_data']['game_modes'])) {
+                    echo "Type: " . gettype($submission['game_data']['game_modes']) . "\n";
+                    echo "Valeur brute: \n";
+                    var_export($submission['game_data']['game_modes']);
+                    echo "\n\nSérialisé: " . serialize($submission['game_data']['game_modes']);
+                } else {
+                    echo "Aucun mode trouvé dans game_data\n";
+                }
+                
+                echo "\n\n2. EXTRACTION ET CONVERSION DES DONNÉES:\n";
+                $extracted_data = Sisme_Game_Creator::extract_game_data_from_submission($submission);
+                if (!is_wp_error($extracted_data) && isset($extracted_data['modes'])) {
+                    echo "Type après extraction: " . gettype($extracted_data['modes']) . "\n";
+                    echo "Valeur après extraction: \n";
+                    var_export($extracted_data['modes']);
+                    echo "\n\nSérialisé: " . serialize($extracted_data['modes']);
+                } else {
+                    echo "Aucun mode trouvé après extraction ou erreur\n";
+                }
+                
+                echo "\n\nARRÊT DU DÉBOGAGE - Exécution interrompue avant création du jeu";
+                echo '</pre>';
+                
                 $game_id = Sisme_Game_Creator::create_from_submission_data($submission);
                 
                 if (!is_wp_error($game_id)) {
@@ -713,6 +737,29 @@ class Sisme_Admin_Submission_Tab {
                             'published_game_id' => $game_id
                         ]
                     );
+                    
+                    // Email de confirmation
+                    $user = get_userdata($user_id);
+                    $submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
+                    $game_name = $submission['game_data']['game_name'] ?? 'Votre jeu';
+                    $game_link = home_url();
+
+                    $email_content = Sisme_Email_Templates::submission_approved(
+                        $user->display_name,
+                        $game_name,
+                        $game_link
+                    );
+                    
+                    Sisme_Email_Manager::send_email(
+                        [$user_id],
+                        "Soumission approuvée : {$game_name}",
+                        $email_content
+                    );
+                    
+                    wp_send_json_success([
+                        'message' => 'Jeu approuvé et créé avec succès',
+                        'game_id' => $game_id
+                    ]);
                 } else {
                     // Rollback - remettre en pending si création échoue
                     Sisme_Game_Submission_Data_Manager::change_submission_status(
@@ -724,32 +771,10 @@ class Sisme_Admin_Submission_Tab {
                     wp_send_json_error([
                         'message' => 'Erreur lors de la création du jeu: ' . $game_id->get_error_message()
                     ]);
-                    return;
                 }
+            } else {
+                wp_send_json_error(['message' => 'Module de création de jeu non disponible']);
             }
-            
-            // Email de confirmation (code existant)
-            $user = get_userdata($user_id);
-            $submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
-            $game_name = $submission['game_data']['game_name'] ?? 'Votre jeu';
-            $game_link = home_url();
-
-            $email_content = Sisme_Email_Templates::submission_approved(
-                $user->display_name,
-                $game_name,
-                $game_link
-            );
-            
-            Sisme_Email_Manager::send_email(
-                [$user_id],
-                "Soumission approuvée : {$game_name}",
-                $email_content
-            );
-            
-            wp_send_json_success([
-                'message' => 'Jeu approuvé et créé avec succès',
-                'game_id' => $game_id ?? null
-            ]);
         } else {
             wp_send_json_error(['message' => 'Erreur lors de l\'approbation']);
         }

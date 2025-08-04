@@ -19,7 +19,6 @@ if (!defined('ABSPATH')) {
 }
 
 require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/game-data-creator/game-data-creator-constants.php';
-require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/game-page-creator/game-page-creator.php';
 
 class Sisme_Game_Page_Creator_Publisher {
     
@@ -264,32 +263,9 @@ class Sisme_Game_Page_Creator_Publisher {
             update_post_meta($post_id, '_sisme_created_with_game_page_creator', true);
             update_post_meta($post_id, '_sisme_game_page_creator_version', '1.0.0');
             
-            // Générer le contenu HTML avec notre module
-            $html_content = Sisme_Game_Page_Creator::create_page($tag_id);
-            
-            if (!$html_content) {
-                return array(
-                    'success' => false,
-                    'message' => 'Erreur lors de la génération du contenu'
-                );
-            }
-            
-            // Sauvegarder le contenu généré dans post_content
-            $update_result = wp_update_post(array(
-                'ID' => $post_id,
-                'post_content' => $html_content
-            ));
-            
-            if (is_wp_error($update_result)) {
-                return array(
-                    'success' => false,
-                    'message' => 'Erreur lors de la sauvegarde : ' . $update_result->get_error_message()
-                );
-            }
-            
             return array(
                 'success' => true,
-                'message' => 'Contenu généré et sauvegardé'
+                'message' => 'Fiche créée avec succès (rendu dynamique)'
             );
             
         } catch (Exception $e) {

@@ -32,7 +32,8 @@ class Sisme_Game_Page_Creator_Loader {
         'game-sections-builder.php' => 'Construction sections personnalisées',
         'game-page-renderer.php' => 'Rendu HTML page complète',
         'game-page-creator.php' => 'API principale du module',
-        'game-page-creator-publisher.php' => 'Publisher et intégration WordPress'
+        'game-page-creator-publisher.php' => 'Publisher et intégration WordPress',
+        'game-page-content-filter.php' => 'Filtre de contenu pour rendu dynamique'
     );
     
     /**
@@ -101,6 +102,16 @@ class Sisme_Game_Page_Creator_Loader {
      */
     private function register_hooks() {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
+        
+        // Initialiser le content filter pour le rendu dynamique
+        if (class_exists('Sisme_Game_Page_Content_Filter')) {
+            Sisme_Game_Page_Content_Filter::init();
+        }
+        
+        // Initialiser le publisher pour la création de fiches
+        if (class_exists('Sisme_Game_Page_Creator_Publisher')) {
+            Sisme_Game_Page_Creator_Publisher::init();
+        }
     }
     
     /**

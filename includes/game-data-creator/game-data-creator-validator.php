@@ -126,11 +126,16 @@ class Sisme_Game_Creator_Validator {
         }
         
         // Arrays d'IDs
-        $id_array_fields = array('genres', 'modes', 'developers', 'publishers', 'screenshots');
+        $id_array_fields = array('genres', 'developers', 'publishers', 'screenshots');
         foreach ($id_array_fields as $field) {
             if (isset($game_data[$field]) && is_array($game_data[$field])) {
                 $sanitized[$field] = array_map('intval', array_filter($game_data[$field]));
             }
+        }
+        
+        // Modes de jeu (conserver les valeurs en chaînes)
+        if (isset($game_data['modes']) && is_array($game_data['modes'])) {
+            $sanitized['modes'] = array_filter($game_data['modes']);
         }
         
         // Plateformes (structure spéciale)
@@ -369,7 +374,8 @@ class Sisme_Game_Creator_Validator {
                     $clean_section = array(
                         'title' => sanitize_text_field($section['title'] ?? ''),
                         'content' => wp_kses_post($section['content'] ?? ''),
-                        'image_id' => !empty($section['image_id']) ? intval($section['image_id']) : ''
+                        'image_id' => !empty($section['image_id']) ? intval($section['image_id']) : 
+                                     (!empty($section['image_attachment_id']) ? intval($section['image_attachment_id']) : '')
                     );
                     
                     // Ne garder que les sections avec titre et contenu

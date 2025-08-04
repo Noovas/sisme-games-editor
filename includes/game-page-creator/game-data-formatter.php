@@ -166,19 +166,37 @@ class Sisme_Game_Data_Formatter {
             return array();
         }
         
+        // Support pour les deux formats possibles: clés numériques ou chaînes
         $modes_labels = array(
+            // Format numérique (ancien format)
             0 => 'Solo',
             1 => 'Multijoueur',
             2 => 'Coopératif',
-            3 => 'Compétitif'
+            3 => 'Compétitif',
+            // Format chaîne (nouveau format)
+            'solo' => 'Solo',
+            'multijoueur' => 'Multijoueur',
+            'coop' => 'Coopération',
+            'competitif' => 'Compétitif',
+            'online' => 'En ligne',
+            'local' => 'Local'
         );
         
         $formatted = array();
         foreach ($modes as $mode_key) {
-            if (isset($modes_labels[$mode_key])) {
+            // Convertir en chaîne pour s'assurer que les clés numériques sont traitées correctement
+            $key = is_numeric($mode_key) ? strval($mode_key) : $mode_key;
+            
+            if (isset($modes_labels[$key])) {
                 $formatted[] = array(
-                    'key' => $mode_key,
-                    'label' => $modes_labels[$mode_key]
+                    'key' => $key,
+                    'label' => $modes_labels[$key]
+                );
+            } else {
+                // Fallback pour les clés inconnues (utiliser la clé comme label avec première lettre en majuscule)
+                $formatted[] = array(
+                    'key' => $key,
+                    'label' => ucfirst($key)
                 );
             }
         }
@@ -290,7 +308,7 @@ class Sisme_Game_Data_Formatter {
     private static function format_external_links($term_id) {
         $links = get_term_meta($term_id, Sisme_Game_Creator_Constants::META_EXTERNAL_LINKS, true);
         if (!is_array($links)) {
-            return array();
+            $links = array(); // Initialiser comme tableau vide si pas défini
         }
         
         $formatted = array();
@@ -309,15 +327,18 @@ class Sisme_Game_Data_Formatter {
             )
         );
         
+        // Assurons-nous que chaque plateforme soit présente même sans données
         foreach ($platforms_config as $platform => $config) {
             $formatted[$platform] = array(
                 'platform' => $platform,
                 'label' => $config['label'],
-                'url' => $links[$platform] ?? '',
+                'url' => isset($links[$platform]) ? $links[$platform] : '',
                 'icon' => $config['icon'],
                 'available' => !empty($links[$platform])
             );
         }
+        
+        return $formatted;
         
         return $formatted;
     }

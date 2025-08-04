@@ -6,7 +6,19 @@
  * RESPONSABILITÉ:
  * - Génération HTML strictement identique à la structure existante
  * - Utilisation des mêmes classes CSS
- * - Intégration des User Actions
+ * - I        // Mapping simple entre plateformes et groupes/icônes
+        $platform_mapping = [
+            'windows' => ['group' => 'pc', 'icon' => '🖥️'],
+            'mac' => ['group' => 'pc', 'icon' => '🖥️'],
+            'macos' => ['group' => 'pc', 'icon' => '🖥️'],
+            'linux' => ['group' => 'pc', 'icon' => '🖥️'],
+            'xbox' => ['group' => 'console', 'icon' => '🎮'],
+            'playstation' => ['group' => 'console', 'icon' => '🎮'],
+            'switch' => ['group' => 'console', 'icon' => '🎮'],
+            'ios' => ['group' => 'mobile', 'icon' => '📱'],
+            'android' => ['group' => 'mobile', 'icon' => '📱'],
+            'web' => ['group' => 'web', 'icon' => '🌐']
+        ];s User Actions
  * - JavaScript pour galerie interactive
  * 
  * DÉPENDANCES:
@@ -261,9 +273,64 @@ class Sisme_Game_Page_Renderer {
         $output .= '<span class="sisme-meta-label">Plateformes</span>';
         $output .= '<div class="sisme-platforms">';
         
+        // Mapping simple entre plateformes et groupes/icônes
+        $platform_mapping = [
+            'windows' => ['group' => 'pc', 'icon' => '🖥️'],
+            'mac' => ['group' => 'pc', 'icon' => '🖥️'],
+            'macos' => ['group' => 'pc', 'icon' => '🖥️'],
+            'linux' => ['group' => 'pc', 'icon' => '🖥️'],
+            'xbox' => ['group' => 'console', 'icon' => '🎮'],
+            'playstation' => ['group' => 'console', 'icon' => '🎮'],
+            'switch' => ['group' => 'console', 'icon' => '🎮'],
+            'ios' => ['group' => 'mobile', 'icon' => '📱'],
+            'android' => ['group' => 'mobile', 'icon' => '📱'],
+            'web' => ['group' => 'web', 'icon' => '�']
+        ];
+        
+        // Groupes de plateformes
+        $groups = [];
+        
+        // Organiser les plateformes par groupe
         foreach ($platforms as $platform) {
-            $output .= '<span class="sisme-badge-platform" title="' . esc_attr($platform['tooltip']) . '">';
-            $output .= $platform['icon'];
+            if (!isset($platform['key'])) {
+                continue; // Ignorer les plateformes sans clé
+            }
+            
+            $key = $platform['key'];
+            $label = isset($platform['label']) ? $platform['label'] : ucfirst($key);
+            
+            if (isset($platform_mapping[$key])) {
+                $group = $platform_mapping[$key]['group'];
+                $icon = $platform_mapping[$key]['icon'];
+                
+                if (!isset($groups[$group])) {
+                    $groups[$group] = [
+                        'platforms' => [],
+                        'icon' => $icon
+                    ];
+                }
+                
+                $groups[$group]['platforms'][] = $label;
+            } else {
+                // Plateforme non reconnue, la mettre dans "autres"
+                if (!isset($groups['other'])) {
+                    $groups['other'] = [
+                        'platforms' => [],
+                        'icon' => '🎲'
+                    ];
+                }
+                
+                $groups['other']['platforms'][] = $label;
+            }
+        }
+        
+        // Afficher chaque groupe de plateformes
+        foreach ($groups as $group_key => $group) {
+            $platforms_list = implode(', ', $group['platforms']);
+            
+            $output .= '<span class="sisme-badge-platform sisme-platform-' . esc_attr($group_key) . '" ';
+            $output .= 'title="Disponible sur: ' . esc_attr($platforms_list) . '">';
+            $output .= $group['icon'];
             $output .= '</span>';
         }
         
@@ -281,10 +348,36 @@ class Sisme_Game_Page_Renderer {
         $output .= '<span class="sisme-meta-label">Modes</span>';
         $output .= '<div class="sisme-game-modes">';
         
-        foreach ($modes as $mode) {
-            $output .= '<span class="sisme-badge sisme-badge-mode ' . esc_attr($mode['key']) . '">';
-            $output .= esc_html($mode['label']);
-            $output .= '</span>';
+        // Mode labels pour traduction
+        $mode_labels = array(
+            'solo' => 'Solo',
+            'multijoueur' => 'Multijoueur',
+            'coop' => 'Coopération',
+            'competitif' => 'Compétitif',
+            'online' => 'En ligne',
+            'local' => 'Local'
+        );
+        
+        // Vérifier si les modes sont déjà formatés ou s'il s'agit juste d'un tableau de clés
+        if (is_array($modes)) {
+            if (isset($modes[0]) && is_array($modes[0]) && isset($modes[0]['key'])) {
+                // Déjà au bon format, utiliser tel quel
+                foreach ($modes as $mode) {
+                    $output .= '<span class="sisme-badge sisme-badge-mode ' . esc_attr($mode['key']) . '">';
+                    $output .= esc_html($mode['label']);
+                    $output .= '</span>';
+                }
+            } else {
+                // Format simple, convertir à la volée
+                foreach ($modes as $mode) {
+                    $mode_key = is_string($mode) ? $mode : strval($mode);
+                    $mode_label = isset($mode_labels[$mode_key]) ? $mode_labels[$mode_key] : ucfirst($mode_key);
+                    
+                    $output .= '<span class="sisme-badge sisme-badge-mode ' . esc_attr($mode_key) . '">';
+                    $output .= esc_html($mode_label);
+                    $output .= '</span>';
+                }
+            }
         }
         
         $output .= '</div>';
@@ -359,15 +452,22 @@ class Sisme_Game_Page_Renderer {
     private static function render_store_links($external_links) {
         $output = '<div class="sisme-store-links">';
         
-        foreach ($external_links as $platform => $link_data) {
-            if ($link_data['available']) {
-                $output .= '<a href="' . esc_url($link_data['url']) . '" class="sisme-store-icon" target="_blank" title="' . esc_attr($link_data['label']) . '">';
-                $output .= '<img src="' . esc_attr($link_data['icon']) . '" alt="' . esc_attr($link_data['label']) . '">';
-                $output .= '</a>';
-            } else {
-                $output .= '<div class="sisme-store-icon sisme-store-icon--disabled" title="Pas disponible">';
-                $output .= '<img src="' . esc_attr($link_data['icon']) . '" alt="' . esc_attr($link_data['label']) . '">';
-                $output .= '</div>';
+        // Si le tableau est vide, afficher un message
+        if (empty($external_links) || count($external_links) === 0) {
+            $output .= '<div class="sisme-store-no-links">Aucun lien boutique disponible</div>';
+        } else {
+            foreach ($external_links as $platform => $link_data) {
+                // Vérifier que available est défini et est évalué comme vrai
+                // Dans les données brutes, available peut être un string "1" ou vide
+                if (!empty($link_data['available'])) {
+                    $output .= '<a href="' . esc_url($link_data['url']) . '" class="sisme-store-icon" target="_blank" title="' . esc_attr($link_data['label']) . '">';
+                    $output .= '<img src="' . esc_attr($link_data['icon']) . '" alt="' . esc_attr($link_data['label']) . '">';
+                    $output .= '</a>';
+                } else {
+                    $output .= '<div class="sisme-store-icon sisme-store-icon--disabled" title="Pas disponible">';
+                    $output .= '<img src="' . esc_attr($link_data['icon']) . '" alt="' . esc_attr($link_data['label']) . '">';
+                    $output .= '</div>';
+                }
             }
         }
         

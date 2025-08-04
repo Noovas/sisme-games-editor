@@ -190,7 +190,7 @@ class Sisme_Game_Creator {
             'game_genres' => 'genres',
             'game_platforms' => 'platforms',
             'game_modes' => 'modes',
-            'game_external_links' => 'external_links',
+            'external_links' => 'external_links', 
             'covers' => 'covers',
             'screenshots' => 'screenshots',
             'sections' => 'sections'
@@ -200,6 +200,28 @@ class Sisme_Game_Creator {
         foreach ($field_mapping as $submission_key => $creator_key) {
             if (isset($submission_game_data[$submission_key])) {
                 $converted_data[$creator_key] = $submission_game_data[$submission_key];
+                
+                // Conversion spéciale pour les sections (image_attachment_id -> image_id)
+                if ($submission_key === 'sections' && is_array($converted_data[$creator_key])) {
+                    foreach ($converted_data[$creator_key] as &$section) {
+                        if (isset($section['image_attachment_id']) && !isset($section['image_id'])) {
+                            $section['image_id'] = $section['image_attachment_id'];
+                        }
+                    }
+                    unset($section); // Nettoyer la référence
+                }
+            }
+        }
+        
+        // S'assurer que external_links contient au moins la structure vide pour chaque plateforme
+        if (empty($converted_data['external_links'])) {
+            $converted_data['external_links'] = [];
+        }
+        
+        // S'assurer que tous les platforms sont présents dans external_links
+        foreach (Sisme_Game_Creator_Constants::EXTERNAL_LINKS_PLATFORMS as $platform => $label) {
+            if (!isset($converted_data['external_links'][$platform])) {
+                $converted_data['external_links'][$platform] = '';
             }
         }
         
