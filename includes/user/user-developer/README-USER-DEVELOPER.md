@@ -803,90 +803,6 @@ $required_modules = [
 
 ---
 
-## 🔄 Workflow Développeur Complet
-
-### Phase 1: Candidature (none → pending)
-1. **Utilisateur** remplit formulaire candidature avec validation temps réel
-2. **Soumission AJAX** avec nonce de sécurité
-3. **Validation serveur** complète des données
-4. **Sauvegarde** avec `save_developer_application()`
-5. **Statut** passe automatiquement à 'pending'
-6. **Rechargement** dashboard avec nouveau statut
-
-### Phase 2: Validation Admin (pending → approved/rejected)
-1. **Admin** examine candidature depuis interface dédiée
-2. **Action** via modal avec notes administrateur
-3. **Approbation** : Ajout rôle 'sisme-dev' + statut 'approved'
-4. **Rejet** : Statut 'rejected' (rôle inchangé)
-5. **Notification** utilisateur (à implémenter)
-
-### Phase 3: Développeur Actif (approved)
-1. **Navigation** change vers "🎮 Mes Jeux"
-2. **Capacités** : `submit_games`, `manage_own_games`
-3. **Interface** dédiée pour soumission jeux (futur)
-4. **Révocation** possible par admin (retour none)
-
-### Phase 4: Révocation (approved → none)
-1. **Admin** peut révoquer le statut développeur
-2. **Suppression** rôle 'sisme-dev' uniquement
-3. **Conservation** autres rôles (admin reste admin)
-4. **Statut** vers 'none' (peut recandidater)
-5. **Navigation** redevient "📝 Devenir Développeur"
-
-### Phase 5: Reset Rejection (rejected → none)
-1. **Utilisateur rejeté** voit notes admin et conseils
-2. **Bouton "Nouvelle demande"** avec confirmation obligatoire
-3. **Reset AJAX** sécurisé avec nonce
-4. **Statut** vers 'none' + suppression anciennes données
-5. **Rechargement** dashboard → formulaire candidature accessible
-
-### Phase 6: Notifications Email ✅ NOUVEAU
-1. **Candidature soumise** → Email confirmation immédiat
-2. **Approbation admin** → Email félicitations + privilèges
-3. **Rejet admin** → Email constructif + conseils amélioration
-4. **Format anti-spam** → Texte simple, headers corrects
-5. **Logging intégré** → Debug via WP_DEBUG
-
----
-
-## 🎯 Prochaines Étapes - Phase 3
-
-### Interface "Mes Jeux" ✅ Base
-- [x] Interface développeur approuvé avec statistiques
-- [x] Placeholder boutons "Soumettre un jeu"
-- [ ] Formulaire soumission jeu frontend fonctionnel
-- [ ] Liste jeux soumis avec statuts
-- [ ] Workflow modération jeux admin
-
-### Système de Notifications
-- [ ] Email approbation/rejet candidature
-- [ ] Notifications dashboard
-- [ ] Alertes admin nouvelles candidatures
-- [ ] Système de badges développeur
-
-### Extensions Admin
-- [x] Interface gestion candidatures complète
-- [x] Actions approbation/rejet/révocation
-- [ ] Filters par statut développeur
-- [ ] Export données développeurs
-- [ ] Statistiques globales développeurs
-- [ ] Modération jeux soumis
-
-### Améliorations UX ✅ Terminé
-- [x] Reset candidature rejetée fonctionnel
-- [x] Affichage notes admin pour rejets
-- [x] Conseils amélioration candidature
-- [x] Confirmation utilisateur pour actions critiques
-
-### Notifications Email ✅ Terminé
-- [x] Email candidature soumise (confirmation + délai)
-- [x] Email candidature approuvée (félicitations + privilèges)
-- [x] Email candidature rejetée (conseils + encouragements)
-- [x] Format anti-spam optimisé (texte simple)
-- [x] Intégration hooks automatiques
-
----
-
 ## 🔗 Dépendances
 
 ### Modules Utils Utilisés
@@ -900,14 +816,14 @@ $required_modules = [
 - Navigation et assets dashboard existants
 
 ### Fonctions WordPress
-- `add_role()` / `remove_role()` - Gestion rôles multi-niveaux ✅
+- `add_role()` / `remove_role()` - Gestion rôles multi-niveaux 
 - `update_user_meta()` / `get_user_meta()` - Métadonnées utilisateur
-- `wp_ajax_` hooks - Handlers AJAX sécurisés ✅
-- `wp_nonce_` functions - Sécurité CSRF ✅
+- `wp_ajax_` hooks - Handlers AJAX sécurisés 
+- `wp_nonce_` functions - Sécurité CSRF 
 
 ### Actions AJAX Disponibles
-- `sisme_developer_submit` - Soumission candidature ✅
-- `sisme_developer_reset_rejection` - Reset candidature rejetée ✅
+- `sisme_developer_submit` - Soumission candidature 
+- `sisme_developer_reset_rejection` - Reset candidature rejetée 
 
 ### Hooks Email Automatiques 
 - `sisme_developer_application_submitted` - Déclenché après sauvegarde candidature
