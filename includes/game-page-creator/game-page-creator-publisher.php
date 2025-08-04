@@ -253,33 +253,55 @@ class Sisme_Game_Page_Creator_Publisher {
      * @return array Résultat de génération
      */
     private static function generate_fiche_content($post_id, $tag_id) {
-        // Générer le HTML avec notre module
-        $generated_html = Sisme_Game_Page_Creator::create_page($tag_id);
-        
-        if (!$generated_html) {
+        try {
+            // Récupérer les sections depuis term_meta
+            $sections = get_term_meta($tag_id, Sisme_Game_Creator_Constants::META_SECTIONS, true) ?: array();
+            
+            // Sauvegarder les sections dans post_meta (pour détection par content-filter)
+            update_post_meta($post_id, '_sisme_game_sections', $sections);
+            
+            // NOUVEAU : Marquer cette fiche comme créée avec le nouveau système
+            update_post_meta($post_id, '_sisme_created_with_game_page_creator', true);
+            update_post_meta($post_id, '_sisme_game_page_creator_version', '1.0.0');
+            
+            // Générer le contenu HTML avec notre module
+            $html_content = Sisme_Game_Page_Creator::create_page($tag_id);
+            
+            if (!$html_content) {
+                return array(
+                    'success' => false,
+                    'message' => 'Erreur lors de la génération du contenu'
+                );
+            }
+            
+            // Sauvegarder le contenu généré dans post_content
+            $update_result = wp_update_post(array(
+                'ID' => $post_id,
+                'post_content' => $html_content
+            ));
+            
+            if (is_wp_error($update_result)) {
+                return array(
+                    'success' => false,
+                    'message' => 'Erreur lors de la sauvegarde : ' . $update_result->get_error_message()
+                );
+            }
+            
+            return array(
+                'success' => true,
+                'message' => 'Contenu généré et sauvegardé'
+            );
+            
+        } catch (Exception $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[Game Page Creator Publisher] Erreur génération contenu: ' . $e->getMessage());
+            }
+            
             return array(
                 'success' => false,
-                'message' => 'Erreur génération contenu'
+                'message' => 'Erreur technique lors de la génération'
             );
         }
-        
-        // Mettre à jour le contenu de l'article
-        $update_result = wp_update_post(array(
-            'ID' => $post_id,
-            'post_content' => $generated_html
-        ));
-        
-        if (is_wp_error($update_result)) {
-            return array(
-                'success' => false,
-                'message' => 'Erreur mise à jour contenu: ' . $update_result->get_error_message()
-            );
-        }
-        
-        return array(
-            'success' => true,
-            'message' => 'Contenu généré et sauvegardé'
-        );
     }
     
     /**
