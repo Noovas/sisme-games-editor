@@ -110,9 +110,20 @@ class Sisme_SEO_Sitemap {
     public function handle_sitemap_request() {
         $sitemap_type = get_query_var('sisme_sitemap');
         
+        // DEBUG COMPLET
+        error_log("=== SITEMAP DEBUG ===");
+        error_log("URL: " . ($_SERVER['REQUEST_URI'] ?? 'UNKNOWN'));
+        error_log("Query var sisme_sitemap: " . ($sitemap_type ?: 'EMPTY'));
+        error_log("Query string: " . ($_SERVER['QUERY_STRING'] ?? 'NONE'));
+        error_log("All query vars: " . print_r($_GET, true));
+        
         if (!$sitemap_type) {
+            error_log("Pas de sitemap_type, retour normal");
             return;
         }
+        
+        error_log("SITEMAP DÉTECTÉ ! Type: " . $sitemap_type);
+        error_log("=== FIN DEBUG ===");
         
         // Headers XML
         header('Content-Type: application/xml; charset=UTF-8');
