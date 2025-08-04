@@ -27,7 +27,6 @@ class Sisme_Fiche_Template {
             return '';
         }
         $tag_id = $game_tags[0]->term_id;
-        $game_name = $game_tags[0]->name;
         $game_data = Sisme_Utils_Games::get_game_data($tag_id);
         $sections = get_post_meta($post_id, '_sisme_game_sections', true) ?: array();
         self::enqueue_frontend_styles();
@@ -53,114 +52,6 @@ class Sisme_Fiche_Template {
                 SISME_GAMES_EDITOR_VERSION
             );
         }
-    }
-    
-    /**
-     * Générer les sections de présentation personnalisées
-     */
-    private static function render_game_sections($sections) {
-        if (empty($sections)) {
-            return '';
-        }
-        
-        $output = '<div class="sisme-fiche-presentation">';
-        $output .= '<h2>Présentation complète du jeu</h2>';
-        
-        foreach ($sections as $section) {
-            if (!empty($section['title']) || !empty($section['content']) || !empty($section['image_id'])) {
-                $output .= '<div class="sisme-game-section">';
-                
-                if (!empty($section['title'])) {
-                    $output .= '<h3>' . esc_html($section['title']) . '</h3>';
-                }
-                
-                if (!empty($section['content'])) {
-                    $output .= wpautop(wp_kses_post($section['content']));
-                }
-                
-                if (!empty($section['image_id'])) {
-                    $image = wp_get_attachment_image($section['image_id'], 'large', false, array(
-                        'class' => 'sisme-section-image'
-                    ));
-                    if ($image) {
-                        $output .= '<div class="sisme-game-section-image">' . $image . '</div>';
-                    }
-                }
-                
-                $output .= '</div>';
-            }
-        }
-        
-        $output .= '</div>';
-        
-        return $output;
-    }
-    
-    /**
-     * Générer les blocs de navigation croisée
-     */
-    private static function render_navigation_blocks($tag_id, $game_name, $game_data) {
-        $game_slug = get_term($tag_id)->slug;
-        
-        // URLs des différents types de contenu
-        $news_url = home_url('/tag/' . $game_slug . '/');
-        $test_url = home_url('/tag/' . $game_slug . '/');
-        
-        // Images depuis les covers
-        $news_image = !empty($game_data['covers']['news']) ? 
-            wp_get_attachment_image_url($game_data['covers']['news'], 'medium') : '';
-        $test_image = !empty($game_data['covers']['test']) ? 
-            wp_get_attachment_image_url($game_data['covers']['test'], 'medium') : $news_image;
-        
-        // Si aucune image, ne pas afficher les blocs
-        if (!$news_image && !$test_image) {
-            return '';
-        }
-        
-        $output = '<div class="sisme-navigation-blocks">';
-        $output .= '<h2>Découvrir ' . esc_html($game_name) . '</h2>';
-        $output .= '<div class="sisme-blocks-grid">';
-        
-        // Bloc News
-        if ($news_image) {
-            $output .= '<div class="sisme-nav-block sisme-news-block">';
-            $output .= '<a href="' . esc_url($news_url) . '" class="sisme-block-link">';
-            $output .= '<div class="sisme-block-image">';
-            $output .= '<img src="' . esc_url($news_image) . '" alt="Actualités ' . esc_attr($game_name) . '">';
-            $output .= '<div class="sisme-block-overlay">';
-            $output .= '<span class="sisme-block-icon">📰</span>';
-            $output .= '</div>';
-            $output .= '</div>';
-            $output .= '<div class="sisme-block-content">';
-            $output .= '<h4 class="sisme-block-title">Actualités</h4>';
-            $output .= '<p class="sisme-block-description">Suivez toutes les news, patches et mises à jour du jeu.</p>';
-            $output .= '</div>';
-            $output .= '</a>';
-            $output .= '</div>';
-        }
-        
-        // Bloc Test
-        if ($test_image) {
-            $output .= '<div class="sisme-nav-block sisme-test-block">';
-            $output .= '<a href="' . esc_url($test_url) . '" class="sisme-block-link">';
-            $output .= '<div class="sisme-block-image">';
-            $output .= '<img src="' . esc_url($test_image) . '" alt="Test ' . esc_attr($game_name) . '">';
-            $output .= '<div class="sisme-block-overlay">';
-            $output .= '<span class="sisme-block-icon">⭐</span>';
-            $output .= '</div>';
-            $output .= '</div>';
-            $output .= '<div class="sisme-block-content">';
-            $output .= '<h4 class="sisme-block-title">Test complet</h4>';
-            $output .= '<p class="sisme-block-description">Découvrez notre analyse détaillée et notre verdict.</p>';
-            $output .= '</div>';
-            $output .= '</a>';
-            $output .= '</div>';
-        }
-        
-        $output .= '</div>';
-        $output .= '</div>';
-        
-        return $output;
     }
     
     /**

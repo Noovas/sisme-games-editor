@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/includes/game-creator/game-creator-constants.php
+ * File: /sisme-games-editor/includes/game-data-creator/game-data-creator-constants.php
  * Constantes centralisées pour le module Game Creator
  * 
  * RESPONSABILITÉ:

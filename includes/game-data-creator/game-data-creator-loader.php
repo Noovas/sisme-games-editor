@@ -1,10 +1,10 @@
 <?php
 /**
- * File: /sisme-games-editor/includes/game-creator/game-creator-loader.php
+ * File: /sisme-games-editor/includes/game-data-creator/game-data-creator-loader.php
  * Loader pour le module Game Creator - Suit l'architecture modulaire du projet
  * 
  * RESPONSABILITÉ:
- * - Chargement des composants du module game-creator
+ * - Chargement des composants du module game-data-creator
  * - Initialisation du singleton
  * - Vérification des permissions admin
  * - Logging debug des modules chargés
@@ -25,13 +25,13 @@ class Sisme_Game_Creator_Loader {
     private $loaded_modules = array();
     
     /**
-     * Modules game-creator disponibles
+     * Modules game-data-creator disponibles
      */
     private $available_modules = array(
-        'game-creator-constants.php' => 'Constantes centralisées',
-        'game-creator-validator.php' => 'Validation et sanitisation',
-        'game-creator-data-manager.php' => 'CRUD WordPress',
-        'game-creator.php' => 'API publique principale'
+        'game-data-creator-constants.php' => 'Constantes centralisées',
+        'game-data-creator-validator.php' => 'Validation et sanitisation',
+        'game-data-creator-data-manager.php' => 'CRUD WordPress',
+        'game-data-creator.php' => 'API publique principale'
     );
     
     /**
@@ -52,7 +52,7 @@ class Sisme_Game_Creator_Loader {
     }
     
     /**
-     * Initialisation du module game-creator
+     * Initialisation du module game-data-creator
      */
     private function init() {
         $this->load_game_creator_modules();
@@ -61,14 +61,14 @@ class Sisme_Game_Creator_Loader {
     }
     
     /**
-     * Charger tous les modules game-creator
+     * Charger tous les modules game-data-creator
      */
     private function load_game_creator_modules() {
         if (self::$modules_loaded) {
             return;
         }
         
-        $game_creator_dir = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/game-creator/';
+        $game_creator_dir = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/game-data-creator/';
         
         foreach ($this->available_modules as $module_file => $module_description) {
             $this->load_module($game_creator_dir, $module_file, $module_description);
@@ -78,7 +78,7 @@ class Sisme_Game_Creator_Loader {
     }
     
     /**
-     * Charger un module game-creator spécifique
+     * Charger un module game-data-creator spécifique
      */
     private function load_module($game_creator_dir, $module_file, $module_description) {
         $module_path = $game_creator_dir . $module_file;

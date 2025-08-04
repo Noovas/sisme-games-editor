@@ -7,12 +7,12 @@ Module autonome de création/gestion de jeux pour administrateurs uniquement. G�
 ## 📁 Architecture
 
 ```
-/includes/game-creator/
-├── game-creator-loader.php          # Loader et permissions
-├── game-creator-constants.php       # Constantes centralisées
-├── game-creator-validator.php       # Validation et sanitisation
-├── game-creator-data-manager.php    # CRUD WordPress (term + meta)
-└── game-creator.php                 # API publique principale
+/includes/game-data-creator/
+├── game-data-creator-loader.php          # Loader et permissions
+├── game-data-creator-constants.php       # Constantes centralisées
+├── game-data-creator-validator.php       # Validation et sanitisation
+├── game-data-creator-data-manager.php    # CRUD WordPress (term + meta)
+└── game-data-creator.php                 # API publique principale
 ```
 
 ## ⚙️ Activation
@@ -21,7 +21,7 @@ Dans `sisme-games-editor.php` :
 ```php
 define('SISME_GAMES_MODULES', array(
     //Modules
-    "game-creator"  // ← Ajouter cette ligne
+    "game-data-creator"  // ← Ajouter cette ligne
 ));
 ```
 

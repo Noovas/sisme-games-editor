@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/includes/game-creator/game-creator-data-manager.php
+ * File: /sisme-games-editor/includes/game-data-creator/game-data-creator-data-manager.php
  * Gestionnaire de données CRUD pour le module Game Creator
  * 
  * RESPONSABILITÉ:
@@ -10,7 +10,7 @@
  * - Opérations atomiques (création + meta en une fois)
  * 
  * DÉPENDANCES:
- * - game-creator-constants.php
+ * - game-data-creator-constants.php
  * - WordPress Terms API
  * - WordPress Meta API
  */

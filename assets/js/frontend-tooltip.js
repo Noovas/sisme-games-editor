@@ -30,7 +30,7 @@ class SismeFrontendTooltip {
     }
     
     /**
-     * Créer l'élément tooltip (extrait de hero-section-module.php)
+     * Créer l'élément tooltip
      */
     createTooltipSystem() {
         if (document.getElementById("sismeTooltip")) {
@@ -66,7 +66,7 @@ class SismeFrontendTooltip {
     }
     
     /**
-     * Afficher le tooltip (extrait de hero-section-module.php)
+     * Afficher le tooltip
      */
     showTooltip(element, text) {
         if (!this.tooltip || !text) return;
@@ -98,7 +98,7 @@ class SismeFrontendTooltip {
     }
     
     /**
-     * Cacher le tooltip (extrait de hero-section-module.php)
+     * Cacher le tooltip
      */
     hideTooltip() {
         if (this.tooltip) {

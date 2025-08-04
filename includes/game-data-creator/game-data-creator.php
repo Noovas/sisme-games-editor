@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/includes/game-creator/game-creator.php
+ * File: /sisme-games-editor/includes/game-data-creator/game-data-creator.php
  * API principale du module Game Creator
  * 
  * RESPONSABILITÉ:
@@ -10,9 +10,9 @@
  * - Fonctions helper pour conversion de données
  * 
  * DÉPENDANCES:
- * - game-creator-constants.php
- * - game-creator-validator.php
- * - game-creator-data-manager.php
+ * - game-data-creator-constants.php
+ * - game-data-creator-validator.php
+ * - game-data-creator-data-manager.php
  * - Sisme_Game_Creator_Loader (permissions)
  */
 
@@ -164,7 +164,7 @@ class Sisme_Game_Creator {
     }
     
     /**
-     * Convertir les données game-submission vers format game-creator
+     * Convertir les données game-submission vers format game-data-creator
      * @param array $submission_data Structure de soumission complète
      * @return array|WP_Error Données extraites ou erreur
      */
@@ -181,7 +181,7 @@ class Sisme_Game_Creator {
         $submission_game_data = $submission_data['game_data'];
         $converted_data = array();
         
-        // Mapping des champs game-submission vers game-creator
+        // Mapping des champs game-submission vers game-data-creator
         $field_mapping = array(
             'game_name' => 'name',
             'game_description' => 'description',

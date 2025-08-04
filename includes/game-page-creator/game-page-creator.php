@@ -1,7 +1,7 @@
 <?php
 /**
- * File: /sisme-games-editor/includes/frontend/hero-section-module.php
- * Module de génération de la Hero Section pour les fiches de jeu
+ * File: /sisme-games-editor/includes/game-page-creator/game-page-creator.php
+ * Module de génération de la page pour une fiche de jeu
  * Génère uniquement le HTML, CSS dans fichier séparé
  */
 

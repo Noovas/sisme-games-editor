@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/includes/game-creator/game-creator-validator.php
+ * File: /sisme-games-editor/includes/game-data-creator/game-data-creator-validator.php
  * Validation et sanitisation pour le module Game Creator
  * 
  * RESPONSABILITÉ:
@@ -10,7 +10,7 @@
  * - Validation métier (plateformes, sections, etc.)
  * 
  * DÉPENDANCES:
- * - game-creator-constants.php
+ * - game-data-creator-constants.php
  * - WordPress sanitize functions
  */
 

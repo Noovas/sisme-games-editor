@@ -26,7 +26,8 @@ define('SISME_GAMES_MODULES', array(
     "seo",
     "email-manager",
     "dev-editor-manager",
-    "game-creator"
+    "game-data-creator",
+    "game-page-creator"
 ));
 
 // Charger les fichiers
