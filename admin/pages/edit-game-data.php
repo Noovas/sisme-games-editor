@@ -129,7 +129,6 @@ $page->render_start();
     </div>
 <?php endif; ?>
 
-<!-- Formulaire EXACTEMENT comme l'original -->
 <?php
 $form = new Sisme_Game_Form_Module([
     'game_name', Sisme_Utils_Games::META_TEAM_CHOICE, Sisme_Utils_Games::META_GENRES, Sisme_Utils_Games::META_MODES, Sisme_Utils_Games::META_DEVELOPERS, Sisme_Utils_Games::META_PUBLISHERS, 
