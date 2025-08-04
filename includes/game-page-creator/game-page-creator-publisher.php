@@ -393,5 +393,5 @@ class Sisme_Game_Page_Creator_Publisher {
     }
 }
 
-// Initialiser le publisher
-add_action('init', array('Sisme_Game_Page_Creator_Publisher', 'init'));
+// Initialiser le publisher IMMÉDIATEMENT quand le fichier est inclus
+Sisme_Game_Page_Creator_Publisher::init();

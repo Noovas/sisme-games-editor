@@ -13,7 +13,7 @@
  * - game-data-creator-constants.php
  * - game-data-creator-validator.php
  * - game-data-creator-data-manager.php
- * - Sisme_Game_Creator_Loader (permissions)
+ * - Sisme_Game_data_creator_Loader (permissions)
  */
 
 if (!defined('ABSPATH')) {
@@ -309,7 +309,7 @@ class Sisme_Game_Creator {
      * @return bool Peut créer/modifier ou non
      */
     private static function can_create_games($user_id = null) {
-        return Sisme_Game_Creator_Loader::can_create_games($user_id);
+        return Sisme_Game_data_creator_Loader::can_create_games($user_id);
     }
     
     /**

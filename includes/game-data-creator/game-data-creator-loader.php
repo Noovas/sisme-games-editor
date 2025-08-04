@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Sisme_Game_Creator_Loader {
+class Sisme_Game_data_creator_Loader {
 
     private static $instance = null;
     private static $modules_loaded = false;

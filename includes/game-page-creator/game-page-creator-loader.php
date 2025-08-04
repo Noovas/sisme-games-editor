@@ -178,6 +178,3 @@ class Sisme_Game_Page_Creator_Loader {
         );
     }
 }
-
-// Initialiser le loader selon le pattern du projet
-Sisme_Game_Page_Creator_Loader::get_instance();
