@@ -21,6 +21,7 @@ if (!defined('ABSPATH')) {
 
 add_action('wp_ajax_sisme_admin_get_submission_details', ['Sisme_Admin_Submission_Tab', 'ajax_get_submission_details']);
 add_action('wp_ajax_sisme_admin_reject_submission', ['Sisme_Admin_Submission_Tab', 'ajax_reject_submission']);
+add_action('wp_ajax_sisme_admin_approve_submission', ['Sisme_Admin_Submission_Tab', 'ajax_approve_submission']);
 
 /**
  * Classe pour l'onglet admin des soumissions
@@ -293,7 +294,7 @@ class Sisme_Admin_Submission_Tab {
     private static function calculate_stats($submissions) {
         $stats = [
             'draft' => 0, 'pending' => 0, 'published' => 0,
-            'rejected' => 0, 'revision' => 0, 'total' => count($submissions)
+            'rejected' => 0, 'total' => count($submissions)
         ];
         
         foreach ($submissions as $submission) {
@@ -330,10 +331,6 @@ class Sisme_Admin_Submission_Tab {
                 <div class="sisme-stat-card rejected">
                     <span class="stat-number"><?php echo $stats['rejected']; ?></span>
                     <span class="stat-label">❌ Rejetés</span>
-                </div>
-                <div class="sisme-stat-card revision">
-                    <span class="stat-number"><?php echo $stats['revision']; ?></span>
-                    <span class="stat-label">🔄 Révisions</span>
                 </div>
                 <div class="sisme-stat-card total">
                     <span class="stat-number"><?php echo $stats['total']; ?></span>
@@ -516,8 +513,7 @@ class Sisme_Admin_Submission_Tab {
             'draft' => ['class' => 'draft', 'text' => '📝 Brouillon', 'color' => '#6c757d'],
             'pending' => ['class' => 'pending', 'text' => '⏳ En attente', 'color' => '#ffc107'],
             'published' => ['class' => 'published', 'text' => '✅ Publié', 'color' => '#28a745'],
-            'rejected' => ['class' => 'rejected', 'text' => '❌ Rejeté', 'color' => '#dc3545'],
-            'revision' => ['class' => 'revision', 'text' => '🔄 Révision', 'color' => '#17a2b8']
+            'rejected' => ['class' => 'rejected', 'text' => '❌ Rejeté', 'color' => '#dc3545']
         ];
         
         $config = $status_config[$status] ?? $status_config['draft'];
@@ -551,17 +547,19 @@ class Sisme_Admin_Submission_Tab {
             </button>
             
             <!-- Approuver -->
-            <button class="action-btn approve-btn <?php echo in_array($status, ['pending', 'revision']) ? 'active' : 'disabled'; ?>" 
-                    <?php echo in_array($status, ['pending', 'revision']) ? 'onclick="alert(\'Approbation à implémenter\')"' : 'disabled'; ?>
+            <button class="action-btn approve-btn <?php echo $status === 'pending' ? 'active' : 'disabled'; ?>" 
+                    data-submission-id="<?php echo esc_attr($submission_id); ?>"
+                    data-user-id="<?php echo esc_attr($user_id); ?>"
+                    <?php echo $status === 'pending' ? '' : 'disabled'; ?>
                     title="Approuver la soumission">
                 ✅
             </button>
             
             <!-- Rejeter -->
-            <button class="action-btn reject-btn <?php echo in_array($status, ['pending', 'revision']) ? 'active' : 'disabled'; ?>" 
+            <button class="action-btn reject-btn <?php echo in_array($status, ['pending', 'published']) ? 'active' : 'disabled'; ?>" 
                     data-submission-id="<?php echo esc_attr($submission_id); ?>"
                     data-user-id="<?php echo esc_attr($user_id); ?>"
-                    <?php echo in_array($status, ['pending', 'revision']) ? '' : 'disabled'; ?>
+                    <?php echo in_array($status, ['pending', 'published']) ? '' : 'disabled'; ?>
                     title="Rejeter la soumission">
                 ❌
             </button>
@@ -645,6 +643,82 @@ class Sisme_Admin_Submission_Tab {
             wp_send_json_success(['message' => 'Soumission rejetée avec succès']);
         } else {
             wp_send_json_error(['message' => 'Erreur lors du rejet']);
+        }
+    }
+
+    /**
+     * AJAX : Approuver une soumission
+     */
+    public static function ajax_approve_submission() {
+        error_log('DEBUG: Début ajax_approve_submission');
+        error_log('DEBUG: POST data: ' . print_r($_POST, true));
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Permissions insuffisantes']);
+        }
+        
+        if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_developer_nonce')) {
+            wp_send_json_error(['message' => 'Erreur de sécurité']);
+        }
+        
+        $submission_id = sanitize_text_field($_POST['submission_id'] ?? '');
+        $user_id = intval($_POST['user_id'] ?? 0);
+        
+        error_log("DEBUG: submission_id='$submission_id', user_id=$user_id");
+        
+        if (!$submission_id || !$user_id) {
+            error_log('DEBUG: Paramètre manquant détecté');
+            wp_send_json_error(['message' => "Paramètres manquants - ID:$submission_id, User:$user_id"]);
+        }
+        
+        // Charger le data manager
+        if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
+        }
+        
+        // Vérifier que la soumission existe et est en attente
+        $submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
+        if (!$submission) {
+            wp_send_json_error(['message' => 'Soumission introuvable']);
+        }
+        
+        if ($submission['status'] !== Sisme_Utils_Users::GAME_STATUS_PENDING) {
+            wp_send_json_error(['message' => 'Seules les soumissions en attente peuvent être approuvées']);
+        }
+        
+        // Changer le statut vers published
+        $result = Sisme_Game_Submission_Data_Manager::change_submission_status(
+            $user_id, 
+            $submission_id, 
+            Sisme_Utils_Users::GAME_STATUS_PUBLISHED,
+            [
+                'approved_at' => current_time('mysql'),
+                'admin_user_id' => get_current_user_id()
+            ]
+        );
+        
+        if ($result) {
+            $user = get_userdata($user_id);
+            $game_name = $submission['game_data']['game_name'] ?? 'Votre jeu';
+            
+            // Placeholder pour le lien du jeu (sera remplacé plus tard par la vraie URL)
+            $game_link = home_url();
+            
+            $email_content = Sisme_Email_Templates::submission_approved(
+                $user->display_name,
+                $game_name,
+                $game_link
+            );
+            
+            Sisme_Email_Manager::send_email(
+                [$user_id],
+                "Soumission approuvée : {$game_name}",
+                $email_content
+            );
+            
+            wp_send_json_success(['message' => 'Soumission approuvée avec succès']);
+        } else {
+            wp_send_json_error(['message' => 'Erreur lors de l\'approbation']);
         }
     }
 }

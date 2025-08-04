@@ -245,7 +245,6 @@ class Sisme_User_Developer_Data_Manager {
                     'pending_games' => 0,
                     'draft_games' => 0,
                     'rejected_games' => 0,
-                    'revision_games' => 0,
                     'total_views' => 0,
                     'join_date' => self::get_developer_join_date($user_id)
                 ];
@@ -260,7 +259,6 @@ class Sisme_User_Developer_Data_Manager {
             'pending_games' => $game_stats['pending_count'] ?? 0,
             'draft_games' => $game_stats['draft_count'] ?? 0,
             'rejected_games' => $game_stats['rejected_count'] ?? 0,
-            'revision_games' => $game_stats['revision_count'] ?? 0,
             'total_views' => 0,
             'total_downloads' => 0,
             'join_date' => self::get_developer_join_date($user_id),
@@ -274,7 +272,7 @@ class Sisme_User_Developer_Data_Manager {
     public static function has_active_submissions($user_id) {
         $stats = self::get_developer_stats($user_id);
         
-        return ($stats['draft_games'] + $stats['pending_games'] + $stats['revision_games']) > 0;
+        return ($stats['draft_games'] + $stats['pending_games']) > 0;
     }
 
     /**
@@ -368,7 +366,6 @@ class Sisme_User_Developer_Data_Manager {
             return [
                 'submissions_by_status' => [
                     'draft' => [],
-                    'revision' => [],
                     'pending' => [],
                     'published' => [],
                     'rejected' => []
@@ -382,7 +379,6 @@ class Sisme_User_Developer_Data_Manager {
         
         $submissions_by_status = [
             'draft' => [],
-            'revision' => [],
             'pending' => [],
             'published' => [],
             'rejected' => []

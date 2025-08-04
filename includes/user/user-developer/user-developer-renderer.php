@@ -456,7 +456,6 @@ class Sisme_User_Developer_Renderer {
     private static function get_status_label($status) {
         $labels = [
             'draft' => 'Brouillon',
-            'revision' => 'À réviser',
             'pending' => 'En attente',
             'published' => 'Publié',
             'rejected' => 'Rejeté'

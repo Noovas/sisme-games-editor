@@ -565,7 +565,6 @@ class Sisme_Game_Submission_Data_Manager {
             'pending_count' => 0,
             'published_count' => 0,
             'rejected_count' => 0,
-            'revision_count' => 0,
             'last_updated' => current_time('mysql')
         ];
         

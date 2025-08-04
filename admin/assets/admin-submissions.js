@@ -360,4 +360,45 @@ jQuery(document).ready(function($) {
             }
         });
     }
+
+    // Gestionnaire pour les boutons "Approuver" 
+    $(document).on('click', '.approve-btn.active', function(e) {
+        e.preventDefault();
+        
+        const $button = $(this);
+        const submissionId = $button.data('submission-id');
+        const userId = $button.data('user-id');
+        const gameName = $button.closest('tr').find('.game-info strong').text() || 'ce jeu';
+        
+        // Confirmation avant approbation
+        const confirmMessage = `Approuver "${gameName}" ?\n\nCela va :\n- Publier le jeu\n- Envoyer un email de confirmation\n- Rendre la soumission non-modifiable`;
+        
+        if (confirm(confirmMessage)) {
+            approveSubmission(submissionId, userId, gameName);
+        }
+    });
+
+    function approveSubmission(submissionId, userId, gameName) {
+        $.ajax({
+            url: config.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'sisme_admin_approve_submission',
+                submission_id: submissionId,
+                user_id: userId,
+                security: config.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert(`✅ "${gameName}" approuvé et email envoyé !`);
+                    location.reload();
+                } else {
+                    alert('❌ Erreur: ' + (response.data?.message || 'Erreur inconnue'));
+                }
+            },
+            error: function() {
+                alert('❌ Erreur de connexion');
+            }
+        });
+    }
 });

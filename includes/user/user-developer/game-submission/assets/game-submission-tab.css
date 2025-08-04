@@ -29,7 +29,6 @@
 }
 
 .sisme-status-draft,
-.sisme-status-revision,
 .sisme-status-pending,
 .sisme-status-published,
 .sisme-status-rejected {
@@ -41,11 +40,6 @@
 .sisme-status-draft {
     background: rgba(255, 215, 0, 0.2);
     color: #ffd700;
-}
-
-.sisme-status-revision {
-    background: rgba(255, 140, 0, 0.2);
-    color: #ff8c00;
 }
 
 .sisme-status-pending {
