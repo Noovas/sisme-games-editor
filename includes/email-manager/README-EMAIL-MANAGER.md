@@ -12,7 +12,6 @@ includes/email-manager/
 ├── email-manager-loader.php      # Chargement automatique
 ├── email-manager.php             # API d'envoi principal
 ├── email-templates.php           # Templates spécialisés
-└── email-manager-api-ref.md       # Cette documentation
 ```
 
 ---
