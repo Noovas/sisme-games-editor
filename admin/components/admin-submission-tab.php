@@ -698,12 +698,42 @@ class Sisme_Admin_Submission_Tab {
         );
         
         if ($result) {
+            if (class_exists('Sisme_Game_Creator')) {
+                $game_id = Sisme_Game_Creator::create_from_submission_data($submission);
+                
+                if (!is_wp_error($game_id)) {
+                    // Mettre à jour la soumission avec l'ID du jeu créé
+                    Sisme_Game_Submission_Data_Manager::change_submission_status(
+                        $user_id,
+                        $submission_id, 
+                        Sisme_Utils_Users::GAME_STATUS_PUBLISHED,
+                        [
+                            'published_at' => current_time('mysql'),
+                            'admin_user_id' => get_current_user_id(),
+                            'published_game_id' => $game_id
+                        ]
+                    );
+                } else {
+                    // Rollback - remettre en pending si création échoue
+                    Sisme_Game_Submission_Data_Manager::change_submission_status(
+                        $user_id,
+                        $submission_id, 
+                        Sisme_Utils_Users::GAME_STATUS_PENDING
+                    );
+                    
+                    wp_send_json_error([
+                        'message' => 'Erreur lors de la création du jeu: ' . $game_id->get_error_message()
+                    ]);
+                    return;
+                }
+            }
+            
+            // Email de confirmation (code existant)
             $user = get_userdata($user_id);
+            $submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
             $game_name = $submission['game_data']['game_name'] ?? 'Votre jeu';
-            
-            // Placeholder pour le lien du jeu (sera remplacé plus tard par la vraie URL)
             $game_link = home_url();
-            
+
             $email_content = Sisme_Email_Templates::submission_approved(
                 $user->display_name,
                 $game_name,
@@ -716,7 +746,10 @@ class Sisme_Admin_Submission_Tab {
                 $email_content
             );
             
-            wp_send_json_success(['message' => 'Soumission approuvée avec succès']);
+            wp_send_json_success([
+                'message' => 'Jeu approuvé et créé avec succès',
+                'game_id' => $game_id ?? null
+            ]);
         } else {
             wp_send_json_error(['message' => 'Erreur lors de l\'approbation']);
         }

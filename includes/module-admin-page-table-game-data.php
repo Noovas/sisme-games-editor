@@ -25,7 +25,7 @@ class Sisme_Game_Data_Table_Module {
     ];
     
     /**
-     * Constructeur - SIMPLIFIÉ
+     * Constructeur
      */
     public function __construct($options = []) {
         // Générer un ID unique pour chaque instance
