@@ -33,21 +33,16 @@ class Sisme_Game_Sections_Builder {
         if (empty($sections) || !is_array($sections)) {
             return '';
         }
-        
         $valid_sections = self::filter_valid_sections($sections);
         if (empty($valid_sections)) {
             return '';
         }
-        
         $output = '<div class="sisme-game-sections">';
         $output .= '<h2>Présentation complète du jeu</h2>';
-        
         foreach ($valid_sections as $section) {
             $output .= self::build_single_section_html($section);
         }
-        
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -59,28 +54,20 @@ class Sisme_Game_Sections_Builder {
      */
     public static function build_single_section_html($section) {
         $output = '<div class="sisme-game-section">';
-        
-        // Titre de la section
         if (!empty($section['title'])) {
             $output .= '<h3>' . esc_html($section['title']) . '</h3>';
         }
-        
-        // Contenu de la section
         if (!empty($section['content'])) {
             $formatted_content = self::format_section_content($section['content']);
             $output .= $formatted_content;
         }
-        
-        // Image de la section
         if (!empty($section['image_id']) && is_numeric($section['image_id'])) {
             $image_html = self::build_section_image_html($section['image_id']);
             if ($image_html) {
                 $output .= $image_html;
             }
         }
-        
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -95,13 +82,11 @@ class Sisme_Game_Sections_Builder {
         if (!$image_data) {
             return false;
         }
-        
         $output = '<div class="sisme-game-section-image">';
         $output .= '<img class="sisme-section-image" ';
         $output .= 'src="' . esc_attr($image_data['url']) . '" ';
         $output .= 'alt="' . esc_attr($image_data['alt']) . '">';
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -133,36 +118,26 @@ class Sisme_Game_Sections_Builder {
         if (!is_array($section)) {
             return false;
         }
-        
         $title = $section['title'] ?? '';
         $content = $section['content'] ?? '';
-        
-        // Au minimum titre et contenu requis
         if (empty($title) || empty($content)) {
             return false;
         }
-        
-        // Vérification des longueurs avec les constantes
         if (strlen($title) > Sisme_Game_Creator_Constants::MAX_SECTION_TITLE_LENGTH) {
             return false;
         }
-        
         if (strlen($content) < Sisme_Game_Creator_Constants::MIN_SECTION_CONTENT_LENGTH) {
             return false;
         }
-        
         if (strlen($content) > Sisme_Game_Creator_Constants::MAX_SECTION_CONTENT_LENGTH) {
             return false;
         }
-        
-        // Vérification de l'image si présente
         if (!empty($section['image_id'])) {
             $image_id = intval($section['image_id']);
             if ($image_id > 0 && !Sisme_Game_Media_Handler::is_valid_image_attachment($image_id)) {
                 return false;
             }
         }
-        
         return true;
     }
     
@@ -176,14 +151,8 @@ class Sisme_Game_Sections_Builder {
         if (empty($content)) {
             return '';
         }
-        
-        // Nettoyer le contenu
         $content = wp_kses_post($content);
-        
-        // Appliquer wpautop pour les paragraphes automatiques
         $content = wpautop($content);
-        
-        // Nettoyer les paragraphes vides
         $content = preg_replace('/<p>\s*<\/p>/', '', $content);
         
         return $content;
@@ -199,46 +168,32 @@ class Sisme_Game_Sections_Builder {
         if (!is_array($section)) {
             return false;
         }
-        
         $cleaned = array(
             'title' => '',
             'content' => '',
             'image_id' => ''
         );
-        
-        // Nettoyer le titre
         if (!empty($section['title'])) {
             $cleaned['title'] = sanitize_text_field($section['title']);
-            
-            // Vérifier la longueur
             if (strlen($cleaned['title']) > Sisme_Game_Creator_Constants::MAX_SECTION_TITLE_LENGTH) {
                 $cleaned['title'] = substr($cleaned['title'], 0, Sisme_Game_Creator_Constants::MAX_SECTION_TITLE_LENGTH);
             }
         }
-        
-        // Nettoyer le contenu
         if (!empty($section['content'])) {
             $cleaned['content'] = wp_kses_post($section['content']);
-            
-            // Vérifier la longueur
             if (strlen($cleaned['content']) > Sisme_Game_Creator_Constants::MAX_SECTION_CONTENT_LENGTH) {
                 $cleaned['content'] = substr($cleaned['content'], 0, Sisme_Game_Creator_Constants::MAX_SECTION_CONTENT_LENGTH);
             }
         }
-        
-        // Nettoyer l'ID image
         if (!empty($section['image_id'])) {
             $image_id = intval($section['image_id']);
             if ($image_id > 0 && Sisme_Game_Media_Handler::is_valid_image_attachment($image_id)) {
                 $cleaned['image_id'] = $image_id;
             }
         }
-        
-        // Vérifier si la section nettoyée est valide
         if (!self::is_valid_section($cleaned)) {
             return false;
         }
-        
         return $cleaned;
     }
     
@@ -261,7 +216,6 @@ class Sisme_Game_Sections_Builder {
         if (!is_array($sections)) {
             return 0;
         }
-        
         return count(self::filter_valid_sections($sections));
     }
     
@@ -273,7 +227,6 @@ class Sisme_Game_Sections_Builder {
      */
     public static function is_valid_sections_count($sections) {
         $count = self::count_valid_sections($sections);
-        
         return $count >= Sisme_Game_Creator_Constants::MIN_SECTIONS && 
                $count <= Sisme_Game_Creator_Constants::MAX_SECTIONS;
     }
@@ -293,7 +246,6 @@ class Sisme_Game_Sections_Builder {
                 'average_content_length' => 0
             );
         }
-        
         $valid_sections = self::filter_valid_sections($sections);
         $sections_with_images = 0;
         $total_content_length = 0;
@@ -302,12 +254,9 @@ class Sisme_Game_Sections_Builder {
             if (!empty($section['image_id'])) {
                 $sections_with_images++;
             }
-            
             $total_content_length += strlen($section['content'] ?? '');
         }
-        
         $valid_count = count($valid_sections);
-        
         return array(
             'total' => count($sections),
             'valid' => $valid_count,

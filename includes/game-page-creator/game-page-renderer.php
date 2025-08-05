@@ -6,19 +6,6 @@
  * RESPONSABILITÉ:
  * - Génération HTML strictement identique à la structure existante
  * - Utilisation des mêmes classes CSS
- * - I        // Mapping simple entre plateformes et groupes/icônes
-        $platform_mapping = [
-            'windows' => ['group' => 'pc', 'icon' => '🖥️'],
-            'mac' => ['group' => 'pc', 'icon' => '🖥️'],
-            'macos' => ['group' => 'pc', 'icon' => '🖥️'],
-            'linux' => ['group' => 'pc', 'icon' => '🖥️'],
-            'xbox' => ['group' => 'console', 'icon' => '🎮'],
-            'playstation' => ['group' => 'console', 'icon' => '🎮'],
-            'switch' => ['group' => 'console', 'icon' => '🎮'],
-            'ios' => ['group' => 'mobile', 'icon' => '📱'],
-            'android' => ['group' => 'mobile', 'icon' => '📱'],
-            'web' => ['group' => 'web', 'icon' => '🌐']
-        ];s User Actions
  * - JavaScript pour galerie interactive
  * 
  * DÉPENDANCES:
@@ -41,28 +28,17 @@ class Sisme_Game_Page_Renderer {
      */
     public static function render($game_data) {
         $output = '<div class="sisme-game-hero">';
-        
-        // COLONNE GAUCHE - MÉDIA + SECTIONS
         $output .= '<div class="sisme-game-media">';
         $output .= self::render_media_gallery($game_data);
-        
-        // SECTIONS DESCRIPTIVES (Si sections disponibles)
         if (!empty($game_data['sections'])) {
             $output .= self::render_game_sections($game_data['sections']);
         }
-        
         $output .= '</div>';
-        
-        // COLONNE DROITE - INFOS
         $output .= '<div class="sisme-game-info">';
         $output .= self::render_game_info($game_data);
         $output .= '</div>';
-        
         $output .= '</div>';
-        
-        // JAVASCRIPT POUR GALERIE INTERACTIVE
         $output .= self::render_javascript();
-        
         return $output;
     }
     
@@ -71,27 +47,16 @@ class Sisme_Game_Page_Renderer {
      */
     private static function render_media_gallery($game_data) {
         $output = '';
-        
-        // Zone d'affichage principal
         $output .= '<div class="sisme-main-media-display" id="sismeMainDisplay">';
-        
-        // Trailer par défaut
         if (!empty($game_data['trailer_link'])) {
             $youtube_id = self::extract_youtube_id($game_data['trailer_link']);
             if ($youtube_id) {
                 $output .= '<iframe id="sismeTrailerFrame" src="https://www.youtube.com/embed/' . esc_attr($youtube_id) . '?enablejsapi=1" allowfullscreen></iframe>';
             }
         }
-        
-        // Image de screenshot (cachée par défaut)
         $output .= '<img id="sismeScreenshotImg" src="" alt="Screenshot" style="display: none;">';
-        
         $output .= '</div>';
-        
-        // Galerie de navigation
         $output .= '<div class="sisme-media-gallery">';
-        
-        // Thumbnail Trailer (Premier élément, actif par défaut)
         if (!empty($game_data['trailer_link'])) {
             $youtube_id = self::extract_youtube_id($game_data['trailer_link']);
             if ($youtube_id) {
@@ -100,8 +65,6 @@ class Sisme_Game_Page_Renderer {
                 $output .= '</div>';
             }
         }
-        
-        // Thumbnails Screenshots (Multiples)
         if (!empty($game_data['screenshots'])) {
             foreach ($game_data['screenshots'] as $screenshot) {
                 $output .= '<div class="sisme-media-thumb" data-type="screenshot" data-image="' . esc_attr($screenshot['url']) . '">';
@@ -109,9 +72,7 @@ class Sisme_Game_Page_Renderer {
                 $output .= '</div>';
             }
         }
-        
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -121,29 +82,22 @@ class Sisme_Game_Page_Renderer {
     private static function render_game_sections($sections) {
         $output = '<div class="sisme-game-sections">';
         $output .= '<h2>Présentation complète du jeu</h2>';
-        
         foreach ($sections as $section) {
             $output .= '<div class="sisme-game-section">';
-            
             if (!empty($section['title'])) {
                 $output .= '<h3>' . esc_html($section['title']) . '</h3>';
             }
-            
             if (!empty($section['content'])) {
                 $output .= wpautop(wp_kses_post($section['content']));
             }
-            
             if (!empty($section['image_url'])) {
                 $output .= '<div class="sisme-game-section-image">';
                 $output .= '<img class="sisme-section-image" src="' . esc_attr($section['image_url']) . '" alt="">';
                 $output .= '</div>';
             }
-            
             $output .= '</div>';
         }
-        
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -152,61 +106,37 @@ class Sisme_Game_Page_Renderer {
      */
     private static function render_game_info($game_data) {
         $output = '';
-        
-        // Titre
         $output .= '<h1 class="sisme-game-title">' . esc_html($game_data['name']) . '</h1>';
-        
-        // Description
         if (!empty($game_data['description'])) {
             $output .= '<p class="sisme-game-description">' . wp_kses_post($game_data['description']) . '</p>';
         }
-        
-        // USER ACTIONS
         $output .= self::render_user_actions($game_data);
-        
-        // MÉTADONNÉES DU JEU
         $output .= '<div class="sisme-game-meta-container" id="sismeGameMeta">';
         $output .= '<h2 class="sisme-meta-title">Informations du jeu</h2>';
         $output .= '<div class="sisme-game-meta">';
-        
-        // GENRES
         if (!empty($game_data['genres'])) {
             $output .= self::render_genres($game_data['genres']);
         }
-        
-        // PLATEFORMES
         if (!empty($game_data['platforms'])) {
             $output .= self::render_platforms($game_data['platforms']);
         }
-        
-        // MODES DE JEU
         if (!empty($game_data['modes'])) {
             $output .= self::render_modes($game_data['modes']);
         }
-        
-        // DÉVELOPPEURS
         if (!empty($game_data['developers'])) {
             $output .= self::render_developers($game_data['developers']);
         }
-        
-        // ÉDITEURS
         if (!empty($game_data['publishers'])) {
             $output .= self::render_publishers($game_data['publishers']);
         }
-        
-        // DATE DE SORTIE
         if (!empty($game_data['release_date'])) {
             $output .= self::render_release_date($game_data['release_date']);
         }
-        
-        // LIENS BOUTIQUES
         if (!empty($game_data['external_links'])) {
             $output .= self::render_store_links($game_data['external_links']);
         }
-        
         $output .= '</div>';
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -215,7 +145,6 @@ class Sisme_Game_Page_Renderer {
      */
     private static function render_user_actions($game_data) {
         $output = '<div class="sisme-user-actions sisme-user-action-fiches">';
-        
         if (class_exists('Sisme_User_Actions_API')) {
             $button_html = Sisme_User_Actions_API::render_action_button(
                 $game_data['id'],
@@ -227,7 +156,6 @@ class Sisme_Game_Page_Renderer {
                 ]
             );
             $output .= $button_html;
-            
             $button_html = Sisme_User_Actions_API::render_action_button(
                 $game_data['id'],
                 'owned',
@@ -239,9 +167,7 @@ class Sisme_Game_Page_Renderer {
             );
             $output .= $button_html;
         }
-        
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -252,13 +178,11 @@ class Sisme_Game_Page_Renderer {
         $output = '<div class="sisme-meta-row">';
         $output .= '<span class="sisme-meta-label">Genres</span>';
         $output .= '<div class="sisme-game-tags">';
-        
         foreach ($genres as $genre) {
             $output .= '<a href="' . esc_url($genre['url']) . '" class="sisme-badge sisme-badge-genre" title="Voir tous les jeux de type ' . esc_attr($genre['name']) . '">';
             $output .= esc_html($genre['name']);
             $output .= '</a>';
         }
-        
         $output .= '</div>';
         $output .= '</div>';
         
@@ -272,8 +196,6 @@ class Sisme_Game_Page_Renderer {
         $output = '<div class="sisme-meta-row">';
         $output .= '<span class="sisme-meta-label">Plateformes</span>';
         $output .= '<div class="sisme-platforms">';
-        
-        // Mapping simple entre plateformes et groupes/icônes
         $platform_mapping = [
             'windows' => ['group' => 'pc', 'icon' => '🖥️'],
             'mac' => ['group' => 'pc', 'icon' => '🖥️'],
@@ -286,19 +208,13 @@ class Sisme_Game_Page_Renderer {
             'android' => ['group' => 'mobile', 'icon' => '📱'],
             'web' => ['group' => 'web', 'icon' => '�']
         ];
-        
-        // Groupes de plateformes
         $groups = [];
-        
-        // Organiser les plateformes par groupe
         foreach ($platforms as $platform) {
             if (!isset($platform['key'])) {
-                continue; // Ignorer les plateformes sans clé
+                continue;
             }
-            
             $key = $platform['key'];
             $label = isset($platform['label']) ? $platform['label'] : ucfirst($key);
-            
             if (isset($platform_mapping[$key])) {
                 $group = $platform_mapping[$key]['group'];
                 $icon = $platform_mapping[$key]['icon'];
@@ -309,34 +225,26 @@ class Sisme_Game_Page_Renderer {
                         'icon' => $icon
                     ];
                 }
-                
                 $groups[$group]['platforms'][] = $label;
             } else {
-                // Plateforme non reconnue, la mettre dans "autres"
                 if (!isset($groups['other'])) {
                     $groups['other'] = [
                         'platforms' => [],
                         'icon' => '🎲'
                     ];
                 }
-                
                 $groups['other']['platforms'][] = $label;
             }
         }
-        
-        // Afficher chaque groupe de plateformes
         foreach ($groups as $group_key => $group) {
             $platforms_list = implode(', ', $group['platforms']);
-            
             $output .= '<span class="sisme-badge-platform sisme-platform-' . esc_attr($group_key) . '" ';
             $output .= 'title="Disponible sur: ' . esc_attr($platforms_list) . '">';
             $output .= $group['icon'];
             $output .= '</span>';
         }
-        
         $output .= '</div>';
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -347,8 +255,6 @@ class Sisme_Game_Page_Renderer {
         $output = '<div class="sisme-meta-row">';
         $output .= '<span class="sisme-meta-label">Modes</span>';
         $output .= '<div class="sisme-game-modes">';
-        
-        // Mode labels pour traduction
         $mode_labels = array(
             'solo' => 'Solo',
             'multijoueur' => 'Multijoueur',
@@ -357,18 +263,14 @@ class Sisme_Game_Page_Renderer {
             'online' => 'En ligne',
             'local' => 'Local'
         );
-        
-        // Vérifier si les modes sont déjà formatés ou s'il s'agit juste d'un tableau de clés
         if (is_array($modes)) {
             if (isset($modes[0]) && is_array($modes[0]) && isset($modes[0]['key'])) {
-                // Déjà au bon format, utiliser tel quel
                 foreach ($modes as $mode) {
                     $output .= '<span class="sisme-badge sisme-badge-mode ' . esc_attr($mode['key']) . '">';
                     $output .= esc_html($mode['label']);
                     $output .= '</span>';
                 }
             } else {
-                // Format simple, convertir à la volée
                 foreach ($modes as $mode) {
                     $mode_key = is_string($mode) ? $mode : strval($mode);
                     $mode_label = isset($mode_labels[$mode_key]) ? $mode_labels[$mode_key] : ucfirst($mode_key);
@@ -382,7 +284,6 @@ class Sisme_Game_Page_Renderer {
         
         $output .= '</div>';
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -393,7 +294,6 @@ class Sisme_Game_Page_Renderer {
         $output = '<div class="sisme-meta-row sisme-dev-publish-div">';
         $output .= '<span class="sisme-meta-label">Développeur</span>';
         $output .= '<div class="sisme-developer-info">';
-        
         $dev_links = array();
         foreach ($developers as $developer) {
             if (!empty($developer['website'])) {
@@ -402,11 +302,9 @@ class Sisme_Game_Page_Renderer {
                 $dev_links[] = esc_html($developer['name']);
             }
         }
-        
         $output .= implode(', ', $dev_links);
         $output .= '</div>';
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -417,7 +315,6 @@ class Sisme_Game_Page_Renderer {
         $output = '<div class="sisme-meta-row sisme-dev-publish-div">';
         $output .= '<span class="sisme-meta-label">Éditeur</span>';
         $output .= '<div class="sisme-publisher-info">';
-        
         $pub_links = array();
         foreach ($publishers as $publisher) {
             if (!empty($publisher['website'])) {
@@ -426,11 +323,9 @@ class Sisme_Game_Page_Renderer {
                 $pub_links[] = esc_html($publisher['name']);
             }
         }
-        
         $output .= implode(', ', $pub_links);
         $output .= '</div>';
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -442,7 +337,6 @@ class Sisme_Game_Page_Renderer {
         $output .= '<span class="sisme-meta-label">Date de sortie</span>';
         $output .= '<span class="sisme-meta-value">' . esc_html($release_date) . '</span>';
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -451,14 +345,10 @@ class Sisme_Game_Page_Renderer {
      */
     private static function render_store_links($external_links) {
         $output = '<div class="sisme-store-links">';
-        
-        // Si le tableau est vide, afficher un message
         if (empty($external_links) || count($external_links) === 0) {
             $output .= '<div class="sisme-store-no-links">Aucun lien boutique disponible</div>';
         } else {
             foreach ($external_links as $platform => $link_data) {
-                // Vérifier que available est défini et est évalué comme vrai
-                // Dans les données brutes, available peut être un string "1" ou vide
                 if (!empty($link_data['available'])) {
                     $output .= '<a href="' . esc_url($link_data['url']) . '" class="sisme-store-icon" target="_blank" title="' . esc_attr($link_data['label']) . '">';
                     $output .= '<img src="' . esc_attr($link_data['icon']) . '" alt="' . esc_attr($link_data['label']) . '">';
@@ -470,9 +360,7 @@ class Sisme_Game_Page_Renderer {
                 }
             }
         }
-        
         $output .= '</div>';
-        
         return $output;
     }
     

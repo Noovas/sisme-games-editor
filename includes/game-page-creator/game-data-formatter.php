@@ -7,7 +7,6 @@
  * - Récupération des données depuis WordPress term_meta
  * - Formatage pour l'affichage (dates, plateformes, genres, etc.)
  * - Transformation des IDs en données complètes
- * - Remplace les fonctions Utils pour ce module
  * 
  * DÉPENDANCES:
  * - game-data-creator-constants.php (pour les meta keys)
@@ -78,12 +77,10 @@ class Sisme_Game_Data_Formatter {
         if (!$date) {
             return 'Date inconnue';
         }
-        
         $timestamp = strtotime($date);
         if (!$timestamp) {
             return 'Date inconnue';
         }
-        
         return date_i18n('j F Y', $timestamp);
     }
     
@@ -98,7 +95,6 @@ class Sisme_Game_Data_Formatter {
         if (!is_array($platforms)) {
             return array();
         }
-        
         $formatted = array();
         $icons_map = array(
             'windows' => '🖥️',
@@ -112,7 +108,6 @@ class Sisme_Game_Data_Formatter {
             'android' => '📱',
             'web' => '🌐'
         );
-        
         foreach ($platforms as $platform) {
             $label = Sisme_Game_Creator_Constants::get_platform_label($platform);
             $formatted[] = array(
@@ -122,7 +117,6 @@ class Sisme_Game_Data_Formatter {
                 'tooltip' => "Disponible sur {$label}"
             );
         }
-        
         return $formatted;
     }
     
@@ -137,7 +131,6 @@ class Sisme_Game_Data_Formatter {
         if (!is_array($genre_ids)) {
             return array();
         }
-        
         $formatted = array();
         foreach ($genre_ids as $genre_id) {
             $genre = get_category($genre_id);
@@ -150,7 +143,6 @@ class Sisme_Game_Data_Formatter {
                 );
             }
         }
-        
         return $formatted;
     }
     
@@ -165,15 +157,11 @@ class Sisme_Game_Data_Formatter {
         if (!is_array($modes)) {
             return array();
         }
-        
-        // Support pour les deux formats possibles: clés numériques ou chaînes
         $modes_labels = array(
-            // Format numérique (ancien format)
             0 => 'Solo',
             1 => 'Multijoueur',
             2 => 'Coopératif',
             3 => 'Compétitif',
-            // Format chaîne (nouveau format)
             'solo' => 'Solo',
             'multijoueur' => 'Multijoueur',
             'coop' => 'Coopération',
@@ -181,26 +169,21 @@ class Sisme_Game_Data_Formatter {
             'online' => 'En ligne',
             'local' => 'Local'
         );
-        
         $formatted = array();
         foreach ($modes as $mode_key) {
-            // Convertir en chaîne pour s'assurer que les clés numériques sont traitées correctement
             $key = is_numeric($mode_key) ? strval($mode_key) : $mode_key;
-            
             if (isset($modes_labels[$key])) {
                 $formatted[] = array(
                     'key' => $key,
                     'label' => $modes_labels[$key]
                 );
             } else {
-                // Fallback pour les clés inconnues (utiliser la clé comme label avec première lettre en majuscule)
                 $formatted[] = array(
                     'key' => $key,
                     'label' => ucfirst($key)
                 );
             }
         }
-        
         return $formatted;
     }
     
@@ -215,7 +198,6 @@ class Sisme_Game_Data_Formatter {
         if (!is_array($dev_ids)) {
             return array();
         }
-        
         return self::format_entities($dev_ids);
     }
     
@@ -230,7 +212,6 @@ class Sisme_Game_Data_Formatter {
         if (!is_array($pub_ids)) {
             return array();
         }
-        
         return self::format_entities($pub_ids);
     }
     
@@ -242,12 +223,10 @@ class Sisme_Game_Data_Formatter {
      */
     private static function format_entities($entity_ids) {
         $formatted = array();
-        
         foreach ($entity_ids as $entity_id) {
             $entity = get_category($entity_id);
             if ($entity && !is_wp_error($entity)) {
                 $website = get_term_meta($entity_id, Sisme_Game_Creator_Constants::META_ENTITY_WEBSITE, true);
-                
                 $formatted[] = array(
                     'id' => $entity->term_id,
                     'name' => $entity->name,
@@ -280,7 +259,6 @@ class Sisme_Game_Data_Formatter {
         if (!is_array($screenshot_ids)) {
             return array();
         }
-        
         $formatted = array();
         foreach ($screenshot_ids as $attachment_id) {
             $url = wp_get_attachment_url($attachment_id);
@@ -295,7 +273,6 @@ class Sisme_Game_Data_Formatter {
                 );
             }
         }
-        
         return $formatted;
     }
     
@@ -308,9 +285,8 @@ class Sisme_Game_Data_Formatter {
     private static function format_external_links($term_id) {
         $links = get_term_meta($term_id, Sisme_Game_Creator_Constants::META_EXTERNAL_LINKS, true);
         if (!is_array($links)) {
-            $links = array(); // Initialiser comme tableau vide si pas défini
+            $links = array();
         }
-        
         $formatted = array();
         $platforms_config = array(
             'steam' => array(
@@ -326,8 +302,6 @@ class Sisme_Game_Data_Formatter {
                 'icon' => 'https://games.sisme.fr/wp-content/uploads/2025/06/Logo-GOG.webp'
             )
         );
-        
-        // Assurons-nous que chaque plateforme soit présente même sans données
         foreach ($platforms_config as $platform => $config) {
             $formatted[$platform] = array(
                 'platform' => $platform,
@@ -337,9 +311,6 @@ class Sisme_Game_Data_Formatter {
                 'available' => !empty($links[$platform])
             );
         }
-        
-        return $formatted;
-        
         return $formatted;
     }
     
@@ -354,7 +325,6 @@ class Sisme_Game_Data_Formatter {
         if (!is_array($sections)) {
             return array();
         }
-        
         $formatted = array();
         foreach ($sections as $section) {
             if (!empty($section['title']) && !empty($section['content'])) {
@@ -362,7 +332,6 @@ class Sisme_Game_Data_Formatter {
                 if (!empty($section['image_id']) && is_numeric($section['image_id'])) {
                     $image_url = wp_get_attachment_url($section['image_id']) ?: '';
                 }
-                
                 $formatted[] = array(
                     'title' => sanitize_text_field($section['title']),
                     'content' => wpautop($section['content']),
@@ -371,7 +340,6 @@ class Sisme_Game_Data_Formatter {
                 );
             }
         }
-        
         return $formatted;
     }
     
@@ -383,17 +351,14 @@ class Sisme_Game_Data_Formatter {
      */
     private static function format_covers($term_id) {
         $covers = array();
-        
         $cover_main_id = get_term_meta($term_id, Sisme_Game_Creator_Constants::META_COVER_MAIN, true);
         if ($cover_main_id) {
             $covers['main'] = wp_get_attachment_url($cover_main_id) ?: '';
         }
-        
         $cover_vertical_id = get_term_meta($term_id, 'cover_vertical', true);
         if ($cover_vertical_id) {
             $covers['vertical'] = wp_get_attachment_url($cover_vertical_id) ?: '';
         }
-        
         return $covers;
     }
 }

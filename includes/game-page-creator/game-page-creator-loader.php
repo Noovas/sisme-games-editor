@@ -69,13 +69,10 @@ class Sisme_Game_Page_Creator_Loader {
         if (self::$modules_loaded) {
             return;
         }
-        
         $game_page_creator_dir = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/game-page-creator/';
-        
         foreach ($this->available_modules as $module_file => $module_description) {
             $this->load_module($game_page_creator_dir, $module_file, $module_description);
         }
-        
         self::$modules_loaded = true;
     }
     
@@ -84,7 +81,6 @@ class Sisme_Game_Page_Creator_Loader {
      */
     private function load_module($game_page_creator_dir, $module_file, $module_description) {
         $module_path = $game_page_creator_dir . $module_file;
-        
         if (file_exists($module_path)) {
             require_once $module_path;
             $this->loaded_modules[] = $module_file;
@@ -102,13 +98,9 @@ class Sisme_Game_Page_Creator_Loader {
      */
     private function register_hooks() {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
-        
-        // Initialiser le content filter pour le rendu dynamique
         if (class_exists('Sisme_Game_Page_Content_Filter')) {
             Sisme_Game_Page_Content_Filter::init();
         }
-        
-        // Initialiser le publisher pour la création de fiches
         if (class_exists('Sisme_Game_Page_Creator_Publisher')) {
             Sisme_Game_Page_Creator_Publisher::init();
         }
@@ -121,7 +113,6 @@ class Sisme_Game_Page_Creator_Loader {
         if (is_admin()) {
             return;
         }
-        
         if ($this->should_load_assets()) {
             wp_enqueue_style(
                 'sisme-game-page',
@@ -137,18 +128,15 @@ class Sisme_Game_Page_Creator_Loader {
      */
     private function should_load_assets() {
         global $post;
-        
         if (is_single() && $post) {
             $game_sections = get_post_meta($post->ID, '_sisme_game_sections', true);
             if (!empty($game_sections)) {
                 return true;
             }
         }
-        
         if (is_tag()) {
             return true;
         }
-        
         return false;
     }
     

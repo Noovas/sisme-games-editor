@@ -29,20 +29,17 @@ class Sisme_Game_Media_Handler {
         if (empty($url)) {
             return false;
         }
-        
         $patterns = array(
             '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i',
             '/youtube\.com\/watch\?v=([^&\n?#]+)/i',
             '/youtu\.be\/([^&\n?#]+)/i',
             '/youtube\.com\/embed\/([^&\n?#]+)/i'
         );
-        
         foreach ($patterns as $pattern) {
             if (preg_match($pattern, $url, $matches)) {
                 return $matches[1];
             }
         }
-        
         return false;
     }
     
@@ -57,12 +54,10 @@ class Sisme_Game_Media_Handler {
         if (empty($youtube_id)) {
             return '';
         }
-        
         $valid_qualities = array('default', 'mqdefault', 'hqdefault', 'sddefault', 'maxresdefault');
         if (!in_array($quality, $valid_qualities)) {
             $quality = 'maxresdefault';
         }
-        
         return "https://img.youtube.com/vi/{$youtube_id}/{$quality}.jpg";
     }
     
@@ -87,16 +82,13 @@ class Sisme_Game_Media_Handler {
         if (empty($youtube_id)) {
             return '';
         }
-        
         $default_params = array(
             'enablejsapi' => '1',
             'rel' => '0',
             'showinfo' => '0'
         );
-        
         $params = array_merge($default_params, $params);
         $query_string = http_build_query($params);
-        
         return "https://www.youtube.com/embed/{$youtube_id}?{$query_string}";
     }
     
@@ -110,23 +102,18 @@ class Sisme_Game_Media_Handler {
         if (!is_numeric($attachment_id) || $attachment_id <= 0) {
             return false;
         }
-        
         $attachment = get_post($attachment_id);
         if (!$attachment || $attachment->post_type !== 'attachment') {
             return false;
         }
-        
         $url = wp_get_attachment_url($attachment_id);
         $thumbnail = wp_get_attachment_image_url($attachment_id, 'thumbnail');
         $medium = wp_get_attachment_image_url($attachment_id, 'medium');
         $large = wp_get_attachment_image_url($attachment_id, 'large');
-        
         if (!$url) {
             return false;
         }
-        
         $alt_text = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
-        
         return array(
             'id' => $attachment_id,
             'url' => $url,
@@ -148,16 +135,13 @@ class Sisme_Game_Media_Handler {
         if (!is_array($screenshot_ids)) {
             return array();
         }
-        
         $processed = array();
-        
         foreach ($screenshot_ids as $screenshot_id) {
             $screenshot_data = self::process_screenshot($screenshot_id);
             if ($screenshot_data) {
                 $processed[] = $screenshot_data;
             }
         }
-        
         return $processed;
     }
     
@@ -171,7 +155,6 @@ class Sisme_Game_Media_Handler {
         if (!is_numeric($attachment_id) || $attachment_id <= 0) {
             return false;
         }
-        
         $mime_type = get_post_mime_type($attachment_id);
         return strpos($mime_type, 'image/') === 0;
     }
@@ -186,12 +169,10 @@ class Sisme_Game_Media_Handler {
         if (!self::is_valid_image_attachment($attachment_id)) {
             return false;
         }
-        
         $metadata = wp_get_attachment_metadata($attachment_id);
         if (!$metadata) {
             return false;
         }
-        
         return array(
             'width' => $metadata['width'] ?? 0,
             'height' => $metadata['height'] ?? 0,
@@ -211,7 +192,6 @@ class Sisme_Game_Media_Handler {
         if (!is_numeric($attachment_id) || $attachment_id <= 0) {
             return false;
         }
-        
         $attachment = get_post($attachment_id);
         return $attachment && $attachment->post_type === 'attachment';
     }
@@ -226,16 +206,13 @@ class Sisme_Game_Media_Handler {
         if (!is_array($attachment_ids)) {
             return array();
         }
-        
         $cleaned = array();
-        
         foreach ($attachment_ids as $id) {
             $id = intval($id);
             if ($id > 0 && self::attachment_exists($id)) {
                 $cleaned[] = $id;
             }
         }
-        
         return array_unique($cleaned);
     }
     
@@ -250,12 +227,10 @@ class Sisme_Game_Media_Handler {
         if (!self::is_valid_image_attachment($attachment_id)) {
             return false;
         }
-        
         $url = wp_get_attachment_image_url($attachment_id, $size);
         if ($url) {
             return $url;
         }
-        
         return wp_get_attachment_url($attachment_id);
     }
 }

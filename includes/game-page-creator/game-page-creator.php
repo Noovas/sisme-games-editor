@@ -32,12 +32,10 @@ class Sisme_Game_Page_Creator {
         if (!is_numeric($term_id) || $term_id <= 0) {
             return false;
         }
-        
         $game_data = Sisme_Game_Data_Formatter::format_game_data($term_id);
         if (!$game_data) {
             return false;
         }
-        
         return Sisme_Game_Page_Renderer::render($game_data);
     }
     
@@ -51,7 +49,6 @@ class Sisme_Game_Page_Creator {
         if (!is_numeric($term_id) || $term_id <= 0) {
             return false;
         }
-        
         $term = get_term($term_id, 'post_tag');
         return $term && !is_wp_error($term);
     }

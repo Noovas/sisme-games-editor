@@ -16,6 +16,7 @@ includes/game-page-creator/
 ├── game-page-renderer.php             # Rendu HTML exact
 ├── game-media-handler.php             # Gestion médias
 ├── game-sections-builder.php          # Construction sections
+├── game-page-content-filter.php       # Filtre de contenu
 └── assets/game-page.css               # Styles frontend
 ```
 
@@ -169,16 +170,65 @@ $data = Sisme_Game_Data_Formatter::format_game_data(268);
 [
     'id' => 268,
     'name' => 'Cyberpunk 2077',
+    'title' => 'Cyberpunk 2077',
+    'slug' => 'cyberpunk-2077',
+    'game_url' => 'https://games.sisme.fr/tag/cyberpunk-2077/',
     'description' => 'Jeu futuriste dans Night City...',
-    'platforms' => [['key' => 'windows', 'icon' => '🖥️', 'tooltip' => 'Disponible sur Windows']],
-    'genres' => [['id' => 75, 'name' => 'Action', 'url' => '/category/jeux-action/']],
-    'modes' => [['key' => 0, 'label' => 'Solo']],
-    'developers' => [['name' => 'CD Projekt RED', 'website' => 'https://cdprojektred.com']],
-    'sections' => [['title' => 'Histoire', 'content' => '<p>Dans un futur...</p>', 'image_url' => '...']],
-    'external_links' => ['steam' => ['url' => 'https://store.steampowered.com/...', 'available' => true]],
+    'release_date' => '10 décembre 2020',
+    'platforms' => [
+        ['key' => 'windows', 'label' => 'Windows', 'icon' => '🖥️', 'tooltip' => 'Disponible sur Windows']
+    ],
+    'genres' => [
+        ['id' => 75, 'name' => 'Action', 'slug' => 'jeux-action', 'url' => '/category/jeux-action/']
+    ],
+    'modes' => [
+        ['key' => '0', 'label' => 'Solo']
+    ],
+    'developers' => [
+        ['id' => 423, 'name' => 'CD Projekt RED', 'website' => 'https://cdprojektred.com']
+    ],
+    'publishers' => [
+        ['id' => 425, 'name' => 'CD Projekt', 'website' => 'https://cdprojekt.com']
+    ],
     'trailer_link' => 'https://youtube.com/watch?v=...',
-    'screenshots' => [['url' => 'https://...', 'thumbnail' => 'https://...']],
-    'covers' => ['main' => 'https://...', 'vertical' => 'https://...']
+    'screenshots' => [
+        ['id' => 8754, 'url' => 'https://...', 'thumbnail' => 'https://...', 'alt' => 'Screenshot']
+    ],
+    'external_links' => [
+        'steam' => [
+            'platform' => 'steam',
+            'label' => 'Steam',
+            'url' => 'https://store.steampowered.com/...',
+            'icon' => 'https://games.sisme.fr/wp-content/uploads/2025/06/Logo-STEAM.webp',
+            'available' => true
+        ],
+        'epic' => [
+            'platform' => 'epic',
+            'label' => 'Epic Games',
+            'url' => '',
+            'icon' => 'https://games.sisme.fr/wp-content/uploads/2025/06/Logo-EPIC.webp',
+            'available' => false
+        ],
+        'gog' => [
+            'platform' => 'gog',
+            'label' => 'GOG',
+            'url' => 'https://gog.com/...',
+            'icon' => 'https://games.sisme.fr/wp-content/uploads/2025/06/Logo-GOG.webp',
+            'available' => true
+        ]
+    ],
+    'sections' => [
+        [
+            'title' => 'Histoire',
+            'content' => '<p>Dans un futur...</p>',
+            'image_id' => 8756,
+            'image_url' => 'https://...'
+        ]
+    ],
+    'covers' => [
+        'main' => 'https://...',
+        'vertical' => 'https://...'
+    ]
 ]
 ```
 </details>
@@ -287,6 +337,48 @@ $valid = Sisme_Game_Sections_Builder::is_valid_section([
 
 $stats = Sisme_Game_Sections_Builder::get_sections_stats($sections);
 // Retourne: ['total' => 3, 'valid' => 2, 'with_images' => 1, 'average_content_length' => 150]
+```
+</details>
+
+### game-page-content-filter.php
+
+**Classe :** `Sisme_Game_Page_Content_Filter`
+
+<details>
+<summary><code>init()</code></summary>
+
+```php
+// Initialiser le filtre de contenu
+// @return void - Enregistre le filtre WordPress
+
+Sisme_Game_Page_Content_Filter::init();
+// Enregistre le filtre 'the_content' pour transformer le contenu des pages de jeu
+```
+</details>
+
+<details>
+<summary><code>process_content($content)</code></summary>
+
+```php
+// Traiter le contenu des pages
+// @param string $content - Contenu original
+// @return string - Contenu modifié ou original
+
+// Utilisé automatiquement par WordPress via le filtre 'the_content'
+// Détecte les fiches de jeu et les remplace par le rendu dynamique
+```
+</details>
+
+<details>
+<summary><code>is_legacy_game_fiche($post_id)</code></summary>
+
+```php
+// Détecter si c'est une ancienne fiche de jeu
+// @param int $post_id - ID du post
+// @return bool - Est une ancienne fiche de jeu
+
+// Usage interne pour la compatibilité avec les anciennes fiches
+// Vérifie la présence de la meta '_sisme_game_sections'
 ```
 </details>
 
