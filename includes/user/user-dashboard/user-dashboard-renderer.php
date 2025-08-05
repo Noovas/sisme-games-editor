@@ -522,7 +522,7 @@ class Sisme_User_Dashboard_Renderer {
                        }
                        ?>
                        <div class="sisme-game-card sisme-recent-grid">
-                           <a href="<?php echo esc_url($game_url); ?>" class="sisme-game-link">
+                           <a href="<?php echo esc_url($game_url); ?>" class="sisme-game-link" title="Voir la page du jeu">
                                <div class="sisme-game-cover sisme-recent-grid" <?php echo $cover_url ? 'style="background-image: url(' . esc_url($cover_url) . ');"' : ''; ?>>
                                    <?php if ($is_owned): ?>
                                        <div class="sisme-game-overlay sisme-recent-grid">

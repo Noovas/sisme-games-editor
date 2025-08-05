@@ -22,11 +22,31 @@ if (!defined('ABSPATH')) {
 add_action('wp_ajax_sisme_admin_get_submission_details', ['Sisme_Admin_Submission_Tab', 'ajax_get_submission_details']);
 add_action('wp_ajax_sisme_admin_reject_submission', ['Sisme_Admin_Submission_Tab', 'ajax_reject_submission']);
 add_action('wp_ajax_sisme_admin_approve_submission', ['Sisme_Admin_Submission_Tab', 'ajax_approve_submission']);
+add_action('wp_ajax_sisme_admin_delete_submission', ['Sisme_Admin_Submission_Tab', 'ajax_delete_submission']);
 
 /**
  * Classe pour l'onglet admin des soumissions
  */
 class Sisme_Admin_Submission_Tab {    
+    /**
+     * Convertir les IDs de genre en noms lisibles
+     */
+    private static function format_genres($genre_ids) {
+        if (empty($genre_ids) || !is_array($genre_ids)) {
+            return [];
+        }
+        
+        $formatted_genres = [];
+        foreach ($genre_ids as $genre_id) {
+            $term = get_term($genre_id);
+            if ($term && !is_wp_error($term)) {
+                $formatted_genres[] = $term->name;
+            }
+        }
+        
+        return $formatted_genres;
+    }
+    
     /**
      * Récupérer une soumission par son ID parmi tous les développeurs (admin)
      */
@@ -69,7 +89,7 @@ class Sisme_Admin_Submission_Tab {
         }
         
         // Vérification nonce
-        if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_developer_nonce')) {
+        if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_admin_nonce')) {
             wp_send_json_error(['message' => 'Erreur de sécurité']);
             return;
         }
@@ -145,6 +165,9 @@ class Sisme_Admin_Submission_Tab {
         }
         // Liens externes
         $external_links = $game_data['external_links'] ?? [];
+        
+        // Convertir les genres d'IDs en noms
+        $genres_formatted = self::format_genres($game_data['game_genres'] ?? []);
 
         // Réponse complète
         wp_send_json_success([
@@ -155,6 +178,7 @@ class Sisme_Admin_Submission_Tab {
                 'user_email' => $developer_info ? $developer_info->user_email : ''
             ],
             'game_data' => $game_data,
+            'genres_formatted' => $genres_formatted,
             'covers' => $covers,
             'screenshots' => $screenshots,
             'sections' => $sections,
@@ -162,7 +186,7 @@ class Sisme_Admin_Submission_Tab {
             'metadata' => $submission['metadata'] ?? [],
             'admin_data' => $submission['admin_data'] ?? [],
             'status' => $submission['status'] ?? 'unknown',
-            'is_admin_access' => true
+            'is_admin_access' => true        
         ]);
     }
     
@@ -176,7 +200,8 @@ class Sisme_Admin_Submission_Tab {
         
         // Récupérer les données
         $submissions_data = self::get_submissions_data();
-        $stats = self::calculate_stats($submissions_data);
+        $archived_data = self::get_archived_submissions_data();
+        $stats = self::calculate_stats(array_merge($submissions_data, $archived_data)); // Calculer stats sur tout
         
         ob_start();
         ?>
@@ -187,7 +212,170 @@ class Sisme_Admin_Submission_Tab {
             <!-- Tableau principal -->
             <?php echo self::render_submissions_table($submissions_data); ?>
             
+            <!-- Section Archives -->
+            <?php if (!empty($archived_data)): ?>
+                <?php echo self::render_archives_section($archived_data); ?>
+            <?php endif; ?>
+            
         </div>
+        <?php
+        return ob_get_clean();
+    }
+    
+    /**
+     * Rendu de la section des archives
+     */
+    private static function render_archives_section($archived_data) {
+        if (empty($archived_data)) {
+            return '';
+        }
+        
+        ob_start();
+        ?>
+        <div class="sisme-admin-archives-section">
+            <h3>📁 Archives (<?php echo count($archived_data); ?>)</h3>
+            <p class="sisme-archives-description">Révisions approuvées et autres soumissions archivées</p>
+            
+            <div class="sisme-archives-table-container">
+                <table class="sisme-admin-table sisme-archives-table">
+                    <thead>
+                        <tr>
+                            <th class="col-developer">Développeur</th>
+                            <th class="col-game">Jeu/Révision</th>
+                            <th class="col-date">Date d'archivage</th>
+                            <th class="col-reason">Motif</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($archived_data as $submission): ?>
+                            <?php echo self::render_archive_row($submission); ?>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+    
+    /**
+     * Rendu d'une ligne d'archive
+     */
+    private static function render_archive_row($submission) {
+        $game_data = $submission['game_data'] ?? [];
+        $metadata = $submission['metadata'] ?? [];
+        $user_data = $submission['user_data'] ?? [];
+        
+        $game_name = $game_data[Sisme_Utils_Users::GAME_FIELD_NAME] ?? 'Jeu sans nom';
+        $is_revision = $metadata['is_revision'] ?? false;
+        $archived_at = $metadata['archived_at'] ?? '';
+        $archived_reason = $metadata['archived_reason'] ?? 'Aucun motif spécifié';
+        $revision_reason = $metadata['revision_reason'] ?? '';
+        
+        // Déterminer l'URL du jeu pour les archives
+        $game_url = null;
+        if ($is_revision && isset($metadata['original_published_id'])) {
+            // Archive de révision : utiliser l'ID du jeu original
+            $original_submission = self::get_submission_for_admin($metadata['original_published_id']);
+            if ($original_submission && isset($original_submission['metadata']['published_game_id'])) {
+                $game_id = $original_submission['metadata']['published_game_id'];
+                if (class_exists('Sisme_Game_Creator_Data_Manager')) {
+                    $game_url = Sisme_Game_Creator_Data_Manager::get_game_url($game_id);
+                }
+            }
+        }
+        
+        // Si c'est une révision et qu'elle a un motif original, l'afficher
+        if ($is_revision && !empty($revision_reason)) {
+            $display_reason = "Motif : " . $revision_reason;
+        } else {
+            $display_reason = $archived_reason;
+        }
+        
+        if ($archived_at) {
+            $archived_at = date('d/m/Y H:i', strtotime($archived_at));
+        }
+        
+        ob_start();
+        ?>
+        <tr class="sisme-archive-row">
+            <!-- Développeur -->
+            <td class="col-developer">
+                <div class="developer-info">
+                    <strong><?php echo esc_html($user_data['display_name'] ?? 'Inconnu'); ?></strong>
+                    <small>ID: <?php echo esc_html($user_data['user_id'] ?? 'N/A'); ?></small>
+                </div>
+            </td>
+            
+            <!-- Jeu/Révision -->
+            <td class="col-game">
+                <div class="game-info">
+                    <?php if ($is_revision): ?>
+                        <span class="revision-badge">🔄 RÉVISION</span>
+                    <?php endif; ?>
+                    <strong><?php echo esc_html($game_name); ?></strong>
+                    <small class="submission-id">ID: <?php echo esc_html($submission['id']); ?></small>
+                </div>
+            </td>
+            
+            <!-- Date d'archivage -->
+            <td class="col-date">
+                <time><?php echo esc_html($archived_at ?: 'N/A'); ?></time>
+            </td>
+            
+            <!-- Motif -->
+            <td class="col-reason">
+                <span class="archive-reason"><?php echo esc_html($display_reason); ?></span>
+            </td>
+            
+            <!-- Actions -->
+            <td class="col-actions">
+                <div class="action-buttons">
+                    <!-- Lien vers le jeu -->
+                    <?php if ($game_url): ?>
+                        <a href="<?php echo esc_url($game_url); ?>" 
+                           target="_blank" 
+                           class="action-btn link-btn active" 
+                           title="Voir la page du jeu">
+                            🔗
+                        </a>
+                    <?php else: ?>
+                        <span class="action-btn link-btn inactive" 
+                              title="Lien non disponible">
+                            🔗
+                        </span>
+                    <?php endif; ?>
+                    
+                    <!-- Voir plus -->
+                    <button class="action-btn view-btn" 
+                            data-submission-id="<?php echo esc_attr($submission['id']); ?>"
+                            data-user-id="<?php echo esc_attr($user_data['user_id']); ?>"
+                            title="Voir les détails">
+                        👁️
+                    </button>
+                    
+                    <!-- Supprimer définitivement -->
+                    <button class="action-btn delete-btn active" 
+                            data-submission-id="<?php echo esc_attr($submission['id']); ?>"
+                            data-user-id="<?php echo esc_attr($user_data['user_id']); ?>"
+                            title="Supprimer définitivement l'archive">
+                        🗑️
+                    </button>
+                </div>
+            </td>
+        </tr>
+        
+        <!-- Ligne de détails pour archive (cachée par défaut) -->
+        <tr class="sisme-details-row" id="details-<?php echo esc_attr($submission['id']); ?>" style="display: none;">
+            <td colspan="5" class="details-container">
+                <div class="admin-details-content">
+                    <div class="admin-loading">
+                        ⏳ Chargement des détails de l'archive...
+                    </div>
+                </div>
+            </td>
+        </tr>
         <?php
         return ob_get_clean();
     }
@@ -214,7 +402,7 @@ class Sisme_Admin_Submission_Tab {
         // Localiser pour l'admin
         wp_localize_script('sisme-admin-submissions', 'sismeAdminAjax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('sisme_developer_nonce'),
+            'nonce' => wp_create_nonce('sisme_admin_nonce'),
             'isAdmin' => true
         ]);
     }
@@ -269,12 +457,15 @@ class Sisme_Admin_Submission_Tab {
                 $user_submissions = Sisme_Game_Submission_Data_Manager::get_user_submissions($user->ID);
                 
                 foreach ($user_submissions as $submission) {
-                    $submission['user_data'] = [
-                        'user_id' => $user->ID,
-                        'display_name' => $user->display_name,
-                        'user_email' => $user->user_email
-                    ];
-                    $all_submissions[] = $submission;
+                    // Exclure les soumissions archivées du tableau principal
+                    if (($submission['status'] ?? '') !== 'archived') {
+                        $submission['user_data'] = [
+                            'user_id' => $user->ID,
+                            'display_name' => $user->display_name,
+                            'user_email' => $user->user_email
+                        ];
+                        $all_submissions[] = $submission;
+                    }
                 }
             }
             
@@ -290,18 +481,65 @@ class Sisme_Admin_Submission_Tab {
     }
     
     /**
+     * Récupérer les données des archives
+     */
+    private static function get_archived_submissions_data() {
+        if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
+            $file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
+            if (file_exists($file)) {
+                require_once $file;
+            }
+        }
+        
+        $archived_submissions = [];
+        
+        if (class_exists('Sisme_Game_Submission_Data_Manager')) {
+            $developer_users = get_users([
+                'meta_key' => Sisme_Utils_Users::META_DEVELOPER_STATUS,
+                'meta_value' => Sisme_Utils_Users::DEVELOPER_STATUS_APPROVED,
+                'fields' => ['ID', 'display_name', 'user_email']
+            ]);
+            
+            foreach ($developer_users as $user) {
+                $user_submissions = Sisme_Game_Submission_Data_Manager::get_user_submissions($user->ID, 'archived');
+                
+                foreach ($user_submissions as $submission) {
+                    $submission['user_data'] = [
+                        'user_id' => $user->ID,
+                        'display_name' => $user->display_name,
+                        'user_email' => $user->user_email
+                    ];
+                    $archived_submissions[] = $submission;
+                }
+            }
+            
+            // Trier par date d'archivage
+            usort($archived_submissions, function($a, $b) {
+                $date_a = $a['metadata']['archived_at'] ?? $a['metadata']['updated_at'];
+                $date_b = $b['metadata']['archived_at'] ?? $b['metadata']['updated_at'];
+                return strtotime($date_b) - strtotime($date_a);
+            });
+        }
+        
+        return $archived_submissions;
+    }
+    
+    /**
      * Calculer les statistiques
      */
     private static function calculate_stats($submissions) {
         $stats = [
             'draft' => 0, 'pending' => 0, 'published' => 0,
-            'rejected' => 0, 'total' => count($submissions)
+            'rejected' => 0, 'archived_count' => 0, 'total' => 0
         ];
         
         foreach ($submissions as $submission) {
             $status = $submission['status'] ?? 'draft';
-            if (isset($stats[$status])) {
+            if ($status === 'archived') {
+                $stats['archived_count']++;
+            } elseif (isset($stats[$status])) {
                 $stats[$status]++;
+                $stats['total']++; // Only count non-archived submissions in total
             }
         }
         
@@ -332,6 +570,10 @@ class Sisme_Admin_Submission_Tab {
                 <div class="sisme-stat-card rejected">
                     <span class="stat-number"><?php echo $stats['rejected']; ?></span>
                     <span class="stat-label">❌ Rejetés</span>
+                </div>
+                <div class="sisme-stat-card archived">
+                    <span class="stat-number"><?php echo $stats['archived_count']; ?></span>
+                    <span class="stat-label">📁 Archivés</span>
                 </div>
                 <div class="sisme-stat-card total">
                     <span class="stat-number"><?php echo $stats['total']; ?></span>
@@ -385,6 +627,18 @@ class Sisme_Admin_Submission_Tab {
         $game_data = $submission['game_data'] ?? [];
         $metadata = $submission['metadata'] ?? [];
         $user_data = $submission['user_data'] ?? [];
+
+        // Détection révision
+        $is_revision = $submission['metadata']['is_revision'] ?? false;
+        $original_id = $submission['metadata']['original_published_id'] ?? null;
+        $original_name = '';
+        if ($is_revision && $original_id) {
+            // Récupérer le nom du jeu original
+            $original_submission = self::get_submission_for_admin($original_id);
+            if ($original_submission) {
+                $original_name = $original_submission['game_data'][Sisme_Utils_Users::GAME_FIELD_NAME] ?? 'Jeu inconnu';
+            }
+        }
         
         $game_name = $game_data[Sisme_Utils_Users::GAME_FIELD_NAME] ?? 'Jeu sans nom';
         $studio_name = $game_data[Sisme_Utils_Users::GAME_FIELD_STUDIO_NAME] ?? '';
@@ -397,8 +651,11 @@ class Sisme_Admin_Submission_Tab {
         
         ob_start();
         ?>
-        <tr class="sisme-submission-row" data-submission-id="<?php echo esc_attr($submission['id']); ?>" data-status="<?php echo esc_attr($status); ?>">
-            
+        <tr class="sisme-submission-row" 
+            data-submission-id="<?php echo esc_attr($submission['id']); ?>" 
+            data-status="<?php echo esc_attr($status); ?>"
+            data-is-revision="<?php echo $is_revision ? 'true' : 'false'; ?>">
+
             <!-- Développeur -->
             <td class="col-developer">
                 <div class="developer-info">
@@ -410,7 +667,13 @@ class Sisme_Admin_Submission_Tab {
             <!-- Jeu -->
             <td class="col-game">
                 <div class="game-info">
+                    <?php if ($is_revision): ?>
+                        <span class="revision-badge">🔄 RÉVISION</span>
+                    <?php endif; ?>
                     <strong><?php echo esc_html($game_name); ?></strong>
+                    <?php if ($is_revision && $original_name): ?>
+                        <small class="original-game">Jeu original : <?php echo esc_html($original_name); ?></small>
+                    <?php endif; ?>
                     <?php if ($studio_name): ?>
                         <small><?php echo esc_html($studio_name); ?></small>
                     <?php endif; ?>
@@ -514,7 +777,8 @@ class Sisme_Admin_Submission_Tab {
             'draft' => ['class' => 'draft', 'text' => '📝 Brouillon', 'color' => '#6c757d'],
             'pending' => ['class' => 'pending', 'text' => '⏳ En attente', 'color' => '#ffc107'],
             'published' => ['class' => 'published', 'text' => '✅ Publié', 'color' => '#28a745'],
-            'rejected' => ['class' => 'rejected', 'text' => '❌ Rejeté', 'color' => '#dc3545']
+            'rejected' => ['class' => 'rejected', 'text' => '❌ Rejeté', 'color' => '#dc3545'],
+            'archived' => ['class' => 'archived', 'text' => '📁 Archivé', 'color' => '#17a2b8']
         ];
         
         $config = $status_config[$status] ?? $status_config['draft'];
@@ -534,6 +798,26 @@ class Sisme_Admin_Submission_Tab {
         $status = $submission['status'] ?? 'draft';
         $submission_id = $submission['id'];
         $user_id = $user_data['user_id'];
+        $is_revision = isset($submission['metadata']['is_revision']) && $submission['metadata']['is_revision'];
+        
+        // Déterminer l'URL du jeu si disponible
+        $game_url = null;
+        if ($status === 'published' && isset($submission['metadata']['published_game_id'])) {
+            // Jeu publié : utiliser l'ID du jeu publié
+            $game_id = $submission['metadata']['published_game_id'];
+            if (class_exists('Sisme_Game_Creator_Data_Manager')) {
+                $game_url = Sisme_Game_Creator_Data_Manager::get_game_url($game_id);
+            }
+        } elseif ($is_revision && isset($submission['metadata']['original_published_id'])) {
+            // Révision : utiliser l'ID du jeu original
+            $original_submission = self::get_submission_for_admin($submission['metadata']['original_published_id']);
+            if ($original_submission && isset($original_submission['metadata']['published_game_id'])) {
+                $game_id = $original_submission['metadata']['published_game_id'];
+                if (class_exists('Sisme_Game_Creator_Data_Manager')) {
+                    $game_url = Sisme_Game_Creator_Data_Manager::get_game_url($game_id);
+                }
+            }
+        }
         
         ob_start();
         ?>
@@ -546,6 +830,22 @@ class Sisme_Admin_Submission_Tab {
                     title="Voir les détails">
                 👁️
             </button>
+            
+            <!-- Lien vers le jeu -->
+            <?php if ($game_url && $game_url !== home_url('/')): ?>
+                <a href="<?php echo esc_url($game_url); ?>" 
+                   target="_blank" 
+                   class="action-btn link-btn active"
+                   title="Voir la page du jeu">
+                    🔗
+                </a>
+            <?php else: ?>
+                <button class="action-btn link-btn disabled" 
+                        disabled
+                        title="Jeu non publié ou lien indisponible">
+                    🔗
+                </button>
+            <?php endif; ?>
             
             <!-- Approuver -->
             <button class="action-btn approve-btn <?php echo $status === 'pending' ? 'active' : 'disabled'; ?>" 
@@ -566,18 +866,12 @@ class Sisme_Admin_Submission_Tab {
             </button>
             
             <!-- Supprimer -->
-            <form method="post" style="display: inline;" class="delete-form"
-                  onsubmit="return confirm('⚠️ Supprimer définitivement cette soumission ET tous ses médias ?');">
-                <?php wp_nonce_field('admin_submission_delete'); ?>
-                <input type="hidden" name="action" value="delete_submission">
-                <input type="hidden" name="submission_id" value="<?php echo esc_attr($submission_id); ?>">
-                <input type="hidden" name="user_id" value="<?php echo esc_attr($user_id); ?>">
-                <input type="hidden" name="tab" value="submissions">
-                
-                <button type="submit" class="action-btn delete-btn active" title="Supprimer définitivement">
-                    🗑️
-                </button>
-            </form>
+            <button class="action-btn delete-btn active" 
+                    data-submission-id="<?php echo esc_attr($submission_id); ?>"
+                    data-user-id="<?php echo esc_attr($user_id); ?>"
+                    title="<?php echo $is_revision ? 'Supprimer la révision (conserve les médias)' : 'Supprimer la soumission (supprime les médias)'; ?>">
+                🗑️
+            </button>
         </div>
         <?php
         return ob_get_clean();
@@ -593,7 +887,7 @@ class Sisme_Admin_Submission_Tab {
             wp_send_json_error(['message' => 'Permissions insuffisantes']);
         }
         
-        if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_developer_nonce')) {
+        if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_admin_nonce')) {
             wp_send_json_error(['message' => 'Erreur de sécurité']);
         }
         
@@ -651,13 +945,11 @@ class Sisme_Admin_Submission_Tab {
      * AJAX : Approuver une soumission
      */
     public static function ajax_approve_submission() {
-        error_log('DEBUG: Début ajax_approve_submission');
-        
         if (!current_user_can('manage_options')) {
             wp_send_json_error(['message' => 'Permissions insuffisantes']);
         }
         
-        if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_developer_nonce')) {
+        if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_admin_nonce')) {
             wp_send_json_error(['message' => 'Erreur de sécurité']);
         }
         
@@ -681,6 +973,26 @@ class Sisme_Admin_Submission_Tab {
         
         if ($submission['status'] !== Sisme_Utils_Users::GAME_STATUS_PENDING) {
             wp_send_json_error(['message' => 'Seules les soumissions en attente peuvent être approuvées']);
+        }
+        
+        // AJOUT ICI : Détecter si c'est une révision
+        $is_revision = $submission['metadata']['is_revision'] ?? false;
+        
+        if ($is_revision) {
+            // Traitement spécial pour les révisions
+            $result = self::approve_revision($submission, $user_id);
+            
+            if ($result) {
+                wp_send_json_success([
+                    'message' => 'Révision approuvée avec succès',
+                    'is_revision' => true
+                ]);
+            } else {
+                wp_send_json_error([
+                    'message' => 'Erreur lors de l\'approbation de la révision'
+                ]);
+            }
+            return; // Important : arrêter l'exécution ici pour les révisions
         }
         
         // Changer le statut vers published
@@ -776,6 +1088,167 @@ class Sisme_Admin_Submission_Tab {
             }
         } else {
             wp_send_json_error(['message' => 'Erreur lors de l\'approbation']);
+        }
+    }
+
+    /**
+     * Approuver une révision et mettre à jour le jeu original
+     * 
+     * @param array $revision_submission Données de la révision
+     * @param int $user_id ID du développeur
+     * @return bool Succès de l'opération
+     */
+    private static function approve_revision($revision_submission, $user_id) {
+        error_log('DEBUG: Début approve_revision pour user_id=' . $user_id . ', revision_id=' . $revision_submission['id']);
+        
+        // Récupérer l'ID de la soumission originale
+        $original_id = $revision_submission['metadata']['original_published_id'] ?? null;
+        if (!$original_id) {
+            error_log('DEBUG: Échec - original_id manquant dans metadata');
+            return false;
+        }
+        
+        // Récupérer la soumission originale
+        $original_submission = self::get_submission_for_admin($original_id);
+        if (!$original_submission) {
+            error_log('DEBUG: Échec - soumission originale introuvable pour ID=' . $original_id);
+            return false;
+        }
+        
+        // Récupérer l'ID du jeu publié
+        $game_id = $original_submission['metadata']['published_game_id'] ?? null;
+        if (!$game_id) {
+            error_log('DEBUG: Échec - published_game_id manquant dans la soumission originale');
+            return false;
+        }
+        
+        // Mettre à jour le jeu avec les données de la révision
+        if (class_exists('Sisme_Game_Creator_Data_Manager')) {
+            // Utiliser la même logique que pour les nouvelles soumissions
+            if (class_exists('Sisme_Game_Creator')) {
+                $updated_game_data = Sisme_Game_Creator::extract_game_data_from_submission($revision_submission);
+                
+                if (is_wp_error($updated_game_data)) {
+                    error_log('DEBUG: Échec - Erreur lors de l\'extraction des données: ' . $updated_game_data->get_error_message());
+                    return false;
+                }
+            } else {
+                error_log('DEBUG: Échec - Classe Sisme_Game_Creator non trouvée');
+                return false;
+            }
+            
+            // Tentative de mise à jour du jeu
+            error_log('DEBUG: Tentative de mise à jour du jeu game_id=' . $game_id);
+            $update_result = Sisme_Game_Creator_Data_Manager::update_game($game_id, $updated_game_data);
+            
+            if (is_wp_error($update_result)) {
+                error_log('DEBUG: Échec - Erreur lors de la mise à jour du jeu: ' . $update_result->get_error_message());
+                return false;
+            }
+            
+            error_log('DEBUG: Jeu mis à jour avec succès');
+        } else {
+            error_log('DEBUG: Échec - Classe Sisme_Game_Creator_Data_Manager introuvable');
+            return false;
+        }
+        
+        // 2. Gérer les soumissions via le module dédié
+        if (class_exists('Sisme_Game_Submission_Data_Manager')) {
+            error_log('DEBUG: Début de l\'approbation de révision via le module de soumissions');
+            
+            $approval_result = Sisme_Game_Submission_Data_Manager::approve_revision($user_id, $revision_submission['id']);
+            
+            if (is_wp_error($approval_result)) {
+                error_log('DEBUG: Échec - Erreur lors de l\'approbation de révision: ' . $approval_result->get_error_message());
+                return false;
+            }
+            
+            error_log('DEBUG: Révision approuvée dans le système de soumissions');
+        } else {
+            error_log('DEBUG: Échec - Classe Sisme_Game_Submission_Data_Manager introuvable');
+            return false;
+        }
+        
+        // 3. Envoyer l'email de confirmation
+        $user = get_userdata($user_id);
+        if ($user && class_exists('Sisme_Email_Templates') && class_exists('Sisme_Email_Manager')) {
+            $game_name = $updated_game_data['name'] ?? 'Votre jeu';
+            
+            $email_content = Sisme_Email_Templates::revision_approved(
+                $user->display_name,
+                $game_name
+            );
+            
+            $email_result = Sisme_Email_Manager::send_email(
+                [$user_id],
+                "Révision approuvée : {$game_name}",
+                $email_content
+            );
+            
+            if (!$email_result) {
+                error_log('DEBUG: Avertissement - Échec de l\'envoi de l\'email');
+            }
+        } else {
+            error_log('DEBUG: Avertissement - Classes d\'email manquantes ou utilisateur introuvable');
+        }
+        
+        error_log('DEBUG: Révision approuvée avec succès');
+        return true;
+    }
+    
+    /**
+     * Handler AJAX pour supprimer une soumission (révision)
+     */
+    public static function ajax_delete_submission() {
+        // Vérification de sécurité
+        if (!check_ajax_referer('sisme_admin_nonce', 'security', false)) {
+            wp_send_json_error(['message' => 'Token de sécurité invalide']);
+            return;
+        }
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Permissions insuffisantes']);
+            return;
+        }
+        
+        $submission_id = sanitize_text_field($_POST['submission_id'] ?? '');
+        $user_id = intval($_POST['user_id'] ?? 0);
+        
+        if (empty($submission_id) || empty($user_id)) {
+            wp_send_json_error(['message' => 'Paramètres manquants']);
+            return;
+        }
+        
+        // Vérifier que la soumission existe
+        $submission = self::get_submission_for_admin($submission_id);
+        if (!$submission) {
+            wp_send_json_error(['message' => 'Soumission introuvable']);
+            return;
+        }
+        
+        // Information sur le type pour le log
+        $is_revision = isset($submission['metadata']['is_revision']) && $submission['metadata']['is_revision'];
+        $submission_type = $is_revision ? 'révision' : 'soumission';
+        
+        // Supprimer via le module de soumissions (sans supprimer les médias)
+        if (class_exists('Sisme_Game_Submission_Data_Manager')) {
+            $delete_result = Sisme_Game_Submission_Data_Manager::delete_submission($user_id, $submission_id);
+            
+            if (is_wp_error($delete_result)) {
+                wp_send_json_error(['message' => 'Erreur lors de la suppression: ' . $delete_result->get_error_message()]);
+                return;
+            }
+            
+            if ($delete_result) {
+                // Log de l'action admin
+                error_log("ADMIN: Suppression de {$submission_type} {$submission_id} par admin " . get_current_user_id());
+                
+                wp_send_json_success(['message' => ucfirst($submission_type) . ' supprimée avec succès']);
+            } else {
+                wp_send_json_error(['message' => 'Échec de la suppression']);
+            }
+        } else {
+            wp_send_json_error(['message' => 'Module de gestion des soumissions introuvable']);
         }
     }
 }

@@ -73,7 +73,8 @@ class Sisme_Game_Submission_Data_Manager {
             Sisme_Utils_Users::GAME_STATUS_DRAFT,
             Sisme_Utils_Users::GAME_STATUS_PENDING,
             Sisme_Utils_Users::GAME_STATUS_PUBLISHED,
-            Sisme_Utils_Users::GAME_STATUS_REJECTED
+            Sisme_Utils_Users::GAME_STATUS_REJECTED,
+            Sisme_Utils_Users::GAME_STATUS_ARCHIVED
         ];
         
         if (!in_array($status, $valid_statuses)) {
@@ -201,22 +202,43 @@ class Sisme_Game_Submission_Data_Manager {
     
     /**
      * Supprimer une soumission
+     * @param int $user_id ID de l'utilisateur
+     * @param string $submission_id ID de la soumission
+     * @param bool $delete_media Forcer la suppression des médias (optionnel)
+     * @return bool|WP_Error Résultat de la suppression
      */
-    public static function delete_submission($user_id, $submission_id) {
+    public static function delete_submission($user_id, $submission_id, $delete_media = null) {
         if (!self::can_delete_submission($user_id, $submission_id)) {
             return new WP_Error('cannot_delete', 'Suppression non autorisée');
         }
         
         // Récupérer la soumission avant suppression
         $submission = self::get_submission_by_id($user_id, $submission_id);
+        if (!$submission) {
+            return new WP_Error('submission_not_found', 'Soumission introuvable');
+        }
+        
+        // Déterminer si on doit supprimer les médias
+        $is_revision = isset($submission['metadata']['is_revision']) && $submission['metadata']['is_revision'];
+        
+        // Si delete_media n'est pas explicitement défini, utiliser la logique par défaut
+        if ($delete_media === null) {
+            $delete_media = !$is_revision; // Supprimer les médias SAUF pour les révisions
+        }
         
         // Déclencher un hook avant suppression pour permettre le nettoyage des médias
-        if ($submission) {
+        if ($submission && $delete_media) {
             do_action('sisme_before_submission_delete', $user_id . '_' . $submission_id, $submission);
         }
 
         if (self::remove_submission_from_user_data($user_id, $submission_id)) {
             self::update_user_stats($user_id);
+            
+            // Log pour traçabilité
+            $type = $is_revision ? 'révision' : 'soumission';
+            $media_action = $delete_media ? 'avec suppression des médias' : 'sans suppression des médias';
+            error_log("Suppression de {$type} {$submission_id} {$media_action}");
+            
             return true;
         }
         
@@ -258,14 +280,31 @@ class Sisme_Game_Submission_Data_Manager {
     /**
      * Vérifier si un utilisateur peut créer une soumission
      */
-    public static function can_create_submission($user_id) {
+    public static function can_create_submission($user_id, $is_revision = false) {
         if (!Sisme_User_Developer_Data_Manager::is_approved_developer($user_id)) {
             return false;
         }
         
         $drafts = self::get_user_submissions($user_id, Sisme_Utils_Users::GAME_STATUS_DRAFT);
-        if (count($drafts) >= Sisme_Utils_Users::GAME_MAX_DRAFTS_PER_USER) {
-            return false;
+        
+        if (!$is_revision) {
+            // Logique existante pour nouveaux jeux - compter seulement les non-révisions
+            $new_game_drafts = array_filter($drafts, function($draft) {
+                return !($draft['metadata']['is_revision'] ?? false);
+            });
+            
+            if (count($new_game_drafts) >= Sisme_Utils_Users::GAME_MAX_DRAFTS_PER_USER) {
+                return false;
+            }
+        } else {
+            // Nouvelle logique pour révisions - compter seulement les révisions
+            $revision_drafts = array_filter($drafts, function($draft) {
+                return ($draft['metadata']['is_revision'] ?? false);
+            });
+            
+            if (count($revision_drafts) >= 3) { // Max 3 révisions simultanées
+                return false;
+            }
         }
         
         return true;
@@ -302,7 +341,18 @@ class Sisme_Game_Submission_Data_Manager {
             return true;
         }
         
-        return $submission['status'] === Sisme_Utils_Users::GAME_STATUS_DRAFT;
+        // Autoriser la suppression des brouillons et des révisions
+        $deletable_statuses = [
+            Sisme_Utils_Users::GAME_STATUS_DRAFT,
+            Sisme_Utils_Users::GAME_STATUS_REJECTED
+        ];
+        
+        // Autoriser aussi la suppression des révisions en attente
+        if (isset($submission['metadata']['is_revision']) && $submission['metadata']['is_revision']) {
+            $deletable_statuses[] = Sisme_Utils_Users::GAME_STATUS_PENDING;
+        }
+        
+        return in_array($submission['status'], $deletable_statuses);
     }
     
     /**
@@ -559,12 +609,18 @@ class Sisme_Game_Submission_Data_Manager {
     private static function recalculate_user_stats($user_id) {
         $submissions = self::get_user_submissions($user_id);
         
+        // Filtrer les soumissions archivées pour le calcul des statistiques côté front
+        $active_submissions = array_filter($submissions, function($submission) {
+            return ($submission['status'] ?? '') !== Sisme_Utils_Users::GAME_STATUS_ARCHIVED;
+        });
+        
         $stats = [
-            'total_submissions' => count($submissions),
+            'total_submissions' => count($active_submissions), // Seulement les soumissions actives
             'draft_count' => 0,
             'pending_count' => 0,
             'published_count' => 0,
             'rejected_count' => 0,
+            'archived_count' => 0, // Toujours calculé mais pas affiché côté front
             'last_updated' => current_time('mysql')
         ];
         
@@ -581,6 +637,9 @@ class Sisme_Game_Submission_Data_Manager {
                     break;
                 case Sisme_Utils_Users::GAME_STATUS_REJECTED:
                     $stats['rejected_count']++;
+                    break;
+                case Sisme_Utils_Users::GAME_STATUS_ARCHIVED:
+                    $stats['archived_count']++; // Comptabilisé mais pas dans le total
                     break;
             }
         }
@@ -614,5 +673,213 @@ class Sisme_Game_Submission_Data_Manager {
         }
         
         return $total_count;
+    }
+
+    /**
+     * Vérifier si une soumission est une révision
+     */
+    public static function is_revision_submission($submission) {
+        return $submission['metadata']['is_revision'] ?? false;
+    }
+    
+    /**
+     * Récupérer les données de la soumission originale d'une révision
+     */
+    public static function get_original_submission_data($revision_submission) {
+        if (!self::is_revision_submission($revision_submission)) {
+            return null;
+        }
+        
+        $original_id = $revision_submission['metadata']['original_published_id'] ?? null;
+        if (!$original_id) {
+            return null;
+        }
+        
+        // Récupérer l'utilisateur propriétaire de la révision
+        $user_data = $revision_submission['user_data'] ?? null;
+        if (!$user_data || !isset($user_data['user_id'])) {
+            return null;
+        }
+        
+        $user_id = $user_data['user_id'];
+        
+        // Chercher la soumission originale
+        return self::get_submission_by_id($user_id, $original_id);
+    }
+    
+    /**
+     * Créer une révision d'une soumission publiée
+     */
+    public static function create_revision($user_id, $published_submission_id, $revision_type = 'major') {
+        // Vérifier que l'utilisateur peut créer une révision
+        if (!self::can_create_submission($user_id, true)) {
+            return new WP_Error('revision_limit', 'Limite de révisions atteinte (3 maximum)');
+        }
+
+        // Récupérer les brouillons existants pour vérifier les révisions en cours
+        $drafts = self::get_user_submissions($user_id, Sisme_Utils_Users::GAME_STATUS_DRAFT);
+        
+        // Récupérer la soumission originale
+        $original_submission = self::get_submission_by_id($user_id, $published_submission_id);
+        if (!$original_submission) {
+            return new WP_Error('original_not_found', 'Soumission originale introuvable');
+        }
+        
+        // Vérifier que c'est bien une soumission publiée
+        if ($original_submission['status'] !== Sisme_Utils_Users::GAME_STATUS_PUBLISHED) {
+            return new WP_Error('not_published', 'Seuls les jeux publiés peuvent être révisés');
+        }
+
+        // Vérifier qu'il n'y a pas déjà une révision en cours pour ce jeu
+        // Récupérer toutes les soumissions de l'utilisateur (pas seulement les brouillons)
+        $all_user_submissions = self::get_user_submissions($user_id);
+
+        // Filtrer pour trouver les révisions en cours (brouillons ou en attente)
+        $existing_revisions = array_filter($all_user_submissions, function($submission) use ($published_submission_id) {
+            $is_revision = $submission['metadata']['is_revision'] ?? false;
+            $original_id = $submission['metadata']['original_published_id'] ?? null;
+            $status = $submission['status'] ?? '';
+            
+            // Vérifier si c'est une révision du même jeu et si elle est en brouillon ou en attente
+            return $is_revision && 
+                $original_id === $published_submission_id && 
+                ($status === Sisme_Utils_Users::GAME_STATUS_DRAFT || 
+                    $status === Sisme_Utils_Users::GAME_STATUS_PENDING);
+        });
+
+        if (!empty($existing_revisions)) {
+            return new WP_Error('revision_exists', 'Une révision de ce jeu est déjà en cours de traitement. Attendez qu\'elle soit approuvée ou rejetée avant d\'en créer une nouvelle.');
+        }
+        
+        // Générer nouvel ID pour la révision
+        $revision_id = self::generate_submission_id();
+        $clean_game_data = self::sanitize_game_data($original_submission['game_data']);
+        
+        // Créer le brouillon de révision
+        $revision_submission = [
+            'id' => $revision_id,
+            'status' => Sisme_Utils_Users::GAME_STATUS_DRAFT,
+            'game_data' => $clean_game_data,
+            'metadata' => [
+                'created_at' => current_time('mysql'),
+                'updated_at' => current_time('mysql'),
+                'submitted_at' => null,
+                'published_at' => null,
+                'retry_count' => 0,
+                'original_submission_id' => null,
+                'auto_save_enabled' => true,
+                'last_auto_save' => null,
+                'is_revision' => true,
+                'original_published_id' => $published_submission_id,
+                'revision_type' => $revision_type,
+                'revision_reason' => ''
+            ],
+            'admin_data' => [
+                'admin_user_id' => null,
+                'admin_notes' => '',
+                'reviewed_at' => null
+            ]
+        ];
+        
+        // Sauvegarder la révision
+        if (self::add_submission_to_user_data($user_id, $revision_submission)) {
+            self::update_user_stats($user_id);
+            return $revision_id;
+        }
+        
+        return new WP_Error('create_failed', 'Erreur lors de la création de la révision');
+    }
+    
+    /**
+     * Approuver une révision : remplacer les données de la soumission principale et archiver la révision
+     * @param int $user_id ID de l'utilisateur
+     * @param string $revision_id ID de la révision à approuver
+     * @return bool|WP_Error Succès ou erreur
+     */
+    public static function approve_revision($user_id, $revision_id) {
+        if (!self::validate_developer_permissions($user_id)) {
+            return new WP_Error('no_permission', 'Permissions insuffisantes');
+        }
+        
+        // Récupérer la révision
+        $revision_submission = self::get_submission_by_id($user_id, $revision_id);
+        if (!$revision_submission) {
+            return new WP_Error('revision_not_found', 'Révision introuvable');
+        }
+        
+        // Vérifier que c'est bien une révision
+        if (!isset($revision_submission['metadata']['is_revision']) || !$revision_submission['metadata']['is_revision']) {
+            return new WP_Error('not_revision', 'Cette soumission n\'est pas une révision');
+        }
+        
+        // Récupérer l'ID de la soumission principale
+        $original_id = $revision_submission['metadata']['original_published_id'] ?? null;
+        if (!$original_id) {
+            return new WP_Error('no_original', 'Impossible de trouver la soumission principale');
+        }
+        
+        // Récupérer la soumission principale
+        $original_submission = self::get_submission_by_id($user_id, $original_id);
+        if (!$original_submission) {
+            return new WP_Error('original_not_found', 'Soumission principale introuvable');
+        }
+        
+        // Effectuer le remplacement des données
+        $replacement_result = self::replace_submission_data($user_id, $original_id, $revision_submission['game_data'], $revision_id);
+        if (is_wp_error($replacement_result)) {
+            return $replacement_result;
+        }
+        
+        // Archiver la révision avec le motif original de l'utilisateur
+        $original_revision_reason = $revision_submission['metadata']['revision_reason'] ?? '';
+        $archive_reason = !empty($original_revision_reason) 
+            ? "Révision approuvée - Motif : " . $original_revision_reason
+            : 'Révision approuvée et fusionnée dans la soumission principale';
+            
+        $archive_result = self::change_submission_status($user_id, $revision_id, Sisme_Utils_Users::GAME_STATUS_ARCHIVED, [
+            'archived_at' => current_time('mysql'),
+            'archived_reason' => $archive_reason
+        ]);
+        
+        if (!$archive_result) {
+            return new WP_Error('archive_failed', 'Erreur lors de l\'archivage de la révision');
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Remplacer les données d'une soumission par celles d'une révision
+     * @param int $user_id ID de l'utilisateur
+     * @param string $submission_id ID de la soumission à modifier
+     * @param array $new_game_data Nouvelles données de jeu
+     * @param string $source_revision_id ID de la révision source
+     * @return bool|WP_Error Succès ou erreur
+     */
+    private static function replace_submission_data($user_id, $submission_id, $new_game_data, $source_revision_id) {
+        $user_data = get_user_meta($user_id, Sisme_Utils_Users::META_GAME_SUBMISSIONS, true);
+        
+        if (empty($user_data['submissions'])) {
+            return new WP_Error('no_submissions', 'Aucune soumission trouvée');
+        }
+        
+        // Trouver et modifier la soumission
+        foreach ($user_data['submissions'] as &$submission) {
+            if ($submission['id'] === $submission_id) {
+                $submission['game_data'] = $new_game_data;
+                $submission['metadata']['updated_at'] = current_time('mysql');
+                $submission['metadata']['last_revision_approved_at'] = current_time('mysql');
+                $submission['metadata']['approved_revision_id'] = $source_revision_id;
+                break;
+            }
+        }
+        
+        // Sauvegarder
+        $save_result = update_user_meta($user_id, Sisme_Utils_Users::META_GAME_SUBMISSIONS, $user_data);
+        if (!$save_result) {
+            return new WP_Error('save_failed', 'Erreur lors de la sauvegarde');
+        }
+        
+        return true;
     }
 }

@@ -15,7 +15,9 @@ class SismeFrontendTooltip {
             'sisme-tooltip-enabled',
             'sisme-action-btn',
             'sisme-info-icon',
-            'sisme-disabled'
+            'sisme-disabled',
+            'revision-indicator',
+            'sisme-game-link'
         ];
         
         this.init();

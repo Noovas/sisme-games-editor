@@ -240,7 +240,7 @@
 
 /* === CONTAINER PRINCIPAL === */
 .sisme-admin-submissions {
-    background: #f9f9f9;
+    background: rgba(255, 255, 255, 0.7);
     padding: 20px;
     border-radius: 8px;
     color: #333;
@@ -281,6 +281,7 @@
 .sisme-stat-card.pending { border-left-color: #ffc107; }
 .sisme-stat-card.published { border-left-color: #28a745; }
 .sisme-stat-card.rejected { border-left-color: #dc3545; }
+.sisme-stat-card.archived { border-left-color: #17a2b8; }
 .sisme-stat-card.total { border-left-color: #007cba; }
 
 .stat-number {
@@ -309,9 +310,8 @@
 .sisme-admin-table-container h3 {
     margin: 0;
     padding: 20px;
-    background: #f8f9fa;
+    background: rgba(0, 0, 0, 0.8);
     border-bottom: 1px solid #dee2e6;
-    color: #1e1e1e;
     font-size: 1.1em;
 }
 
@@ -322,11 +322,11 @@
 }
 
 .sisme-admin-table th {
-    background: #f8f9fa;
+    background: rgba(0, 0, 0, 0.8);
     padding: 12px 8px;
     text-align: left;
     font-weight: 600;
-    color: #495057;
+    color: #dee2e6;
     border-bottom: 2px solid #dee2e6;
     white-space: nowrap;
 }
@@ -490,6 +490,11 @@
     color: #721c24;
 }
 
+.status-badge.status-archived {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
 /* === BOUTONS D'ACTIONS === */
 .action-buttons {
     display: flex;
@@ -519,7 +524,7 @@
 }
 
 .action-btn.active:hover {
-    background: #007cba;
+    background: #007cba2d;
     color: white;
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0,124,186,0.3);
@@ -532,16 +537,19 @@
 }
 
 .view-btn.active { border-color: #17a2b8; color: #17a2b8; }
-.view-btn.active:hover { background: #17a2b8; }
+.view-btn.active:hover { background: #17a3b82f; }
 
 .approve-btn.active { border-color: #28a745; color: #28a745; }
-.approve-btn.active:hover { background: #28a745; }
+.approve-btn.active:hover { background: #28a74652; }
 
 .reject-btn.active { border-color: #dc3545; color: #dc3545; }
-.reject-btn.active:hover { background: #dc3545; }
+.reject-btn.active:hover { background: #dc35465b; }
 
 .delete-btn.active { border-color: #dc3545; color: #dc3545; }
-.delete-btn.active:hover { background: #dc3545; }
+.delete-btn.active:hover { background: #dc354662; }
+
+.view-btn { border-color: #78dc35; color: #78dc35; }
+.view-btn:hover { background: #b1ff7d54; transform: translateY(-1px);}
 
 .delete-form {
     display: inline;
@@ -777,5 +785,274 @@
     .admin-details-data {
         grid-template-columns: 1fr;
         gap: 15px;
+    }
+}
+
+/* Section Archives */
+.sisme-admin-archives-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid #e1e1e1;
+}
+
+.sisme-admin-archives-section h3 {
+    margin: 0 0 10px 0;
+    color: #555;
+    font-size: 18px;
+}
+
+.sisme-archives-description {
+    margin: 0 0 20px 0;
+    color: #666;
+    font-style: italic;
+    font-size: 14px;
+}
+
+.sisme-archives-table-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+}
+
+.sisme-archives-table {
+    margin: 0;
+    background: #f8f9fa;
+}
+
+.sisme-archives-table thead {
+    background: #e9ecef;
+}
+
+.sisme-archives-table thead th {
+    color: var(--sisme-gaming-text-bright);
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sisme-archive-row,
+.sisme-submission-row {
+    background: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #dee2e6;
+}
+
+.sisme-archive-row:hover {
+    background: #f8f9fa;
+}
+
+.archive-reason {
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+    max-width: 200px;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.archive-reason:hover {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: initial;
+}
+
+/* Motifs de révision plus visibles */
+.archive-reason:contains("Motif :") {
+    color: #0073aa;
+    font-weight: 500;
+}
+
+/* Colonnes spécifiques archives */
+.sisme-archives-table .col-developer { width: 150px; }
+.sisme-archives-table .col-game { width: 200px; }
+.sisme-archives-table .col-date { width: 120px; }
+.sisme-archives-table .col-reason { width: 200px; }
+.sisme-archives-table .col-actions { width: 100px; }
+
+/* Badge révision dans archives */
+.sisme-archive-row .revision-badge,
+.game-info .revision-badge {
+    background: #17a2b8;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-bottom: 3px;
+    display: inline-block;
+}
+
+/* Responsive archives */
+@media (max-width: 768px) {
+    .sisme-archives-table-container {
+        overflow-x: auto;
+    }
+    
+    .archive-reason {
+        max-width: 150px;
+    }
+}
+
+/* === MODALE ADMIN DE REJET - OPTIMISÉE === */
+.sisme-admin-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    will-change: opacity, visibility;
+}
+
+.sisme-admin-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sisme-admin-modal-content {
+    background: #2c3e50;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+    will-change: transform;
+}
+
+.sisme-admin-modal.active .sisme-admin-modal-content {
+    transform: scale(1);
+}
+
+.sisme-admin-modal-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.sisme-admin-modal-title {
+    color: white;
+    font-size: 1.4em;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.sisme-admin-modal-subtitle {
+    color: #bdc3c7;
+    font-size: 0.9em;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.sisme-admin-modal-body {
+    margin-bottom: 25px;
+}
+
+.sisme-admin-modal-label {
+    display: block;
+    color: white;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+.sisme-admin-modal-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid #34495e;
+    border-radius: 8px;
+    background: #34495e;
+    color: white;
+    font-family: inherit;
+    font-size: 0.9em;
+    line-height: 1.4;
+    resize: vertical;
+    transition: border-color 0.15s ease;
+    will-change: border-color;
+}
+
+.sisme-admin-modal-textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 1px rgba(52, 152, 219, 0.3);
+}
+
+.sisme-admin-modal-textarea::placeholder {
+    color: #7f8c8d;
+    opacity: 0.7;
+}
+
+.sisme-admin-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.sisme-admin-modal-btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    min-width: 100px;
+    will-change: background-color;
+}
+
+.sisme-admin-modal-btn-cancel {
+    background: transparent;
+    color: #bdc3c7;
+    border: 1px solid #bdc3c7;
+}
+
+.sisme-admin-modal-btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.sisme-admin-modal-btn-confirm {
+    background: #e74c3c;
+    color: white;
+}
+
+.sisme-admin-modal-btn-confirm:hover {
+    background: #c0392b;
+}
+
+.sisme-admin-modal-btn-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sisme-admin-modal-content {
+        padding: 20px;
+        margin: 20px;
+        width: calc(100% - 40px);
+    }
+    
+    .sisme-admin-modal-actions {
+        flex-direction: column;
+    }
+    
+    .sisme-admin-modal-btn {
+        width: 100%;
     }
 }

@@ -140,6 +140,7 @@ class Sisme_Utils_Users {
     const GAME_STATUS_PENDING = 'pending';       // En attente validation admin
     const GAME_STATUS_PUBLISHED = 'published';   // Publié (plus modifiable)
     const GAME_STATUS_REJECTED = 'rejected';     // Rejeté par admin
+    const GAME_STATUS_ARCHIVED = 'archived';     // Archivé (révision approuvée)
     
     /**
      * Limites et contraintes

@@ -70,10 +70,17 @@ class Sisme_Game_Creator_Data_Manager {
         }
         
         // 1. Mettre à jour le nom si fourni
-        if (!empty($game_data['name']) && $game_data['name'] !== $existing_term->name) {
+        $name_to_update = null;
+        if (!empty($game_data['name'])) {
+            $name_to_update = $game_data['name'];
+        } elseif (!empty($game_data['game_name'])) {
+            $name_to_update = $game_data['game_name'];
+        }
+        
+        if ($name_to_update && $name_to_update !== $existing_term->name) {
             $update_result = wp_update_term($term_id, Sisme_Game_Creator_Constants::TAXONOMY_GAMES, array(
-                'name' => $game_data['name'],
-                'slug' => sanitize_title($game_data['name'])
+                'name' => $name_to_update,
+                'slug' => sanitize_title($name_to_update)
             ));
             
             if (is_wp_error($update_result)) {
@@ -227,9 +234,31 @@ class Sisme_Game_Creator_Data_Manager {
                     $value = $value ? '1' : '0';
                 }
                 
+                // Vérifier si la valeur a vraiment changé
+                $existing_value = get_term_meta($term_id, $meta_key, true);
+                if ($existing_value === $value) {
+                    // Valeur identique, pas besoin de mettre à jour
+                    error_log("DEBUG: Skipping update for $data_key - value unchanged");
+                    continue;
+                }
+                
                 $result = update_term_meta($term_id, $meta_key, $value);
                 if (false === $result) {
-                    return new WP_Error('meta_save_failed', "Erreur lors de la sauvegarde de {$data_key}");
+                    // Debug pour voir pourquoi ça échoue
+                    $term_check = get_term($term_id);
+                    $existing_meta = get_term_meta($term_id, $meta_key, true);
+                    error_log("DEBUG update_term_meta FAIL: term_id=$term_id, meta_key=$meta_key");
+                    error_log("DEBUG term exists: " . ($term_check ? 'YES' : 'NO'));
+                    if ($term_check) {
+                        error_log("DEBUG term taxonomy: " . $term_check->taxonomy);
+                    }
+                    error_log("DEBUG existing meta value: " . print_r($existing_meta, true));
+                    error_log("DEBUG new value: " . print_r($value, true));
+                    error_log("DEBUG values are same: " . ($existing_meta === $value ? 'YES' : 'NO'));
+                    error_log("DEBUG new value type: " . gettype($value));
+                    error_log("DEBUG existing value type: " . gettype($existing_meta));
+                    
+                    return new WP_Error('meta_save_failed', "Erreur lors de la sauvegarde de {$data_key} = {$value} dans {$meta_key} de {$term_id}");
                 }
             }
         }

@@ -31,7 +31,8 @@
 .sisme-status-draft,
 .sisme-status-pending,
 .sisme-status-published,
-.sisme-status-rejected {
+.sisme-status-rejected,
+.sisme-status-archived {
     border-radius: 5px;
     padding: 5px;
     text-align: center;
@@ -63,6 +64,139 @@
     color: #dc3545;
 }
 
+.sisme-status-archived {
+    background: rgba(23, 162, 184, 0.2);
+    color: #17a2b8;
+}
+
+/* === BOUTONS ARCHIVES === */
+.sisme-archive-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.sisme-btn-archive {
+    background: rgba(23, 162, 184, 0.1);
+    border: 1px solid rgba(23, 162, 184, 0.3);
+    color: #17a2b8;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sisme-btn-archive:hover {
+    background: rgba(23, 162, 184, 0.2);
+    border-color: rgba(23, 162, 184, 0.5);
+}
+
+.sisme-btn-archive.active {
+    background: rgba(23, 162, 184, 0.3);
+    border-color: #17a2b8;
+}
+
+/* === ARCHIVES EXPANDUES === */
+.sisme-archives-section {
+    margin-top: 12px;
+    border-top: 1px solid rgba(23, 162, 184, 0.3);
+    padding-top: 12px;
+}
+
+.sisme-archives-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sisme-archive-item {
+    background: rgba(23, 162, 184, 0.05);
+    border: 1px solid rgba(23, 162, 184, 0.2);
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 12px;
+}
+
+.sisme-archive-item:hover {
+    background: rgba(23, 162, 184, 0.1);
+    border-color: rgba(23, 162, 184, 0.4);
+}
+
+.sisme-archive-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.sisme-archive-title {
+    font-weight: 600;
+    color: #17a2b8;
+}
+
+.sisme-archive-date {
+    color: #6c757d;
+    font-size: 11px;
+}
+
+.sisme-archive-reason {
+    color: #495057;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+.sisme-revision-reason {
+    color: var(--sisme-overlay-light);
+    font-size: 13px;
+    margin-top: 6px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    border-left: 3px solid rgb(255, 152, 0);
+}
+
+.sisme-revision-reason strong {
+    color: var(--sisme-overlay-light);
+}
+
+/* === DÉTAILS ARCHIVES === */
+.sisme-archive-details {
+    margin-top: 8px;
+    border-top: 1px solid rgba(23, 162, 184, 0.1);
+    padding-top: 8px;
+}
+
+.sisme-archive-details-content {
+    background: rgba(23, 162, 184, 0.03);
+    border-radius: 4px;
+    padding: 12px;
+}
+
+.sisme-archive-info p {
+    margin: 4px 0;
+    font-size: 11px;
+}
+
+.sisme-archive-description {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px;
+    border-radius: 3px;
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.sisme-loading {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 8px;
+}
+
 .sisme-submission-item .sisme-submission-meta {
     display: flex;
     flex-direction: column;
@@ -70,6 +204,7 @@
     padding: 10px;
     gap: 5px;
     border-radius: 5px;
+    margin-top: 10px;
 }
 
 .sisme-submission-item .sisme-submission-actions {
@@ -85,4 +220,289 @@
 
 .sisme-submission-actions .sisme-btn-secondary:hover {
     color: var(--sisme-color-primary-dark) !important;
+}
+
+/* === STYLES BOUTON RÉVISION === */
+.sisme-btn-revision {
+    background: rgba(255, 152, 0, 0.2);
+    border: solid 1px rgba(255, 152, 0, 0.8);
+    color: rgb(255, 152, 0);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.sisme-btn-revision:hover {
+    background: rgba(255, 152, 0, 0.3);
+    border-color: rgb(255, 152, 0);
+    color: rgb(255, 152, 0);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+.sisme-btn-revision:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.sisme-btn-revision:disabled {
+    background: rgba(255, 152, 0, 0.1);
+    border-color: rgba(255, 152, 0, 0.4);
+    color: rgba(255, 152, 0, 0.6);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* === INDICATEUR RÉVISION === */
+.revision-indicator {
+    display: inline-block;
+    background: #ff9800;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 8px;
+    vertical-align: text-bottom;
+}
+
+/* === ADAPTATION RESPONSIVE === */
+@media (max-width: 768px) {
+    .sisme-btn-revision {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+    
+    .revision-indicator {
+        font-size: 11px;
+        padding: 1px 4px;
+        margin-right: 4px;
+    }
+}
+
+/* Styles pour les révisions */
+.revision-badge {
+    display: inline-block;
+    background-color: #ff9800;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.original-game {
+    display: block;
+    color: #666;
+    font-style: italic;
+    margin-top: 3px;
+    padding-left: 3px;
+    border-left: 2px solid #ff9800;
+}
+
+/* Style de ligne spécial pour les révisions */
+tr.sisme-submission-row[data-is-revision="true"] {
+    background-color: rgba(255, 152, 0, 0.05);
+}
+
+tr.sisme-submission-row[data-is-revision="true"]:hover {
+    background-color: rgba(255, 152, 0, 0.1);
+}
+
+/* === MODALE DE RÉVISION - OPTIMISÉE === */
+.sisme-revision-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    will-change: opacity, visibility;
+}
+
+.sisme-revision-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sisme-revision-modal-content {
+    background: #141414;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+    will-change: transform;
+}
+
+.sisme-revision-modal.active .sisme-revision-modal-content {
+    transform: scale(1);
+}
+
+.sisme-revision-modal-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.sisme-revision-modal-title {
+    color: #e0e0e0;
+    font-size: 1.4em;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.sisme-revision-modal-subtitle {
+    color: #999;
+    font-size: 0.9em;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.sisme-revision-modal-body {
+    margin-bottom: 25px;
+}
+
+.sisme-revision-modal-label {
+    display: block;
+    color: #e0e0e0;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+.sisme-revision-modal-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    font-family: inherit;
+    font-size: 0.9em;
+    line-height: 1.4;
+    resize: vertical;
+    transition: border-color 0.15s ease;
+    will-change: border-color;
+}
+
+.sisme-revision-modal-textarea:focus {
+    outline: none;
+    border-color: #3ec6ff;
+    box-shadow: 0 0 0 1px rgba(62, 198, 255, 0.3);
+}
+
+.sisme-revision-modal-textarea::placeholder {
+    color: #888;
+    opacity: 1;
+}
+
+.sisme-revision-modal-examples {
+    margin-top: 10px;
+    padding: 12px;
+    background: rgba(62, 198, 255, 0.08);
+    border-radius: 6px;
+    border-left: 3px solid #3ec6ff;
+}
+
+.sisme-revision-modal-examples-title {
+    color: #3ec6ff;
+    font-weight: 600;
+    font-size: 0.85em;
+    margin-bottom: 6px;
+}
+
+.sisme-revision-modal-examples-list {
+    color: #999;
+    font-size: 0.8em;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.sisme-revision-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.sisme-revision-modal-btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    min-width: 100px;
+    will-change: background-color;
+}
+
+.sisme-revision-modal-btn-cancel {
+    background: transparent;
+    color: #999;
+    border: 1px solid #555;
+}
+
+.sisme-revision-modal-btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #ccc;
+}
+
+.sisme-revision-modal-btn-confirm {
+    background: #3ec6ff;
+    color: white;
+}
+
+.sisme-revision-modal-btn-confirm:hover {
+    background: #2bb3e6;
+}
+
+.sisme-revision-modal-btn-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Animation d'entrée */
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sisme-revision-modal-content {
+        padding: 20px;
+        margin: 20px;
+        width: calc(100% - 40px);
+    }
+    
+    .sisme-revision-modal-actions {
+        flex-direction: column;
+    }
+    
+    .sisme-revision-modal-btn {
+        width: 100%;
+    }
 }

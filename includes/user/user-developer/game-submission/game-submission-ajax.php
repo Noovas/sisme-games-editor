@@ -38,10 +38,12 @@ function sisme_init_game_submission_ajax() {
     // Workflow
     add_action('wp_ajax_sisme_submit_game_for_review', 'sisme_ajax_submit_game_for_review');
     add_action('wp_ajax_sisme_retry_rejected_submission', 'sisme_ajax_retry_rejected_submission');
+    add_action('wp_ajax_sisme_create_game_revision', 'sisme_ajax_create_game_revision');
 
     // Détails
     add_action('wp_ajax_sisme_get_submission_details', 'sisme_ajax_get_submission_details');
     add_action('wp_ajax_sisme_get_developer_game_stats', 'sisme_ajax_get_developer_game_stats');
+    add_action('wp_ajax_sisme_get_archive_details', 'sisme_ajax_get_archive_details');
 
     // Admin
     add_action('wp_ajax_sisme_admin_get_submissions', 'sisme_ajax_admin_get_submissions');
@@ -838,4 +840,151 @@ function sisme_ajax_convert_taxonomy_ids() {
     }
 
     wp_send_json_success(['names' => array_unique($names)]);
+}
+
+/**
+ * Créer une révision d'un jeu publié
+ */
+function sisme_ajax_create_game_revision() {
+    if (!sisme_verify_submission_nonce()) {
+        wp_send_json_error(['message' => 'Erreur de sécurité']);
+        return;
+    }
+
+    if (!is_user_logged_in()) {
+        wp_send_json_error(['message' => 'Utilisateur non connecté']);
+        return;
+    }
+
+    $user_id = get_current_user_id();
+    $original_submission_id = sanitize_text_field($_POST['original_submission_id'] ?? '');
+    $revision_reason = sanitize_textarea_field($_POST['revision_reason'] ?? '');
+
+    if (empty($original_submission_id)) {
+        wp_send_json_error(['message' => 'ID de soumission originale manquant']);
+        return;
+    }
+
+    if (!sisme_load_submission_data_manager()) {
+        wp_send_json_error(['message' => 'Système de soumission non disponible']);
+        return;
+    }
+
+    // Créer la révision
+    $revision_id = Sisme_Game_Submission_Data_Manager::create_revision($user_id, $original_submission_id, 'major');
+
+    if (is_wp_error($revision_id)) {
+        wp_send_json_error(['message' => $revision_id->get_error_message()]);
+        return;
+    }
+
+    // Ajouter la raison si fournie
+    if (!empty($revision_reason)) {
+        $revision_submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $revision_id);
+        if ($revision_submission) {
+            $revision_submission['metadata']['revision_reason'] = $revision_reason;
+            
+            // Mettre à jour directement dans les données utilisateur pour préserver les métadonnées
+            $user_data = get_user_meta($user_id, Sisme_Utils_Users::META_GAME_SUBMISSIONS, true);
+            if (!empty($user_data['submissions'])) {
+                foreach ($user_data['submissions'] as $index => $submission) {
+                    if ($submission['id'] === $revision_id) {
+                        $user_data['submissions'][$index]['metadata']['revision_reason'] = $revision_reason;
+                        update_user_meta($user_id, Sisme_Utils_Users::META_GAME_SUBMISSIONS, $user_data);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    wp_send_json_success([
+        'revision_id' => $revision_id,
+        'message' => 'Brouillon de révision créé avec succès'
+    ]);
+}
+
+/**
+ * AJAX: Récupérer les détails d'une archive
+ */
+function sisme_ajax_get_archive_details() {
+    if (!check_ajax_referer('sisme_developer_nonce', 'security', false)) {
+        wp_send_json_error(['message' => 'Token de sécurité invalide']);
+        return;
+    }
+
+    if (!is_user_logged_in()) {
+        wp_send_json_error(['message' => 'Utilisateur non connecté']);
+        return;
+    }
+
+    $user_id = get_current_user_id();
+    $archive_id = sanitize_text_field($_POST['archive_id'] ?? '');
+
+    if (empty($archive_id)) {
+        wp_send_json_error(['message' => 'ID d\'archive manquant']);
+        return;
+    }
+
+    if (!sisme_load_submission_data_manager()) {
+        wp_send_json_error(['message' => 'Système de soumission non disponible']);
+        return;
+    }
+
+    // Récupérer l'archive
+    $archive = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $archive_id);
+    
+    if (!$archive || $archive['status'] !== 'archived') {
+        wp_send_json_error(['message' => 'Archive introuvable']);
+        return;
+    }
+
+    // Générer le HTML des détails
+    $html = sisme_render_archive_details_html($archive);
+
+    wp_send_json_success([
+        'html' => $html,
+        'archive' => $archive
+    ]);
+}
+
+/**
+ * Générer le HTML des détails d'une archive
+ * @param array $archive Données de l'archive
+ * @return string HTML des détails
+ */
+function sisme_render_archive_details_html($archive) {
+    $game_data = $archive['game_data'] ?? [];
+    $metadata = $archive['metadata'] ?? [];
+    
+    ob_start();
+    ?>
+    <div class="sisme-archive-details-content">
+        <div class="sisme-archive-info">
+            <?php if (!empty($game_data[Sisme_Utils_Users::GAME_FIELD_NAME])): ?>
+                <p><strong>Nom du jeu :</strong> <?php echo esc_html($game_data[Sisme_Utils_Users::GAME_FIELD_NAME]); ?></p>
+            <?php endif; ?>
+            
+            <?php if (!empty($game_data[Sisme_Utils_Users::GAME_FIELD_DESCRIPTION])): ?>
+                <p><strong>Description :</strong></p>
+                <div class="sisme-archive-description">
+                    <?php echo wp_kses_post(nl2br($game_data[Sisme_Utils_Users::GAME_FIELD_DESCRIPTION])); ?>
+                </div>
+            <?php endif; ?>
+            
+            <?php if (!empty($metadata['revision_reason'])): ?>
+                <p><strong>Raison de la révision :</strong> <?php echo esc_html($metadata['revision_reason']); ?></p>
+            <?php endif; ?>
+            
+            <?php if (!empty($metadata['created_at'])): ?>
+                <p><strong>Créée le :</strong> <?php echo date('d/m/Y H:i', strtotime($metadata['created_at'])); ?></p>
+            <?php endif; ?>
+            
+            <?php if (!empty($metadata['archived_at'])): ?>
+                <p><strong>Archivée le :</strong> <?php echo date('d/m/Y H:i', strtotime($metadata['archived_at'])); ?></p>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
 }

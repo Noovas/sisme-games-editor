@@ -47,6 +47,7 @@
         this.enableSubmitButton();
         this.handleHashChange();
         this.bindModalEvents();
+        this.bindArchiveEvents();
         
         this.isInitialized = true;
 
@@ -65,6 +66,7 @@
     SismeGameSubmission.bindEvents = function() {
         // Boutons soumissions dans la liste
         $(document).on('click', '.sisme-submission-item button', this.handleSubmissionAction.bind(this));
+        $(document).on('click', '.sisme-btn-revision', this.createRevision.bind(this));
         
         // Formulaire de soumission
         $(document).on('click', this.config.draftButtonSelector, this.saveDraft.bind(this));
@@ -1076,6 +1078,245 @@
                 $feedback.fadeOut();
             }, 5000);
         }
+    };
+
+    /**
+     * Créer une révision d'un jeu publié
+     */
+    SismeGameSubmission.createRevision = function(e) {
+        e.preventDefault();
+        
+        const $button = $(e.currentTarget);
+        const submissionId = $button.data('submission-id');
+        
+        if (!submissionId) {
+            this.showFeedback('❌ ID de soumission manquant', 'error');
+            return;
+        }
+
+        // Afficher la modale de révision
+        this.showRevisionModal((revisionReason) => {
+            if (revisionReason === null) {
+                return; // Utilisateur a annulé
+            }
+
+            // Désactiver le bouton pendant la création
+            const originalText = $button.text();
+            $button.prop('disabled', true).text('⏳ Création...');
+            
+            // Appel AJAX pour créer la révision
+            $.ajax({
+                url: this.config.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'sisme_create_game_revision',
+                    security: this.config.nonce,
+                    original_submission_id: submissionId,
+                    revision_reason: revisionReason
+                },
+                success: (response) => {
+                    if (response.success) {
+                        // Succès : rediriger vers l'éditeur de révision
+                        this.showFeedback('✅ Révision créée ! Redirection...', 'success');
+                        
+                        setTimeout(() => {
+                            window.location.hash = 'submit-game?edit=' + response.data.revision_id;
+                        }, 1000);
+                    } else {
+                        // Erreur dans la réponse
+                        $button.prop('disabled', false).text(originalText);
+                        this.showFeedback('❌ ' + response.data.message, 'error');
+                    }
+                },
+                error: () => {
+                    // Erreur réseau
+                    $button.prop('disabled', false).text(originalText);
+                    this.showFeedback('❌ Erreur réseau lors de la création', 'error');
+                }
+            });
+        });
+    };
+
+    /**
+     * Afficher la modale de révision
+     */
+    SismeGameSubmission.showRevisionModal = function(callback) {
+        // Créer la modale si elle n'existe pas
+        if (!$('#sisme-revision-modal').length) {
+            this.createRevisionModal();
+        }
+
+        const $modal = $('#sisme-revision-modal');
+        const $textarea = $modal.find('.sisme-revision-modal-textarea');
+        const $confirmBtn = $modal.find('.sisme-revision-modal-btn-confirm');
+        const $cancelBtn = $modal.find('.sisme-revision-modal-btn-cancel');
+
+        // Réinitialiser le textarea
+        $textarea.val('');
+        $confirmBtn.prop('disabled', true);
+
+        // Vérifier si le textarea a du contenu (optimisé)
+        $textarea.off('input').on('input', () => {
+            $confirmBtn.prop('disabled', $textarea.val().trim().length === 0);
+        });
+
+        // Gestion des boutons (optimisé)
+        $confirmBtn.off('click').on('click', () => {
+            const reason = $textarea.val().trim();
+            if (reason) {
+                this.hideRevisionModal();
+                callback(reason);
+            }
+        });
+
+        $cancelBtn.off('click').on('click', () => {
+            this.hideRevisionModal();
+            callback(null);
+        });
+
+        // Fermer avec Escape (optimisé)
+        $(document).off('keydown.revisionModal').on('keydown.revisionModal', (e) => {
+            if (e.key === 'Escape') {
+                this.hideRevisionModal();
+                callback(null);
+            }
+        });
+
+        // Afficher la modale avec requestAnimationFrame pour fluidité
+        $modal.addClass('active');
+        requestAnimationFrame(() => {
+            $textarea.focus();
+        });
+    };
+
+    /**
+     * Créer la modale de révision
+     */
+    SismeGameSubmission.createRevisionModal = function() {
+        const modalHTML = `
+            <div id="sisme-revision-modal" class="sisme-revision-modal">
+                <div class="sisme-revision-modal-content">
+                    <div class="sisme-revision-modal-header">
+                        <h3 class="sisme-revision-modal-title">
+                            🔄 Créer une révision
+                        </h3>
+                        <p class="sisme-revision-modal-subtitle">
+                            Expliquez les modifications que vous souhaitez apporter à votre jeu
+                        </p>
+                    </div>
+                    <div class="sisme-revision-modal-body">
+                        <label class="sisme-revision-modal-label" for="revision-reason">
+                            Motif de la révision *
+                        </label>
+                        <textarea 
+                            class="sisme-revision-modal-textarea" 
+                            id="revision-reason"
+                            placeholder="Décrivez les changements que vous voulez effectuer..."
+                            maxlength="500"></textarea>
+                        
+                        <div class="sisme-revision-modal-examples">
+                            <div class="sisme-revision-modal-examples-title">💡 Exemples :</div>
+                            <div class="sisme-revision-modal-examples-list">
+                                • Ajouter le genre "Action" • Corriger la description • Ajouter des captures d'écran<br>
+                                • Modifier le lien Steam • Mettre à jour les informations • Changer la couverture
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sisme-revision-modal-actions">
+                        <button type="button" class="sisme-revision-modal-btn sisme-revision-modal-btn-cancel">
+                            Annuler
+                        </button>
+                        <button type="button" class="sisme-revision-modal-btn sisme-revision-modal-btn-confirm" disabled>
+                            Créer la révision
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('body').append(modalHTML);
+    };
+
+    /**
+     * Cacher la modale de révision
+     */
+    SismeGameSubmission.hideRevisionModal = function() {
+        const $modal = $('#sisme-revision-modal');
+        $modal.removeClass('active');
+        $(document).off('keydown.revisionModal');
+        
+        // Nettoyer les événements immédiatement
+        $modal.find('.sisme-revision-modal-textarea').off('input');
+    };
+
+    /**
+     * Gestion des boutons d'archives
+     */
+    SismeGameSubmission.bindArchiveEvents = function() {
+        // Toggle archives list
+        $(document).on('click', '[data-action="toggle-archives"]', (e) => {
+            e.preventDefault();
+            const $button = $(e.currentTarget);
+            const submissionId = $button.data('submission-id');
+            const $archivesSection = $(`.sisme-archives-section[data-submission-id="${submissionId}"]`);
+            const isExpanded = $button.data('state') === 'expanded';
+            
+            if (isExpanded) {
+                $archivesSection.slideUp(300);
+                $button.removeClass('active').data('state', 'collapsed');
+            } else {
+                $archivesSection.slideDown(300);
+                $button.addClass('active').data('state', 'expanded');
+            }
+        });
+        
+        // Toggle archive details
+        $(document).on('click', '[data-action="toggle-archive-details"]', (e) => {
+            e.preventDefault();
+            const $button = $(e.currentTarget);
+            const archiveId = $button.data('archive-id');
+            const $detailsSection = $(`.sisme-archive-details[data-archive-id="${archiveId}"]`);
+            const isExpanded = $button.data('state') === 'expanded';
+            
+            if (isExpanded) {
+                $detailsSection.slideUp(300);
+                $button.removeClass('active').data('state', 'collapsed').text('👁️');
+            } else {
+                // Charger les détails si pas encore fait
+                const $content = $detailsSection.find('.sisme-archive-details-content');
+                if ($content.find('.sisme-loading').length) {
+                    this.loadArchiveDetails(archiveId, $content);
+                }
+                
+                $detailsSection.slideDown(300);
+                $button.addClass('active').data('state', 'expanded').text('🔼');
+            }
+        });
+    };
+    
+    /**
+     * Charger les détails d'une archive
+     */
+    SismeGameSubmission.loadArchiveDetails = function(archiveId, $container) {
+        $.ajax({
+            url: this.config.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'sisme_get_archive_details',
+                security: this.config.nonce,
+                archive_id: archiveId
+            },
+            success: (response) => {
+                if (response.success) {
+                    $container.html(response.data.html);
+                } else {
+                    $container.html('<div class="sisme-error">❌ Erreur: ' + response.data.message + '</div>');
+                }
+            },
+            error: () => {
+                $container.html('<div class="sisme-error">❌ Erreur de connexion</div>');
+            }
+        });
     };
     
     // Initialisation automatique

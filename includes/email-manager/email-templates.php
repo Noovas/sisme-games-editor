@@ -80,4 +80,58 @@ L'équipe Sisme Games
 ---
 Si vous avez des questions, contactez-nous à sisme-games@sisme.fr";
     }
+
+    /**
+     * Email de révision approuvée
+     * @param string $user_name Nom de l'utilisateur
+     * @param string $game_name Nom du jeu
+     * @return string Contenu email complet
+     */
+    public static function revision_approved($user_name, $game_name) {
+        $dashboard_link = home_url(self::DASHBOARD_LINK);
+        return "Félicitations {$user_name} !
+
+Nous avons le plaisir de vous informer que votre révision du jeu \"{$game_name}\" a été approuvée et mise en ligne.
+
+Les modifications que vous avez apportées sont maintenant visibles par notre communauté. Merci de maintenir la qualité de votre contenu.
+
+Gérer vos jeux : {$dashboard_link}
+
+Continuez à faire évoluer vos créations !
+
+L'équipe Sisme Games
+
+---
+Si vous avez des questions, contactez-nous à sisme-games@sisme.fr";
+    }
+
+    /**
+     * Email de révision rejetée
+     * @param string $user_name Nom de l'utilisateur
+     * @param string $game_name Nom du jeu
+     * @param string $rejection_reason Motif du rejet
+     * @return string Contenu email complet
+     */
+    public static function revision_rejected($user_name, $game_name, $rejection_reason) {
+        $edit_link = home_url(self::EDIT_LINK);
+        return "Bonjour {$user_name},
+
+Nous avons examiné votre révision du jeu \"{$game_name}\" et malheureusement, nous ne pouvons pas l'approuver dans son état actuel.
+
+Motif du rejet :
+{$rejection_reason}
+
+Ne vous découragez pas ! Vous pouvez modifier votre révision et la soumettre à nouveau en tenant compte de nos commentaires.
+
+Pour modifier votre révision, rendez-vous ici :
+{$edit_link}
+
+Nous encourageons les développeurs à améliorer leurs soumissions et à les resoumettre. Notre équipe sera ravie de réévaluer votre jeu une fois les modifications apportées.
+
+Cordialement,
+L'équipe Sisme Games
+
+---
+Si vous avez des questions, contactez-nous à sisme-games@sisme.fr";
+    }
 }

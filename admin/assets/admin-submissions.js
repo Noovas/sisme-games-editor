@@ -20,9 +20,9 @@ jQuery(document).ready(function($) {
     const detailsCache = {};
     
     /**
-     * Gestionnaire pour les boutons "Voir détails"
+     * Gestionnaire pour les boutons "Voir détails" (délégation d'événements)
      */
-    $('.view-btn').click(function(e) {
+    $(document).on('click', '.view-btn', function(e) {
         e.preventDefault();
         
         const $button = $(this);
@@ -153,7 +153,10 @@ jQuery(document).ready(function($) {
             html += '<div class="admin-detail-content">';
             
             if (gameData.game_genres && gameData.game_genres.length) {
-                html += `<p><strong>Genres :</strong> <span class="genre-names" data-genre-ids="${gameData.game_genres.join(',')}">${convertGenreIds(gameData.game_genres)}</span></p>`;
+                const genreNames = data.genres_formatted && data.genres_formatted.length 
+                    ? data.genres_formatted.join(', ')
+                    : gameData.game_genres.map(id => `Genre ${id}`).join(', ');
+                html += `<p><strong>Genres :</strong> <span class="genre-names">${genreNames}</span></p>`;
             }
             if (gameData.game_platforms && gameData.game_platforms.length) {
                 html += `<p><strong>Plateformes :</strong> ${gameData.game_platforms.join(', ')}</p>`;
@@ -329,11 +332,11 @@ jQuery(document).ready(function($) {
         const userId = $button.data('user-id');
         const gameName = $button.closest('tr').find('.game-info strong').text() || 'ce jeu';
         
-        const reason = prompt(`Motif du rejet pour "${gameName}" :`);
-        
-        if (reason && reason.trim()) {
-            rejectSubmission(submissionId, userId, reason.trim());
-        }
+        showRejectModal(gameName, (reason) => {
+            if (reason && reason.trim()) {
+                rejectSubmission(submissionId, userId, reason.trim());
+            }
+        });
     });
 
     function rejectSubmission(submissionId, userId, reason) {
@@ -400,5 +403,160 @@ jQuery(document).ready(function($) {
                 alert('❌ Erreur de connexion');
             }
         });
+    }
+
+    // Gestionnaire pour les boutons "Supprimer"
+    $(document).on('click', '.delete-btn.active', function(e) {
+        e.preventDefault();
+        
+        const $button = $(this);
+        const submissionId = $button.data('submission-id');
+        const userId = $button.data('user-id');
+        const gameName = $button.closest('tr').find('.game-info strong').text() || 'cette soumission';
+        const isRevision = $button.closest('tr').data('is-revision') === 'true';
+        
+        // Message de confirmation adapté selon le type
+        let confirmMessage;
+        if (isRevision) {
+            confirmMessage = `Supprimer définitivement la révision "${gameName}" ?\n\n⚠️ Cette action :\n- Supprimera la révision\n- CONSERVERA les médias (images/vidéos)\n- Ne pourra pas être annulée`;
+        } else {
+            confirmMessage = `Supprimer définitivement la soumission "${gameName}" ?\n\n⚠️ Cette action :\n- Supprimera la soumission\n- SUPPRIMERA AUSSI les médias (images/vidéos)\n- Ne pourra pas être annulée`;
+        }
+        
+        if (confirm(confirmMessage)) {
+            deleteSubmission(submissionId, userId, gameName, isRevision);
+        }
+    });
+
+    function deleteSubmission(submissionId, userId, gameName, isRevision) {
+        $.ajax({
+            url: config.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'sisme_admin_delete_submission',
+                submission_id: submissionId,
+                user_id: userId,
+                security: config.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert(`✅ "${gameName}" supprimée avec succès`);
+                    location.reload();
+                } else {
+                    alert('❌ Erreur: ' + (response.data?.message || 'Erreur inconnue'));
+                }
+            },
+            error: function() {
+                alert('❌ Erreur de connexion');
+            }
+        });
+    }
+
+    /**
+     * Afficher la modale de rejet
+     */
+    function showRejectModal(gameName, callback) {
+        // Créer la modale si elle n'existe pas
+        if (!$('#sisme-admin-reject-modal').length) {
+            createRejectModal();
+        }
+
+        const $modal = $('#sisme-admin-reject-modal');
+        const $textarea = $modal.find('.sisme-admin-modal-textarea');
+        const $confirmBtn = $modal.find('.sisme-admin-modal-btn-confirm');
+        const $cancelBtn = $modal.find('.sisme-admin-modal-btn-cancel');
+        const $subtitle = $modal.find('.sisme-admin-modal-subtitle');
+
+        // Mettre à jour le nom du jeu
+        $subtitle.text(`Expliquez pourquoi vous rejetez "${gameName}"`);
+
+        // Réinitialiser le textarea
+        $textarea.val('');
+        $confirmBtn.prop('disabled', true);
+
+        // Vérifier si le textarea a du contenu (optimisé)
+        $textarea.off('input').on('input', () => {
+            $confirmBtn.prop('disabled', $textarea.val().trim().length === 0);
+        });
+
+        // Gestion des boutons (optimisé)
+        $confirmBtn.off('click').on('click', () => {
+            const reason = $textarea.val().trim();
+            if (reason) {
+                hideRejectModal();
+                callback(reason);
+            }
+        });
+
+        $cancelBtn.off('click').on('click', () => {
+            hideRejectModal();
+            callback(null);
+        });
+
+        // Fermer avec Escape (optimisé)
+        $(document).off('keydown.rejectModal').on('keydown.rejectModal', (e) => {
+            if (e.key === 'Escape') {
+                hideRejectModal();
+                callback(null);
+            }
+        });
+
+        // Afficher la modale avec requestAnimationFrame
+        $modal.addClass('active');
+        requestAnimationFrame(() => {
+            $textarea.focus();
+        });
+    }
+
+    /**
+     * Créer la modale de rejet
+     */
+    function createRejectModal() {
+        const modalHTML = `
+            <div id="sisme-admin-reject-modal" class="sisme-admin-modal">
+                <div class="sisme-admin-modal-content">
+                    <div class="sisme-admin-modal-header">
+                        <h3 class="sisme-admin-modal-title">
+                            ❌ Rejeter la soumission
+                        </h3>
+                        <p class="sisme-admin-modal-subtitle">
+                            Expliquez pourquoi vous rejetez cette soumission
+                        </p>
+                    </div>
+                    <div class="sisme-admin-modal-body">
+                        <label class="sisme-admin-modal-label" for="reject-reason">
+                            Motif du rejet *
+                        </label>
+                        <textarea 
+                            class="sisme-admin-modal-textarea" 
+                            id="reject-reason"
+                            placeholder="Expliquez la raison du rejet (contenu inapproprié, informations manquantes, etc.)"
+                            maxlength="500"></textarea>
+                    </div>
+                    <div class="sisme-admin-modal-actions">
+                        <button type="button" class="sisme-admin-modal-btn sisme-admin-modal-btn-cancel">
+                            Annuler
+                        </button>
+                        <button type="button" class="sisme-admin-modal-btn sisme-admin-modal-btn-confirm" disabled>
+                            Rejeter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('body').append(modalHTML);
+    }
+
+    /**
+     * Cacher la modale de rejet
+     */
+    function hideRejectModal() {
+        const $modal = $('#sisme-admin-reject-modal');
+        $modal.removeClass('active');
+        $(document).off('keydown.rejectModal');
+        
+        // Nettoyer les événements immédiatement
+        $modal.find('.sisme-admin-modal-textarea').off('input');
     }
 });

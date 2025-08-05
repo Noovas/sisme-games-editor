@@ -124,6 +124,7 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/search/search-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/team-choice/team-choice-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-submission-tab.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-data-inspector.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/migration/migration-loader.php';
     }
 
@@ -177,6 +178,15 @@ class SismeGamesEditor {
             'manage_options',
             'sisme-games-developers',
             array($this, 'developers_page')
+        );
+
+        add_submenu_page(
+            'sisme-games-game-data',
+            'Inspecteur de données',
+            '🔍 Inspecteur de données',
+            'manage_options',
+            'sisme-games-data-inspector',
+            array('Sisme_Admin_Data_Inspector', 'render')
         );
 
         // Sous-menu Créer Fiche (masqué du menu, accessible via liens)
