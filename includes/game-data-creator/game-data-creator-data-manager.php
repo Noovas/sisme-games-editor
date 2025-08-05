@@ -423,4 +423,30 @@ class Sisme_Game_Creator_Data_Manager {
         
         return get_terms($args);
     }
+
+    /**
+     * Génération URL fiche jeu avec priorité article puis tag
+     * @param int $game_id ID du jeu
+     * @return string URL de la fiche
+     */
+    public static function get_game_url($game_id) {
+        $fiche_post = get_posts([
+            'post_type' => 'post',
+            'meta_query' => [
+                [
+                    'key' => 'associated_game_id',
+                    'value' => $game_id,
+                    'compare' => '='
+                ]
+            ],
+            'posts_per_page' => 1,
+            'post_status' => 'publish'
+        ]);
+        $term = get_term($game_id, 'post_tag');
+        if (!empty($fiche_post)) {
+            return get_permalink($fiche_post[0]->ID);
+        } else {
+            return home_url($term->slug . '/');
+        }
+    }
 }

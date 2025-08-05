@@ -37,6 +37,12 @@
     text-align: center;
 }
 
+.sisme-btn-edit {
+    background: rgb(255, 215, 0, 0.2);
+    border: solid 1px rgb(255, 215, 0, 0.8);
+    color: rgb(255, 215, 0, 1);
+}
+
 .sisme-status-draft {
     background: rgba(255, 215, 0, 0.2);
     color: #ffd700;
@@ -44,7 +50,7 @@
 
 .sisme-status-pending {
     background: rgba(255, 165, 0, 0.2);
-    color: #ffa500;
+    color: rgb(255, 165, 0);
 }
 
 .sisme-status-published {

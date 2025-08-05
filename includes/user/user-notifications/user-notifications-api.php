@@ -138,13 +138,10 @@ class Sisme_User_Notifications_API {
         }
         
         $output = '<div class="sisme-notifications-list">';
-        
         foreach ($notifications as $notification) {
             $output .= self::render_notification_item($notification);
         }
-        
         $output .= '</div>';
-        
         return $output;
     }
     
@@ -156,33 +153,25 @@ class Sisme_User_Notifications_API {
      */
     public static function render_notification_item($notification) {
         $time_ago = self::format_time_ago($notification[Sisme_Utils_Games::KEY_TIMESTAMP]);
-        
         $output = '<div class="sisme-notification-item sisme-notification-item--unread" data-index="' . $notification['index'] . '">';
-        
         $output .= '<div class="sisme-notification-content">';
-        
         $output .= '<div class="sisme-notification-game">';
         $output .= '<a href="' . esc_url($notification[Sisme_Utils_Games::KEY_GAME_URL]) . '" class="sisme-notification-game-link">';
         $output .= '<strong>' . esc_html($notification['game_name']) . '</strong>';
         $output .= '</a>';
         $output .= '</div>';
-        
         $output .= '<div class="sisme-notification-message">';
         $output .= self::get_notification_message($notification['type']);
         $output .= '</div>';
-        
         $output .= '<div class="sisme-notification-meta">';
         $output .= '<span class="sisme-notification-time">' . esc_html($time_ago) . '</span>';
         $output .= '</div>';
-        
         $output .= '</div>';
-        
         $output .= '<div class="sisme-notification-actions">';
         $output .= '<button type="button" class="sisme-notification-mark-read" data-index="' . $notification['index'] . '" aria-label="Marquer comme lue">';
         $output .= '✓';
         $output .= '</button>';
         $output .= '</div>';
-        
         $output .= '</div>';
         
         return $output;
@@ -199,7 +188,6 @@ class Sisme_User_Notifications_API {
         $output .= '<h4>Aucune notification</h4>';
         $output .= '<p>Vous serez notifié des nouveaux jeux ici.</p>';
         $output .= '</div>';
-        
         return $output;
     }
     

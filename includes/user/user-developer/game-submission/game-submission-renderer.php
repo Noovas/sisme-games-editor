@@ -19,6 +19,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Charger la classe User Dashboard Renderer si nécessaire
+if (!class_exists('Sisme_User_Dashboard_Renderer') && file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-dashboard/user-dashboard-renderer.php')) {
+    require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-dashboard/user-dashboard-renderer.php';
+}
+
 class Sisme_Game_Submission_Renderer {
     
     /**
@@ -103,56 +108,66 @@ class Sisme_Game_Submission_Renderer {
         $game_name = $game_data[Sisme_Utils_Users::GAME_FIELD_NAME] ?? 'Jeu sans nom';
         $created_at = $metadata['created_at'] ?? '';
         
+        // Récupérer l'ID du jeu - priorité à published_game_id dans les métadonnées
+        $game_id = $metadata['published_game_id'] ?? $game_data['id'] ?? null;
+        $game_url = Sisme_Game_Creator_Data_Manager::get_game_url($game_id) ?: '';
+
         ob_start();
+        
+        // Ouvrir le lien seulement si c'est une soumission approuvée
+        if ($game_url !== home_url('/')){
+            echo '<a href="' . esc_url($game_url) . '" class="sisme-game-link" title="Voir la page du jeu" target="_blank">';
+        }
         ?>
-        <div class="sisme-submission-item" data-submission-id="<?php echo esc_attr($submission['id']); ?>" data-status="<?php echo esc_attr($status); ?>">
-            <div class="sisme-submission-header">
-                <h5 class="sisme-submission-title"><?php echo esc_html($game_name); ?></h5>
-                <div class="sisme-submission-status sisme-status-<?php echo esc_attr($status); ?>">
-                    <?php echo self::get_status_label($status); ?>
+            <div class="sisme-submission-item" data-submission-id="<?php echo esc_attr($submission['id']); ?>" data-status="<?php echo esc_attr($status); ?>">
+                <div class="sisme-submission-header">
+                    <h5 class="sisme-submission-title">
+                        <?php echo esc_html($game_name); ?>
+                    </h5>
+                    <div class="sisme-submission-status sisme-status-<?php echo esc_attr($status); ?>">
+                        <?php echo self::get_status_label($status); ?>
+                    </div>
+                </div>
+            
+                <div class="sisme-submission-meta">                
+                    <?php if ($created_at): ?>
+                        <div class="sisme-submission-date">
+                            Créé le <?php echo date('d/m/Y', strtotime($created_at)); ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            
+                <div class="sisme-submission-actions">
+                    <?php if ($status === 'draft'): ?>
+                        <button class="sisme-btn sisme-btn-secondary" onclick="window.location.hash = 'submit-game?edit=<?php echo esc_js($submission['id']); ?>'">
+                            📝 Continuer
+                        </button>
+                        <button class="sisme-btn sisme-btn-small sisme-btn-danger" data-action="delete" data-submission-id="<?php echo esc_attr($submission['id']); ?>">
+                            🗑️ Supprimer
+                        </button>
+                    <?php elseif ($status === 'pending'): ?>
+                        <button class="sisme-btn sisme-btn-secondary sisme-expand-btn" 
+                                data-submission-id="<?php echo esc_attr($submission['id']); ?>" 
+                                <?php if ($is_admin_context && $user_id): ?>
+                                data-admin-user-id="<?php echo esc_attr($user_id); ?>"
+                                data-admin-token="<?php echo esc_attr(wp_create_nonce('admin_view_' . $user_id . '_' . $submission['id'])); ?>"
+                                <?php endif; ?>
+                                data-state="collapsed">
+                            👁️ Voir plus
+                        </button>
+                    <?php elseif ($status === 'published'): ?>
+                        <button class="sisme-btn sisme-btn-small sisme-btn-edit sisme-disabled">
+                            Faire une modification
+                        </button>
+                    <?php endif; ?>
                 </div>
             </div>
-            
-            <div class="sisme-submission-meta">                
-                <?php if ($created_at): ?>
-                    <div class="sisme-submission-date">
-                        Créé le <?php echo date('d/m/Y', strtotime($created_at)); ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-            
-            <div class="sisme-submission-actions">
-                <?php if ($status === 'draft'): ?>
-                    <button class="sisme-btn sisme-btn-secondary" onclick="window.location.hash = 'submit-game?edit=<?php echo esc_js($submission['id']); ?>'">
-                        📝 Continuer
-                    </button>
-                    <button class="sisme-btn sisme-btn-small sisme-btn-danger" data-action="delete" data-submission-id="<?php echo esc_attr($submission['id']); ?>">
-                        🗑️ Supprimer
-                    </button>
-                <?php elseif ($status === 'pending'): ?>
-                    <button class="sisme-btn sisme-btn-secondary sisme-expand-btn" 
-                            data-submission-id="<?php echo esc_attr($submission['id']); ?>" 
-                            <?php if ($is_admin_context && $user_id): ?>
-                            data-admin-user-id="<?php echo esc_attr($user_id); ?>"
-                            data-admin-token="<?php echo esc_attr(wp_create_nonce('admin_view_' . $user_id . '_' . $submission['id'])); ?>"
-                            <?php endif; ?>
-                            data-state="collapsed">
-                        👁️ Voir plus
-                    </button>
-                <?php elseif ($status === 'rejected'): ?>
-                    <button class="sisme-btn sisme-btn-small sisme-btn-primary" onclick="SismeGameSubmission.retrySubmission('<?php echo esc_js($submission['id']); ?>')">
-                        🔄 Réessayer
-                    </button>
-                    <button class="sisme-btn sisme-btn-small sisme-btn-secondary" onclick="SismeGameSubmission.viewSubmission('<?php echo esc_js($submission['id']); ?>')">
-                        👁️ Voir
-                    </button>
-                <?php elseif ($status === 'approved'): ?>
-                    <button class="sisme-btn sisme-btn-small sisme-btn-success" onclick="SismeGameSubmission.viewSubmission('<?php echo esc_js($submission['id']); ?>')">
-                        ✅ Publié
-                    </button>
-                <?php endif; ?>
-            </div>
-        </div>
+        <?php 
+        // Fermer le lien si c'est une soumission approuvée
+        if ($game_url !== home_url('/')) {
+            echo '</a>';
+        }
+        ?>
         <?php
         return ob_get_clean();
     }
@@ -230,7 +245,8 @@ class Sisme_Game_Submission_Renderer {
             'draft' => '📝 Brouillon',
             'pending' => '⏳ En attente',
             'approved' => '✅ Publié',
-            'rejected' => '❌ Rejeté'
+            'published' => '✅ Publié',
+            'rejected' => '❌ Rejeté',
         ];
         
         return $labels[$status] ?? ucfirst($status);
