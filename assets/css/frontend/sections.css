@@ -208,7 +208,6 @@
 .sisme-game-section li {
     font-size: var(--sisme-text-base);
     line-height: var(--sisme-leading-normal);
-    color: var(--sisme-color-text-secondary);
     margin-bottom: var(--sisme-space-sm);
 }
 

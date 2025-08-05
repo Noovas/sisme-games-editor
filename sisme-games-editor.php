@@ -27,7 +27,8 @@ define('SISME_GAMES_MODULES', array(
     "email-manager",
     "dev-editor-manager",
     "game-data-creator",
-    "game-page-creator"
+    "game-page-creator",
+    "migration"
 ));
 
 // Charger les fichiers
@@ -124,6 +125,7 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/search/search-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/team-choice/team-choice-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-submission-tab.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/migration/migration-loader.php';
     }
 
     public function add_admin_menu() {

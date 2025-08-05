@@ -490,46 +490,187 @@ class Sisme_Game_Page_Renderer {
      */
     private static function render_javascript() {
         return '<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const mainDisplay = document.getElementById("sismeMainDisplay");
-    const trailerFrame = document.getElementById("sismeTrailerFrame");
-    const screenshotImg = document.getElementById("sismeScreenshotImg");
-    const thumbs = document.querySelectorAll(".sisme-media-thumb");
-    
-    if (!mainDisplay || !thumbs.length) return;
-    
-    thumbs.forEach(function(thumb) {
-        thumb.addEventListener("click", function() {
-            // Retirer la classe active de tous les thumbnails
-            thumbs.forEach(function(t) { t.classList.remove("active"); });
-            
-            // Ajouter la classe active au thumbnail cliqué
-            this.classList.add("active");
-            
-            const type = this.getAttribute("data-type");
-            
-            if (type === "trailer") {
-                const youtubeId = this.getAttribute("data-youtube");
-                if (trailerFrame && youtubeId) {
-                    trailerFrame.src = "https://www.youtube.com/embed/" + youtubeId + "?enablejsapi=1";
-                    trailerFrame.style.display = "block";
+        
+    document.addEventListener("DOMContentLoaded", function() {
+        const mainDisplay = document.getElementById("sismeMainDisplay");
+        const trailerFrame = document.getElementById("sismeTrailerFrame");
+        const screenshotImg = document.getElementById("sismeScreenshotImg");
+        const thumbs = document.querySelectorAll(".sisme-media-thumb");
+        const gallery = document.querySelector(".sisme-media-gallery");
+        
+        if (!mainDisplay || !thumbs.length) return;
+        
+        // === FONCTIONNALITÉ GALERIE EXISTANTE ===
+        thumbs.forEach(function(thumb) {
+            thumb.addEventListener("click", function() {
+                // Retirer la classe active de tous les thumbnails
+                thumbs.forEach(function(t) { t.classList.remove("active"); });
+                
+                // Ajouter la classe active au thumbnail cliqué
+                this.classList.add("active");
+                
+                const type = this.getAttribute("data-type");
+                
+                if (type === "trailer") {
+                    const youtubeId = this.getAttribute("data-youtube");
+                    if (trailerFrame && youtubeId) {
+                        trailerFrame.src = "https://www.youtube.com/embed/" + youtubeId + "?enablejsapi=1";
+                        trailerFrame.style.display = "block";
+                    }
+                    if (screenshotImg) {
+                        screenshotImg.style.display = "none";
+                    }
+                } else if (type === "screenshot") {
+                    const imageUrl = this.getAttribute("data-image");
+                    if (screenshotImg && imageUrl) {
+                        screenshotImg.src = imageUrl;
+                        screenshotImg.style.display = "block";
+                    }
+                    if (trailerFrame) {
+                        trailerFrame.style.display = "none";
+                    }
                 }
-                if (screenshotImg) {
-                    screenshotImg.style.display = "none";
-                }
-            } else if (type === "screenshot") {
-                const imageUrl = this.getAttribute("data-image");
-                if (screenshotImg && imageUrl) {
-                    screenshotImg.src = imageUrl;
-                    screenshotImg.style.display = "block";
-                }
-                if (trailerFrame) {
-                    trailerFrame.style.display = "none";
+            });
+        });
+        
+        // === NOUVEAU : DÉFILEMENT HORIZONTAL ===
+        if (gallery) {
+            // Support molette horizontale
+            gallery.addEventListener("wheel", function(e) {
+                // Empêcher le scroll vertical de la page
+                e.preventDefault();
+                
+                // Scroll horizontal avec la molette
+                this.scrollLeft += e.deltaY;
+            });
+            
+            // Ajouter boutons navigation si nécessaire
+            if (thumbs.length > 5) {
+                addNavigationButtons(gallery);
+            }
+        }
+        
+        // === FONCTION BOUTONS NAVIGATION ===
+        function addNavigationButtons(gallery) {
+            const container = gallery.parentElement;
+            
+            // Créer le wrapper avec boutons
+            const wrapper = document.createElement("div");
+            wrapper.className = "sisme-gallery-wrapper";
+            wrapper.style.position = "relative";
+            
+            // Bouton gauche
+            const leftBtn = document.createElement("button");
+            leftBtn.className = "sisme-gallery-nav sisme-gallery-nav--left";
+            leftBtn.innerHTML = "‹";
+            leftBtn.style.cssText = `
+                position: absolute;
+                left: -15px;
+                top: 50%;
+                transform: translateY(-50%);
+                z-index: 10;
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                border: none;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                font-size: 18px;
+                font-weight: bold;
+            `;
+            
+            // Bouton droite
+            const rightBtn = document.createElement("button");
+            rightBtn.className = "sisme-gallery-nav sisme-gallery-nav--right";
+            rightBtn.innerHTML = "›";
+            rightBtn.style.cssText = leftBtn.style.cssText;
+            rightBtn.style.left = "auto";
+            rightBtn.style.right = "-15px";
+            
+            // Hover effects
+            [leftBtn, rightBtn].forEach(function(btn) {
+                btn.addEventListener("mouseenter", function() {
+                    this.style.background = "rgba(102, 192, 244, 0.8)";
+                    this.style.transform = "translateY(-50%) scale(1.1)";
+                });
+                
+                btn.addEventListener("mouseleave", function() {
+                    this.style.background = "rgba(0, 0, 0, 0.7)";
+                    this.style.transform = "translateY(-50%) scale(1)";
+                });
+            });
+            
+            // Fonctionnalité scroll
+            leftBtn.addEventListener("click", function() {
+                gallery.scrollBy({
+                    left: -150,
+                    behavior: "smooth"
+                });
+            });
+            
+            rightBtn.addEventListener("click", function() {
+                gallery.scrollBy({
+                    left: 150,
+                    behavior: "smooth"
+                });
+            });
+            
+            // Insérer le wrapper
+            container.insertBefore(wrapper, gallery);
+            wrapper.appendChild(leftBtn);
+            wrapper.appendChild(gallery);
+            wrapper.appendChild(rightBtn);
+            
+            // Gérer la visibilité des boutons
+            function updateButtonVisibility() {
+                const isAtStart = gallery.scrollLeft <= 5;
+                const isAtEnd = gallery.scrollLeft >= gallery.scrollWidth - gallery.clientWidth - 5;
+                
+                leftBtn.style.opacity = isAtStart ? "0.3" : "1";
+                leftBtn.style.pointerEvents = isAtStart ? "none" : "auto";
+                
+                rightBtn.style.opacity = isAtEnd ? "0.3" : "1";
+                rightBtn.style.pointerEvents = isAtEnd ? "none" : "auto";
+            }
+            
+            gallery.addEventListener("scroll", updateButtonVisibility);
+            updateButtonVisibility(); // Initial check
+        }
+    });
+
+    // === CSS POUR LES BOUTONS (injecté automatiquement) ===
+    if (!document.getElementById("sisme-gallery-scroll-css")) {
+        const style = document.createElement("style");
+        style.id = "sisme-gallery-scroll-css";
+        style.textContent = `
+            .sisme-media-gallery {
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .sisme-gallery-nav:focus {
+                outline: 2px solid #66c0f4;
+                outline-offset: 2px;
+            }
+            
+            .sisme-gallery-nav:active {
+                transform: translateY(-50%) scale(0.95) !important;
+            }
+            
+            @media (max-width: 768px) {
+                .sisme-gallery-nav {
+                    display: none !important;
                 }
             }
-        });
-    });
-});
-</script>';
+        `;
+        document.head.appendChild(style);
+    }
+
+    </script>';
     }
 }

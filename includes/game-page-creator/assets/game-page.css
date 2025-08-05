@@ -208,7 +208,6 @@
 .sisme-game-section li {
     font-size: var(--sisme-text-base);
     line-height: var(--sisme-leading-normal);
-    color: var(--sisme-color-text-secondary);
     margin-bottom: var(--sisme-space-sm);
 }
 
@@ -1034,4 +1033,45 @@
     .sisme-meta-label {
         min-width: auto;
     }
+}
+
+.sisme-media-gallery {
+    scroll-behavior: smooth;
+    /* Améliorer la scrollbar sur mobile */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Style pour les boutons de navigation */
+.sisme-gallery-nav:focus {
+    outline: 2px solid #66c0f4;
+    outline-offset: 2px;
+}
+
+.sisme-gallery-nav:active {
+    transform: translateY(-50%) scale(0.95) !important;
+}
+
+/* Responsive : masquer les boutons sur mobile */
+@media (max-width: 768px) {
+    .sisme-gallery-nav {
+        display: none !important;
+    }
+}
+
+/* Indicateur visuel qu'on peut scroller */
+.sisme-media-gallery::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(to left, rgba(0,0,0,0.1), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sisme-gallery-wrapper:hover .sisme-media-gallery::before {
+    opacity: 1;
 }
