@@ -61,7 +61,7 @@ Si vous avez des questions, contactez-nous à sisme-games@sisme.fr";
      * @param string $game_link Lien vers fiche jeu publiée
      * @return string Contenu email complet
      */
-    public static function submission_approved($user_name, $game_name, $game_link) {
+    public static function submission_approved($user_name, $game_name) {
         $dashboard_link = home_url(self::DASHBOARD_LINK);
         return "Félicitations {$user_name} !
 
@@ -69,11 +69,7 @@ Nous avons le plaisir de vous informer que votre soumission de jeu \"{$game_name
 
 Votre jeu est désormais visible par notre communauté de joueurs passionnés. Nous vous remercions de contribuer à enrichir notre catalogue avec du contenu de qualité.
 
-Vous pouvez consulter la fiche de votre jeu ici :
-{$game_link}
-
-Gérer vos soumissions depuis votre dashboard :
-{$dashboard_link}
+Gérer vos soumissions et accéder à votre jeu : {$dashboard_link}
 
 Nous espérons que cette publication vous apportera la visibilité que mérite votre travail. N'hésitez pas à soumettre d'autres jeux !
 

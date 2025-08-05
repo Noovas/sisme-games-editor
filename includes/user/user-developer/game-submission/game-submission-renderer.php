@@ -115,7 +115,7 @@ class Sisme_Game_Submission_Renderer {
         ob_start();
         
         // Ouvrir le lien seulement si c'est une soumission approuvée
-        if ($game_url !== home_url('/')){
+        if ($game_url !== home_url('/') && $status === 'published') {
             echo '<a href="' . esc_url($game_url) . '" class="sisme-game-link" title="Voir la page du jeu" target="_blank">';
         }
         ?>
@@ -164,7 +164,7 @@ class Sisme_Game_Submission_Renderer {
             </div>
         <?php 
         // Fermer le lien si c'est une soumission approuvée
-        if ($game_url !== home_url('/')) {
+        if ($game_url !== home_url('/') && $status === 'published') {
             echo '</a>';
         }
         ?>

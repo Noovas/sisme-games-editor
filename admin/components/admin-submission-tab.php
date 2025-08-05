@@ -742,12 +742,11 @@ class Sisme_Admin_Submission_Tab {
                     $user = get_userdata($user_id);
                     $submission = Sisme_Game_Submission_Data_Manager::get_submission_by_id($user_id, $submission_id);
                     $game_name = $submission['game_data']['game_name'] ?? 'Votre jeu';
-                    $game_link = home_url();
+                    $game_link = Sisme_Game_Creator_Data_Manager::get_game_url($submission['metadata']['published_game_id'] ?? 'Erreur de génération du lien');
 
                     $email_content = Sisme_Email_Templates::submission_approved(
                         $user->display_name,
-                        $game_name,
-                        $game_link
+                        $game_name
                     );
                     
                     Sisme_Email_Manager::send_email(
