@@ -1,7 +1,6 @@
 <?php
-/**
+/*
  * File: /sisme-games-editor/includes/content-filter.php
- */
 
 if (!defined('ABSPATH')) {
     exit;
@@ -44,7 +43,6 @@ class Sisme_Content_Filter {
                 return Sisme_Game_Page_Renderer::render($game_data);
             }
         }
-        /*
         // ANCIEN SYSTÈME : Traitement normal pour les anciennes fiches
         if ($this->is_game_fiche($post_id)) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -55,7 +53,7 @@ class Sisme_Content_Filter {
                 require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/template-fiche.php';
             }
             return Sisme_Fiche_Template::generate_fiche_content($post_id);
-        }*/
+        }
         
         return $content;
     }
@@ -67,7 +65,7 @@ class Sisme_Content_Filter {
     
     /**
      * Charger les données du jeu depuis les meta pour le nouveau système
-     */
+     
     private function load_game_data_from_meta($post_id) {
         // POUR TEST : Récupérer le term_id depuis les tags du post
         $tags = wp_get_post_tags($post_id);
@@ -94,4 +92,4 @@ class Sisme_Content_Filter {
         
         return $game_data;
     }
-}
+}*/

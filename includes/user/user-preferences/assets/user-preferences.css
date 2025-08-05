@@ -679,7 +679,10 @@
     border-color: var(--sisme-color-primary, #007cba);
 }
 
-.sisme-avatar-option-image img {
+.sisme-avatar-option-image img,
+.sisme-avatar-current {
+    position: absolute;
+    top: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;

@@ -112,7 +112,6 @@ class SismeGamesEditor {
         sisme_load_utils();
 
         new Sisme_Assets_Loader();
-        //new Sisme_Content_Filter();
     }
     
     private function include_files() {
