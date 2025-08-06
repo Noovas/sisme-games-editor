@@ -48,7 +48,6 @@ class Sisme_User_Notifications_Loader {
     private function init() {
         $this->load_notifications_modules();
         $this->register_hooks();
-        $this->register_admin_hooks();
         $this->init_shortcodes();
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -95,40 +94,6 @@ class Sisme_User_Notifications_Loader {
         if (class_exists('Sisme_User_Notifications_Ajax')) {
             Sisme_User_Notifications_Ajax::init();
         }
-    }
-
-    /**
-     * Hooks admin existants à compléter
-     */
-    private function register_admin_hooks() {
-        if (is_admin()) {
-            add_action('admin_menu', [$this, 'add_admin_menu']);
-        }
-    }
-
-    /**
-     * Ajouter la page admin au menu
-     */
-    public function add_admin_menu() {
-        add_submenu_page(
-            'sisme-games-game-data',  // Parent slug
-            'Gestion Notifications',   // Page title
-            '🔔 Notifications',        // Menu title
-            'manage_options',          // Capability
-            'sisme-notifications-admin', // Menu slug
-            [$this, 'notifications_admin_page'] // Callback
-        );
-    }
-
-    /**
-     * Afficher la page admin
-     */
-    public function notifications_admin_page() {
-        if (!class_exists('Sisme_User_Notifications_Admin')) {
-            require_once __DIR__ . '/user-notifications-admin.php';
-        }
-        
-        Sisme_User_Notifications_Admin::render_page();
     }
     
     /**

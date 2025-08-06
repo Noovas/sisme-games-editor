@@ -11,7 +11,6 @@
  * 
  * DÉPENDANCES:
  * - game-submission système existant (aucune modification)
- * - admin-submissions.css (styles spécifiques)
  * - admin-submissions.js (comportements admin)
  */
 
@@ -384,12 +383,6 @@ class Sisme_Admin_Submission_Tab {
      * Charger les assets admin
      */
     private static function enqueue_admin_assets() {
-        wp_enqueue_style(
-            'sisme-admin-submissions',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/admin-submissions.css',
-            array(),
-            SISME_GAMES_EDITOR_VERSION
-        );
         
         wp_enqueue_script(
             'sisme-admin-submissions',

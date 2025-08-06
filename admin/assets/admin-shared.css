@@ -1,0 +1,734 @@
+/**
+ * File: /sisme-admin-games-editor/admin/assets/admin-shared.css
+ * Système de design partagé pour toutes les pages admin du plugin
+ * 
+ * OBJECTIF:
+ * - Cohérence visuelle entre toutes les pages admin
+ * - Variables CSS réutilisables
+ * - Classes utilitaires standardisées
+ * - Système de couleurs logiques
+ */
+
+/* ========================================
+   VARIABLES CSS - COULEURS DE BASE
+========================================= */
+:root {
+    /* Couleurs neutres */
+    --sisme-admin-white: #ffffff;
+    --sisme-admin-black: #000000;
+    --sisme-admin-gray-50: #f9fafb;
+    --sisme-admin-gray-100: #f3f4f6;
+    --sisme-admin-gray-200: #e5e7eb;
+    --sisme-admin-gray-300: #d1d5db;
+    --sisme-admin-gray-400: #9ca3af;
+    --sisme-admin-gray-500: #6b7280;
+
+
+    /* Couleurs logiques */
+    --sisme-admin-green: #10b981;
+    --sisme-admin-green-light: #d1fae5;
+    --sisme-admin-green-dark: #047857;
+    
+    --sisme-admin-blue: #3b82f6;
+    --sisme-admin-blue-light: #dbeafe;
+    --sisme-admin-blue-dark: #1d4ed8;
+    
+    --sisme-admin-orange: #f97316;
+    --sisme-admin-orange-light: #fed7aa;
+    --sisme-admin-orange-dark: #ea580c;
+    
+    --sisme-admin-red: #ef4444;
+    --sisme-admin-red-light: #fecaca;
+    --sisme-admin-red-dark: #dc2626;
+    
+    --sisme-admin-yellow: #eab308;
+    --sisme-admin-yellow-light: #fef3c7;
+    --sisme-admin-yellow-dark: #a16207;
+    
+    --sisme-admin-purple: #8b5cf6;
+    --sisme-admin-purple-light: #e9d5ff;
+    --sisme-admin-purple-dark: #7c3aed;
+
+    /* Couleurs sémantiques */
+    --sisme-admin-success: var(--sisme-admin-green);
+    --sisme-admin-warning: var(--sisme-admin-yellow);
+    --sisme-admin-danger: var(--sisme-admin-red);
+    --sisme-admin-info: var(--sisme-admin-blue);
+    --sisme-admin-primary: var(--sisme-admin-blue);
+    --sisme-admin-secondary: var(--sisme-admin-gray-500);
+
+    /* Thème sombre */
+    --sisme-admin-dark-bg: var(--sisme-admin-gray-900);
+    --sisme-admin-dark-bg-light: var(--sisme-admin-gray-800);
+    --sisme-admin-dark-text: var(--sisme-admin-gray-100);
+    --sisme-admin-dark-text-muted: var(--sisme-admin-gray-400);
+
+    /* Thème clair */
+    --sisme-admin-light-bg: var(--sisme-admin-white);
+    --sisme-admin-light-bg-gray: var(--sisme-admin-gray-50);
+    --sisme-admin-light-text: var(--sisme-admin-gray-900);
+    --sisme-admin-light-text-muted: var(--sisme-admin-gray-600);
+
+    /* Espacements standardisés */
+    --sisme-admin-spacing-xs: 4px;
+    --sisme-admin-spacing-sm: 8px;
+    --sisme-admin-spacing-md: 16px;
+    --sisme-admin-spacing-lg: 24px;
+    --sisme-admin-spacing-xl: 32px;
+    --sisme-admin-spacing-2xl: 48px;
+
+    /* Rayons de bordure */
+    --sisme-admin-radius-sm: 4px;
+    --sisme-admin-radius-md: 8px;
+    --sisme-admin-radius-lg: 12px;
+    --sisme-admin-radius-xl: 16px;
+
+    /* Ombres */
+    --sisme-admin-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --sisme-admin-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --sisme-admin-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+    /* Transitions */
+    --sisme-admin-transition: all 0.2s ease-in-out;
+}
+
+/* ========================================
+   CLASSES UTILITAIRES - FONDS
+========================================= */
+.sisme-admin-bg-light { background-color: var(--sisme-admin-light-bg) !important; }
+.sisme-admin-bg-light-gray { background-color: var(--sisme-admin-light-bg-gray) !important; }
+.sisme-admin-bg-dark { background-color: var(--sisme-admin-dark-bg) !important; }
+.sisme-admin-bg-dark-light { background-color: var(--sisme-admin-dark-bg-light) !important; }
+
+.sisme-admin-bg-green { background-color: var(--sisme-admin-green) !important; }
+.sisme-admin-bg-green-light { background-color: var(--sisme-admin-green-light) !important; }
+.sisme-admin-bg-blue { background-color: var(--sisme-admin-blue) !important; }
+.sisme-admin-bg-blue-light { background-color: var(--sisme-admin-blue-light) !important; }
+.sisme-admin-bg-orange { background-color: var(--sisme-admin-orange) !important; }
+.sisme-admin-bg-orange-light { background-color: var(--sisme-admin-orange-light) !important; }
+.sisme-admin-bg-red { background-color: var(--sisme-admin-red) !important; }
+.sisme-admin-bg-red-light { background-color: var(--sisme-admin-red-light) !important; }
+.sisme-admin-bg-yellow { background-color: var(--sisme-admin-yellow) !important; }
+.sisme-admin-bg-yellow-light { background-color: var(--sisme-admin-yellow-light) !important; }
+.sisme-admin-bg-purple { background-color: var(--sisme-admin-purple) !important; }
+.sisme-admin-bg-purple-light { background-color: var(--sisme-admin-purple-light) !important; }
+
+/* ========================================
+   CLASSES UTILITAIRES - TEXTES
+========================================= */
+.sisme-admin-text-dark { color: var(--sisme-admin-light-text) !important; }
+.sisme-admin-text-light { color: var(--sisme-admin-dark-text) !important; }
+.sisme-admin-text-muted { color: var(--sisme-admin-light-text-muted) !important; }
+.sisme-admin-text-muted-light { color: var(--sisme-admin-dark-text-muted) !important; }
+
+.sisme-admin-text-green { color: var(--sisme-admin-green) !important; }
+.sisme-admin-text-blue { color: var(--sisme-admin-blue) !important; }
+.sisme-admin-text-orange { color: var(--sisme-admin-orange) !important; }
+.sisme-admin-text-red { color: var(--sisme-admin-red) !important; }
+.sisme-admin-text-yellow { color: var(--sisme-admin-yellow) !important; }
+.sisme-admin-text-purple { color: var(--sisme-admin-purple) !important; }
+
+.sisme-admin-text-success { color: var(--sisme-admin-success) !important; }
+.sisme-admin-text-warning { color: var(--sisme-admin-warning) !important; }
+.sisme-admin-text-danger { color: var(--sisme-admin-danger) !important; }
+.sisme-admin-text-info { color: var(--sisme-admin-info) !important; }
+
+/* ========================================
+   TYPOGRAPHIE STANDARDISÉE
+========================================= */
+.sisme-admin-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--sisme-admin-light-text);
+    margin: 0 0 var(--sisme-admin-spacing-lg) 0;
+    line-height: 1.3;
+}
+
+.sisme-admin-subtitle {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--sisme-admin-light-text);
+    margin: 0 0 var(--sisme-admin-spacing-md) 0;
+    line-height: 1.4;
+}
+
+.sisme-admin-heading {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--sisme-admin-light-text);
+    margin: 0 0 var(--sisme-admin-spacing-sm) 0;
+    line-height: 1.4;
+}
+
+.sisme-admin-comment {
+    font-size: 14px;
+    color: var(--sisme-admin-light-text-muted);
+    font-style: italic;
+    line-height: 1.5;
+}
+
+.sisme-admin-small {
+    font-size: 12px;
+    color: var(--sisme-admin-light-text-muted);
+    line-height: 1.4;
+}
+
+.sisme-admin-text-center { text-align: center !important; }
+.sisme-admin-text-left { text-align: left !important; }
+.sisme-admin-text-right { text-align: right !important; }
+
+/* ========================================
+   CONTENEURS STANDARDISÉS
+========================================= */
+.sisme-admin-container {
+    background: var(--sisme-admin-light-bg);
+    border: 1px solid var(--sisme-admin-gray-200);
+    border-radius: var(--sisme-admin-radius-md);
+    padding: var(--sisme-admin-spacing-lg);
+    margin-bottom: var(--sisme-admin-spacing-lg);
+    box-shadow: var(--sisme-admin-shadow-sm);
+}
+
+.sisme-admin-container-dark {
+    background: var(--sisme-admin-dark-bg-light);
+    border: 1px solid var(--sisme-admin-gray-700);
+    border-radius: var(--sisme-admin-radius-md);
+    padding: var(--sisme-admin-spacing-lg);
+    margin-bottom: var(--sisme-admin-spacing-lg);
+    box-shadow: var(--sisme-admin-shadow-md);
+}
+
+.sisme-admin-section {
+    margin-bottom: var(--sisme-admin-spacing-xl);
+}
+
+.sisme-admin-section:last-child {
+    margin-bottom: 0;
+}
+
+/* ========================================
+   GRILLE RESPONSIVE
+========================================= */
+.sisme-admin-grid {
+    display: grid;
+    gap: var(--sisme-admin-spacing-md);
+}
+
+.sisme-admin-grid-1 { grid-template-columns: repeat(1, 1fr); }
+.sisme-admin-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.sisme-admin-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.sisme-admin-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 768px) {
+    .sisme-admin-grid-2,
+    .sisme-admin-grid-3,
+    .sisme-admin-grid-4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.sisme-admin-flex {
+    display: flex;
+    gap: var(--sisme-admin-spacing-md);
+}
+
+.sisme-admin-flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sisme-admin-spacing-sm);
+}
+
+.sisme-admin-flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sisme-admin-spacing-sm);
+}
+
+/* Classes flex avec direction verticale pour espacement vertical */
+.sisme-admin-flex-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-admin-spacing-md);
+}
+
+.sisme-admin-flex-col-sm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-admin-spacing-sm);
+}
+
+.sisme-admin-flex-col-lg {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-admin-spacing-lg);
+}
+
+/* Wrapper avec espacement vertical automatique */
+.sisme-admin-layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-admin-spacing-lg);
+}
+
+.sisme-admin-layout > * {
+    margin: 0; /* Reset des marges pour éviter les conflits */
+}
+
+/* ========================================
+   CARTES STANDARDISÉES
+========================================= */
+.sisme-admin-card {
+    background: var(--sisme-admin-light-bg);
+    border: 1px solid var(--sisme-admin-gray-200);
+    border-radius: var(--sisme-admin-radius-lg);
+    padding: var(--sisme-admin-spacing-lg);
+    box-shadow: var(--sisme-admin-shadow-sm);
+    transition: var(--sisme-admin-transition);
+}
+
+.sisme-admin-card:hover {
+    box-shadow: var(--sisme-admin-shadow-md);
+    transform: translateY(-1px);
+}
+
+.sisme-admin-card-dark {
+    background: var(--sisme-admin-dark-bg-light);
+    border: 1px solid var(--sisme-admin-gray-700);
+    color: var(--sisme-admin-dark-text);
+}
+
+.sisme-admin-card-header {
+    padding-bottom: var(--sisme-admin-spacing-md);
+    margin-bottom: var(--sisme-admin-spacing-md);
+    border-bottom: 1px solid var(--sisme-admin-gray-200);
+}
+
+.sisme-admin-card-dark .sisme-admin-card-header {
+    border-bottom-color: var(--sisme-admin-gray-700);
+}
+
+/* ========================================
+   BOUTONS STANDARDISÉS
+========================================= */
+.sisme-admin-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sisme-admin-spacing-xs);
+    padding: var(--sisme-admin-spacing-sm) var(--sisme-admin-spacing-md);
+    border: none;
+    border-radius: var(--sisme-admin-radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--sisme-admin-transition);
+    text-decoration: none;
+}
+
+.sisme-admin-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--sisme-admin-shadow-md);
+}
+
+.sisme-admin-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.sisme-admin-btn-primary {
+    background: var(--sisme-admin-primary);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-btn-primary:hover {
+    background: var(--sisme-admin-blue-dark);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-btn-success {
+    background: var(--sisme-admin-success);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-btn-success:hover {
+    background: var(--sisme-admin-green-dark);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-btn-warning {
+    background: var(--sisme-admin-warning);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-btn-warning:hover {
+    background: var(--sisme-admin-yellow-dark);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-btn-danger {
+    background: var(--sisme-admin-danger);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-btn-danger:hover {
+    background: var(--sisme-admin-red-dark);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-btn-secondary {
+    background: var(--sisme-admin-gray-200);
+    color: var(--sisme-admin-gray-700);
+}
+
+.sisme-admin-btn-secondary:hover {
+    background: var(--sisme-admin-gray-300);
+    color: var(--sisme-admin-gray-700);
+}
+
+.sisme-admin-btn-sm {
+    padding: var(--sisme-admin-spacing-xs) var(--sisme-admin-spacing-sm);
+    font-size: 12px;
+}
+
+.sisme-admin-btn-lg {
+    padding: var(--sisme-admin-spacing-md) var(--sisme-admin-spacing-lg);
+    font-size: 16px;
+}
+
+/* ========================================
+   BADGES ET STATUTS
+========================================= */
+.sisme-admin-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sisme-admin-spacing-xs);
+    padding: var(--sisme-admin-spacing-xs) var(--sisme-admin-spacing-sm);
+    border-radius: var(--sisme-admin-radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.sisme-admin-badge-success {
+    background: var(--sisme-admin-green-light);
+    color: var(--sisme-admin-green-dark);
+}
+
+.sisme-admin-badge-warning {
+    background: var(--sisme-admin-yellow-light);
+    color: var(--sisme-admin-yellow-dark);
+}
+
+.sisme-admin-badge-danger {
+    background: var(--sisme-admin-red-light);
+    color: var(--sisme-admin-red-dark);
+}
+
+.sisme-admin-badge-info {
+    background: var(--sisme-admin-blue-light);
+    color: var(--sisme-admin-blue-dark);
+}
+
+.sisme-admin-badge-secondary {
+    background: var(--sisme-admin-gray-100);
+    color: var(--sisme-admin-gray-700);
+}
+
+/* ========================================
+   TABLEAUX STANDARDISÉS
+========================================= */
+.sisme-admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--sisme-admin-light-bg);
+    border-radius: var(--sisme-admin-radius-md);
+    overflow: hidden;
+    box-shadow: var(--sisme-admin-shadow-sm);
+}
+
+.sisme-admin-table th,
+.sisme-admin-table td {
+    padding: var(--sisme-admin-spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--sisme-admin-gray-200);
+}
+
+.sisme-admin-table th {
+    background: var(--sisme-admin-gray-50);
+    font-weight: 600;
+    color: var(--sisme-admin-gray-700);
+    font-size: 14px;
+}
+
+.sisme-admin-table tr:hover {
+    background: var(--sisme-admin-gray-50);
+}
+
+.sisme-admin-table-dark {
+    background: var(--sisme-admin-dark-bg-light);
+    color: var(--sisme-admin-dark-text);
+}
+
+.sisme-admin-table-dark th {
+    background: var(--sisme-admin-dark-bg);
+    color: var(--sisme-admin-dark-text);
+    border-bottom-color: var(--sisme-admin-gray-700);
+}
+
+.sisme-admin-table-dark td {
+    border-bottom-color: var(--sisme-admin-gray-700);
+}
+
+.sisme-admin-table-dark tr:hover {
+    background: var(--sisme-admin-dark-bg);
+}
+
+/* ========================================
+   NOTIFICATIONS ET ALERTES
+========================================= */
+.sisme-admin-alert {
+    padding: var(--sisme-admin-spacing-md);
+    border-radius: var(--sisme-admin-radius-md);
+    margin-bottom: var(--sisme-admin-spacing-md);
+    border-left: 4px solid;
+}
+
+.sisme-admin-alert-success {
+    background: var(--sisme-admin-green-light);
+    color: var(--sisme-admin-green-dark);
+    border-left-color: var(--sisme-admin-success);
+}
+
+.sisme-admin-alert-warning {
+    background: var(--sisme-admin-yellow-light);
+    color: var(--sisme-admin-yellow-dark);
+    border-left-color: var(--sisme-admin-warning);
+}
+
+.sisme-admin-alert-danger {
+    background: var(--sisme-admin-red-light);
+    color: var(--sisme-admin-red-dark);
+    border-left-color: var(--sisme-admin-danger);
+}
+
+.sisme-admin-alert-info {
+    background: var(--sisme-admin-blue-light);
+    color: var(--sisme-admin-blue-dark);
+    border-left-color: var(--sisme-admin-info);
+}
+
+/* ========================================
+   STATISTIQUES ET MÉTRIQUES
+========================================= */
+.sisme-admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--sisme-admin-spacing-md);
+    margin-bottom: var(--sisme-admin-spacing-xl);
+}
+
+.sisme-admin-stat-card {
+    background: var(--sisme-admin-light-bg);
+    border: 1px solid var(--sisme-admin-gray-200);
+    border-radius: var(--sisme-admin-radius-lg);
+    padding: var(--sisme-admin-spacing-lg);
+    text-align: center;
+    box-shadow: var(--sisme-admin-shadow-sm);
+    transition: var(--sisme-admin-transition);
+}
+
+.sisme-admin-stat-card:hover {
+    box-shadow: var(--sisme-admin-shadow-md);
+}
+
+.sisme-admin-stat-number {
+    display: block;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--sisme-admin-light-text);
+    margin-bottom: var(--sisme-admin-spacing-xs);
+}
+
+.sisme-admin-stat-label {
+    font-size: 14px;
+    color: var(--sisme-admin-light-text-muted);
+    font-weight: 500;
+}
+
+.sisme-admin-stat-card-success {
+    border-left: 4px solid var(--sisme-admin-success);
+}
+
+.sisme-admin-stat-card-success .sisme-admin-stat-number {
+    color: var(--sisme-admin-success);
+}
+
+.sisme-admin-stat-card-warning {
+    border-left: 4px solid var(--sisme-admin-warning);
+}
+
+.sisme-admin-stat-card-warning .sisme-admin-stat-number {
+    color: var(--sisme-admin-warning);
+}
+
+.sisme-admin-stat-card-danger {
+    border-left: 4px solid var(--sisme-admin-danger);
+}
+
+.sisme-admin-stat-card-danger .sisme-admin-stat-number {
+    color: var(--sisme-admin-danger);
+}
+
+.sisme-admin-stat-card-info {
+    border-left: 4px solid var(--sisme-admin-info);
+}
+
+.sisme-admin-stat-card-info .sisme-admin-stat-number {
+    color: var(--sisme-admin-info);
+}
+
+/* ========================================
+   UTILITAIRES D'ESPACEMENT
+========================================= */
+.sisme-admin-m-0 { margin: 0 !important; }
+.sisme-admin-mt-0 { margin-top: 0 !important; }
+.sisme-admin-mb-0 { margin-bottom: 0 !important; }
+.sisme-admin-ml-0 { margin-left: 0 !important; }
+.sisme-admin-mr-0 { margin-right: 0 !important; }
+
+.sisme-admin-m-sm { margin: var(--sisme-admin-spacing-sm) !important; }
+.sisme-admin-mt-sm { margin-top: var(--sisme-admin-spacing-sm) !important; }
+.sisme-admin-mb-sm { margin-bottom: var(--sisme-admin-spacing-sm) !important; }
+.sisme-admin-ml-sm { margin-left: var(--sisme-admin-spacing-sm) !important; }
+.sisme-admin-mr-sm { margin-right: var(--sisme-admin-spacing-sm) !important; }
+
+.sisme-admin-m-md { margin: var(--sisme-admin-spacing-md) !important; }
+.sisme-admin-mt-md { margin-top: var(--sisme-admin-spacing-md) !important; }
+.sisme-admin-mb-md { margin-bottom: var(--sisme-admin-spacing-md) !important; }
+.sisme-admin-ml-md { margin-left: var(--sisme-admin-spacing-md) !important; }
+.sisme-admin-mr-md { margin-right: var(--sisme-admin-spacing-md) !important; }
+
+.sisme-admin-m-lg { margin: var(--sisme-admin-spacing-lg) !important; }
+.sisme-admin-mt-lg { margin-top: var(--sisme-admin-spacing-lg) !important; }
+.sisme-admin-mb-lg { margin-bottom: var(--sisme-admin-spacing-lg) !important; }
+.sisme-admin-ml-lg { margin-left: var(--sisme-admin-spacing-lg) !important; }
+.sisme-admin-mr-lg { margin-right: var(--sisme-admin-spacing-lg) !important; }
+
+.sisme-admin-p-0 { padding: 0 !important; }
+.sisme-admin-pt-0 { padding-top: 0 !important; }
+.sisme-admin-pb-0 { padding-bottom: 0 !important; }
+.sisme-admin-pl-0 { padding-left: 0 !important; }
+.sisme-admin-pr-0 { padding-right: 0 !important; }
+
+.sisme-admin-p-sm { padding: var(--sisme-admin-spacing-sm) !important; }
+.sisme-admin-pt-sm { padding-top: var(--sisme-admin-spacing-sm) !important; }
+.sisme-admin-pb-sm { padding-bottom: var(--sisme-admin-spacing-sm) !important; }
+.sisme-admin-pl-sm { padding-left: var(--sisme-admin-spacing-sm) !important; }
+.sisme-admin-pr-sm { padding-right: var(--sisme-admin-spacing-sm) !important; }
+
+.sisme-admin-p-md { padding: var(--sisme-admin-spacing-md) !important; }
+.sisme-admin-pt-md { padding-top: var(--sisme-admin-spacing-md) !important; }
+.sisme-admin-pb-md { padding-bottom: var(--sisme-admin-spacing-md) !important; }
+.sisme-admin-pl-md { padding-left: var(--sisme-admin-spacing-md) !important; }
+.sisme-admin-pr-md { padding-right: var(--sisme-admin-spacing-md) !important; }
+
+.sisme-admin-p-lg { padding: var(--sisme-admin-spacing-lg) !important; }
+.sisme-admin-pt-lg { padding-top: var(--sisme-admin-spacing-lg) !important; }
+.sisme-admin-pb-lg { padding-bottom: var(--sisme-admin-spacing-lg) !important; }
+.sisme-admin-pl-lg { padding-left: var(--sisme-admin-spacing-lg) !important; }
+.sisme-admin-pr-lg { padding-right: var(--sisme-admin-spacing-lg) !important; }
+
+/* ========================================
+   UTILITAIRES DIVERS
+========================================= */
+.sisme-admin-hidden { display: none !important; }
+.sisme-admin-visible { display: block !important; }
+
+.sisme-admin-rounded { border-radius: var(--sisme-admin-radius-md) !important; }
+.sisme-admin-rounded-lg { border-radius: var(--sisme-admin-radius-lg) !important; }
+.sisme-admin-rounded-full { border-radius: 50% !important; }
+
+.sisme-admin-shadow { box-shadow: var(--sisme-admin-shadow-md) !important; }
+.sisme-admin-shadow-lg { box-shadow: var(--sisme-admin-shadow-lg) !important; }
+
+.sisme-admin-border { border: 1px solid var(--sisme-admin-gray-200) !important; }
+.sisme-admin-border-dark { border: 1px solid var(--sisme-admin-gray-700) !important; }
+
+.sisme-admin-cursor-pointer { cursor: pointer !important; }
+.sisme-admin-cursor-not-allowed { cursor: not-allowed !important; }
+
+.sisme-admin-opacity-50 { opacity: 0.5 !important; }
+.sisme-admin-opacity-75 { opacity: 0.75 !important; }
+
+/* Classes spéciales pour l'inspecteur de données */
+.sisme-admin-code {
+    font-family: 'Courier New', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.sisme-admin-pre-code {
+    background: var(--sisme-admin-gray-50);
+    border: 1px solid var(--sisme-admin-gray-200);
+    border-radius: var(--sisme-admin-radius-sm);
+    padding: var(--sisme-admin-spacing-md);
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: 'Courier New', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.sisme-admin-pre-code-dark {
+    background: var(--sisme-admin-dark-bg);
+    border: 1px solid var(--sisme-admin-gray-700);
+    color: var(--sisme-admin-dark-text);
+}
+
+/* ========================================
+   ANIMATIONS
+========================================= */
+@keyframes sisme-admin-fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sisme-admin-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.sisme-admin-fade-in {
+    animation: sisme-admin-fade-in 0.3s ease-out;
+}
+
+.sisme-admin-pulse {
+    animation: sisme-admin-pulse 1.5s infinite;
+}
+
+/* ========================================
+   MODES SOMBRE/CLAIR AUTOMATIQUES
+========================================= */
+@media (prefers-color-scheme: dark) {
+    .sisme-admin-auto-dark {
+        background: var(--sisme-admin-dark-bg-light);
+        color: var(--sisme-admin-dark-text);
+        border-color: var(--sisme-admin-gray-700);
+    }
+    
+    .sisme-admin-auto-dark .sisme-admin-title,
+    .sisme-admin-auto-dark .sisme-admin-subtitle,
+    .sisme-admin-auto-dark .sisme-admin-heading {
+        color: var(--sisme-admin-dark-text);
+    }
+    
+    .sisme-admin-auto-dark .sisme-admin-comment,
+    .sisme-admin-auto-dark .sisme-admin-small {
+        color: var(--sisme-admin-dark-text-muted);
+    }
+}

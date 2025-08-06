@@ -84,55 +84,6 @@ class Sisme_Assets_Loader {
             return;
         }
         
-        // CSS Dark Gaming de base (pour toutes les pages admin du plugin)
-        wp_enqueue_style(
-            'sisme-admin-dark',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin-dark.css',
-            array(),
-            SISME_GAMES_EDITOR_VERSION
-        );
-        
-        // Page création/édition de fiche
-        if (strpos($hook, 'sisme-games-edit-fiche-jeu') !== false) {
-            wp_enqueue_style(
-                'sisme-fiche-form',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin-fiche-form.css',
-                array('sisme-admin-dark'),
-                SISME_GAMES_EDITOR_VERSION
-            );
-            
-            // JavaScript optionnel pour améliorer l'UX
-            if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'assets/js/fiche-form.js')) {
-                wp_enqueue_script(
-                    'sisme-fiche-form-js',
-                    SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/js/fiche-form.js',
-                    array('jquery'),
-                    SISME_GAMES_EDITOR_VERSION,
-                    true
-                );
-            }
-        }
-        
-        // Page création/édition de jeu
-        if (strpos($hook, 'sisme-games-edit-game-data') !== false) {
-            wp_enqueue_style(
-                'sisme-game-form',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin-game-form.css',
-                array('sisme-admin-dark'),
-                SISME_GAMES_EDITOR_VERSION
-            );
-        }
-
-        //Page vedettes
-        if (strpos($hook, 'vedettes') !== false) {
-            wp_enqueue_style(
-                'sisme-admin-vedettes',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'assets/css/admin-vedettes.css',
-                array('sisme-admin-dark'),
-                SISME_GAMES_EDITOR_VERSION
-            );
-        }
-        
         // JavaScript pour les tooltips (toutes les pages admin)
         wp_enqueue_script(
             'sisme-tooltip',
@@ -141,8 +92,7 @@ class Sisme_Assets_Loader {
             SISME_GAMES_EDITOR_VERSION,
             true
         );
-        
-        // JavaScript admin si nécessaire
+
         if (file_exists(SISME_GAMES_EDITOR_PLUGIN_DIR . 'assets/js/admin.js')) {
             wp_enqueue_script(
                 'sisme-admin-js',

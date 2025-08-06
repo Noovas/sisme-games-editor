@@ -101,7 +101,7 @@ class Sisme_Dev_Editor_Manager_Loader {
     
     public function add_admin_menu() {
         add_submenu_page(
-            'sisme-games-game-data',
+            'sisme-games-tableau-de-bord',
             'Développeurs/Éditeurs',
             '🏢 Dev/Éditeurs',
             'manage_options',

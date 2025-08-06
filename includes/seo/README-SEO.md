@@ -18,7 +18,6 @@ includes/seo/
 ├── seo-sitemap.php             # Sitemap XML (main/pages/games)
 ├── seo-images.php              # Alt text et attributs images
 ├── seo-admin.php               # Page d'administration
-└── assets/seo-admin.css        # Styles interface admin
 ```
 
 ---

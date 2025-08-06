@@ -4,7 +4,7 @@
  * Loader du module SEO - Suit l'architecture modulaire du projet
  * 
  * RESPONSABILITÉ:
- * - Chargement des composants du module SEO
+ * - Chargement  du module SEO
  * - Intégration avec seo-game-detector.php
  * - Vérification des dépendances système
  * - Logging debug et monitoring de santé
@@ -183,7 +183,7 @@ class Sisme_SEO_Loader {
             return;
         }
         
-        $admin_file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/seo/seo-admin.php';
+        $admin_file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-seo.php';
         if (file_exists($admin_file)) {
             require_once $admin_file;
             Sisme_SEO_Admin::init();
@@ -193,16 +193,17 @@ class Sisme_SEO_Loader {
     }
     
     /**
-     * Charger les assets admin
+     * Charger les assets admin SEO
      */
     public function enqueue_admin_assets($hook) {
         if ($hook !== 'sisme-games_page_sisme-games-seo') {
             return;
         }
         
+        // Utiliser le système CSS admin unifié uniquement
         wp_enqueue_style(
-            'sisme-seo-admin',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/seo/assets/seo-admin.css',
+            'sisme-admin-shared',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/admin-shared.css',
             array(),
             SISME_GAMES_EDITOR_VERSION
         );

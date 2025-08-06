@@ -17,9 +17,27 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Sisme_User_Notifications_Admin {
+class Sisme_Admin_Notifications {
+
+    public static function init() {
+        add_action('admin_menu', array(__CLASS__, 'add_hidden_page'));
+    }
+
+    /**
+     * Ajouter comme page cachée
+     */
+    public static function add_hidden_page() {
+        add_submenu_page(
+            null,
+            'Notifications Utilisateur',
+            'Notifications Utilisateur',
+            'manage_options',
+            'sisme-games-notifications',
+            array(__CLASS__, 'render')
+        );
+    }
     
-    public static function render_page() {
+    public static function render() {
         if (!class_exists('Sisme_Admin_Page_Wrapper')) {
             require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
         }

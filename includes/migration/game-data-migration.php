@@ -8,13 +8,6 @@
  * - Transformation screenshots, modes, covers
  * - Validation et nettoyage des données
  * - Sauvegarde et restauration
- * 
- * CHANGEMENTS PRINCIPAUX :
- * 1. Screenshots : chaîne "ID,ID,ID" → tableau PHP sérialisé
- * 2. Modes de jeu : "cooperatif" → "coop"
- * 3. Nettoyage covers (garder seulement main et vertical)
- * 4. Restructuration game_sections
- * 5. Ajout nouveaux champs featured
  */
 
 if (!defined('ABSPATH')) {
@@ -599,20 +592,3 @@ class Sisme_Game_Data_Migration {
         return $output;
     }
 }
-
-/**
- * UTILISATION DU SCRIPT
- * 
- * 1. Mode simulation (recommandé d'abord) :
- * $report = Sisme_Game_Data_Migration::migrate_all_games(true);
- * echo Sisme_Game_Data_Migration::format_migration_report($report);
- * 
- * 2. Migration réelle (après validation) :
- * $report = Sisme_Game_Data_Migration::migrate_all_games(false);
- * 
- * 3. Restaurer un jeu spécifique :
- * Sisme_Game_Data_Migration::restore_from_backup($term_id);
- * 
- * 4. Migration d'un jeu unique :
- * $result = Sisme_Game_Data_Migration::migrate_single_game($term_id, false);
- */

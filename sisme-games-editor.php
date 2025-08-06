@@ -101,11 +101,7 @@ class SismeGamesEditor {
     
     private function init_hooks() {
         add_action('admin_menu', array($this, 'add_admin_menu'));
-        add_action('wp_ajax_sisme_create_tag', array($this, 'handle_ajax_create_tag'));
-        add_action('wp_ajax_sisme_create_category', array($this, 'handle_ajax_create_category'));
-        add_action('wp_ajax_sisme_create_entity', array($this, 'handle_ajax_create_entity'));
-        add_action('wp_ajax_sisme_delete_game_data', array($this, 'ajax_delete_game_data'));
-        add_action('wp_ajax_sisme_toggle_team_choice', array($this, 'handle_toggle_team_choice'));
+        add_action('admin_enqueue_scripts', array($this, 'load_admin_css'));
         add_action('init', array($this, 'init_modules_system'));
 
         $this->include_files();
@@ -114,89 +110,61 @@ class SismeGamesEditor {
         new Sisme_Assets_Loader();
     }
     
+    public function load_admin_css($hook) {
+        // Charger uniquement sur les pages du plugin
+        if (strpos($hook, 'sisme-games') !== false) {
+            wp_enqueue_style(
+                'sisme-admin-shared',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/admin-shared.css',
+                array(),
+                SISME_GAMES_EDITOR_VERSION
+            );
+        }
+    }
+    
     private function include_files() {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/assets-loader.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/content-filter.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-table-game-data.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/cards/cards-loader.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/tools/emoji-helper.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/search/search-loader.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/team-choice/team-choice-loader.php';
+        
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-submission-tab.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-data-inspector.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/migration/migration-loader.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-developers.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-vedettes.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-migration.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-notifications.php';
+
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-communication.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-outils.php';
+        
+        // Initialiser les classes admin
+        Sisme_Admin_Data_Inspector::init();
+        Sisme_Admin_Developers::init();
+        Sisme_Admin_Vedettes::init();
+        Sisme_Admin_Outils::init();
+        Sisme_Admin_Communication::init();
+        Sisme_Admin_Notifications::init();
     }
 
     public function add_admin_menu() {
-        // Menu principal - Game Data comme page d'accueil
+        // Menu principal - Tableau de Bord comme page d'accueil
         add_menu_page(
             'Sisme Games',
             'Sisme Games',
             'manage_options',
-            'sisme-games-game-data',
-            array($this, 'game_data_page'),
+            'sisme-games-tableau-de-bord',
+            array($this, 'tableau_de_bord'),
             'dashicons-games',
             30
         );
         
-        // Sous-menu Game Data (page d'accueil)
+        // Sous-menu Tableau de Bord (page d'accueil)
         add_submenu_page(
-            'sisme-games-game-data',
+            'sisme-games-tableau-de-bord',
             'Tableau de Bord',
             '💻 Tableau de Bord',
             'manage_options',
-            'sisme-games-game-data',
-            array($this, 'game_data_page')
-        );
-
-        // Sous-menu Créer/Éditer Jeu
-        add_submenu_page(
-            'sisme-games-game-data',
-            'Créer Jeu',
-            '📝 Créer Jeu',
-            'manage_options',
-            'sisme-games-edit-game-data',
-            array($this, 'edit_game_data_page')
-        );
-
-        // Sous-menu Vedettes
-        add_submenu_page(
-            'sisme-games-game-data',
-            'Vedettes',
-            '⭐ Vedettes',
-            'manage_options',
-            'sisme-games-vedettes',
-            array($this, 'vedettes_page')
-        );
-
-        // Sous-menu Développeurs
-        add_submenu_page(
-            'sisme-games-game-data',
-            'Développeurs',
-            '👥 Développeurs',
-            'manage_options',
-            'sisme-games-developers',
-            array($this, 'developers_page')
-        );
-
-        add_submenu_page(
-            'sisme-games-game-data',
-            'Inspecteur de données',
-            '🛢️ Inspecteur de données',
-            'manage_options',
-            'sisme-games-data-inspector',
-            array('Sisme_Admin_Data_Inspector', 'render')
-        );
-
-        // Sous-menu Créer Fiche (masqué du menu, accessible via liens)
-        add_submenu_page(
-            null,
-            'Créer Fiche de Jeu',
-            'Créer Fiche', 
-            'manage_options',
-            'sisme-games-edit-fiche-jeu',
-            array($this, 'edit_fiche_jeu_page')
+            'sisme-games-tableau-de-bord',
+            array($this, 'tableau_de_bord')
         );
     }
 
@@ -204,162 +172,10 @@ class SismeGamesEditor {
     // PAGES ADMIN ESSENTIELLES
     // ===================================
 
-    public function game_data_page() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/game-data.php';
-    }
-
-    public function edit_game_data_page() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-game-data.php';
-    }
-
-    public function developers_page() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/developers.php';
-    }
-
-    public function edit_fiche_jeu_page() {
-        include_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/edit-fiche-jeu.php';
-    }
-
-    public function vedettes_page() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/pages/vedettes.php';
-    }
-
-    // ===================================
-    // AJAX HANDLERS ESSENTIELS
-    // ===================================
-
-    public function handle_ajax_create_tag() {
-        if (!wp_verify_nonce($_POST['nonce'], 'sisme_create_tag')) {
-            wp_die('Sécurité : nonce invalide');
-        }
-        
-        $tag_name = sanitize_text_field($_POST['tag_name']);
-        if (empty($tag_name)) {
-            wp_send_json_error('Nom du tag requis');
-        }
-        
-        $existing_tag = get_term_by('name', $tag_name, 'post_tag');
-        if ($existing_tag) {
-            wp_send_json_success(array(
-                Sisme_Utils_Games::KEY_TERM_ID => $existing_tag->term_id,
-                Sisme_Utils_Games::KEY_NAME => $existing_tag->name
-            ));
-        }
-        
-        $new_tag = wp_insert_term($tag_name, 'post_tag');
-        if (is_wp_error($new_tag)) {
-            wp_send_json_error('Erreur : ' . $new_tag->get_error_message());
-        }
-        
-        $tag_info = get_term($new_tag[Sisme_Utils_Games::KEY_TERM_ID], 'post_tag');
-        wp_send_json_success(array(
-            Sisme_Utils_Games::KEY_TERM_ID => $tag_info->term_id,
-            Sisme_Utils_Games::KEY_NAME => $tag_info->name
-        ));
-    }
-
-    public function handle_ajax_create_category() {
-        if (!wp_verify_nonce($_POST['nonce'], 'sisme_create_category')) {
-            wp_die('Sécurité : nonce invalide');
-        }
-        
-        $category_name = sanitize_text_field($_POST['category_name']);
-        $parent_id = intval($_POST['parent_id']);
-        
-        if (empty($category_name)) {
-            wp_send_json_error('Nom de la catégorie requis');
-        }
-        
-        $existing_category = get_term_by('name', $category_name, 'category');
-        if ($existing_category) {
-            wp_send_json_success(array(
-                Sisme_Utils_Games::KEY_TERM_ID => $existing_category->term_id,
-                Sisme_Utils_Games::KEY_NAME => $existing_category->name
-            ));
-        }
-        
-        $new_category = wp_insert_term($category_name, 'category', array('parent' => $parent_id));
-        if (is_wp_error($new_category)) {
-            wp_send_json_error('Erreur : ' . $new_category->get_error_message());
-        }
-        
-        $category_info = get_term($new_category[Sisme_Utils_Games::KEY_TERM_ID], 'category');
-        wp_send_json_success(array(
-            Sisme_Utils_Games::KEY_TERM_ID => $category_info->term_id,
-            Sisme_Utils_Games::KEY_NAME => $category_info->name
-        ));
-    }
-
-    public function handle_ajax_create_entity() {
-        if (!wp_verify_nonce($_POST['nonce'], 'sisme_create_entity')) {
-            wp_die('Sécurité : nonce invalide');
-        }
-        
-        $entity_name = sanitize_text_field($_POST['entity_name']);
-        $entity_website = esc_url_raw($_POST[Sisme_Utils_Games::META_ENTITY_WEBSITE]);
-        
-        if (empty($entity_name)) {
-            wp_send_json_error('Nom de l\'entité requis');
-        }
-        
-        $parent_category = get_category_by_slug('editeurs-developpeurs');
-        if (!$parent_category) {
-            wp_send_json_error('Catégorie parent "editeurs-developpeurs" introuvable');
-        }
-        
-        $existing_entity = get_term_by('name', $entity_name, 'category');
-        if ($existing_entity && $existing_entity->parent == $parent_category->term_id) {
-            wp_send_json_success(array(
-                Sisme_Utils_Games::KEY_TERM_ID => $existing_entity->term_id,
-                Sisme_Utils_Games::KEY_NAME => $existing_entity->name,
-                'website' => get_term_meta($existing_entity->term_id, Sisme_Utils_Games::META_ENTITY_WEBSITE, true)
-            ));
-        }
-        
-        $new_entity = wp_insert_term($entity_name, 'category', array('parent' => $parent_category->term_id));
-        if (is_wp_error($new_entity)) {
-            wp_send_json_error('Erreur : ' . $new_entity->get_error_message());
-        }
-        
-        if (!empty($entity_website)) {
-            update_term_meta($new_entity[Sisme_Utils_Games::KEY_TERM_ID], Sisme_Utils_Games::META_ENTITY_WEBSITE, $entity_website);
-        }
-        
-        $entity_info = get_term($new_entity[Sisme_Utils_Games::KEY_TERM_ID], 'category');
-        wp_send_json_success(array(
-            Sisme_Utils_Games::KEY_TERM_ID => $entity_info->term_id,
-            Sisme_Utils_Games::KEY_NAME => $entity_info->name,
-            'website' => $entity_website
-        ));
-    }
-
-    public function ajax_delete_game_data() {
-        if (!check_ajax_referer('sisme_delete_game_data', 'nonce', false)) {
-            wp_send_json_error('Erreur de sécurité');
-        }
-        
-        $game_id = intval($_POST['game_id']);
-        if (!$game_id) {
-            wp_send_json_error('ID du jeu requis');
-        }
-        
-        $tag = get_term($game_id, 'post_tag');
-        if (!$tag || is_wp_error($tag)) {
-            wp_send_json_error('Jeu introuvable');
-        }
-        
-        $meta_keys = [
-            Sisme_Utils_Games::META_DESCRIPTION, Sisme_Utils_Games::META_GENRES, Sisme_Utils_Games::META_MODES, Sisme_Utils_Games::META_DEVELOPERS, 
-            'game_publishers', Sisme_Utils_Games::META_PLATFORMS, Sisme_Utils_Games::META_RELEASE_DATE, Sisme_Utils_Games::META_EXTERNAL_LINKS,
-            'trailer_link', Sisme_Utils_Games::META_COVER_MAIN, Sisme_Utils_Games::META_COVER_NEWS, Sisme_Utils_Games::META_COVER_PATCH, Sisme_Utils_Games::META_COVER_TEST,
-            'screenshots', 'game_sections', Sisme_Utils_Games::META_LAST_UPDATE
-        ];
-        
-        foreach ($meta_keys as $meta_key) {
-            delete_term_meta($game_id, $meta_key);
-        }
-        
-        wp_send_json_success('Données du jeu supprimées avec succès');
+    public function tableau_de_bord() {
+        echo '<div class="wrap"><h1>🎮 Tableau de Bord Sisme Games</h1>';
+        echo '<div class="notice notice-info"><p>Dashboard principal du plugin en développement.</p></div>';
+        echo '</div>';
     }
 
     public function init_modules_system() {
@@ -383,32 +199,6 @@ class SismeGamesEditor {
                     error_log('[Sisme] Module introuvable : ' . $module_name . ' (' . $loader_file . ')');
                 }
             }
-        }
-    }
-
-    public function handle_toggle_team_choice() {
-        if (!current_user_can('manage_categories')) {
-            wp_die('Permissions insuffisantes', 403);
-        }
-        if (!check_ajax_referer('sisme_team_choice_nonce', 'nonce', false)) {
-            wp_die('Nonce invalide', 403);
-        }
-        $term_id = intval($_POST[Sisme_Utils_Games::KEY_TERM_ID] ?? 0);
-        $current_value = sanitize_text_field($_POST['current_value'] ?? '0');
-        if (!$term_id) {
-            wp_send_json_error('ID de jeu invalide');
-        }
-        $new_value = ($current_value === '1') ? '0' : '1';
-        $success = update_term_meta($term_id, Sisme_Utils_Games::META_TEAM_CHOICE, $new_value);
-        if ($success !== false) {
-            wp_send_json_success(array(
-                'new_value' => $new_value,
-                'icon' => ($new_value === '1') ? '💖' : '🤍',
-                Sisme_Utils_Games::KEY_TITLE => ($new_value === '1') ? 'Retirer des choix équipe' : 'Ajouter aux choix équipe',
-                'class' => ($new_value === '1') ? 'team-choice-active' : 'team-choice-inactive'
-            ));
-        } else {
-            wp_send_json_error('Erreur lors de la mise à jour');
         }
     }
 }

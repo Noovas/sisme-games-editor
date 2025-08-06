@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Inclure le script de migration
-require_once plugin_dir_path(__FILE__) . 'game-data-migration.php';
+require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/migration/game-data-migration.php';
 
 class Sisme_Migration_Admin {
     
@@ -29,7 +29,7 @@ class Sisme_Migration_Admin {
      * Hook pour ajouter la page d'administration
      */
     public static function init() {
-        add_action('admin_menu', [__CLASS__, 'add_admin_menu']);
+        add_action('admin_menu', [__CLASS__, 'add_hidden_page']);
         add_action('wp_ajax_sisme_migration_preview', [__CLASS__, 'ajax_migration_preview']);
         add_action('wp_ajax_sisme_migration_execute', [__CLASS__, 'ajax_migration_execute']);
         add_action('wp_ajax_sisme_migration_restore', [__CLASS__, 'ajax_migration_restore']);
@@ -37,16 +37,16 @@ class Sisme_Migration_Admin {
     }
     
     /**
-     * Ajouter le menu d'administration dans le plugin Sisme Games
+     * Ajouter comme page cachée (accessible par URL mais pas dans le menu)
      */
-    public static function add_admin_menu() {
+    public static function add_hidden_page() {
         add_submenu_page(
-            'sisme-games-game-data',        // Parent menu (votre plugin principal)
-            'Migration données jeux',        // Page title
-            '🔄 Migration',                 // Menu title
-            'manage_options',               // Capability
-            'sisme-game-migration',         // Menu slug
-            [__CLASS__, 'admin_page']       // Callback
+            null, // null = page cachée
+            'Migration données jeux',       
+            'Migration',                
+            'manage_options',             
+            'sisme-games-migration',         
+            [__CLASS__, 'admin_page']       
         );
     }
     
@@ -54,16 +54,12 @@ class Sisme_Migration_Admin {
      * Charger les scripts admin
      */
     public static function enqueue_admin_scripts($hook) {
-        // Vérifier que c'est bien notre page de migration
-        if ($hook !== 'sisme-games_page_sisme-game-migration') {
+        // Vérifier que c'est bien notre page de migration (page cachée)
+        if ($hook !== 'admin_page_sisme-games-migration') {
             return;
         }
         
         wp_enqueue_script('jquery');
-        wp_localize_script('jquery', 'sismeMigration', [
-            'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('sisme_migration_nonce')
-        ]);
     }
     
     /**
@@ -71,73 +67,36 @@ class Sisme_Migration_Admin {
      */
     public static function admin_page() {
         ?>
-        <div class="wrap">
-            <h1>🔄 Migration des données de jeu</h1>
+        <div class="sisme-admin-container sisme-admin-flex-col">
+            <h1 class="sisme-admin-title">🔄 Migration des données de jeu</h1>
             
-            <div class="notice notice-warning">
+            <div class="sisme-admin-alert sisme-admin-alert-warning">
                 <p><strong>⚠️ Attention :</strong> Cette opération modifie la structure des données de jeu. 
                 Assurez-vous d'avoir une sauvegarde complète de votre site avant de continuer.</p>
             </div>
             
-            <?php self::render_status_section(); ?>
-            <?php self::render_preview_section(); ?>
-            <?php self::render_migration_section(); ?>
-            <?php self::render_restore_section(); ?>
+            <div class="sisme-admin-layout">
+                <?php self::render_status_section(); ?>
+                <?php self::render_preview_section(); ?>
+                <?php self::render_migration_section(); ?>
+                <?php self::render_restore_section(); ?>
+            </div>
             
         </div>
         
-        <style>
-        .migration-section {
-            background: rgba(0,0,0,0.3);
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 5px;
-        }
-        .migration-log {
-            background: #2c3e50;
-            color: #ecf0f1;
-            padding: 15px;
-            font-family: monospace;
-            font-size: 12px;
-            max-height: 400px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            margin-top: 10px;
-        }
-        .status-good { color: #27ae60; font-weight: bold; }
-        .status-warning { color: #f39c12; font-weight: bold; }
-        .status-error { color: #e74c3c; font-weight: bold; }
-        .migration-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 15px 0;
-        }
-        .stat-box {
-            background: rgba(255, 255, 255, 0.8);
-            padding: 15px;
-            border-left: 4px solid #3498db;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .stat-number {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        .stat-label {
-            color: #7f8c8d;
-            font-size: 14px;
-        }
-        </style>
-        
         <script>
+        // Variables AJAX pour JavaScript
+        const sismeMigration = {
+            ajaxurl: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
+            nonce: '<?php echo wp_create_nonce('sisme_migration_nonce'); ?>'
+        };
+        
         jQuery(document).ready(function($) {
             
             // Prévisualisation
             $('#btn-preview').click(function() {
                 $(this).prop('disabled', true).text('Analyse en cours...');
-                $('#preview-results').html('<div class="migration-log">Analyse des données en cours...</div>');
+                $('#preview-results').html('<div class="sisme-admin-p-md sisme-admin-bg-dark sisme-admin-rounded">Analyse des données en cours...</div>');
                 
                 $.post(sismeMigration.ajaxurl, {
                     action: 'sisme_migration_preview',
@@ -146,7 +105,7 @@ class Sisme_Migration_Admin {
                     if (response.success) {
                         displayPreviewResults(response.data);
                     } else {
-                        $('#preview-results').html('<div class="notice notice-error"><p>Erreur: ' + response.data + '</p></div>');
+                        $('#preview-results').html('<div class="sisme-admin-alert sisme-admin-alert-danger sisme-admin-mt-md"><p>Erreur: ' + response.data + '</p></div>');
                     }
                     $('#btn-preview').prop('disabled', false).text('📊 Analyser les données');
                 });
@@ -159,7 +118,7 @@ class Sisme_Migration_Admin {
                 }
                 
                 $(this).prop('disabled', true).text('Migration en cours...');
-                $('#migration-results').html('<div class="migration-log">Migration en cours...\nCela peut prendre plusieurs minutes.</div>');
+                $('#migration-results').html('<div class="sisme-admin-p-md sisme-admin-bg-dark sisme-admin-text-light sisme-admin-rounded">Migration en cours...\nCela peut prendre plusieurs minutes.</div>');
                 
                 $.post(sismeMigration.ajaxurl, {
                     action: 'sisme_migration_execute',
@@ -169,7 +128,7 @@ class Sisme_Migration_Admin {
                         displayMigrationResults(response.data);
                         location.reload(); // Recharger pour mettre à jour le statut
                     } else {
-                        $('#migration-results').html('<div class="notice notice-error"><p>Erreur: ' + response.data + '</p></div>');
+                        $('#migration-results').html('<div class="sisme-admin-alert sisme-admin-alert-danger sisme-admin-mt-md"><p>Erreur: ' + response.data + '</p></div>');
                     }
                     $('#btn-migrate').prop('disabled', false).text('🚀 Exécuter la migration');
                 });
@@ -201,22 +160,22 @@ class Sisme_Migration_Admin {
             });
             
             function displayPreviewResults(data) {
-                var html = '<div class="migration-stats">';
-                html += '<div class="stat-box"><div class="stat-number">' + data.total_games + '</div><div class="stat-label">Jeux analysés</div></div>';
-                html += '<div class="stat-box"><div class="stat-number">' + data.migrated + '</div><div class="stat-label">Jeux à migrer</div></div>';
-                html += '<div class="stat-box"><div class="stat-number">' + data.errors.length + '</div><div class="stat-label">Erreurs détectées</div></div>';
-                html += '<div class="stat-box"><div class="stat-number">' + Object.keys(data.transformations).length + '</div><div class="stat-label">Jeux avec transformations</div></div>';
+                var html = '<div class="sisme-admin-stats">';
+                html += '<div class="sisme-admin-stat-card"><div class="sisme-admin-stat-number">' + data.total_games + '</div><div class="sisme-admin-stat-label">Jeux analysés</div></div>';
+                html += '<div class="sisme-admin-stat-card"><div class="sisme-admin-stat-number">' + data.migrated + '</div><div class="sisme-admin-stat-label">Jeux à migrer</div></div>';
+                html += '<div class="sisme-admin-stat-card sisme-admin-stat-card-danger"><div class="sisme-admin-stat-number">' + data.errors.length + '</div><div class="sisme-admin-stat-label">Erreurs détectées</div></div>';
+                html += '<div class="sisme-admin-stat-card sisme-admin-stat-card-info"><div class="sisme-admin-stat-number">' + Object.keys(data.transformations).length + '</div><div class="sisme-admin-stat-label">Jeux avec transformations</div></div>';
                 html += '</div>';
                 
                 if (data.errors.length > 0) {
-                    html += '<div class="notice notice-warning"><p><strong>⚠️ Erreurs détectées :</strong></p><ul>';
+                    html += '<div class="sisme-admin-alert sisme-admin-alert-warning sisme-admin-mt-md"><p><strong>⚠️ Erreurs détectées :</strong></p><ul>';
                     data.errors.forEach(function(error) {
                         html += '<li>' + error + '</li>';
                     });
                     html += '</ul></div>';
                 }
                 
-                html += '<div class="migration-log">' + data.formatted_report + '</div>';
+                html += '<div class="sisme-admin-p-md sisme-admin-bg-dark sisme-admin-rounded sisme-admin-mt-md" style="font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; white-space: pre-wrap;">' + data.formatted_report + '</div>';
                 $('#preview-results').html(html);
                 
                 // Activer le bouton de migration si pas d'erreurs critiques
@@ -226,25 +185,25 @@ class Sisme_Migration_Admin {
             }
             
             function displayMigrationResults(data) {
-                var html = '<div class="migration-stats">';
-                html += '<div class="stat-box"><div class="stat-number">' + data.total_games + '</div><div class="stat-label">Jeux traités</div></div>';
-                html += '<div class="stat-box"><div class="stat-number">' + data.migrated + '</div><div class="stat-label">Migrations réussies</div></div>';
-                html += '<div class="stat-box"><div class="stat-number">' + data.errors.length + '</div><div class="stat-label">Échecs</div></div>';
+                var html = '<div class="sisme-admin-stats">';
+                html += '<div class="sisme-admin-stat-card"><div class="sisme-admin-stat-number">' + data.total_games + '</div><div class="sisme-admin-stat-label">Jeux traités</div></div>';
+                html += '<div class="sisme-admin-stat-card sisme-admin-stat-card-success"><div class="sisme-admin-stat-number">' + data.migrated + '</div><div class="sisme-admin-stat-label">Migrations réussies</div></div>';
+                html += '<div class="sisme-admin-stat-card sisme-admin-stat-card-danger"><div class="sisme-admin-stat-number">' + data.errors.length + '</div><div class="sisme-admin-stat-label">Échecs</div></div>';
                 html += '</div>';
                 
                 if (data.migrated > 0) {
-                    html += '<div class="notice notice-success"><p><strong>✅ Migration terminée avec succès !</strong></p></div>';
+                    html += '<div class="sisme-admin-alert sisme-admin-alert-success sisme-admin-mt-md"><p><strong>✅ Migration terminée avec succès !</strong></p></div>';
                 }
                 
                 if (data.errors.length > 0) {
-                    html += '<div class="notice notice-error"><p><strong>❌ Erreurs pendant la migration :</strong></p><ul>';
+                    html += '<div class="sisme-admin-alert sisme-admin-alert-danger sisme-admin-mt-md"><p><strong>❌ Erreurs pendant la migration :</strong></p><ul>';
                     data.errors.forEach(function(error) {
                         html += '<li>' + error + '</li>';
                     });
                     html += '</ul></div>';
                 }
                 
-                html += '<div class="migration-log">' + data.formatted_report + '</div>';
+                html += '<div class="sisme-admin-p-md sisme-admin-bg-dark sisme-admin-rounded sisme-admin-mt-md" style="font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; white-space: pre-wrap;">' + data.formatted_report + '</div>';
                 $('#migration-results').html(html);
             }
         });
@@ -258,37 +217,40 @@ class Sisme_Migration_Admin {
     private static function render_status_section() {
         $status = self::get_migration_status();
         ?>
-        <div class="migration-section">
-            <h2>📊 Statut du système</h2>
-            
-            <div class="migration-stats">
-                <div class="stat-box">
-                    <div class="stat-number"><?php echo $status['total_games']; ?></div>
-                    <div class="stat-label">Jeux total</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number"><?php echo $status['migrated_games']; ?></div>
-                    <div class="stat-label">Déjà migrés</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number"><?php echo $status['pending_games']; ?></div>
-                    <div class="stat-label">En attente</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number"><?php echo $status['with_backups']; ?></div>
-                    <div class="stat-label">Avec sauvegarde</div>
-                </div>
+        <div class="sisme-admin-card">
+            <div class="sisme-admin-card-header">
+                <h2 class="sisme-admin-heading">📊 Statut du système</h2>
             </div>
-            
-            <?php if ($status['pending_games'] === 0): ?>
-                <div class="notice notice-success">
-                    <p><strong>✅ Tous les jeux sont déjà migrés !</strong></p>
+                
+                <div class="sisme-admin-stats">
+                    <div class="sisme-admin-stat-card">
+                        <div class="sisme-admin-stat-number"><?php echo $status['total_games']; ?></div>
+                        <div class="sisme-admin-stat-label">Jeux total</div>
+                    </div>
+                    <div class="sisme-admin-stat-card sisme-admin-stat-card-success">
+                        <div class="sisme-admin-stat-number"><?php echo $status['migrated_games']; ?></div>
+                        <div class="sisme-admin-stat-label">Déjà migrés</div>
+                    </div>
+                    <div class="sisme-admin-stat-card sisme-admin-stat-card-warning">
+                        <div class="sisme-admin-stat-number"><?php echo $status['pending_games']; ?></div>
+                        <div class="sisme-admin-stat-label">En attente</div>
+                    </div>
+                    <div class="sisme-admin-stat-card sisme-admin-stat-card-info">
+                        <div class="sisme-admin-stat-number"><?php echo $status['with_backups']; ?></div>
+                        <div class="sisme-admin-stat-label">Avec sauvegarde</div>
+                    </div>
                 </div>
-            <?php else: ?>
-                <div class="notice notice-info">
-                    <p><strong>ℹ️ <?php echo $status['pending_games']; ?> jeu(x) en attente de migration.</strong></p>
-                </div>
-            <?php endif; ?>
+                
+                <?php if ($status['pending_games'] === 0): ?>
+                    <div class="sisme-admin-alert sisme-admin-alert-success sisme-admin-mt-md">
+                        <p><strong>✅ Tous les jeux sont déjà migrés !</strong></p>
+                    </div>
+                <?php else: ?>
+                    <div class="sisme-admin-alert sisme-admin-alert-info sisme-admin-mt-md">
+                        <p><strong>ℹ️ <?php echo $status['pending_games']; ?> jeu(x) en attente de migration.</strong></p>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
         <?php
     }
@@ -298,15 +260,17 @@ class Sisme_Migration_Admin {
      */
     private static function render_preview_section() {
         ?>
-        <div class="migration-section">
-            <h2>🔍 Prévisualisation</h2>
-            <p>Analyser les données pour voir les changements qui seront effectués (aucune modification).</p>
+        <div class="sisme-admin-card">
+            <div class="sisme-admin-card-header">
+                <h2 class="sisme-admin-heading">🔍 Prévisualisation</h2>
+            </div>
+            <p class="sisme-admin-comment">Analyser les données pour voir les changements qui seront effectués (aucune modification).</p>
             
-            <button type="button" id="btn-preview" class="button button-secondary">
+            <button type="button" id="btn-preview" class="sisme-admin-btn sisme-admin-btn-secondary">
                 📊 Analyser les données
             </button>
             
-            <div id="preview-results"></div>
+            <div id="preview-results" class="sisme-admin-mt-md"></div>
         </div>
         <?php
     }
@@ -317,13 +281,15 @@ class Sisme_Migration_Admin {
     private static function render_migration_section() {
         $status = self::get_migration_status();
         ?>
-        <div class="migration-section">
-            <h2>🚀 Migration</h2>
-            <p>Exécuter la migration réelle des données. <strong>Cette opération est irréversible sans restauration.</strong></p>
+        <div class="sisme-admin-card">
+            <div class="sisme-admin-card-header">
+                <h2 class="sisme-admin-heading">🚀 Migration</h2>
+            </div>
+            <p class="sisme-admin-comment">Exécuter la migration réelle des données. <strong>Cette opération est irréversible sans restauration.</strong></p>
             
-            <div class="notice notice-warning">
+            <div class="sisme-admin-alert sisme-admin-alert-warning sisme-admin-mb-md">
                 <p><strong>Points de contrôle avant migration :</strong></p>
-                <ul>
+                <ul class="sisme-admin-mt-sm">
                     <li>✅ Sauvegarde complète du site effectuée</li>
                     <li>✅ Prévisualisation analysée et validée</li>
                     <li>✅ Trafic du site en mode maintenance (recommandé)</li>
@@ -331,12 +297,12 @@ class Sisme_Migration_Admin {
                 </ul>
             </div>
             
-            <button type="button" id="btn-migrate" class="button button-primary" 
+            <button type="button" id="btn-migrate" class="sisme-admin-btn sisme-admin-btn-primary" 
                     <?php echo $status['pending_games'] === 0 ? 'disabled' : ''; ?>>
                 🚀 Exécuter la migration
             </button>
             
-            <div id="migration-results"></div>
+            <div id="migration-results" class="sisme-admin-mt-md"></div>
         </div>
         <?php
     }
@@ -351,15 +317,17 @@ class Sisme_Migration_Admin {
             return;
         }
         ?>
-        <div class="migration-section">
-            <h2>🔄 Restauration</h2>
-            <p>Restaurer des jeux individuels vers leur état d'avant migration.</p>
+        <div class="sisme-admin-card">
+            <div class="sisme-admin-card-header">
+                <h2 class="sisme-admin-heading">🔄 Restauration</h2>
+            </div>
+            <p class="sisme-admin-comment">Restaurer des jeux individuels vers leur état d'avant migration.</p>
             
-            <div class="notice notice-info">
+            <div class="sisme-admin-alert sisme-admin-alert-info sisme-admin-mb-md">
                 <p><strong>ℹ️ Jeux migrés avec sauvegarde disponible :</strong></p>
             </div>
             
-            <table class="widefat striped">
+            <table class="sisme-admin-table">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -377,7 +345,7 @@ class Sisme_Migration_Admin {
                         <td><?php echo $game['migrated_at']; ?></td>
                         <td><?php echo $game['version']; ?></td>
                         <td>
-                            <button type="button" class="button button-secondary btn-restore" 
+                            <button type="button" class="sisme-admin-btn sisme-admin-btn-secondary btn-restore" 
                                     data-term-id="<?php echo $game['id']; ?>" 
                                     data-game-name="<?php echo esc_attr($game['name']); ?>">
                                 🔄 Restaurer
