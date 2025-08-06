@@ -1,0 +1,350 @@
+/**
+ * File: /sisme-games-editor/includes/seo/assets/seo-admin.css
+ * Styles pour la page d'administration SEO
+ * 
+ * RESPONSABILITÉ:
+ * - Interface admin fonctionnelle et claire
+ * - Indicateurs de statut visuels
+ * - Layout responsive pour monitoring SEO
+ * - Styles pour tests et diagnostics
+ * 
+ * DÉPENDANCES:
+ * - Admin WordPress styles
+ * - Sisme Cards system
+ */
+
+.sisme-seo-dashboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.sisme-seo-health {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+}
+
+.sisme-health-item {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.sisme-health-label {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.sisme-health-value {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.sisme-health-value.success {
+    color: #0073aa;
+}
+
+.sisme-health-value.warning {
+    color: #d63638;
+}
+
+.sisme-health-status {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.sisme-health-status.healthy {
+    color: #00a32a;
+}
+
+.sisme-health-status.partial {
+    color: #dba617;
+}
+
+.sisme-health-status.critical {
+    color: #d63638;
+}
+
+.sisme-seo-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.sisme-action-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #0073aa;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.sisme-action-button:hover {
+    background: #005a87;
+    color: white;
+}
+
+.sisme-action-button.warning {
+    background: #d63638;
+}
+
+.sisme-action-button.warning:hover {
+    background: #b32d2e;
+}
+
+.sisme-modules-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.sisme-module-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.sisme-module-item.success {
+    background: #d7eddb;
+    border-left: 4px solid #00a32a;
+}
+
+.sisme-module-item.error {
+    background: #f2dede;
+    border-left: 4px solid #d63638;
+}
+
+.sisme-module-icon {
+    font-size: 16px;
+}
+
+.sisme-module-name {
+    font-weight: 500;
+}
+
+.sisme-sitemap-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.sisme-stat-item {
+    text-align: center;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.sisme-stat-label {
+    display: block;
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.sisme-stat-value {
+    display: block;
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #23282d;
+}
+
+.sisme-stat-value.success {
+    color: #00a32a;
+}
+
+.sisme-stat-value.warning {
+    color: #dba617;
+}
+
+.sisme-sitemap-links {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.sisme-sitemap-links a {
+    padding: 8px 12px;
+    background: #f0f0f1;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #0073aa;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.sisme-sitemap-links a:hover {
+    background: #e0e0e1;
+}
+
+.sisme-games-sample {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sisme-game-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 15px;
+    align-items: start;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e1e1e1;
+}
+
+.sisme-game-info strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #23282d;
+}
+
+.sisme-game-meta {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.sisme-game-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.sisme-view-link {
+    padding: 6px 12px;
+    background: #f0f0f1;
+    color: #0073aa;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.sisme-view-link:hover {
+    background: #e0e0e1;
+}
+
+.sisme-test-button {
+    padding: 6px 12px;
+    background: #0073aa;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.sisme-test-button:hover:not(:disabled) {
+    background: #005a87;
+}
+
+.sisme-test-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.sisme-test-results {
+    grid-column: 1 / -1;
+    margin-top: 15px;
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.sisme-test-results-content h4 {
+    margin: 0 0 10px 0;
+    color: #23282d;
+}
+
+.sisme-test-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.sisme-test-item:last-child {
+    border-bottom: none;
+}
+
+.sisme-test-item span.success {
+    color: #00a32a;
+    font-weight: bold;
+}
+
+.sisme-test-item span.error {
+    color: #d63638;
+    font-weight: bold;
+}
+
+.sisme-test-item span.healthy {
+    color: #00a32a;
+}
+
+.sisme-test-item span.partial {
+    color: #dba617;
+}
+
+.sisme-test-item span.critical {
+    color: #d63638;
+}
+
+@media (max-width: 1200px) {
+    .sisme-seo-dashboard {
+        grid-template-columns: 1fr;
+    }
+    
+    .sisme-seo-health {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .sisme-sitemap-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .sisme-seo-health {
+        grid-template-columns: 1fr;
+    }
+    
+    .sisme-sitemap-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .sisme-seo-actions {
+        flex-direction: column;
+    }
+    
+    .sisme-action-button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .sisme-game-item {
+        grid-template-columns: 1fr;
+    }
+    
+    .sisme-game-actions {
+        justify-content: flex-start;
+    }
+}
