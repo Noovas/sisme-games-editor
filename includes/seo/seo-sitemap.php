@@ -44,6 +44,7 @@ class Sisme_SEO_Sitemap {
     
     public function __construct() {
         add_action('init', array($this, 'add_rewrite_rules'));
+        add_filter('query_vars', array($this, 'add_query_vars'));
         add_action('template_redirect', array($this, 'handle_sitemap_request'));
         add_action('save_post', array($this, 'clear_cache_on_save'));
         add_action('edited_term', array($this, 'clear_cache_on_term_edit'), 10, 3);
@@ -59,11 +60,17 @@ class Sisme_SEO_Sitemap {
         add_rewrite_rule('^sitemap-pages\.xml$', 'index.php?sisme_sitemap=pages', 'top');
         add_rewrite_rule('^sitemap-games\.xml$', 'index.php?sisme_sitemap=games', 'top');
         
-        add_filter('query_vars', array($this, 'add_query_vars'));
+        // Force le flush à chaque init pour s'assurer que les règles sont actives
+        $current_rules = get_option('rewrite_rules');
+        $sitemap_rule_exists = isset($current_rules['^sitemap\.xml$']);
         
-        if (get_option('sisme_sitemap_rules_flushed') !== '1') {
-            flush_rewrite_rules();
-            update_option('sisme_sitemap_rules_flushed', '1');
+        if (!$sitemap_rule_exists || get_option('sisme_sitemap_rules_flushed') !== '2') {
+            flush_rewrite_rules(false);
+            update_option('sisme_sitemap_rules_flushed', '2');
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[Sisme SEO] Règles de réécriture sitemap flush forcé');
+            }
         }
     }
     
@@ -176,6 +183,7 @@ class Sisme_SEO_Sitemap {
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
         
+        // Page d'accueil - priorité maximale
         $xml .= $this->add_url_entry(
             home_url(),
             current_time('c'),
@@ -183,6 +191,7 @@ class Sisme_SEO_Sitemap {
             self::PRIORITY_HOMEPAGE
         );
         
+        // Pages WordPress filtrées pour le SEO
         $pages = get_posts(array(
             'post_type' => 'page',
             'post_status' => 'publish',
@@ -196,14 +205,22 @@ class Sisme_SEO_Sitemap {
                 continue;
             }
             
+            // Filtrer les pages selon leur utilité SEO
+            $seo_config = $this->get_page_seo_config($page->post_name);
+            
+            if ($seo_config['exclude']) {
+                continue; // Exclure cette page du sitemap
+            }
+            
             $xml .= $this->add_url_entry(
                 get_permalink($page->ID),
                 get_the_modified_date('c', $page->ID),
-                self::FREQ_PAGES,
-                self::PRIORITY_PAGES
+                $seo_config['changefreq'],
+                $seo_config['priority']
             );
         }
         
+        // Articles de blog (non-gaming)
         $posts = $this->get_non_game_posts();
         foreach ($posts as $post) {
             if ($post->post_status !== 'publish' || !empty($post->post_password)) {
@@ -214,13 +231,60 @@ class Sisme_SEO_Sitemap {
                 get_permalink($post->ID),
                 get_the_modified_date('c', $post->ID),
                 self::FREQ_POSTS,
-                self::PRIORITY_POSTS
+                '0.7' // Priorité élevée pour le contenu
             );
         }
         
         $xml .= '</urlset>';
         
         return $xml;
+    }
+    
+    /**
+     * Configuration SEO intelligente par page
+     */
+    private function get_page_seo_config($page_slug) {
+        // Pages à EXCLURE complètement (mauvaises pour SEO)
+        $excluded_pages = array(
+            'sisme-user-login',
+            'sisme-user-register', 
+            'sisme-user-tableau-de-bord',
+            'sisme-user-profil',
+            'sisme-user-forgot-password',
+            'sisme-user-reset-password',
+            'login-customizer'
+        );
+        
+        if (in_array($page_slug, $excluded_pages)) {
+            return array(
+                'exclude' => true,
+                'priority' => '0.0',
+                'changefreq' => 'never'
+            );
+        }
+        
+        // Pages légales - priorité faible mais à garder
+        $legal_pages = array(
+            'mentions-legales',
+            'politique-confidentialite',
+            'conditions-utilisation',
+            'politique-cookies'
+        );
+        
+        if (in_array($page_slug, $legal_pages)) {
+            return array(
+                'exclude' => false,
+                'priority' => '0.3',
+                'changefreq' => 'yearly'
+            );
+        }
+        
+        // Pages de contenu - priorité normale
+        return array(
+            'exclude' => false,
+            'priority' => self::PRIORITY_PAGES,
+            'changefreq' => self::FREQ_PAGES
+        );
     }
     
     /**
@@ -419,7 +483,9 @@ class Sisme_SEO_Sitemap {
      */
     public function get_sitemap_stats() {
         $game_pages = $this->count_game_pages();
-        $normal_pages_query = get_posts(array(
+        
+        // Compter les pages normales avec filtrage SEO
+        $all_pages = get_posts(array(
             'post_type' => array('page', 'post'),
             'post_status' => 'publish',
             'numberposts' => -1,
@@ -427,20 +493,41 @@ class Sisme_SEO_Sitemap {
         ));
         
         $normal_pages = 0;
-        foreach ($normal_pages_query as $post_id) {
+        $excluded_pages = 0;
+        $legal_pages = 0;
+        
+        foreach ($all_pages as $post_id) {
             if (!Sisme_SEO_Game_Detector::is_game_page($post_id)) {
-                $normal_pages++;
+                $post = get_post($post_id);
+                
+                if ($post->post_type === 'page') {
+                    $seo_config = $this->get_page_seo_config($post->post_name);
+                    
+                    if ($seo_config['exclude']) {
+                        $excluded_pages++;
+                    } elseif ($seo_config['priority'] === '0.3') {
+                        $legal_pages++;
+                        $normal_pages++;
+                    } else {
+                        $normal_pages++;
+                    }
+                } else {
+                    $normal_pages++; // Articles de blog
+                }
             }
         }
         
         $main_cache = get_transient('sisme_sitemap_main');
         
         return array(
-            'total_pages' => $game_pages + $normal_pages + 1,
+            'total_pages' => $game_pages + $normal_pages + 1, // +1 pour l'accueil
             'game_pages' => $game_pages,
             'normal_pages' => $normal_pages,
+            'excluded_pages' => $excluded_pages,
+            'legal_pages' => $legal_pages,
             'cache_status' => $main_cache !== false ? 'active' : 'expired',
-            'last_generated' => $main_cache !== false ? 'Moins de 30min' : 'Expiré'
+            'last_generated' => $main_cache !== false ? 'Moins de 30min' : 'Expiré',
+            'seo_optimized' => true
         );
     }
     
@@ -484,5 +571,49 @@ class Sisme_SEO_Sitemap {
         }
         
         return $results;
+    }
+    
+    /**
+     * Forcer le flush des rewrite rules (pour debug/réparation)
+     */
+    public function force_flush_rewrite_rules() {
+        // Reset complet
+        delete_option('sisme_sitemap_rules_flushed');
+        delete_option('rewrite_rules');
+        
+        // Re-ajouter les règles
+        $this->add_rewrite_rules();
+        
+        // Force un flush supplémentaire
+        flush_rewrite_rules(false);
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[Sisme SEO] Force flush - règles réinitialisées');
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Diagnostiquer l'état des règles de réécriture
+     */
+    public function diagnose_rewrite_rules() {
+        global $wp_rewrite;
+        
+        $diagnosis = array();
+        
+        // Vérifier si les règles existent
+        $current_rules = get_option('rewrite_rules', array());
+        $diagnosis['sitemap_rules_exist'] = isset($current_rules['^sitemap\.xml$']);
+        $diagnosis['pages_rules_exist'] = isset($current_rules['^sitemap-pages\.xml$']);
+        $diagnosis['games_rules_exist'] = isset($current_rules['^sitemap-games\.xml$']);
+        
+        // Vérifier l'état du flush
+        $diagnosis['flush_status'] = get_option('sisme_sitemap_rules_flushed', 'never');
+        
+        // Test de query var
+        $diagnosis['query_var_registered'] = in_array('sisme_sitemap', $wp_rewrite->get_query_var_names());
+        
+        return $diagnosis;
     }
 }

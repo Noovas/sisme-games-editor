@@ -343,4 +343,32 @@ class Sisme_SEO_Meta_Tags {
             }
         }
     }
+    
+    /**
+     * Méthode publique statique pour récupérer la description meta générée
+     * Utilisée par l'interface admin pour afficher les meta réellement générées
+     */
+    public static function get_generated_description($post_id = null) {
+        if (!$post_id) {
+            global $post;
+            $post_id = $post ? $post->ID : 0;
+        }
+        
+        if (!$post_id) {
+            return false;
+        }
+        
+        // Temporairement définir le post global si nécessaire
+        $original_post = $GLOBALS['post'] ?? null;
+        $GLOBALS['post'] = get_post($post_id);
+        
+        // Créer une instance temporaire pour accéder à la méthode privée
+        $instance = new self();
+        $description = $instance->generate_meta_description();
+        
+        // Restaurer le post original
+        $GLOBALS['post'] = $original_post;
+        
+        return $description;
+    }
 }

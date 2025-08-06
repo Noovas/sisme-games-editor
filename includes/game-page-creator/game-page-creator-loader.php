@@ -98,6 +98,9 @@ class Sisme_Game_Page_Creator_Loader {
      */
     private function register_hooks() {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
+        add_action('init', array($this, 'add_game_rewrite_rules'));
+        add_action('template_redirect', array($this, 'handle_game_page_request'));
+        
         if (class_exists('Sisme_Game_Page_Content_Filter')) {
             Sisme_Game_Page_Content_Filter::init();
         }
@@ -149,6 +152,120 @@ class Sisme_Game_Page_Creator_Loader {
             $total_count = count($this->available_modules);
             error_log("[Game Page Creator] Module initialisé - {$loaded_count}/{$total_count} composants chargés");
         }
+    }
+    
+    /**
+     * Ajouter les règles de réécriture pour les pages de jeu
+     */
+    public function add_game_rewrite_rules() {
+        // Forcer la suppression de l'option pour debug
+        delete_option('sisme_game_page_rules_flushed');
+        
+        // Règle pour capturer les URLs de jeu : /nom-du-jeu/
+        add_rewrite_rule(
+            '^([^/]+)/?$',
+            'index.php?sisme_game_page=$matches[1]',
+            'top'
+        );
+        
+        error_log('[Game Page Creator] Rewrite rule added: ^([^/]+)/?$ -> index.php?sisme_game_page=$matches[1]');
+        
+        // Ajouter la query var
+        add_filter('query_vars', function($vars) {
+            $vars[] = 'sisme_game_page';
+            error_log('[Game Page Creator] Query var sisme_game_page added');
+            return $vars;
+        });
+        
+        // Flush immédiatement
+        flush_rewrite_rules(false);
+        error_log('[Game Page Creator] Rewrite rules flushed immediately');
+    }
+    
+    /**
+     * Flush les règles de réécriture si nécessaire
+     */
+    private function maybe_flush_rewrite_rules() {
+        // Forcer le flush pour debug
+        delete_option('sisme_game_page_rules_flushed');
+        
+        if (!get_option('sisme_game_page_rules_flushed')) {
+            add_action('wp_loaded', function() {
+                flush_rewrite_rules(false);
+                update_option('sisme_game_page_rules_flushed', true);
+                error_log('[Game Page Creator] Rewrite rules flushed - home_url: ' . home_url());
+            });
+        }
+    }
+    
+    /**
+     * Intercepter les requêtes de pages de jeu
+     */
+    public function handle_game_page_request() {
+        $game_slug = get_query_var('sisme_game_page');
+        
+        // Debug: log de toutes les query vars
+        error_log('[Game Page Creator] Debug - URL: ' . ($_SERVER['REQUEST_URI'] ?? 'unknown'));
+        error_log('[Game Page Creator] Debug - game_slug: ' . ($game_slug ?: 'EMPTY'));
+        
+        if (empty($game_slug)) {
+            return; // Pas une page de jeu
+        }
+        
+        error_log('[Game Page Creator] GAME PAGE DETECTED: ' . $game_slug);
+        
+        // Chercher le terme correspondant au slug
+        $term = get_term_by('slug', $game_slug, 'post_tag');
+        
+        if (!$term || is_wp_error($term)) {
+            error_log('[Game Page Creator] Term not found: ' . $game_slug);
+            return; // Terme non trouvé, laisser WordPress gérer la 404
+        }
+        
+        // Vérifier que c'est bien un jeu (a des données de jeu)
+        $game_data = get_term_meta($term->term_id, 'sisme_game_data', true);
+        if (empty($game_data)) {
+            error_log('[Game Page Creator] No game data for term: ' . $term->term_id);
+            return; // Pas un jeu, laisser WordPress gérer
+        }
+        
+        error_log('[Game Page Creator] Rendering game page for: ' . $game_slug);
+        
+        // Afficher la page de jeu
+        $this->render_game_page($term->term_id);
+        exit;
+    }
+    
+    /**
+     * Rendre une page de jeu complète
+     */
+    private function render_game_page($term_id) {
+        // Inclure les fichiers nécessaires
+        if (!class_exists('Sisme_Game_Data_Formatter')) {
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/game-page-creator/game-data-formatter.php';
+        }
+        if (!class_exists('Sisme_Game_Page_Renderer')) {
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/game-page-creator/game-page-renderer.php';
+        }
+        
+        // Formater les données du jeu
+        $game_data = Sisme_Game_Data_Formatter::format_game_data($term_id);
+        
+        if (!$game_data) {
+            wp_die('Erreur : Impossible de charger les données du jeu.', 'Erreur de jeu', array('response' => 500));
+        }
+        
+        // Générer le HTML
+        $content = Sisme_Game_Page_Renderer::render($game_data);
+        
+        // Obtenir le header et footer du thème
+        get_header();
+        
+        echo '<main class="sisme-game-page-wrapper">';
+        echo $content;
+        echo '</main>';
+        
+        get_footer();
     }
     
     /**

@@ -183,7 +183,7 @@ class SismeGamesEditor {
         add_submenu_page(
             'sisme-games-game-data',
             'Inspecteur de données',
-            '🔍 Inspecteur de données',
+            '🛢️ Inspecteur de données',
             'manage_options',
             'sisme-games-data-inspector',
             array('Sisme_Admin_Data_Inspector', 'render')

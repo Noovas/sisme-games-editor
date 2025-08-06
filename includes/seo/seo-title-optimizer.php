@@ -367,4 +367,32 @@ class Sisme_SEO_Title_Optimizer {
         
         return $variations;
     }
+    
+    /**
+     * Méthode publique statique pour récupérer le titre optimisé généré
+     * Utilisée par l'interface admin pour afficher les titres réellement générés
+     */
+    public static function get_generated_title($post_id = null) {
+        if (!$post_id) {
+            global $post;
+            $post_id = $post ? $post->ID : 0;
+        }
+        
+        if (!$post_id) {
+            return false;
+        }
+        
+        // Temporairement définir le post global si nécessaire
+        $original_post = $GLOBALS['post'] ?? null;
+        $GLOBALS['post'] = get_post($post_id);
+        
+        // Créer une instance temporaire pour accéder à la méthode privée
+        $instance = new self();
+        $title = $instance->generate_optimized_title();
+        
+        // Restaurer le post original
+        $GLOBALS['post'] = $original_post;
+        
+        return $title;
+    }
 }
