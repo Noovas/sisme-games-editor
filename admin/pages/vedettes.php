@@ -348,59 +348,6 @@ $page->render_start();
             </div>
         <?php endif; ?>
     </div>
-
-    <!-- Section Migration -->
-    <div class="sisme-vedettes-section">
-        <h2>🔄 Migration & Maintenance</h2>
-        
-        <div class="sisme-maintenance-actions">
-            <form method="post" style="display: inline-block;">
-                <input type="hidden" name="action" value="run_migration">
-                <button type="submit" class="sisme-btn sisme-btn--secondary">
-                    🔄 Lancer la migration
-                </button>
-            </form>
-            
-            <form method="post" style="display: inline-block;">
-                <input type="hidden" name="action" value="clear_cache">
-                <button type="submit" class="sisme-btn sisme-btn--secondary">
-                    🧹 Vider le cache
-                </button>
-            </form>
-        </div>
-        
-        <?php if ($migration_results): ?>
-            <div class="sisme-migration-results">
-                <h4>Résultats de migration :</h4>
-                <div class="sisme-migration-summary">
-                    <span class="sisme-migration-stat">
-                        <strong>Total:</strong> <?php echo $migration_results['total_games']; ?>
-                    </span>
-                    <span class="sisme-migration-stat">
-                        <strong>Migrés:</strong> <?php echo $migration_results['migrated_games']; ?>
-                    </span>
-                    <span class="sisme-migration-stat">
-                        <strong>Erreurs:</strong> <?php echo count($migration_results['errors']); ?>
-                    </span>
-                    <span class="sisme-migration-stat">
-                        <strong>Temps:</strong> <?php echo round($migration_results['execution_time'], 2); ?>s
-                    </span>
-                </div>
-                
-                <?php if (!empty($migration_results['errors'])): ?>
-                    <details class="sisme-migration-errors">
-                        <summary>Voir les erreurs (<?php echo count($migration_results['errors']); ?>)</summary>
-                        <ul>
-                            <?php foreach ($migration_results['errors'] as $error): ?>
-                                <li><?php echo esc_html($error); ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </details>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
-    </div>
-
 </div>
 
 <!-- Notice d'utilisation du carrousel -->
@@ -450,37 +397,6 @@ $page->render_start();
         </ul>
     </div>
     
-</div>
-
-<!-- Aperçu du carrousel -->
-<div class="sisme-vedettes-section">
-    <h2>👀 Aperçu du Carrousel</h2>
-    <?php 
-    // Vérifier qu'on a des jeux vedettes pour l'aperçu
-    if (!empty($featured_games_data)): 
-    ?>
-        <div class="sisme-preview-container">
-            <?php
-            // Générer l'aperçu avec des options adaptées à l'admin
-            $preview_options = array(
-                'limit' => 999,              // Limiter à 5 pour l'aperçu
-                'height' => '600px',       // Plus petit pour la page admin
-                'autoplay' => true,       // Pas d'autoplay pour éviter les distractions
-                'show_arrows' => true,
-                'show_dots' => true,
-                'css_class' => 'sisme-admin-preview-carousel'
-            );
-            // Afficher le carrousel
-            echo Sisme_Vedettes_API::render_featured_carousel($preview_options);
-            ?>
-        </div>
-    <?php else: ?>
-        <div class="sisme-preview-empty">
-            <div class="sisme-empty-icon">🎯</div>
-            <p>Ajoutez des jeux aux vedettes pour voir l'aperçu du carrousel ici !</p>
-            <p><small>Le carrousel s'affichera automatiquement dès que vous aurez des jeux vedettes avec des covers principales.</small></p>
-        </div>
-    <?php endif; ?>
 </div>
 
 <script>
