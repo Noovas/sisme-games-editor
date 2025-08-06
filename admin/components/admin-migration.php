@@ -41,7 +41,7 @@ class Sisme_Migration_Admin {
      */
     public static function add_hidden_page() {
         add_submenu_page(
-            null, // null = page cachée
+            null,
             'Migration données jeux',       
             'Migration',                
             'manage_options',             
@@ -66,9 +66,23 @@ class Sisme_Migration_Admin {
      * Page d'administration
      */
     public static function admin_page() {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+        
+        $page = new Sisme_Admin_Page_Wrapper(
+            'Migration des données',
+            'Outil de migration et transformation des données de jeu',
+            'database-import',
+            admin_url('admin.php?page=sisme-games-outils'),
+            'Retour aux Outils'
+        );
+        
+        self::render_migration_content();
+    }
+    
+    private static function render_migration_content() {
         ?>
-        <div class="sisme-admin-container sisme-admin-flex-col">
-            <h1 class="sisme-admin-title">🔄 Migration des données de jeu</h1>
+        <div class="sisme-admin-container">
+            <h2 class="sisme-admin-title">🔄 Migration des données de jeu</h2>
             
             <div class="sisme-admin-alert sisme-admin-alert-warning">
                 <p><strong>⚠️ Attention :</strong> Cette opération modifie la structure des données de jeu. 
@@ -96,7 +110,7 @@ class Sisme_Migration_Admin {
             // Prévisualisation
             $('#btn-preview').click(function() {
                 $(this).prop('disabled', true).text('Analyse en cours...');
-                $('#preview-results').html('<div class="sisme-admin-p-md sisme-admin-bg-dark sisme-admin-rounded">Analyse des données en cours...</div>');
+                $('#preview-results').html('<div class="sisme-admin-pre-code">Analyse des données en cours...</div>');
                 
                 $.post(sismeMigration.ajaxurl, {
                     action: 'sisme_migration_preview',
@@ -118,7 +132,7 @@ class Sisme_Migration_Admin {
                 }
                 
                 $(this).prop('disabled', true).text('Migration en cours...');
-                $('#migration-results').html('<div class="sisme-admin-p-md sisme-admin-bg-dark sisme-admin-text-light sisme-admin-rounded">Migration en cours...\nCela peut prendre plusieurs minutes.</div>');
+                $('#migration-results').html('<div class="sisme-admin-pre-code">Migration en cours...\nCela peut prendre plusieurs minutes.</div>');
                 
                 $.post(sismeMigration.ajaxurl, {
                     action: 'sisme_migration_execute',
@@ -175,7 +189,7 @@ class Sisme_Migration_Admin {
                     html += '</ul></div>';
                 }
                 
-                html += '<div class="sisme-admin-p-md sisme-admin-bg-dark sisme-admin-rounded sisme-admin-mt-md" style="font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; white-space: pre-wrap;">' + data.formatted_report + '</div>';
+                html += '<div class="sisme-admin-pre-code sisme-admin-mt-md">' + data.formatted_report + '</div>';
                 $('#preview-results').html(html);
                 
                 // Activer le bouton de migration si pas d'erreurs critiques
@@ -203,7 +217,7 @@ class Sisme_Migration_Admin {
                     html += '</ul></div>';
                 }
                 
-                html += '<div class="sisme-admin-p-md sisme-admin-bg-dark sisme-admin-rounded sisme-admin-mt-md" style="font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; white-space: pre-wrap;">' + data.formatted_report + '</div>';
+                html += '<div class="sisme-admin-pre-code sisme-admin-mt-md">' + data.formatted_report + '</div>';
                 $('#migration-results').html(html);
             }
         });

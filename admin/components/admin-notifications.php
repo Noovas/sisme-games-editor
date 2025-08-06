@@ -10,7 +10,6 @@
  * 
  * DÉPENDANCES:
  * - Sisme_User_Notifications_Data_Manager
- * - Sisme_Admin_Page_Wrapper
  */
 
 if (!defined('ABSPATH')) {
@@ -37,15 +36,10 @@ class Sisme_Admin_Notifications {
         );
     }
     
-    public static function render() {
-        if (!class_exists('Sisme_Admin_Page_Wrapper')) {
-            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
-        }
-        
+    public static function render() {        
         $success_message = '';
         $error_message = '';
         
-        // Traitement des actions POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && wp_verify_nonce($_POST['_wpnonce'] ?? '', 'sisme_notifications_admin')) {
             $result = self::handle_post_actions();
             if (is_wp_error($result)) {
@@ -55,41 +49,29 @@ class Sisme_Admin_Notifications {
             }
         }
         
-        $page = new Sisme_Admin_Page_Wrapper(
-            'Gestion des Notifications',
-            'Voir et gérer les notifications utilisateurs',
-            'email',
-            admin_url('admin.php?page=sisme-games-game-data'),
-            'Retour au Dashboard'
-        );
-        
-        $page->render_start();
-        
-        // Messages de feedback
         if (!empty($success_message)) {
-            echo '<div class="notice notice-success is-dismissible"><p>✅ ' . esc_html($success_message) . '</p></div>';
+            echo '<div class="sisme-admin-alert sisme-admin-alert-success"><p>✅ ' . esc_html($success_message) . '</p></div>';
         }
-        
         if (!empty($error_message)) {
-            echo '<div class="notice notice-error is-dismissible"><p>❌ ' . esc_html($error_message) . '</p></div>';
+            echo '<div class="sisme-admin-alert sisme-admin-alert-danger"><p>❌ ' . esc_html($error_message) . '</p></div>';
         }
-        
-        // Statistiques
-        self::render_stats_section();
-        
-        // Formulaire de recherche utilisateur
-        self::render_user_search_form();
-        
-        // Actions globales
-        self::render_global_actions();
-        
-        // Affichage des notifications si utilisateur sélectionné
-        if (isset($_GET['user_id'])) {
-            $user_id = intval($_GET['user_id']);
-            self::render_user_notifications($user_id);
-        }
-        
-        $page->render_end();
+        ?>
+        <div class="sisme-admin-container">
+            <h2 class="sisme-admin-title">🔔 Notifications Utilisateur</h2>
+            <p class="sisme-admin-comment">Gestion des notifications utilisateur, voir et vider les notifications</p>
+            <div class="sisme-admin-layout">
+                <?php
+                self::render_stats_section();
+                self::render_user_search_form();
+                self::render_global_actions();
+                if (isset($_GET['user_id'])) {
+                    $user_id = intval($_GET['user_id']);
+                    self::render_user_notifications($user_id);
+                }
+                ?>
+            </div>
+        </div>
+        <?php
     }
     
     private static function handle_post_actions() {
@@ -134,16 +116,18 @@ class Sisme_Admin_Notifications {
         ", Sisme_User_Notifications_Data_Manager::META_KEY));
         
         ?>
-        <div class="sisme-admin-stats">
-            <h3>📊 Statistiques</h3>
-            <div class="sisme-stats-grid">
-                <div class="sisme-stat-item">
-                    <strong><?php echo $total_users_with_notifs; ?></strong>
-                    <span>Utilisateurs avec notifications</span>
+        <div class="sisme-admin-card">
+            <div class="sisme-admin-card-header">
+                <h3 class="sisme-admin-heading">📊 Statistiques</h3>
+            </div>
+            <div class="sisme-admin-stats">
+                <div class="sisme-admin-stat-card">
+                    <div class="sisme-admin-stat-number"><?php echo $total_users_with_notifs; ?></div>
+                    <div class="sisme-admin-stat-label">Utilisateurs avec notifications</div>
                 </div>
-                <div class="sisme-stat-item">
-                    <strong><?php echo $total_entries; ?></strong>
-                    <span>Entrées en base</span>
+                <div class="sisme-admin-stat-card">
+                    <div class="sisme-admin-stat-number"><?php echo $total_entries; ?></div>
+                    <div class="sisme-admin-stat-label">Entrées en base</div>
                 </div>
             </div>
         </div>
@@ -164,30 +148,27 @@ class Sisme_Admin_Notifications {
         
         $current_user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : '';
         ?>
-        <div class="sisme-admin-section">
-            <h3>👤 Sélectionner un utilisateur</h3>
+        <div class="sisme-admin-card">
+            <div class="sisme-admin-card-header">
+                <h3 class="sisme-admin-heading">👤 Sélectionner un utilisateur</h3>
+            </div>
             <form method="get" action="">
                 <input type="hidden" name="page" value="<?php echo esc_attr($_GET['page']); ?>">
-                <table class="form-table">
-                    <tr>
-
-                        <td>
-                            <select name="user_id" id="user_id" class="regular-text">
-                                <option value="">-- Choisir un utilisateur --</option>
-                                <?php foreach ($users_with_notifications as $user) : ?>
-                                    <option value="<?php echo $user->ID; ?>" <?php selected($current_user_id, $user->ID); ?>>
-                                        <?php echo esc_html($user->display_name); ?> (<?php echo esc_html($user->user_login); ?>) - ID: <?php echo $user->ID; ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <input type="submit" value="Voir les notifications" class="button button-primary">
-                        </td>
-                    </tr>
-                </table>
+                <div class="sisme-admin-flex">
+                    <select name="user_id" id="user_id" class="regular-text">
+                        <option value="">-- Choisir un utilisateur --</option>
+                        <?php foreach ($users_with_notifications as $user) : ?>
+                            <option value="<?php echo $user->ID; ?>" <?php selected($current_user_id, $user->ID); ?>>
+                                <?php echo esc_html($user->display_name); ?> (<?php echo esc_html($user->user_login); ?>) - ID: <?php echo $user->ID; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="submit" value="Voir les notifications" class="sisme-admin-btn sisme-admin-btn-primary">
+                </div>
             </form>
             
             <?php if (empty($users_with_notifications)) : ?>
-                <p><em>ℹ️ Aucun utilisateur n'a de notifications actuellement.</em></p>
+                <p class="sisme-admin-comment"><em>ℹ️ Aucun utilisateur n'a de notifications actuellement.</em></p>
             <?php endif; ?>
         </div>
         <?php
@@ -195,16 +176,18 @@ class Sisme_Admin_Notifications {
     
     private static function render_global_actions() {
         ?>
-        <div class="sisme-admin-section">
-            <h3>⚡ Actions globales</h3>
+        <div class="sisme-admin-card">
+            <div class="sisme-admin-card-header">
+                <h3 class="sisme-admin-heading">⚡ Actions globales</h3>
+            </div>
             
-            <form method="post" action="" style="margin-bottom: 20px;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer TOUTES les notifications ?');">
+            <form method="post" action="" class="sisme-admin-mb-md" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer TOUTES les notifications ?');">
                 <?php wp_nonce_field('sisme_notifications_admin'); ?>
                 <input type="hidden" name="action" value="clear_all_notifications">
-                <input type="submit" value="🗑️ Vider toutes les notifications" class="button button-secondary" style="background: #dc3545; color: white; border-color: #dc3545;">
+                <input type="submit" value="🗑️ Vider toutes les notifications" class="sisme-admin-btn sisme-admin-btn-danger">
             </form>
             
-            <p><em>⚠️ Cette action supprimera définitivement toutes les notifications de tous les utilisateurs.</em></p>
+            <p class="sisme-admin-comment"><em>⚠️ Cette action supprimera définitivement toutes les notifications de tous les utilisateurs.</em></p>
         </div>
         <?php
     }
@@ -221,21 +204,23 @@ class Sisme_Admin_Notifications {
         $enriched_notifications = Sisme_User_Notifications_Data_Manager::get_enriched_notifications($user_id);
         
         ?>
-        <div class="sisme-admin-section">
-            <h3>👤 Notifications de <?php echo esc_html($user->display_name); ?> (ID: <?php echo $user_id; ?>)</h3>
+        <div class="sisme-admin-card">
+            <div class="sisme-admin-card-header">
+                <h3 class="sisme-admin-heading">👤 Notifications de <?php echo esc_html($user->display_name); ?> (ID: <?php echo $user_id; ?>)</h3>
+            </div>
             
             <?php if (!empty($notifications)) : ?>
                 
                 <!-- Bouton vider pour cet utilisateur -->
-                <form method="post" action="" style="margin-bottom: 20px;" onsubmit="return confirm('Vider les notifications de cet utilisateur ?');">
+                <form method="post" action="" class="sisme-admin-mb-md" onsubmit="return confirm('Vider les notifications de cet utilisateur ?');">
                     <?php wp_nonce_field('sisme_notifications_admin'); ?>
                     <input type="hidden" name="action" value="clear_user_notifications">
                     <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-                    <input type="submit" value="🗑️ Vider les notifications de cet utilisateur" class="button button-secondary">
+                    <input type="submit" value="🗑️ Vider les notifications de cet utilisateur" class="sisme-admin-btn sisme-admin-btn-secondary">
                 </form>
                 
                 <!-- Liste des notifications -->
-                <table class="wp-list-table widefat fixed striped">
+                <table class="sisme-admin-table">
                     <thead>
                         <tr>
                             <th>Index</th>
@@ -268,10 +253,10 @@ class Sisme_Admin_Notifications {
                     </tbody>
                 </table>
                 
-                <p><strong>Total :</strong> <?php echo count($notifications); ?> notification(s)</p>
+                <p class="sisme-admin-mt-md"><strong>Total :</strong> <?php echo count($notifications); ?> notification(s)</p>
                 
             <?php else : ?>
-                <p>🔔 Aucune notification pour cet utilisateur.</p>
+                <p class="sisme-admin-comment">🔔 Aucune notification pour cet utilisateur.</p>
             <?php endif; ?>
         </div>
         <?php

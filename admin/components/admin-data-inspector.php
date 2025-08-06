@@ -48,7 +48,9 @@ class Sisme_Admin_Data_Inspector {
             <div class="sisme-admin-flex-col">
                 <?php
                 self::render_game_selector($inspect_game_id);
-                self::render_game_data($inspect_game_id);
+                if ($inspect_game_id > 0) { 
+                    self::render_game_data($inspect_game_id);
+                }
                 ?>
             </div>
         </div>

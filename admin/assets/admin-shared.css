@@ -22,6 +22,10 @@
     --sisme-admin-gray-300: #d1d5db;
     --sisme-admin-gray-400: #9ca3af;
     --sisme-admin-gray-500: #6b7280;
+    --sisme-admin-gray-600: #4b5563;
+    --sisme-admin-gray-700: #374151;
+    --sisme-admin-gray-800: #1f2937;
+    --sisme-admin-gray-900: #111827;
 
 
     /* Couleurs logiques */
@@ -127,6 +131,7 @@
 .sisme-admin-text-red { color: var(--sisme-admin-red) !important; }
 .sisme-admin-text-yellow { color: var(--sisme-admin-yellow) !important; }
 .sisme-admin-text-purple { color: var(--sisme-admin-purple) !important; }
+.sisme-admin-text-purple-dark { color: var(--sisme-admin-purple-dark) !important; }
 
 .sisme-admin-text-success { color: var(--sisme-admin-success) !important; }
 .sisme-admin-text-warning { color: var(--sisme-admin-warning) !important; }
@@ -438,6 +443,11 @@
     color: var(--sisme-admin-gray-700);
 }
 
+.sisme-admin-badge-purple {
+    background: var(--sisme-admin-purple-light);
+    color: var(--sisme-admin-purple-dark);
+}
+
 /* ========================================
    TABLEAUX STANDARDISÉS
 ========================================= */
@@ -731,4 +741,69 @@
     .sisme-admin-auto-dark .sisme-admin-small {
         color: var(--sisme-admin-dark-text-muted);
     }
+}
+
+/* ========================================
+   CONTENEURS UTILITAIRES GÉNÉRIQUES
+========================================= */
+
+/* Conteneur avec défilement vertical */
+.sisme-admin-scrollable-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* ========================================
+   ELEMENTS INTERACTIFS GÉNÉRIQUES
+========================================= */
+
+/* Élément avec transition douce */
+.sisme-admin-smooth-transition {
+    transition: all 0.2s ease;
+}
+
+/* Élément avec fond gris clair par défaut */
+.sisme-admin-item-neutral {
+    background: var(--sisme-admin-gray-50);
+    color: var(--sisme-admin-black);
+}
+
+/* Élément avec fond violet (pour éléments featured) */
+.sisme-admin-item-purple {
+    background: var(--sisme-admin-purple-light);
+    color: var(--sisme-admin-black);
+}
+
+/* ========================================
+   TYPOGRAPHIE UTILITAIRE
+========================================= */
+
+/* Texte avec poids moyen */
+.sisme-admin-font-medium {
+    font-weight: 500;
+}
+
+/* Texte en noir */
+.sisme-admin-text-black {
+    color: var(--sisme-admin-black);
+}
+
+/* ========================================
+   ALERTES AVEC VARIANTES COLORÉES
+========================================= */
+
+/* Alerte avec style violet */
+.sisme-admin-alert-purple {
+    background-color: var(--sisme-admin-purple-light);
+    border-left-color: var(--sisme-admin-purple);
+    color: var(--sisme-admin-purple-dark);
+}
+
+/* ========================================
+   ICÔNES UTILITAIRES
+========================================= */
+
+/* Icône de taille large (24px) */
+.sisme-admin-icon-lg {
+    font-size: 24px;
 }

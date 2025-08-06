@@ -51,7 +51,7 @@ Le système repose sur des **variables CSS centralisées** dans `:root` :
 
 --sisme-admin-yellow: #eab308     (avertissement)
 --sisme-admin-orange: #f97316     (accent)
---sisme-admin-purple: #8b5cf6     (spécial)
+--sisme-admin-purple: #8b5cf6     (vedettes/spécial)
 ```
 
 #### Couleurs Sémantiques
@@ -120,6 +120,10 @@ Le système repose sur des **variables CSS centralisées** dans `:root` :
 .sisme-admin-bg-green        /* Fond vert */
 .sisme-admin-bg-green-light  /* Fond vert clair */
 /* ... toutes les variantes de couleurs */
+
+/* Éléments avec fonds prédéfinis */
+.sisme-admin-item-neutral    /* Élément avec fond gris neutre */
+.sisme-admin-item-purple     /* Élément avec fond violet (featured) */
 ```
 
 #### Textes (Colors)
@@ -129,7 +133,13 @@ Le système repose sur des **variables CSS centralisées** dans `:root` :
 .sisme-admin-text-muted      /* Texte atténué */
 .sisme-admin-text-success    /* Texte vert (succès) */
 .sisme-admin-text-danger     /* Texte rouge (erreur) */
+.sisme-admin-text-black      /* Texte noir */
 /* ... toutes les variantes sémantiques */
+```
+
+#### Poids de Police
+```css
+.sisme-admin-font-medium     /* font-weight: 500 */
 ```
 
 ### 3. Typographie Standardisée
@@ -252,6 +262,7 @@ Le système repose sur des **variables CSS centralisées** dans `:root` :
 .sisme-admin-alert-warning /* Alerte jaune */
 .sisme-admin-alert-danger  /* Alerte rouge */
 .sisme-admin-alert-info    /* Alerte bleue */
+.sisme-admin-alert-purple  /* Alerte violette */
 ```
 
 **Style** : Bordure gauche colorée + fond teinté.
@@ -297,6 +308,11 @@ Le système repose sur des **variables CSS centralisées** dans `:root` :
 .sisme-admin-visible   /* display: block */
 ```
 
+#### Conteneurs Utilitaires
+```css
+.sisme-admin-scrollable-container  /* Conteneur avec défilement vertical (max-height: 300px) */
+```
+
 #### Bordures et Ombres
 ```css
 .sisme-admin-rounded       /* border-radius moyen */
@@ -314,6 +330,7 @@ Le système repose sur des **variables CSS centralisées** dans `:root` :
 .sisme-admin-cursor-not-allowed /* cursor: not-allowed */
 .sisme-admin-opacity-50         /* opacity: 0.5 */
 .sisme-admin-opacity-75         /* opacity: 0.75 */
+.sisme-admin-smooth-transition  /* Transition douce (all 0.2s ease) */
 ```
 
 #### Code et Développement
@@ -327,6 +344,11 @@ Le système repose sur des **variables CSS centralisées** dans `:root` :
 - `sisme-admin-code` : Police monospace pour les éléments `<code>` inline
 - `sisme-admin-pre-code` : Blocs `<pre>` avec fond clair, bordure et défilement
 - `sisme-admin-pre-code-dark` : Variante sombre pour contraster avec les données claires
+
+#### Icônes
+```css
+.sisme-admin-icon-lg               /* Icône de taille large (24px) */
+```
 
 ---
 
@@ -435,7 +457,41 @@ Le système détecte automatiquement la préférence utilisateur via `@media (pr
 </div>
 ```
 
-### Exemple 5: Inspecteur de Données (Code et Debug)
+### Exemple 5: Conteneur Scrollable avec Items
+```html
+<div class="sisme-admin-scrollable-container">
+    <div class="sisme-admin-smooth-transition sisme-admin-item-neutral sisme-admin-p-sm sisme-admin-border sisme-admin-rounded sisme-admin-mb-sm">
+        <span class="sisme-admin-text-black sisme-admin-font-medium">Nom du jeu normal</span>
+    </div>
+    <div class="sisme-admin-smooth-transition sisme-admin-item-purple sisme-admin-p-sm sisme-admin-border sisme-admin-rounded sisme-admin-mb-sm">
+        <span class="sisme-admin-text-black sisme-admin-font-medium">Jeu featured (violet)</span>
+    </div>
+</div>
+```
+
+### Exemple 6: Icônes et Alertes Spécialisées
+```html
+<!-- Alerte violette avec icône -->
+<div class="sisme-admin-alert sisme-admin-alert-purple">
+    <div class="sisme-admin-flex">
+        <div class="sisme-admin-icon-lg">💜</div>
+        <span>Ce jeu est maintenant en vedette !</span>
+    </div>
+</div>
+
+<!-- Avertissement avec grande icône -->
+<div class="sisme-admin-alert sisme-admin-alert-danger">
+    <div class="sisme-admin-flex">
+        <div class="sisme-admin-text-danger sisme-admin-icon-lg">⚠️</div>
+        <div>
+            <strong>Attention !</strong><br>
+            Cette action est irréversible.
+        </div>
+    </div>
+</div>
+```
+
+### Exemple 7: Inspecteur de Données (Code et Debug)
 ```html
 <div class="sisme-admin-card">
     <div class="sisme-admin-card-header">
