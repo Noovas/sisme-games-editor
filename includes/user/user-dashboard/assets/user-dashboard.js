@@ -6,7 +6,6 @@
  * - Navigation dynamique entre sections du dashboard
  * - Gestion de l'affichage/masquage des sections
  * - Deep linking avec hash URL
- * - Système de notifications toast
  * - Support mobile responsive
  * - Animations et transitions fluides
  */
@@ -43,10 +42,6 @@
         this.social.init();
         
         this.isInitialized = true;
-        
-        setTimeout(() => {
-            this.showNotification('Bienvenue sur votre dashboard ! 🎮', 'success', 3000);
-        }, 1000);
     };
     
     /**
@@ -65,9 +60,6 @@
         // Actions sur les jeux
         $(document).on('click', '.sisme-game-card', this.handleGameClick.bind(this));
         $(document).on('click', '.sisme-favorite-item', this.handleFavoriteClick.bind(this));
-        
-        // Fermeture notifications
-        $(document).on('click', '.sisme-notification-close', this.closeNotification.bind(this));
         
         // Gestion du changement d'hash dans l'URL
         $(window).on('hashchange', this.handleHashChange.bind(this));
@@ -247,20 +239,6 @@
         
         // 6. Émettre un événement personnalisé
         $(document).trigger('sisme:dashboard:section-changed', [section, previousSection]);
-        
-        // 7. Notification de changement de section
-        if (animate && section !== previousSection) {
-            const sectionNames = {
-                'overview': 'Vue d\'ensemble',
-                'favorites': 'Mes Favoris',
-                'library': 'La Sismothèque',
-                'activity': 'Mon Activité',
-                'settings': 'Paramètres',
-                'social': 'Social'
-            };
-            
-            this.showNotification(`Section ${sectionNames[section] || section}`, 'info', 2000);
-        }
     };
     
     /**
@@ -312,7 +290,6 @@
         if (section && this.isValidSection(section)) {
             this.setActiveSection(section, true);
         }
-        this.showNotification(`Accès à ${label}`, 'info', 2000);
     };
     
     /**
@@ -328,7 +305,6 @@
         setTimeout(() => $card.removeClass('game-clicked'), 300);
         
         if ($link.length) {
-            this.showNotification(`Ouverture de la fiche : ${gameName}`, 'info', 2000);
             // Laisser le navigateur suivre le lien naturellement
         }
     };
@@ -343,8 +319,6 @@
         // Animation
         $item.addClass('favorite-clicked');
         setTimeout(() => $item.removeClass('favorite-clicked'), 300);
-        
-        this.showNotification(`Accès au favori : ${gameName}`, 'info', 2000);
     };
     
     /**
@@ -352,60 +326,6 @@
      */
     SismeDashboard.isValidSection = function(section) {
         return this.validSections.includes(section);
-    };
-    
-    /**
-     * ✨ Système de notifications toast
-     */
-    SismeDashboard.showNotification = function(message, type = 'info', duration = 3000) {
-        const icons = {
-            'success': '✅',
-            'error': '❌',
-            'warning': '⚠️',
-            'info': 'ℹ️'
-        };
-        
-        const icon = icons[type] || icons.info;
-        const $notification = $(`
-            <div class="sisme-notification sisme-notification--${type}">
-                <span class="sisme-notification-icon">${icon}</span>
-                <span class="sisme-notification-message">${message}</span>
-                <button class="sisme-notification-close">×</button>
-            </div>
-        `);
-        
-        // Container des notifications
-        let $container = $('.sisme-notifications-container');
-        if (!$container.length) {
-            $container = $('<div class="sisme-notifications-container"></div>');
-            $('body').append($container);
-        }
-        
-        // Ajouter et animer
-        $container.append($notification);
-        $notification.slideDown(300);
-        
-        // Auto-fermeture
-        setTimeout(() => {
-            this.closeNotification($notification);
-        }, duration);
-    };
-    
-    /**
-     * Fermer une notification
-     */
-    SismeDashboard.closeNotification = function(target) {
-        let $notification;
-        
-        if (target instanceof jQuery) {
-            $notification = target;
-        } else {
-            $notification = $(target.currentTarget).closest('.sisme-notification');
-        }
-        
-        $notification.slideUp(200, function() {
-            $(this).remove();
-        });
     };
     
     /**
@@ -536,7 +456,8 @@
         
         // Afficher une notification
         notify: function(message, type = 'info', duration = 3000) {
-            SismeDashboard.showNotification(message, type, duration);
+            // Méthode désactivée - notifications toast supprimées
+            console.log(`[Dashboard] ${type.toUpperCase()}: ${message}`);
         },
         
         // Obtenir la section actuelle
@@ -590,7 +511,7 @@
             e.stopPropagation();
             
             if (!this.checkSocialConfig()) {
-                SismeDashboard.api.notify('Configuration sociale manquante', 'error');
+                console.log('[Dashboard] Configuration sociale manquante');
                 return;
             }
             
@@ -649,7 +570,7 @@
                             this.updateSectionBadges();
                         }.bind(this));
                         
-                        SismeDashboard.api.notify('Demande d\'ami acceptée !', 'success');
+                        console.log('[Dashboard] Demande d\'ami acceptée !');
                         setTimeout(() => {
                             if (SismeDashboard.api && SismeDashboard.api.goToSection) {
                                 SismeDashboard.api.goToSection('social');
@@ -659,11 +580,11 @@
                         // Mettre à jour les compteurs
                         this.updateAllSectionBadges();
                     } else {
-                        SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
+                        console.log('[Dashboard] Erreur: ' + response.data);
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.api.notify('Erreur de connexion', 'error');
+                    console.log('[Dashboard] Erreur de connexion');
                 },
                 complete: () => {
                     this.setButtonLoading($button, false);
@@ -693,7 +614,7 @@
                             this.updateSectionBadges();
                         }.bind(this));
                         
-                        SismeDashboard.api.notify('Demande refusée', 'info');
+                        console.log('[Dashboard] Demande refusée');
                         this.updateAllSectionBadges();
                         setTimeout(() => {
                             if (SismeDashboard.api && SismeDashboard.api.goToSection) {
@@ -701,11 +622,11 @@
                             }
                         }, 500);
                     } else {
-                        SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
+                        console.log('[Dashboard] Erreur: ' + response.data);
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.api.notify('Erreur de connexion', 'error');
+                    console.log('[Dashboard] Erreur de connexion');
                 },
                 complete: () => {
                     this.setButtonLoading($button, false);
@@ -741,7 +662,7 @@
                             this.updateSectionBadges();
                         }.bind(this));
                         
-                        SismeDashboard.api.notify('Ami supprimé', 'info');
+                        console.log('[Dashboard] Ami supprimé');
                         this.updateAllSectionBadges();
                         setTimeout(() => {
                             if (SismeDashboard.api && SismeDashboard.api.goToSection) {
@@ -749,11 +670,11 @@
                             }
                         }, 500);
                     } else {
-                        SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
+                        console.log('[Dashboard] Erreur: ' + response.data);
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.api.notify('Erreur de connexion', 'error');
+                    console.log('[Dashboard] Erreur de connexion');
                 },
                 complete: () => {
                     this.setButtonLoading($button, false);
@@ -783,7 +704,7 @@
                             this.updateSectionBadges();
                         }.bind(this));                        
                         
-                        SismeDashboard.api.notify('Demande annulée', 'info');
+                        console.log('[Dashboard] Demande annulée');
                         this.updateAllSectionBadges();
                         setTimeout(() => {
                             if (SismeDashboard.api && SismeDashboard.api.goToSection) {
@@ -791,11 +712,11 @@
                             }
                         }, 500);
                     } else {
-                        SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
+                        console.log('[Dashboard] Erreur: ' + response.data);
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.api.notify('Erreur de connexion', 'error');
+                    console.log('[Dashboard] Erreur de connexion');
                 },
                 complete: () => {
                     this.setButtonLoading($button, false);
@@ -1017,7 +938,7 @@
             e.stopPropagation();
             
             if (!this.checkSocialConfig()) {
-                SismeDashboard.api.notify('Configuration sociale manquante', 'error');
+                console.log('[Dashboard] Configuration sociale manquante');
                 return;
             }
             
@@ -1072,13 +993,13 @@
                 success: (response) => {
                     if (response.success) {
                         this.updateButtonState($button, $container, 'pending_from_user1');
-                        SismeDashboard.api.notify('Demande d\'ami envoyée !', 'success');
+                        console.log('[Dashboard] Demande d\'ami envoyée !');
                     } else {
-                        SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
+                        console.log('[Dashboard] Erreur: ' + response.data);
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.api.notify('Erreur de connexion', 'error');
+                    console.log('[Dashboard] Erreur de connexion');
                 },
                 complete: () => {
                     this.setButtonLoading($button, false);
@@ -1103,13 +1024,13 @@
                 success: (response) => {
                     if (response.success) {
                         this.updateButtonState($button, $container, 'none');
-                        SismeDashboard.api.notify('Demande annulée', 'info');
+                        console.log('[Dashboard] Demande annulée');
                     } else {
-                        SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
+                        console.log('[Dashboard] Erreur: ' + response.data);
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.api.notify('Erreur de connexion', 'error');
+                    console.log('[Dashboard] Erreur de connexion');
                 },
                 complete: () => {
                     this.setButtonLoading($button, false);
@@ -1134,16 +1055,16 @@
                 success: (response) => {
                     if (response.success) {
                         this.updateButtonState($button, $container, 'friends');
-                        SismeDashboard.api.notify('Nouvel ami ajouté !', 'success');
+                        console.log('[Dashboard] Nouvel ami ajouté !');
                         
                         // Optionnel: Mettre à jour le compteur sur mon profil
                         this.updateMyFriendsCounter();
                     } else {
-                        SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
+                        console.log('[Dashboard] Erreur: ' + response.data);
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.api.notify('Erreur de connexion', 'error');
+                    console.log('[Dashboard] Erreur de connexion');
                 },
                 complete: () => {
                     this.setButtonLoading($button, false);
@@ -1173,16 +1094,16 @@
                 success: (response) => {
                     if (response.success) {
                         this.updateButtonState($button, $container, 'none');
-                        SismeDashboard.api.notify('Ami supprimé', 'info');
+                        console.log('[Dashboard] Ami supprimé');
                         
                         // Optionnel: Mettre à jour le compteur sur mon profil
                         this.updateMyFriendsCounter();
                     } else {
-                        SismeDashboard.api.notify('Erreur: ' + response.data, 'error');
+                        console.log('[Dashboard] Erreur: ' + response.data);
                     }
                 },
                 error: (xhr, status, error) => {
-                    SismeDashboard.api.notify('Erreur de connexion', 'error');
+                    console.log('[Dashboard] Erreur de connexion');
                 },
                 complete: () => {
                     this.setButtonLoading($button, false);
@@ -1297,7 +1218,7 @@
                         }
                     },
                     error: (xhr, status, error) => {
-                        SismeDashboard.api.notify('Erreur de connexion pour mettre à jour le compteur', 'error');
+                        console.log('[Dashboard] Erreur de connexion pour mettre à jour le compteur');
                     }
                 });
             }
@@ -1314,7 +1235,7 @@
                 const socialSection = $('[data-section="social"]');
                 if (socialSection.length) {
                     SismeDashboard.api.goToSection('social');
-                    SismeDashboard.api.notify('Accès à vos amis', 'info');
+                    console.log('[Dashboard] Accès à vos amis');
                 }
             }
         }
