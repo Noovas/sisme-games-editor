@@ -750,6 +750,8 @@
 
 .sisme-admin-transformation-none { transform: none !important; }
 
+.sisme-admin-disabled { pointer-events: none; opacity: 0.6; cursor: not-allowed; }
+
 /* Classes spéciales pour l'inspecteur de données */
 .sisme-admin-code {
     font-family: 'Courier New', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
@@ -1724,7 +1726,8 @@
 }
 
 /* Boutons d'actions pour soumissions */
-.sisme-admin-action-buttons {
+.sisme-admin-action-buttons,
+.sisme-admin-action-group {
     display: flex;
     gap: var(--sisme-admin-spacing-xs);
     align-items: center;

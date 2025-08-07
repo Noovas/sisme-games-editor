@@ -226,7 +226,7 @@ class Sisme_Admin_All_Games {
                 </thead>
                 <tbody>
                     <?php foreach ($games as $game): ?>
-                    <tr>
+                    <tr id="game-row-<?php echo esc_attr($game->term_id); ?>">
                         <td>
                             <strong><?php echo esc_html($game->name); ?></strong>
                         </td>
@@ -241,13 +241,19 @@ class Sisme_Admin_All_Games {
                             $game_meta = get_term_meta($game->term_id);
                             $is_featured = !empty($game_meta['game_is_featured'][0]) && $game_meta['game_is_featured'][0] === 'true';
                             $is_team_choice = !empty($game_meta['is_team_choice'][0]) ? $game_meta['is_team_choice'][0] : false;
+                            $is_unpublished = !empty($game_meta['game_is_unpublished'][0]) && $game_meta['game_is_unpublished'][0] === 'true';
                             ?>
-                            <div class="">
+                            <div class="sisme-admin-grid-3">
                                 <?php if ($is_featured): ?>
-                                    <span class="sisme-admin-badge sisme-admin-badge-purple"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('featured', 0, 14); ?></span>
+                                    <span class="sisme-admin-badge sisme-admin-badge-purple"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('featured', 0, 12); ?></span>
                                 <?php endif; ?>
                                 <?php if ($is_team_choice): ?>
-                                    <span class="sisme-admin-badge sisme-admin-badge-danger"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('team-choice', 0, 14); ?></span>
+                                    <span class="sisme-admin-badge sisme-admin-badge-danger"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('heart', 0, 12); ?></span>
+                                <?php endif; ?>
+                                <?php if ($is_unpublished): ?>
+                                    <span class="sisme-admin-badge sisme-admin-badge-danger"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('unpublished', 0, 12); ?></span>
+                                <?php else: ?>
+                                    <span class="sisme-admin-badge sisme-admin-badge-success"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('published', 0, 12); ?></span>
                                 <?php endif; ?>
                             </div>
                         </td>
@@ -267,13 +273,51 @@ class Sisme_Admin_All_Games {
                                 <span class="sisme-admin-badge sisme-admin-badge-secondary">👤 Inconnu</span>
                             <?php endif; ?>
                         </td>
-                        <!-- Afficher les boutons d'action (Placeholder) -->
-                        <!-- TODO -->
+                        <!-- Afficher les boutons d'action -->
                         <td>
+                            <?php
+                            // Réutiliser les variables déjà définies
+                            $game_url = null;
+                            
+                            // Trouver l'URL du jeu s'il est publié et non dépublié
+                            if (!$is_unpublished) {
+                                $posts = get_posts([
+                                    'tag__in' => [$game->term_id],
+                                    'post_type' => 'post',
+                                    'post_status' => 'publish',
+                                    'numberposts' => 1
+                                ]);
+                                if (!empty($posts)) {
+                                    $game_url = get_permalink($posts[0]->ID);
+                                }
+                            }
+                            ?>
                             <div class="sisme-admin-action-group">
-                                <button id="view-game-<?php echo esc_attr($game->term_id); ?>" class="sisme-admin-action-btn" title="Voir le jeu"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('link', 0, 14); ?></button>
-                                <button id="unpublish-game-<?php echo esc_attr($game->term_id); ?>" class="sisme-admin-action-btn" title="Dépublier"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('unpublish', 0, 14); ?></button>
-                                <button id="publish-game-<?php echo esc_attr($game->term_id); ?>" class="sisme-admin-action-btn" title="Publier"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('published', 0, 14); ?></button>
+                                <!-- Bouton Voir le jeu -->
+                                <?php if ($game_url && !$is_unpublished): ?>
+                                    <a href="<?php echo esc_url($game_url); ?>" 
+                                       target="_blank" 
+                                       class="sisme-admin-action-btn" 
+                                       title="Voir le jeu">🔗</a>
+                                <?php else: ?>
+                                    <span class="sisme-admin-action-btn sisme-admin-disabled" 
+                                          title="Jeu non accessible">🔗</span>
+                                <?php endif; ?>
+                                
+                                <!-- Bouton Dépublier ou Publier selon le statut -->
+                                <?php if ($is_unpublished): ?>
+                                    <button type="button"
+                                            id="publish-game-<?php echo esc_attr($game->term_id); ?>" 
+                                            class="sisme-admin-action-btn" 
+                                            data-game-name="<?php echo esc_attr($game->name); ?>"
+                                            title="Republier le jeu"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('published', 0, 12)?></button>
+                                <?php else: ?>
+                                    <button type="button"
+                                            id="unpublish-game-<?php echo esc_attr($game->term_id); ?>" 
+                                            class="sisme-admin-action-btn" 
+                                            data-game-name="<?php echo esc_attr($game->name); ?>"
+                                            title="Dépublier le jeu"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('unpublished', 0, 12)?></button>
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>
@@ -352,6 +396,13 @@ class Sisme_Admin_All_Games {
      */
     private static function enqueue_admin_assets() {
         
+        wp_enqueue_style(
+            'sisme-admin-shared',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/CSS-admin-shared.css',
+            array(),
+            SISME_GAMES_EDITOR_VERSION
+        );
+        
         wp_enqueue_script(
             'sisme-admin-submissions',
             SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/JS-admin-submissions.js',
@@ -360,7 +411,22 @@ class Sisme_Admin_All_Games {
             true
         );
         
+        wp_enqueue_script(
+            'sisme-admin-games-actions',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/JS-admin-games-actions.js',
+            array('jquery'),
+            SISME_GAMES_EDITOR_VERSION,
+            true
+        );
+        
+        // Localiser les scripts avec les données AJAX
         wp_localize_script('sisme-admin-submissions', 'sismeAdminAjax', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('sisme_admin_nonce'),
+            'isAdmin' => true
+        ]);
+        
+        wp_localize_script('sisme-admin-games-actions', 'sismeAdminAjax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('sisme_admin_nonce'),
             'isAdmin' => true

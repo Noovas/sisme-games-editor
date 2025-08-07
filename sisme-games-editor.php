@@ -127,6 +127,7 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php';
         
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-submission-functions.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-games-actions.php';
         
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-data-inspector.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-developers.php';
@@ -152,6 +153,7 @@ class SismeGamesEditor {
         Sisme_Admin_Notifications::init();
         Sisme_Admin_Email::init();
         Sisme_Admin_Users::init();
+        Sisme_Admin_Games_Actions::init();
     }
 
     public function add_admin_menu() {

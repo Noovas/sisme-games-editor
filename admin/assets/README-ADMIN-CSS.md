@@ -365,14 +365,106 @@ Le système repose sur des **variables CSS centralisées** dans `:root` :
 
 ---
 
-## 🌓 Support Thème Sombre
+## 🪟 Système de Modale Admin
 
-### Mode Automatique
+Le système de modale admin permet d'afficher des dialogues de confirmation ou d'action en overlay, soit en plein écran, soit directement sur une ligne de tableau.
+
+### Classes principales
 ```css
-.sisme-admin-auto-dark  /* S'adapte automatiquement au thème système */
+.sisme-admin-modal            /* Overlay principal (plein écran ou custom) */
+.sisme-admin-modal-visible    /* Affiche la modale (display: flex) */
+.sisme-admin-modal-content    /* Conteneur du contenu de la modale */
+.sisme-admin-modal-header     /* En-tête de la modale */
+.sisme-admin-modal-title      /* Titre principal */
+.sisme-admin-modal-subtitle   /* Sous-titre */
+.sisme-admin-modal-body       /* Corps de la modale */
+.sisme-admin-modal-actions    /* Groupe de boutons d'action */
+.sisme-admin-modal-btn        /* Bouton de base */
+.sisme-admin-modal-btn-cancel /* Bouton annuler (gris) */
+.sisme-admin-modal-btn-confirm/* Bouton confirmer (rouge) */
 ```
 
-Le système détecte automatiquement la préférence utilisateur via `@media (prefers-color-scheme: dark)`.
+### Utilisation
+
+- Pour une modale plein écran, insérer un `<div class="sisme-admin-modal">` à la racine du body.
+- Pour une modale sur une ligne de tableau, remplacer le `<tr>` par un `<td colspan="X">` contenant le contenu de la modale.
+
+#### Exemple d'intégration sur une ligne de tableau
+```html
+<tr id="game-row-123">
+  <td colspan="5" style="position:relative; background:rgba(0,0,0,0.9);">
+    <div style="display:flex;align-items:center;justify-content:center;min-height:60px;padding:20px;">
+      <div class="sisme-admin-modal-content">
+        <div class="sisme-admin-modal-header">
+          <h3 class="sisme-admin-modal-title">🚫 Dépublier le jeu</h3>
+          <p class="sisme-admin-modal-subtitle">Confirmer la dépublication de "Nom du jeu"</p>
+        </div>
+        <div class="sisme-admin-modal-body">
+          <p><strong>Cette action va :</strong></p>
+          <ul>
+            <li>• Rendre le jeu inaccessible publiquement</li>
+            <li>• Mettre le post WordPress en brouillon</li>
+            <li>• Conserver toutes les données (action réversible)</li>
+          </ul>
+        </div>
+        <div class="sisme-admin-modal-actions">
+          <button class="sisme-admin-modal-btn sisme-admin-modal-btn-cancel">Annuler</button>
+          <button class="sisme-admin-modal-btn sisme-admin-modal-btn-confirm">Dépublier</button>
+        </div>
+      </div>
+    </div>
+  </td>
+</tr>
+```
+
+---
+
+## 🖼️ Miniatures, Overlays & Groupes
+
+Le système gère les miniatures d'images, les overlays emoji, et les groupes de miniatures empilées.
+
+### Classes principales
+```css
+.sisme-admin-thumb                /* Miniature de base */
+.sisme-admin-thumb-sm             /* Petite miniature */
+.sisme-admin-thumb-md             /* Moyenne (défaut) */
+.sisme-admin-thumb-lg             /* Grande miniature */
+.sisme-admin-thumb-overlay        /* Overlay emoji au survol */
+.sisme-admin-thumb-overlay-permanent /* Overlay emoji permanent */
+.sisme-admin-thumb-stack          /* Groupe de miniatures empilées */
+.sisme-admin-thumb-group          /* Groupe de miniatures alignées */
+```
+
+### Utilisation des overlays emoji
+- Ajouter `data-overlay="🔗"` sur la miniature pour afficher un emoji au survol.
+- Utiliser les variantes `-permanent`, `-top-left`, `-bottom-right`, `-badge` pour des positions différentes.
+
+#### Exemple
+```html
+<div class="sisme-admin-thumb-group">
+  <a class="sisme-admin-thumb sisme-admin-thumb-sm sisme-admin-thumb-overlay" data-overlay="🔗" href="#"><img src="..." /></a>
+  <a class="sisme-admin-thumb sisme-admin-thumb-sm sisme-admin-thumb-overlay-permanent" data-overlay="⭐" href="#"><img src="..." /></a>
+</div>
+```
+
+---
+
+## 🛠️ Utilitaires avancés et classes spécifiques
+
+- `.sisme-admin-dev-details-container` : conteneur sombre pour détails développeur
+- `.sisme-admin-detail-label` : label de champ dans les détails
+- `.sisme-admin-link` : lien stylisé admin
+- `.sisme-admin-notes-box` : encadré pour notes admin
+- `.sisme-inline-form` : formulaire inline
+- `.sisme-admin-actions` : groupe d'actions admin
+- `.sisme-admin-empty-state` : état vide stylisé
+- `.sisme-admin-section-title` : titre de section stylisé
+
+---
+
+## 🌓 Mode sombre automatique
+
+Le CSS gère automatiquement le mode sombre via `@media (prefers-color-scheme: dark)`.
 
 ---
 
