@@ -14,7 +14,7 @@
  * DÉPENDANCES:
  * - module-admin-page-wrapper.php
  * - seo-game-detector.php
- * - admin-shared.css (système de style unifié)
+ * - CSS-admin-shared.css (système de style unifié)
  */
 
 if (!defined('ABSPATH')) {

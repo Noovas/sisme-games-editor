@@ -2,7 +2,7 @@
 
 ## 🎯 Vision et Objectif
 
-Le fichier `admin-shared.css` constitue un **système de design unifié** pour toutes les pages d'administration du plugin WordPress **sisme-games-editor**. 
+Le fichier `CSS-admin-shared.css` constitue un **système de design unifié** pour toutes les pages d'administration du plugin WordPress **sisme-games-editor**. 
 
 ### Problèmes Résolus
 - ✅ **Cohérence visuelle** : Fini les styles différents sur chaque page admin
@@ -596,4 +596,4 @@ Le système est **mobile-first** :
 ✅ **Accessibilité** : Contrastes et tailles respectés  
 ✅ **Performance** : CSS optimisé et structuré  
 
-Le système CSS `admin-shared.css` transforme le développement des interfaces admin en fournissant une base solide, cohérente et extensible pour toutes les pages du plugin **sisme-games-editor**.
+Le système CSS `CSS-admin-shared.css` transforme le développement des interfaces admin en fournissant une base solide, cohérente et extensible pour toutes les pages du plugin **sisme-games-editor**.

@@ -41,6 +41,7 @@ class Sisme_Game_Page_Content_Filter {
             return $content;
         }
         $post_id = $post->ID; 
+
         return self::render_game_page($post_id);
     }
     

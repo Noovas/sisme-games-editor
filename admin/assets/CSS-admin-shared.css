@@ -1,5 +1,5 @@
 /**
- * File: /sisme-admin-games-editor/admin/assets/admin-shared.css
+ * File: /sisme-admin-games-editor/admin/assets/CSS-admin-shared.css
  * Système de design partagé pour toutes les pages admin du plugin
  * 
  * OBJECTIF:
@@ -284,6 +284,27 @@
 }
 
 /* ========================================
+   IMAGES STANDARDISÉES 
+========================================= */
+.sisme-admin-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--sisme-admin-radius-md);
+    box-shadow: var(--sisme-admin-shadow-sm);
+    border: solid 1px transparent;
+}
+
+.sisme-admin-image-purple:hover {
+    border-color: var(--sisme-admin-purple)
+}
+
+.sisme-admin-image:hover {
+    box-shadow: var(--sisme-admin-shadow-md);
+    transform: translateY(-1px);
+}
+
+
+/* ========================================
    CARTES STANDARDISÉES
 ========================================= */
 .sisme-admin-card {
@@ -471,6 +492,7 @@
     border-radius: var(--sisme-admin-radius-md);
     overflow: hidden;
     box-shadow: var(--sisme-admin-shadow-sm);
+    table-layout: fixed; /* Force les colonnes à respecter les largeurs définies */
 }
 
 .sisme-admin-table th,
@@ -478,6 +500,8 @@
     padding: var(--sisme-admin-spacing-md);
     text-align: left;
     border-bottom: 1px solid var(--sisme-admin-gray-200);
+    overflow: hidden;
+    word-wrap: break-word;
 }
 
 .sisme-admin-table th {
@@ -489,6 +513,35 @@
 
 .sisme-admin-table tr:hover {
     background: var(--sisme-admin-gray-50);
+}
+
+/* ========================================
+   LARGEURS DE COLONNES FIXES
+========================================= */
+
+/* Colonnes pour le tableau des soumissions */
+.sisme-admin-table .col-game {
+    width: 25%;
+}
+
+.sisme-admin-table .col-developer {
+    width: 15%;
+}
+
+.sisme-admin-table .col-media {
+    width: 20%;
+}
+
+.sisme-admin-table .col-status {
+    width: 12%;
+}
+
+.sisme-admin-table .col-date {
+    width: 13%;
+}
+
+.sisme-admin-table .col-actions {
+    width: 15%;
 }
 
 .sisme-admin-table-dark {
@@ -805,6 +858,309 @@
    TYPOGRAPHIE UTILITAIRE
 ========================================= */
 
+
+/* ========================================
+   SYSTÈME DE MINIATURES (THUMBNAILS)
+========================================= */
+
+/* Classe de base pour les miniatures */
+.sisme-admin-thumb,
+.sisme-admin-image {
+    position: relative;
+    display: inline-block;
+    border-radius: var(--sisme-admin-radius-sm);
+    overflow: hidden;
+    border: 2px solid var(--sisme-admin-gray-200);
+    transition: var(--sisme-admin-transition);
+    cursor: pointer;
+    background: var(--sisme-admin-gray-100);
+}
+
+.sisme-admin-thumb img,
+.sisme-admin-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: var(--sisme-admin-transition);
+}
+
+/* ========================================
+   VARIANTES DE TAILLE
+========================================= */
+
+/* Taille extra-small (24px) */
+.sisme-admin-thumb-xs {
+    width: 24px;
+    height: 24px;
+}
+
+/* Taille small (32px) */
+.sisme-admin-thumb-sm {
+    width: 32px;
+    height: 32px;
+}
+
+/* Taille medium (48px) - par défaut */
+.sisme-admin-thumb-md {
+    width: 48px;
+    height: 48px;
+}
+
+/* Taille large (64px) */
+.sisme-admin-thumb-lg {
+    width: 64px;
+    height: 64px;
+}
+
+/* Taille extra-large (80px) */
+.sisme-admin-thumb-xl {
+    width: 80px;
+    height: 80px;
+}
+
+/* Taille XXL (120px) */
+.sisme-admin-thumb-2xl {
+    width: 120px;
+    height: 120px;
+}
+
+/* ========================================
+   EFFETS HOVER - BORDURES COLORÉES
+========================================= */
+
+/* Hover bleu (par défaut) */
+.sisme-admin-thumb:hover,
+.sisme-admin-image:hover {
+    border-color: var(--sisme-admin-blue);
+    transform: scale(1.05);
+    box-shadow: var(--sisme-admin-shadow-md);
+}
+
+/* Hover vert */
+.sisme-admin-thumb-hover-green:hover,
+.sisme-admin-image-hover-green:hover {
+    border-color: var(--sisme-admin-green);
+    box-shadow: var(--sisme-admin-shadow-lg);
+}
+
+/* Hover rouge */
+.sisme-admin-thumb-hover-red:hover,
+.sisme-admin-image-hover-red:hover {
+    border-color: var(--sisme-admin-red);
+    box-shadow: var(--sisme-admin-shadow-lg);
+}
+
+/* Hover orange */
+.sisme-admin-thumb-hover-orange:hover,
+.sisme-admin-image-hover-orange:hover {
+    border-color: var(--sisme-admin-orange);
+    box-shadow: var(--sisme-admin-shadow-lg);
+}
+
+/* Hover violet */
+.sisme-admin-thumb-hover-purple:hover,
+.sisme-admin-image-hover-purple:hover {
+    border-color: var(--sisme-admin-purple);
+    box-shadow: var(--sisme-admin-shadow-lg);
+}
+
+/* Hover jaune */
+.sisme-admin-thumb-hover-yellow:hover,
+.sisme-admin-image-hover-yellow:hover {
+    border-color: var(--sisme-admin-yellow);
+    box-shadow: var(--sisme-admin-shadow-lg);
+}
+
+/* ========================================
+   OVERLAYS AVEC EMOJI
+========================================= */
+
+/* Overlay de base avec emoji */
+.sisme-admin-thumb-overlay::after {
+    content: attr(data-overlay);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    opacity: 0;
+    transition: var(--sisme-admin-transition);
+    backdrop-filter: blur(2px);
+}
+
+.sisme-admin-thumb-overlay:hover::after {
+    opacity: 1;
+}
+
+/* Overlay permanent (toujours visible) */
+.sisme-admin-thumb-overlay-permanent::after {
+    content: attr(data-overlay);
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    border-radius: var(--sisme-admin-radius-sm);
+    opacity: 0.9;
+}
+
+/* Overlay coin supérieur gauche */
+.sisme-admin-thumb-overlay-top-left::after {
+    content: attr(data-overlay);
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    border-radius: var(--sisme-admin-radius-sm);
+}
+
+/* Overlay coin inférieur droit */
+.sisme-admin-thumb-overlay-bottom-right::after {
+    content: attr(data-overlay);
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 18px;
+    height: 18px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    border-radius: var(--sisme-admin-radius-sm);
+}
+
+/* Overlay badge en bas */
+.sisme-admin-thumb-overlay-badge::after {
+    content: attr(data-overlay);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    font-size: 12px;
+    padding: 4px;
+    min-height: 24px;
+}
+
+/* ========================================
+   VARIANTES COMBINÉES
+========================================= */
+
+/* Miniature avec bordure épaisse */
+.sisme-admin-thumb-thick {
+    border-width: 3px;
+}
+
+/* Miniature arrondie */
+.sisme-admin-thumb-rounded {
+    border-radius: var(--sisme-admin-radius-lg);
+}
+
+/* Miniature circulaire */
+.sisme-admin-thumb-circle {
+    border-radius: 50%;
+}
+
+/* Miniature sans bordure */
+.sisme-admin-thumb-no-border {
+    border: none;
+}
+
+/* Miniature avec ombre permanente */
+.sisme-admin-thumb-shadow {
+    box-shadow: var(--sisme-admin-shadow-md);
+}
+
+/* ========================================
+   GROUPES DE MINIATURES
+========================================= */
+
+/* Conteneur pour groupe de miniatures */
+.sisme-admin-thumb-group {
+    display: flex;
+    gap: var(--sisme-admin-spacing-sm);
+    flex-wrap: wrap;
+}
+
+/* Miniatures empilées (overlap) */
+.sisme-admin-thumb-stack {
+    display: flex;
+    margin-left: calc(var(--sisme-admin-spacing-sm) * -1);
+}
+
+.sisme-admin-thumb-stack .sisme-admin-thumb {
+    margin-left: calc(var(--sisme-admin-spacing-sm) * -1);
+    border: 3px solid white;
+    position: relative;
+    z-index: 1;
+}
+
+.sisme-admin-thumb-stack .sisme-admin-thumb:hover {
+    z-index: 10;
+}
+
+/* ========================================
+   ÉTATS SPÉCIAUX
+========================================= */
+
+/* Miniature désactivée */
+.sisme-admin-thumb-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+}
+
+.sisme-admin-thumb-disabled:hover {
+    transform: none;
+    border-color: var(--sisme-admin-gray-200);
+    box-shadow: none;
+}
+
+/* Miniature avec indicateur de chargement */
+.sisme-admin-thumb-loading {
+    background: var(--sisme-admin-gray-100);
+    position: relative;
+}
+
+.sisme-admin-thumb-loading::before {
+    content: "⏳";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    font-size: 16px;
+}
+
+.sisme-admin-thumb-loading img {
+    opacity: 0.3;
+}
 
 /* ========================================
    CLASSES SPÉCIFIQUES DÉVELOPPEURS
@@ -1164,9 +1520,29 @@
    ICÔNES UTILITAIRES
 ========================================= */
 
+/* Icône de taille extra-large (32px) */
+.sisme-admin-icon-xl {
+    font-size: 32px;
+}
+
 /* Icône de taille large (24px) */
 .sisme-admin-icon-lg {
     font-size: 24px;
+}
+
+/* Icône de taille moyenne (20px) */
+.sisme-admin-icon-md {
+    font-size: 20px;
+}
+
+/* Icône de taille petite (16px) */
+.sisme-admin-icon-sm {
+    font-size: 16px;
+}
+
+/* Icône de taille extra-small (12px) */
+.sisme-admin-icon-xs {
+    font-size: 12px;
 }
 
 /* ========================================

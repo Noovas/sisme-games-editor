@@ -68,166 +68,178 @@ class Sisme_Admin_Page_Wrapper {
      * @param string $icon_id Identifiant de l'icône
      * @return string HTML de l'émoji
      */
-    public static function get_predefined_icon($icon_id) {
+    public static function get_predefined_icon($icon_id, $margin = '12px', $font_size = '28px') {
         $icons = array(
             // Icônes principales du plugin
-            'dashboard' => '<span style="margin-right: 12px; font-size: 28px;">📊</span>',
-            'stats' => '<span style="margin-right: 12px; font-size: 28px;">📊</span>',
-            'stat' => '<span style="margin-right: 12px; font-size: 28px;">📊</span>',
+            'dashboard' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📊</span>',
+            'stats' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📊</span>',
+            'stat' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📊</span>',
 
-            'game' => '<span style="margin-right: 12px; font-size: 28px;">🎮</span>',
-            'jeu' => '<span style="margin-right: 12px; font-size: 28px;">🎮</span>',
-            'games' => '<span style="margin-right: 12px; font-size: 28px;">🎮</span>',
-            'jeux' => '<span style="margin-right: 12px; font-size: 28px;">🎮</span>',
+            'game' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🎮</span>',
+            'jeu' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🎮</span>',
+            'games' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🎮</span>',
+            'jeux' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🎮</span>',
 
-            
-            'outils' => '<span style="margin-right: 12px; font-size: 28px;">🧰</span>',
-            'tools' => '<span style="margin-right: 12px; font-size: 28px;">🧰</span>',
+            'outils' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🧰</span>',
+            'tools' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🧰</span>',
 
-            'patch' => '<span style="margin-right: 12px; font-size: 28px;">🔧</span>',
-            'reparer' => '<span style="margin-right: 12px; font-size: 28px;">🔧</span>',
-            'repair' => '<span style="margin-right: 12px; font-size: 28px;">🔧</span>',
+            'patch' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔧</span>',
+            'reparer' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔧</span>',
+            'repair' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔧</span>',
 
-            'com' => '<span style="margin-right: 12px; font-size: 28px;">📢</span>',
-            'comm' => '<span style="margin-right: 12px; font-size: 28px;">📢</span>',
-            'communication' => '<span style="margin-right: 12px; font-size: 28px;">📢</span>',
-            'communications' => '<span style="margin-right: 12px; font-size: 28px;">📢</span>',
-            'annonce' => '<span style="margin-right: 12px; font-size: 28px;">📢</span>',
-            'annonces' => '<span style="margin-right: 12px; font-size: 28px;">📢</span>',
+            'com' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📢</span>',
+            'comm' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📢</span>',
+            'communication' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📢</span>',
+            'communications' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📢</span>',
+            'annonce' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📢</span>',
+            'annonces' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📢</span>',
 
-            'notifications' => '<span style="margin-right: 12px; font-size: 28px;">🔔</span>',
-            'notification' => '<span style="margin-right: 12px; font-size: 28px;">🔔</span>',
-            'notif' => '<span style="margin-right: 12px; font-size: 28px;">🔔</span>',
-            'notifs' => '<span style="margin-right: 12px; font-size: 28px;">🔔</span>',
+            'notifications' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔔</span>',
+            'notification' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔔</span>',
+            'notif' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔔</span>',
+            'notifs' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔔</span>',
 
-            'email' => '<span style="margin-right: 12px; font-size: 28px;">📧</span>',
-            'emails' => '<span style="margin-right: 12px; font-size: 28px;">📧</span>',
-            'mail' => '<span style="margin-right: 12px; font-size: 28px;">📧</span>',
-            'emails' => '<span style="margin-right: 12px; font-size: 28px;">📧</span>',
-            '@' => '<span style="margin-right: 12px; font-size: 28px;">📧</span>',
-            
-            'star' => '<span style="margin-right: 12px; font-size: 28px;">⭐</span>',
-            'stars' => '<span style="margin-right: 12px; font-size: 28px;">⭐</span>',
-            'vedette' => '<span style="margin-right: 12px; font-size: 28px;">⭐</span>',
-            'vedettes' => '<span style="margin-right: 12px; font-size: 28px;">⭐</span>',
-            'featured' => '<span style="margin-right: 12px; font-size: 28px;">⭐</span>',
+            'email' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📧</span>',
+            'emails' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📧</span>',
+            'mail' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📧</span>',
+            'emails' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📧</span>',
+            '@' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📧</span>',
 
-            'no-featured' => '<span style="margin-right: 12px; font-size: 28px;">☆</span>',
-            'no-star' => '<span style="margin-right: 12px; font-size: 28px;">☆</span>',
-            'no-stars' => '<span style="margin-right: 12px; font-size: 28px;">☆</span>',
-            'no-vedette' => '<span style="margin-right: 12px; font-size: 28px;">☆</span>',
-            'no-vedettes' => '<span style="margin-right: 12px; font-size: 28px;">☆</span>',
+            'star' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⭐</span>',
+            'stars' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⭐</span>',
+            'vedette' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⭐</span>',
+            'vedettes' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⭐</span>',
+            'featured' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⭐</span>',
 
-            'save' => '<span style="margin-right: 12px; font-size: 28px;">💾</span>',
-            'saves' => '<span style="margin-right: 12px; font-size: 28px;">💾</span>',
-            'sauvegarde' => '<span style="margin-right: 12px; font-size: 28px;">💾</span>',
-            'sauvegardes' => '<span style="margin-right: 12px; font-size: 28px;">💾</span>',
-            'sauvegarder' => '<span style="margin-right: 12px; font-size: 28px;">💾</span>',
-            'bdd' => '<span style="margin-right: 12px; font-size: 28px;">💾</span>',
-            'data' => '<span style="margin-right: 12px; font-size: 28px;">💾</span>',
-            'datas' => '<span style="margin-right: 12px; font-size: 28px;">💾</span>',
+            'heart' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">❤️</span>',
+            'coeur' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">❤️</span>',
+            'team-choice' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">❤️</span>',
 
-            'search' => '<span style="margin-right: 12px; font-size: 28px;">🔍</span>',
-            'seo' => '<span style="margin-right: 12px; font-size: 28px;">🔍</span>',
-            'recherche' => '<span style="margin-right: 12px; font-size: 28px;">🔍</span>',
-            'rechercher' => '<span style="margin-right: 12px; font-size: 28px;">🔍</span>',
+            'no-featured' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">☆</span>',
+            'no-star' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">☆</span>',
+            'no-stars' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">☆</span>',
+            'no-vedette' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">☆</span>',
+            'no-vedettes' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">☆</span>',
 
-            'migration' => '<span style="margin-right: 12px; font-size: 28px;">📦</span>',
-            'migrations' => '<span style="margin-right: 12px; font-size: 28px;">📦</span>',
-            'pack' => '<span style="margin-right: 12px; font-size: 28px;">📦</span>',
-            'packs' => '<span style="margin-right: 12px; font-size: 28px;">📦</span>',
-            'package' => '<span style="margin-right: 12px; font-size: 28px;">📦</span>',
-            'packages' => '<span style="margin-right: 12px; font-size: 28px;">📦</span>',
+            'save' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💾</span>',
+            'saves' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💾</span>',
+            'sauvegarde' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💾</span>',
+            'sauvegardes' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💾</span>',
+            'sauvegarder' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💾</span>',
+            'bdd' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💾</span>',
+            'data' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💾</span>',
+            'datas' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💾</span>',
 
-            'users' => '<span style="margin-right: 12px; font-size: 28px;">👥</span>',
-            'user' => '<span style="margin-right: 12px; font-size: 28px;">👥</span>',
-            'utilisateur' => '<span style="margin-right: 12px; font-size: 28px;">👥</span>',
-            'utilisateurs' => '<span style="margin-right: 12px; font-size: 28px;">👥</span>',
+            'search' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔍</span>',
+            'seo' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔍</span>',
+            'recherche' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔍</span>',
+            'rechercher' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔍</span>',
 
-            'developpeurs' => '<span style="margin-right: 12px; font-size: 28px;">💻</span>',
-            'developpeur' => '<span style="margin-right: 12px; font-size: 28px;">💻</span>',
-            'dev' => '<span style="margin-right: 12px; font-size: 28px;">💻</span>',
-            'devs' => '<span style="margin-right: 12px; font-size: 28px;">💻</span>',
-            'ordi' => '<span style="margin-right: 12px; font-size: 28px;">💻</span>',
-            'ordinateur' => '<span style="margin-right: 12px; font-size: 28px;">💻</span>',
-            'ordinateurs' => '<span style="margin-right: 12px; font-size: 28px;">💻</span>',
-            'pc' => '<span style="margin-right: 12px; font-size: 28px;">💻</span>',
+            'migration' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📦</span>',
+            'migrations' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📦</span>',
+            'pack' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📦</span>',
+            'packs' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📦</span>',
+            'package' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📦</span>',
+            'packages' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📦</span>',
 
-            'premium' => '<span style="margin-right: 12px; font-size: 28px;">💎</span>',
-            'premiums' => '<span style="margin-right: 12px; font-size: 28px;">💎</span>',
+            'users' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">👥</span>',
+            'user' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">👥</span>',
+            'utilisateur' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">👥</span>',
+            'utilisateurs' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">👥</span>',
 
-            'library' => '<span style="margin-right: 12px; font-size: 28px;">📚</span>',
-            'librairie' => '<span style="margin-right: 12px; font-size: 28px;">📚</span>',
-            'lib' => '<span style="margin-right: 12px; font-size: 28px;">📚</span>',
+            'developpeurs' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💻</span>',
+            'developpeur' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💻</span>',
+            'dev' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💻</span>',
+            'devs' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💻</span>',
+            'ordi' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💻</span>',
+            'ordinateur' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💻</span>',
+            'ordinateurs' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💻</span>',
+            'pc' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💻</span>',
 
-            'wait' => '<span style="margin-right: 12px; font-size: 28px;">💤</span>',
+            'premium' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💎</span>',
+            'premiums' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💎</span>',
 
-            'trash' => '<span style="margin-right: 12px; font-size: 28px;">🗑️</span>',
-            'delete' => '<span style="margin-right: 12px; font-size: 28px;">🗑️</span>',
-            'supprimer' => '<span style="margin-right: 12px; font-size: 28px;">🗑️</span>',
-            'suppr' => '<span style="margin-right: 12px; font-size: 28px;">🗑️</span>',
-            'del' => '<span style="margin-right: 12px; font-size: 28px;">🗑️</span>',
+            'library' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📚</span>',
+            'librairie' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📚</span>',
+            'lib' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📚</span>',
 
-            'carousel' => '<span style="margin-right: 12px; font-size: 28px;">🎠</span>',
+            'wait' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💤</span>',
 
-            'puzzle' => '<span style="margin-right: 12px; font-size: 28px;">🧩</span>',
+            'trash' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🗑️</span>',
+            'delete' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🗑️</span>',
+            'supprimer' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🗑️</span>',
+            'suppr' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🗑️</span>',
+            'del' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🗑️</span>',
 
-            'shortcode' => '<span style="margin-right: 12px; font-size: 28px;">📋</span>',
-            'code' => '<span style="margin-right: 12px; font-size: 28px;">📋</span>',
-            'notice' => '<span style="margin-right: 12px; font-size: 28px;">📋</span>',
-            'all-articles' => '<span style="margin-right: 12px; font-size: 28px;">📋</span>',
-            'article' => '<span style="margin-right: 12px; font-size: 28px;">📋</span>',
-            'articles' => '<span style="margin-right: 12px; font-size: 28px;">📋</span>',
+            'carousel' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🎠</span>',
 
-            'pending' => '<span style="margin-right: 12px; font-size: 28px;">⏳</span>',
-            'attente' => '<span style="margin-right: 12px; font-size: 28px;">⏳</span>',
-            'loading' => '<span style="margin-right: 12px; font-size: 28px;">⏳</span>',
-            'load' => '<span style="margin-right: 12px; font-size: 28px;">⏳</span>',
-            
-            'drafts' => '<span style="margin-right: 12px; font-size: 28px;">📝</span>',
-            'draft' => '<span style="margin-right: 12px; font-size: 28px;">📝</span>',
-            'brouillon' => '<span style="margin-right: 12px; font-size: 28px;">📝</span>',
-            'brouillons' => '<span style="margin-right: 12px; font-size: 28px;">📝</span>',
+            'puzzle' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🧩</span>',
 
-            'news' => '<span style="margin-right: 12px; font-size: 28px;">📰</span>',
-            'submission' => '<span style="margin-right: 12px; font-size: 28px;">📰</span>',
-            
-            'test' => '<span style="margin-right: 12px; font-size: 28px;">🧪</span>',
+            'shortcode' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📋</span>',
+            'code' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📋</span>',
+            'notice' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📋</span>',
+            'all-articles' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📋</span>',
+            'article' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📋</span>',
+            'articles' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📋</span>',
 
-            // Icônes d'état
-            
-            'published' => '<span style="main-right: 12px; font-size: 28px;">✅</span>',
-            'private' => '<span style="margin-right: 12px; font-size: 28px;">🔒</span>',
+            'actualiser' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔄</span>',
+            'revision' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔄</span>',
+
+            'pending' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⏳</span>',
+            'attente' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⏳</span>',
+            'loading' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⏳</span>',
+            'load' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⏳</span>',
+
+            'drafts' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📝</span>',
+            'draft' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📝</span>',
+            'brouillon' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📝</span>',
+            'brouillons' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📝</span>',
+
+            'news' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📰</span>',
+            'submission' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📰</span>',
+
+            'valid' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">✅</span>',
+            'ok' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">✅</span>',
+
+            'error' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">❌</span>',
+            'negatif' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">❌</span>',
+            'negative' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">❌</span>',
+
+            'published' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🌐</span>',
+            'unpublished' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🚫</span>',
+
+            'test' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🧪</span>',
+
+            'private' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔒</span>',
             
             // Icônes d'action
-            'create' => '<span style="margin-right: 12px; font-size: 28px;">➕</span>',
-            'edit' => '<span style="margin-right: 12px; font-size: 28px;">✏️</span>',
-            'settings' => '<span style="margin-right: 12px; font-size: 28px;">⚙️</span>',
-            'parametres' => '<span style="margin-right: 12px; font-size: 28px;">⚙️</span>',
-            'actions' => '<span style="margin-right: 12px; font-size: 28px;">⚡</span>',
-            
+            'create' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">➕</span>',
+            'edit' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">✏️</span>',
+            'settings' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⚙️</span>',
+            'parametres' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⚙️</span>',
+            'actions' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⚡</span>',
+
             // Icônes utilitaires
-            'link' => '<span style="margin-right: 12px; font-size: 28px;">🔗</span>',
-            'calendar' => '<span style="margin-right: 12px; font-size: 28px;">📅</span>',
-            
+            'link' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔗</span>',
+            'calendar' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📅</span>',
+
             // Icônes feedback
-            'info' => '<span style="margin-right: 12px; font-size: 28px;">ℹ️</span>',
-            'warning' => '<span style="margin-right: 12px; font-size: 28px;">⚠️</span>',
-            'success' => '<span style="margin-right: 12px; font-size: 28px;">✅</span>',
-            'error' => '<span style="margin-right: 12px; font-size: 28px;">❌</span>',
-            'help' => '<span style="margin-right: 12px; font-size: 28px;">❓</span>',
-            
+            'info' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">ℹ️</span>',
+            'warning' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⚠️</span>',
+            'success' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">✅</span>',
+            'error' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">❌</span>',
+            'help' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">❓</span>',
+
             // Icônes spéciales
-            'trophy' => '<span style="margin-right: 12px; font-size: 28px;">🏆</span>',
-            'fire' => '<span style="margin-right: 12px; font-size: 28px;">🔥</span>',
-            'rocket' => '<span style="margin-right: 12px; font-size: 28px;">🚀</span>',
-            'heart' => '<span style="margin-right: 12px; font-size: 28px;">❤️</span>',
-            
+            'trophy' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🏆</span>',
+            'fire' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔥</span>',
+            'rocket' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🚀</span>',
+
             // Icônes métier gaming
-            'controller' => '<span style="margin-right: 12px; font-size: 28px;">🕹️</span>',
-            'joystick' => '<span style="margin-right: 12px; font-size: 28px;">🎯</span>',
-            'dice' => '<span style="margin-right: 12px; font-size: 28px;">🎲</span>',
-            'screen' => '<span style="margin-right: 12px; font-size: 28px;">💻</span>'
+            'controller' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🕹️</span>',
+            'joystick' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🎯</span>',
+            'dice' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🎲</span>',
+            'screen' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💻</span>'
         );
         
         return isset($icons[$icon_id]) ? $icons[$icon_id] : '';

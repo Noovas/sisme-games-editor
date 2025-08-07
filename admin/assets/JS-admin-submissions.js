@@ -1,5 +1,5 @@
 /**
- * File: /sisme-games-editor/admin/assets/admin-submissions.js
+ * File: /sisme-games-editor/admin/assets/JS-admin-submissions.js
  * JavaScript pour l'interface admin des soumissions
  * 
  * RESPONSABILITÉ:
@@ -70,7 +70,6 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success && response.data) {
-                    // Mettre en cache et afficher
                     detailsCache[submissionId] = response.data;
                     renderDetails($detailsRow, response.data);
                     updateButton($button, 'expanded');
@@ -100,14 +99,13 @@ jQuery(document).ready(function($) {
     function renderDetails($detailsRow, data) {
         const gameData = data.game_data || {};
         const metadata = data.metadata || {};
-        
-        let html = '<div class="admin-details-data">';
-        
-        // === SECTION INFORMATIONS ===
-        html += '<div class="admin-detail-section">';
-        html += '<div class="admin-detail-title">🎮 Informations du Jeu</div>';
-        html += '<div class="admin-detail-content">';
-        
+
+        let html = '<div class="sisme-admin-card sisme-admin-card-no-transformation sisme-admin-gap-6 sisme-admin-flex-col">';
+        html += '<h2 class="sisme-admin-card-header">🎮 Informations</h2>';
+        html += '<div class="sisme-admin-grid sisme-admin-grid-2">';
+        // === SECTION DÉTAILS DU JEU ===
+        html += '<div class="sisme-admin-card">';
+        html += '<h3 class="sisme-admin-card-header">🎮 Détails du jeu</h3>';
         if (gameData.game_name) {
             html += `<p><strong>Nom :</strong> ${escapeHtml(gameData.game_name)}</p>`;
         }
@@ -126,14 +124,11 @@ jQuery(document).ready(function($) {
                 : gameData.game_description;
             html += `<p><strong>Description :</strong><br>${escapeHtml(shortDesc)}</p>`;
         }
-        
-        html += '</div></div>';
+        html += '</div>';
         
         // === SECTION MÉTADONNÉES ===
-        html += '<div class="admin-detail-section">';
-        html += '<div class="admin-detail-title">📋 Métadonnées</div>';
-        html += '<div class="admin-detail-content">';
-        
+        html += '<div class="sisme-admin-card">';
+        html += '<h3 class="sisme-admin-card-header">📋 Métadonnées</h3>';       
         if (metadata.submitted_at) {
             html += `<p><strong>Soumis le :</strong> ${formatDate(metadata.submitted_at)}</p>`;
         }
@@ -143,15 +138,12 @@ jQuery(document).ready(function($) {
         if (metadata.version) {
             html += `<p><strong>Version :</strong> ${escapeHtml(metadata.version)}</p>`;
         }
+        html += '</div>';
         
-        html += '</div></div>';
-        
-        // === SECTION CATÉGORIES (si disponibles) ===
+        // === SECTION CATÉGORIES ===
         if (gameData.game_genres || gameData.game_platforms || gameData.game_modes) {
-            html += '<div class="admin-detail-section">';
-            html += '<div class="admin-detail-title">🏷️ Catégories</div>';
-            html += '<div class="admin-detail-content">';
-            
+            html += '<div class="sisme-admin-card">';
+            html += '<h3 class="sisme-admin-card-header">🏷️ Catégories</h3>';  
             if (gameData.game_genres && gameData.game_genres.length) {
                 const genreNames = data.genres_formatted && data.genres_formatted.length 
                     ? data.genres_formatted.join(', ')
@@ -164,20 +156,16 @@ jQuery(document).ready(function($) {
             if (gameData.game_modes && gameData.game_modes.length) {
                 html += `<p><strong>Modes :</strong> ${gameData.game_modes.join(', ')}</p>`;
             }
-            
-            html += '</div></div>';
+            html += '</div>';
         }
         
-        // === SECTION LIENS (si disponibles) ===
+        // === SECTION LIENS ===
         if (gameData.external_links || gameData.game_trailer) {
-            html += '<div class="admin-detail-section">';
-            html += '<div class="admin-detail-title">🔗 Liens</div>';
-            html += '<div class="admin-detail-content">';
-            
+            html += '<div class="sisme-admin-card">';
+            html += '<h3 class="sisme-admin-card-header">🔗 Liens</h3>';
             if (gameData.game_trailer) {
                 html += `<p><strong>Trailer :</strong> <a href="${escapeHtml(gameData.game_trailer)}" target="_blank">Voir la vidéo</a></p>`;
             }
-            
             if (gameData.external_links) {
                 for (const [platform, url] of Object.entries(gameData.external_links)) {
                     if (url) {
@@ -185,59 +173,47 @@ jQuery(document).ready(function($) {
                     }
                 }
             }
-            
             html += '</div></div>';
         }
         
         // === SECTION MÉDIAS ===
         if ((data.covers && (data.covers.horizontal || data.covers.vertical)) || (data.screenshots && data.screenshots.length)) {
-            html += '<div class="admin-detail-section admin-media-full">';
-            html += '<div class="admin-detail-title">🖼️ Médias</div>';
-            html += '<div class="admin-detail-content">';
-            // Covers sur une ligne
+            html += '<div class="sisme-admin-card">';
+            html += '<h3 class="sisme-admin-card-header">🖼️ Médias</h3>';
             if (data.covers && (data.covers.horizontal || data.covers.vertical)) {
-                html += '<div class="admin-covers-row">';
+                html += '<div class="sisme-admin-thumb-group">';
                 if (data.covers.horizontal) {
-                    html += `<div class="admin-cover-item"><a href="${escapeHtml(data.covers.horizontal.url)}" target="_blank"><img src="${escapeHtml(data.covers.horizontal.thumb)}" alt="Cover H" /></a><span class="admin-media-label">Horizontal</span></div>`;
+                    html += `<a data-overlay="Horizontale" class="sisme-admin-thumb sisme-admin-thumb-2xl sisme-admin-thumb-hover-blue sisme-admin-thumb-overlay" href="${escapeHtml(data.covers.horizontal.url)}" target="_blank"><img src="${escapeHtml(data.covers.horizontal.thumb)}"/></a>`;
                 }
                 if (data.covers.vertical) {
-                    html += `<div class="admin-cover-item"><a href="${escapeHtml(data.covers.vertical.url)}" target="_blank"><img src="${escapeHtml(data.covers.vertical.thumb)}" alt="Cover V" /></a><span class="admin-media-label">Vertical</span></div>`;
+                    html += `<a data-overlay="Verticale" class="sisme-admin-thumb sisme-admin-thumb-2xl sisme-admin-thumb-hover-green sisme-admin-thumb-overlay" href="${escapeHtml(data.covers.vertical.url)}" target="_blank"><img src="${escapeHtml(data.covers.vertical.thumb)}"/></a>`;
                 }
-                html += '</div>';
             }
-            // Screenshots en grid
             if (data.screenshots && data.screenshots.length) {
-                html += `<div class="admin-screenshots-grid">`;
                 data.screenshots.forEach((shot, i) => {
-                    html += `<div class="admin-screenshot-item"><a href="${escapeHtml(shot.url)}" target="_blank"><img src="${escapeHtml(shot.thumb)}" alt="Screenshot ${i+1}" /></a><span class="admin-media-label">Screenshot #${i+1}</span></div>`;
+                    html += `<a data-overlay="Screenshot ${i + 1}" class="sisme-admin-thumb sisme-admin-thumb-2xl sisme-admin-thumb-hover-purple sisme-admin-thumb-overlay" href="${escapeHtml(shot.url)}" target="_blank"><img src="${escapeHtml(shot.thumb)}"/></a>`;
                 });
-                html += '</div>';
             }
             html += '</div></div>';
         }
 
         // === SECTION SECTIONS DÉTAILLÉES ===
         if (data.sections && data.sections.length) {
-            html += '<div class="admin-detail-section admin-sections-full">';
-            html += '<div class="admin-detail-title">📝 Sections détaillées</div>';
-            html += '<div class="admin-detail-content">';
+            html += '<div class="sisme-admin-card">';
+            html += '<h3 class="sisme-admin-card-header">📝 Sections détaillées</h3>';
+            html += '<div class="sisme-admin-grid sisme-admin-grid-3">';
             data.sections.forEach((section, i) => {
-                html += `<div class="admin-section-detail" style="text-align:center;">`;
-                html += `<h5>${escapeHtml(section.title)}</h5>`;
-                html += `<div class="admin-section-content">${escapeHtml(section.content)}</div>`;
+                html += '<div class="sisme-admin-card sisme-admin-flex-center sisme-admin-flex-col">';
+                html += `<h3 class="sisme-admin-card-header">${escapeHtml(section.title)}</h3>`;
+                html += `<div class="sisme-admin-content">${escapeHtml(section.content)}</div>`;
                 if (section.image) {
-                    html += `<div class="admin-section-image-full"><a href="${escapeHtml(section.image.url)}" target="_blank"><img src="${escapeHtml(section.image.url)}" alt="${escapeHtml(section.title)}" style="width:100%;max-width:900px;display:block;margin:0 auto;" /></a></div>`;
+                    html += `<div class="sisme-admin-image"><a href="${escapeHtml(section.image.url)}" target="_blank"><img src="${escapeHtml(section.image.url)}" alt="${escapeHtml(section.title)}"/></a></div>`;
                 }
                 html += '</div>';
-                if (i < data.sections.length - 1) {
-                    html += '<div class="admin-section-separator"></div>';
-                }
             });
-            html += '</div></div>';
+            html += '</div>';
         }
-
         html += '</div>';
-        // Injecter le HTML
         $detailsRow.find('.admin-details-content').html(html);
     }
     

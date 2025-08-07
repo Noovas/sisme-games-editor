@@ -207,7 +207,7 @@ class Sisme_Admin_Developers {
         
         wp_enqueue_script(
             'sisme-admin-submissions',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/admin-submissions.js',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/JS-admin-submissions.js',
             array('jquery'),
             SISME_GAMES_EDITOR_VERSION,
             true

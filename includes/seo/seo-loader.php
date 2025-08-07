@@ -203,7 +203,7 @@ class Sisme_SEO_Loader {
         // Utiliser le système CSS admin unifié uniquement
         wp_enqueue_style(
             'sisme-admin-shared',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/admin-shared.css',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/CSS-admin-shared.css',
             array(),
             SISME_GAMES_EDITOR_VERSION
         );

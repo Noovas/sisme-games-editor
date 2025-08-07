@@ -11,7 +11,7 @@
  * 
  * DÉPENDANCES:
  * - Sisme_Dev_Editor_Manager (API CRUD)
- * - admin-shared.css (styles cohérents)
+ * - CSS-admin-shared.css (styles cohérents)
  */
 
 if (!defined('ABSPATH')) {

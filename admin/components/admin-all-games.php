@@ -5,11 +5,11 @@
  * 
  * RESPONSABILITÉ:
  * - Interface d'affichage uniquement (render methods)
- * - Utilise les fonctions métier de php-admin-submission-functions.php
+ * - Utilise les fonctions métier de PHP-admin-submission-functions.php
  * 
  * ARCHITECTURE:
  * - admin-all-games.php → Interface & Affichage
- * - php-admin-submission-functions.php → Logique métier & Data
+ * - PHP-admin-submission-functions.php → Logique métier & Data
  */
 
 if (!defined('ABSPATH')) {
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Inclure la logique métier
-require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/php-admin-submission-functions.php';
+require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-submission-functions.php';
 
 class Sisme_Admin_All_Games {
     
@@ -52,6 +52,8 @@ class Sisme_Admin_All_Games {
         $page->render_start();
         self::render_game_stats();
         self::render_submission_pending();
+        self::render_submission_draft();
+        self::render_game_list();
         $page->render_end();    
     }
 
@@ -80,7 +82,7 @@ class Sisme_Admin_All_Games {
             'Soumissions en attente', 
             'submission', 
             'Toutes les soumissions en attente de validation',
-            '',
+            'sisme-admin-flex-col sisme-admin-gap-6',
             false,
             self::render_submission_game_pending() . self::render_submission_revision_pending()
         );
@@ -103,7 +105,7 @@ class Sisme_Admin_All_Games {
         ob_start();
         Sisme_Admin_Page_Wrapper::render_card(
             'Les révisions', 
-            'draft', 
+            'revision', 
             '',
             '',
             false,
@@ -112,17 +114,47 @@ class Sisme_Admin_All_Games {
         return ob_get_clean();
     }
 
+    public static function render_submission_draft() {
+        Sisme_Admin_Page_Wrapper::render_card(
+            'Brouillon en cours', 
+            'draft', 
+            'Toutes les brouillons en cours',
+            'sisme-admin-flex-col sisme-admin-gap-6',
+            false,
+            self::render_submission_game_draft() . self::render_submission_revision_draft()
+        );
+    }
 
+    public static function render_submission_game_draft() {
+        ob_start();
+        Sisme_Admin_Page_Wrapper::render_card(
+            'Les brouillons de jeux', 
+            'game', 
+            '',
+            '',
+            false,
+            self::render_table('draft', 'exclude_revisions')
+        );
+        return ob_get_clean();
+    }
+
+    public static function render_submission_revision_draft() {
+        ob_start();
+        Sisme_Admin_Page_Wrapper::render_card(
+            'Les brouillons de révisions', 
+            'revision', 
+            '',
+            '',
+            false,
+            self::render_table('draft', 'only_revisions')
+        );
+        return ob_get_clean();
+    }
 
     /**
      * Affiche la liste complète des jeux
      */
     public static function render_game_list() {
-        Sisme_Admin_Page_Wrapper::render_card_start(
-            'Liste des jeux',
-            'game',
-            'Catalogue complet des jeux publiés et en cours'
-        );
         $all_games = get_terms(array(
             'taxonomy' => 'post_tag',
             'hide_empty' => false,
@@ -133,8 +165,14 @@ class Sisme_Admin_All_Games {
                 )
             )
         ));
-        self::render_games_table($all_games);
-        Sisme_Admin_Page_Wrapper::render_card_end();
+        Sisme_Admin_Page_Wrapper::render_card(
+            'Liste des jeux',
+            'lib',
+            'Catalogue complet des jeux publiés et en cours',
+            '',
+            false,
+            self::render_games_table($all_games)
+        );
     }
 
     /**
@@ -173,6 +211,7 @@ class Sisme_Admin_All_Games {
      * Rendu du tableau des jeux
      */
     private static function render_games_table($games) {
+        ob_start();
         ?>
         <div class="sisme-admin-table-container">
             <table class="sisme-admin-table">
@@ -180,8 +219,8 @@ class Sisme_Admin_All_Games {
                     <tr>
                         <th>Jeu</th>
                         <th>ID</th>
-                        <th>Status</th>
-                        <th>Développeur</th>
+                        <th>État</th>
+                        <th>Propriétaire</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -196,14 +235,46 @@ class Sisme_Admin_All_Games {
                                 <?php echo $game->term_id; ?>
                             </span>
                         </td>
+                        <!-- Afficher le statut du jeu : is_featured is_team_choice etc.. -->
                         <td>
-                            <!-- Afficher le statut du jeu : is_featured is_team_choice etc.. -->
+                            <?php
+                            $game_meta = get_term_meta($game->term_id);
+                            $is_featured = !empty($game_meta['game_is_featured'][0]) && $game_meta['game_is_featured'][0] === 'true';
+                            $is_team_choice = !empty($game_meta['is_team_choice'][0]) ? $game_meta['is_team_choice'][0] : false;
+                            ?>
+                            <div class="">
+                                <?php if ($is_featured): ?>
+                                    <span class="sisme-admin-badge sisme-admin-badge-purple"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('featured', 0, 14); ?></span>
+                                <?php endif; ?>
+                                <?php if ($is_team_choice): ?>
+                                    <span class="sisme-admin-badge sisme-admin-badge-danger"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('team-choice', 0, 14); ?></span>
+                                <?php endif; ?>
+                            </div>
                         </td>
+                        <!-- Afficher l'utilisateur propriétaire de la page du jeu (Placeholder) -->
+                        <!-- TODO -->
                         <td>
-                            <!-- Afficher l'utilisateur propriétaire de la page du jeu -->
+                            <?php
+                            $developer_id = !empty($game_meta['developer_user_id'][0]) ? $game_meta['developer_user_id'][0] : null;
+                            $developer_info = $developer_id ? get_userdata($developer_id) : null;
+                            ?>
+                            <?php if ($developer_info): ?>
+                                <div class="sisme-admin-flex-col-sm">
+                                    <strong><?php echo esc_html($developer_info->display_name); ?></strong>
+                                    <small>ID: <?php echo esc_html($developer_info->ID); ?></small>
+                                </div>
+                            <?php else: ?>
+                                <span class="sisme-admin-badge sisme-admin-badge-secondary">👤 Inconnu</span>
+                            <?php endif; ?>
                         </td>
+                        <!-- Afficher les boutons d'action (Placeholder) -->
+                        <!-- TODO -->
                         <td>
-                            <!-- Afficher les boutons d'action -->
+                            <div class="sisme-admin-action-group">
+                                <button id="view-game-<?php echo esc_attr($game->term_id); ?>" class="sisme-admin-action-btn" title="Voir le jeu"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('link', 0, 14); ?></button>
+                                <button id="unpublish-game-<?php echo esc_attr($game->term_id); ?>" class="sisme-admin-action-btn" title="Dépublier"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('unpublish', 0, 14); ?></button>
+                                <button id="publish-game-<?php echo esc_attr($game->term_id); ?>" class="sisme-admin-action-btn" title="Publier"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('published', 0, 14); ?></button>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -211,6 +282,7 @@ class Sisme_Admin_All_Games {
             </table>
         </div>
         <?php
+        return ob_get_clean();
     }
 
     /**
@@ -282,7 +354,7 @@ class Sisme_Admin_All_Games {
         
         wp_enqueue_script(
             'sisme-admin-submissions',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/admin-submissions.js',
+            SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/JS-admin-submissions.js',
             array('jquery'),
             SISME_GAMES_EDITOR_VERSION,
             true
@@ -313,8 +385,8 @@ class Sisme_Admin_All_Games {
                 <table class="sisme-admin-table">
                     <thead>
                         <tr>
-                            <th>Développeur</th>
                             <th>Jeu/Révision</th>
+                            <th>Développeur</th>
                             <th>Date d'archivage</th>
                             <th>Motif</th>
                             <th>Actions</th>
@@ -372,36 +444,32 @@ class Sisme_Admin_All_Games {
         
         ob_start();
         ?>
-        <tr>
-            <!-- Développeur -->
-            <td>
-                <div class="sisme-admin-info-group">
-                    <strong><?php echo esc_html($user_data['display_name'] ?? 'Inconnu'); ?></strong>
-                    <small>ID: <?php echo esc_html($user_data['user_id'] ?? 'N/A'); ?></small>
-                </div>
-            </td>
-            
+        <tr>            
             <!-- Jeu/Révision -->
             <td>
-                <div class="sisme-admin-info-group">
+                <div class="sisme-admin-flex-col-sm">
                     <?php if ($is_revision): ?>
-                        <span class="sisme-admin-badge sisme-admin-badge-purple">🔄 RÉVISION</span>
+                        <span class="sisme-admin-badge-purple">🔄</span>
                     <?php endif; ?>
                     <strong><?php echo esc_html($game_name); ?></strong>
                     <small class="sisme-admin-small sisme-admin-code">ID: <?php echo esc_html($submission['id']); ?></small>
                 </div>
             </td>
-            
+            <!-- Développeur -->
+            <td>
+                <div class="sisme-admin-flex-col-sm">
+                    <strong><?php echo esc_html($user_data['display_name'] ?? 'Inconnu'); ?></strong>
+                    <small>ID: <?php echo esc_html($user_data['user_id'] ?? 'N/A'); ?></small>
+                </div>
+            </td>
             <!-- Date d'archivage -->
             <td>
                 <time><?php echo esc_html($archived_at ?: 'N/A'); ?></time>
             </td>
-            
             <!-- Motif -->
             <td>
                 <span class="sisme-admin-small"><?php echo esc_html($display_reason); ?></span>
             </td>
-            
             <!-- Actions -->
             <td>
                 <div class="sisme-admin-action-group">
@@ -509,12 +577,12 @@ class Sisme_Admin_All_Games {
         <table class="sisme-admin-table">
             <thead>
                 <tr>
-                    <th>Développeur</th>
-                    <th>Jeu</th>
-                    <th>Médias</th>
-                    <th>Statut</th>
-                    <th>Date</th>
-                    <th>Actions</th>
+                    <th class="col-game">Jeu</th>
+                    <th class="col-developer">Développeur</th>
+                    <th class="col-media">Médias</th>
+                    <th class="col-status">Statut</th>
+                    <th class="col-date">Date</th>
+                    <th class="col-actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -563,17 +631,9 @@ class Sisme_Admin_All_Games {
             data-status="<?php echo esc_attr($status); ?>"
             data-is-revision="<?php echo $is_revision ? 'true' : 'false'; ?>">
 
-            <!-- Développeur -->
-            <td class="col-developer">
-                <div class="sisme-admin-info-group">
-                    <strong><?php echo esc_html($user_data['display_name'] ?? 'Inconnu'); ?></strong>
-                    <small>ID: <?php echo esc_html($user_data['user_id'] ?? 'N/A'); ?></small>
-                </div>
-            </td>
-            
             <!-- Jeu -->
             <td class="col-game">
-                <div class="sisme-admin-info-group game-info">
+                <div class="sisme-admin-flex-col-sm">
                     <?php if ($is_revision): ?>
                         <span class="sisme-admin-badge sisme-admin-badge-purple">🔄 RÉVISION</span>
                     <?php endif; ?>
@@ -585,6 +645,14 @@ class Sisme_Admin_All_Games {
                         <small class="sisme-admin-small"><?php echo esc_html($studio_name); ?></small>
                     <?php endif; ?>
                     <small class="sisme-admin-small sisme-admin-code">ID: <?php echo esc_html($submission['id']); ?></small>
+                </div>
+            </td>
+
+            <!-- Développeur -->
+            <td class="col-developer">
+                <div class="sisme-admin-flex-col-sm">
+                    <strong><?php echo esc_html($user_data['display_name'] ?? 'Inconnu'); ?></strong>
+                    <small>ID: <?php echo esc_html($user_data['user_id'] ?? 'N/A'); ?></small>
                 </div>
             </td>
             
@@ -635,10 +703,13 @@ class Sisme_Admin_All_Games {
         
         ob_start();
         ?>
-        <div class="sisme-admin-flex">
+        <div class="sisme-admin-thumb-group">
             <?php if (!empty($covers['horizontal'])): ?>
                 <a href="<?php echo esc_url(wp_get_attachment_url($covers['horizontal'])); ?>" 
-                   target="_blank" class="sisme-admin-thumb" title="Cover horizontale">
+                   target="_blank" 
+                   class="sisme-admin-thumb sisme-admin-thumb-sm sisme-admin-thumb-hover-blue sisme-admin-thumb-overlay" 
+                   data-overlay="🔗"
+                   title="Cover horizontale">
                     <img src="<?php echo esc_url(wp_get_attachment_image_url($covers['horizontal'], 'thumbnail')); ?>" 
                          alt="Cover H" />
                 </a>
@@ -646,26 +717,30 @@ class Sisme_Admin_All_Games {
             
             <?php if (!empty($covers['vertical'])): ?>
                 <a href="<?php echo esc_url(wp_get_attachment_url($covers['vertical'])); ?>" 
-                   target="_blank" class="sisme-admin-thumb" title="Cover verticale">
+                   target="_blank" 
+                   class="sisme-admin-thumb sisme-admin-thumb-sm sisme-admin-thumb-hover-green sisme-admin-thumb-overlay" 
+                   data-overlay="🔗"
+                   title="Cover verticale">
                     <img src="<?php echo esc_url(wp_get_attachment_image_url($covers['vertical'], 'thumbnail')); ?>" 
                          alt="Cover V" />
                 </a>
             <?php endif; ?>
             
             <?php if (!empty($screenshots)): ?>
-                <div class="sisme-admin-flex">
-                    <?php foreach (array_slice($screenshots, 0, 3) as $screenshot_id): ?>
-                        <a href="<?php echo esc_url(wp_get_attachment_url($screenshot_id)); ?>" 
-                           target="_blank" class="sisme-admin-thumb" title="Screenshot">
-                            <img src="<?php echo esc_url(wp_get_attachment_image_url($screenshot_id, 'thumbnail')); ?>" 
-                                 alt="Screenshot" />
-                        </a>
-                    <?php endforeach; ?>
-                    
-                    <?php if (count($screenshots) > 3): ?>
-                        <span class="sisme-admin-badge sisme-admin-badge-secondary">+<?php echo count($screenshots) - 3; ?></span>
-                    <?php endif; ?>
-                </div>
+                <?php foreach (array_slice($screenshots, 0, 3) as $screenshot_id): ?>
+                    <a href="<?php echo esc_url(wp_get_attachment_url($screenshot_id)); ?>" 
+                       target="_blank" 
+                       class="sisme-admin-thumb sisme-admin-thumb-sm sisme-admin-thumb-hover-purple sisme-admin-thumb-overlay" 
+                       data-overlay="🔗"
+                       title="Screenshot">
+                        <img src="<?php echo esc_url(wp_get_attachment_image_url($screenshot_id, 'thumbnail')); ?>" 
+                             alt="Screenshot" />
+                    </a>
+                <?php endforeach; ?>
+                
+                <?php if (count($screenshots) > 3): ?>
+                    <span class="sisme-admin-badge sisme-admin-badge-secondary">+<?php echo count($screenshots) - 3; ?></span>
+                <?php endif; ?>
             <?php endif; ?>
             
             <?php if (empty($covers) && empty($screenshots)): ?>

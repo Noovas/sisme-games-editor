@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/admin/components/php-admin-submission-functions.php
+ * File: /sisme-games-editor/admin/components/PHP-admin-submission-functions.php
  * Interface admin moderne pour les soumissions de jeux
  * 
  * RESPONSABILITÉ:
@@ -11,12 +11,13 @@
  * 
  * DÉPENDANCES:
  * - game-submission système existant (aucune modification)
- * - admin-submissions.js (comportements admin)
+ * - JS-admin-submissions.js (comportements admin)
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
+
 
 add_action('wp_ajax_sisme_admin_get_submission_details', ['Sisme_Admin_Submission_Functions', 'ajax_get_submission_details']);
 add_action('wp_ajax_sisme_admin_reject_submission', ['Sisme_Admin_Submission_Functions', 'ajax_reject_submission']);

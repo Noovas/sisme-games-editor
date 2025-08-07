@@ -115,7 +115,7 @@ class SismeGamesEditor {
         if (strpos($hook, 'sisme-games') !== false) {
             wp_enqueue_style(
                 'sisme-admin-shared',
-                SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/admin-shared.css',
+                SISME_GAMES_EDITOR_PLUGIN_URL . 'admin/assets/CSS-admin-shared.css',
                 array(),
                 SISME_GAMES_EDITOR_VERSION
             );
@@ -126,7 +126,7 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/assets-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php';
         
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/php-admin-submission-functions.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-submission-functions.php';
         
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-data-inspector.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-developers.php';
