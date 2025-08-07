@@ -223,6 +223,8 @@
 .sisme-admin-grid-2 { grid-template-columns: repeat(2, 1fr); }
 .sisme-admin-grid-3 { grid-template-columns: repeat(3, 1fr); }
 .sisme-admin-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.sisme-admin-grid-5 { grid-template-columns: repeat(5, 1fr); }
+.sisme-admin-grid-6 { grid-template-columns: repeat(6, 1fr); }
 
 @media (max-width: 768px) {
     .sisme-admin-grid-2,
@@ -298,9 +300,20 @@
     transform: translateY(-1px);
 }
 
+.sisme-admin-card-no-transformation:hover {
+    box-shadow: none !important;
+    transform: none !important;
+}
+
 .sisme-admin-card-dark {
     background: var(--sisme-admin-dark-bg-light);
     border: 1px solid var(--sisme-admin-gray-700);
+    color: var(--sisme-admin-dark-text);
+}
+
+.sisme-admin-card-dark-light {
+    background: var(--sisme-admin-light-bg-gray);
+    border: 1px solid var(--sisme-admin-gray-200);
     color: var(--sisme-admin-dark-text);
 }
 
@@ -569,6 +582,14 @@
     font-weight: 500;
 }
 
+.sisme-admin-stat-card-special {
+    border-left: 4px solid var(--sisme-admin-purple);
+}
+
+.sisme-admin-stat-card-special .sisme-admin-stat-number {
+    color: var(--sisme-admin-purple);
+}
+
 .sisme-admin-stat-card-success {
     border-left: 4px solid var(--sisme-admin-success);
 }
@@ -674,6 +695,8 @@
 .sisme-admin-opacity-50 { opacity: 0.5 !important; }
 .sisme-admin-opacity-75 { opacity: 0.75 !important; }
 
+.sisme-admin-transformation-none { transform: none !important; }
+
 /* Classes spéciales pour l'inspecteur de données */
 .sisme-admin-code {
     font-family: 'Courier New', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
@@ -719,6 +742,10 @@
 
 .sisme-admin-pulse {
     animation: sisme-admin-pulse 1.5s infinite;
+}
+
+.sisme-admin-transition-none {
+    transition: none !important;
 }
 
 /* ========================================
@@ -888,15 +915,15 @@
     flex: 1 !important;
 }
 
-.sisme-gap-2 {
+.sisme-admin-gap-2 {
     gap: var(--sisme-admin-spacing-sm) !important;
 }
 
-.sisme-gap-4 {
+.sisme-admin-gap-4 {
     gap: var(--sisme-admin-spacing-md) !important;
 }
 
-.sisme-gap-6 {
+.sisme-admin-gap-6 {
     gap: var(--sisme-admin-spacing-lg) !important;
 }
 

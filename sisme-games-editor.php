@@ -126,13 +126,15 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/assets-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php';
         
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-submission-tab.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/php-admin-submission-functions.php';
+        
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-data-inspector.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-developers.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-vedettes.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-migration.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-notifications.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-email.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-all-games.php';
 
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-communication.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-outils.php';
@@ -146,6 +148,7 @@ class SismeGamesEditor {
         Sisme_Admin_Outils::init();
         Sisme_Admin_Communication::init();
         Sisme_Admin_Games::init();
+        Sisme_Admin_All_Games::init();
         Sisme_Admin_Notifications::init();
         Sisme_Admin_Email::init();
         Sisme_Admin_Users::init();
@@ -158,7 +161,7 @@ class SismeGamesEditor {
             'Sisme Games',
             'manage_options',
             'sisme-games-tableau-de-bord',
-            array($this, 'tableau_de_bord'),
+            array(__CLASS__, 'render'),
             'dashicons-games',
             30
         );
@@ -170,7 +173,7 @@ class SismeGamesEditor {
             '💻 Tableau de Bord',
             'manage_options',
             'sisme-games-tableau-de-bord',
-            array($this, 'tableau_de_bord')
+            array(__CLASS__, 'render')
         );
     }
 
@@ -178,10 +181,59 @@ class SismeGamesEditor {
     // PAGES ADMIN ESSENTIELLES
     // ===================================
 
-    public function tableau_de_bord() {
-        echo '<div class="wrap"><h1>🎮 Tableau de Bord Sisme Games</h1>';
-        echo '<div class="notice notice-info"><p>Dashboard principal du plugin en développement.</p></div>';
-        echo '</div>';
+    /**
+     * Affiche la page principale du hub de jeux
+     */
+    public static function render() {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+        
+        $page = new Sisme_Admin_Page_Wrapper(
+            'Tableau de Bord',
+            'Gestion de Sisme Games',
+            'pc',
+            '',
+            '',
+            true,
+            'lib',
+            'Catégorie d\'outils'
+        );
+
+        $page->render_start();
+        self::render_menu();
+        $page->render_end();
+    }
+
+    /**
+     * Affiche le contenu du hub de jeux
+     */
+    private static function render_menu() {
+        Sisme_Admin_Page_Wrapper::render_menu_card(
+            'Les Jeux',
+            'games',
+            'Gestion des jeux : Tous les jeux, jeux en vedette',
+            admin_url('admin.php?page=sisme-games-jeux')
+        );
+
+        Sisme_Admin_Page_Wrapper::render_menu_card(
+            'La communication',
+            'communication',
+            'Centre de communication : Emails, Notifications, Statistiques',
+            admin_url('admin.php?page=sisme-games-communication')
+        );
+
+        Sisme_Admin_Page_Wrapper::render_menu_card(
+            'Utilisateurs',
+            'users',
+            'Gestion des utilisateurs : Utilisateurs, Premium, Développeurs',
+            admin_url('admin.php?page=sisme-games-users')
+        );
+
+        Sisme_Admin_Page_Wrapper::render_menu_card(
+            'Les outils',
+            'outils',
+            'Tous les outils : Outils techniques, Migration, SEO, etc.',
+            admin_url('admin.php?page=sisme-games-outils')
+        );
     }
 
     public function init_modules_system() {

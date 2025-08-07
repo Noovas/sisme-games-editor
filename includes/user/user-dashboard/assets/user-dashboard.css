@@ -198,7 +198,7 @@
 .norification-avatar-conteneur {
     display: flex;
     flex-direction: row;
-    gap: var(--sisme-gap-lg);
+    gap: var(--sisme-admin-gap-lg);
     align-items: center;
 }
 

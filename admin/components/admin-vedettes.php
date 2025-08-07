@@ -101,8 +101,6 @@ class Sisme_Admin_Vedettes {
                 $non_featured_games[] = $game;
             }
         }
-
-        // Créer la page
         $page = new Sisme_Admin_Page_Wrapper(
             'Gestion des Vedettes',
             'Interface de gestion des jeux en vedette',
@@ -110,292 +108,255 @@ class Sisme_Admin_Vedettes {
             admin_url('admin.php?page=sisme-games-jeux'),
             'Retour à Jeux'
         );
-
+        
         $page->render_start();
         ?>
-
-        <div class="sisme-admin-layout">
-            
             <?php if ($action_message): ?>
-                <div class="sisme-admin-alert sisme-admin-alert-info">
-                    <?php echo $action_message; ?>
-                </div>
+            <div class="sisme-admin-alert sisme-admin-alert-info">
+                <?php echo $action_message; ?>
+            </div>
             <?php endif; ?>
 
             <!-- Section Statistiques -->
-            <div class="sisme-admin-section">
-                <h2 class="sisme-admin-subtitle">📊 Statistiques</h2>
-                <div class="sisme-admin-stats">
-                    <div class="sisme-admin-stat-card">
-                        <span class="sisme-admin-stat-number"><?php echo count($all_games); ?></span>
-                        <span class="sisme-admin-stat-label">Jeux totaux</span>
-                    </div>
-                    <div class="sisme-admin-stat-card sisme-admin-stat-card-info">
-                        <span class="sisme-admin-stat-number"><?php echo count($featured_games); ?></span>
-                        <span class="sisme-admin-stat-label">Jeux en vedette</span>
-                    </div>
-                    <div class="sisme-admin-stat-card sisme-admin-stat-card-success">
-                        <span class="sisme-admin-stat-number"><?php echo count($non_featured_games); ?></span>
-                        <span class="sisme-admin-stat-label">Jeux disponibles</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section Ajouter aux vedettes -->
-            <div class="sisme-admin-card">
-                <div class="sisme-admin-card-header">
-                    <h2 class="sisme-admin-heading">⭐ Ajouter un jeu aux vedettes</h2>
-                </div>
-                
-                <?php if (!empty($non_featured_games)): ?>
-                    <form method="post" class="sisme-admin-form" id="addFeaturedForm">
-                        <input type="hidden" name="action" value="add_featured">
-                        <input type="hidden" name="game_id" id="selectedGameId">
-                        
-                        <!-- Layout amélioré en 2 colonnes -->
-                        <div class="sisme-admin-grid-2">
-                            
-                            <!-- Colonne gauche: Sélection du jeu -->
-                            <div class="sisme-admin-card">
-                                <div class="sisme-admin-card-header">
-                                    <h3 class="sisme-admin-heading">🎮 Sélection du jeu</h3>
-                                </div>
-                                    
-                                <!-- Zone jeu sélectionné pour AJOUTER = VIOLET -->
-                                <div class="sisme-admin-alert sisme-admin-alert-info sisme-admin-mb-md selected-game sisme-admin-alert-purple" id="selectedGameDisplay">
-                                    <span class="no-game-selected">Aucun jeu sélectionné</span>
-                                </div>
-
-                                <!-- Recherche et liste des jeux -->
-                                <div class="sisme-admin-flex-col">
-                                    <input type="text" 
-                                           id="gameSearchInput" 
-                                           placeholder="🔍 Rechercher un jeu..." 
-                                           class="sisme-admin-input"
-                                           autocomplete="off">
-                                    
-                                    <div class="sisme-admin-card sisme-admin-card-dark game-list sisme-admin-scrollable-container" id="gameList">
-                                        <?php foreach ($non_featured_games as $game): ?>
-                                            <div class="sisme-admin-flex-between sisme-admin-p-sm sisme-admin-border sisme-admin-rounded sisme-admin-mb-sm sisme-admin-cursor-pointer game-item sisme-admin-smooth-transition sisme-admin-item-neutral" 
-                                                 data-game-id="<?php echo $game->term_id; ?>" 
-                                                 data-game-name="<?php echo esc_attr($game->name); ?>"
-                                                 data-search="<?php echo esc_attr(strtolower($game->name . ' ' . $game->term_id)); ?>">
-                                                <span class="game-name sisme-admin-text-black sisme-admin-font-medium"><?php echo esc_html($game->name); ?></span>
-                                                <span class="sisme-admin-badge sisme-admin-badge-secondary game-id">ID: <?php echo $game->term_id; ?></span>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Colonne droite: Configuration -->
-                            <div class="sisme-admin-card">
-                                <div class="sisme-admin-card-header">
-                                    <h3 class="sisme-admin-heading">⚙️ Configuration de la vedette</h3>
-                                </div>
-                                
-                                <div class="sisme-admin-flex-col">
-                                    <div class="sisme-admin-flex-col-sm">
-                                        <label for="priority" class="sisme-admin-heading">Priorité d'affichage</label>
-                                        <input type="number" id="priority" name="priority" value="50" min="1" max="100" class="sisme-admin-input">
-                                        <small class="sisme-admin-comment">Plus élevé = plus prioritaire (1-100)</small>
-                                    </div>
-                                    
-                                    <div class="sisme-admin-flex-col-sm">
-                                        <label for="sponsor" class="sisme-admin-heading">Sponsor (optionnel)</label>
-                                        <input type="text" id="sponsor" name="sponsor" placeholder="Nom du sponsor" class="sisme-admin-input">
-                                        <small class="sisme-admin-comment">Laisser vide si aucun sponsor</small>
-                                    </div>
-                                    
-                                    <div class="sisme-admin-flex sisme-admin-mt-lg">
-                                        <button type="submit" class="sisme-admin-btn sisme-admin-btn-success sisme-admin-btn-lg" id="submitBtn" disabled>
-                                            ⭐ Ajouter aux vedettes
-                                        </button>
-                                        <button type="button" class="sisme-admin-btn sisme-admin-btn-secondary" onclick="resetForm()">
-                                            🔄 Réinitialiser
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                <?php else: ?>
-                    <div class="sisme-admin-alert sisme-admin-alert-success sisme-admin-text-center">
-                        <p class="sisme-admin-heading">🎉 Tous les jeux sont déjà en vedette !</p>
-                    </div>
-                <?php endif; ?>
-            </div>
-
-            <!-- Section Retirer des vedettes -->
-            <div class="sisme-admin-card">
-                <div class="sisme-admin-card-header">
-                    <h2 class="sisme-admin-heading">🗑️ Retirer des vedettes</h2>
-                </div>
-                
-                <?php if (!empty($featured_games)): ?>
-                    <form method="post" class="sisme-admin-form" id="removeFeaturedForm">
-                        <input type="hidden" name="action" value="remove_featured">
-                        <input type="hidden" name="game_id" id="selectedRemoveGameId">
-                        
-                        <!-- Layout en 2 colonnes (même structure) -->
-                        <div class="sisme-admin-grid-2">
-                            
-                            <!-- Colonne gauche: Sélection du jeu à retirer -->
-                            <div class="sisme-admin-card">
-                                <div class="sisme-admin-card-header">
-                                    <h3 class="sisme-admin-heading">🎯 Jeu à retirer</h3>
-                                </div>
-                                    
-                                <!-- Zone jeu sélectionné pour SUPPRIMER = ROUGE -->
-                                <div class="sisme-admin-alert sisme-admin-alert-danger sisme-admin-mb-md selected-game" id="selectedRemoveGameDisplay">
-                                    <span class="no-game-selected">Aucun jeu sélectionné</span>
-                                </div>
-
-                                <!-- Recherche et liste des jeux featured -->
-                                <div class="sisme-admin-flex-col">
-                                    <input type="text" 
-                                           id="removeGameSearchInput" 
-                                           placeholder="🔍 Rechercher dans les vedettes..." 
-                                           class="sisme-admin-input"
-                                           autocomplete="off">
-                                    
-                                    <div class="sisme-admin-card sisme-admin-card-dark game-list sisme-admin-scrollable-container" id="removeGameList">
-                                        <?php foreach ($featured_games as $game): ?>
-                                            <div class="sisme-admin-flex-between sisme-admin-p-sm sisme-admin-border sisme-admin-rounded sisme-admin-mb-sm sisme-admin-cursor-pointer featured-game-item sisme-admin-smooth-transition sisme-admin-item-purple" 
-                                                 data-game-id="<?php echo $game->term_id; ?>" 
-                                                 data-game-name="<?php echo esc_attr($game->name); ?>"
-                                                 data-search="<?php echo esc_attr(strtolower($game->name . ' ' . $game->term_id)); ?>">
-                                                <div class="sisme-admin-flex-col-sm">
-                                                    <span class="game-name sisme-admin-text-black sisme-admin-font-medium"><?php echo esc_html($game->name); ?></span>
-                                                    <span class="sisme-admin-badge sisme-admin-badge-secondary featured-badge">⭐ Vedette</span>
-                                                </div>
-                                                <span class="sisme-admin-badge sisme-admin-badge-secondary game-id">ID: <?php echo $game->term_id; ?></span>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Colonne droite: Information et confirmation -->
-                            <div class="sisme-admin-card">
-                                <div class="sisme-admin-card-header">
-                                    <h3 class="sisme-admin-heading">⚠️ Confirmation de suppression</h3>
-                                </div>
-                                
-                                <div class="sisme-admin-flex-col">
-                                    
-                                    <!-- Informations du jeu sélectionné -->
-                                    <div class="sisme-admin-alert sisme-admin-alert-info sisme-admin-hidden" id="selectedGameInfo">
-                                        <div class="sisme-admin-flex-between">
-                                            <strong id="selectedGameName" class="sisme-admin-heading"></strong>
-                                            <span id="selectedGameIdText" class="sisme-admin-badge sisme-admin-badge-info"></span>
-                                        </div>
-                                        <div class="sisme-admin-flex sisme-admin-mt-sm">
-                                            <span class="sisme-admin-badge sisme-admin-badge-secondary">
-                                                Priorité: <strong id="currentPriority"></strong>
-                                            </span>
-                                            <span class="sisme-admin-badge sisme-admin-badge-secondary">
-                                                Sponsor: <strong id="currentSponsor"></strong>
-                                            </span>
-                                        </div>
-                                        <div class="sisme-admin-flex sisme-admin-mt-sm">
-                                            <span class="sisme-admin-badge sisme-admin-badge-info">
-                                                👁️ <strong id="currentViews"></strong> vues
-                                            </span>
-                                            <span class="sisme-admin-badge sisme-admin-badge-success">
-                                                🖱️ <strong id="currentClicks"></strong> clics
-                                            </span>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Warning -->
-                                    <div class="sisme-admin-alert sisme-admin-alert-danger sisme-admin-hidden" id="warningBox">
-                                        <div class="sisme-admin-flex">
-                                            <div class="sisme-admin-text-danger sisme-admin-icon-lg">⚠️</div>
-                                            <div>
-                                                <strong>Attention !</strong><br>
-                                                Ce jeu sera retiré des vedettes et n'apparaîtra plus dans le carrousel.
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Zone d'action -->
-                                    <div class="sisme-admin-flex">
-                                        <button type="submit" class="sisme-admin-btn sisme-admin-btn-danger sisme-admin-btn-lg" id="removeSubmitBtn" disabled>
-                                            🗑️ Retirer des vedettes
-                                        </button>
-                                        <button type="button" class="sisme-admin-btn sisme-admin-btn-secondary" onclick="resetRemoveForm()">
-                                            🔄 Annuler
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                <?php else: ?>
-                    <div class="sisme-admin-alert sisme-admin-alert-warning sisme-admin-text-center">
-                        <p class="sisme-admin-heading">😔 Aucun jeu en vedette actuellement.</p>
-                        <p class="sisme-admin-comment">Utilisez la section ci-dessus pour en ajouter !</p>
-                    </div>
-                <?php endif; ?>
-            </div>
-
-        <!-- Notice d'utilisation du carrousel -->
-        <div class="sisme-admin-card">
-            <div class="sisme-admin-card-header">
-                <h2 class="sisme-admin-heading">🎠 Utilisation du Carrousel Vedettes</h2>
-            </div>
+            <?php 
+            Sisme_Admin_Page_Wrapper::render_card_start(
+                'Statistiques Globales',
+                'stats',
+                '',
+                'sisme-admin-card-no-transformation sisme-admin-stats',
+            );
+                // Stats tous les jeux
+                Sisme_Admin_Page_Wrapper::render_card_start(
+                    'Jeux Totaux',
+                    'games',
+                    '',
+                    'sisme-admin-stat-card sisme-admin-stat-card-info',
+                    true
+                );
+                ?><span class="sisme-admin-stat-number"><?php echo count($all_games); ?></span><?php
+                Sisme_Admin_Page_Wrapper::render_card_end();
+                // Stats jeux vedettes
+                Sisme_Admin_Page_Wrapper::render_card_start(
+                    'Jeux en Vedette',
+                    'vedettes',
+                    '',
+                    'sisme-admin-stat-card sisme-admin-stat-card-special',
+                    true
+                );
+                ?><span class="sisme-admin-stat-number"><?php echo count($featured_games); ?></span><?php
+                Sisme_Admin_Page_Wrapper::render_card_end();
+                // Stats jeux non vedettes
+                Sisme_Admin_Page_Wrapper::render_card_start(
+                    'Jeux Disponibles',
+                    'no-featured',
+                    '',
+                    'sisme-admin-stat-card sisme-admin-stat-card-success',
+                    true
+                );
+                ?><span class="sisme-admin-stat-number"><?php echo count($non_featured_games); ?></span><?php
+                Sisme_Admin_Page_Wrapper::render_card_end();
+            Sisme_Admin_Page_Wrapper::render_card_end();
             
-            <div class="sisme-admin-grid-3">
-                
-                <!-- Shortcode simple -->
-                <div class="sisme-admin-card">
-                    <div class="sisme-admin-card-header">
-                        <h3 class="sisme-admin-heading">Shortcode Simple</h3>
+            ?>
+            <form method="post" class="sisme-admin-form" id="addFeaturedForm"><?php
+                // Section Ajouter aux vedettes
+                Sisme_Admin_Page_Wrapper::render_card_start(
+                    'Sélection des Vedettes',
+                    'games',
+                    '',
+                    'sisme-admin-card-no-transformation sisme-admin-flex-col sisme-admin-gap-6',
+                );
+                ?>
+                <?php if (!empty($non_featured_games)): ?>
+                    <input type="hidden" name="action" value="add_featured">
+                    <input type="hidden" name="game_id" id="selectedGameId">
+                    <div class="sisme-admin-alert sisme-admin-alert-info sisme-admin-mb-md selected-game sisme-admin-alert-purple" id="selectedGameDisplay">
+                        <span class="no-game-selected">Aucun jeu sélectionné</span>
                     </div>
+                    <div class="sisme-admin-flex-col">
+                        <input type="text" 
+                                id="gameSearchInput" 
+                                placeholder="🔍 Rechercher un jeu..." 
+                                class="sisme-admin-input"
+                                autocomplete="off">
+                        <div class="sisme-admin-card sisme-admin-card-dark-light game-list sisme-admin-scrollable-container" id="gameList">
+                            <?php foreach ($non_featured_games as $game): ?>
+                                <div class="sisme-admin-flex-between sisme-admin-p-sm sisme-admin-border sisme-admin-rounded sisme-admin-mb-sm sisme-admin-cursor-pointer game-item sisme-admin-smooth-transition sisme-admin-item-neutral" 
+                                        data-game-id="<?php echo $game->term_id; ?>" 
+                                        data-game-name="<?php echo esc_attr($game->name); ?>"
+                                        data-search="<?php echo esc_attr(strtolower($game->name . ' ' . $game->term_id)); ?>">
+                                    <span class="game-name sisme-admin-text-black sisme-admin-font-medium"><?php echo esc_html($game->name); ?></span>
+                                    <span class="sisme-admin-badge sisme-admin-badge-secondary game-id">ID: <?php echo $game->term_id; ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php Sisme_Admin_Page_Wrapper::render_card_end();
+
+                // Section Configuration de la vedette
+                Sisme_Admin_Page_Wrapper::render_card_start(
+                    'Configuration de la vedette',
+                    'settings',
+                    '',
+                    'sisme-admin-card-no-transformation sisme-admin-flex-col sisme-admin-gap-6',
+                );
+                ?>
+                <div class="sisme-admin-flex-col">
+                    <div class="sisme-admin-flex-col-sm">
+                        <label for="priority" class="sisme-admin-heading">Priorité d'affichage</label>
+                        <input type="number" id="priority" name="priority" value="50" min="1" max="100" class="sisme-admin-input">
+                        <small class="sisme-admin-comment">Plus élevé = plus prioritaire (1-100)</small>
+                    </div>
+                    
+                    <div class="sisme-admin-flex-col-sm">
+                        <label for="sponsor" class="sisme-admin-heading">Sponsor (optionnel)</label>
+                        <input type="text" id="sponsor" name="sponsor" placeholder="Nom du sponsor" class="sisme-admin-input">
+                        <small class="sisme-admin-comment">Laisser vide si aucun sponsor</small>
+                    </div>
+                    
+                    <div class="sisme-admin-flex sisme-admin-mt-lg">
+                        <button type="submit" class="sisme-admin-btn sisme-admin-btn-success sisme-admin-btn-lg" id="submitBtn" disabled>
+                            ⭐ Ajouter aux vedettes
+                        </button>
+                        <button type="button" class="sisme-admin-btn sisme-admin-btn-secondary" onclick="resetForm()">
+                            🔄 Réinitialiser
+                        </button>
+                    </div>
+                </div>
+                <?php Sisme_Admin_Page_Wrapper::render_card_end();?>
+                <?php endif; ?>
+            </form><?php
+
+            // Section Retirer des vedettes
+            Sisme_Admin_Page_Wrapper::render_card_start(
+                'Retirer des Vedettes',
+                'delete',
+                '',
+                'sisme-admin-card-no-transformation sisme-admin-flex-col sisme-admin-gap-6',
+            ); ?>
+            <?php if (!empty($featured_games)): ?>
+                <form method="post" class="sisme-admin-form" id="removeFeaturedForm">
+                    <input type="hidden" name="action" value="remove_featured">
+                    <input type="hidden" name="game_id" id="selectedRemoveGameId">
+                    <div class="sisme-admin-alert sisme-admin-alert-danger sisme-admin-mb-md selected-game" id="selectedRemoveGameDisplay">
+                        <span class="no-game-selected">Aucun jeu sélectionné</span>
+                    </div>
+                    <div class="sisme-admin-flex-col">
+                        <input type="text" id="removeGameSearchInput" placeholder="🔍 Rechercher dans les vedettes..." class="sisme-admin-input" autocomplete="off"> 
+                        <div class="sisme-admin-card sisme-admin-card-dark-light game-list sisme-admin-scrollable-container" id="removeGameList">
+                            <?php foreach ($featured_games as $game): ?>
+                                <div class="sisme-admin-flex-between sisme-admin-p-sm sisme-admin-border sisme-admin-rounded sisme-admin-mb-sm sisme-admin-cursor-pointer featured-game-item sisme-admin-smooth-transition sisme-admin-item-purple" 
+                                        data-game-id="<?php echo $game->term_id; ?>" 
+                                        data-game-name="<?php echo esc_attr($game->name); ?>"
+                                        data-search="<?php echo esc_attr(strtolower($game->name . ' ' . $game->term_id)); ?>">
+                                    <div class="sisme-admin-flex-col-sm">
+                                        <span class="game-name sisme-admin-text-black sisme-admin-font-medium"><?php echo esc_html($game->name); ?></span>
+                                        <span class="sisme-admin-badge sisme-admin-badge-secondary featured-badge">⭐ Vedette</span>
+                                    </div>
+                                    <span class="sisme-admin-badge sisme-admin-badge-secondary game-id">ID: <?php echo $game->term_id; ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <div class="sisme-admin-alert sisme-admin-alert-info sisme-admin-hidden" id="selectedGameInfo">
+                        <div class="sisme-admin-flex-between">
+                            <strong id="selectedGameName" class="sisme-admin-heading"></strong>
+                            <span id="selectedGameIdText" class="sisme-admin-badge sisme-admin-badge-info"></span>
+                        </div>
+                        <div class="sisme-admin-flex sisme-admin-mt-sm">
+                            <span class="sisme-admin-badge sisme-admin-badge-secondary">
+                                Priorité: <strong id="currentPriority"></strong>
+                            </span>
+                            <span class="sisme-admin-badge sisme-admin-badge-secondary">
+                                Sponsor: <strong id="currentSponsor"></strong>
+                            </span>
+                        </div>
+                        <div class="sisme-admin-flex sisme-admin-mt-sm">
+                            <span class="sisme-admin-badge sisme-admin-badge-info">
+                                👁️ <strong id="currentViews"></strong> vues
+                            </span>
+                            <span class="sisme-admin-badge sisme-admin-badge-success">
+                                🖱️ <strong id="currentClicks"></strong> clics
+                            </span>
+                        </div>
+                    </div>
+                    <div class="sisme-admin-alert sisme-admin-alert-danger sisme-admin-hidden" id="warningBox">
+                        <div class="sisme-admin-flex">
+                            <div class="sisme-admin-text-danger sisme-admin-icon-lg">⚠️</div>
+                            <div>
+                                <strong>Attention !</strong><br>
+                                Ce jeu sera retiré des vedettes et n'apparaîtra plus dans le carrousel.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sisme-admin-flex">
+                        <button type="submit" class="sisme-admin-btn sisme-admin-btn-danger sisme-admin-btn-lg" id="removeSubmitBtn" disabled>
+                            🗑️ Retirer des vedettes
+                        </button>
+                        <button type="button" class="sisme-admin-btn sisme-admin-btn-secondary" onclick="resetRemoveForm()">
+                            🔄 Annuler
+                        </button>
+                    </div>
+                </form>
+            <?php endif;
+            Sisme_Admin_Page_Wrapper::render_card_end(); 
+            
+            
+            // Section Notice d'utilisation
+            Sisme_Admin_Page_Wrapper::render_card_start(
+                'Utilisation du Carrousel Vedettes',
+                'notice',
+                '',
+                'sisme-admin-card-no-transformation sisme-admin-grid sisme-admin-grid-4',
+            );
+                Sisme_Admin_Page_Wrapper::render_card_start(
+                    'Shortcodes simple',
+                    '',
+                    '',
+                    'sisme-admin-card-no-transformation',
+                ); ?>
                     <pre class="sisme-admin-pre-code sisme-admin-text-center">[sisme_vedettes_carousel]</pre>
                     <p class="sisme-admin-comment">Affiche toutes les vedettes en carrousel 400px</p>
-                </div>
-                
-                <!-- Shortcode avec options -->
-                <div class="sisme-admin-card">
-                    <div class="sisme-admin-card-header">
-                        <h3 class="sisme-admin-heading">Avec Options</h3>
-                    </div>
+                <?php Sisme_Admin_Page_Wrapper::render_card_end();
+
+                Sisme_Admin_Page_Wrapper::render_card_start(
+                    'Avec Options',
+                    '',
+                    '',
+                    'sisme-admin-card-no-transformation',
+                ); ?>
                     <pre class="sisme-admin-pre-code sisme-admin-text-center">[sisme_vedettes_carousel limit="5" height="300px" autoplay="false"]</pre>
                     <p class="sisme-admin-comment">5 jeux max, 300px de haut, pas d'autoplay</p>
-                </div>
-                
-                <!-- Usage PHP -->
-                <div class="sisme-admin-card">
-                    <div class="sisme-admin-card-header">
-                        <h3 class="sisme-admin-heading">Usage PHP Template</h3>
-                    </div>
+                <?php Sisme_Admin_Page_Wrapper::render_card_end();
+
+                Sisme_Admin_Page_Wrapper::render_card_start(
+                    'Avec Options',
+                    '',
+                    '',
+                    'sisme-admin-card-no-transformation',
+                ); ?>
                     <pre class="sisme-admin-pre-code sisme-admin-text-center">echo Sisme_Vedettes_API::render_featured_carousel();</pre>
                     <p class="sisme-admin-comment">Intégration directe dans un thème</p>
-                </div>
-                
-            </div>
-            
-            <!-- Options disponibles -->
-            <div class="sisme-admin-mt-lg">
-                <h3 class="sisme-admin-heading">Options Disponibles</h3>
-                <ul class="sisme-admin-ml-md">
-                    <li><strong>limit</strong> : Nombre max de jeux (défaut: 10)</li>
-                    <li><strong>height</strong> : Hauteur du carrousel (défaut: 400px)</li>
-                    <li><strong>autoplay</strong> : Lecture automatique (défaut: true)</li>
-                    <li><strong>show_arrows</strong> : Flèches navigation (défaut: true)</li>
-                    <li><strong>show_dots</strong> : Points navigation (défaut: true)</li>
-                </ul>
-            </div>
-            
+                <?php Sisme_Admin_Page_Wrapper::render_card_end();
+
+                Sisme_Admin_Page_Wrapper::render_card_start(
+                    'Options Disponibles',
+                    '',
+                    '',
+                    'sisme-admin-card-no-transformation',
+                ); ?>
+                    <ul class="sisme-admin-ml-md">
+                        <li><strong>limit</strong> : Nombre max de jeux (défaut: 10)</li>
+                        <li><strong>height</strong> : Hauteur du carrousel (défaut: 400px)</li>
+                        <li><strong>autoplay</strong> : Lecture automatique (défaut: true)</li>
+                        <li><strong>show_arrows</strong> : Flèches navigation (défaut: true)</li>
+                        <li><strong>show_dots</strong> : Points navigation (défaut: true)</li>
+                    </ul>
+                <?php Sisme_Admin_Page_Wrapper::render_card_end();?>
+            <?php Sisme_Admin_Page_Wrapper::render_card_end(); ?> 
         </div>
 
-        </div>
-
-        <style>
-        /* Styles spécifiques pour les interactions JavaScript */
-        
+        <style>        
         /* Zone de sélection pour AJOUTER = VIOLET */
         #selectedGameDisplay.selected-game.has-selection {
             background-color: var(--sisme-admin-purple-light) !important;

@@ -129,11 +129,11 @@
     --sisme-space-3xl: 64px;
     
     /* Gaps */
-    --sisme-gap-xs: 8px;
-    --sisme-gap-s: 12px;
-    --sisme-gap-m: 24px;
-    --sisme-gap-l: 32px;
-    --sisme-gap-xl: 48px;
+    --sisme-admin-gap-xs: 8px;
+    --sisme-admin-gap-s: 12px;
+    --sisme-admin-gap-m: 24px;
+    --sisme-admin-gap-l: 32px;
+    --sisme-admin-gap-xl: 48px;
     
     /* Rayons de bordure */
     --sisme-radius-sm: 5px;

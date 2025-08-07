@@ -35,57 +35,37 @@ class Sisme_Admin_Communication {
         
         $page = new Sisme_Admin_Page_Wrapper(
             'Communication',
-            'Hub des outils de communication, notifications et engagement utilisateur',
-            'email-alt',
+            'Centre de commande pour tous les outils de communication et engagement',
+            'communication',
             admin_url('admin.php?page=sisme-games-tableau-de-bord'),
-            'Retour au tableau de bord'
+            'Retour au tableau de bord',
+            true,
+            'outils',
+            'Outils de communication',
         );
-        self::render_communication_hub();
+
+        $page->render_start();
+        self::render_menu();
+        $page->render_end();
     }
-    
-    private static function render_communication_hub() {
-        ?>
-        <div class="sisme-admin-container">
-            <h2 class="sisme-admin-title">📢 Outils disponibles</h2>
-            <p class="sisme-admin-comment">Centre de commande pour tous les outils de communication et engagement</p>
-            
-            <div class="sisme-admin-grid sisme-admin-grid-2">
-                <!-- Gestion Email -->
-                <div class="sisme-admin-card">
-                    <div class="sisme-admin-card-header">
-                        <div class="sisme-admin-flex-center">
-                            <span style="font-size: 24px;">📧</span>
-                            <h3 class="sisme-admin-heading sisme-admin-m-0">Gestion Email</h3>
-                        </div>
-                    </div>
-                    <p class="sisme-admin-comment">Gestion des emails automatiques, templates et statistiques d'envoi</p>
-                    <div class="sisme-admin-flex-between sisme-admin-mt-md">
-                        <span class="sisme-admin-badge sisme-admin-badge-info">Communication</span>
-                        <a href="<?php echo admin_url('admin.php?page=sisme-games-email'); ?>" class="sisme-admin-btn sisme-admin-btn-primary">
-                            📧 Accéder
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Notifications -->
-                <div class="sisme-admin-card">
-                    <div class="sisme-admin-card-header">
-                        <div class="sisme-admin-flex-center">
-                            <span style="font-size: 24px;">🔔</span>
-                            <h3 class="sisme-admin-heading sisme-admin-m-0">Notifications</h3>
-                        </div>
-                    </div>
-                    <p class="sisme-admin-comment">Système de notifications et alertes utilisateur, configuration et historique</p>
-                    <div class="sisme-admin-flex-between sisme-admin-mt-md">
-                        <span class="sisme-admin-badge sisme-admin-badge-success">Engagement</span>
-                        <a href="<?php echo admin_url('admin.php?page=sisme-games-notifications'); ?>" class="sisme-admin-btn sisme-admin-btn-primary">
-                            🔔 Accéder
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php
+
+    /**
+     * Affiche le contenu du hub de communication
+     */
+    private static function render_menu() {
+        Sisme_Admin_Page_Wrapper::render_menu_card(
+            'Gestion Email',
+            'email',
+            'Gérez les emails automatiques, templates et statistiques d\'envoi',
+            admin_url('admin.php?page=sisme-games-email')
+        );
+
+        Sisme_Admin_Page_Wrapper::render_menu_card(
+            'Notifications',
+            'notifications',
+            'Système de notifications et alertes utilisateur, configuration et historique',
+            admin_url('admin.php?page=sisme-games-notifications')
+        );
     }
 }
 

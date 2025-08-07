@@ -172,8 +172,8 @@ class Sisme_Admin_Developers {
      * Gère les requêtes AJAX pour les détails de soumission
      */
     public static function ajax_get_submission_details() {
-        if (class_exists('Sisme_Admin_Submission_Tab')) {
-            Sisme_Admin_Submission_Tab::ajax_get_submission_details();
+        if (class_exists('Sisme_Admin_Submission_Functions')) {
+            Sisme_Admin_Submission_Functions::ajax_get_submission_details();
         }
     }
 
@@ -298,7 +298,7 @@ class Sisme_Admin_Developers {
             <div class="sisme-admin-card-header">
                 <h3 class="sisme-admin-heading">📊 Statistiques</h3>
             </div>
-            <div class="sisme-admin-stats sisme-mb-6 sisme-admin-flex sisme-gap-4">
+            <div class="sisme-admin-stats sisme-mb-6 sisme-admin-flex sisme-admin-gap-4">
                 <div class="sisme-admin-stat-card sisme-admin-stat-warning">
                     <div class="sisme-admin-stat-number"><?php echo $stats['pending']; ?></div>
                     <div class="sisme-admin-stat-label">⏳ En attente</div>
@@ -414,7 +414,7 @@ class Sisme_Admin_Developers {
                                 data-studio-name="<?php echo esc_attr(strtolower($dev_data['application']['studio_name'] ?? '')); ?>"
                                 data-status="<?php echo esc_attr($dev_data['status']); ?>">
                                 <td>
-                                    <div class="sisme-admin-flex sisme-align-center sisme-gap-2">
+                                    <div class="sisme-admin-flex sisme-align-center sisme-admin-gap-2">
                                         <span class="sisme-toggle-icon" id="toggle-<?php echo $index; ?>">▶️</span>
                                         <div>
                                             <strong><?php echo esc_html($dev_data['user_info']['display_name']); ?></strong><br>
@@ -495,7 +495,7 @@ class Sisme_Admin_Developers {
                             <!-- Ligne de détails cachée -->
                             <tr class="sisme-dev-details" id="details-<?php echo $index; ?>" style="display: none;">
                                 <td colspan="5" class="sisme-admin-dev-details-container">
-                                    <div class="sisme-admin-grid sisme-admin-grid-2 sisme-gap-6">
+                                    <div class="sisme-admin-grid sisme-admin-grid-2 sisme-admin-gap-6">
                                         
                                         <!-- Colonne 1: Informations Studio -->
                                         <div>

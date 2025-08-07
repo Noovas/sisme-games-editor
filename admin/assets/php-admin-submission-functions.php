@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/admin/components/admin-submission-tab.php
+ * File: /sisme-games-editor/admin/components/php-admin-submission-functions.php
  * Interface admin moderne pour les soumissions de jeux
  * 
  * RESPONSABILITÉ:
@@ -18,15 +18,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-add_action('wp_ajax_sisme_admin_get_submission_details', ['Sisme_Admin_Submission_Tab', 'ajax_get_submission_details']);
-add_action('wp_ajax_sisme_admin_reject_submission', ['Sisme_Admin_Submission_Tab', 'ajax_reject_submission']);
-add_action('wp_ajax_sisme_admin_approve_submission', ['Sisme_Admin_Submission_Tab', 'ajax_approve_submission']);
-add_action('wp_ajax_sisme_admin_delete_submission', ['Sisme_Admin_Submission_Tab', 'ajax_delete_submission']);
+add_action('wp_ajax_sisme_admin_get_submission_details', ['Sisme_Admin_Submission_Functions', 'ajax_get_submission_details']);
+add_action('wp_ajax_sisme_admin_reject_submission', ['Sisme_Admin_Submission_Functions', 'ajax_reject_submission']);
+add_action('wp_ajax_sisme_admin_approve_submission', ['Sisme_Admin_Submission_Functions', 'ajax_approve_submission']);
+add_action('wp_ajax_sisme_admin_delete_submission', ['Sisme_Admin_Submission_Functions', 'ajax_delete_submission']);
 
 /**
  * Classe pour l'onglet admin des soumissions
  */
-class Sisme_Admin_Submission_Tab {    
+class Sisme_Admin_Submission_Functions {    
     /**
      * Convertir les IDs de genre en noms lisibles
      */
@@ -80,8 +80,6 @@ class Sisme_Admin_Submission_Tab {
      * AJAX : Récupérer les détails d'une soumission
      */
     public static function ajax_get_submission_details() {
-        error_log('DEBUG: ajax_get_submission_details CALLED');
-        // Vérification admin obligatoire
         if (!current_user_can('manage_options')) {
             wp_send_json_error(['message' => 'Permissions insuffisantes']);
             return;
@@ -190,35 +188,32 @@ class Sisme_Admin_Submission_Tab {
     }
     
     /**
-     * Rendu de l'onglet complet
+     * Méthode publique pour récupérer les statistiques des soumissions
+     * Utilisée par d'autres classes admin
      */
-    public static function render() {
-        
-        // Charger les assets admin
-        self::enqueue_admin_assets();
-        
-        // Récupérer les données
+    public static function get_submissions_statistics() {
         $submissions_data = self::get_submissions_data();
         $archived_data = self::get_archived_submissions_data();
-        $stats = self::calculate_stats(array_merge($submissions_data, $archived_data)); // Calculer stats sur tout
+        $all_submissions = array_merge($submissions_data, $archived_data);
         
-        ob_start();
+        return self::calculate_stats($all_submissions);
+    }
+    
+    /**
+     * Rendu de l'onglet complet
+     * @param string|null $filter_status Statut à filtrer ('pending', 'draft', 'published', 'rejected', 'archived')
+     * @param string|null $revision_filter Filtre pour les révisions ('only_revisions', 'exclude_revisions', null pour tout)
+     */
+    public static function render($filter_status = null, $revision_filter = null) {
+        self::enqueue_admin_assets();
+        $submissions_data = self::get_submissions_data($filter_status, $revision_filter);
+        
         ?>
         <div class="sisme-admin-submissions">
-            <!-- Statistiques -->
-            <?php echo self::render_stats($stats); ?>
-            
             <!-- Tableau principal -->
             <?php echo self::render_submissions_table($submissions_data); ?>
-            
-            <!-- Section Archives -->
-            <?php if (!empty($archived_data)): ?>
-                <?php echo self::render_archives_section($archived_data); ?>
-            <?php endif; ?>
-            
         </div>
         <?php
-        return ob_get_clean();
     }
     
     /**
@@ -401,35 +396,12 @@ class Sisme_Admin_Submission_Tab {
     }
     
     /**
-     * Charger les assets front pour compatibilité
-     */
-    private static function enqueue_front_compatibility() {
-        wp_enqueue_style(
-            'sisme-game-submission-details',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission-details.css',
-            array(),
-            SISME_GAMES_EDITOR_VERSION
-        );
-        
-        wp_enqueue_script(
-            'sisme-game-submission-details',
-            SISME_GAMES_EDITOR_PLUGIN_URL . 'includes/user/user-developer/game-submission/assets/game-submission-details.js',
-            array('jquery'),
-            SISME_GAMES_EDITOR_VERSION,
-            true
-        );
-        
-        wp_localize_script('sisme-game-submission-details', 'sismeAjax', [
-            'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('sisme_developer_nonce'),
-            'isAdmin' => true
-        ]);
-    }
-    
-    /**
      * Récupérer les données des soumissions
+     * @param string|null $status_filter Statut à filtrer (optionnel) - ex: 'pending', 'draft', 'published', 'rejected', 'archived'
+     * @param string|null $revision_filter Filtre pour les révisions ('only_revisions', 'exclude_revisions', null pour tout)
+     * @return array Tableau des soumissions filtrées
      */
-    private static function get_submissions_data() {
+    public static function get_submissions_data($status_filter = null, $revision_filter = null) {
         if (!class_exists('Sisme_Game_Submission_Data_Manager')) {
             $file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/user/user-developer/game-submission/game-submission-data-manager.php';
             if (file_exists($file)) {
@@ -447,25 +419,59 @@ class Sisme_Admin_Submission_Tab {
             ]);
             
             foreach ($developer_users as $user) {
-                $user_submissions = Sisme_Game_Submission_Data_Manager::get_user_submissions($user->ID);
+                // Cas spécial pour les archives : utiliser la méthode dédiée du data manager
+                if ($status_filter === 'archived') {
+                    $user_submissions = Sisme_Game_Submission_Data_Manager::get_user_submissions($user->ID, 'archived');
+                } else {
+                    $user_submissions = Sisme_Game_Submission_Data_Manager::get_user_submissions($user->ID);
+                }
                 
                 foreach ($user_submissions as $submission) {
-                    // Exclure les soumissions archivées du tableau principal
-                    if (($submission['status'] ?? '') !== 'archived') {
-                        $submission['user_data'] = [
-                            'user_id' => $user->ID,
-                            'display_name' => $user->display_name,
-                            'user_email' => $user->user_email
-                        ];
-                        $all_submissions[] = $submission;
+                    $submission_status = $submission['status'] ?? 'draft';
+                    $is_revision = isset($submission['metadata']['is_revision']) && $submission['metadata']['is_revision'];
+                    
+                    // Filtrage par type de révision (nouveau système à 2 paramètres)
+                    if ($revision_filter === 'only_revisions' && !$is_revision) {
+                        continue; // Ne garder que les révisions
                     }
+                    if ($revision_filter === 'exclude_revisions' && $is_revision) {
+                        continue; // Exclure les révisions
+                    }
+                    
+                    // Filtrage par statut
+                    if ($status_filter === 'archived') {
+                        // Déjà filtré par le data manager, on garde tout
+                    }
+                    elseif ($status_filter !== null) {
+                        if ($submission_status !== $status_filter) {
+                            continue;
+                        }
+                    }
+                    // Comportement par défaut : exclure les archives
+                    elseif ($status_filter === null && $submission_status === 'archived') {
+                        continue;
+                    }
+                    
+                    $submission['user_data'] = [
+                        'user_id' => $user->ID,
+                        'display_name' => $user->display_name,
+                        'user_email' => $user->user_email
+                    ];
+                    $all_submissions[] = $submission;
                 }
             }
             
-            // Trier par date
-            usort($all_submissions, function($a, $b) {
-                $date_a = $a['metadata']['submitted_at'] ?? $a['metadata']['updated_at'];
-                $date_b = $b['metadata']['submitted_at'] ?? $b['metadata']['updated_at'];
+            // Trier par date appropriée
+            usort($all_submissions, function($a, $b) use ($status_filter) {
+                if ($status_filter === 'archived') {
+                    // Pour les archives, trier par date d'archivage
+                    $date_a = $a['metadata']['archived_at'] ?? $a['metadata']['updated_at'];
+                    $date_b = $b['metadata']['archived_at'] ?? $b['metadata']['updated_at'];
+                } else {
+                    // Pour les autres, trier par date de soumission
+                    $date_a = $a['metadata']['submitted_at'] ?? $a['metadata']['updated_at'];
+                    $date_b = $b['metadata']['submitted_at'] ?? $b['metadata']['updated_at'];
+                }
                 return strtotime($date_b) - strtotime($date_a);
             });
         }

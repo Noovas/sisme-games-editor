@@ -190,7 +190,7 @@ class Sisme_Admin_Developers_Creator {
     
     private static function render_stats_section($stats) {
         ?>
-        <div class="sisme-admin-card sisme-admin-flex-col sisme-gap-4 sisme-mb-6">
+        <div class="sisme-admin-card sisme-admin-flex-col sisme-admin-gap-4 sisme-mb-6">
             <h3 class="sisme-admin-card-header">📊 Statistiques des Studios</h3>
             <div class="sisme-admin-stats sisme-mb-6">
                 <div class="sisme-admin-stat-card sisme-admin-stat-primary">
@@ -214,7 +214,7 @@ class Sisme_Admin_Developers_Creator {
         ?>
         <div class="sisme-admin-card sisme-mb-6">
             <h3 class="sisme-admin-section-title">➕ Ajouter un développeur/éditeur</h3>
-            <form method="post" class="sisme-admin-flex sisme-gap-4">
+            <form method="post" class="sisme-admin-flex sisme-admin-gap-4">
                 <?php wp_nonce_field('sisme_dev_editor_action'); ?>
                 <input type="hidden" name="dev_editor_action" value="create">
                 
@@ -345,7 +345,7 @@ class Sisme_Admin_Developers_Creator {
                         <span class="sisme-admin-modal-close" style="cursor: pointer; font-size: 20px;">&times;</span>
                     </div>
                     
-                    <form method="post" class="sisme-admin-flex-col sisme-gap-4">
+                    <form method="post" class="sisme-admin-flex-col sisme-admin-gap-4">
                         <?php wp_nonce_field('sisme_dev_editor_action'); ?>
                         <input type="hidden" name="dev_editor_action" value="update">
                         <input type="hidden" name="entity_id" id="edit_entity_id">
@@ -370,7 +370,7 @@ class Sisme_Admin_Developers_Creator {
                                 style="width: 100%;">
                         </div>
                         
-                        <div class="sisme-admin-flex sisme-gap-2" style="justify-content: flex-end;">
+                        <div class="sisme-admin-flex sisme-admin-gap-2" style="justify-content: flex-end;">
                             <button type="button" class="sisme-admin-btn sisme-admin-btn-secondary sisme-admin-modal-close">Annuler</button>
                             <button type="submit" class="sisme-admin-btn sisme-admin-btn-primary">Mettre à jour</button>
                         </div>

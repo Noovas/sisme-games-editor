@@ -29,67 +29,45 @@ class Sisme_Admin_Games {
             array(__CLASS__, 'render')
         );
     }
-    
+
+    /**
+     * Affiche la page principale du hub de jeux
+     */
     public static function render() {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
         
         $page = new Sisme_Admin_Page_Wrapper(
             'Jeux',
-            'Hub des outils de gestion des jeux et catalogue',
-            'games',
+            'Centre de commande pour tous les outils de gestion des jeux',
+            'jeu',
             admin_url('admin.php?page=sisme-games-tableau-de-bord'),
-            'Retour au tableau de bord'
+            'Retour au tableau de bord',
+            true,
+            'outils',
+            'Outils de jeux',
         );
-        self::render_games_hub();
-    }
-    
-    private static function render_games_hub() {
-        ?>
-        <div class="sisme-admin-container">
-            <h2 class="sisme-admin-title">🎮 HUB pour les jeux</h2>
-            <p class="sisme-admin-comment">Tous les outils de gestion des jeux en un seul endroit</p>
 
-            <div class="sisme-admin-grid sisme-admin-grid-2">
-                <!-- Tous les jeux -->
-                <div class="sisme-admin-card">
-                    <div class="sisme-admin-card-header">
-                        <div class="sisme-admin-flex-center">
-                            <span style="font-size: 24px;">🎮</span>
-                            <h3 class="sisme-admin-heading sisme-admin-m-0">Tous les jeux</h3>
-                        </div>
-                    </div>
-                    <p class="sisme-admin-comment">Gestion complète du catalogue de jeux, édition et administration</p>
-                    <div class="sisme-admin-flex-between sisme-admin-mt-md">
-                        <span class="sisme-admin-badge sisme-admin-badge-info">Catalogue</span>
-                        <a href="<?php echo admin_url('admin.php?page=sisme-games-all'); ?>" class="sisme-admin-btn sisme-admin-btn-primary">
-                            🎮 Accéder
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Jeux vedettes -->
-                <div class="sisme-admin-card">
-                    <div class="sisme-admin-card-header">
-                        <div class="sisme-admin-flex-center">
-                            <span style="font-size: 24px;">⭐</span>
-                            <h3 class="sisme-admin-heading sisme-admin-m-0">Jeux vedettes</h3>
-                        </div>
-                    </div>
-                    <p class="sisme-admin-comment">Configuration et gestion des jeux mis en avant sur le site</p>
-                    <div class="sisme-admin-flex-between sisme-admin-mt-md">
-                        <span class="sisme-admin-badge sisme-admin-badge-warning">Vedettes</span>
-                        <a href="<?php echo admin_url('admin.php?page=sisme-games-vedettes'); ?>" class="sisme-admin-btn sisme-admin-btn-primary">
-                            ⭐ Accéder
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php
+        $page->render_start();
+        self::render_menu();
+        $page->render_end();
     }
-}
 
-// Initialiser seulement si on est en admin
-if (is_admin()) {
-    Sisme_Admin_Games::init();
+    /**
+     * Affiche le contenu du hub de jeux
+     */
+    private static function render_menu() {
+        Sisme_Admin_Page_Wrapper::render_menu_card(
+            'Tous les jeux',
+            'jeu',
+            'Gestion complète du catalogue de jeux, édition et administration',
+            admin_url('admin.php?page=sisme-games-all-games')
+        );
+
+        Sisme_Admin_Page_Wrapper::render_menu_card(
+            'Jeux vedettes',
+            'featured',
+            'Configuration et gestion des jeux mis en avant sur le site',
+            admin_url('admin.php?page=sisme-games-vedettes')
+        );
+    }
 }

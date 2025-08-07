@@ -43,7 +43,7 @@
 .sisme-auth-actions {
     height: 100%;
     display: flex;
-    gap: var(--sisme-gap-m);
+    gap: var(--sisme-admin-gap-m);
     flex-direction: row;
     align-items: center;
     justify-content: center;
