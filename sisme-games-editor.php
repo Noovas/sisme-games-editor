@@ -137,6 +137,7 @@ class SismeGamesEditor {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-communication.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-outils.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-games.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-users.php';
         
         // Initialiser les classes admin
         Sisme_Admin_Data_Inspector::init();
@@ -147,6 +148,7 @@ class SismeGamesEditor {
         Sisme_Admin_Games::init();
         Sisme_Admin_Notifications::init();
         Sisme_Admin_Email::init();
+        Sisme_Admin_Users::init();
     }
 
     public function add_admin_menu() {

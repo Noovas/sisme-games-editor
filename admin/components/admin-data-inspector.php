@@ -17,7 +17,7 @@ class Sisme_Admin_Data_Inspector {
      */
     public static function add_hidden_page() {
         add_submenu_page(
-            null, // null = page cachée
+            null,
             'Inspecteur de données',
             'Inspecteur de données',
             'manage_options',

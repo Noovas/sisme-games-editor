@@ -778,6 +778,252 @@
    TYPOGRAPHIE UTILITAIRE
 ========================================= */
 
+
+/* ========================================
+   CLASSES SPÉCIFIQUES DÉVELOPPEURS
+========================================= */
+
+/* Conteneur des détails de développeurs */
+.sisme-admin-dev-details-container {
+    background: rgba(0, 0, 0, 0.85);
+    color: var(--sisme-admin-white);
+    padding: var(--sisme-admin-spacing-lg);
+}
+
+/* Titres des sections de détails */
+.sisme-admin-details-title {
+    color: var(--sisme-admin-white);
+    margin-top: 0;
+    margin-bottom: var(--sisme-admin-spacing-md);
+    padding-bottom: var(--sisme-admin-spacing-sm);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Items de détails individuels */
+.sisme-admin-detail-item {
+    margin-bottom: var(--sisme-admin-spacing-md);
+}
+
+.sisme-admin-detail-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Labels des détails */
+.sisme-admin-detail-label {
+    color: #bbb;
+    font-weight: 600;
+    display: block;
+    margin-bottom: var(--sisme-admin-spacing-xs);
+}
+
+/* Liens dans les détails */
+.sisme-admin-link {
+    color: #66ccff;
+    text-decoration: none;
+}
+
+.sisme-admin-link:hover {
+    color: #99ddff;
+    text-decoration: underline;
+}
+
+/* Liens des réseaux sociaux */
+.sisme-admin-social-link {
+    margin: var(--sisme-admin-spacing-xs) 0;
+}
+
+/* Boîte des notes admin */
+.sisme-admin-notes-box {
+    margin-top: var(--sisme-admin-spacing-lg);
+    padding: var(--sisme-admin-spacing-md);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: var(--sisme-admin-radius-sm);
+}
+
+.sisme-admin-notes-label {
+    color: #ffeb3b;
+    font-weight: 600;
+    display: block;
+    margin-bottom: var(--sisme-admin-spacing-xs);
+}
+
+.sisme-admin-notes-text {
+    font-style: italic;
+    color: var(--sisme-admin-white);
+}
+
+/* Formulaires inline */
+.sisme-inline-form {
+    display: inline;
+}
+
+/* Classes d'actions admin */
+.sisme-admin-actions {
+    white-space: nowrap;
+}
+
+.sisme-admin-text-muted {
+    color: var(--sisme-admin-gray-500);
+}
+
+/* Empty state pour quand il n'y a aucun élément */
+.sisme-admin-empty-state {
+    text-align: center;
+    padding: 40px;
+    background: var(--sisme-admin-gray-50);
+    border-radius: var(--sisme-admin-radius-sm);
+    color: var(--sisme-admin-gray-600);
+}
+
+/* Classes flexbox utilitaires */
+.sisme-align-center {
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--sisme-admin-spacing-sm) !important;
+}
+
+.sisme-admin-flex-1 {
+    flex: 1 !important;
+}
+
+.sisme-gap-2 {
+    gap: var(--sisme-admin-spacing-sm) !important;
+}
+
+.sisme-gap-4 {
+    gap: var(--sisme-admin-spacing-md) !important;
+}
+
+.sisme-gap-6 {
+    gap: var(--sisme-admin-spacing-lg) !important;
+}
+
+.sisme-mb-6 {
+    margin-bottom: var(--sisme-admin-spacing-xl) !important;
+}
+
+/* Statistiques avec couleurs de statut */
+.sisme-admin-stat-primary {
+    background: var(--sisme-admin-primary);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-stat-primary .sisme-admin-stat-label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.sisme-admin-stat-warning {
+    background: var(--sisme-admin-warning);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-stat-warning .sisme-admin-stat-label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.sisme-admin-stat-success {
+    background: var(--sisme-admin-success);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-stat-success .sisme-admin-stat-label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.sisme-admin-stat-danger {
+    background: var(--sisme-admin-danger);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-stat-danger .sisme-admin-stat-label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Titre de section stylisé */
+.sisme-admin-section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--sisme-admin-gray-800);
+    margin: 0 0 var(--sisme-admin-spacing-lg) 0;
+    padding-bottom: var(--sisme-admin-spacing-sm);
+    border-bottom: 2px solid var(--sisme-admin-gray-200);
+}
+
+/* Labels de formulaires */
+.sisme-admin-label {
+    display: block;
+    font-weight: 600;
+    color: var(--sisme-admin-gray-700);
+    margin-bottom: var(--sisme-admin-spacing-xs);
+    font-size: 14px;
+}
+
+/* ========================================
+   MODAL SYSTEM
+========================================= */
+
+.sisme-admin-modal {
+    position: absolute !important;
+    z-index: 1000 !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.sisme-admin-modal.sisme-admin-modal-visible {
+    display: flex !important;
+}
+
+.sisme-admin-modal-content {
+    background-color: var(--sisme-admin-white);
+    border-radius: var(--sisme-admin-radius-lg);
+    padding: var(--sisme-admin-spacing-lg);
+    box-shadow: var(--sisme-admin-shadow-lg);
+    width: 90%;
+    max-width: 450px;
+    max-height: 80%;
+    overflow-y: auto;
+    margin: auto;
+    position: relative;
+    box-sizing: border-box;
+    border: 2px solid var(--sisme-admin-primary);
+}
+
+.sisme-admin-modal-header {
+    margin-bottom: var(--sisme-admin-spacing-lg);
+    padding-bottom: var(--sisme-admin-spacing-md);
+    border-bottom: 1px solid var(--sisme-admin-gray-200);
+}
+
+.sisme-admin-modal-header h3 {
+    margin: 0;
+    color: var(--sisme-admin-gray-800);
+}
+
+.sisme-admin-modal-close {
+    color: var(--sisme-admin-gray-500);
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--sisme-admin-transition);
+}
+
+.sisme-admin-modal-close:hover {
+    color: var(--sisme-admin-gray-700);
+}
+
 /* Texte avec poids moyen */
 .sisme-admin-font-medium {
     font-weight: 500;
@@ -806,4 +1052,22 @@
 /* Icône de taille large (24px) */
 .sisme-admin-icon-lg {
     font-size: 24px;
+}
+
+/* ========================================
+   CONTENEUR SPÉCIAL POUR MODAL
+========================================= */
+
+/* Conteneur avec position relative pour modal et hauteur fixe */
+.sisme-admin-modal-container {
+    position: relative !important;
+    height: 50vh !important;
+    min-height: 500px !important;
+    max-height: 800px !important;
+    overflow-y: auto !important;
+    border: 1px solid var(--sisme-admin-gray-200);
+    border-radius: var(--sisme-admin-radius-lg);
+    background: var(--sisme-admin-light-bg);
+    padding: var(--sisme-admin-spacing-lg);
+    box-shadow: var(--sisme-admin-shadow-sm);
 }

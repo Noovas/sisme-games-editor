@@ -110,12 +110,6 @@ class Sisme_Dev_Editor_Manager_Loader {
         );
     }
     
-    public function dev_editors_page() {
-        if (class_exists('Sisme_Dev_Editor_Manager_Admin')) {
-            Sisme_Dev_Editor_Manager_Admin::render_page();
-        }
-    }
-    
     public function is_module_ready() {
         return class_exists('Sisme_Dev_Editor_Manager') && self::$modules_loaded;
     }
