@@ -1051,6 +1051,94 @@
     color: var(--sisme-admin-gray-700);
 }
 
+/* ========================================
+   ÉLÉMENTS DE MODALE
+========================================= */
+
+.sisme-admin-modal-body {
+    padding: var(--sisme-admin-spacing-md) 0;
+}
+
+.sisme-admin-modal-label {
+    display: block;
+    font-weight: 600;
+    color: var(--sisme-admin-gray-700);
+    margin-bottom: var(--sisme-admin-spacing-sm);
+}
+
+.sisme-admin-modal-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: var(--sisme-admin-spacing-md);
+    border: 1px solid var(--sisme-admin-gray-300);
+    border-radius: var(--sisme-admin-radius-md);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    resize: vertical;
+    background-color: var(--sisme-admin-white);
+}
+
+.sisme-admin-modal-textarea:focus {
+    outline: none;
+    border-color: var(--sisme-admin-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.sisme-admin-modal-actions {
+    display: flex;
+    gap: var(--sisme-admin-spacing-md);
+    justify-content: flex-end;
+    margin-top: var(--sisme-admin-spacing-lg);
+}
+
+.sisme-admin-modal-btn {
+    padding: var(--sisme-admin-spacing-sm) var(--sisme-admin-spacing-lg);
+    border: none;
+    border-radius: var(--sisme-admin-radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.sisme-admin-modal-btn-cancel {
+    background-color: var(--sisme-admin-gray-100);
+    color: var(--sisme-admin-gray-700);
+}
+
+.sisme-admin-modal-btn-cancel:hover {
+    background-color: var(--sisme-admin-gray-200);
+}
+
+.sisme-admin-modal-btn-confirm {
+    background-color: var(--sisme-admin-red);
+    color: var(--sisme-admin-white);
+}
+
+.sisme-admin-modal-btn-confirm:hover:not(:disabled) {
+    background-color: var(--sisme-admin-red-dark);
+}
+
+.sisme-admin-modal-btn-confirm:disabled {
+    background-color: var(--sisme-admin-gray-300);
+    color: var(--sisme-admin-gray-500);
+    cursor: not-allowed;
+}
+
+.sisme-admin-modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--sisme-admin-gray-900);
+}
+
+.sisme-admin-modal-subtitle {
+    margin: var(--sisme-admin-spacing-sm) 0 0 0;
+    font-size: 14px;
+    color: var(--sisme-admin-gray-600);
+}
+
 /* Texte avec poids moyen */
 .sisme-admin-font-medium {
     font-weight: 500;
@@ -1097,4 +1185,236 @@
     background: var(--sisme-admin-light-bg);
     padding: var(--sisme-admin-spacing-lg);
     box-shadow: var(--sisme-admin-shadow-sm);
+}
+
+/* ========================================
+   SYSTÈME DE SOUMISSIONS ET RÉVISIONS
+========================================= */
+
+/* Badge pour identifier les révisions */
+.sisme-admin-revision-badge {
+    display: inline-block;
+    background: var(--sisme-admin-purple-light);
+    color: var(--sisme-admin-purple-dark);
+    padding: var(--sisme-admin-spacing-xs) var(--sisme-admin-spacing-sm);
+    border-radius: var(--sisme-admin-radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: var(--sisme-admin-spacing-xs);
+}
+
+/* Conteneur des informations développeur */
+.sisme-admin-developer-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.sisme-admin-developer-info strong {
+    color: var(--sisme-admin-light-text);
+    font-weight: 600;
+}
+
+.sisme-admin-developer-info small {
+    color: var(--sisme-admin-light-text-muted);
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+/* Conteneur des informations de jeu */
+.sisme-admin-game-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sisme-admin-spacing-xs);
+}
+
+.sisme-admin-game-info strong {
+    color: var(--sisme-admin-light-text);
+    font-weight: 600;
+}
+
+.sisme-admin-game-info small {
+    color: var(--sisme-admin-light-text-muted);
+    font-size: 12px;
+}
+
+.sisme-admin-game-info .sisme-admin-original-game {
+    font-style: italic;
+    color: var(--sisme-admin-blue);
+}
+
+.sisme-admin-game-info .sisme-admin-submission-id {
+    font-family: monospace;
+    background: var(--sisme-admin-gray-100);
+    padding: 2px 4px;
+    border-radius: var(--sisme-admin-radius-sm);
+}
+
+/* Miniatures de médias */
+.sisme-admin-media-thumbnails {
+    display: flex;
+    gap: var(--sisme-admin-spacing-xs);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.sisme-admin-media-thumb {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--sisme-admin-radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--sisme-admin-gray-200);
+    transition: var(--sisme-admin-transition);
+}
+
+.sisme-admin-media-thumb:hover {
+    transform: scale(1.1);
+    border-color: var(--sisme-admin-blue);
+}
+
+.sisme-admin-media-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sisme-admin-media-label {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 10px;
+    padding: 1px 3px;
+    border-radius: var(--sisme-admin-radius-sm) 0 0 0;
+}
+
+.sisme-admin-screenshots-group {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+}
+
+.sisme-admin-media-count {
+    background: var(--sisme-admin-gray-500);
+    color: white;
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: var(--sisme-admin-radius-sm);
+    margin-left: var(--sisme-admin-spacing-xs);
+}
+
+.sisme-admin-no-media {
+    color: var(--sisme-admin-light-text-muted);
+    font-style: italic;
+    font-size: 12px;
+}
+
+/* Badges de statut des soumissions */
+.sisme-admin-status-badge {
+    display: inline-block;
+    padding: var(--sisme-admin-spacing-xs) var(--sisme-admin-spacing-sm);
+    border-radius: var(--sisme-admin-radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-left: 3px solid;
+}
+
+.sisme-admin-status-badge.status-draft {
+    background: var(--sisme-admin-gray-100);
+    color: var(--sisme-admin-gray-700);
+}
+
+.sisme-admin-status-badge.status-pending {
+    background: var(--sisme-admin-yellow-light);
+    color: var(--sisme-admin-yellow-dark);
+}
+
+.sisme-admin-status-badge.status-published {
+    background: var(--sisme-admin-green-light);
+    color: var(--sisme-admin-green-dark);
+}
+
+.sisme-admin-status-badge.status-rejected {
+    background: var(--sisme-admin-red-light);
+    color: var(--sisme-admin-red-dark);
+}
+
+.sisme-admin-status-badge.status-archived {
+    background: var(--sisme-admin-blue-light);
+    color: var(--sisme-admin-blue-dark);
+}
+
+/* Boutons d'actions pour soumissions */
+.sisme-admin-action-buttons {
+    display: flex;
+    gap: var(--sisme-admin-spacing-xs);
+    align-items: center;
+}
+
+.sisme-admin-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--sisme-admin-gray-300);
+    background: var(--sisme-admin-white);
+    border-radius: var(--sisme-admin-radius-sm);
+    cursor: pointer;
+    transition: var(--sisme-admin-transition);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.sisme-admin-action-btn:hover {
+    background: var(--sisme-admin-gray-50);
+    border-color: var(--sisme-admin-gray-400);
+}
+
+.sisme-admin-action-btn.active {
+    background: var(--sisme-admin-white);
+    border-color: var(--sisme-admin-gray-300);
+}
+
+.sisme-admin-action-btn.active:hover {
+    background: var(--sisme-admin-blue-light);
+    border-color: var(--sisme-admin-blue);
+}
+
+.sisme-admin-action-btn.disabled,
+.sisme-admin-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--sisme-admin-gray-100);
+}
+
+.sisme-admin-action-btn.disabled:hover,
+.sisme-admin-action-btn:disabled:hover {
+    background: var(--sisme-admin-gray-100);
+    border-color: var(--sisme-admin-gray-300);
+}
+
+/* Lignes de détails dans les tableaux */
+.sisme-admin-details-row {
+    background: var(--sisme-admin-gray-50);
+}
+
+.sisme-admin-details-container {
+    padding: var(--sisme-admin-spacing-lg);
+}
+
+.sisme-admin-details-content {
+    background: var(--sisme-admin-white);
+    border-radius: var(--sisme-admin-radius-md);
+    padding: var(--sisme-admin-spacing-lg);
+}
+
+.sisme-admin-loading {
+    text-align: center;
+    color: var(--sisme-admin-light-text-muted);
+    font-style: italic;
+    padding: var(--sisme-admin-spacing-lg);
 }

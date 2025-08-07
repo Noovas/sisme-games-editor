@@ -22,7 +22,7 @@ jQuery(document).ready(function($) {
     /**
      * Gestionnaire pour les boutons "Voir détails" (délégation d'événements)
      */
-    $(document).on('click', '.view-btn', function(e) {
+    $(document).on('click', '[id^="view-btn-"]', function(e) {
         e.preventDefault();
         
         const $button = $(this);
@@ -324,13 +324,18 @@ jQuery(document).ready(function($) {
     }
 
     // Gestionnaire pour les boutons "Rejeter"
-    $(document).on('click', '.reject-btn.active', function(e) {
+    $(document).on('click', '[id^="reject-btn-"]', function(e) {
         e.preventDefault();
         
         const $button = $(this);
         const submissionId = $button.data('submission-id');
         const userId = $button.data('user-id');
         const gameName = $button.closest('tr').find('.game-info strong').text() || 'ce jeu';
+        
+        // Vérifier si le bouton est actif
+        if (!$button.hasClass('active')) {
+            return false;
+        }
         
         showRejectModal(gameName, (reason) => {
             if (reason && reason.trim()) {
@@ -365,13 +370,18 @@ jQuery(document).ready(function($) {
     }
 
     // Gestionnaire pour les boutons "Approuver" 
-    $(document).on('click', '.approve-btn.active', function(e) {
+    $(document).on('click', '[id^="approve-btn-"]', function(e) {
         e.preventDefault();
         
         const $button = $(this);
         const submissionId = $button.data('submission-id');
         const userId = $button.data('user-id');
         const gameName = $button.closest('tr').find('.game-info strong').text() || 'ce jeu';
+        
+        // Vérifier si le bouton est actif
+        if (!$button.hasClass('active')) {
+            return false;
+        }
         
         // Confirmation avant approbation
         const confirmMessage = `Approuver "${gameName}" ?\n\nCela va :\n- Publier le jeu\n- Envoyer un email de confirmation\n- Rendre la soumission non-modifiable`;
@@ -406,7 +416,7 @@ jQuery(document).ready(function($) {
     }
 
     // Gestionnaire pour les boutons "Supprimer"
-    $(document).on('click', '.delete-btn.active', function(e) {
+    $(document).on('click', '[id^="delete-btn-"]', function(e) {
         e.preventDefault();
         
         const $button = $(this);
@@ -414,6 +424,11 @@ jQuery(document).ready(function($) {
         const userId = $button.data('user-id');
         const gameName = $button.closest('tr').find('.game-info strong').text() || 'cette soumission';
         const isRevision = $button.closest('tr').data('is-revision') === 'true';
+        
+        // Vérifier si le bouton est actif
+        if (!$button.hasClass('active')) {
+            return false;
+        }
         
         // Message de confirmation adapté selon le type
         let confirmMessage;
@@ -502,7 +517,7 @@ jQuery(document).ready(function($) {
         });
 
         // Afficher la modale avec requestAnimationFrame
-        $modal.addClass('active');
+        $modal.addClass('sisme-admin-modal-visible');
         requestAnimationFrame(() => {
             $textarea.focus();
         });
@@ -553,7 +568,7 @@ jQuery(document).ready(function($) {
      */
     function hideRejectModal() {
         const $modal = $('#sisme-admin-reject-modal');
-        $modal.removeClass('active');
+        $modal.removeClass('sisme-admin-modal-visible');
         $(document).off('keydown.rejectModal');
         
         // Nettoyer les événements immédiatement

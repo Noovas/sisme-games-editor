@@ -190,6 +190,8 @@ class Sisme_Admin_Page_Wrapper {
             'brouillons' => '<span style="margin-right: 12px; font-size: 28px;">📝</span>',
 
             'news' => '<span style="margin-right: 12px; font-size: 28px;">📰</span>',
+            'submission' => '<span style="margin-right: 12px; font-size: 28px;">📰</span>',
+            
             'test' => '<span style="margin-right: 12px; font-size: 28px;">🧪</span>',
 
             // Icônes d'état
@@ -287,13 +289,28 @@ class Sisme_Admin_Page_Wrapper {
     }
 
     /**
+     * Rend une carte avec un titre, une icône, un sous-titre et du contenu
+     * 
+     * @param string $card_title Titre de la carte
+     * @param string $card_icon Icône de la carte (optionnel)
+     * @param string $card_subtitle Sous-titre de la carte (optionnel)
+     * @param string $card_added_content_classes Classes CSS supplémentaires pour le contenu de la carte (optionnel)
+     * @param bool $card_transformation Indique si la carte doit avoir une transformation (optionnel, par défaut false)
+     * @param string $card_content Contenu HTML à afficher dans la carte (optionnel)
+     */
+    public static function render_card($card_title = '', $card_icon = '', $card_subtitle = '', $card_added_content_classes = '', $card_transformation = false, $card_content = '') {
+        self::render_card_start($card_title, $card_icon, $card_subtitle, $card_added_content_classes, $card_transformation, $card_content);
+        self::render_card_end();
+    }
+
+    /**
      * Rend le début d'une carte
      * 
      * @param string $card_title Titre de la carte
      * @param string $card_icon Icône de la carte (optionnel)
      * @param string $card_subtitle Sous-titre de la carte (optionnel)
      */
-    public static function render_card_start($card_title = '', $card_icon = '', $card_subtitle = '', $card_added_content_classes = '', $card_transformation = false) {
+    public static function render_card_start($card_title = '', $card_icon = '', $card_subtitle = '', $card_added_content_classes = '', $card_transformation = false, $card_content = '') {
         ?>
         <div class="sisme-admin-card<?php echo !$card_transformation ? ' sisme-admin-card-no-transformation' : ''; ?>">
             <div class="sisme-admin-card-header">
@@ -302,8 +319,8 @@ class Sisme_Admin_Page_Wrapper {
             <?php if (!empty($card_subtitle)) : ?>
                 <p class="sisme-admin-comment"><?php echo esc_html($card_subtitle); ?></p>
             <?php endif; ?>
-                <div class="sisme-admin-card-content <?php echo esc_attr($card_added_content_classes); ?>" >
-                <?php
+            <div class="sisme-admin-card-content <?php echo esc_attr($card_added_content_classes); ?>" >
+            <?php echo $card_content;
     }
 
     /**
