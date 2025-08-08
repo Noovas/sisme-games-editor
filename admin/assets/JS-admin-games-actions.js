@@ -5,20 +5,14 @@
 
 jQuery(document).ready(function($) {
     
-    console.log('🎮 JS-admin-games-actions.js chargé');
-    console.log('📊 sismeAdminAjax:', window.sismeAdminAjax);
-    
     /**
      * Dépublier un jeu avec modale de confirmation
      */
     $(document).on('click', '[id^="unpublish-game-"]', function(e) {
         e.preventDefault();
-        console.log('🚫 Clic dépublier détecté:', $(this).attr('id'));
         
         const gameTermId = $(this).attr('id').replace('unpublish-game-', '');
         const gameName = $(this).data('game-name') || 'ce jeu';
-        
-        console.log('🎯 Game Term ID:', gameTermId, 'Game Name:', gameName);
         
         // Créer la modale de confirmation
         showUnpublishModal(gameTermId, gameName);
@@ -29,15 +23,38 @@ jQuery(document).ready(function($) {
      */
     $(document).on('click', '[id^="publish-game-"]', function(e) {
         e.preventDefault();
-        console.log('🌐 Clic publier détecté:', $(this).attr('id'));
         
         const gameTermId = $(this).attr('id').replace('publish-game-', '');
         const gameName = $(this).data('game-name') || 'ce jeu';
         
-        console.log('🎯 Game Term ID:', gameTermId, 'Game Name:', gameName);
-        
         // Créer la modale de confirmation
         showRepublishModal(gameTermId, gameName);
+    });
+    
+    /**
+     * Ajouter un jeu aux coups de cœur
+     */
+    $(document).on('click', '[id^="set-team-choice-"]', function(e) {
+        e.preventDefault();
+        
+        const gameTermId = $(this).attr('id').replace('set-team-choice-', '');
+        const gameName = $(this).data('game-name') || 'ce jeu';
+        
+        // Créer la modale de confirmation
+        showSetTeamChoiceModal(gameTermId, gameName);
+    });
+    
+    /**
+     * Retirer un jeu des coups de cœur
+     */
+    $(document).on('click', '[id^="unset-team-choice-"]', function(e) {
+        e.preventDefault();
+        
+        const gameTermId = $(this).attr('id').replace('unset-team-choice-', '');
+        const gameName = $(this).data('game-name') || 'ce jeu';
+        
+        // Créer la modale de confirmation
+        showUnsetTeamChoiceModal(gameTermId, gameName);
     });
     
     /**
@@ -127,6 +144,92 @@ jQuery(document).ready(function($) {
     }
     
     /**
+     * Afficher la modale d'ajout aux coups de cœur
+     */
+    function showSetTeamChoiceModal(gameTermId, gameName) {
+        // Trouver la ligne du tableau
+        const $gameRow = $(`#game-row-${gameTermId}`);
+        
+        // Créer la modale directement dans la ligne
+        const modalHtml = `
+            <td colspan="5" style="position: relative; padding: 0; background-color: rgba(0, 0, 0, 0.9); z-index: 9999;">
+                <div style="display: flex; align-items: center; justify-content: center; min-height: 60px; padding: 20px;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; min-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <div class="sisme-admin-modal-header">
+                            <h3 class="sisme-admin-modal-title">❤️ Ajouter aux coups de cœur</h3>
+                            <p class="sisme-admin-modal-subtitle">Confirmer l'ajout de "${gameName}" aux coups de cœur de l'équipe</p>
+                        </div>
+                        <div class="sisme-admin-modal-body">
+                            <p><strong>Cette action va :</strong></p>
+                            <ul>
+                                <li>• Marquer le jeu comme coup de cœur de l'équipe</li>
+                                <li>• Afficher un badge spécial sur la fiche du jeu</li>
+                                <li>• Mettre en valeur le jeu dans les listings</li>
+                            </ul>
+                        </div>
+                        <div class="sisme-admin-modal-actions">
+                            <button type="button" class="sisme-admin-modal-btn sisme-admin-modal-btn-cancel" onclick="closeSetTeamChoiceModal()">
+                                Annuler
+                            </button>
+                            <button type="button" class="sisme-admin-modal-btn sisme-admin-modal-btn-confirm" onclick="confirmSetTeamChoice(${gameTermId})">
+                                Ajouter aux coups de cœur
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        `;
+        
+        // Sauvegarder le contenu original et le remplacer
+        $gameRow.data('original-content', $gameRow.html());
+        $gameRow.html(modalHtml);
+        $gameRow.attr('id', 'set-team-choice-modal-row');
+    }
+    
+    /**
+     * Afficher la modale de retrait des coups de cœur
+     */
+    function showUnsetTeamChoiceModal(gameTermId, gameName) {
+        // Trouver la ligne du tableau
+        const $gameRow = $(`#game-row-${gameTermId}`);
+        
+        // Créer la modale directement dans la ligne
+        const modalHtml = `
+            <td colspan="5" style="position: relative; padding: 0; background-color: rgba(0, 0, 0, 0.9); z-index: 9999;">
+                <div style="display: flex; align-items: center; justify-content: center; min-height: 60px; padding: 20px;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; min-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <div class="sisme-admin-modal-header">
+                            <h3 class="sisme-admin-modal-title">💔 Retirer des coups de cœur</h3>
+                            <p class="sisme-admin-modal-subtitle">Confirmer le retrait de "${gameName}" des coups de cœur de l'équipe</p>
+                        </div>
+                        <div class="sisme-admin-modal-body">
+                            <p><strong>Cette action va :</strong></p>
+                            <ul>
+                                <li>• Retirer le statut coup de cœur du jeu</li>
+                                <li>• Supprimer le badge spécial</li>
+                                <li>• Retirer la mise en valeur dans les listings</li>
+                            </ul>
+                        </div>
+                        <div class="sisme-admin-modal-actions">
+                            <button type="button" class="sisme-admin-modal-btn sisme-admin-modal-btn-cancel" onclick="closeUnsetTeamChoiceModal()">
+                                Annuler
+                            </button>
+                            <button type="button" class="sisme-admin-modal-btn sisme-admin-modal-btn-confirm" onclick="confirmUnsetTeamChoice(${gameTermId})">
+                                Retirer des coups de cœur
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        `;
+        
+        // Sauvegarder le contenu original et le remplacer
+        $gameRow.data('original-content', $gameRow.html());
+        $gameRow.html(modalHtml);
+        $gameRow.attr('id', 'unset-team-choice-modal-row');
+    }
+    
+    /**
      * Fermer la modale de dépublication
      */
     window.closeUnpublishModal = function() {
@@ -155,6 +258,34 @@ jQuery(document).ready(function($) {
     };
     
     /**
+     * Fermer la modale d'ajout aux coups de cœur
+     */
+    window.closeSetTeamChoiceModal = function() {
+        const $modalRow = $('#set-team-choice-modal-row');
+        const originalContent = $modalRow.data('original-content');
+        const gameTermId = $modalRow.html().match(/confirmSetTeamChoice\((\d+)\)/)?.[1];
+        
+        if (originalContent && gameTermId) {
+            $modalRow.html(originalContent);
+            $modalRow.attr('id', `game-row-${gameTermId}`);
+        }
+    };
+    
+    /**
+     * Fermer la modale de retrait des coups de cœur
+     */
+    window.closeUnsetTeamChoiceModal = function() {
+        const $modalRow = $('#unset-team-choice-modal-row');
+        const originalContent = $modalRow.data('original-content');
+        const gameTermId = $modalRow.html().match(/confirmUnsetTeamChoice\((\d+)\)/)?.[1];
+        
+        if (originalContent && gameTermId) {
+            $modalRow.html(originalContent);
+            $modalRow.attr('id', `game-row-${gameTermId}`);
+        }
+    };
+    
+    /**
      * Confirmer la dépublication
      */
     window.confirmUnpublishGame = function(gameTermId) {
@@ -168,19 +299,13 @@ jQuery(document).ready(function($) {
         })
         .done(function(response) {
             if (response.success) {
-                // Mettre à jour l'interface
-                updateGamePublicationStatus(gameTermId, 'unpublished');
-                closeUnpublishModal();
-                
-                // Message de succès (optionnel)
-                console.log('Jeu dépublié avec succès');
+                // Recharger automatiquement la page
+                location.reload();
             } else {
-                alert('Erreur : ' + response.data.message);
                 $confirmBtn.prop('disabled', false).text('Dépublier');
             }
         })
         .fail(function() {
-            alert('Erreur de connexion');
             $confirmBtn.prop('disabled', false).text('Dépublier');
         });
     };
@@ -199,50 +324,65 @@ jQuery(document).ready(function($) {
         })
         .done(function(response) {
             if (response.success) {
-                // Mettre à jour l'interface
-                updateGamePublicationStatus(gameTermId, 'published');
-                closeRepublishModal();
-                
-                // Message de succès (optionnel)
-                console.log('Jeu republié avec succès');
+                // Recharger automatiquement la page
+                location.reload();
             } else {
-                alert('Erreur : ' + response.data.message);
                 $confirmBtn.prop('disabled', false).text('Republier');
             }
         })
         .fail(function() {
-            alert('Erreur de connexion');
             $confirmBtn.prop('disabled', false).text('Republier');
         });
     };
     
     /**
-     * Mettre à jour l'interface après changement de statut
+     * Confirmer l'ajout aux coups de cœur
      */
-    function updateGamePublicationStatus(gameTermId, newStatus) {
-        const $row = $(`#unpublish-game-${gameTermId}, #publish-game-${gameTermId}`).closest('tr');
+    window.confirmSetTeamChoice = function(gameTermId) {
+        const $confirmBtn = $('#set-team-choice-modal-row .sisme-admin-modal-btn-confirm');
+        $confirmBtn.prop('disabled', true).text('⏳ Ajout...');
         
-        if (newStatus === 'unpublished') {
-            // Changer le bouton de dépublication en republication
-            $(`#unpublish-game-${gameTermId}`)
-                .attr('id', `publish-game-${gameTermId}`)
-                .attr('title', 'Publier');
-            
-            // Ajouter le badge dépublié dans la colonne statut
-            const $statusCol = $row.find('td').eq(2); // 3ème colonne (État)
-            $statusCol.find('.sisme-admin-flex-col-sm').append(`
-                <span class="sisme-admin-badge sisme-admin-badge-danger">🚫 Dépublié</span>
-            `);
-            
-        } else if (newStatus === 'published') {
-            // Changer le bouton de republication en dépublication
-            $(`#publish-game-${gameTermId}`)
-                .attr('id', `unpublish-game-${gameTermId}`)
-                .attr('title', 'Dépublier');
-            
-            // Retirer le badge dépublié
-            const $statusCol = $row.find('td').eq(2);
-            $statusCol.find('.sisme-admin-badge-danger:contains("Dépublié")').remove();
-        }
-    }
+        $.post(sismeAdminAjax.ajaxurl, {
+            action: 'sisme_admin_set_team_choice',
+            game_term_id: gameTermId,
+            security: sismeAdminAjax.nonce
+        })
+        .done(function(response) {
+            if (response.success) {
+                // Recharger automatiquement la page
+                location.reload();
+            } else {
+                $confirmBtn.prop('disabled', false).text('Ajouter aux coups de cœur');
+            }
+        })
+        .fail(function() {
+            $confirmBtn.prop('disabled', false).text('Ajouter aux coups de cœur');
+        });
+    };
+    
+    /**
+     * Confirmer le retrait des coups de cœur
+     */
+    window.confirmUnsetTeamChoice = function(gameTermId) {
+        const $confirmBtn = $('#unset-team-choice-modal-row .sisme-admin-modal-btn-confirm');
+        $confirmBtn.prop('disabled', true).text('⏳ Retrait...');
+        
+        $.post(sismeAdminAjax.ajaxurl, {
+            action: 'sisme_admin_unset_team_choice',
+            game_term_id: gameTermId,
+            security: sismeAdminAjax.nonce
+        })
+        .done(function(response) {
+            if (response.success) {
+                // Recharger automatiquement la page
+                location.reload();
+            } else {
+                $confirmBtn.prop('disabled', false).text('Retirer des coups de cœur');
+            }
+        })
+        .fail(function() {
+            $confirmBtn.prop('disabled', false).text('Retirer des coups de cœur');
+        });
+    };
+    
 });

@@ -16,6 +16,8 @@ class Sisme_Admin_Games_Actions {
     public static function init() {
         add_action('wp_ajax_sisme_admin_unpublish_game', [__CLASS__, 'ajax_unpublish_game']);
         add_action('wp_ajax_sisme_admin_republish_game', [__CLASS__, 'ajax_republish_game']);
+        add_action('wp_ajax_sisme_admin_set_team_choice', [__CLASS__, 'ajax_set_team_choice']);
+        add_action('wp_ajax_sisme_admin_unset_team_choice', [__CLASS__, 'ajax_unset_team_choice']);
     }
     
     /**
@@ -97,6 +99,78 @@ class Sisme_Admin_Games_Actions {
     }
     
     /**
+     * AJAX : Marquer un jeu comme "team choice"
+     */
+    public static function ajax_set_team_choice() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Permissions insuffisantes']);
+        }
+        
+        if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_admin_nonce')) {
+            wp_send_json_error(['message' => 'Erreur de sécurité']);
+        }
+        
+        $game_term_id = intval($_POST['game_term_id'] ?? 0);
+        
+        if (!$game_term_id) {
+            wp_send_json_error(['message' => 'ID de jeu invalide']);
+        }
+        
+        // Vérifier que le terme existe
+        $term = get_term($game_term_id);
+        if (is_wp_error($term) || !$term) {
+            wp_send_json_error(['message' => 'Jeu non trouvé']);
+        }
+        
+        try {
+            // Marquer le jeu comme team choice
+            update_term_meta($game_term_id, 'is_team_choice', 'true');
+            update_term_meta($game_term_id, 'team_choice_added_at', current_time('mysql'));
+            
+            wp_send_json_success([
+                'message' => 'Jeu ajouté aux coups de cœur de l\'équipe',
+                'new_status' => 'team_choice'
+            ]);
+            
+        } catch (Exception $e) {
+            wp_send_json_error(['message' => 'Erreur lors de l\'ajout aux coups de cœur : ' . $e->getMessage()]);
+        }
+    }
+    
+    /**
+     * AJAX : Retirer un jeu des "team choice"
+     */
+    public static function ajax_unset_team_choice() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Permissions insuffisantes']);
+        }
+        
+        if (!wp_verify_nonce($_POST['security'] ?? '', 'sisme_admin_nonce')) {
+            wp_send_json_error(['message' => 'Erreur de sécurité']);
+        }
+        
+        $game_term_id = intval($_POST['game_term_id'] ?? 0);
+        
+        if (!$game_term_id) {
+            wp_send_json_error(['message' => 'ID de jeu invalide']);
+        }
+        
+        try {
+            // Retirer le marquage team choice
+            delete_term_meta($game_term_id, 'is_team_choice');
+            delete_term_meta($game_term_id, 'team_choice_added_at');
+            
+            wp_send_json_success([
+                'message' => 'Jeu retiré des coups de cœur de l\'équipe',
+                'new_status' => 'not_team_choice'
+            ]);
+            
+        } catch (Exception $e) {
+            wp_send_json_error(['message' => 'Erreur lors du retrait des coups de cœur : ' . $e->getMessage()]);
+        }
+    }
+    
+    /**
      * Changer le statut du post WordPress associé
      */
     private static function set_wordpress_post_status($game_term_id, $status) {
@@ -122,5 +196,13 @@ class Sisme_Admin_Games_Actions {
     public static function is_game_unpublished($game_term_id) {
         $is_unpublished = get_term_meta($game_term_id, 'game_is_unpublished', true);
         return $is_unpublished === 'true' || $is_unpublished === true;
+    }
+    
+    /**
+     * Vérifier si un jeu est un coup de cœur de l'équipe
+     */
+    public static function is_team_choice($game_term_id) {
+        $is_team_choice = get_term_meta($game_term_id, 'is_team_choice', true);
+        return $is_team_choice === 'true' || $is_team_choice === true;
     }
 }

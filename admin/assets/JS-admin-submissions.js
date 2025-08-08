@@ -307,17 +307,14 @@ jQuery(document).ready(function($) {
         const submissionId = $button.data('submission-id');
         const userId = $button.data('user-id');
         const gameName = $button.closest('tr').find('.game-info strong').text() || 'ce jeu';
+        const $row = $button.closest('tr');
         
         // Vérifier si le bouton est actif
         if (!$button.hasClass('active')) {
             return false;
         }
         
-        showRejectModal(gameName, (reason) => {
-            if (reason && reason.trim()) {
-                rejectSubmission(submissionId, userId, reason.trim());
-            }
-        });
+        showRejectModalInRow($row, submissionId, userId, gameName);
     });
 
     function rejectSubmission(submissionId, userId, reason) {
@@ -333,14 +330,11 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    alert('✅ Soumission rejetée et email envoyé');
                     location.reload();
-                } else {
-                    alert('❌ Erreur: ' + (response.data?.message || 'Erreur inconnue'));
                 }
             },
             error: function() {
-                alert('❌ Erreur de connexion');
+                console.error('❌ Erreur de connexion');
             }
         });
     }
@@ -353,18 +347,14 @@ jQuery(document).ready(function($) {
         const submissionId = $button.data('submission-id');
         const userId = $button.data('user-id');
         const gameName = $button.closest('tr').find('.game-info strong').text() || 'ce jeu';
+        const $row = $button.closest('tr');
         
         // Vérifier si le bouton est actif
         if (!$button.hasClass('active')) {
             return false;
         }
         
-        // Confirmation avant approbation
-        const confirmMessage = `Approuver "${gameName}" ?\n\nCela va :\n- Publier le jeu\n- Envoyer un email de confirmation\n- Rendre la soumission non-modifiable`;
-        
-        if (confirm(confirmMessage)) {
-            approveSubmission(submissionId, userId, gameName);
-        }
+        showApproveModalInRow($row, submissionId, userId, gameName);
     });
 
     function approveSubmission(submissionId, userId, gameName) {
@@ -379,14 +369,13 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    alert(`✅ "${gameName}" approuvé et email envoyé !`);
                     location.reload();
                 } else {
-                    alert('❌ Erreur: ' + (response.data?.message || 'Erreur inconnue'));
+                    console.error('❌ Erreur: ' + (response.data?.message || 'Erreur inconnue'));
                 }
             },
             error: function() {
-                alert('❌ Erreur de connexion');
+                console.error('❌ Erreur de connexion');
             }
         });
     }
@@ -400,23 +389,14 @@ jQuery(document).ready(function($) {
         const userId = $button.data('user-id');
         const gameName = $button.closest('tr').find('.game-info strong').text() || 'cette soumission';
         const isRevision = $button.closest('tr').data('is-revision') === 'true';
+        const $row = $button.closest('tr');
         
         // Vérifier si le bouton est actif
         if (!$button.hasClass('active')) {
             return false;
         }
         
-        // Message de confirmation adapté selon le type
-        let confirmMessage;
-        if (isRevision) {
-            confirmMessage = `Supprimer définitivement la révision "${gameName}" ?\n\n⚠️ Cette action :\n- Supprimera la révision\n- CONSERVERA les médias (images/vidéos)\n- Ne pourra pas être annulée`;
-        } else {
-            confirmMessage = `Supprimer définitivement la soumission "${gameName}" ?\n\n⚠️ Cette action :\n- Supprimera la soumission\n- SUPPRIMERA AUSSI les médias (images/vidéos)\n- Ne pourra pas être annulée`;
-        }
-        
-        if (confirm(confirmMessage)) {
-            deleteSubmission(submissionId, userId, gameName, isRevision);
-        }
+        showDeleteModalInRow($row, submissionId, userId, gameName, isRevision);
     });
 
     function deleteSubmission(submissionId, userId, gameName, isRevision) {
@@ -431,16 +411,235 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    alert(`✅ "${gameName}" supprimée avec succès`);
                     location.reload();
                 } else {
-                    alert('❌ Erreur: ' + (response.data?.message || 'Erreur inconnue'));
+                    console.error('❌ Erreur: ' + (response.data?.message || 'Erreur inconnue'));
                 }
             },
             error: function() {
-                alert('❌ Erreur de connexion');
+                console.error('❌ Erreur de connexion');
             }
         });
+    }
+
+    /**
+     * Afficher la modale d'approbation dans la ligne du tableau
+     */
+    function showApproveModalInRow($row, submissionId, userId, gameName) {
+        // Sauvegarder le contenu original de la ligne
+        const originalContent = $row.html();
+        
+        // Créer le contenu de la modale pour la ligne
+        const modalContent = `
+            <td colspan="100%" class="sisme-admin-row-modal">
+                <div class="sisme-admin-modal-content">
+                    <div class="sisme-admin-modal-header">
+                        <h3 class="sisme-admin-modal-title">
+                            ✅ Approuver la soumission
+                        </h3>
+                        <p class="sisme-admin-modal-subtitle">
+                            Confirmer l'approbation de "${gameName}"
+                        </p>
+                    </div>
+                    <div class="sisme-admin-modal-body">
+                        <p class="sisme-admin-modal-description">
+                            Cette action va :<br>
+                            • Publier le jeu<br>
+                            • Envoyer un email de confirmation<br>
+                            • Rendre la soumission non-modifiable
+                        </p>
+                    </div>
+                    <div class="sisme-admin-modal-actions">
+                        <button type="button" class="sisme-admin-modal-btn sisme-admin-modal-btn-cancel">
+                            Annuler
+                        </button>
+                        <button type="button" class="sisme-admin-modal-btn sisme-admin-modal-btn-confirm">
+                            Approuver
+                        </button>
+                    </div>
+                </div>
+            </td>
+        `;
+        
+        // Remplacer le contenu de la ligne
+        $row.html(modalContent);
+        
+        // Récupérer les éléments de la modale
+        const $confirmBtn = $row.find('.sisme-admin-modal-btn-confirm');
+        const $cancelBtn = $row.find('.sisme-admin-modal-btn-cancel');
+        
+        // Gestion du bouton Confirmer
+        $confirmBtn.on('click', function() {
+            // Restaurer la ligne originale
+            $row.html(originalContent);
+            // Effectuer l'approbation
+            approveSubmission(submissionId, userId, gameName);
+        });
+        
+        // Gestion du bouton Annuler
+        $cancelBtn.on('click', function() {
+            // Restaurer la ligne originale
+            $row.html(originalContent);
+        });
+        
+        // Focus sur le bouton confirmer
+        $confirmBtn.focus();
+    }
+
+    /**
+     * Afficher la modale de suppression dans la ligne du tableau
+     */
+    function showDeleteModalInRow($row, submissionId, userId, gameName, isRevision) {
+        // Sauvegarder le contenu original de la ligne
+        const originalContent = $row.html();
+        
+        // Message adapté selon le type
+        let warningMessage;
+        if (isRevision) {
+            warningMessage = `
+                <p class="sisme-admin-modal-description">
+                    ⚠️ <strong>Attention :</strong> Cette action va :<br>
+                    • Supprimer la révision<br>
+                    • <strong>CONSERVER</strong> les médias (images/vidéos)<br>
+                    • Ne pourra pas être annulée
+                </p>
+            `;
+        } else {
+            warningMessage = `
+                <p class="sisme-admin-modal-description">
+                    ⚠️ <strong>Attention :</strong> Cette action va :<br>
+                    • Supprimer la soumission<br>
+                    • <strong>SUPPRIMER AUSSI</strong> les médias (images/vidéos)<br>
+                    • Ne pourra pas être annulée
+                </p>
+            `;
+        }
+        
+        // Créer le contenu de la modale pour la ligne
+        const modalContent = `
+            <td colspan="100%" class="sisme-admin-row-modal">
+                <div class="sisme-admin-modal-content">
+                    <div class="sisme-admin-modal-header">
+                        <h3 class="sisme-admin-modal-title">
+                            🗑️ Supprimer ${isRevision ? 'la révision' : 'la soumission'}
+                        </h3>
+                        <p class="sisme-admin-modal-subtitle">
+                            Supprimer définitivement "${gameName}"
+                        </p>
+                    </div>
+                    <div class="sisme-admin-modal-body">
+                        ${warningMessage}
+                    </div>
+                    <div class="sisme-admin-modal-actions">
+                        <button type="button" class="sisme-admin-modal-btn sisme-admin-modal-btn-cancel">
+                            Annuler
+                        </button>
+                        <button type="button" class="sisme-admin-modal-btn sisme-admin-modal-btn-confirm sisme-admin-modal-btn-danger">
+                            Supprimer
+                        </button>
+                    </div>
+                </div>
+            </td>
+        `;
+        
+        // Remplacer le contenu de la ligne
+        $row.html(modalContent);
+        
+        // Récupérer les éléments de la modale
+        const $confirmBtn = $row.find('.sisme-admin-modal-btn-confirm');
+        const $cancelBtn = $row.find('.sisme-admin-modal-btn-cancel');
+        
+        // Gestion du bouton Confirmer
+        $confirmBtn.on('click', function() {
+            // Restaurer la ligne originale
+            $row.html(originalContent);
+            // Effectuer la suppression
+            deleteSubmission(submissionId, userId, gameName, isRevision);
+        });
+        
+        // Gestion du bouton Annuler
+        $cancelBtn.on('click', function() {
+            // Restaurer la ligne originale
+            $row.html(originalContent);
+        });
+        
+        // Focus sur le bouton confirmer
+        $confirmBtn.focus();
+    }
+
+    /**
+     * Afficher la modale de rejet dans la ligne du tableau
+     */
+    function showRejectModalInRow($row, submissionId, userId, gameName) {
+        // Sauvegarder le contenu original de la ligne
+        const originalContent = $row.html();
+        
+        // Créer le contenu de la modale pour la ligne
+        const modalContent = `
+            <td colspan="100%" class="sisme-admin-row-modal">
+                <div class="sisme-admin-modal-content">
+                    <div class="sisme-admin-modal-header">
+                        <h3 class="sisme-admin-modal-title">
+                            ❌ Rejeter la soumission
+                        </h3>
+                        <p class="sisme-admin-modal-subtitle">
+                            Expliquez pourquoi vous rejetez "${gameName}"
+                        </p>
+                    </div>
+                    <div class="sisme-admin-modal-body">
+                        <label class="sisme-admin-modal-label" for="reject-reason-${submissionId}">
+                            Motif du rejet *
+                        </label>
+                        <textarea 
+                            class="sisme-admin-modal-textarea" 
+                            id="reject-reason-${submissionId}"
+                            placeholder="Expliquez la raison du rejet (contenu inapproprié, informations manquantes, etc.)"
+                            maxlength="500"></textarea>
+                    </div>
+                    <div class="sisme-admin-modal-actions">
+                        <button type="button" class="sisme-admin-modal-btn sisme-admin-modal-btn-cancel">
+                            Annuler
+                        </button>
+                        <button type="button" class="sisme-admin-modal-btn sisme-admin-modal-btn-confirm" disabled>
+                            Rejeter
+                        </button>
+                    </div>
+                </div>
+            </td>
+        `;
+        
+        // Remplacer le contenu de la ligne
+        $row.html(modalContent);
+        
+        // Récupérer les éléments de la modale
+        const $textarea = $row.find('.sisme-admin-modal-textarea');
+        const $confirmBtn = $row.find('.sisme-admin-modal-btn-confirm');
+        const $cancelBtn = $row.find('.sisme-admin-modal-btn-cancel');
+        
+        // Vérifier si le textarea a du contenu
+        $textarea.on('input', function() {
+            $confirmBtn.prop('disabled', $(this).val().trim().length === 0);
+        });
+        
+        // Gestion du bouton Confirmer
+        $confirmBtn.on('click', function() {
+            const reason = $textarea.val().trim();
+            if (reason) {
+                // Restaurer la ligne originale
+                $row.html(originalContent);
+                // Effectuer le rejet
+                rejectSubmission(submissionId, userId, reason);
+            }
+        });
+        
+        // Gestion du bouton Annuler
+        $cancelBtn.on('click', function() {
+            // Restaurer la ligne originale
+            $row.html(originalContent);
+        });
+        
+        // Focus sur le textarea
+        $textarea.focus();
     }
 
     /**

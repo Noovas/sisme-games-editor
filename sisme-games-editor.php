@@ -103,6 +103,8 @@ class SismeGamesEditor {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_enqueue_scripts', array($this, 'load_admin_css'));
         add_action('init', array($this, 'init_modules_system'));
+        add_action('admin_footer_text', array($this, 'remove_wp_footer'));
+        add_action('update_footer', array($this, 'remove_wp_version'), 11);
 
         $this->include_files();
         sisme_load_utils();
@@ -119,7 +121,38 @@ class SismeGamesEditor {
                 array(),
                 SISME_GAMES_EDITOR_VERSION
             );
+            
+            // Masquer le footer WordPress sur les pages du plugin
+            wp_add_inline_style('sisme-admin-shared', '
+                #wpfooter {
+                    display: none !important;
+                }
+            ');
         }
+    }
+    
+    /**
+     * Masquer le texte du footer WordPress
+     */
+    public function remove_wp_footer() {
+        // Masquer seulement sur les pages du plugin
+        $screen = get_current_screen();
+        if ($screen && strpos($screen->id, 'sisme-games') !== false) {
+            return '';
+        }
+        return '';
+    }
+    
+    /**
+     * Masquer la version WordPress dans le footer
+     */
+    public function remove_wp_version() {
+        // Masquer seulement sur les pages du plugin
+        $screen = get_current_screen();
+        if ($screen && strpos($screen->id, 'sisme-games') !== false) {
+            return '';
+        }
+        return '';
     }
     
     private function include_files() {

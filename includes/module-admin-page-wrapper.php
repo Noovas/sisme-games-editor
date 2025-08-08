@@ -115,6 +115,10 @@ class Sisme_Admin_Page_Wrapper {
             'coeur' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">❤️</span>',
             'team-choice' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">❤️</span>',
 
+            'no-heart' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🤍</span>',
+            'no-coeur' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🤍</span>',
+            'no-team-choice' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🤍</span>',
+
             'no-featured' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">☆</span>',
             'no-star' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">☆</span>',
             'no-stars' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">☆</span>',

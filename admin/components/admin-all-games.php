@@ -54,6 +54,30 @@ class Sisme_Admin_All_Games {
         self::render_submission_pending();
         self::render_submission_draft();
         self::render_game_list();
+        ?>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('gameListSearchInput');
+            const gameRows = document.querySelectorAll('.game-list-row');
+            
+            if (searchInput && gameRows.length > 0) {
+                // Filtrage en temps réel
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase().trim();
+                    
+                    gameRows.forEach(row => {
+                        const gameSearch = row.dataset.search;
+                        if (!searchTerm || gameSearch.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+        </script>
+        <?php
         $page->render_end();    
     }
 
@@ -165,14 +189,35 @@ class Sisme_Admin_All_Games {
                 )
             )
         ));
+        
+        // Préparer le contenu avec la barre de recherche
+        $search_and_table = self::render_search_bar() . self::render_games_table($all_games);
+        
         Sisme_Admin_Page_Wrapper::render_card(
             'Liste des jeux',
             'lib',
             'Catalogue complet des jeux publiés et en cours',
             '',
             false,
-            self::render_games_table($all_games)
+            $search_and_table
         );
+    }
+
+    /**
+     * Rendu de la barre de recherche pour les jeux
+     */
+    private static function render_search_bar() {
+        ob_start();
+        ?>
+        <div class="sisme-admin-mb-lg">
+            <input type="text" 
+                   id="gameListSearchInput" 
+                   placeholder="🔍 Rechercher un jeu..." 
+                   class="sisme-admin-input"
+                   autocomplete="off">
+        </div>
+        <?php
+        return ob_get_clean();
     }
 
     /**
@@ -226,7 +271,10 @@ class Sisme_Admin_All_Games {
                 </thead>
                 <tbody>
                     <?php foreach ($games as $game): ?>
-                    <tr id="game-row-<?php echo esc_attr($game->term_id); ?>">
+                    <tr id="game-row-<?php echo esc_attr($game->term_id); ?>" 
+                        class="game-list-row" 
+                        data-game-name="<?php echo esc_attr($game->name); ?>"
+                        data-search="<?php echo esc_attr(strtolower($game->name . ' ' . $game->term_id)); ?>">
                         <td>
                             <strong><?php echo esc_html($game->name); ?></strong>
                         </td>
@@ -317,6 +365,21 @@ class Sisme_Admin_All_Games {
                                             class="sisme-admin-action-btn" 
                                             data-game-name="<?php echo esc_attr($game->name); ?>"
                                             title="Dépublier le jeu"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('unpublished', 0, 12)?></button>
+                                <?php endif; ?>
+                                
+                                <!-- Bouton Team Choice -->
+                                <?php if ($is_team_choice): ?>
+                                    <button type="button"
+                                            id="unset-team-choice-<?php echo esc_attr($game->term_id); ?>" 
+                                            class="sisme-admin-action-btn" 
+                                            data-game-name="<?php echo esc_attr($game->name); ?>"
+                                            title="Retirer des coups de cœur"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('heart', 0, 12)?></button>
+                                <?php else: ?>
+                                    <button type="button"
+                                            id="set-team-choice-<?php echo esc_attr($game->term_id); ?>" 
+                                            class="sisme-admin-action-btn" 
+                                            data-game-name="<?php echo esc_attr($game->name); ?>"
+                                            title="Ajouter aux coups de cœur">🤍</button>
                                 <?php endif; ?>
                             </div>
                         </td>
