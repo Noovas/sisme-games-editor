@@ -39,7 +39,9 @@ class Sisme_Game_Creator_Validator {
         // Validation de la description
         if (!empty($sanitized_data['description'])) {
             if (strlen($sanitized_data['description']) > Sisme_Game_Creator_Constants::MAX_DESCRIPTION_LENGTH) {
-                $errors[] = 'La description ne peut pas dépasser ' . Sisme_Game_Creator_Constants::MAX_DESCRIPTION_LENGTH . ' caractères';
+                $errors[] = 'La description ne peut pas dépasser ' 
+                    . Sisme_Game_Creator_Constants::MAX_DESCRIPTION_LENGTH 
+                    . ' caractères (' . strlen($sanitized_data['description']) . ' saisis).';
             }
         }
         

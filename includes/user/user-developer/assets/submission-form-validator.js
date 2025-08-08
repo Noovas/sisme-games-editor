@@ -147,6 +147,10 @@ class SubmissionFormValidator {
             const field = document.getElementById(fieldName);
             if (field) {
                 field.addEventListener('input', () => {
+                    // Blocage strict pour game_description
+                    if (fieldName === 'game_description' && field.value.length > 180) {
+                        field.value = field.value.slice(0, 180);
+                    }
                     this.validationState[fieldName].touched = true;
                     this.validateField(fieldName);
                 });
@@ -677,7 +681,7 @@ class GameSectionsManager {
             return;
         }
         
-        if (file.size > 5 * 1024 * 1024) {
+        if (file.size > (sismeValidatorConfig?.maxSectionImageSize || 5242880)) {
             alert('L\'image ne doit pas dépasser 5MB.');
             input.value = '';
             return;

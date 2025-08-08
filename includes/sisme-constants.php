@@ -28,7 +28,12 @@ class Sisme_Constants {
         'manette' => 'https://games.sisme.fr/images/avatar/avatar-user-manette.png',
         'tourne-disque' => 'https://games.sisme.fr/images/avatar/avatar-user-tourne-disque.png'
     ];
-    
+
+    // ===== UPLOAD ET MÉDIAS =====
+    const MAX_SECTION_IMAGE_SIZE = 10 * 1024 * 1024; 
+    const SISME_IMAGE_ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+    const SISME_SECTION_IMAGE_ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+
     /**
      * Obtenir tous les avatars
      */

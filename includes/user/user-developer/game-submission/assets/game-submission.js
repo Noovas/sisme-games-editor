@@ -659,7 +659,8 @@
                     formData.append('action', 'sisme_simple_crop_upload');
                     formData.append('security', this.config.nonce);
                     formData.append('image', imageInput.files[0]);
-                    formData.append('ratio_type', 'screenshot'); // Utiliser screenshot pour les sections
+                    formData.append('ratio_type', 'screenshot'); 
+                    formData.append('is_section_image', '1');
                     
                     const response = await fetch(this.config.ajaxUrl, { 
                         method: 'POST', 

@@ -89,8 +89,8 @@ class Sisme_Game_Creator_Constants {
     /**
      * LIMITES ET VALIDATION
      */
-    const MAX_GAME_NAME_LENGTH = 200;
-    const MAX_DESCRIPTION_LENGTH = 180;
+    const MAX_GAME_NAME_LENGTH = 100;
+    const MAX_DESCRIPTION_LENGTH = 200;
     const MAX_SCREENSHOTS = 10;
     const MAX_EXTERNAL_LINKS = 8;
     const MAX_DEVELOPERS = 5;

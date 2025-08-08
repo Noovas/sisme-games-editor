@@ -531,7 +531,7 @@ class Sisme_User_Developer_Renderer {
                                 id="game_description" 
                                 name="game_description" 
                                 class="sisme-form-textarea"
-                                placeholder="Décrivez votre jeu en 180 caractères maximum"
+                                placeholder="Décrivez votre jeu en 50 à 180 caractères"
                                 maxlength="180"
                                 rows="6"
                                 required

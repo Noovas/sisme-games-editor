@@ -205,6 +205,11 @@ class Sisme_User_Developer_Loader {
             true
         );
 
+        // Localiser les constantes pour le validateur de formulaire
+        wp_localize_script('sisme-submission-validator', 'sismeValidatorConfig', array(
+            'maxSectionImageSize' => Sisme_Constants::MAX_SECTION_IMAGE_SIZE
+        ));
+
         // Assets soumission jeux
         wp_enqueue_script(
             'sisme-game-submission',

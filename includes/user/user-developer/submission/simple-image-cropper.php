@@ -23,17 +23,17 @@ class Sisme_Simple_Image_Cropper {
         'cover_horizontal' => [
             'width' => 920,
             'height' => 430,
-            'max_size' => 5 * 1024 * 1024
+            'max_size' => Sisme_Constants::MAX_SECTION_IMAGE_SIZE
         ],
         'cover_vertical' => [
             'width' => 600,
             'height' => 900,
-            'max_size' => 5 * 1024 * 1024
+            'max_size' => Sisme_Constants::MAX_SECTION_IMAGE_SIZE
         ],
         'screenshot' => [
             'width' => 1920,
             'height' => 1080,
-            'max_size' => 8 * 1024 * 1024
+            'max_size' => Sisme_Constants::MAX_SECTION_IMAGE_SIZE
         ]
     ];
     
@@ -43,7 +43,7 @@ class Sisme_Simple_Image_Cropper {
      * @param string $ratio_type Type de ratio
      * @return int|WP_Error attachment_id ou erreur
      */
-    public static function process_upload($file, $ratio_type = 'cover_horizontal') {
+    public static function process_upload($file, $ratio_type = 'cover_horizontal', $is_section_image = false) {
         // Valider le type de ratio
         if (!array_key_exists($ratio_type, self::$ratio_configs)) {
             return new WP_Error('invalid_ratio_type', 'Type de ratio non supporté: ' . $ratio_type);
@@ -51,10 +51,17 @@ class Sisme_Simple_Image_Cropper {
         
         $config = self::$ratio_configs[$ratio_type];
         
-        // Validation basique
-        $allowed_types = ['image/jpeg', 'image/jpg', 'image/png'];
+        // Validation du type MIME selon le contexte
+        if ($is_section_image) {
+            $allowed_types = Sisme_Constants::SISME_SECTION_IMAGE_ALLOWED_TYPES;
+        } else {
+            $allowed_types = Sisme_Constants::SISME_IMAGE_ALLOWED_TYPES;
+        }
         if (!in_array($file['type'], $allowed_types)) {
-            return new WP_Error('invalid_file_type', 'Type de fichier non autorisé (JPG, PNG uniquement)');
+            $msg = $is_section_image
+                ? 'Type de fichier non autorisé (JPG, PNG, GIF uniquement pour les sections)'
+                : 'Type de fichier non autorisé (JPG, PNG uniquement)';
+            return new WP_Error('invalid_file_type', $msg);
         }
 
         // Taille max selon le ratio

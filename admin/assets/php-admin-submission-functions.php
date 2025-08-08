@@ -491,33 +491,6 @@ class Sisme_Admin_Submission_Functions {
         
         if ($result) {
             if (class_exists('Sisme_Game_Creator')) {
-                // Débogage des modes avant création
-                echo '<pre>';
-                echo "DÉBOGAGE DES MODES DE JEU:\n\n";
-                
-                echo "1. MODES DANS LA SOUMISSION:\n";
-                if (isset($submission['game_data']['game_modes'])) {
-                    echo "Type: " . gettype($submission['game_data']['game_modes']) . "\n";
-                    echo "Valeur brute: \n";
-                    var_export($submission['game_data']['game_modes']);
-                    echo "\n\nSérialisé: " . serialize($submission['game_data']['game_modes']);
-                } else {
-                    echo "Aucun mode trouvé dans game_data\n";
-                }
-                
-                echo "\n\n2. EXTRACTION ET CONVERSION DES DONNÉES:\n";
-                $extracted_data = Sisme_Game_Creator::extract_game_data_from_submission($submission);
-                if (!is_wp_error($extracted_data) && isset($extracted_data['modes'])) {
-                    echo "Type après extraction: " . gettype($extracted_data['modes']) . "\n";
-                    echo "Valeur après extraction: \n";
-                    var_export($extracted_data['modes']);
-                    echo "\n\nSérialisé: " . serialize($extracted_data['modes']);
-                } else {
-                    echo "Aucun mode trouvé après extraction ou erreur\n";
-                }
-                
-                echo "\n\nARRÊT DU DÉBOGAGE - Exécution interrompue avant création du jeu";
-                echo '</pre>';
                 
                 $game_id = Sisme_Game_Creator::create_from_submission_data($submission);
                 

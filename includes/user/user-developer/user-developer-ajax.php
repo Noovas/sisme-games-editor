@@ -167,8 +167,13 @@ function sisme_handle_simple_crop_upload() {
         wp_send_json_error(['message' => 'Erreur lors de l\'upload du fichier']);
         return;
     }
-    
-    $result = Sisme_Simple_Image_Cropper::process_upload($_FILES['image']);
+
+    $is_section_image = false;
+    if (isset($_POST['is_section_image']) && ($_POST['is_section_image'] == '1' || $_POST['is_section_image'] === 1 || $_POST['is_section_image'] === true)) {
+        $is_section_image = true;
+    }
+    $ratio_type = isset($_POST['ratio_type']) ? sanitize_text_field($_POST['ratio_type']) : 'cover_horizontal';
+    $result = Sisme_Simple_Image_Cropper::process_upload($_FILES['image'], $ratio_type, $is_section_image);
     
     if (is_wp_error($result)) {
         wp_send_json_error(['message' => $result->get_error_message()]);

@@ -332,24 +332,6 @@ class Sisme_Game_Submission_Renderer {
             return strcmp($date_b, $date_a);
         });
         
-        // TEST: Retourner des données factices pour tester l'affichage
-        if (empty($archives) && current_user_can('manage_options')) {
-            $archives = [[
-                'id' => 'test_archive_1',
-                'status' => 'archived',
-                'metadata' => [
-                    'archived_at' => current_time('mysql'),
-                    'archived_reason' => 'Révision approuvée - Motif : Correction de bugs et amélioration des performances',
-                    'revision_reason' => 'Correction de bugs et amélioration des performances',
-                    'is_revision' => true
-                ],
-                'game_data' => [
-                    Sisme_Utils_Users::GAME_FIELD_NAME => 'Jeu Test Archive',
-                    Sisme_Utils_Users::GAME_FIELD_DESCRIPTION => 'Description test pour l\'archive'
-                ]
-            ]];
-        }
-        
         return $archives;
     }
 
