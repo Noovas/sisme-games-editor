@@ -302,17 +302,29 @@ SismeGamesEditor::get_instance();
 class Sisme_Beta_Indicator {
     
     const FEATURES_COMPLETED = [
-        '(WIP) Espace devs',
-        'Genres de jeux préférés',
-        'Vue profil utilisateur',
-        'Système d\'amis',
+        '🎮 Création/modification d\'un jeu',
+        '👤 Espace développeur ou éditeur',
+        '👥 Système d\'amis',
+        '🔔 Notifications',
+        '💖 Système de jeux choix de l\'équipe',
+        '⭐ Système de jeux Featured',
+        '⚙️ Genres de jeux préférés',
+        '❤️ Ajout/Retrait jeux favoris',
+        '📚 Ajout/Retrait jeux possédés',
+        '👤 Vue profil utilisateur',
+        '📊 Tableau de bord utilisateur'
     ];
     
     const FEATURES_UPCOMING = [
-        '(WIP) Espace devs',
-        'Espace testeurs/guides',
-        'Publication utilisateur',
-        'Et plein d\'autres bricoles'
+        '➕ Demander la propriété d\'un jeu',
+        '💬 Système de commentaire profil',
+        '💬 Système commentaire jeu',
+        '👑 Profil premium',
+        '👤 Espace testeurs',
+        '📝 Publication utilisateur',
+        '🌐 Multilangue',
+        '📥 Téléchargement des jeux',
+        '🛠️ Et plein d\'autres bricoles',
     ];
     
     /**
@@ -476,7 +488,7 @@ class Sisme_Beta_Indicator {
             padding: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
-            min-width: 400px;
+            min-width: 500px;
             position: relative;
         }
         

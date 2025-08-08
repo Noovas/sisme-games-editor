@@ -211,6 +211,11 @@ class Sisme_Admin_Page_Wrapper {
 
             'published' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🌐</span>',
             'unpublished' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🚫</span>',
+            
+            'action' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⚡</span>',
+            'actions' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⚡</span>',
+            'fast' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⚡</span>',
+
 
             'test' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🧪</span>',
 
@@ -221,7 +226,6 @@ class Sisme_Admin_Page_Wrapper {
             'edit' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">✏️</span>',
             'settings' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⚙️</span>',
             'parametres' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⚙️</span>',
-            'actions' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⚡</span>',
 
             // Icônes utilitaires
             'link' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔗</span>',

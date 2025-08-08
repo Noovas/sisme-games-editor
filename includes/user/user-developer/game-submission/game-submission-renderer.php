@@ -347,7 +347,6 @@ class Sisme_Game_Submission_Renderer {
             'approved' => '✅ Publié',
             'published' => '✅ Publié',
             'rejected' => '❌ Rejeté',
-            // 'archived' => '📁 Archivé', // Supprimé côté front - archives uniquement visibles en admin
         ];
         
         return $labels[$status] ?? ucfirst($status);
