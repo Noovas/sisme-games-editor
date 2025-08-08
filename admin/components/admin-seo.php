@@ -31,17 +31,6 @@ class Sisme_SEO_Admin {
         add_action('admin_enqueue_scripts', array(__CLASS__, 'enqueue_admin_scripts'));
     }
     
-    public static function add_admin_menu() {
-        add_submenu_page(
-            'sisme-games-tableau-de-bord',
-            'SEO des Jeux',
-            '🔍 SEO',
-            'manage_options',
-            'sisme-games-seo',
-            array(__CLASS__, 'admin_page')
-        );
-    }
-    
     /**
      * Ajouter comme page cachée (accessible par URL mais pas dans le menu)
      */
@@ -52,7 +41,7 @@ class Sisme_SEO_Admin {
             'SEO des Jeux',
             'manage_options',
             'sisme-games-seo',
-            array(__CLASS__, 'admin_page')
+            array(__CLASS__, 'render')
         );
     }
     
@@ -60,311 +49,235 @@ class Sisme_SEO_Admin {
         if ($hook !== 'sisme-games_page_sisme-games-seo') {
             return;
         }
-        
         wp_enqueue_script('jquery');
     }
-    
-    public static function admin_page() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
-        
+
+    /**
+     * Afficher les messages d'état
+     */
+    public static function render_message() {
         $action = $_GET['action'] ?? '';
         
         if ($action === 'clear_cache' && check_admin_referer('sisme_seo_action')) {
             Sisme_SEO_Loader::clear_all_cache();
-            echo '<div class="notice notice-success is-dismissible"><p>Cache SEO vidé avec succès.</p></div>';
+            ?><div class="notice notice-success is-dismissible"><p>Cache SEO vidé avec succès.</p></div><?php
         }
         
         if ($action === 'fix_sitemap_rules' && check_admin_referer('sisme_seo_action')) {
             if (class_exists('Sisme_SEO_Sitemap')) {
                 $sitemap = new Sisme_SEO_Sitemap();
                 $sitemap->force_flush_rewrite_rules();
-                echo '<div class="notice notice-success is-dismissible"><p>Règles de réécriture sitemap réparées ! Les URLs .xml devraient maintenant fonctionner.</p></div>';
-            } else {
-                echo '<div class="notice notice-error is-dismissible"><p>Erreur : Classe Sisme_SEO_Sitemap non trouvée.</p></div>';
+                ?><div class="notice notice-success is-dismissible"><p>Règles de réécriture sitemap réparées !</p></div><?php
             }
         }
-        
+    }
+
+    public static function render_SEO_stats() {
+        $total_games = wp_count_terms('post_tag', ['hide_empty' => false]);
+        $total_posts = wp_count_posts()->publish;
+        $cache_stats = self::get_cache_statistics();
+
+        Sisme_Admin_Page_Wrapper::render_card_start(
+            'Statistiques des jeux',
+            'stats',
+            '',
+            'sisme-admin-grid sisme-admin-grid-3',
+            false,
+        );
+        ?>
+        <div class="sisme-admin-stat-card sisme-admin-stat-card-info">
+            <div class="sisme-admin-stat-number"><?php echo number_format($total_games); ?></div>
+            <div class="sisme-admin-stat-label">Jeux indexés</div>
+        </div>
+        <div class="sisme-admin-stat-card sisme-admin-stat-card-special">
+            <div class="sisme-admin-stat-number"><?php echo number_format($total_posts); ?></div>
+            <div class="sisme-admin-stat-label">Jeux publiés</div>
+        </div>
+        <div class="sisme-admin-stat-card sisme-admin-stat-card-warning">
+            <div class="sisme-admin-stat-number"><?php echo $cache_stats['count']; ?></div>
+            <div class="sisme-admin-stat-label">Entrées en cache</div>
+        </div>
+        <?php
+        Sisme_Admin_Page_Wrapper::render_card_end();
+    }
+
+    public static function render_SEO_action() {
+        Sisme_Admin_Page_Wrapper::render_card_start(
+            'Actions Rapides',
+            'tools',
+            '',
+            'sisme-admin-grid sisme-admin-grid-3',
+            false,
+        );
+        ?>
+        <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-seo&action=clear_cache'), 'sisme_seo_action'); ?>" 
+            class="sisme-admin-btn sisme-admin-btn-warning">
+            <?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('delete', 0, 12) ?> Vider le cache SEO
+        </a>
+    
+        <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-seo&action=fix_sitemap_rules'), 'sisme_seo_action'); ?>" 
+            class="sisme-admin-btn sisme-admin-btn-secondary">
+            <?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('repair', 0, 12) ?> Réparer règles sitemap
+        </a>
+
+        <a href="<?php echo home_url('/sitemap-games.xml'); ?>" target="_blank" 
+            class="sisme-admin-btn sisme-admin-btn-secondary">
+            <?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('web', 0, 12) ?> Voir le site map
+        </a>
+        <?php
+        Sisme_Admin_Page_Wrapper::render_card_end();
+    }
+
+    public static function render_SEO_games() {
+        Sisme_Admin_Page_Wrapper::render_card_start(
+            'SEO des jeux',
+            'game',
+            '',
+            'sisme-admin-flex-col sisme-admin-gap-6',
+            false,
+        );
+            Sisme_Admin_Page_Wrapper::render_card(
+                'Recherche et Test SEO',
+                'search',
+                '',
+                'sisme-admin-grid sisme-admin-grid-4',
+                false,
+                '<input type="text" id="sisme-game-search" placeholder="Tapez le nom du jeu..." class="sisme-admin-input">'
+            );
+
+            Sisme_Admin_Page_Wrapper::render_card(
+                'Liste des jeux',
+                'lib',
+                '',
+                'sisme-admin-flex-col sisme-admin-gap-6',
+                false,
+                '<div id="sisme-search-results" style="display: none;"></div>'
+            );
+        Sisme_Admin_Page_Wrapper::render_card_end();
+    }
+
+    
+    public static function render() {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+
         $page = new Sisme_Admin_Page_Wrapper(
             'SEO des Jeux',
-            'Monitoring et diagnostic du référencement',
-            'search',
+            'Monitoring et diagnostic du référencement, analyse des performances SEO',
+            'seo',
             admin_url('admin.php?page=sisme-games-outils'),
             'Retour aux outils'
         );
-        
-        self::render_seo_dashboard();
-    }
-    
-    private static function render_seo_dashboard() {
-        $health = Sisme_SEO_Loader::get_health_status();
-        $sitemap_stats = self::get_sitemap_stats();
-        $cache_stats = Sisme_SEO_Game_Detector::get_cache_stats();
+
+        $page->render_start();
+        self::render_message();
+        self::render_SEO_stats();
+        self::render_SEO_action();
+        self::render_SEO_games();
         ?>
-        <div class="sisme-admin-container">
-            <h2 class="sisme-admin-title">🔍SEO et Sitemap du site</h2>
-            <p class="sisme-admin-comment">Analyse des balises SEO des pages de jeux et outils de <strong>référencement</strong></p>
-            <div class="sisme-admin-grid sisme-admin-grid-2 sisme-admin-mb-md">               
-                <!-- Statut santé SEO -->
-                <div class="sisme-admin-card">
-                    <div class="sisme-admin-card-header">
-                        <h3 class="sisme-admin-heading">📊 État du SEO</h3>
-                    </div>
-                    <div class="sisme-admin-p-md">
-                        <div class="sisme-admin-flex sisme-admin-flex-center sisme-admin-mb-md">
-                            <div class="sisme-admin-stat-card sisme-admin-stat-card-<?php echo $health['status'] === 'healthy' ? 'success' : ($health['status'] === 'partial' ? 'warning' : 'danger'); ?>">
-                                <span class="sisme-admin-stat-number"><?php echo $health['loaded_count']; ?>/<?php echo $health['total_modules']; ?></span>
-                                <span class="sisme-admin-stat-label">Modules chargés</span>
-                            </div>
-                        </div>
-                        
-                        <div class="sisme-admin-flex sisme-admin-flex-between sisme-admin-mb-sm">
-                            <span class="sisme-admin-small">Cache actif</span>
-                            <span class="sisme-admin-badge sisme-admin-badge-<?php echo $cache_stats['active'] ? 'success' : 'danger'; ?>">
-                                <?php echo $cache_stats['active'] ? '✅ Oui' : '❌ Non'; ?>
-                            </span>
-                        </div>
-                        
-                        <div class="sisme-admin-flex sisme-admin-flex-between">
-                            <span class="sisme-admin-small">Statut général</span>
-                            <span class="sisme-admin-badge sisme-admin-badge-<?php echo $health['status'] === 'healthy' ? 'success' : ($health['status'] === 'partial' ? 'warning' : 'danger'); ?>">
-                                <?php 
-                                switch($health['status']) {
-                                    case 'healthy': echo '✅ Bon'; break;
-                                    case 'partial': echo '⚠️ Partiel'; break;
-                                    default: echo '❌ Critique'; 
-                                } 
-                                ?>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Modules chargés -->
-                <div class="sisme-admin-card">
-                    <div class="sisme-admin-card-header">
-                        <h3 class="sisme-admin-heading">⚙️ Modules</h3>
-                    </div>
-                    <div class="sisme-admin-p-md">
-                        <?php if (!empty($health['loaded_modules'])): ?>
-                            <?php foreach ($health['loaded_modules'] as $module): ?>
-                            <div class="sisme-admin-flex sisme-admin-flex-center sisme-admin-mb-sm">
-                                <span class="sisme-admin-badge sisme-admin-badge-success">✅</span>
-                                <span class="sisme-admin-small sisme-admin-ml-sm"><?php echo esc_html($module); ?></span>
-                            </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="sisme-admin-flex sisme-admin-flex-center">
-                                <span class="sisme-admin-badge sisme-admin-badge-danger">❌</span>
-                                <span class="sisme-admin-small sisme-admin-ml-sm">Aucun module chargé</span>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                
-                <!-- Stats Sitemap -->
-                <div class="sisme-admin-card">
-                    <div class="sisme-admin-card-header">
-                        <h3 class="sisme-admin-heading">🗺️ Sitemaps</h3>
-                    </div>
-                    <div class="sisme-admin-p-md">
-                        <div class="sisme-admin-grid sisme-admin-grid-2 sisme-admin-mb-md">
-                            <div class="sisme-admin-stat-card sisme-admin-stat-card-success">
-                                <span class="sisme-admin-stat-number"><?php echo $sitemap_stats['game_pages']; ?></span>
-                                <span class="sisme-admin-stat-label">Pages de jeux</span>
-                            </div>
-                            <div class="sisme-admin-stat-card">
-                                <span class="sisme-admin-stat-number"><?php echo $sitemap_stats['normal_pages']; ?></span>
-                                <span class="sisme-admin-stat-label">Pages normales</span>
-                            </div>
-                            <div class="sisme-admin-stat-card">
-                                <span class="sisme-admin-stat-number"><?php echo $sitemap_stats['total_pages']; ?></span>
-                                <span class="sisme-admin-stat-label">Total indexé</span>
-                            </div>
-                            <?php if (isset($sitemap_stats['excluded_pages'])): ?>
-                            <div class="sisme-admin-stat-card sisme-admin-stat-card-warning">
-                                <span class="sisme-admin-stat-number"><?php echo $sitemap_stats['excluded_pages']; ?></span>
-                                <span class="sisme-admin-stat-label">Pages exclues</span>
-                            </div>
-                            <?php endif; ?>
-                            <div class="sisme-admin-stat-card sisme-admin-stat-card-<?php echo $sitemap_stats['cache_status'] === 'active' ? 'success' : 'warning'; ?>">
-                                <span class="sisme-admin-stat-label">Cache <?php echo $sitemap_stats['cache_status'] === 'active' ? 'Actif' : 'Expiré'; ?></span>
-                            </div>
-                            <?php if (isset($sitemap_stats['seo_optimized']) && $sitemap_stats['seo_optimized']): ?>
-                            <div class="sisme-admin-stat-card sisme-admin-stat-card-success">
-                                <span class="sisme-admin-stat-label">✅ SEO optimisé</span>
-                            </div>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <div class="sisme-admin-flex sisme-admin-flex-center">
-                            <a href="<?php echo home_url('/sitemap.xml'); ?>" target="_blank" class="sisme-admin-btn sisme-admin-btn-primary sisme-admin-btn-sm">sitemap.xml</a>
-                            <a href="<?php echo home_url('/sitemap-pages.xml'); ?>" target="_blank" class="sisme-admin-btn sisme-admin-btn-secondary sisme-admin-btn-sm">pages.xml</a>
-                            <a href="<?php echo home_url('/sitemap-games.xml'); ?>" target="_blank" class="sisme-admin-btn sisme-admin-btn-secondary sisme-admin-btn-sm">games.xml</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Actions rapides -->
-                <div class="sisme-admin-card">
-                    <div class="sisme-admin-card-header">
-                        <h3 class="sisme-admin-heading">⚡ Actions</h3>
-                    </div>
-                    <div class="sisme-admin-p-md">
-                        <div class="sisme-admin-grid sisme-admin-grid-1">
-                            <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-seo&action=clear_cache'), 'sisme_seo_action'); ?>" 
-                            class="sisme-admin-btn sisme-admin-btn-warning">
-                                🧹 Vider le cache
-                            </a>
-                            
-                            <a href="#games-section" 
-                            class="sisme-admin-btn sisme-admin-btn-primary"
-                            onclick="document.getElementById('games-section').scrollIntoView({behavior: 'smooth'});">
-                                🎮 Voir les jeux
-                            </a>
-                            
-                            <a href="<?php echo home_url('/sitemap.xml'); ?>" 
-                            target="_blank"
-                            class="sisme-admin-btn sisme-admin-btn-secondary">
-                                🗺️ Sitemap XML
-                            </a>
-                            
-                            <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=sisme-games-seo&action=fix_sitemap_rules'), 'sisme_seo_action'); ?>" 
-                            class="sisme-admin-btn sisme-admin-btn-danger">
-                                🔧 Réparer Sitemap
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-            </div>
-            
-            <!-- Section Pages de Jeux (pleine largeur) -->
-            <div id="games-section" class="sisme-admin-section">
-                <div class="sisme-admin-card">
-                    <div class="sisme-admin-card-header">
-                        <h3 class="sisme-admin-heading">🎮 Pages de Jeux - Analyse SEO</h3>
-                        <div class="sisme-admin-flex sisme-admin-mt-md">
-                            <input type="text" 
-                                id="games-search" 
-                                placeholder="Rechercher un jeu par titre..." 
-                                class="sisme-admin-flex-1 sisme-admin-p-sm sisme-admin-border sisme-admin-rounded"
-                                style="margin-right: var(--sisme-admin-spacing-sm);">
-                            <button type="button" 
-                                    id="refresh-games" 
-                                    class="sisme-admin-btn sisme-admin-btn-secondary sisme-admin-btn-sm" 
-                                    onclick="sismeRefreshGames()">
-                                🔄 Actualiser
-                            </button>
-                        </div>
-                    </div>
-                    <div class="sisme-admin-p-md">
-                        <div id="games-loading" class="sisme-admin-text-center sisme-admin-p-xl sisme-admin-text-muted" style="display: none;">
-                            <p>🔄 Chargement des jeux...</p>
-                        </div>
-                        <div id="games-list">
-                            <!-- Le contenu sera chargé dynamiquement -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+
         <script>
-        // Variables AJAX pour JavaScript
         const sismeSeo = {
-            ajaxurl: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
+            ajaxurl: '<?php echo admin_url('admin-ajax.php'); ?>',
             nonce: '<?php echo wp_create_nonce('sisme_seo_nonce'); ?>'
         };
-        
-        // Initialisation au chargement de la page
-        document.addEventListener('DOMContentLoaded', function() {
-            sismeLoadGames();
-            
-            // Recherche en temps réel
-            const searchInput = document.getElementById('games-search');
-            searchInput.addEventListener('input', function() {
-                sismeFilterGames(this.value);
-            });
-        });
-        
+
         // Charger tous les jeux
-        function sismeLoadGames() {
-            const loadingDiv = document.getElementById('games-loading');
-            const gamesListDiv = document.getElementById('games-list');
-            
-            loadingDiv.style.display = 'block';
-            gamesListDiv.innerHTML = '';
+        function sismeSeoLoadAllGames() {
+            const container = document.getElementById('sisme-search-results');
+            container.style.display = 'block';
+            container.innerHTML = '<p class="sisme-admin-text-center">🔄 Chargement des jeux...</p>';
             
             jQuery.post(sismeSeo.ajaxurl, {
                 action: 'sisme_seo_load_games',
-                nonce: sismeSeo.nonce
+                nonce: sismeSeo.nonce,
+                limit: 50
             }, function(response) {
-                loadingDiv.style.display = 'none';
-                
-                if (response.success && response.data.games) {
-                    sismeRenderGames(response.data.games);
+                if (response.success) {
+                    sismeRenderGamesList(container, response.data, 'Tous les jeux');
                 } else {
-                    gamesListDiv.innerHTML = '<p class="sisme-admin-text-center sisme-admin-p-xl sisme-admin-text-muted">Aucun jeu trouvé.</p>';
+                    container.innerHTML = '<p class="sisme-admin-text-center">❌ Erreur de chargement</p>';
                 }
-            }).fail(function() {
-                loadingDiv.style.display = 'none';
-                gamesListDiv.innerHTML = '<p class="sisme-admin-text-center sisme-admin-p-xl sisme-admin-text-danger">❌ Erreur de chargement</p>';
             });
         }
-        
-        // Actualiser la liste
-        function sismeRefreshGames() {
-            sismeLoadGames();
-        }
-        
-        // Rendu des jeux
-        function sismeRenderGames(games) {
-            const gamesListDiv = document.getElementById('games-list');
+
+        // Rechercher des jeux (filtrage local)
+        function sismeSeoSearchGames() {
+            const searchTerm = document.getElementById('sisme-game-search').value.trim().toLowerCase();
+            const gameCards = document.querySelectorAll('#sisme-search-results .sisme-admin-grid .sisme-admin-card');
             
-            if (games.length === 0) {
-                gamesListDiv.innerHTML = '<p class="sisme-admin-text-center sisme-admin-p-xl sisme-admin-text-muted">Aucun jeu trouvé.</p>';
+            if (!searchTerm) {
+                // Afficher toutes les cartes si pas de recherche
+                gameCards.forEach(card => card.style.display = 'block');
                 return;
             }
             
-            let html = '';
-            games.forEach(function(game) {
-                html += '<div class="sisme-admin-card sisme-admin-mb-sm" data-post-id="' + game.post_id + '" data-title="' + game.title.toLowerCase() + '">';
-                html += '  <div class="sisme-admin-flex sisme-admin-flex-between">';
-                html += '    <div class="sisme-admin-flex-1">';
-                html += '      <div class="sisme-admin-heading sisme-admin-mb-xs">' + game.title + '</div>';
-                html += '      <div class="sisme-admin-flex">';
-                html += '        <span class="sisme-admin-badge sisme-admin-badge-secondary sisme-admin-mr-sm">ID: ' + game.post_id + '</span>';
-                if (game.game_data) {
-                    html += '        <span class="sisme-admin-badge sisme-admin-badge-info">Jeu: ' + game.game_data.name + '</span>';
+            // Filtrer les cartes
+            gameCards.forEach(card => {
+                const gameNameElement = card.querySelector('[id^="game-name-"]'); // Trouve l'ID qui commence par "game-name-"
+                if (gameNameElement) {
+                    const gameName = gameNameElement.textContent.toLowerCase();
+                    if (gameName.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
                 }
-                html += '      </div>';
-                html += '    </div>';
-                html += '    <div class="sisme-admin-flex">';
-                html += '      <a href="' + game.permalink + '" target="_blank" class="sisme-admin-btn sisme-admin-btn-primary sisme-admin-btn-sm sisme-admin-mr-sm">👁️ Voir</a>';
-                html += '      <button type="button" class="sisme-admin-btn sisme-admin-btn-success sisme-admin-btn-sm" onclick="sismeSeoTestPage(' + game.post_id + ')">🔍 Test SEO</button>';
+            });
+        }
+
+        // Afficher la liste des jeux
+        function sismeRenderGamesList(container, games, title) {
+            let html = '<h4 class="sisme-admin-heading">' + title + ' (' + games.length + ')</h4>';
+            html += '<div class="sisme-admin-grid sisme-admin-grid-350">';
+            
+            games.forEach(function(game) {
+                html += '<div class="sisme-admin-card sisme-admin-flex-col sisme-admin-gap-4">';
+                html += '  <h2 id="game-name-' + game.id + '" class="sisme-admin-card-header sisme-admin-grid-whitespace">🎮 ' + game.name + '</h2>';
+                html += '  <div class="sisme-admin-grid sisme-admin-grid-2">';
+                html += '    <p class="sisme-admin-comment">ID: ' + game.id;
+                html += '    <div class="sisme-admin-flex-between sisme-admin-mt-sm">';
+                html += '      <a href="' + game.url + '" target="_blank" class="sisme-admin-btn sisme-admin-btn-primary sisme-admin-btn-sm sisme-admin-width-full">Voir</a>';
                 html += '    </div>';
                 html += '  </div>';
-                html += '  <div class="sisme-admin-alert sisme-admin-alert-info sisme-admin-mt-sm" id="test-results-' + game.post_id + '" style="display:none;"></div>';
+                html += '  <div class="sisme-admin-p-sm sisme-admin-height-full">';
+                html += '    <div id="sisme-test-results-' + game.id + '">';
+                html += '      <!-- Résultats du test SEO -->';
+                html += '    </div>';
+                html += '  </div>';
                 html += '</div>';
             });
             
-            gamesListDiv.innerHTML = html;
-        }
-        
-        // Filtrer les jeux
-        function sismeFilterGames(searchTerm) {
-            const gameItems = document.querySelectorAll('.sisme-admin-card[data-post-id]');
-            const lowerSearchTerm = searchTerm.toLowerCase();
-            
-            gameItems.forEach(function(item) {
-                const title = item.getAttribute('data-title');
-                const isVisible = title.includes(lowerSearchTerm);
-                item.style.display = isVisible ? 'block' : 'none';
+            html += '</div>';
+            container.innerHTML = html;
+            games.forEach(function(game) {
+                sismeSeoTestGameAuto(game.id);
             });
         }
-        
-        // Test SEO détaillé
-        function sismeSeoTestPage(postId) {
-            const resultsDiv = document.getElementById('test-results-' + postId);
+
+        // Test SEO automatique
+        function sismeSeoTestGameAuto(gameId) {
+            const resultsDiv = document.getElementById('sisme-test-results-' + gameId);
+            resultsDiv.innerHTML = '<p>🔄 Analyse SEO en cours...</p>';
+            
+            jQuery.post(sismeSeo.ajaxurl, {
+                action: 'sisme_seo_test_page',
+                post_id: gameId,
+                nonce: sismeSeo.nonce
+            }, function(response) {
+                if (response.success) {
+                    sismeRenderSeoResults(resultsDiv, response.data);
+                } else {
+                    resultsDiv.innerHTML = '<div>❌ Erreur: ' + (response.data || 'Test échoué') + '</div>';
+                }
+            }).fail(function() {
+                resultsDiv.innerHTML = '<div>❌ Erreur de connexion</div>';
+            });
+        }
+
+        // Test SEO d'un jeu - version simplifiée qui utilise directement l'ID du term
+        function sismeSeoTestGame(gameId) {
+            const resultsDiv = document.getElementById('sisme-test-results-' + gameId);
             const button = event.target;
             
             button.disabled = true;
@@ -372,9 +285,10 @@ class Sisme_SEO_Admin {
             resultsDiv.style.display = 'block';
             resultsDiv.innerHTML = '<p>🔄 Analyse SEO en cours...</p>';
             
+            // Utiliser directement l'ID du terme pour le test
             jQuery.post(sismeSeo.ajaxurl, {
                 action: 'sisme_seo_test_page',
-                post_id: postId,
+                post_id: gameId, // Utilise l'ID du terme directement
                 nonce: sismeSeo.nonce
             }, function(response) {
                 button.disabled = false;
@@ -383,173 +297,120 @@ class Sisme_SEO_Admin {
                 if (response.success) {
                     sismeRenderSeoResults(resultsDiv, response.data);
                 } else {
-                    resultsDiv.innerHTML = '<div class="sisme-test-error">❌ Erreur: ' + (response.data || 'Test échoué') + '</div>';
+                    resultsDiv.innerHTML = '<div>❌ Erreur: ' + (response.data || 'Test échoué') + '</div>';
                 }
             }).fail(function() {
                 button.disabled = false;
                 button.textContent = '🔍 Test SEO';
-                resultsDiv.innerHTML = '<div class="sisme-test-error">❌ Erreur de connexion</div>';
+                resultsDiv.innerHTML = '<div>❌ Erreur de connexion</div>';
             });
         }
-        
-        // Rendu détaillé des résultats SEO
+
+        // Rendu détaillé des résultats SEO - Version originale simplifiée
         function sismeRenderSeoResults(container, data) {
-            let html = '<div class="sisme-test-results-content">';
+            let html = '';
             
-            html += '<h4>🔍 Analyse SEO Détaillée</h4>';
+            html += '<h3 class="sisme-admin-card-header">📝 Méta SEO</h3>';
             
-            // Méta SEO (Titre et Description)
+            // Méta SEO (Titre et Description) - si disponible
             if (data.seo_meta) {
-                html += '<div class="sisme-admin-mb-md">';
-                html += '  <h5 class="sisme-admin-heading">📝 Méta SEO</h5>';
                 
                 // Titre SEO
-                html += '  <div class="sisme-admin-mb-sm">';
-                html += '    <span class="sisme-admin-small">Titre SEO:</span>';
+                html += '  <div>';
+                html += '    <h4>Titre SEO:</h4>';
                 html += '  </div>';
-                html += '  <div class="sisme-admin-alert sisme-admin-alert-' + sismeGetSeoStatusClass(data.seo_meta.title_status) + ' sisme-admin-mb-xs">';
+                html += '  <div style="background: ' + getSeoStatusColor(data.seo_meta.title_status) + '; padding: 8px; border-radius: 3px;">';
                 html += '    ' + data.seo_meta.title;
                 html += '  </div>';
-                html += '  <div class="sisme-admin-mb-sm">';
-                html += '    <small class="sisme-admin-small sisme-admin-text-muted">Longueur: ' + data.seo_meta.title_length + ' caractères ';
-                html += sismeGetSeoStatusText(data.seo_meta.title_status, 'title') + '</small>';
+                html += '  <div>';
+                html += '    <small>Longueur: ' + data.seo_meta.title_length + ' caractères ';
+                html += getSeoStatusText(data.seo_meta.title_status, 'title') + '</small>';
                 html += '  </div>';
                 
                 // Description SEO
-                html += '  <div class="sisme-admin-mb-sm sisme-admin-mt-md">';
-                html += '    <span class="sisme-admin-small">Description SEO:</span>';
+                html += '  <div>';
+                html += '    <h4>Description SEO:</h4>';
                 html += '  </div>';
-                html += '  <div class="sisme-admin-alert sisme-admin-alert-' + sismeGetSeoStatusClass(data.seo_meta.description_status) + ' sisme-admin-mb-xs">';
+                html += '  <div style="background: ' + getSeoStatusColor(data.seo_meta.description_status) + '; padding: 8px; border-radius: 3px; margin-bottom: 5px;">';
                 html += '    ' + data.seo_meta.description;
                 html += '  </div>';
-                html += '  <div class="sisme-admin-mb-sm">';
-                html += '    <small class="sisme-admin-small sisme-admin-text-muted">Longueur: ' + data.seo_meta.description_length + ' caractères ';
-                html += sismeGetSeoStatusText(data.seo_meta.description_status, 'description') + '</small>';
+                html += '  <div>';
+                html += '    <small>Longueur: ' + data.seo_meta.description_length + ' caractères ';
+                html += getSeoStatusText(data.seo_meta.description_status, 'description') + '</small>';
                 html += '  </div>';
-                
-                html += '</div>';
             }
             
             // Détection du jeu
-            html += '<div class="sisme-test-section">';
-            html += '  <h5>🎮 Détection du Jeu</h5>';
-            html += '  <div class="sisme-test-item">';
-            html += '    <span>Type de page:</span> ';
-            html += data.page_detection.is_game_page ? '<span class="success">✅ Page de jeu</span>' : '<span class="error">❌ Page normale</span>';
-            html += '  </div>';
-            
-            if (data.page_detection.game_name) {
-                html += '  <div class="sisme-test-item">';
-                html += '    <span>Nom du jeu:</span> <strong>' + data.page_detection.game_name + '</strong>';
-                html += '  </div>';
+            if (data.page_detection) {
+                html += '<div>';
+                html += '  <h4>Détection de la page</h4>';
+                html += '  <span style="color: ' + (data.page_detection.is_game_page ? 'green' : 'orange') + ';">';
+                html += data.page_detection.is_game_page ? 'Page de jeu détectée' : 'Page normale';
+                html += '</span>';
+                html += '</div>';
             }
-            html += '</div>';
-            
-            // État des modules
-            html += '<div class="sisme-test-section">';
-            html += '  <h5>⚙️ État des Modules</h5>';
-            html += '  <div class="sisme-test-item">';
-            html += '    <span>Modules actifs:</span> <span class="' + data.seo_health.status + '">';
-            html += data.seo_health.loaded_count + '/' + data.seo_health.total_modules + ' (' + Math.round(data.seo_health.health_percentage) + '%)';
-            html += '    </span>';
-            html += '  </div>';
-            html += '</div>';
-            
-            html += '</div>';
-            
+    
             container.innerHTML = html;
         }
-        
-        // Fonction helper pour les classes de statut SEO
-        function sismeGetSeoStatusClass(status) {
+
+        // Utilitaires pour les couleurs de statut SEO
+        function getSeoStatusColor(status) {
             switch(status) {
-                case 'good': return 'sisme-seo-good';
-                case 'too_short': return 'sisme-seo-warning';
-                case 'too_long': return 'sisme-seo-error';
+                case 'good': return '#d4edda';
+                case 'too_short': return '#fff3cd';
+                case 'too_long': return '#f8d7da';
+                default: return '#e2e3e5';
+            }
+        }
+
+        function getSeoStatusText(status, type) {
+            const limits = {
+                title: { min: 30, max: 60 },
+                description: { min: 120, max: 160 }
+            };
+            
+            switch(status) {
+                case 'good': return '✅ Optimal';
+                case 'too_short': return '⚠️ Trop court (min: ' + limits[type].min + ')';
+                case 'too_long': return '❌ Trop long (max: ' + limits[type].max + ')';
                 default: return '';
             }
         }
-        
-        // Fonction helper pour les textes de statut SEO
-        function sismeGetSeoStatusText(status, type) {
-            if (type === 'title') {
-                switch(status) {
-                    case 'good': return '✅ Optimal';
-                    case 'too_short': return '⚠️ Trop court (30-60 caractères recommandés)';
-                    case 'too_long': return '❌ Trop long (30-60 caractères recommandés)';
-                    default: return '';
-                }
-            } else {
-                switch(status) {
-                    case 'good': return '✅ Optimal';
-                    case 'too_short': return '⚠️ Trop court (120-160 caractères recommandés)';
-                    case 'too_long': return '❌ Trop long (120-160 caractères recommandés)';
-                    default: return '';
-                }
-            }
-        }
+
+        document.getElementById('sisme-game-search').addEventListener('input', function() {
+            sismeSeoSearchGames();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            sismeSeoLoadAllGames();
+        });
         </script>
-        
+
         <?php
+        $page->render_end();
     }
-    
+
     /**
-     * Obtenir tous les posts de jeu avec leurs données
+     * Obtenir les statistiques du cache
      */
-    private static function get_all_game_posts() {
-        $posts = get_posts(array(
-            'post_type' => 'post',
-            'post_status' => 'publish',
-            'numberposts' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC'
-        ));
+    private static function get_cache_statistics() {
+        global $wpdb;
         
-        $game_posts = array();
-        foreach ($posts as $post) {
-            if (Sisme_SEO_Game_Detector::is_game_page($post->ID)) {
-                $game_data = Sisme_SEO_Game_Detector::get_game_data($post->ID);
-                
-                $game_posts[] = array(
-                    'post_id' => $post->ID,
-                    'title' => $post->post_title,
-                    'permalink' => get_permalink($post->ID),
-                    'game_data' => $game_data
-                );
-            }
-        }
-        
-        return $game_posts;
-    }
-    
-    /**
-     * Méthode AJAX pour charger tous les jeux
-     */
-    public static function ajax_load_games() {
-        check_ajax_referer('sisme_seo_nonce', 'nonce');
-        
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error('Permission insuffisante');
-        }
-        
-        $games = self::get_all_game_posts();
-        wp_send_json_success(array('games' => $games));
-    }
-    
-    private static function get_sitemap_stats() {
-        if (class_exists('Sisme_SEO_Sitemap')) {
-            $sitemap = new Sisme_SEO_Sitemap();
-            return $sitemap->get_sitemap_stats();
-        }
-        
-        return array(
-            'game_pages' => 0,
-            'normal_pages' => 0,
-            'total_pages' => 0,
-            'cache_status' => 'unknown'
+        $cache_options = $wpdb->get_results(
+            "SELECT option_name FROM {$wpdb->options} 
+             WHERE option_name LIKE 'sisme_seo_%' 
+             OR option_name LIKE '%transient%sisme_seo%'"
         );
+        
+        return [
+            'count' => count($cache_options),
+            'options' => $cache_options
+        ];
     }
-    
+
+    /**
+     * AJAX - Vider le cache SEO
+     */
     public static function ajax_clear_cache() {
         check_ajax_referer('sisme_seo_nonce', 'nonce');
         
@@ -562,6 +423,9 @@ class Sisme_SEO_Admin {
         wp_send_json_success('Cache SEO vidé avec succès');
     }
     
+    /**
+     * AJAX - Tester une page
+     */
     public static function ajax_test_page() {
         check_ajax_referer('sisme_seo_nonce', 'nonce');
         
@@ -574,10 +438,29 @@ class Sisme_SEO_Admin {
             wp_send_json_error('ID de post invalide');
         }
         
+        // Si c'est un term_id, trouver un post associé
+        $term = get_term($post_id, 'post_tag');
+        if ($term && !is_wp_error($term)) {
+            // C'est un terme, trouve un post associé
+            $posts = get_posts(array(
+                'tag__in' => array($post_id),
+                'post_status' => 'publish',
+                'posts_per_page' => 1,
+                'orderby' => 'date',
+                'order' => 'DESC'
+            ));
+            
+            if (empty($posts)) {
+                wp_send_json_error('Aucun post trouvé pour ce jeu');
+            }
+            
+            $post_id = $posts[0]->ID;
+        }
+        
         // Récupérer les données de base
         $debug_data = Sisme_SEO_Loader::debug_page($post_id);
         
-        // Ajouter les méta SEO spécifiques
+        // Ajouter les méta SEO spécifiques comme dans l'original
         $post = get_post($post_id);
         if ($post) {
             // Simuler l'environnement de la page pour récupérer les métas
@@ -589,21 +472,18 @@ class Sisme_SEO_Admin {
             $wp_query->queried_object = $post;
             $wp_query->queried_object_id = $post_id;
             
-            // Récupérer les métas titre et description
-            // EXACTEMENT comme elles sont générées par le module SEO
+            // Récupérer les métas titre et description EXACTEMENT comme dans le <head>
             $seo_title = '';
             $seo_description = '';
             
-            // Utiliser les méthodes du module SEO pour avoir les mêmes données que dans le <head>
+            // Utiliser les méthodes du module SEO
             if (class_exists('Sisme_SEO_Meta_Tags') && class_exists('Sisme_SEO_Title_Optimizer')) {
-                // Utiliser les nouvelles méthodes publiques pour récupérer les meta générées
                 $seo_title = Sisme_SEO_Title_Optimizer::get_generated_title($post_id);
                 $seo_description = Sisme_SEO_Meta_Tags::get_generated_description($post_id);
             }
             
-            // Si les méthodes du module n'existent pas, utiliser la logique de fallback
+            // Fallback si méthodes pas dispo
             if (empty($seo_title) || empty($seo_description)) {
-                // Essayer avec nos propres méta fields SEO
                 if (empty($seo_title)) {
                     $seo_title = get_post_meta($post_id, '_sisme_seo_title', true);
                 }
@@ -611,7 +491,7 @@ class Sisme_SEO_Admin {
                     $seo_description = get_post_meta($post_id, '_sisme_seo_description', true);
                 }
                 
-                // Fallback vers le titre et extrait du post
+                // Fallback final
                 if (empty($seo_title)) {
                     $seo_title = get_the_title($post_id);
                 }
@@ -626,7 +506,7 @@ class Sisme_SEO_Admin {
                 }
             }
             
-            // Ajouter les informations SEO aux données de debug
+            // Ajouter aux données debug
             $debug_data['seo_meta'] = array(
                 'title' => $seo_title,
                 'description' => $seo_description,
@@ -638,11 +518,52 @@ class Sisme_SEO_Admin {
                 'post_url' => get_permalink($post_id)
             );
             
-            // Restaurer la query originale
+            // Restaurer la query
             $wp_query = $original_query;
         }
         
         wp_send_json_success($debug_data);
+    }
+    
+    /**
+     * AJAX - Charger les jeux
+     */
+    public static function ajax_load_games() {
+        check_ajax_referer('sisme_seo_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('Permission insuffisante');
+        }
+        
+        $search = sanitize_text_field($_POST['search'] ?? '');
+        $limit = intval($_POST['limit'] ?? 20);
+        
+        $args = array(
+            'taxonomy' => 'post_tag',
+            'hide_empty' => false,
+            'number' => $limit,
+            'orderby' => 'count',
+            'order' => 'DESC'
+        );
+        
+        if (!empty($search)) {
+            $args['name__like'] = $search;
+        }
+        
+        $terms = get_terms($args);
+        
+        $games = array();
+        foreach ($terms as $term) {
+            $games[] = array(
+                'id' => $term->term_id,
+                'name' => $term->name,
+                'slug' => $term->slug,
+                'count' => $term->count,
+                'url' => home_url('/' . $term->slug . '/')
+            );
+        }
+        
+        wp_send_json_success($games);
     }
     
     /**

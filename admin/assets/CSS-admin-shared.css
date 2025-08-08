@@ -226,6 +226,13 @@
 .sisme-admin-grid-5 { grid-template-columns: repeat(5, 1fr); }
 .sisme-admin-grid-6 { grid-template-columns: repeat(6, 1fr); }
 
+.sisme-admin-grid-200 { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.sisme-admin-grid-250 { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+.sisme-admin-grid-300 { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.sisme-admin-grid-350 { grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); }
+.sisme-admin-grid-400 { grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); }
+.sisme-admin-grid-450 { grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); }
+
 @media (max-width: 768px) {
     .sisme-admin-grid-2,
     .sisme-admin-grid-3,
@@ -279,9 +286,19 @@
     gap: var(--sisme-admin-spacing-lg);
 }
 
-.sisme-admin-layout > * {
-    margin: 0; /* Reset des marges pour éviter les conflits */
-}
+.sisme-admin-layout > * {margin: 0;}
+
+.sisme-admin-width-full {width: 100%;}
+.sisme-admin-width-half {width: 50%;}
+.sisme-admin-width-third {width: 33.33%;}
+.sisme-admin-width-quarter {width: 25%;}
+
+.sisme-admin-height-full {height: 100%;}
+.sisme-admin-height-half {height: 50%;}
+.sisme-admin-height-third {height: 33.33%;}
+.sisme-admin-height-quarter {height: 25%;}
+
+.sisme-admin-grid-whitespace { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
 
 /* ========================================
    IMAGES STANDARDISÉES 
