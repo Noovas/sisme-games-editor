@@ -216,6 +216,8 @@ class Sisme_Admin_Page_Wrapper {
             'actions' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⚡</span>',
             'fast' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">⚡</span>',
 
+            'studio' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🏢</span>',
+            'studios' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🏢</span>',
 
             'test' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🧪</span>',
 

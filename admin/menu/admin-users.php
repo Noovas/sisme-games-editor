@@ -67,7 +67,7 @@ class Sisme_Admin_Users {
 
         Sisme_Admin_Page_Wrapper::render_menu_card(
             'Développeurs',
-            'developers',
+            'devs',
             'Gestion des développeurs du plugin',
             admin_url('admin.php?page=sisme-games-developers')
         );

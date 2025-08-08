@@ -1304,21 +1304,11 @@
     flex: 1 !important;
 }
 
-.sisme-admin-gap-2 {
-    gap: var(--sisme-admin-spacing-sm) !important;
-}
-
-.sisme-admin-gap-4 {
-    gap: var(--sisme-admin-spacing-md) !important;
-}
-
-.sisme-admin-gap-6 {
-    gap: var(--sisme-admin-spacing-lg) !important;
-}
-
-.sisme-mb-6 {
-    margin-bottom: var(--sisme-admin-spacing-xl) !important;
-}
+.sisme-admin-gap-1 { gap: var(--sisme-admin-spacing-xs) !important; }
+.sisme-admin-gap-2 { gap: var(--sisme-admin-spacing-sm) !important; }
+.sisme-admin-gap-4 { gap: var(--sisme-admin-spacing-md) !important; }
+.sisme-admin-gap-6 { gap: var(--sisme-admin-spacing-lg) !important; }
+.sisme-mb-6 { margin-bottom: var(--sisme-admin-spacing-xl) !important; }
 
 /* Statistiques avec couleurs de statut */
 .sisme-admin-stat-primary {

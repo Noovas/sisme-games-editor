@@ -20,15 +20,13 @@ class Sisme_Admin_Developers {
      * Initialisation de la page admin
      */
     public static function init() {
-        add_action('admin_menu', array(__CLASS__, 'add_admin_menu'));
+        add_action('admin_menu', array(__CLASS__, 'add_hidden_page'));
         add_action('wp_ajax_sisme_admin_get_submission_details', array(__CLASS__, 'ajax_get_submission_details'));
         add_action('admin_init', array(__CLASS__, 'handle_form_submissions'));
         add_action('admin_enqueue_scripts', array(__CLASS__, 'enqueue_assets'));
-        
-        // Initialiser le composant de création de développeurs/éditeurs
         self::load_developer_creator_component();
     }
-    
+
     /**
      * Charge le composant de gestion des développeurs/éditeurs
      */
@@ -39,19 +37,38 @@ class Sisme_Admin_Developers {
             Sisme_Admin_Developers_Creator::init();
         }
     }
-    
+
     /**
-     * Ajoute le sous-menu "Développeurs" dans le menu admin
+     * Ajoute le sous-menu Développeurs
      */
-    public static function add_admin_menu() {
+    public static function add_hidden_page() {
         add_submenu_page(
-            'sisme-games-tableau-de-bord',
+            null,
             'Développeurs',
-            '💻 Développeurs',
+            'Développeurs',
             'manage_options',
             'sisme-games-developers',
             array(__CLASS__, 'render')
         );
+    }
+
+    public static function render() {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+        $page = new Sisme_Admin_Page_Wrapper(
+            'Gestion des développeurs',
+            'Panneau de gestion des développeurs et de leurs soumissions de jeux',
+            'users',
+            admin_url('admin.php?page=sisme-games-users'),
+            'Retour aux outils'
+        );
+        $page->render_start();
+        ?><div class="sisme-admin-flex-col"><?php
+            self::render_stats();
+            self::render_developers();
+            self::render_studio();
+            self::render_js();
+        ?></div><?php
+        $page->render_end();
     }
 
     /**
@@ -228,28 +245,6 @@ class Sisme_Admin_Developers {
             Sisme_Admin_Developers_Creator::enqueue_assets($hook);
         }
     }
-
-    /**
-     * Render la page des développeurs
-     */
-    public static function render() {
-        ?>
-        <div class="sisme-admin-container">
-            <h2 class="sisme-admin-title">👥 Gestion des développeurs</h2>
-            <p class="sisme-admin-comment">Panneau de gestion des développeurs et de leurs soumissions de jeux</p>
-            <div class="sisme-admin-flex-col">
-                <?php
-                self::render_stats();
-                self::render_developers();
-                self::render_studio();
-                self::render_js();
-                ?>
-            </div>
-        </div>
-        <?php
-    }
-
-
 
     /**
      * Affiche la section de gestion des studios/éditeurs
@@ -491,124 +486,137 @@ class Sisme_Admin_Developers {
                                     <?php endif; ?>
                                 </td>
                             </tr>
-                            
-                            <!-- Ligne de détails cachée -->
+
                             <tr class="sisme-dev-details" id="details-<?php echo $index; ?>" style="display: none;">
                                 <td colspan="5" class="sisme-admin-dev-details-container">
-                                    <div class="sisme-admin-grid sisme-admin-grid-2 sisme-admin-gap-6">
-                                        
-                                        <!-- Colonne 1: Informations Studio -->
-                                        <div>
-                                            <h4 class="sisme-admin-details-title">
-                                                🏢 Informations Studio
-                                            </h4>
-                                            
-                                            <div class="sisme-admin-detail-item">
-                                                <strong class="sisme-admin-detail-label">Nom du studio:</strong><br>
-                                                <span><?php echo esc_html($dev_data['application']['studio_name'] ?? 'Non renseigné'); ?></span>
+                                    <div class="sisme-admin-card">
+                                        <div class="sisme-admin-grid sisme-admin-grid-2">
+
+                                            <!-- Colonne 1: Informations Studio -->
+                                            <div class="sisme-admin-flex-col sisme-admin-gap-1">
+                                                <h3 class="sisme-admin-card-header"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('studio');?> Informations Studio</h3>
+                                                <p>
+                                                    <span>
+                                                        <strong>Nom du studio :</strong>
+                                                        <span><?php echo esc_html($dev_data['application']['studio_name'] ?? 'Non renseigné'); ?></span>
+                                                    </span>
+                                                </p>
+
+                                                <p>
+                                                    <span>
+                                                        <strong>Description :</strong>
+                                                        <span><?php echo esc_html(wp_trim_words($dev_data['application']['studio_description'] ?? 'Non renseignée', 20)); ?></span>
+                                                    </span>
+                                                </p>
+                                                
+                                                <p>
+                                                    <span>
+                                                        <strong>Site web : </strong>
+                                                        <?php if (!empty($dev_data['application']['studio_website'])): ?>
+                                                            <a href="<?php echo esc_url($dev_data['application']['studio_website']); ?>" 
+                                                            target="_blank" class="sisme-admin-link">
+                                                                <?php echo esc_html($dev_data['application']['studio_website']); ?>
+                                                            </a>
+                                                        <?php else: ?>
+                                                            <span>Non renseigné</span>
+                                                        <?php endif; ?>
+                                                    </span>
+                                                </p>
+
+                                                <p>
+                                                    <strong>Liens sociaux :</strong>
+                                                    <?php if (!empty($dev_data['application']['studio_social_links'])): ?>
+                                                        <?php foreach ($dev_data['application']['studio_social_links'] as $platform => $url): ?>
+                                                            <?php if (!empty($url)): ?>
+                                                                <div class="">
+                                                                    <span><?php echo ucfirst($platform); ?> : <a href="<?php echo esc_url($url); ?>" target="_blank" class="sisme-admin-link"><?php echo esc_html($url); ?></a></span>
+                                                                </div>
+                                                            <?php endif; ?>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </p>
                                             </div>
-                                            
-                                            <div class="sisme-admin-detail-item">
-                                                <strong class="sisme-admin-detail-label">Description:</strong><br>
-                                                <span><?php echo esc_html(wp_trim_words($dev_data['application']['studio_description'] ?? 'Non renseignée', 20)); ?></span>
-                                            </div>
-                                            
-                                            <div class="sisme-admin-detail-item">
-                                                <strong class="sisme-admin-detail-label">Site web:</strong><br>
-                                                <?php if (!empty($dev_data['application']['studio_website'])): ?>
-                                                    <a href="<?php echo esc_url($dev_data['application']['studio_website']); ?>" 
-                                                    target="_blank" class="sisme-admin-link">
-                                                        <?php echo esc_html($dev_data['application']['studio_website']); ?>
-                                                    </a>
-                                                <?php else: ?>
-                                                    <span>Non renseigné</span>
+
+                                            <!-- Colonne 2: Informations Représentant -->
+                                            <div class="sisme-admin-flex-col sisme-admin-gap-1">
+                                                <h3 class="sisme-admin-card-header"><?php echo Sisme_Admin_Page_Wrapper::get_predefined_icon('user');?> Représentant Légal</h3>
+                                                
+                                                <p>
+                                                    <span>
+                                                        <strong>Nom complet :</strong>
+                                                        <span>
+                                                            <?php 
+                                                            $firstname = $dev_data['application']['representative_firstname'] ?? '';
+                                                            $lastname = $dev_data['application']['representative_lastname'] ?? '';
+                                                            echo esc_html(trim($firstname . ' ' . $lastname)) ?: 'Non renseigné';
+                                                            ?>
+                                                        </span>
+                                                    </span>
+                                                </p>
+
+                                                <p>
+                                                    <span>
+                                                        <strong>Email :</strong>
+                                                        <span><?php echo esc_html($dev_data['application']['representative_email'] ?? 'Non renseigné'); ?></span>
+                                                    </span>
+                                                </p>
+
+                                                <p>
+                                                    <span>
+                                                        <strong>Téléphone :</strong>
+                                                        <span><?php echo esc_html($dev_data['application']['representative_phone'] ?? 'Non renseigné'); ?></span>
+                                                    </span>
+                                                </p>
+
+                                                <p>
+                                                    <span>
+                                                        <strong>Date de naissance :</strong>
+                                                        <span>
+                                                            <?php 
+                                                            $birthdate = $dev_data['application']['representative_birthdate'] ?? '';
+                                                            if ($birthdate) {
+                                                                echo date('d/m/Y', strtotime($birthdate));
+                                                            } else {
+                                                                echo 'Non renseignée';
+                                                            }
+                                                            ?>
+                                                        </span>
+                                                    </span>
+                                                </p>
+
+                                                <p>
+                                                    <span>
+                                                        <strong>Adresse :</strong>
+                                                        <span><?php echo esc_html($dev_data['application']['representative_address'] ?? 'Non renseignée'); ?></span>
+                                                    </span>
+                                                </p>
+
+                                                <p>
+                                                    <span>
+                                                        <strong>Ville / Pays :</strong>
+                                                        <span>
+                                                            <?php 
+                                                            $city = $dev_data['application']['representative_city'] ?? '';
+                                                            $country = $dev_data['application']['representative_country'] ?? '';
+                                                            if ($city || $country) {
+                                                                echo esc_html(trim($city . ', ' . $country, ', '));
+                                                            } else {
+                                                                echo 'Non renseignés';
+                                                            }
+                                                            ?>
+                                                        </span>
+                                                    </span>
+                                                </p>
+
+                                                <?php if (!empty($dev_data['application']['admin_notes'])): ?>
+                                                    <p>
+                                                        <span>
+                                                            <strong>📝 Notes admin :</strong>
+                                                            <span><?php echo esc_html($dev_data['application']['admin_notes']); ?></span>
+                                                        </span>
+                                                    </p>
                                                 <?php endif; ?>
                                             </div>
-                                            
-                                            <?php if (!empty($dev_data['application']['studio_social_links'])): ?>
-                                                <div class="sisme-admin-detail-item">
-                                                    <strong class="sisme-admin-detail-label">Réseaux sociaux:</strong><br>
-                                                    <?php foreach ($dev_data['application']['studio_social_links'] as $platform => $url): ?>
-                                                        <?php if (!empty($url)): ?>
-                                                            <div class="sisme-admin-social-link">
-                                                                <strong><?php echo ucfirst($platform); ?>:</strong> 
-                                                                <a href="<?php echo esc_url($url); ?>" target="_blank" class="sisme-admin-link">
-                                                                    <?php echo esc_html($url); ?>
-                                                                </a>
-                                                            </div>
-                                                        <?php endif; ?>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        
-                                        <!-- Colonne 2: Informations Représentant -->
-                                        <div>
-                                            <h4 class="sisme-admin-details-title">
-                                                👤 Représentant Légal
-                                            </h4>
-                                            
-                                            <div class="sisme-admin-detail-item">
-                                                <strong class="sisme-admin-detail-label">Nom complet:</strong><br>
-                                                <span>
-                                                    <?php 
-                                                    $firstname = $dev_data['application']['representative_firstname'] ?? '';
-                                                    $lastname = $dev_data['application']['representative_lastname'] ?? '';
-                                                    echo esc_html(trim($firstname . ' ' . $lastname)) ?: 'Non renseigné';
-                                                    ?>
-                                                </span>
-                                            </div>
-                                            
-                                            <div class="sisme-admin-detail-item">
-                                                <strong class="sisme-admin-detail-label">Email:</strong><br>
-                                                <span><?php echo esc_html($dev_data['application']['representative_email'] ?? 'Non renseigné'); ?></span>
-                                            </div>
-                                            
-                                            <div class="sisme-admin-detail-item">
-                                                <strong class="sisme-admin-detail-label">Téléphone:</strong><br>
-                                                <span><?php echo esc_html($dev_data['application']['representative_phone'] ?? 'Non renseigné'); ?></span>
-                                            </div>
-                                            
-                                            <div class="sisme-admin-detail-item">
-                                                <strong class="sisme-admin-detail-label">Date de naissance:</strong><br>
-                                                <span>
-                                                    <?php 
-                                                    $birthdate = $dev_data['application']['representative_birthdate'] ?? '';
-                                                    if ($birthdate) {
-                                                        echo date('d/m/Y', strtotime($birthdate));
-                                                    } else {
-                                                        echo 'Non renseignée';
-                                                    }
-                                                    ?>
-                                                </span>
-                                            </div>
-                                            
-                                            <div class="sisme-admin-detail-item">
-                                                <strong class="sisme-admin-detail-label">Adresse:</strong><br>
-                                                <span><?php echo esc_html($dev_data['application']['representative_address'] ?? 'Non renseignée'); ?></span>
-                                            </div>
-                                            
-                                            <div class="sisme-admin-detail-item">
-                                                <strong class="sisme-admin-detail-label">Ville / Pays:</strong><br>
-                                                <span>
-                                                    <?php 
-                                                    $city = $dev_data['application']['representative_city'] ?? '';
-                                                    $country = $dev_data['application']['representative_country'] ?? '';
-                                                    if ($city || $country) {
-                                                        echo esc_html(trim($city . ', ' . $country, ', '));
-                                                    } else {
-                                                        echo 'Non renseignés';
-                                                    }
-                                                    ?>
-                                                </span>
-                                            </div>
-                                            
-                                            <?php if (!empty($dev_data['application']['admin_notes'])): ?>
-                                                <div class="sisme-admin-notes-box">
-                                                    <strong class="sisme-admin-notes-label">📝 Notes admin:</strong><br>
-                                                    <span class="sisme-admin-notes-text"><?php echo esc_html($dev_data['application']['admin_notes']); ?></span>
-                                                </div>
-                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </td>
