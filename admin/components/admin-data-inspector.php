@@ -24,37 +24,30 @@ class Sisme_Admin_Data_Inspector {
             'sisme-games-data-inspector',
             array(__CLASS__, 'render')
         );
-    }
+    }  
     
-    public static function add_admin_menu() {
-        add_submenu_page(
-            'sisme-games-tableau-de-bord',
-            'Inspecteur de données',
-            '🛢️ Inspecteur de données',
-            'manage_options',
-            'sisme-games-data-inspector',
-            array(__CLASS__, 'render')
+    public static function render() {
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+        $page = new Sisme_Admin_Page_Wrapper(
+            'Inspecteur de données des jeux',
+            'Examinez la structure des données des jeux pour le développement et le débogage',
+            'data',
+            admin_url('admin.php?page=sisme-games-outils'),
+            'Retour aux outils'
         );
-    }
-    
-    
-    
-    public static function render() {   
+        $page->render_start();
         $inspect_game_id = isset($_GET['inspect_game']) ? intval($_GET['inspect_game']) : 0;
         ?>
-        <div class="sisme-admin-container">
-            <h2 class="sisme-admin-title">🛢️ Inspecteur de données des jeux</h2>
-            <p class="sisme-admin-comment">Examinez la structure des données des jeux pour le développement et le débogage</p>
-            <div class="sisme-admin-flex-col">
-                <?php
-                self::render_game_selector($inspect_game_id);
-                if ($inspect_game_id > 0) { 
-                    self::render_game_data($inspect_game_id);
-                }
-                ?>
-            </div>
+        <div class="sisme-admin-flex-col">
+            <?php
+            self::render_game_selector($inspect_game_id);
+            if ($inspect_game_id > 0) { 
+                self::render_game_data($inspect_game_id);
+            }
+            ?>
         </div>
         <?php
+        $page->render_end();
     }
     
     private static function render_game_selector($selected_id) {
