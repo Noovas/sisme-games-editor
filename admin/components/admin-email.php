@@ -10,7 +10,10 @@ if (!defined('ABSPATH')) {
 
 class Sisme_Admin_Email {
 
+    private static $debug = false;
+
     public static function init() {
+        if (self::$debug) { error_log('[ADMIN EMAIL] init'); }
         add_action('admin_menu', array(__CLASS__, 'add_hidden_page'));
     }
 
@@ -18,6 +21,7 @@ class Sisme_Admin_Email {
      * Ajouter comme page cachée
      */
     public static function add_hidden_page() {
+        if (self::$debug) { error_log('[ADMIN EMAIL] add_hidden_page start'); }
         add_submenu_page(
             null,
             'Gestion Email',
@@ -26,21 +30,27 @@ class Sisme_Admin_Email {
             'sisme-games-email',
             array(__CLASS__, 'render')
         );
+        if (self::$debug) { error_log('[ADMIN EMAIL] add_hidden_page end'); }
     }
     
     public static function render() {
-        ?>
-        <div class="sisme-admin-container">
-            <h2 class="sisme-admin-title">📧 Gestion des Emails</h2>
-            <p class="sisme-admin-comment">Gestion des emails, voir et modifier les templates</p>
-            <div class="sisme-admin-flex-col">
-            </div>
-        </div>
-        <?php        
-    }
-}
+        if (self::$debug) { error_log('[ADMIN EMAIL] render start'); }
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
 
-// Initialiser seulement si on est en admin
-if (is_admin()) {
-    Sisme_Admin_Email::init();
+
+        $page = new Sisme_Admin_Page_Wrapper(
+            'Mail',
+            'Gestion complète des emails',
+            'email',
+            admin_url('admin.php?page=sisme-games-communication'),
+            'Retour au menu Communication',
+        );
+        
+        $page->render_start();
+
+        $page->render_end();
+        if (self::$debug) { error_log('[ADMIN EMAIL] render end'); }
+    }
+
+
 }

@@ -12,8 +12,6 @@
  * - Sisme_User_Notifications_Data_Manager
  */
 
-use PSpell\Config;
-
 if (!defined('ABSPATH')) {
     exit;
 }
