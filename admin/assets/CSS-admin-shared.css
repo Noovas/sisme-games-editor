@@ -117,6 +117,20 @@
 .sisme-admin-bg-purple { background-color: var(--sisme-admin-purple) !important; }
 .sisme-admin-bg-purple-light { background-color: var(--sisme-admin-purple-light) !important; }
 
+.sisme-admin-bg-fade-black-2xs { background-color: rgba(0, 0, 0, 0.01) !important; }
+.sisme-admin-bg-fade-black-xs { background-color: rgba(0, 0, 0, 0.03) !important; }
+.sisme-admin-bg-fade-black-sm { background-color: rgba(0, 0, 0, 0.05) !important; }
+.sisme-admin-bg-fade-black-md { background-color: rgba(0, 0, 0, 0.1) !important; }
+.sisme-admin-bg-fade-black-lg { background-color: rgba(0, 0, 0, 0.2) !important; }
+.sisme-admin-bg-fade-black-xl { background-color: rgba(0, 0, 0, 0.3) !important; }
+
+.sisme-admin-bg-fade-white-2xs { background-color: rgba(255, 255, 255, 0.01) !important; }
+.sisme-admin-bg-fade-white-xs { background-color: rgba(255, 255, 255, 0.03) !important; }
+.sisme-admin-bg-fade-white-sm { background-color: rgba(255, 255, 255, 0.05) !important; }
+.sisme-admin-bg-fade-white-md { background-color: rgba(255, 255, 255, 0.1) !important; }
+.sisme-admin-bg-fade-white-lg { background-color: rgba(255, 255, 255, 0.2) !important; }
+.sisme-admin-bg-fade-white-xl { background-color: rgba(255, 255, 255, 0.3) !important; }
+
 /* ========================================
    CLASSES UTILITAIRES - TEXTES
 ========================================= */
@@ -246,13 +260,6 @@
     gap: var(--sisme-admin-spacing-md);
 }
 
-.sisme-admin-flex-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--sisme-admin-spacing-sm);
-}
-
 .sisme-admin-flex-between {
     display: flex;
     align-items: center;
@@ -300,6 +307,21 @@
 
 .sisme-admin-grid-whitespace { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
 
+/* Alignements flex */ 
+
+
+/* ========================================
+   ALIGNEMENTS
+========================================= */
+/* Self */
+.sisme-admin-align-self-center { align-self: center; }
+
+/* Items */
+.sisme-admin-align-items-center { align-items: center; }
+.sisme-admin-align-items-baseline { align-items: baseline; }
+.sisme-admin-align-items-flex-start { align-items: flex-start; }
+.sisme-admin-align-items-flex-end { align-items: flex-end; }
+
 /* ========================================
    IMAGES STANDARDISÉES 
 ========================================= */
@@ -320,6 +342,14 @@
     transform: translateY(-1px);
 }
 
+/* AVATARS */
+.sisme-admin-image-avatar-xs { width: 12px; height: 12px; border-radius: 50%; border: solid 2px var(--sisme-admin-gray-200);}
+.sisme-admin-image-avatar-sm { width: 16px; height: 16px; border-radius: 50%; border: solid 2px var(--sisme-admin-gray-200);}
+.sisme-admin-image-avatar-md { width: 20px; height: 20px; border-radius: 50%; border: solid 2px var(--sisme-admin-gray-200);}
+.sisme-admin-image-avatar-lg { width: 24px; height: 24px; border-radius: 50%; border: solid 2px var(--sisme-admin-gray-200);}
+.sisme-admin-image-avatar-xl { width: 28px; height: 28px; border-radius: 50%; border: solid 2px var(--sisme-admin-gray-200);}
+.sisme-admin-image-avatar-2xl { width: 32px; height: 32px; border-radius: 50%; border: solid 2px var(--sisme-admin-gray-200);}
+.sisme-admin-image-avatar-3xl { width: 36px; height: 36px; border-radius: 50%; border: solid 2px var(--sisme-admin-gray-200);}
 
 /* ========================================
    CARTES STANDARDISÉES

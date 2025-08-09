@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/includes/module-admin-page-wrapper.php
+ * File: /sisme-games-editor/admin/assets/PHP-admin-page-wrapper.php
  * Module: Wrapper Page Admin - Sisme Games Editor
  * 
  * Ce module fournit une structure réutilisable pour créer des pages d'administration

@@ -203,7 +203,7 @@ jQuery(document).ready(function($) {
             html += '<h3 class="sisme-admin-card-header">📝 Sections détaillées</h3>';
             html += '<div class="sisme-admin-grid sisme-admin-grid-3">';
             data.sections.forEach((section, i) => {
-                html += '<div class="sisme-admin-card sisme-admin-flex-center sisme-admin-flex-col">';
+                html += '<div class="sisme-admin-card sisme-admin-align-items-center sisme-admin-flex-col">';
                 html += `<h3 class="sisme-admin-card-header">${escapeHtml(section.title)}</h3>`;
                 html += `<div class="sisme-admin-content">${escapeHtml(section.content)}</div>`;
                 if (section.image) {

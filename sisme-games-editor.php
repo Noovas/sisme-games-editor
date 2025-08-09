@@ -158,37 +158,43 @@ class SismeGamesEditor {
     private function include_files() {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/assets-loader.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php';
-        
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-submission-functions.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-games-actions.php';
-        
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-data-inspector.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-developers.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-vedettes.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-migration.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-notifications.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-email.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-all-games.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-users.php';
 
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-communication.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-outils.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-games.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-users.php';
+        if (is_admin()) {
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-submission-functions.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-games-actions.php';
+
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-data-inspector.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-developers.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-vedettes.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-migration.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-notifications.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-email.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-all-games.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-users.php';
+
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-communication.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-outils.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-games.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-users.php';
+
+            Sisme_Admin_Data_Inspector::init();
+            Sisme_Admin_Developers::init();
+            Sisme_Admin_Vedettes::init();
+            Sisme_Admin_Outils::init();
+            Sisme_Admin_Communication::init();
+            Sisme_Admin_Games::init();
+            Sisme_Admin_All_Games::init();
+            Sisme_Admin_Notifications::init();
+            Sisme_Admin_Email::init();
+            Sisme_Admin_Users::init();
+            Sisme_Admin_Games_Actions::init();
+            Sisme_Admin_Page_Users::init();
+        }
+
+        
         
         // Initialiser les classes admin
-        Sisme_Admin_Data_Inspector::init();
-        Sisme_Admin_Developers::init();
-        Sisme_Admin_Vedettes::init();
-        Sisme_Admin_Outils::init();
-        Sisme_Admin_Communication::init();
-        Sisme_Admin_Games::init();
-        Sisme_Admin_All_Games::init();
-        Sisme_Admin_Notifications::init();
-        Sisme_Admin_Email::init();
-        Sisme_Admin_Users::init();
-        Sisme_Admin_Games_Actions::init();
-        Sisme_Admin_Page_Users::init();
+        
     }
 
     public function add_admin_menu() {
@@ -222,7 +228,7 @@ class SismeGamesEditor {
      * Affiche la page principale du hub de jeux
      */
     public static function render() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-page-wrapper.php';
         
         $page = new Sisme_Admin_Page_Wrapper(
             'Tableau de Bord',

@@ -13,20 +13,20 @@ if (!defined('ABSPATH')) {
 
 class Sisme_Constants {
 
-    const SISME_ROOT_URL = 'https://games.sisme.fr/';  // ← Ajout point-virgule
+    const SISME_ROOT_URL = 'https://games.sisme.fr/preprod/';  
     
     // ===== AVATARS DISPONIBLES =====
-    const SISME_AVATARS_URL = self::SISME_ROOT_URL . 'images/avatar/';  // ← Utiliser self::
+    const SISME_AVATARS_URL = self::SISME_ROOT_URL . 'images/avatar/avatar-user-';
     const SISME_AVATARS_USER = [
-        'default' => 'https://games.sisme.fr/images/avatar/avatar-user-borne-arcade.png',
-        'borne-arcade' => 'https://games.sisme.fr/images/avatar/avatar-user-borne-arcade.png',
-        'cd-rom' => 'https://games.sisme.fr/images/avatar/avatar-user-cd-rom.png',
-        'clavier' => 'https://games.sisme.fr/images/avatar/avatar-user-clavier.png',
-        'flipper' => 'https://games.sisme.fr/images/avatar/avatar-user-flipper.png',
-        'gameboy' => 'https://games.sisme.fr/images/avatar/avatar-user-gameboy.png',
-        'joystick' => 'https://games.sisme.fr/images/avatar/avatar-user-joystick.png',
-        'manette' => 'https://games.sisme.fr/images/avatar/avatar-user-manette.png',
-        'tourne-disque' => 'https://games.sisme.fr/images/avatar/avatar-user-tourne-disque.png'
+        'default' => self::SISME_AVATARS_URL . 'borne-arcade.png',
+        'borne-arcade' => self::SISME_AVATARS_URL . 'borne-arcade.png',
+        'cd-rom' => self::SISME_AVATARS_URL . 'cd-rom.png',
+        'clavier' => self::SISME_AVATARS_URL . 'clavier.png',
+        'flipper' => self::SISME_AVATARS_URL . 'flipper.png',
+        'gameboy' => self::SISME_AVATARS_URL . 'gameboy.png',
+        'joystick' => self::SISME_AVATARS_URL . 'joystick.png',
+        'manette' => self::SISME_AVATARS_URL . 'manette.png',
+        'tourne-disque' => self::SISME_AVATARS_URL . 'tourne-disque.png'
     ];
 
     // ===== UPLOAD ET MÉDIAS =====

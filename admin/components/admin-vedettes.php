@@ -27,7 +27,7 @@ class Sisme_Admin_Vedettes {
     
     public static function render() {
         // Inclure les dépendances
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-page-wrapper.php';
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/vedettes/vedettes-loader.php';
 
         // Initialiser le système vedettes

@@ -37,7 +37,7 @@ class Sisme_Admin_Notifications {
     }
 
     public static function render() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-page-wrapper.php';
 
         $page = new Sisme_Admin_Page_Wrapper(
             'Notifications',

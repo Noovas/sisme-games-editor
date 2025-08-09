@@ -23,7 +23,7 @@ class Sisme_Admin_Communication {
         add_submenu_page(
             'sisme-games-tableau-de-bord',
             'Communication',
-            '└► 📢 Communication',
+            '└► 📢 La Com.',
             'manage_options',
             'sisme-games-communication',
             array(__CLASS__, 'render')
@@ -31,7 +31,7 @@ class Sisme_Admin_Communication {
     }
     
     public static function render() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-page-wrapper.php';
         
         $page = new Sisme_Admin_Page_Wrapper(
             'Communication',
@@ -67,9 +67,4 @@ class Sisme_Admin_Communication {
             admin_url('admin.php?page=sisme-games-notifications')
         );
     }
-}
-
-// Initialiser seulement si on est en admin
-if (is_admin()) {
-    Sisme_Admin_Communication::init();
 }

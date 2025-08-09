@@ -12,7 +12,7 @@
  * - Recherche et analyse de tous les jeux
  * 
  * DÉPENDANCES:
- * - module-admin-page-wrapper.php
+ * - PHP-admin-user-getter.php
  * - seo-game-detector.php
  * - CSS-admin-shared.css (système de style unifié)
  */
@@ -158,7 +158,7 @@ class Sisme_SEO_Admin {
 
     
     public static function render() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-page-wrapper.php';
 
         $page = new Sisme_Admin_Page_Wrapper(
             'SEO des Jeux',

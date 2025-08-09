@@ -66,7 +66,7 @@ class Sisme_Migration_Admin {
      * Page d'administration
      */
     public static function admin_page() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-page-wrapper.php';
         
         $page = new Sisme_Admin_Page_Wrapper(
             'Migration des données',

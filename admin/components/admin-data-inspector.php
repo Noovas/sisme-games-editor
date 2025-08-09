@@ -27,7 +27,7 @@ class Sisme_Admin_Data_Inspector {
     }  
     
     public static function render() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-page-wrapper.php';
         $page = new Sisme_Admin_Page_Wrapper(
             'Inspecteur de données des jeux',
             'Examinez la structure des données des jeux pour le développement et le débogage',
@@ -64,7 +64,7 @@ class Sisme_Admin_Data_Inspector {
                 <h2 class="sisme-admin-heading">🔍 Sélectionner un jeu à inspecter</h2>
             </div>
             
-            <form method="get" class="sisme-admin-flex sisme-admin-flex-center">
+            <form method="get" class="sisme-admin-flex sisme-admin-align-items-center">
                 <input type="hidden" name="page" value="sisme-games-data-inspector">
                 
                 <select name="inspect_game" class="sisme-admin-p-sm sisme-admin-border sisme-admin-rounded" style="min-width: 300px;">

@@ -182,7 +182,7 @@ Le système repose sur des **variables CSS centralisées** dans `:root` :
 #### Flexbox
 ```css
 .sisme-admin-flex         /* Flex avec gap horizontal */
-.sisme-admin-flex-center  /* Centré verticalement et horizontalement */
+.sisme-admin-align-items-center  /* Centré verticalement et horizontalement */
 .sisme-admin-flex-between /* Space-between avec alignement vertical */
 
 /* Direction verticale pour espacement vertical */

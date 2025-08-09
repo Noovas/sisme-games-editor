@@ -53,7 +53,7 @@ class Sisme_Admin_Developers {
     }
 
     public static function render() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-page-wrapper.php';
         $page = new Sisme_Admin_Page_Wrapper(
             'Gestion des développeurs',
             'Panneau de gestion des développeurs et de leurs soumissions de jeux',

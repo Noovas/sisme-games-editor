@@ -12,7 +12,7 @@
  * DÉPENDANCES:
  * - WordPress Category API
  * - WordPress Meta API
- * - module-admin-page-wrapper.php
+ * - PHP-admin-user-getter.php
  */
 
 if (!defined('ABSPATH')) {
