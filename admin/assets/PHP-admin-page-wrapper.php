@@ -31,7 +31,6 @@ class Sisme_Admin_Page_Wrapper {
     private $title;
     private $subtitle;
     private $icon;
-    private $is_html_icon;
     private $back_url;
     private $back_text;
     private $is_menu;
