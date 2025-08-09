@@ -185,6 +185,8 @@ class Sisme_Admin_Page_Wrapper {
             'all-articles' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📋</span>',
             'article' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📋</span>',
             'articles' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📋</span>',
+            'details' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📋</span>',
+            'detail' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">📋</span>',
 
             'actualiser' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔄</span>',
             'revision' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔄</span>',

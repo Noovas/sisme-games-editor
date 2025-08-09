@@ -32,9 +32,9 @@ class Sisme_Admin_Users {
         require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/module-admin-page-wrapper.php';
         
         $page = new Sisme_Admin_Page_Wrapper(
-            'Outils',
+            'Utilisateurs',
             'Centre d\'outils et utilitaires pour la gestion des utilisateurs',
-            'settings',
+            'users',
             admin_url('admin.php?page=sisme-games-tableau-de-bord'),
             'Retour au tableau de bord',
             true,
@@ -55,7 +55,7 @@ class Sisme_Admin_Users {
             'Utilisateurs',
             'users',
             'Gestion des utilisateurs',
-            admin_url('admin.php?page=sisme-games-users')
+            admin_url('admin.php?page=sisme-games-users-page')
         );
 
         Sisme_Admin_Page_Wrapper::render_menu_card(

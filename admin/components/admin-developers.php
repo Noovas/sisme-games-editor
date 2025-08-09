@@ -57,9 +57,9 @@ class Sisme_Admin_Developers {
         $page = new Sisme_Admin_Page_Wrapper(
             'Gestion des développeurs',
             'Panneau de gestion des développeurs et de leurs soumissions de jeux',
-            'users',
+            'dev',
             admin_url('admin.php?page=sisme-games-users'),
-            'Retour aux outils'
+            'Retour au menu utilisateurs'
         );
         $page->render_start();
         ?><div class="sisme-admin-flex-col"><?php
