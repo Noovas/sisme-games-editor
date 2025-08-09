@@ -18,7 +18,7 @@ class Sisme_Admin_Outils {
         add_submenu_page(
             'sisme-games-tableau-de-bord',
             'Outils',
-            '🛠️ Outils',
+            '└► 🛠️ Outils',
             'manage_options',
             'sisme-games-outils',
             array(__CLASS__, 'render')
@@ -38,8 +38,8 @@ class Sisme_Admin_Outils {
             admin_url('admin.php?page=sisme-games-tableau-de-bord'),
             'Retour au tableau de bord',
             true,
-            'outils',
-            'Outils Techniques',
+            'folder',
+            '',
         );
 
         $page->render_start();

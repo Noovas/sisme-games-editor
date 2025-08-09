@@ -222,7 +222,11 @@ class Sisme_Admin_Page_Wrapper {
             'test' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🧪</span>',
 
             'private' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🔒</span>',
-            
+
+            'folder' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🗂️</span>',
+            'tab' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🗂️</span>',
+            'onglet' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🗂️</span>',
+
             // Icônes d'action
             'create' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">➕</span>',
             'edit' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">✏️</span>',

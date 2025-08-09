@@ -11,9 +11,7 @@ Documentation technique pour le module gestionnaire de développeurs/éditeurs.
 includes/dev-editor-manager/
 ├── dev-editor-manager-loader.php      # Chargement automatique
 ├── dev-editor-manager.php             # API CRUD principal
-├── dev-editor-manager-admin.php       # Interface admin
 └── assets/
-    ├── dev-editor-manager.css          # Styles gaming dark
     └── dev-editor-manager.js           # Interactions modal/recherche
 ```
 

@@ -23,7 +23,7 @@ class Sisme_Admin_Games {
         add_submenu_page(
             'sisme-games-tableau-de-bord',
             'Jeux',
-            '🎮 Jeux',
+            '└► 🎮 Jeux',
             'manage_options',
             'sisme-games-jeux',
             array(__CLASS__, 'render')
@@ -43,8 +43,8 @@ class Sisme_Admin_Games {
             admin_url('admin.php?page=sisme-games-tableau-de-bord'),
             'Retour au tableau de bord',
             true,
-            'outils',
-            'Outils de jeux',
+            'folder',
+            '',
         );
 
         $page->render_start();

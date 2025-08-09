@@ -23,7 +23,7 @@ class Sisme_Admin_Communication {
         add_submenu_page(
             'sisme-games-tableau-de-bord',
             'Communication',
-            '📢 Communication',
+            '└► 📢 Communication',
             'manage_options',
             'sisme-games-communication',
             array(__CLASS__, 'render')
@@ -40,8 +40,8 @@ class Sisme_Admin_Communication {
             admin_url('admin.php?page=sisme-games-tableau-de-bord'),
             'Retour au tableau de bord',
             true,
-            'outils',
-            'Outils de communication',
+            'folder',
+            '',
         );
 
         $page->render_start();

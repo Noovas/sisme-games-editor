@@ -18,7 +18,7 @@ class Sisme_Admin_Users {
         add_submenu_page(
             'sisme-games-tableau-de-bord',
             'Utilisateurs',
-            '👥 Utilisateurs',
+            '└► 👥 Utilisateurs',
             'manage_options',
             'sisme-games-users',
             array(__CLASS__, 'render')
@@ -33,13 +33,13 @@ class Sisme_Admin_Users {
         
         $page = new Sisme_Admin_Page_Wrapper(
             'Outils',
-            'Centre d\'outils et utilitaires pour la gestion du plugin',
+            'Centre d\'outils et utilitaires pour la gestion des utilisateurs',
             'settings',
             admin_url('admin.php?page=sisme-games-tableau-de-bord'),
             'Retour au tableau de bord',
             true,
-            'outils',
-            'Outils Techniques',
+            'folder',
+            '',
         );
 
         $page->render_start();
@@ -54,21 +54,21 @@ class Sisme_Admin_Users {
         Sisme_Admin_Page_Wrapper::render_menu_card(
             'Utilisateurs',
             'users',
-            'Gestion des utilisateurs du plugin',
+            'Gestion des utilisateurs',
             admin_url('admin.php?page=sisme-games-users')
         );
 
         Sisme_Admin_Page_Wrapper::render_menu_card(
             'Utilisateurs Premium',
             'premium',
-            'Gestion des utilisateurs premium du plugin',
+            'Gestion des utilisateurs premium',
             admin_url('admin.php?page=sisme-games-users-premium')
         );
 
         Sisme_Admin_Page_Wrapper::render_menu_card(
             'Développeurs',
             'devs',
-            'Gestion des développeurs du plugin',
+            'Gestion des développeurs',
             admin_url('admin.php?page=sisme-games-developers')
         );
 
