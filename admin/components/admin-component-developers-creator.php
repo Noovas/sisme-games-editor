@@ -1,10 +1,10 @@
 <?php
 /**
- * File: /sisme-games-editor/admin/components/admin-developers-creator.php
+ * File: /sisme-games-editor/admin/components/admin-component-developers-creator.php
  * Composant admin pour la gestion des développeurs/éditeurs
  * 
  * RESPONSABILITÉ:
- * - Composant intégré dans admin-developers.php
+ * - Composant intégré dans admin-page-developers.php
  * - Formulaires d'ajout/modification de studios/éditeurs
  * - Traitement des actions CRUD via AJAX
  * - Interface de gestion des entités développeur/éditeur

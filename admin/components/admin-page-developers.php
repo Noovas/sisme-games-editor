@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/admin/components/admin-developers.php
+ * File: /sisme-games-editor/admin/components/admin-page-developers.php
  * Classe pour gérer la page admin des développeurs
  * 
  * FONCTIONNALITÉS:
@@ -31,7 +31,7 @@ class Sisme_Admin_Developers {
      * Charge le composant de gestion des développeurs/éditeurs
      */
     private static function load_developer_creator_component() {
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-developers-creator.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-component-developers-creator.php';
         
         if (class_exists('Sisme_Admin_Developers_Creator')) {
             Sisme_Admin_Developers_Creator::init();

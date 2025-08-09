@@ -151,6 +151,17 @@ class Sisme_Admin_Page_Wrapper {
             'utilisateur' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">👥</span>',
             'utilisateurs' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">👥</span>',
 
+            'roles' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🎭</span>',
+            'role' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🎭</span>',
+
+            'guide' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🕵️</span>',
+            'guides' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🕵️</span>',
+
+            'test' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🧪</span>',
+            'tests' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🧪</span>',
+            'testeur' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🧪</span>',
+            'testeurs' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">🧪</span>',
+
             'developpeurs' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💻</span>',
             'developpeur' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💻</span>',
             'dev' => '<span style="margin-right: ' . $margin . '; font-size: ' . $font_size . ';">💻</span>',

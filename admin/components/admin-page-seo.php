@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/admin/components/admin-seo.php
+ * File: /sisme-games-editor/admin/components/admin-page-seo.php
  * Page d'administration SEO - Interface admin unifiée
  * 
  * RESPONSABILITÉ:

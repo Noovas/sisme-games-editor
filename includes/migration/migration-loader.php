@@ -28,7 +28,7 @@ class Sisme_Migration_Loader {
         $migration_dir = SISME_GAMES_EDITOR_PLUGIN_DIR . 'includes/migration/';
         
         require_once $migration_dir . 'game-data-migration.php';
-        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-migration.php';
+        require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-migration.php';
     }
     
     private function init_admin() {

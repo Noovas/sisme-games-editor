@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/admin/components/admin-email.php
+ * File: /sisme-games-editor/admin/components/admin-page-email.php
  * Page admin pour la gestion des emails
  */
 

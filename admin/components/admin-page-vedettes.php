@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/admin/components/admin-vedettes.php
+ * File: /sisme-games-editor/admin/components/admin-page-vedettes.php
  * Page de gestion des jeux vedettes - Interface de gestion complète
  */
 

@@ -183,7 +183,7 @@ class Sisme_SEO_Loader {
             return;
         }
         
-        $admin_file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-seo.php';
+        $admin_file = SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-seo.php';
         if (file_exists($admin_file)) {
             require_once $admin_file;
             Sisme_SEO_Admin::init();

@@ -1,6 +1,6 @@
 <?php
 /**
- * File: /sisme-games-editor/admin/components/admin-all-games.php
+ * File: /sisme-games-editor/admin/components/admin-page-all-games.php
  * Classe pour gérer le sous-menu Tous les jeux et ses pages
  * 
  * RESPONSABILITÉ:
@@ -8,7 +8,7 @@
  * - Utilise les fonctions métier de PHP-admin-submission-functions.php
  * 
  * ARCHITECTURE:
- * - admin-all-games.php → Interface & Affichage
+ * - admin-page-all-games.php → Interface & Affichage
  * - PHP-admin-submission-functions.php → Logique métier & Data
  */
 

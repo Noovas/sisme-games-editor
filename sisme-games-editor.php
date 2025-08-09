@@ -163,14 +163,16 @@ class SismeGamesEditor {
             require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-submission-functions.php';
             require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/assets/PHP-admin-games-actions.php';
 
-            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-data-inspector.php';
-            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-developers.php';
-            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-vedettes.php';
-            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-migration.php';
-            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-notifications.php';
-            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-email.php';
-            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-all-games.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-data-inspector.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-developers.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-vedettes.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-migration.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-notifications.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-email.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-all-games.php';
             require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-users.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-users-stats.php';
+            require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/components/admin-page-users-premium.php';
 
             require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-communication.php';
             require_once SISME_GAMES_EDITOR_PLUGIN_DIR . 'admin/menu/admin-outils.php';
